@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Plus, Compass, Sparkles, Calendar, ChevronRight, ArrowRight } from "lucide-react";
+import { MapPin, Plus, Compass, Sparkles, Calendar, ChevronRight, ArrowRight } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import { getCityImageUrl } from "@/lib/city-images";
 import { SUPPORTED_CITIES } from "@/lib/supported-cities";
@@ -62,9 +62,9 @@ function TripCard({ itinerary }: { itinerary: RecentItinerary }) {
             href={`/itineraries/${itinerary.id}`}
             className={cn(
                 "block rounded-2xl overflow-hidden group",
-                "border border-white/10 bg-white/[0.055] backdrop-blur-xl",
+                " bg-white/[0.055] backdrop-blur-xl",
                 "hover:shadow-xl hover:shadow-violet-500/10",
-                "hover:border-violet-400/50",
+                "",
                 "transition-all duration-300",
                 "active:scale-[0.98]"
             )}
@@ -144,7 +144,7 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
     return (
         <div className="w-full space-y-4 px-3 py-3 sm:px-4">
             {/* Welcome Section with premium styling */}
-            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.055] px-4 py-4 shadow-2xl shadow-violet-950/20 backdrop-blur-xl">
+            <div className="relative overflow-hidden rounded-2xl bg-white/[0.055] px-4 py-4 shadow-2xl shadow-violet-950/20 backdrop-blur-xl">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(139,92,246,0.28),transparent_42%)]" />
                 <div className="relative flex items-center gap-3">
                     <div className="relative flex-shrink-0">
@@ -252,8 +252,8 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                             href={`/itineraries/new?city=${encodeURIComponent(city.name)}`}
                             className={cn(
                                 "group relative min-h-[96px] overflow-hidden rounded-xl p-3",
-                                "border border-white/10 bg-white/[0.055] backdrop-blur-xl",
-                                "hover:border-violet-400/50",
+                                " bg-white/[0.055] backdrop-blur-xl",
+                                "",
                                 "hover:shadow-lg hover:shadow-violet-500/10",
                                 "transition-all duration-300",
                                 "active:scale-[0.97]"
@@ -279,7 +279,7 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                 </div>
                 <Link
                     href="/spots"
-                    className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.055] text-sm font-semibold text-violet-100 transition hover:border-violet-300/35 hover:bg-violet-400/10"
+                    className="mt-3 flex min-h-11 items-center justify-center rounded-xl bg-white/[0.055] text-sm font-semibold text-violet-100 transition hover:bg-violet-400/10"
                 >
                     Browse all cities
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -293,8 +293,8 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                     className={cn(
                         "rounded-2xl p-3 group",
                         "bg-white/[0.055] backdrop-blur-xl",
-                        "border border-emerald-400/20",
-                        "hover:border-emerald-500/40",
+                        " ",
+                        "",
                         "hover:shadow-lg hover:shadow-emerald-500/10",
                         "transition-all duration-300",
                         "active:scale-[0.97]"
@@ -319,8 +319,8 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                     className={cn(
                         "rounded-2xl p-3 group",
                         "bg-white/[0.055] backdrop-blur-xl",
-                        "border border-amber-500/20",
-                        "hover:border-amber-500/40",
+                        " ",
+                        "",
                         "hover:shadow-lg hover:shadow-amber-500/10",
                         "transition-all duration-300",
                         "active:scale-[0.97]"

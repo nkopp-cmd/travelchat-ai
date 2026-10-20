@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Plus, Sparkles, X, Map, LayoutTemplate } from "lucide-react";
+import { Loader2, Send, Plus, Sparkles, X, Map, LayoutTemplate } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
@@ -218,7 +218,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
 
       {/* Active Itinerary Context Banner */}
       {activeItinerary && (
-        <Card className="mb-4 border-violet-200/50 bg-gradient-to-r from-violet-500/10 to-indigo-500/10 flex-shrink-0">
+        <Card className="mb-4 bg-gradient-to-r from-violet-500/10 to-indigo-500/10 flex-shrink-0">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-start gap-3 flex-1">
@@ -250,7 +250,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
 
       {/* Linked Itinerary Badge */}
       {linkedItineraryId && !activeItinerary && (
-        <Card className="mb-2 border-violet-200/50 bg-violet-500/5 flex-shrink-0">
+        <Card className="mb-2 bg-violet-500/5 flex-shrink-0">
           <CardContent className="p-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Map className="h-4 w-4 text-violet-600" />
@@ -269,7 +269,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
 
       {/* Itinerary Suggestion Banner */}
       {showItineraryPrompt && !activeItinerary && (
-        <Card className="mb-4 border-violet-200/50 bg-gradient-to-r from-violet-500/10 to-indigo-500/10 flex-shrink-0 animate-in slide-in-from-top">
+        <Card className="mb-4 bg-gradient-to-r from-violet-500/10 to-indigo-500/10 flex-shrink-0 animate-in slide-in-from-top">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-start gap-3 flex-1">
@@ -316,12 +316,12 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
       </div>
 
       {/* Messages container - Native overflow for proper flex constraints (replaces Radix ScrollArea) */}
-      <div ref={messagesRef} className="flex-1 min-h-0 overflow-y-auto p-4 rounded-2xl border border-black/5 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-md shadow-sm mb-3">
+      <div ref={messagesRef} className="flex-1 min-h-0 overflow-y-auto p-4 rounded-2xl bg-white/50 dark:bg-white/5 backdrop-blur-md shadow-sm mb-3">
         <div className="space-y-6">
           {isLoadingHistory && (
             <div className="flex items-center justify-center py-8">
               <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                <span className="h-4 w-4 border-2 border-violet-500/30 border-t-violet-500 rounded-full animate-spin" />
+                <Loader2 className="size-4 animate-spin" aria-hidden="true" />
                 Loading conversation...
               </div>
             </div>
@@ -356,7 +356,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
                       "rounded-2xl px-5 py-4 shadow-sm",
                       message.role === "user"
                         ? "bg-violet-500 text-white max-w-[75%]"
-                        : "bg-muted/50 text-foreground border border-border/40 max-w-[85%]"
+                        : "bg-muted/50 text-foreground max-w-[85%]"
                     )}
                   >
                     <FormattedMessage content={message.content} role={message.role} conversationId={currentConversationId || undefined} />
@@ -433,7 +433,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
           rows={1}
           aria-describedby={chatError ? "chat-error" : isLoading ? "chat-loading" : undefined}
           aria-invalid={!!chatError}
-          className="flex-1 rounded-2xl border-black/5 dark:border-white/10 bg-white/70 dark:bg-white/5 backdrop-blur-md focus-visible:ring-violet-500 min-h-[40px] max-h-[120px] resize-none py-2.5"
+          className="flex-1 rounded-2xl bg-white/70 dark:bg-white/5 backdrop-blur-md focus-visible:ring-violet-500 min-h-[40px] max-h-[120px] resize-none py-2.5"
         />
         {isLoading && (
           <span id="chat-loading" className="sr-only">

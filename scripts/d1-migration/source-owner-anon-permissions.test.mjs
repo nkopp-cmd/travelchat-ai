@@ -14,9 +14,16 @@ test('operation has locks, drift checks, row preservation, effective privilege c
 });
 test('all public projection lists are explicit and match the actual app spot query',async()=>{
  const s=await readFile(new URL('../../lib/spots/queries.ts',import.meta.url),'utf8');
- const projection=/export const PUBLIC_SPOT_SELECT = "([^"]+)"/.exec(s)?.[1];
+ const p=await readFile(new URL('../../lib/spots/projection.ts',import.meta.url),'utf8');
+ const projection=/export const PUBLIC_SPOT_SELECT = "([^"]+)"/.exec(p)?.[1];
  assert.deepEqual(projection?.split(','),publicColumns.spots);
- assert.equal((s.match(/from\("spots"\)\.select\(PUBLIC_SPOT_SELECT\)/g)??[]).length,2);
+ assert.equal((s.match(/from\("spots"\)\.select\(PUBLIC_SPOT_SELECT\)/g)??[]).length,1);
+ assert.equal((s.match(/from\("spots"\)\.select\(PUBLIC_SPOT_CARD_SELECT\)/g)??[]).length,1);
+ assert(s.includes('import { PUBLIC_SPOT_SELECT, PUBLIC_SPOT_CARD_SELECT } from "./projection"'));
+ const joins=/export const PUBLIC_SPOT_CARD_SELECT = `\$\{PUBLIC_SPOT_SELECT\}([^`]+)` as const;/.exec(p)?.[1];
+ assert.equal(joins,',destination:geo_destinations!spots_destination_id_fk(name,slug),localArea:geo_local_areas!spots_local_area_destination_fk(name)');
+ for(const column of ['name','slug'])assert(publicColumns.geo_destinations.includes(column));
+ assert(publicColumns.geo_local_areas.includes('name'));
  assert(!s.includes('from("spots").select("*")'));
  assert.equal(publicCatalogs.length,9);
 });

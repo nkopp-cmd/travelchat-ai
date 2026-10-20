@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Settings, Loader2 } from "lucide-react";
+import { Settings, Loader2 } from "@/components/ui/icons";
 import { useToast } from "@/hooks/use-toast";
 
 interface EditProfileDialogProps {

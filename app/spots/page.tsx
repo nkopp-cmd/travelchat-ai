@@ -4,7 +4,7 @@ import { SpotsExplorer } from "@/components/spots/spots-explorer";
 import { SpotCardSkeleton } from "@/components/ui/skeleton";
 import { CityQuickFilters } from "@/components/spots/city-quick-filters";
 import { WeeklyTrendingSpots } from "@/components/spots/weekly-trending-spots";
-import { Images, MapPin, Plus } from "lucide-react";
+import { Images, MapPin, Plus } from "@/components/ui/icons";
 import { AppBackground } from "@/components/layout/app-background";
 import { GradientText } from "@/components/ui/gradient-text";
 import { CityImageAvatar } from "@/components/ui/city-image";
@@ -40,7 +40,7 @@ function SpotsLoading() {
     return (
         <div className="space-y-6">
             {/* Filter bar skeleton */}
-            <div className="rounded-lg border border-violet-200/15 bg-[#100b1c]/86 p-4 shadow-lg shadow-violet-950/20 backdrop-blur-xl">
+            <div className="rounded-lg bg-[#100b1c]/86 p-4 shadow-lg shadow-violet-950/20 backdrop-blur-xl">
                 <div className="h-11 animate-pulse rounded-lg bg-white/10 mb-4" />
                 <div className="flex gap-2">
                     {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -92,7 +92,7 @@ async function SpotsContent({
 
     return (
         <>
-            <WeeklyTrendingSpots items={weeklyTrending} />
+            <WeeklyTrendingSpots items={weeklyTrending} citySlug={filters.city} />
             <SpotsExplorer
                 initialSpots={spotsData.spots}
                 totalCount={spotsData.total}
@@ -127,13 +127,13 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
             <div className="container mx-auto px-4 pb-24 pt-6 md:pb-10 md:pt-8">
                 {/* Header */}
                 <div className="mb-6 space-y-4 md:mb-8">
-                    <div className="relative overflow-hidden rounded-lg border border-violet-200/15 bg-[#100b1c]/82 p-5 shadow-xl shadow-violet-950/20 backdrop-blur-xl md:p-7">
+                    <div className="relative overflow-hidden rounded-lg bg-[#100b1c]/82 p-5 shadow-xl shadow-violet-950/20 backdrop-blur-xl md:p-7">
                         <div className="absolute right-3 top-3 hidden -space-x-3 sm:flex">
                             {["Seoul", "Tokyo", "Bangkok", "Singapore"].map((city) => (
                                 <CityImageAvatar
                                     key={city}
                                     city={city}
-                                    className="h-14 w-14 rounded-lg ring-2 ring-[#100b1c]"
+                                    className="h-14 w-14 rounded-lg "
                                     imageClassName="saturate-110"
                                     imageWidth={240}
                                     quality={90}
@@ -142,7 +142,7 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
                             ))}
                         </div>
                         <div className="relative max-w-2xl">
-                            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-violet-200/15 bg-violet-400/10 px-3 py-1 text-sm font-medium text-violet-100">
+                            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-violet-400/10 px-3 py-1 text-sm font-medium text-violet-100">
                                 <MapPin className="h-4 w-4" />
                                 Asia-First Discovery
                             </div>
@@ -154,6 +154,7 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
                             <p className="text-sm leading-6 text-violet-50/65 md:text-base">
                                 Browse local-first restaurants, alleys, markets, cafes, and night spots across Asia. Pick a city, filter by vibe, then save the places worth building a trip around.
                             </p>
+                            <Button asChild className="mt-4"><Link href="/itineraries/new">Start with a city</Link></Button>
                             {socialSpotSubmissionsEnabled && (
                                 <div className="mt-4 flex flex-wrap gap-2">
                                     <Button
@@ -168,7 +169,7 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
                                     <Button
                                         asChild
                                         variant="outline"
-                                        className="h-10 rounded-lg border-violet-200/20 bg-white/[0.055] text-violet-50 hover:bg-violet-400/10 hover:text-white"
+                                        className="h-10 rounded-lg bg-white/[0.055] text-violet-50 hover:bg-violet-400/10 hover:text-white"
                                     >
                                         <Link href="/spots/submissions">
                                             <Images className="h-4 w-4" />

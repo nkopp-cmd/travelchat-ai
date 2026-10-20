@@ -65,7 +65,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
         price: 0,
         yearlyPrice: 0,
         limits: {
-            itinerariesPerMonth: 3,
+            itinerariesPerMonth: 1,
             chatMessagesPerDay: 10,
             storiesPerWeek: 1,
             aiImagesPerMonth: 0,

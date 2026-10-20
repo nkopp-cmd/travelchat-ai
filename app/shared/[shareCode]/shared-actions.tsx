@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Download, Copy, Check } from "lucide-react";
+import { Download, Copy, Check } from "@/components/ui/icons";
 import { LikeButton } from "@/components/itineraries/like-button";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";

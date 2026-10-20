@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Plus } from "lucide-react";
+import { Plus } from "@/components/ui/icons";
 import Link from "next/link";
 import { createSupabaseAdmin } from "@/lib/supabase";
 
@@ -79,9 +79,9 @@ export async function Stories() {
             <div className="flex w-max space-x-4 px-4">
                 {stories.map((story) => (
                     <Link key={story.id} href={story.isAdd ? "/itineraries/new" : `/itineraries/${story.id}`} className="flex flex-col items-center gap-2 group">
-                        <div className={`relative p-[3px] rounded-full ${story.isAdd ? "border-2 border-dashed border-muted-foreground/50" : "bg-gradient-to-tr from-yellow-400 via-orange-500 to-purple-600"}`}>
+                        <div className={`relative p-[3px] rounded-full ${story.isAdd ? " " : "bg-gradient-to-tr from-yellow-400 via-orange-500 to-purple-600"}`}>
                             <div className="p-[2px] bg-background rounded-full">
-                                <Avatar className="h-16 w-16 border-2 border-background">
+                                <Avatar className="h-16 w-16 ">
                                     {story.isAdd ? (
                                         <AvatarFallback className="bg-accent/50 group-hover:bg-accent transition-colors">
                                             <Plus className="h-6 w-6 text-muted-foreground" />

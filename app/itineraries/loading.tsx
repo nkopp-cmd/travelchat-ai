@@ -10,7 +10,7 @@ export default function ItinerariesLoading() {
             {/* Itinerary Cards Skeleton */}
             <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
-                    <div key={i} className="border rounded-2xl p-6 space-y-4">
+                    <div key={i} className=" rounded-2xl p-6 space-y-4">
                         <div className="flex justify-between items-start">
                             <div className="space-y-2 flex-1">
                                 <div className="h-6 bg-muted rounded w-1/2"></div>

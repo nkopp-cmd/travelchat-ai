@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Share2, Download, Edit2, X, MoreVertical } from "lucide-react";
+import { Share2, Download, Edit2, X, MoreVertical } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 
 interface FloatingActionsProps {
@@ -50,7 +50,7 @@ export function FloatingActions({
             }}
             className={cn(
               "h-10 px-4 rounded-full",
-              "bg-white/10 backdrop-blur-xl border border-white/20",
+              "bg-white/10 backdrop-blur-xl ",
               "text-white hover:bg-white/20",
               "shadow-lg shadow-black/20",
               "animate-in fade-in slide-in-from-bottom-2",

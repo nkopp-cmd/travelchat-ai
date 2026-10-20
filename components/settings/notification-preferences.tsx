@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Bell, BellOff, Loader2, Smartphone, Mail, Trophy, Star, Users, Target, Calendar } from "lucide-react";
+import { Bell, BellOff, Loader2, Smartphone, Mail, Trophy, Star, Users, Target, Calendar } from "@/components/ui/icons";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -100,7 +100,7 @@ export function NotificationPreferencesSection() {
     }
 
     if (!preferences) {
-        return <div role="status" className="rounded-lg border p-4 text-sm text-muted-foreground">
+        return <div role="status" className="rounded-lg p-4 text-sm text-muted-foreground">
             {preferencesError || "Notification settings are currently unavailable."}
             <p className="mt-2">No changes were saved. Please try again later.</p>
         </div>;
@@ -108,10 +108,10 @@ export function NotificationPreferencesSection() {
 
     return (
         <div className="space-y-6">
-            {isPreviewCandidate && <div role="status" className="rounded-lg border p-4 text-sm text-muted-foreground">
+            {isPreviewCandidate && <div role="status" className="rounded-lg p-4 text-sm text-muted-foreground">
                 Your choices are saved. Notifications are not sent from this preview.
             </div>}
-            {!isPreviewCandidate && !deliveryEnabled && <div role="status" className="rounded-lg border p-4 text-sm text-muted-foreground">
+            {!isPreviewCandidate && !deliveryEnabled && <div role="status" className="rounded-lg p-4 text-sm text-muted-foreground">
                 Email and push delivery are not enabled yet.
             </div>}
             {!isWritable && <p role="status" className="text-sm text-muted-foreground">
@@ -119,7 +119,7 @@ export function NotificationPreferencesSection() {
             </p>}
             {!isPreviewCandidate && deliveryEnabled && <>
             {/* Push Notification Toggle */}
-            <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/50">
+            <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
                 <div className="flex items-center gap-3">
                     <div className="p-2 rounded-full bg-violet-100 dark:bg-violet-900/30">
                         {isSubscribed ? (

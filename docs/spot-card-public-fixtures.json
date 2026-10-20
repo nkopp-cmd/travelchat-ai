@@ -1,0 +1,63 @@
+{
+  "at": "2026-10-18T20:16:58.340Z",
+  "scope": "Three read-only public catalog text records; photos deliberately absent. Not authentication, data-write or final route acceptance.",
+  "rows": [
+    {
+      "id": "0041a575-c6fd-4a7e-b9c3-56cc50e201d6",
+      "name": {
+        "en": "Seodaemun Independence Park",
+        "ko": "서대문독립공원"
+      },
+      "description": {
+        "en": "Park surrounding the Independence Hall and Seodaemun Prison History Hall. Peaceful green space with profound historical significance for Korean independence.",
+        "ko": "독립관과 서대문형무소역사관을 둘러싼 공원. 한국 독립에 깊은 역사적 의미가 있는 평화로운 녹지."
+      },
+      "address": {
+        "en": "Seodaemun-gu, Seoul",
+        "ko": "서울 서대문구"
+      },
+      "category": "Outdoor",
+      "localley_score": 4,
+      "local_percentage": 75,
+      "verified": false,
+      "trending_score": 0.49
+    },
+    {
+      "id": "007b8266-a90a-4102-b430-445ac43dfd0a",
+      "name": {
+        "en": "Seocho 1-dong Art District",
+        "ko": "서초1동 예술지구"
+      },
+      "description": {
+        "en": "Art galleries and performance spaces near Seocho Station. Seoul Arts Center overflow area.",
+        "ko": "서초역 근처의 아트 갤러리와 공연장. 예술의전당 오버플로우 지역."
+      },
+      "address": {
+        "en": "Seocho 1-dong, Seocho-gu, Seoul",
+        "ko": "서울 서초구 서초1동"
+      },
+      "category": "Culture",
+      "localley_score": 4,
+      "local_percentage": 75,
+      "verified": false,
+      "trending_score": 0.48
+    },
+    {
+      "id": "00aee93c-ac10-40aa-bcea-96d768d5804c",
+      "name": {
+        "en": "Randy's Donuts"
+      },
+      "description": {
+        "en": "World-famous donut shop offering an array of treats in Anguk."
+      },
+      "address": {
+        "en": "247 Donggyo-ro, Mapo-gu, Seoul, South Korea"
+      },
+      "category": "Food",
+      "localley_score": 2,
+      "local_percentage": 30,
+      "verified": false,
+      "trending_score": 0
+    }
+  ]
+}

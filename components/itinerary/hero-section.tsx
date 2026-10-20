@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { MapPin, Calendar, Star } from "lucide-react";
+import { MapPin, Calendar, Star } from "@/components/ui/icons";
 import { Badge } from "@/components/ui/badge";
 import { getCityImageUrl, getCityGradient } from "@/lib/city-images";
 import { CityImageAvatar } from "@/components/ui/city-image";
@@ -76,7 +76,7 @@ export function HeroSection({
           <div className="flex flex-wrap items-center gap-4 text-gray-300">
             {city && city !== "Adventure Awaits" && (
               <div className="flex items-center gap-2 rounded-full bg-black/30 py-1 pl-1 pr-3 backdrop-blur-sm">
-                <CityImageAvatar city={city} className="h-7 w-7 rounded-full ring-1 ring-white/20" sizes="28px" />
+                <CityImageAvatar city={city} className="h-7 w-7 rounded-full " sizes="28px" />
                 <MapPin className="w-4 h-4 text-violet-300" />
                 <span className="text-sm font-medium">{city}</span>
               </div>
@@ -93,13 +93,13 @@ export function HeroSection({
 
       {/* Highlights pills - horizontal scroll */}
       {highlights && highlights.length > 0 && (
-        <div className="scrollbar-hide overflow-x-auto border-t border-white/10 bg-[#0b0714]/70 px-4 py-3 backdrop-blur-xl">
+        <div className="scrollbar-hide overflow-x-auto bg-[#0b0714]/70 px-4 py-3 backdrop-blur-xl">
           <div className="flex gap-2">
             {highlights.map((highlight, index) => (
               <Badge
                 key={index}
                 variant="outline"
-                className="whitespace-nowrap border-violet-300/20 bg-violet-400/10 text-violet-50"
+                className="whitespace-nowrap bg-violet-400/10 text-violet-50"
               >
                 {highlight}
               </Badge>

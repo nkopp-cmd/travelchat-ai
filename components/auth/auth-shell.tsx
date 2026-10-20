@@ -18,7 +18,7 @@ export function AuthShell({ title, subtitle, children, footer }: {
                     <h1 className="text-3xl font-bold text-white mb-2">{title}</h1>
                     <p className="text-gray-400">{subtitle}</p>
                 </div>
-                <div className="overflow-hidden rounded-lg border border-white/[0.15] bg-card/80 p-6 shadow-2xl shadow-violet-500/20 backdrop-blur-xl sm:p-8">
+                <div className="overflow-hidden rounded-lg bg-card/80 p-6 shadow-2xl shadow-violet-500/20 backdrop-blur-xl sm:p-8">
                     {children}
                 </div>
                 {footer ?? (

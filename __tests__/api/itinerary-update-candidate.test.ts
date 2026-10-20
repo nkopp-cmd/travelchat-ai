@@ -1,3 +1,4 @@
+vi.mock("@/lib/usage-tracking", () => ({ getFreshUserTier: vi.fn(async () => "pro") }));
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
@@ -102,3 +103,8 @@ describe("editor candidate admission", () => {
     }expect(mocks.update).not.toHaveBeenCalled();expect(mocks.server).not.toHaveBeenCalled();
   });
 });
+
+ it("refuses free editing on the normal source path", async () => {
+ const {getFreshUserTier}=await import("@/lib/usage-tracking");vi.mocked(getFreshUserTier).mockResolvedValueOnce("free");
+ const response=await request("www.localley.io", "");expect(response.status).toBe(402);
+ });

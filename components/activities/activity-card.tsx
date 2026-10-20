@@ -17,7 +17,7 @@ import {
     ChevronDown,
     ChevronUp,
     Sparkles,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import { SubscriptionTier, canSeeFullAddress, hasFeature } from "@/lib/subscription";
 import { getActivityBookingLinks, getHotelBookingLinks } from "@/lib/affiliates";
@@ -306,7 +306,7 @@ export function ActivityCard({
                     </div>
 
                     {/* Booking Links */}
-                    <div className="pt-2 border-t space-y-2">
+                    <div className="pt-2 space-y-2">
                         <div className="flex flex-wrap gap-2">
                             {bookingLinks.slice(0, 2).map((link) => (
                                 <BookingButton
@@ -352,7 +352,7 @@ export function ActivityCard({
 
                     {/* Expanded Content */}
                     {isExpanded && (
-                        <div className="space-y-3 pt-2 border-t animate-in slide-in-from-top-2">
+                        <div className="space-y-3 pt-2 animate-in slide-in-from-top-2">
                             {/* Additional booking links */}
                             {bookingLinks.length > 2 && (
                                 <div className="flex flex-wrap gap-2">

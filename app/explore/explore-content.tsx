@@ -26,7 +26,7 @@ import {
     TrendingUp,
     Clock,
     Filter,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { LikeButton } from "@/components/itineraries/like-button";
@@ -241,7 +241,7 @@ export function ExploreContent({
                         return (
                             <Card
                                 key={itinerary.id}
-                                className="!py-0 !gap-0 group overflow-hidden hover:shadow-lg transition-all duration-300 border-border/40"
+                                className="!py-0 !gap-0 group overflow-hidden hover:shadow-lg transition-all duration-300 "
                             >
                                 {/* Card Header with city image */}
                                 <CardHeader className="relative min-h-[164px] overflow-hidden bg-gradient-to-br from-violet-500 to-indigo-600 p-5 text-white">

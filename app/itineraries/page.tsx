@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus } from "@/components/ui/icons";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { redirect } from "next/navigation";
@@ -94,7 +94,7 @@ export default async function ItinerariesPage({ searchParams }: {
                 </div>
 
                 {error && (
-                    <div className="rounded-xl border border-amber-200/50 bg-amber-50/80 dark:bg-amber-950/20 backdrop-blur-sm p-4 text-amber-800 dark:border-amber-800/30 dark:text-amber-200">
+                    <div className="rounded-xl bg-amber-50/80 dark:bg-amber-950/20 backdrop-blur-sm p-4 text-amber-800 dark:text-amber-200">
                         <p>{error}. Please try refreshing the page.</p>
                     </div>
                 )}

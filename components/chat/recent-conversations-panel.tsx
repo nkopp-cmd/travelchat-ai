@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { History, ChevronDown, MessageCircle, Map } from "lucide-react";
+import { History, ChevronDown, MessageCircle, Map } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { useConversations } from "@/hooks/use-queries";
 import { useRouter } from "next/navigation";
@@ -37,7 +37,7 @@ export function RecentConversationsPanel({ currentConversationId }: RecentConver
     if (isLoading || recentChats.length === 0) return null;
 
     return (
-        <div className="px-4 py-1 flex-shrink-0 border-b border-border/20">
+        <div className="px-4 py-1 flex-shrink-0 ">
             <Button
                 variant="ghost"
                 size="sm"

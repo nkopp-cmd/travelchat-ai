@@ -8,7 +8,7 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import { Crown, Rocket, User, Sparkles, Settings } from "lucide-react";
+import { Crown, Rocket, User, Sparkles, Settings } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import { useSubscriptionContext } from "@/providers/subscription-provider";
 import { TIER_CONFIGS } from "@/lib/subscription";
@@ -25,19 +25,19 @@ const tierConfig = {
         label: "Choose plan",
         icon: User,
         color: "bg-violet-500/12 text-violet-100 hover:bg-violet-500/18",
-        borderColor: "border-violet-300/25",
+        borderColor: "",
     },
     pro: {
         label: "Pro",
         icon: Rocket,
         color: "bg-violet-500/15 text-violet-100 hover:bg-violet-500/22",
-        borderColor: "border-violet-300/30",
+        borderColor: "",
     },
     premium: {
         label: "Premium",
         icon: Crown,
         color: "bg-gradient-to-r from-amber-400/18 to-violet-500/14 text-amber-100 hover:from-amber-400/24 hover:to-violet-500/20",
-        borderColor: "border-amber-300/35",
+        borderColor: "",
     },
 };
 
@@ -75,7 +75,7 @@ export function SubscriptionBadge({
                 <Button
                     variant="ghost"
                     className={cn(
-                        "h-8 px-3 gap-1.5 rounded-full border",
+                        "h-8 px-3 gap-1.5 rounded-full ",
                         config.color,
                         config.borderColor,
                         className
@@ -85,7 +85,7 @@ export function SubscriptionBadge({
                     <span className="text-sm font-medium">{config.label}</span>
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-80 border-white/10 bg-[#0b0714]/96 text-white shadow-2xl shadow-violet-950/30 backdrop-blur-xl" align="end">
+            <PopoverContent className="w-80 bg-[#0b0714]/96 text-white shadow-2xl shadow-violet-950/30 backdrop-blur-xl" align="end">
                 <div className="space-y-4">
                     {/* Header */}
                     <div className="flex items-center justify-between">

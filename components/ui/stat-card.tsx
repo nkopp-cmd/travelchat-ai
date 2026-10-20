@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { LucideIcon } from "lucide-react";
+import { LucideIcon } from "@/components/ui/icons";
 
 interface StatCardProps extends React.HTMLAttributes<HTMLDivElement> {
   icon: LucideIcon;
@@ -54,7 +54,7 @@ const StatCard = React.forwardRef<HTMLDivElement, StatCardProps>(
         className={cn(
           "relative overflow-hidden rounded-xl",
           "bg-white/10 dark:bg-white/5 backdrop-blur-xl",
-          "border border-white/20 dark:border-white/10",
+          " ",
           "transition-all duration-300",
           "hover:bg-white/15 dark:hover:bg-white/10",
           "hover:shadow-lg hover:scale-[1.02]",

@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Crown, Rocket, Sparkles, Check, Calendar, MessageSquare, Image as ImageIcon, Bookmark, ArrowRight } from "lucide-react";
+import { Crown, Rocket, Sparkles, Check, Calendar, MessageSquare, Image as ImageIcon, Bookmark, ArrowRight } from "@/components/ui/icons";
 import { auth, currentUser } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { createSupabaseAdmin } from "@/lib/supabase";
@@ -22,10 +22,10 @@ import { PreviewBillingSummary } from "@/components/settings/preview-billing-sum
 import { previewBillingSettings } from "@/lib/app-data/preview-billing-settings";
 import { assertPreviewNotificationUser } from "@/lib/app-data/preview-notifications";
 
-const LIQUID_CARD = "rounded-2xl border-white/10 bg-white/[0.055] shadow-2xl shadow-violet-950/20 backdrop-blur-xl";
-const LIQUID_CARD_SOFT = "rounded-2xl border-white/10 bg-white/[0.04] shadow-xl shadow-violet-950/10 backdrop-blur-xl";
-const LIQUID_ROW = "flex flex-col items-start gap-3 rounded-xl border border-white/10 bg-white/[0.035] p-4 transition-colors hover:bg-white/[0.07] sm:flex-row sm:items-center sm:justify-between";
-const LIQUID_INPUT = "border-white/10 bg-white/[0.05] backdrop-blur-xl";
+const LIQUID_CARD = "rounded-2xl bg-white/[0.055] shadow-2xl shadow-violet-950/20 backdrop-blur-xl";
+const LIQUID_CARD_SOFT = "rounded-2xl bg-white/[0.04] shadow-xl shadow-violet-950/10 backdrop-blur-xl";
+const LIQUID_ROW = "flex flex-col items-start gap-3 rounded-xl bg-white/[0.035] p-4 transition-colors hover:bg-white/[0.07] sm:flex-row sm:items-center sm:justify-between";
+const LIQUID_INPUT = " bg-white/[0.05] backdrop-blur-xl";
 
 function usagePercent(used: number, limit: number) {
     if (!limit || limit === 999) return used > 0 ? 10 : 0;
@@ -156,11 +156,11 @@ export default async function SettingsPage({ searchParams }: {
 
     return (
         <div className="mx-auto w-full max-w-5xl space-y-4 px-4 pb-28 pt-5 sm:space-y-6 sm:px-6 sm:pb-10 sm:pt-8">
-            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] p-5 shadow-2xl shadow-violet-950/20 backdrop-blur-xl sm:p-6">
+            <div className="relative overflow-hidden rounded-2xl bg-white/[0.06] p-5 shadow-2xl shadow-violet-950/20 backdrop-blur-xl sm:p-6">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(139,92,246,0.28),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(79,70,229,0.18),transparent_30%)]" />
                 <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                     <div className="space-y-2">
-                        <Badge className="w-fit border-white/10 bg-white/10 text-white shadow-none hover:bg-white/10">
+                        <Badge className="w-fit bg-white/10 text-white shadow-none hover:bg-white/10">
                             Account cockpit
                         </Badge>
                         <div>
@@ -171,7 +171,7 @@ export default async function SettingsPage({ searchParams }: {
                         </div>
                     </div>
                     <Link href="/pricing" className="sm:self-center">
-                        <Button variant="outline" className="w-full gap-2 border-white/15 bg-white/10 backdrop-blur-xl hover:bg-white/15 sm:w-auto">
+                        <Button variant="outline" className="w-full gap-2 bg-white/10 backdrop-blur-xl hover:bg-white/15 sm:w-auto">
                             Compare plans
                             <ArrowRight className="h-4 w-4" />
                         </Button>
@@ -182,9 +182,9 @@ export default async function SettingsPage({ searchParams }: {
             {/* Subscription Management */}
             <Card className={`relative overflow-hidden ${LIQUID_CARD} ${
                 subscription.tier === "premium"
-                    ? "border-amber-300/30"
+                    ? ""
                     : subscription.tier === "pro"
-                    ? "border-violet-300/30"
+                    ? ""
                     : ""
             }`}>
                 {/* Premium glow effect */}
@@ -219,7 +219,7 @@ export default async function SettingsPage({ searchParams }: {
                             </div>
                         </div>
                         {isActiveSub && (
-                            <Badge variant="secondary" className="w-fit border-emerald-400/20 bg-emerald-400/15 text-emerald-300">
+                            <Badge variant="secondary" className="w-fit bg-emerald-400/15 text-emerald-300">
                                 Active
                             </Badge>
                         )}
@@ -268,7 +268,7 @@ export default async function SettingsPage({ searchParams }: {
                     </div>
 
                     {subscription.cancelAtPeriodEnd && (
-                        <div className="rounded-xl border border-amber-300/20 bg-amber-400/10 p-3">
+                        <div className="rounded-xl bg-amber-400/10 p-3">
                             <p className="text-sm text-amber-100">
                                 Your subscription will be cancelled at the end of the current billing period. You will retain access until then.
                             </p>
@@ -283,7 +283,7 @@ export default async function SettingsPage({ searchParams }: {
                             {subscription.tier === "free" ? "Pick a plan to activate" : "Your Plan Includes"}
                         </Label>
                         {subscription.tier === "free" ? (
-                            <div className="rounded-xl border border-violet-300/20 bg-violet-400/10 p-4 text-sm leading-6 text-violet-50/80">
+                            <div className="rounded-xl bg-violet-400/10 p-4 text-sm leading-6 text-violet-50/80">
                                 Localley is paid-only. Choose Pro for fast AI planning and exact addresses, or Premium for richer media, exports, and collaboration.
                             </div>
                         ) : (
@@ -344,7 +344,7 @@ export default async function SettingsPage({ searchParams }: {
                                 )}
                                 {subscription.tier === "pro" && (
                                     <Link href="/pricing" className="w-full sm:w-auto">
-                                        <Button variant="outline" className="w-full gap-2 border-white/15 bg-white/10 backdrop-blur-xl hover:bg-white/15 sm:w-auto">
+                                        <Button variant="outline" className="w-full gap-2 bg-white/10 backdrop-blur-xl hover:bg-white/15 sm:w-auto">
                                             <Crown className="h-4 w-4 text-amber-500" />
                                             Choose Premium
                                         </Button>
@@ -374,7 +374,7 @@ export default async function SettingsPage({ searchParams }: {
                 </CardHeader>
                 <CardContent className="space-y-4">
                     {subscription.tier === "free" ? (
-                        <div className="rounded-xl border border-white/10 bg-white/[0.035] p-4 text-sm leading-6 text-muted-foreground">
+                        <div className="rounded-xl bg-white/[0.035] p-4 text-sm leading-6 text-muted-foreground">
                             Choose Pro or Premium to start planning with Localley. Your billing-period usage will appear here after activation.
                         </div>
                     ) : (
@@ -591,7 +591,7 @@ export default async function SettingsPage({ searchParams }: {
                     <div className="space-y-2">
                         <Label>Danger Zone</Label>
                         <div className="flex flex-col gap-2 sm:flex-row">
-                            <Button variant="outline" className="border-destructive/30 text-destructive hover:bg-destructive/10">
+                            <Button variant="outline" className=" text-destructive hover:bg-destructive/10">
                                 Clear All Data
                             </Button>
                             <Button variant="destructive">
@@ -603,8 +603,8 @@ export default async function SettingsPage({ searchParams }: {
             </Card>
 
             {/* Save Button */}
-            <div className="sticky bottom-20 z-10 grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-[#0b0714]/88 p-3 shadow-2xl shadow-violet-950/30 backdrop-blur-xl md:bottom-4 md:flex md:justify-end">
-                <Button variant="outline" className="border-white/15 bg-white/10 hover:bg-white/15">Cancel</Button>
+            <div className="sticky bottom-20 z-10 grid grid-cols-2 gap-2 rounded-2xl bg-[#0b0714]/88 p-3 shadow-2xl shadow-violet-950/30 backdrop-blur-xl md:bottom-4 md:flex md:justify-end">
+                <Button variant="outline" className=" bg-white/10 hover:bg-white/15">Cancel</Button>
                 <Button className="bg-violet-600 hover:bg-violet-700">
                     Save Changes
                 </Button>

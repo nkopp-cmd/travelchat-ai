@@ -3,15 +3,15 @@
 import Link from "next/link";
 import { useState, type FormEvent, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient, safeRedirect } from "@/lib/auth/client";
 
-const inputClass = "bg-white/10 border-white/20 text-white placeholder:text-gray-500";
+const inputClass = "bg-white/10 text-white placeholder:text-gray-500";
 const primaryClass = "w-full bg-violet-600 hover:bg-violet-700 text-white";
-const secondaryClass = "w-full bg-white/10 border border-white/20 text-white hover:bg-white/20";
+const secondaryClass = "w-full bg-white/10 text-white hover:bg-white/20";
 
 function Field({ id, label, children }: { id: string; label: string; children: ReactNode }) {
     return (
@@ -24,15 +24,15 @@ function Field({ id, label, children }: { id: string; label: string; children: R
 
 function Notice({ tone, children }: { tone: "error" | "success"; children: ReactNode }) {
     const cls = tone === "error"
-        ? "border-red-500/40 bg-red-500/10 text-red-200"
-        : "border-emerald-500/40 bg-emerald-500/10 text-emerald-200";
-    return <div role={tone === "error" ? "alert" : "status"} className={`rounded-md border px-3 py-2 text-sm ${cls}`}>{children}</div>;
+        ? " bg-red-500/10 text-red-200"
+        : " bg-emerald-500/10 text-emerald-200";
+    return <div role={tone === "error" ? "alert" : "status"} className={`rounded-md px-3 py-2 text-sm ${cls}`}>{children}</div>;
 }
 
 function Divider() {
     return (
-        <div className="flex items-center gap-3 text-xs text-gray-400">
-            <span className="h-px flex-1 bg-white/20" />or<span className="h-px flex-1 bg-white/20" />
+        <div className="flex items-center justify-center py-2 text-xs text-muted-foreground">
+            <span>or</span>
         </div>
     );
 }
@@ -174,7 +174,7 @@ export function SignUpForm({ googleEnabled }: { googleEnabled: boolean }) {
                 </Button>
             </form>
             <p className="text-center text-sm text-gray-400">
-                Have an account? <Link href="/sign-in" className="text-violet-400 hover:text-violet-300">Sign in</Link>
+                Have an account? <Link href={`/sign-in${redirectTo !== "/dashboard" ? `?redirect_url=${encodeURIComponent(redirectTo)}` : ""}`} className="text-violet-400 hover:text-violet-300">Sign in</Link>
             </p>
         </div>
     );

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { AlertTriangle, RefreshCw } from "lucide-react";
+import { AlertTriangle, RefreshCw } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import * as Sentry from "@sentry/nextjs";

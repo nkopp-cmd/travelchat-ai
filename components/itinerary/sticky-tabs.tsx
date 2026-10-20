@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { Map } from "lucide-react";
+import { Map } from "@/components/ui/icons";
 
 interface StickyTabsProps {
   days: number;
@@ -65,7 +65,7 @@ export function StickyTabs({
       className={cn(
         "sticky top-14 md:top-16 z-40 -mx-4 px-4",
         "bg-background/95 backdrop-blur-xl",
-        "border-b border-white/10",
+        " ",
         isSticky && "shadow-lg shadow-black/20",
         className
       )}

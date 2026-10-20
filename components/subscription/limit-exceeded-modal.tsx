@@ -22,7 +22,7 @@ import {
     Bookmark,
     ArrowRight,
     Check,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { TIER_CONFIGS } from "@/lib/subscription";
 import { useSubscriptionContext } from "@/providers/subscription-provider";
 
@@ -155,7 +155,7 @@ export function LimitExceededModal({
                     </div>
 
                     {/* Upgrade Card */}
-                    <div className="rounded-lg border-2 border-violet-200 bg-gradient-to-br from-violet-50 to-indigo-50 p-4 space-y-3">
+                    <div className="rounded-lg bg-gradient-to-br from-violet-50 to-indigo-50 p-4 space-y-3">
                         <div className="flex items-center gap-2">
                             {suggestedTier === "pro" ? (
                                 <Rocket className="h-5 w-5 text-violet-600" />

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Share2, Heart, Check, Loader2 } from "lucide-react";
+import { Share2, Heart, Check, Loader2 } from "@/components/ui/icons";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/lib/auth/client";
@@ -142,7 +142,7 @@ export function SpotInteractions({ spotId, spotName }: SpotInteractionsProps) {
             <Button
                 size="icon"
                 variant="secondary"
-                className="rounded-full h-10 w-10 bg-white/10 hover:bg-white/20 text-white border-none backdrop-blur-sm"
+                className="rounded-full h-10 w-10 bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
                 onClick={handleShare}
                 disabled={isSharing}
                 aria-label={`Share ${spotName}`}
@@ -157,7 +157,7 @@ export function SpotInteractions({ spotId, spotName }: SpotInteractionsProps) {
             <Button
                 size="icon"
                 variant="secondary"
-                className={`rounded-full h-10 w-10 border-none backdrop-blur-sm transition-colors ${isLiked
+                className={`rounded-full h-10 w-10 backdrop-blur-sm transition-colors ${isLiked
                         ? "bg-red-500/80 text-white hover:bg-red-600/80"
                         : "bg-white/10 hover:bg-white/20 text-white"
                     }`}

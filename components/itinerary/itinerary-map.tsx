@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import MapComponent, { type Location } from "@/components/ui/map";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { MapPin, Loader2, AlertCircle, ChevronDown, ChevronUp, ExternalLink, X, Navigation, Copy, Check } from "lucide-react";
+import { MapPin, Loader2, AlertCircle, ChevronDown, ChevronUp, ExternalLink, X, Navigation, Copy, Check } from "@/components/ui/icons";
 import { isKoreanCity } from "@/hooks/use-map-provider";
 import { getCityBySlug, getCityByName } from "@/lib/cities";
 import { distanceKm } from "@/lib/geocoding";
@@ -246,7 +246,7 @@ export function ItineraryMap({ city, dailyPlans, className, userTier }: Itinerar
 
     if (loading) {
         return (
-            <Card className={`border-white/10 bg-white/[0.055] p-6 shadow-2xl shadow-violet-950/15 backdrop-blur-xl ${className}`}>
+            <Card className={` bg-white/[0.055] p-6 shadow-2xl shadow-violet-950/15 backdrop-blur-xl ${className}`}>
                 <div className="flex items-center justify-center gap-3 h-[300px]">
                     <Loader2 className="h-6 w-6 animate-spin text-violet-600" />
                     <span className="text-muted-foreground">Mapping your itinerary...</span>
@@ -260,7 +260,7 @@ export function ItineraryMap({ city, dailyPlans, className, userTier }: Itinerar
         if (errorDismissed) return null;
 
         return (
-            <div className={`flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.055] px-4 py-3 shadow-xl shadow-violet-950/10 backdrop-blur-xl ${className}`}>
+            <div className={`flex items-center justify-between gap-3 rounded-2xl bg-white/[0.055] px-4 py-3 shadow-xl shadow-violet-950/10 backdrop-blur-xl ${className}`}>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <MapPin className="h-4 w-4 flex-shrink-0 text-violet-300" />
                     <span>Map unavailable — addresses couldn&apos;t be resolved.</span>
@@ -287,7 +287,7 @@ export function ItineraryMap({ city, dailyPlans, className, userTier }: Itinerar
     }
 
     return (
-        <Card className={`!gap-0 !py-0 relative z-0 overflow-hidden border-white/10 bg-white/[0.055] shadow-2xl shadow-violet-950/15 backdrop-blur-xl ${className}`}>
+        <Card className={`!gap-0 !py-0 relative z-0 overflow-hidden bg-white/[0.055] shadow-2xl shadow-violet-950/15 backdrop-blur-xl ${className}`}>
             {/* Header */}
             <div
                 className="flex cursor-pointer items-center justify-between bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 p-4 text-white"
@@ -362,7 +362,7 @@ export function ItineraryMap({ city, dailyPlans, className, userTier }: Itinerar
                 <>
                     {/* Day Filter */}
                     {days.length > 1 && (
-                        <div className="flex gap-2 overflow-x-auto border-b border-white/10 bg-white/[0.04] p-3">
+                        <div className="flex gap-2 overflow-x-auto bg-white/[0.04] p-3">
                             <Button
                                 size="sm"
                                 variant={selectedDay === null ? "default" : "outline"}
@@ -397,7 +397,7 @@ export function ItineraryMap({ city, dailyPlans, className, userTier }: Itinerar
 
                     {/* Unmapped activities warning (partial success) */}
                     {unmappedActivities.length > 0 && (
-                        <div className="border-t border-amber-300/15 bg-amber-400/10 px-4 py-2.5">
+                        <div className=" bg-amber-400/10 px-4 py-2.5">
                             <div className="flex items-center gap-2">
                                 <AlertCircle className="h-4 w-4 flex-shrink-0 text-amber-300" />
                                 <p className="text-sm text-amber-100/85">
@@ -409,7 +409,7 @@ export function ItineraryMap({ city, dailyPlans, className, userTier }: Itinerar
 
                     {/* Selected Location Info */}
                     {selectedLocation && (
-                        <div className="border-t border-violet-300/15 bg-violet-400/10 p-4">
+                        <div className=" bg-violet-400/10 p-4">
                             <div className="flex items-start justify-between gap-4">
                                 <div>
                                     <p className="font-semibold">{selectedLocation.activityName}</p>

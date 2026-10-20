@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { AlertCircle, RefreshCw, Home } from "lucide-react";
+import { AlertCircle, RefreshCw, Home } from "@/components/ui/icons";
 import * as Sentry from "@sentry/nextjs";
 import { useEffect } from "react";
 

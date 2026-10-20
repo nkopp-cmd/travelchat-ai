@@ -1,0 +1,41 @@
+/* Shared draft theme. Production rollout requires approval of the final preview. */
+[data-localley-design="borderless"] {
+  color-scheme: dark;
+  --ll-topbar-height: 3.5rem;
+  --ll-nav-clearance: calc(4rem + env(safe-area-inset-bottom, 0px));
+  --ll-background: 13 15 22;
+  --ll-surface: 24 27 38;
+  --ll-raised: 36 40 56;
+  --ll-overlay: 48 54 74;
+  --ll-text: 244 244 250;
+  --ll-muted: 175 182 204;
+  --ll-brand: 124 58 237;
+  --ll-action: 185 161 255;
+  --ll-action-ink: 33 19 59;
+  --ll-control: 140 150 178;
+  --ll-control-ink: 13 15 22;
+  --ll-focus: 210 195 255;
+  --ll-success: 156 228 194;
+  --ll-warning: 244 200 130;
+  --ll-error: 255 180 188;
+  --ll-radius-card: 16px;
+  --ll-radius-control: 12px;
+  --ll-radius-chip: 999px;
+  --ll-shadow-raised: 0 12px 28px rgb(0 0 0 / 0.16);
+  --ll-shadow-overlay: 0 24px 64px rgb(0 0 0 / 0.28);
+  --ll-motion-short: 140ms;
+  --ll-motion-ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-localley-design="borderless"] {
+    --ll-motion-short: 0ms;
+  }
+}
+
+@media (min-width: 768px) {
+  [data-localley-design="borderless"] {
+    --ll-topbar-height: 4rem;
+    --ll-nav-clearance: 0px;
+  }
+}

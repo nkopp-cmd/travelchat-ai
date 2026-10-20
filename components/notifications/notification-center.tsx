@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, Check, CheckCheck, Trash2 } from "lucide-react";
+import { Bell, Check, CheckCheck, Trash2 } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import {
     Popover,
@@ -154,7 +154,7 @@ export function NotificationCenter() {
             </PopoverTrigger>
             <PopoverContent className="w-80 p-0" align="end">
                 {/* Header */}
-                <div className="flex items-center justify-between p-3 border-b">
+                <div className="flex items-center justify-between p-3 ">
                     <h3 className="font-semibold">Notifications</h3>
                     <div className="flex gap-1">
                         {unreadCount > 0 && (
@@ -179,7 +179,7 @@ export function NotificationCenter() {
                             Notifications are currently unavailable.
                         </p>
                     ) : isLoading && notifications.length === 0 ? (
-                        <div className="divide-y">
+                        <div className="">
                             {[...Array(5)].map((_, i) => (
                                 <NotificationSkeleton key={i} />
                             ))}
@@ -190,7 +190,7 @@ export function NotificationCenter() {
                             <p className="text-sm">No notifications yet</p>
                         </div>
                     ) : (
-                        <div className="divide-y">
+                        <div className="">
                             {notifications.map((notification) => (
                                 <NotificationItem
                                     key={notification.id}

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
-import { Heart, Loader2 } from "lucide-react";
+import { Heart, Loader2 } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 

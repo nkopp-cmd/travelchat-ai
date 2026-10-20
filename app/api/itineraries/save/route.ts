@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { saveItinerarySchema, validateBody } from "@/lib/validations";
+import { getFreshUserTier } from "@/lib/usage-tracking";
 import { Errors, handleApiError } from "@/lib/api-errors";
 import { geocodeItineraryActivities } from "@/lib/geocoding";
 import type { DailyPlan } from "@/lib/llm/types";
@@ -26,7 +27,7 @@ export async function POST(req: NextRequest) {
             return Errors.validationError(validation.error || "Invalid request");
         }
 
-        const { title, city, days, activities, insights, localScore } = validation.data;
+        const { draftId, title, city, days, activities, insights, localScore } = validation.data;
 
         if (isPreviewItineraryDetailCandidate(req)) {
             const withSource = (response: NextResponse) => {
@@ -58,6 +59,10 @@ export async function POST(req: NextRequest) {
             }
         }
 
+        if (!['pro', 'premium'].includes(await getFreshUserTier(userId))) {
+            return NextResponse.json({ error: { code: "payment_required", message: "Choose a plan to save and edit your itinerary." } }, { status: 402, headers: { "Cache-Control": "private, no-store" } });
+        }
+
         // Get internal user ID from Supabase based on Clerk ID
         const supabase = await createSupabaseServerClient();
         const { data: user, error: userError } = await supabase
@@ -69,6 +74,13 @@ export async function POST(req: NextRequest) {
         if (userError || !user) {
             console.error("User not found in DB:", userError);
             return Errors.notFound("User");
+        }
+
+        // A stable draft UUID makes payment returns/retries idempotent. Never overwrite another row.
+        if (draftId) {
+            const previous = await supabase.from("itineraries").select("*").eq("id", draftId).eq("clerk_user_id", userId).maybeSingle();
+            if (previous.error) return Errors.databaseError();
+            if (previous.data) return NextResponse.json(previous.data, { headers: { "Cache-Control": "private, no-store" } });
         }
 
         // Geocode activities before saving (critical for chat-saved itineraries)
@@ -90,6 +102,7 @@ export async function POST(req: NextRequest) {
         const { data: itinerary, error } = await supabase
             .from("itineraries")
             .insert({
+                ...(draftId ? { id: draftId } : {}),
                 user_id: user.id,
                 clerk_user_id: userId,
                 title,

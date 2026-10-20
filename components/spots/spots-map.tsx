@@ -41,7 +41,7 @@ export default function SpotsMap({ spots, city, currentPage }: SpotsMapProps) {
                 <p>Moving the map does not load more spots. Use filters or pagination to change results.</p>
             </div>
             {markers.length > 0 ? (
-                <div className="relative isolate h-[320px] overflow-hidden rounded-xl border border-border sm:h-[440px]"
+                <div className="relative isolate h-[320px] overflow-hidden rounded-xl sm:h-[440px]"
                     role="region" aria-label="Map of this page's spots" aria-describedby={scopeId}>
                     <MapComponent
                         city={city}
@@ -52,7 +52,7 @@ export default function SpotsMap({ spots, city, currentPage }: SpotsMapProps) {
                     />
                 </div>
             ) : (
-                <p role="status" className="rounded-xl border border-border bg-muted/30 p-6 text-muted-foreground">
+                <p role="status" className="rounded-xl bg-muted/30 p-6 text-muted-foreground">
                     No map pins are available for this page. No locations have been estimated.
                 </p>
             )}

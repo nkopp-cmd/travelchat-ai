@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useWizard } from "./wizard-context";
-import { MapPin, Check, RefreshCw, Route } from "lucide-react";
+import { MapPin, Check, RefreshCw, Route } from "@/components/ui/icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MAX_CORRIDOR_DESTINATIONS } from "@/lib/trips/wizard-corridor";
 import { selectableSlugs, type CorridorNetwork } from "@/lib/trips/corridor-network";
@@ -158,7 +158,7 @@ export function StepDestination() {
 
       {showModeToggle && (
         <div className="mb-3 flex justify-center sm:mb-4">
-          <div className="inline-flex rounded-full border border-white/10 bg-white/5 p-1">
+          <div className="inline-flex rounded-full bg-white/5 p-1">
             <button
               type="button"
               onClick={() => handleModeChange("single")}
@@ -187,7 +187,7 @@ export function StepDestination() {
       )}
 
       {multiMode && data.citySlugs.length > 0 && (
-        <div className="mb-2 flex items-center gap-2 rounded-lg border border-violet-300/20 bg-violet-500/10 p-2 text-left shadow-lg shadow-violet-950/15 backdrop-blur sm:mb-3 sm:p-2.5">
+        <div className="mb-2 flex items-center gap-2 rounded-lg bg-violet-500/10 p-2 text-left shadow-lg shadow-violet-950/15 backdrop-blur sm:mb-3 sm:p-2.5">
           <div className="flex min-w-0 items-center gap-2">
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-violet-500 text-white">
               <Route className="h-4 w-4" aria-hidden="true" />
@@ -215,7 +215,7 @@ export function StepDestination() {
       )}
 
       {data.city && !templateMode && !multiMode && (
-        <div className="mb-2 flex items-center gap-2 rounded-lg border border-violet-300/20 bg-violet-500/10 p-2 text-left shadow-lg shadow-violet-950/15 backdrop-blur sm:mb-3 sm:p-2.5">
+        <div className="mb-2 flex items-center gap-2 rounded-lg bg-violet-500/10 p-2 text-left shadow-lg shadow-violet-950/15 backdrop-blur sm:mb-3 sm:p-2.5">
           <div className="flex min-w-0 items-center gap-2">
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-violet-500 text-white">
               <Check className="h-4 w-4" aria-hidden="true" />
@@ -235,8 +235,8 @@ export function StepDestination() {
       {/* Unified City Grid */}
       {cities.length > 0 && (
         <div className={cn(
-          "grid grid-cols-2 gap-1.5 min-[390px]:grid-cols-3 sm:grid-cols-4 md:gap-2 lg:grid-cols-5",
-          templateMode && "min-[360px]:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
+          "grid grid-cols-1 gap-3 min-[390px]:grid-cols-2 lg:grid-cols-3",
+          templateMode && "sm:grid-cols-2 lg:grid-cols-3"
         )}>
           {cities.map((city) => {
             const isPicked = multiMode && data.citySlugs.includes(city.slug);
@@ -280,7 +280,7 @@ export function StepDestination() {
           <p className="mb-3">No cities available. Please try again later.</p>
           <button
             onClick={loadCities}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-700 hover:border-gray-500 text-gray-400 text-sm transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-gray-400 text-sm transition-colors"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             Refresh
@@ -305,90 +305,21 @@ function CityCard({
   compact?: boolean;
 }) {
   return (
-    <button
-      onClick={onSelect}
-      disabled={isDisabled}
-      aria-disabled={isDisabled}
-      className={cn(
-        "relative overflow-hidden rounded-lg transition-all sm:rounded-xl",
-        compact ? "aspect-[2.9/1] sm:aspect-[2.6/1]" : "aspect-[2.18/1] sm:aspect-[2.35/1]",
-        "group focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-black",
-        isSelected && "ring-2 ring-violet-500",
-        isDisabled && "cursor-not-allowed opacity-35 saturate-50"
-      )}
-    >
-      {/* Background image */}
-      <div className="absolute inset-0 bg-[#374151]">
-        {city.heroImage && (
-          <Image
-            src={city.heroImage}
-            alt={`${city.name} city view`}
-            fill
-            sizes={
-              compact
-                ? "(max-width: 479px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                : "(max-width: 479px) 50vw, (max-width: 768px) 33vw, 320px"
-            }
-            quality={90}
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-        )}
-      </div>
-
-      {/* Gradient overlay */}
-      <div
-        className={cn(
-          "absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent",
-          isSelected && "from-violet-900/80 via-violet-900/30"
-        )}
-      />
-
-      {/* Status badge */}
-      {!compact && city.status === "recommended" && (
-        <div className={cn(
-          "absolute rounded-full bg-violet-600/90 font-semibold text-white backdrop-blur-sm",
-          "left-1.5 top-1.5 px-1.5 py-0.5 text-[9px] sm:left-2 sm:top-2 sm:px-2 sm:text-[10px]"
-        )}>
-          Popular
-        </div>
-      )}
-      {!compact && city.status === "beta" && (
-        <div className={cn(
-          "absolute rounded-full border border-white/10 bg-white/15 font-semibold text-white/80 backdrop-blur-sm",
-          "left-1.5 top-1.5 px-1.5 py-0.5 text-[9px] sm:left-2 sm:top-2 sm:px-2 sm:text-[10px]"
-        )}>
-          Beta
-        </div>
-      )}
-
-      {/* Selected checkmark */}
-      {isSelected && (
-        <div className={cn(
-          "absolute right-1.5 top-1.5 flex items-center justify-center rounded-full bg-violet-600 sm:right-2 sm:top-2",
-          compact ? "h-5 w-5 sm:h-6 sm:w-6" : "h-6 w-6 sm:h-7 sm:w-7"
-        )}>
-          <Check className="h-3.5 w-3.5 text-white sm:h-4 sm:w-4" />
-        </div>
-      )}
-
-      {/* City info */}
-      <div className={cn("absolute bottom-0 left-0 right-0", compact ? "p-1.5 sm:p-2" : "p-2 sm:p-3")}>
-        <div className="mb-0.5 flex min-w-0 items-center gap-1.5">
-          <span className={cn("leading-none", compact ? "text-sm sm:text-base" : "text-base sm:text-lg")}>{city.emoji}</span>
-          <span className={cn("min-w-0 truncate font-bold leading-tight text-white", compact ? "text-xs sm:text-sm" : "text-sm")}>{city.name}</span>
-        </div>
-        {city.vibe && !compact && (
-          <p className="line-clamp-1 text-[10px] leading-tight text-gray-300 sm:text-[11px]">{city.vibe}</p>
-        )}
-        <div className="mt-0.5 flex items-center justify-between gap-1">
-          <p className={cn("min-w-0 truncate text-gray-300/85", compact ? "text-[9px]" : "text-[10px] text-gray-400")}>{city.spotCount} spots</p>
-          {isSelected && (
-            <span className="shrink-0 rounded-full bg-violet-600/90 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white">
-              Ready
-            </span>
-          )}
-        </div>
-      </div>
+    <button type="button" onClick={onSelect} disabled={isDisabled}
+      aria-disabled={isDisabled} aria-pressed={isSelected}
+      className={cn("flex min-h-24 min-w-0 items-start gap-3 rounded-xl p-3 text-left transition-colors",
+        isSelected ? "bg-primary text-primary-foreground" : "bg-surface text-foreground hover:bg-raised",
+        isDisabled && "cursor-not-allowed opacity-50")}>
+      {city.heroImage && <Image src={city.heroImage} alt="" width={48} height={48} sizes="48px" quality={75}
+        className="size-12 shrink-0 rounded-lg object-cover" />}
+      <span className="flex min-w-0 flex-1 flex-col gap-1">
+        <span className="flex items-start justify-between gap-2">
+          <span className="break-words text-sm font-semibold leading-5">{city.name}</span>
+          {isSelected && <Check aria-hidden="true" className="size-4 shrink-0" />}
+        </span>
+        {!compact && city.vibe && <span className={cn("text-[13px] leading-5", !isSelected && "text-muted-foreground")}>{city.vibe}</span>}
+        <span className={cn("text-[13px] leading-5", !isSelected && "text-muted-foreground")}>{city.spotCount.toLocaleString("en-US")} {city.spotCount === 1 ? "spot" : "spots"}</span>
+      </span>
     </button>
   );
 }
@@ -401,9 +332,9 @@ function LoadingSkeleton() {
         <Skeleton className="h-8 w-32 mx-auto mb-2" />
         <Skeleton className="h-4 w-48 mx-auto" />
       </div>
-      <div className="grid grid-cols-2 gap-1.5 min-[390px]:grid-cols-3 sm:grid-cols-4 md:gap-2 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-3 min-[390px]:grid-cols-2 lg:grid-cols-3">
         {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-          <Skeleton key={i} className="aspect-[2.18/1] rounded-xl" />
+          <Skeleton key={i} className="min-h-24 rounded-xl" />
         ))}
       </div>
     </div>

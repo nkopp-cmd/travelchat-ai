@@ -1,6 +1,6 @@
 import { LocalleyScale } from "@/types";
 import { cn } from "@/lib/utils";
-import { AlertTriangle, Camera, Users, Heart, Sparkles, Crown } from "lucide-react";
+import { AlertTriangle, Camera, Users, Heart, Sparkles, Crown } from "@/components/ui/icons";
 
 interface LocalleyScaleIndicatorProps {
     score: LocalleyScale;
@@ -15,42 +15,42 @@ export function LocalleyScaleIndicator({ score, className, showLabel = true }: L
             icon: AlertTriangle,
             color: "text-red-500",
             bg: "bg-red-100 dark:bg-red-900/20",
-            border: "border-red-200 dark:border-red-800",
+            border: " ",
         },
         [LocalleyScale.TOURIST_FRIENDLY]: {
             label: "Tourist Friendly",
             icon: Camera,
             color: "text-orange-500",
             bg: "bg-orange-100 dark:bg-orange-900/20",
-            border: "border-orange-200 dark:border-orange-800",
+            border: " ",
         },
         [LocalleyScale.MIXED_CROWD]: {
             label: "Mixed Crowd",
             icon: Users,
             color: "text-yellow-500",
             bg: "bg-yellow-100 dark:bg-yellow-900/20",
-            border: "border-yellow-200 dark:border-yellow-800",
+            border: " ",
         },
         [LocalleyScale.LOCAL_FAVORITE]: {
             label: "Local Favorite",
             icon: Heart,
             color: "text-green-500",
             bg: "bg-green-100 dark:bg-green-900/20",
-            border: "border-green-200 dark:border-green-800",
+            border: " ",
         },
         [LocalleyScale.HIDDEN_GEM]: {
             label: "Hidden Gem",
             icon: Sparkles,
             color: "text-violet-500",
             bg: "bg-violet-100 dark:bg-violet-900/20",
-            border: "border-violet-200 dark:border-violet-800",
+            border: " ",
         },
         [LocalleyScale.LEGENDARY_ALLEY]: {
             label: "Legendary Alley",
             icon: Crown,
             color: "text-fuchsia-500",
             bg: "bg-fuchsia-100 dark:bg-fuchsia-900/20",
-            border: "border-fuchsia-200 dark:border-fuchsia-800",
+            border: " ",
         },
     };
 
@@ -60,7 +60,7 @@ export function LocalleyScaleIndicator({ score, className, showLabel = true }: L
         <div className={cn("flex items-center gap-2", className)}>
             <div
                 className={cn(
-                    "flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors",
+                    "flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors",
                     color,
                     bg,
                     border

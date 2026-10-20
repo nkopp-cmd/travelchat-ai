@@ -1,3 +1,4 @@
+import { getFreshUserTier } from "@/lib/usage-tracking";
 import { auth } from "@/lib/auth/server";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
@@ -19,12 +20,12 @@ export default async function EditItineraryPage({
 }) {
     const host = (await headers()).get("host"), flag = (await searchParams)?.data_candidate;
     if (isPreviewEditorIntent(host, flag)) {
-        if (!isPreviewItineraryListCandidate(host, flag)) return <div role="status" className="rounded-xl border p-6">Your itinerary is currently unavailable.</div>;
+        if (!isPreviewItineraryListCandidate(host, flag)) return <div role="status" className="rounded-xl p-6">Your itinerary is currently unavailable.</div>;
         const { userId } = await auth();
         const { id } = await params;
         let itinerary;
         try { itinerary = await previewItineraryEditor(id, userId); }
-        catch { return <div role="status" className="rounded-xl border p-6">Your itinerary is currently unavailable.</div>; }
+        catch { return <div role="status" className="rounded-xl p-6">Your itinerary is currently unavailable.</div>; }
         if (!itinerary || !userId) notFound();
         return <div className="mx-auto w-full max-w-5xl px-3 py-4 sm:px-4">
             <EditForm key={`${userId}:${itinerary.id}:d1`} itinerary={itinerary} dataCandidate="d1" previewActor={userId} />
@@ -54,6 +55,8 @@ export default async function EditItineraryPage({
     if (itinerary.clerk_user_id !== userId) {
         redirect("/itineraries");
     }
+
+    if (!["pro", "premium"].includes(await getFreshUserTier(userId))) redirect("/pricing");
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-violet-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">

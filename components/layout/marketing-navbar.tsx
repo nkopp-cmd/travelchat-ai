@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Compass, DollarSign, Menu, Sparkles } from "lucide-react";
+import { ArrowRight, Compass, DollarSign, Menu, Sparkles } from "@/components/ui/icons";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Logo } from "@/components/brand/logo";
 import { CityImageAvatar } from "@/components/ui/city-image";
@@ -29,7 +29,7 @@ const marketingLinks = [
  */
 export function MarketingNavbar() {
     return (
-        <header className="fixed top-0 z-50 w-full border-b border-white/10 bg-gradient-to-b from-black/80 via-black/60 to-transparent backdrop-blur-md">
+        <header className="fixed top-0 z-50 w-full bg-gradient-to-b from-black/80 via-black/60 to-transparent backdrop-blur-md">
             <div className="container flex h-16 items-center justify-between px-4">
                 <div className="flex items-center gap-2">
                     <Sheet>
@@ -45,18 +45,18 @@ export function MarketingNavbar() {
                         </SheetTrigger>
                         <SheetContent
                             side="left"
-                            className="w-[86vw] max-w-[340px] border-r border-violet-200/15 bg-[#0b0714]/96 p-0 text-white shadow-2xl shadow-violet-950/40 backdrop-blur-xl"
+                            className="w-[86vw] max-w-[340px] bg-[#0b0714]/96 p-0 text-white shadow-2xl shadow-violet-950/40 backdrop-blur-xl"
                         >
                             <nav className="flex h-full min-h-dvh flex-col gap-5 px-4 pb-6 pt-6">
                                 <div className="space-y-4">
                                     <Logo size="md" isLanding={true} />
-                                    <div className="rounded-lg border border-violet-200/15 bg-white/[0.045] p-4">
+                                    <div className="rounded-lg bg-white/[0.045] p-4">
                                         <div className="mb-3 flex -space-x-2">
                                             {["Seoul", "Tokyo", "Bangkok", "Singapore"].map((city) => (
                                                 <CityImageAvatar
                                                     key={city}
                                                     city={city}
-                                                    className="h-9 w-9 rounded-full ring-2 ring-[#0b0714]"
+                                                    className="h-9 w-9 rounded-full "
                                                     sizes="36px"
                                                 />
                                             ))}
@@ -72,7 +72,7 @@ export function MarketingNavbar() {
                         prefetch={false}
                                             key={item.href}
                                             href={item.href}
-                                            className="group flex min-h-16 items-center gap-3 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-3 transition hover:border-violet-300/40 hover:bg-violet-400/10"
+                                            className="group flex min-h-16 items-center gap-3 rounded-lg bg-white/[0.04] px-3 py-3 transition hover:bg-violet-400/10"
                                         >
                                             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-violet-500/15 text-violet-200 transition group-hover:bg-violet-500 group-hover:text-white">
                                                 <item.icon className="h-5 w-5" />
@@ -86,7 +86,7 @@ export function MarketingNavbar() {
                                     ))}
                                 </div>
 
-                                <div className="mt-auto space-y-2 border-t border-white/10 pt-4">
+                                <div className="mt-auto space-y-2 pt-4">
                                     <Button
                                         asChild
                                         className="h-12 w-full rounded-lg bg-violet-500 font-bold text-white shadow-lg shadow-violet-500/25 hover:bg-violet-400"
@@ -99,7 +99,7 @@ export function MarketingNavbar() {
                                     <Button
                                         asChild
                                         variant="outline"
-                                        className="h-11 w-full rounded-lg border-white/10 bg-white/[0.04] text-white hover:bg-white/10 hover:text-white"
+                                        className="h-11 w-full rounded-lg bg-white/[0.04] text-white hover:bg-white/10 hover:text-white"
                                     >
                                         <Link prefetch={false} href="/sign-in">
                                             Sign in

@@ -1,3 +1,4 @@
+vi.mock("@/lib/usage-tracking", () => ({ getFreshUserTier: vi.fn(async () => "pro") }));
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach,afterEach,describe,it,expect,vi } from "vitest";

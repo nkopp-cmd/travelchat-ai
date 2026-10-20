@@ -2,7 +2,7 @@
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Mail, Loader2, CheckCircle } from "lucide-react";
+import { Mail, Loader2, CheckCircle } from "@/components/ui/icons";
 import { itineraryMailCandidateUrl } from "@/lib/app-data/itinerary-mail-candidate-url";
 
 /** Only the authorized candidate detail page supplies this fixed owner identity. */
@@ -47,7 +47,7 @@ export function OwnerEmailPreviewDialog({ itineraryId, ownerEmail }: { itinerary
       <div className="space-y-2 py-4">
         <p className="text-sm text-muted-foreground">Your account</p>
         <p className="break-all text-sm">{ownerEmail}</p>
-        {result === "queued" && <div role="status" className="flex items-start gap-2 rounded-lg border p-3">
+        {result === "queued" && <div role="status" className="flex items-start gap-2 rounded-lg p-3">
           <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-green-500" />
           <p className="text-sm">Preview saved. No email was sent.</p>
         </div>}

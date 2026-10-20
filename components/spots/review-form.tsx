@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Star, Loader2, Calendar } from "lucide-react";
+import { Star, Loader2, Calendar } from "@/components/ui/icons";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { reviewCandidateSuffix } from "@/lib/app-data/review-candidate-url";
@@ -178,7 +178,7 @@ export function ReviewForm({ spotId, onSuccess, existingReview }: ReviewFormProp
                             value={visitDate}
                             onChange={(e) => setVisitDate(e.target.value)}
                             max={new Date().toISOString().split("T")[0]}
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="flex h-10 w-full rounded-md bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                             disabled={loading}
                         />
                     </div>

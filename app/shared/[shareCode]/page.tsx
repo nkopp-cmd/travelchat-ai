@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, Home, Instagram } from "lucide-react";
+import { Sparkles, Home, Instagram } from "@/components/ui/icons";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -205,7 +205,7 @@ export default async function SharedItineraryPage({ params, searchParams }: { pa
                     />
 
                     {/* CTA Banner */}
-                    <section className="rounded-xl border border-violet-300/15 bg-[#10081c]/82 p-3 shadow-2xl shadow-violet-950/20 backdrop-blur-xl sm:p-4">
+                    <section className="rounded-xl bg-[#10081c]/82 p-3 shadow-2xl shadow-violet-950/20 backdrop-blur-xl sm:p-4">
                             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                 <div className="min-w-0">
                                     <h3 className="font-semibold leading-tight">Make this trip yours</h3>
@@ -225,7 +225,7 @@ export default async function SharedItineraryPage({ params, searchParams }: { pa
 
                     {/* Story Slides Gallery */}
                     {itinerary.storySlides && Object.keys(itinerary.storySlides).length > 0 && (
-                        <Card className="border-violet-200/50 overflow-hidden">
+                        <Card className=" overflow-hidden">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-lg">
                                     <Instagram className="h-5 w-5 text-violet-600" />
@@ -253,7 +253,7 @@ export default async function SharedItineraryPage({ params, searchParams }: { pa
                                                     href={slides[key]}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="group relative aspect-[9/16] rounded-xl overflow-hidden border border-border/50 hover:border-violet-400 transition-all hover:shadow-lg"
+                                                    className="group relative aspect-[9/16] rounded-xl overflow-hidden transition-all hover:shadow-lg"
                                                 >
                                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                                     <img
@@ -284,7 +284,7 @@ export default async function SharedItineraryPage({ params, searchParams }: { pa
                                 insights={itineraryInsights}
                                 title="Trip notes"
                                 description="Practical tips and transport context stay outside the day schedule."
-                                className="border-violet-300/15 bg-violet-950/[0.18]"
+                                className=" bg-violet-950/[0.18]"
                             />
                         </aside>
 
@@ -316,7 +316,7 @@ export default async function SharedItineraryPage({ params, searchParams }: { pa
                     </div>
 
                 {/* Footer CTA */}
-                <Card className="bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-950/20 dark:to-indigo-950/20 border-violet-200/50">
+                <Card className="bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-950/20 dark:to-indigo-950/20 ">
                     <CardContent className="p-6">
                         <div className="text-center space-y-4">
                             <div>

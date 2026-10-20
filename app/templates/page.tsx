@@ -2,7 +2,7 @@ import { templates } from "@/lib/templates";
 import { TemplatePicker } from "@/components/templates/template-picker";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, ArrowLeft } from "lucide-react";
+import { Sparkles, ArrowLeft } from "@/components/ui/icons";
 import Link from "next/link";
 import { AppBackground } from "@/components/layout/app-background";
 import { GradientText } from "@/components/ui/gradient-text";
@@ -46,7 +46,7 @@ export default function TemplatesPage() {
 
         {/* Header */}
         <div className="mx-auto mb-2 max-w-3xl text-center sm:mb-3">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-black/5 bg-white/70 px-2.5 py-1 text-xs font-medium text-violet-700 backdrop-blur-sm dark:border-white/10 dark:bg-white/5 dark:text-violet-400">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-2.5 py-1 text-xs font-medium text-violet-700 backdrop-blur-sm dark:bg-white/5 dark:text-violet-400">
             <Sparkles className="h-3.5 w-3.5" />
             Start with a Template
           </div>
@@ -62,26 +62,26 @@ export default function TemplatesPage() {
           </p>
 
           <div className="mt-2 flex flex-wrap justify-center gap-1.5">
-            <Badge variant="secondary" className="border border-black/5 bg-white/70 text-[11px] backdrop-blur-sm dark:border-white/10 dark:bg-white/5 sm:text-xs">
+            <Badge variant="secondary" className=" bg-white/70 text-[11px] backdrop-blur-sm dark:bg-white/5 sm:text-xs">
               {templates.length} Templates
             </Badge>
-            <Badge variant="secondary" className="border border-black/5 bg-white/70 text-[11px] backdrop-blur-sm dark:border-white/10 dark:bg-white/5 sm:text-xs">
+            <Badge variant="secondary" className=" bg-white/70 text-[11px] backdrop-blur-sm dark:bg-white/5 sm:text-xs">
               AI-Powered
             </Badge>
-            <Badge variant="secondary" className="border border-black/5 bg-white/70 text-[11px] backdrop-blur-sm dark:border-white/10 dark:bg-white/5 sm:text-xs">
+            <Badge variant="secondary" className=" bg-white/70 text-[11px] backdrop-blur-sm dark:bg-white/5 sm:text-xs">
               Fully Customizable
             </Badge>
           </div>
         </div>
 
         <div className="mb-2 grid grid-cols-3 gap-1.5 text-center sm:mx-auto sm:mb-3 sm:max-w-xl sm:gap-2">
-          <Badge className="justify-center border border-emerald-200/50 bg-emerald-100/80 px-2 py-1 text-[11px] text-emerald-700 dark:border-emerald-700/30 dark:bg-emerald-900/30 dark:text-emerald-300">
+          <Badge className="justify-center bg-emerald-100/80 px-2 py-1 text-[11px] text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
             Relaxed {paceCounts.relaxed}
           </Badge>
-          <Badge className="justify-center border border-blue-200/50 bg-blue-100/80 px-2 py-1 text-[11px] text-blue-700 dark:border-blue-700/30 dark:bg-blue-900/30 dark:text-blue-300">
+          <Badge className="justify-center bg-blue-100/80 px-2 py-1 text-[11px] text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
             Moderate {paceCounts.moderate}
           </Badge>
-          <Badge className="justify-center border border-orange-200/50 bg-orange-100/80 px-2 py-1 text-[11px] text-orange-700 dark:border-orange-700/30 dark:bg-orange-900/30 dark:text-orange-300">
+          <Badge className="justify-center bg-orange-100/80 px-2 py-1 text-[11px] text-orange-700 dark:bg-orange-900/30 dark:text-orange-300">
             Active {paceCounts.active}
           </Badge>
         </div>
@@ -89,7 +89,7 @@ export default function TemplatesPage() {
         <TemplatePicker templates={templates} />
 
         {/* Custom Option CTA */}
-        <div className="mt-3 hidden border-t border-black/5 pt-3 text-center dark:border-white/10 sm:mt-4 sm:pt-4 md:block lg:max-w-[calc(100%-22rem)]">
+        <div className="mt-3 hidden pt-3 text-center sm:mt-4 sm:pt-4 md:block lg:max-w-[calc(100%-22rem)]">
           <h3 className="mb-1.5 text-base font-bold sm:text-lg">
             Don&apos;t see what you&apos;re looking for?
           </h3>

@@ -1,3 +1,4 @@
+vi.mock("@/lib/usage-tracking", () => ({ getFreshUserTier: vi.fn(async () => "pro") }));
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
@@ -75,3 +76,8 @@ describe("itinerary save candidate route", () => {
     expect(mocks.server).not.toHaveBeenCalled();
   });
 });
+
+ it("requires paid save authority before source reads or geocoding", async () => {
+ const {getFreshUserTier}=await import("@/lib/usage-tracking");vi.mocked(getFreshUserTier).mockResolvedValueOnce("free");
+ const response=await request("www.localley.io", "");expect(response.status).toBe(402);expect(mocks.server).not.toHaveBeenCalled();expect(mocks.geocode).not.toHaveBeenCalled();
+ });

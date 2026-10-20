@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useWizard } from "./wizard-context";
-import { Settings, Users, Zap, Compass } from "lucide-react";
+import { Settings, Users, Zap, Compass } from "@/components/ui/icons";
 import { Slider } from "@/components/ui/slider";
 
 const PACE_OPTIONS = [
@@ -94,8 +94,8 @@ export function StepPreferences() {
                   "rounded-xl p-2.5 text-center transition-all sm:p-3",
                   "focus:outline-none focus:ring-2 focus:ring-violet-500",
                   isSelected
-                    ? "bg-violet-600/20 border-2 border-violet-500"
-                    : "bg-white/5 border-2 border-transparent hover:bg-white/10"
+                    ? "bg-violet-600/20 "
+                    : "bg-white/5 hover:bg-white/10"
                 )}
               >
                 <div className={cn("font-medium", isSelected ? "text-white" : "text-gray-300")}>
@@ -126,8 +126,8 @@ export function StepPreferences() {
                   "rounded-xl p-2 text-center transition-all sm:p-3",
                   "focus:outline-none focus:ring-2 focus:ring-violet-500",
                   isSelected
-                    ? "bg-violet-600/20 border-2 border-violet-500"
-                    : "bg-white/5 border-2 border-transparent hover:bg-white/10"
+                    ? "bg-violet-600/20 "
+                    : "bg-white/5 hover:bg-white/10"
                 )}
               >
                 <div className="mb-1 text-xl sm:text-2xl">{option.emoji}</div>

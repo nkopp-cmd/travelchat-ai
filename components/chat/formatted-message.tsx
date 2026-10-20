@@ -1,7 +1,7 @@
 "use client";
 
 import { parseMessageContent, MessageSection, isItineraryContent } from "@/lib/chat-formatting";
-import { Clock, MapPin, Calendar } from "lucide-react";
+import { Clock, MapPin, Calendar } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import { ItineraryPreview } from "./itinerary-preview";
 
@@ -35,7 +35,7 @@ export function FormattedMessage({ content, role, conversationId }: FormattedMes
         switch (section.type) {
             case 'day-header':
                 return (
-                    <div key={index} className="flex items-center gap-2 mt-4 mb-2 pb-2 border-b border-border/30">
+                    <div key={index} className="flex items-center gap-2 mt-4 mb-2 pb-2 ">
                         <Calendar className="h-4 w-4 text-violet-500" />
                         <h3 className="font-bold text-base">{cleanContent}</h3>
                     </div>

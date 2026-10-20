@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "@/styles/borderless-tokens.css";
+import "@/styles/borderless-theme.css";
 import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/seo/json-ld";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
@@ -98,7 +100,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" data-localley-design="borderless">
       <head>
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />

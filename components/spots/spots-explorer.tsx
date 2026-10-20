@@ -10,7 +10,7 @@ import { Spot } from "@/types";
 import { SpotsFilterState, FilterOptions } from "@/lib/spots/types";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { Button } from "@/components/ui/button";
-import { Loader2, Search, Grid3X3, List, Map } from "lucide-react";
+import { Loader2, Search, Grid3X3, List, Map } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 
 const SpotsMap = dynamic(() => import("./spots-map"), {
@@ -153,8 +153,6 @@ export function SpotsExplorer({
         currentFilters.score ||
         currentFilters.search;
 
-    const startIndex = (currentPage - 1) * pageSize + 1;
-    const endIndex = Math.min(currentPage * pageSize, totalCount);
 
     return (
         <>
@@ -168,9 +166,9 @@ export function SpotsExplorer({
             />
 
             {/* Results Header */}
-            <div ref={resultsTopRef} className="mb-4 grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 scroll-mt-4 sm:gap-3">
+            <div id="spot-results" ref={resultsTopRef} className="mb-4 flex min-w-0 flex-wrap justify-between items-center gap-2 scroll-mt-4 sm:gap-3">
                 <div
-                    className="flex min-w-0 items-center gap-2 overflow-hidden text-sm text-muted-foreground"
+                    className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground"
                     aria-live="polite"
                 >
                     {isPending && (
@@ -179,25 +177,25 @@ export function SpotsExplorer({
                             aria-hidden="true"
                         />
                     )}
-                    <span className="min-w-0 truncate">
+                    <span className="min-w-0">
                         {isPending
                             ? "Loading..."
                             : totalCount > 0
-                                ? `Showing ${startIndex}-${endIndex} of ${totalCount} spots`
+                                ? `${totalCount.toLocaleString("en-US")} spots`
                                 : "No spots found"}
                     </span>
                 </div>
 
                 {/* View Mode Toggle */}
                 <div
-                    className="flex shrink-0 overflow-hidden rounded-lg border border-black/5 bg-white/50 dark:border-white/10 dark:bg-white/5"
+                    className="flex shrink-0 overflow-hidden rounded-lg bg-white/50 dark:bg-white/5"
                     role="group"
                     aria-label="View mode"
                 >
                     <Button
                         variant={viewMode === "grid" ? "secondary" : "ghost"}
                         size="icon"
-                        className="h-9 w-9 rounded-none"
+                        className="size-11 rounded-lg"
                         onClick={() => setViewMode("grid")}
                         aria-label="Grid view"
                         aria-pressed={viewMode === "grid"}
@@ -207,7 +205,7 @@ export function SpotsExplorer({
                     <Button
                         variant={viewMode === "list" ? "secondary" : "ghost"}
                         size="icon"
-                        className="h-9 w-9 rounded-none"
+                        className="size-11 rounded-lg"
                         onClick={() => setViewMode("list")}
                         aria-label="List view"
                         aria-pressed={viewMode === "list"}
@@ -217,7 +215,7 @@ export function SpotsExplorer({
                     <Button
                         variant={viewMode === "map" ? "secondary" : "ghost"}
                         size="icon"
-                        className="h-9 w-9 rounded-none"
+                        className="size-11 rounded-lg"
                         onClick={() => setViewMode("map")}
                         aria-label="Map view"
                         aria-pressed={viewMode === "map"}
@@ -242,7 +240,7 @@ export function SpotsExplorer({
                         ) : viewMode === "grid" ? (
                             <div
                                 className={cn(
-                                    "grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5",
+                                    "grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4",
                                     "transition-opacity duration-200",
                                     isPending && "opacity-60"
                                 )}

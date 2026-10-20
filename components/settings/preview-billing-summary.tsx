@@ -6,7 +6,7 @@ import type { PreviewBillingSettings } from "@/lib/app-data/preview-billing-sett
 /** No links or payment actions: this is a private, read-only preview of the existing billing state. */
 export function PreviewBillingSummary({ summary }: { summary: PreviewBillingSettings | null }) {
   return <section aria-label="Preview billing">
-    <Card className="rounded-2xl border-white/10 bg-white/[0.055] shadow-2xl shadow-violet-950/20 backdrop-blur-xl">
+    <Card className="rounded-2xl bg-white/[0.055] shadow-2xl shadow-violet-950/20 backdrop-blur-xl">
       <CardHeader>
         <CardTitle>Billing</CardTitle>
         <CardDescription>Preview plan and usage. Checkout and billing changes are unavailable here.</CardDescription>
@@ -15,13 +15,13 @@ export function PreviewBillingSummary({ summary }: { summary: PreviewBillingSett
         {summary ? <>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-lg font-semibold">{summary.plan}</p>
-            <Badge variant="secondary" className="border-white/10 bg-white/10">{summary.status}</Badge>
+            <Badge variant="secondary" className=" bg-white/10">{summary.status}</Badge>
           </div>
           {summary.periodEnd && <p className="text-sm text-muted-foreground">
             {summary.cancelAtPeriodEnd ? "Subscription ends" : "Billing period ends"}: {summary.periodEnd} (UTC)
           </p>}
           {summary.trialEnd && <p className="text-sm text-muted-foreground">Trial ends: {summary.trialEnd} (UTC)</p>}
-          {summary.cancelAtPeriodEnd && <p className="rounded-xl border border-amber-300/20 bg-amber-400/10 p-3 text-sm text-amber-100">
+          {summary.cancelAtPeriodEnd && <p className="rounded-xl bg-amber-400/10 p-3 text-sm text-amber-100">
             Cancellation is scheduled for the end of this billing period.
           </p>}
           <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">

@@ -15,7 +15,7 @@ import {
   Sparkles,
   Ticket,
   User,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { AppBackground } from "@/components/layout/app-background";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -118,21 +118,21 @@ function SocialSubmissionsUnavailable() {
       <div className="mx-auto max-w-3xl space-y-5 pb-8">
         <Link
           href="/spots"
-          className="inline-flex min-h-10 items-center rounded-full border border-violet-200/15 bg-white/[0.055] px-3 text-sm text-violet-50/70 transition-colors hover:bg-violet-400/10 hover:text-white"
+          className="inline-flex min-h-10 items-center rounded-full bg-white/[0.055] px-3 text-sm text-violet-50/70 transition-colors hover:bg-violet-400/10 hover:text-white"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to spots
         </Link>
         <Link
           href="/spots/submissions"
-          className="ml-2 inline-flex min-h-10 items-center rounded-full border border-violet-200/15 bg-white/[0.055] px-3 text-sm text-violet-50/70 transition-colors hover:bg-violet-400/10 hover:text-white"
+          className="ml-2 inline-flex min-h-10 items-center rounded-full bg-white/[0.055] px-3 text-sm text-violet-50/70 transition-colors hover:bg-violet-400/10 hover:text-white"
         >
           <Images className="mr-2 h-4 w-4" />
           Track submissions
         </Link>
 
-        <section className="rounded-lg border border-violet-200/15 bg-[#100b1c]/[0.86] p-5 shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:p-7">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-violet-200/15 bg-violet-400/10 px-3 py-1 text-sm font-medium text-violet-100">
+        <section className="rounded-lg bg-[#100b1c]/[0.86] p-5 shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:p-7">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-violet-400/10 px-3 py-1 text-sm font-medium text-violet-100">
             <Sparkles className="h-4 w-4" />
             Coming soon
           </div>
@@ -246,17 +246,17 @@ function SubmitSpotForm() {
       <div className="mx-auto max-w-5xl space-y-5 pb-8">
         <Link
           href="/spots"
-          className="inline-flex min-h-10 items-center rounded-full border border-violet-200/15 bg-white/[0.055] px-3 text-sm text-violet-50/70 transition-colors hover:bg-violet-400/10 hover:text-white"
+          className="inline-flex min-h-10 items-center rounded-full bg-white/[0.055] px-3 text-sm text-violet-50/70 transition-colors hover:bg-violet-400/10 hover:text-white"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to spots
         </Link>
 
         <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
-          <section className="rounded-lg border border-violet-200/15 bg-[#100b1c]/[0.86] p-4 shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:p-6">
+          <section className="rounded-lg bg-[#100b1c]/[0.86] p-4 shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:p-6">
             <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
               <div>
-                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-violet-200/15 bg-violet-400/10 px-3 py-1 text-sm font-medium text-violet-100">
+                <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-violet-400/10 px-3 py-1 text-sm font-medium text-violet-100">
                   <Sparkles className="h-4 w-4" />
                   Community discovery
                 </div>
@@ -268,10 +268,10 @@ function SubmitSpotForm() {
                 </p>
               </div>
               <div className="flex gap-2">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.06] text-violet-100">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-white/[0.06] text-violet-100">
                   <Instagram className="h-5 w-5" />
                 </span>
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.06] text-violet-100">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-white/[0.06] text-violet-100">
                   <ImagePlus className="h-5 w-5" />
                 </span>
               </div>
@@ -279,11 +279,11 @@ function SubmitSpotForm() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               {shareHandoff === "received" ? (
-                <div role="status" className="rounded-lg border border-emerald-200/20 bg-emerald-400/10 px-3 py-2 text-sm text-emerald-100">
+                <div role="status" className="rounded-lg bg-emerald-400/10 px-3 py-2 text-sm text-emerald-100">
                   Shared post received. Sign in and submit when ready.
                 </div>
               ) : shareHandoff === "unsupported" ? (
-                <div role="alert" className="rounded-lg border border-amber-200/25 bg-amber-400/10 px-3 py-2 text-sm text-amber-100">
+                <div role="alert" className="rounded-lg bg-amber-400/10 px-3 py-2 text-sm text-amber-100">
                   The shared item did not include a TikTok or Instagram post URL. Paste its link below.
                 </div>
               ) : null}
@@ -298,7 +298,7 @@ function SubmitSpotForm() {
                   placeholder="https://www.instagram.com/reel/..."
                   required
                   inputMode="url"
-                  className="border-violet-200/15 bg-white/[0.06] text-white placeholder:text-violet-50/55"
+                  className=" bg-white/[0.06] text-white placeholder:text-violet-50/55"
                 />
               </div>
 
@@ -315,7 +315,7 @@ function SubmitSpotForm() {
                       onChange={(event) => setEmail(event.target.value)}
                       placeholder="For credits and history"
                       type="email"
-                      className="border-violet-200/15 bg-white/[0.06] pl-9 text-white placeholder:text-violet-50/55"
+                      className=" bg-white/[0.06] pl-9 text-white placeholder:text-violet-50/55"
                     />
                   </div>
                 </div>
@@ -331,7 +331,7 @@ function SubmitSpotForm() {
                       value={contributorName}
                       onChange={(event) => setContributorName(event.target.value)}
                       placeholder="Optional"
-                      className="border-violet-200/15 bg-white/[0.06] pl-9 text-white placeholder:text-violet-50/55"
+                      className=" bg-white/[0.06] pl-9 text-white placeholder:text-violet-50/55"
                     />
                   </div>
                 </div>
@@ -347,7 +347,7 @@ function SubmitSpotForm() {
                     value={cityHint}
                     onChange={(event) => setCityHint(event.target.value)}
                     placeholder="Seoul, Seongsu, Ikseon-dong..."
-                    className="border-violet-200/15 bg-white/[0.06] text-white placeholder:text-violet-50/55"
+                    className=" bg-white/[0.06] text-white placeholder:text-violet-50/55"
                   />
                 </div>
 
@@ -360,13 +360,13 @@ function SubmitSpotForm() {
                     value={notes}
                     onChange={(event) => setNotes(event.target.value)}
                     placeholder="Place name, sign text, nearest station, caption clue, or address"
-                    className="min-h-24 border-violet-200/15 bg-white/[0.06] text-white placeholder:text-violet-50/55"
+                    className="min-h-24 bg-white/[0.06] text-white placeholder:text-violet-50/55"
                   />
                 </div>
               </div>
 
               {isLoaded && !isSignedIn ? (
-                <div className="flex flex-col gap-3 rounded-lg border border-violet-200/20 bg-violet-400/10 p-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-3 rounded-lg bg-violet-400/10 p-3 sm:flex-row sm:items-center sm:justify-between">
                   <p className="text-sm leading-6 text-violet-50/75">
                     Sign in to save this post to the community tracker.
                   </p>
@@ -392,7 +392,7 @@ function SubmitSpotForm() {
             </form>
           </section>
 
-          <aside className="rounded-lg border border-violet-200/15 bg-[#100b1c]/[0.86] p-4 shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:p-5">
+          <aside className="rounded-lg bg-[#100b1c]/[0.86] p-4 shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:p-5">
             {result ? (
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
@@ -418,7 +418,7 @@ function SubmitSpotForm() {
                 </div>
 
                 <div className="grid gap-2">
-                  <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
+                  <div className="rounded-lg bg-white/[0.055] p-3">
                     <span className="flex items-center gap-2 text-sm font-semibold text-white">
                       <Images className="h-4 w-4 text-violet-300" />
                       Community submission tracker
@@ -429,14 +429,14 @@ function SubmitSpotForm() {
                   </div>
 
                   {result.spots && result.spots.length > 0 && (
-                    <div className="rounded-lg border border-emerald-200/15 bg-emerald-400/10 p-3">
+                    <div className="rounded-lg bg-emerald-400/10 p-3">
                       <span className="text-sm font-semibold text-white">Community spots ready</span>
                       <div className="mt-2 grid gap-2">
                         {result.spots.map((spot) => (
                           <Link
                             key={spot.spotId}
                             href={spot.spotUrl}
-                            className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-violet-50/80 transition-colors hover:border-violet-200/35 hover:bg-white/10 hover:text-white"
+                            className="rounded-lg bg-black/20 px-3 py-2 text-sm text-violet-50/80 transition-colors hover:bg-white/10 hover:text-white"
                           >
                             <span className="block font-semibold text-white">
                               {spot.name || "Created spot"}
@@ -451,7 +451,7 @@ function SubmitSpotForm() {
                   )}
 
                   {unresolvedCandidates.length > 0 && (
-                    <div className="rounded-lg border border-amber-200/20 bg-amber-400/10 p-3">
+                    <div className="rounded-lg bg-amber-400/10 p-3">
                       <span className="text-sm font-semibold text-amber-100">
                         {result.spots?.length
                           ? "Other places still need review"
@@ -461,7 +461,7 @@ function SubmitSpotForm() {
                         {unresolvedCandidates.slice(0, 6).map((candidate) => (
                           <div
                             key={getCandidateKey(candidate)}
-                            className="rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm text-violet-50/75"
+                            className="rounded-md bg-black/20 px-3 py-2 text-sm text-violet-50/75"
                           >
                             <span className="block font-semibold text-white">
                               {candidate.spotName || "Unverified place"}
@@ -486,7 +486,7 @@ function SubmitSpotForm() {
                     </div>
                   )}
 
-                  <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
+                  <div className="rounded-lg bg-white/[0.055] p-3">
                     <span className="flex items-center gap-2 text-sm font-semibold text-white">
                       <Ticket className="h-4 w-4 text-violet-300" />
                       Tokens
@@ -497,7 +497,7 @@ function SubmitSpotForm() {
                   </div>
 
                   {result.research?.summary && (
-                    <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
+                    <div className="rounded-lg bg-white/[0.055] p-3">
                       <span className="text-sm font-semibold text-white">Research</span>
                       <p className="mt-1 text-sm leading-6 text-violet-50/65">
                         {result.research.summary}
@@ -514,7 +514,7 @@ function SubmitSpotForm() {
                     </Link>
                   </Button>
                 )}
-                <Button asChild variant="outline" className="w-full rounded-lg border-violet-200/20 bg-white/[0.04] text-violet-50 hover:bg-violet-400/10 hover:text-white">
+                <Button asChild variant="outline" className="w-full rounded-lg bg-white/[0.04] text-violet-50 hover:bg-violet-400/10 hover:text-white">
                   <Link href={getSubmissionTrackerHref(result)}>
                     Track this submission
                     <Images className="h-4 w-4" />
@@ -523,13 +523,13 @@ function SubmitSpotForm() {
               </div>
             ) : (
               <div className="space-y-3">
-                <Button asChild variant="outline" className="w-full rounded-lg border-violet-200/20 bg-white/[0.04] text-violet-50 hover:bg-violet-400/10 hover:text-white">
+                <Button asChild variant="outline" className="w-full rounded-lg bg-white/[0.04] text-violet-50 hover:bg-violet-400/10 hover:text-white">
                   <Link href="/spots/submissions">
                     <Images className="h-4 w-4" />
                     Track submissions
                   </Link>
                 </Button>
-                <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
+                <div className="rounded-lg bg-white/[0.055] p-3">
                   <span className="flex items-center gap-2 text-sm font-semibold text-white">
                     <Ticket className="h-4 w-4 text-violet-300" />
                     25 tokens
@@ -538,7 +538,7 @@ function SubmitSpotForm() {
                     Paste only the social post URL. Add email later if you want credits tied to you.
                   </p>
                 </div>
-                <div className="rounded-lg border border-white/10 bg-white/[0.055] p-3">
+                <div className="rounded-lg bg-white/[0.055] p-3">
                   <span className="text-sm font-semibold text-white">Credit</span>
                   <p className="mt-1 text-sm leading-6 text-violet-50/60">
                     Public credit uses your credit name, masked email, or anonymous Localley contributor.

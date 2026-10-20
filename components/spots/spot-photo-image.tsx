@@ -24,19 +24,19 @@ function PhotoImage({ photo, alt, className, sizes, priority, loading, creditCla
   const unavailable = !photo || state === "failed";
   return <figure className="flex h-full w-full flex-col">
     <div data-testid={hero ? "spot-detail-hero" : undefined} className={cn("relative min-h-0 flex-1", frameClassName)}>
-      {unavailable ? <div role="status" className="flex h-full min-h-24 w-full items-center justify-center bg-violet-950/60 p-2 text-center text-xs text-white">
+      {unavailable ? <div role="status" className="flex h-full min-h-24 w-full items-center justify-center bg-raised p-2 text-center text-xs text-muted-foreground">
         {loading ? "Loading venue photos..." : "Photo unavailable"}
       </div> : <Image key={photo.url} src={photo.url} alt={alt} fill unoptimized sizes={sizes} priority={priority} className={className}
         onLoad={() => setImageState({url:photo.url,status:"loaded"})} onError={() => setImageState({url:photo.url,status:"failed"})} />}
       {children}
     </div>
-    {!unavailable && photo && <figcaption aria-label="Photo source and author credits" className={`relative z-10 shrink-0 break-words border-t border-white/5 bg-[#15111f] px-3 py-1.5 text-[11px] leading-4 text-violet-100/65 focus-visible:outline focus-visible:outline-2 ${creditClassName}`}>
+    {!unavailable && photo && <figcaption aria-label="Photo source and author credits" className={`relative z-10 shrink-0 break-words bg-surface px-3 py-1.5 text-[11px] leading-4 text-muted-foreground focus-visible:outline focus-visible:outline-2 ${creditClassName}`}>
       <span translate="no" className="whitespace-nowrap text-[11px] font-normal not-italic tracking-normal text-violet-100/75">{photo.sourceLabel === "Google listing photo" ? "Google Maps" : photo.sourceLabel}</span>{photo.attributions?.length ? " · " : null}
       {photo.attributions?.map((author, index) => {
         let href: string | undefined;
         try { const url = new URL(author.uri || ""); if (url.protocol === "https:" && !url.username && !url.password) href = url.href; } catch {}
         return <span key={index} className="mr-2 inline-block text-[11px]">{href
-          ? <a href={href} target="_blank" rel="noopener noreferrer" className="underline" onClick={(event) => event.stopPropagation()}>{author.displayName}</a>
+          ? <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 min-w-11 items-center underline" onClick={(event) => event.stopPropagation()}>{author.displayName}</a>
           : author.displayName}</span>;
       })}
     </figcaption>}
@@ -45,7 +45,7 @@ function PhotoImage({ photo, alt, className, sizes, priority, loading, creditCla
 
 export function VenueHeroPhoto({ name, children }: { name: string; children?: ReactNode }) {
   const { data, loading, spotId } = useDetailVenuePhotos();
-  return <SpotPhotoImage key={spotId} photo={data?.photos[0]} alt={name} sizes="(max-width: 768px) 100vw, 1024px" priority loading={loading} hero frameClassName="relative aspect-[4/3] min-h-60 w-full overflow-hidden rounded-lg border border-violet-200/15 shadow-2xl shadow-violet-950/30 sm:aspect-[16/10] sm:min-h-0 md:aspect-[21/9]">{children}</SpotPhotoImage>;
+  return <SpotPhotoImage key={spotId} photo={data?.photos[0]} alt={name} sizes="(max-width: 768px) 100vw, 1024px" priority loading={loading} hero frameClassName="relative aspect-[4/3] min-h-60 w-full overflow-hidden rounded-lg shadow-2xl shadow-violet-950/30 sm:aspect-[16/10] sm:min-h-0 md:aspect-[21/9]">{children}</SpotPhotoImage>;
 }
 
 export function VenuePhotoThumbnails({ name }: { name: string }) {
@@ -53,7 +53,7 @@ export function VenuePhotoThumbnails({ name }: { name: string }) {
   const photos = data?.photos.slice(1) || [];
   if (!photos.length) return null;
   return <div data-testid="venue-thumbnails" className="grid gap-2 sm:gap-3" style={{ gridTemplateColumns: `repeat(${photos.length}, minmax(0, 1fr))` }}>
-    {photos.map((photo, index) => <div key={`${spotId}:${photo.id}`} className="relative overflow-hidden rounded-lg border border-violet-200/15 bg-violet-950/40">
+    {photos.map((photo, index) => <div key={`${spotId}:${photo.id}`} className="relative overflow-hidden rounded-lg bg-violet-950/40">
       <SpotPhotoImage photo={photo} alt={`${name} photo ${index + 2}`} frameClassName="aspect-[4/3] w-full" sizes="(max-width: 768px) 33vw, 320px" />
     </div>)}
   </div>;

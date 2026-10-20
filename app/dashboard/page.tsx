@@ -47,11 +47,11 @@ export default async function DashboardPage({
         : undefined;
 
     return (
-        <AppBackground ambient fitParent className="lg:h-[calc(100dvh-8rem-1px)]" contentClassName="lg:h-full">
+        <AppBackground ambient fitParent className="lg:h-[calc(100dvh-var(--ll-topbar-height)-4rem)]" contentClassName="lg:h-full">
             <div className="flex flex-col h-full overflow-hidden">
                 {/* Top: Recent Itineraries Stories */}
                 {recentItineraries.length > 0 && (
-                    <div className="flex-shrink-0 border-b border-white/10 bg-[#0b0714]/65 px-4 py-3 shadow-lg shadow-violet-950/20 backdrop-blur-xl">
+                    <div className="flex-shrink-0 bg-[#0b0714]/65 px-4 py-3 shadow-lg shadow-violet-950/20 backdrop-blur-xl">
                         <RecentStories itineraries={recentItineraries} />
                     </div>
                 )}

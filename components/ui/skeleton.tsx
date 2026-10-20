@@ -31,7 +31,7 @@ export function SpotCardSkeleton() {
                 <Skeleton className="h-4 w-full mb-2" />
                 <Skeleton className="h-4 w-5/6" />
             </CardContent>
-            <CardFooter className="p-4 pt-0 border-t bg-muted/50">
+            <CardFooter className="p-4 pt-0 bg-muted/50">
                 <div className="flex items-center justify-between w-full">
                     <Skeleton className="h-4 w-20" />
                     <Skeleton className="h-4 w-16" />
@@ -46,7 +46,7 @@ export function ChatMessageSkeleton() {
     return (
         <div className="flex gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
             <Skeleton className="h-8 w-8 rounded-full shrink-0" />
-            <div className="rounded-2xl px-5 py-4 bg-muted/50 border border-border/40 max-w-[85%] space-y-2">
+            <div className="rounded-2xl px-5 py-4 bg-muted/50 max-w-[85%] space-y-2">
                 <Skeleton className="h-4 w-64" />
                 <Skeleton className="h-4 w-48" />
                 <Skeleton className="h-4 w-56" />
@@ -103,7 +103,7 @@ export function ProfileStatsSkeleton() {
 // Table Row Skeleton
 export function TableRowSkeleton({ columns = 4 }: { columns?: number }) {
     return (
-        <div className="flex items-center gap-4 p-4 border-b">
+        <div className="flex items-center gap-4 p-4 ">
             {[...Array(columns)].map((_, i) => (
                 <Skeleton key={i} className="h-4 flex-1" />
             ))}

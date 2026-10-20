@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, RefreshCw } from "lucide-react";
+import { ArrowLeft, CheckCircle2, RefreshCw } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,7 +20,7 @@ export function PreviewGuideDashboard({ state }: { state: PreviewGuideApplicatio
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Guide dashboard</h1>
         <p className="mt-3 max-w-xl text-white/75">Check your saved application and local expertise.</p>
       </header>
-      <Card className="liquid-panel border-white/10">
+      <Card className="liquid-panel ">
         <CardHeader><CardTitle>Application status</CardTitle><CardDescription>Preview applications only. Earnings, payouts, Stripe onboarding and email delivery are unavailable here.</CardDescription></CardHeader>
         <CardContent className="space-y-5">
           {state.kind === "unavailable" ? <p role="status">Preview guide dashboard is unavailable for this account.</p>

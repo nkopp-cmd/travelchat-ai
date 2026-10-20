@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, Mail, Newspaper, Bell, Share2 } from "lucide-react";
+import { Loader2, Mail, Newspaper, Bell, Share2 } from "@/components/ui/icons";
 import { useToast } from "@/hooks/use-toast";
 
 interface EmailPreferences {

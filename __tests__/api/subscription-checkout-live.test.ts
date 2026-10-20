@@ -39,3 +39,12 @@ describe("live checkout preserves billing state", () => {
     m.user.mockResolvedValue(user); expect((await POST(request())).status).toBe(403); expect(m.customer).not.toHaveBeenCalled(); expect(m.read).not.toHaveBeenCalled();
   });
 });
+
+ it("returns only to the fixed itinerary preview for save checkout", async () => {
+ const response=await POST(new NextRequest("https://www.localley.io/api/subscription/checkout",{method:"POST",body:JSON.stringify({tier:"pro",returnTo:"itinerary-preview"})}));
+ expect(response.status).toBe(200);expect(m.checkout.mock.calls[0][0].successUrl).toMatch(/\/itineraries\/preview\?payment=success$/);expect(m.checkout.mock.calls[0][0].cancelUrl).toMatch(/\/itineraries\/preview\?payment=canceled$/);
+ });
+ it("refuses arbitrary checkout redirects before provider calls", async () => {
+ const response=await POST(new NextRequest("https://www.localley.io/api/subscription/checkout",{method:"POST",body:JSON.stringify({tier:"pro",returnTo:"https://evil.test"})}));
+ expect(response.status).toBe(400);expect(m.customer).not.toHaveBeenCalled();expect(m.checkout).not.toHaveBeenCalled();
+ });

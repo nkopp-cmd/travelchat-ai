@@ -2,109 +2,29 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Compass, MessageCircle, Map } from "lucide-react";
+import { Compass, MessageCircle, Map } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import { isMobileBottomNavHidden } from "@/lib/layout/mobile-chrome";
 
-// Simplified 3-tab navigation for mobile
-// Profile is accessible via top-right avatar menu
 const navItems = [
-  {
-    href: "/dashboard",
-    label: "Explore",
-    icon: Compass,
-  },
-  {
-    href: "/chat",
-    label: "Chat",
-    icon: MessageCircle,
-    isChat: true, // Special elevated styling
-  },
-  {
-    href: "/itineraries",
-    label: "My Trips",
-    icon: Map,
-  },
+  { href: "/spots", label: "Explore", icon: Compass, paths: ["/spots", "/dashboard", "/explore"] },
+  { href: "/chat", label: "Chat", icon: MessageCircle, paths: ["/chat"] },
+  { href: "/itineraries", label: "My trips", icon: Map, paths: ["/itineraries"] },
 ];
 
 export function MobileBottomNav() {
   const pathname = usePathname();
-
   if (isMobileBottomNavHidden(pathname)) return null;
-
-  return (
-    <nav
-      className={cn(
-        "fixed bottom-0 left-0 right-0 z-50",
-        "md:hidden", // Only show on mobile
-        "bg-[#0b0714]/88 backdrop-blur-xl",
-        "border-t border-violet-200/15 shadow-2xl shadow-violet-950/40",
-        "safe-area-bottom"
-      )}
-    >
-      <div className="flex items-center justify-around h-16">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href ||
-            (item.href !== "/" && pathname.startsWith(item.href));
-
-          const href = item.href;
-
-          // Chat tab gets special elevated styling
-          if (item.isChat) {
-            return (
-              <Link
-                key={item.href}
-                href={href}
-                className={cn(
-                  "flex flex-col items-center justify-center gap-1",
-                  "-mt-2" // Slightly elevated
-                )}
-              >
-                <div
-                  className={cn(
-                    "w-12 h-12 rounded-full flex items-center justify-center",
-                    "transition-all active:scale-95",
-                    isActive
-                      ? "bg-gradient-to-br from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/40"
-                      : "bg-white/[0.08] ring-1 ring-white/10"
-                  )}
-                >
-                  <item.icon className={cn(
-                    "h-6 w-6",
-                    isActive ? "text-white" : "text-violet-100/55"
-                  )} />
-                </div>
-                <span className={cn(
-                  "text-xs font-medium",
-                  isActive ? "text-violet-300" : "text-violet-100/45"
-                )}>{item.label}</span>
-              </Link>
-            );
-          }
-
-          return (
-            <Link
-              key={item.href}
-              href={href}
-              className={cn(
-                "flex flex-col items-center justify-center gap-1 px-4 py-2",
-                "min-w-[64px] transition-colors",
-                isActive
-                  ? "text-violet-300"
-                  : "text-violet-100/45 active:text-violet-100/80"
-              )}
-            >
-              <item.icon
-                className={cn(
-                  "h-6 w-6 transition-all",
-                  isActive && "scale-110"
-                )}
-              />
-              <span className="text-xs font-medium">{item.label}</span>
-            </Link>
-          );
-        })}
-      </div>
-    </nav>
-  );
+  return <nav aria-label="Main navigation" className="fixed inset-x-0 bottom-0 z-50 bg-surface/95 shadow-overlay backdrop-blur-xl safe-area-bottom md:hidden">
+    <div className="flex h-16 items-center justify-around gap-2 px-3">
+      {navItems.map(item => {
+        const active = item.paths.some(path => pathname === path || pathname.startsWith(path + '/'));
+        return <Link key={item.href} href={item.href} aria-current={active ? 'page' : undefined}
+          className={cn("flex min-h-11 min-w-[72px] flex-col items-center justify-center gap-1 rounded-xl px-4 py-1 text-muted-foreground transition-colors motion-reduce:transition-none", active && "bg-raised font-semibold text-foreground")}>
+          <item.icon weight={active ? 'fill' : 'duotone'} className="size-5" />
+          <span className="text-xs leading-4">{item.label}</span>
+        </Link>;
+      })}
+    </div>
+  </nav>;
 }

@@ -4,7 +4,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useTransition } from "react";
 import { Badge } from "@/components/ui/badge";
 import { CityOption } from "@/lib/spots/types";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Sparkles, Loader2 } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import { CityImageAvatar } from "@/components/ui/city-image";
 
@@ -49,29 +49,33 @@ export function CityQuickFilters({ cities, totalSpots }: CityQuickFiltersProps) 
     };
 
     return (
-        <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 scrollbar-hide sm:mx-0 sm:flex-wrap sm:px-0">
+        <div className="space-y-3">
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
             {cities.map((city) => {
                 const isActive = currentCity === city.slug;
 
                 return (
                     <button
                         key={city.slug}
+                        type="button"
+                        aria-label={`${city.name} ${city.count.toLocaleString("en-US")} spots`}
+                        aria-pressed={isActive}
                         onClick={() => handleCityClick(city.slug)}
                         disabled={isPending}
-                        className="group shrink-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#100b1c]"
+                        className="group min-h-11 min-w-11 max-w-full rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#100b1c]"
                     >
                         <Badge
                             variant={isActive ? "default" : "secondary"}
                             className={cn(
-                                "min-h-10 cursor-pointer gap-2 rounded-full py-1.5 pl-1.5 pr-3 text-sm transition-all duration-200",
+                                "min-h-11 max-w-full cursor-pointer flex-wrap gap-2 whitespace-normal rounded-full py-1.5 pl-1.5 pr-3 text-sm transition-all duration-200",
                                 isActive
-                                    ? "border border-violet-300/45 bg-violet-500 text-white shadow-md shadow-violet-500/20 hover:bg-violet-400"
-                                    : "border border-violet-200/15 bg-[#100b1c]/78 text-violet-50/75 backdrop-blur-sm hover:border-violet-300/35 hover:bg-violet-400/10 hover:text-white",
+                                    ? " bg-violet-500 text-white shadow-md shadow-violet-500/20 hover:bg-violet-400"
+                                    : " bg-[#100b1c]/78 text-violet-50/75 backdrop-blur-sm hover:bg-violet-400/10 hover:text-white",
                                 isPending && "opacity-60"
                             )}
                         >
-                            <CityImageAvatar city={city.name} className="h-6 w-6 rounded-full ring-1 ring-white/20" sizes="24px" />
-                            <span className="font-medium">{city.name}</span>
+                            <CityImageAvatar city={city.name} className="h-6 w-6 rounded-full " sizes="24px" />
+                            <span className="min-w-0 break-words font-medium">{city.name}</span>
                             <span
                                 className={cn(
                                     "ml-1.5 text-xs",
@@ -80,25 +84,26 @@ export function CityQuickFilters({ cities, totalSpots }: CityQuickFiltersProps) 
                                         : "text-violet-50/45"
                                 )}
                             >
-                                {city.count} spots
+                                {city.count.toLocaleString("en-US")} spots
                             </span>
                         </Badge>
                     </button>
                 );
             })}
+            </div>
 
             {/* Total spots indicator */}
-            <Badge
-                variant="outline"
-                className="min-h-10 shrink-0 rounded-full border-dashed border-violet-200/20 bg-[#100b1c]/70 px-3 py-1.5 text-sm text-violet-50/70 backdrop-blur-sm"
+            <p
+                className="flex min-w-0 items-start gap-1.5 text-sm text-violet-50/70"
+                role="status"
             >
                 {isPending ? (
-                    <Loader2 className="h-3.5 w-3.5 mr-1.5 text-violet-500 animate-spin" />
+                    <Loader2 aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-violet-500 animate-spin" />
                 ) : (
-                    <Sparkles className="h-3.5 w-3.5 mr-1.5 text-violet-500" />
+                    <Sparkles aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-violet-500" />
                 )}
-                {totalSpots} total curated spots
-            </Badge>
+                <span className="min-w-0 break-words">{totalSpots.toLocaleString("en-US")} total curated spots</span>
+            </p>
         </div>
     );
 }

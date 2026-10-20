@@ -1,0 +1,46 @@
+/* Map existing Radix/shadcn roles to the reviewed proposal. No parallel UI layer. */
+[data-localley-design="borderless"] {
+  --radius: 1rem;
+  --background: 226.667 25.714% 6.863%;
+  --foreground: 240.000 37.500% 96.863%;
+  --card: 227.143 22.581% 12.157%;
+  --card-foreground: 240.000 37.500% 96.863%;
+  --popover: 226.154 21.311% 23.922%;
+  --popover-foreground: 240.000 37.500% 96.863%;
+  --primary: 255.319 100.000% 81.569%;
+  --primary-foreground: 261.000 51.282% 15.294%;
+  --secondary: 228.000 21.739% 18.039%;
+  --secondary-foreground: 240.000 37.500% 96.863%;
+  --muted: 228.000 21.739% 18.039%;
+  --muted-foreground: 225.517 22.137% 74.314%;
+  --accent: 226.154 21.311% 23.922%;
+  --accent-foreground: 240.000 37.500% 96.863%;
+  --destructive: 352.138 67.442% 42.157%;
+  --destructive-foreground: 0.000 0.000% 100.000%;
+  --border: 226.154 21.311% 23.922%;
+  --input: 224.211 19.792% 62.353%;
+  --ring: 255.000 100.000% 88.235%;
+}
+
+[data-localley-design="borderless"] :focus-visible {
+  outline: 3px solid rgb(var(--ll-focus));
+  outline-offset: 3px;
+}
+
+@media (forced-colors: active) {
+  [data-localley-design="borderless"] :is(input, textarea, select, button, [role="tab"], [role="dialog"]) {
+    outline: 1px solid CanvasText;
+  }
+  [data-localley-design="borderless"] :focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 3px;
+  }
+}
+
+/* Keep the legacy shared wrapper name while replacing its decorative backdrop. */
+[data-localley-design="borderless"] .page-premium {
+  background: rgb(var(--ll-background));
+}
+[data-localley-design="borderless"] .grid-pattern {
+  background-image: none;
+}

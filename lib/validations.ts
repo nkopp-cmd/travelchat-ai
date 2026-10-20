@@ -40,6 +40,7 @@ export const generateCorridorItinerarySchema = z.object({
 
 // Itinerary save validation
 export const saveItinerarySchema = z.object({
+    draftId: z.string().uuid().optional(),
     title: z.string().min(1).max(200),
     city: z.string().min(1).max(100),
     days: z.number().int().min(1).max(14),

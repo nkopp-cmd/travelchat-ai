@@ -19,6 +19,10 @@ export interface Spot {
         lng: number;
         address: string;
     };
+    /** Source-backed public geography; absent when the catalog has no confirmed association. */
+    cityName?: string;
+    citySlug?: string;
+    areaName?: string;
     category: string;
     subcategories: string[];
     localleyScore: LocalleyScale;

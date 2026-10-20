@@ -11,7 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Share2, Copy, Check, Loader2, X } from "lucide-react";
+import { Share2, Copy, Check, Loader2, X } from "@/components/ui/icons";
 import { useToast } from "@/hooks/use-toast";
 
 interface ShareDialogProps {

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowRight, Loader2, MapPin, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, MapPin, Sparkles } from "@/components/ui/icons";
 import { WizardProvider, useWizard, WizardData } from "./wizard-context";
 import { WizardProgress } from "./wizard-progress";
 import { StepDestination } from "./step-destination";
@@ -13,6 +13,9 @@ import { StepDuration } from "./step-duration";
 import { StepInterests } from "./step-interests";
 import { StepPreferences } from "./step-preferences";
 import { getErrorMessage } from "@/lib/error-utils";
+import { PLANNER_RESUME_PATH, savePlannerDraft } from "@/lib/trips/planner-draft";
+
+import { GENERATED_PREVIEW_PATH, storeGeneratedPreview } from "@/lib/trips/generated-preview";
 
 const PROGRESS_MESSAGES = [
   "Finding hidden gems...",
@@ -144,11 +147,11 @@ function WizardContent({
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden">
+    <div className="flex min-w-0 flex-col">
       <WizardProgress />
 
       {templateApplied && !compactTemplateFooter && (
-        <div className="mx-3 mt-1.5 rounded-lg border border-violet-300/20 bg-violet-500/10 px-3 py-1.5 text-xs text-violet-100 sm:mx-4 sm:mt-2 sm:py-2 sm:text-sm">
+        <div className="mx-3 mt-1.5 rounded-lg bg-violet-500/10 px-3 py-1.5 text-xs text-violet-100 sm:mx-4 sm:mt-2 sm:py-2 sm:text-sm">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 shrink-0 text-violet-300" />
             <span className="min-w-0 truncate">
@@ -162,15 +165,15 @@ function WizardContent({
 
       <div
         ref={stepScrollRef}
-        className="min-h-0 flex-1 overflow-y-auto overscroll-contain scroll-pb-32"
+        className="min-w-0 scroll-mt-[var(--ll-topbar-height)]"
       >
         {steps[currentStep]}
       </div>
 
-      <div className="z-30 shrink-0 border-t border-white/10 bg-black/92 p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] shadow-[0_-10px_26px_rgba(0,0,0,0.24)] backdrop-blur-xl sm:p-3 sm:pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] md:p-4 md:pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
+      <div className="z-30 shrink-0 bg-black/92 p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] shadow-[0_-10px_26px_rgba(0,0,0,0.24)] backdrop-blur-xl sm:p-3 sm:pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] md:p-4 md:pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
         <div className="mx-auto max-w-xl">
           {templateApplied && !compactTemplateFooter && (
-            <div className="mb-1.5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-violet-300/15 bg-violet-500/10 px-2.5 py-1.5 text-[11px] font-medium leading-none text-violet-100 sm:mb-2 sm:px-3 sm:text-xs">
+            <div className="mb-1.5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg bg-violet-500/10 px-2.5 py-1.5 text-[11px] font-medium leading-none text-violet-100 sm:mb-2 sm:px-3 sm:text-xs">
               <span className="min-w-0 truncate">{data.templateName}</span>
               <span className="shrink-0 text-violet-200">
                 Step {currentStep + 1}/{totalSteps}
@@ -179,7 +182,7 @@ function WizardContent({
           )}
           <div className={getTemplateFooterLayoutClass(compactTemplateFooter)}>
             {compactTemplateFooter && (
-              <div className="min-w-0 rounded-lg border border-violet-300/15 bg-violet-500/10 px-2.5 py-1.5 text-[11px] font-medium leading-tight text-violet-100 sm:flex-1 sm:px-3 sm:text-xs">
+              <div className="min-w-0 rounded-lg bg-violet-500/10 px-2.5 py-1.5 text-[11px] font-medium leading-tight text-violet-100 sm:flex-1 sm:px-3 sm:text-xs">
                 <span className="block truncate">{data.templateName}</span>
                 <span className="block truncate text-violet-200/80">
                   {data.city ? getTemplateFooterCityLabel(data.city) : `Step ${currentStep + 1}/${totalSteps}`}
@@ -191,7 +194,7 @@ function WizardContent({
               <Button
                 variant="outline"
                 onClick={prevStep}
-                className="h-10 flex-1 border-white/20 text-white hover:bg-white/10 sm:h-11"
+                className="h-10 flex-1 text-white hover:bg-white/10 sm:h-11"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back
@@ -202,7 +205,7 @@ function WizardContent({
                 type="button"
                 variant="outline"
                 onClick={handleCustomizeTemplate}
-                className="hidden h-10 shrink-0 border-white/20 px-2 text-xs text-white hover:bg-white/10 sm:inline-flex sm:h-11 sm:px-3 sm:text-sm"
+                className="hidden h-10 shrink-0 px-2 text-xs text-white hover:bg-white/10 sm:inline-flex sm:h-11 sm:px-3 sm:text-sm"
               >
                 <ArrowRight className="mr-1.5 h-4 w-4" />
                 Customize
@@ -239,7 +242,7 @@ function WizardContent({
                 type="button"
                 variant="outline"
                 onClick={handleChangeTemplateCity}
-                className="h-10 shrink-0 border-white/20 px-2 text-xs text-white hover:bg-white/10 sm:hidden"
+                className="h-10 shrink-0 px-2 text-xs text-white hover:bg-white/10 sm:hidden"
               >
                 <MapPin className="mr-1 h-3.5 w-3.5" />
                 Change
@@ -264,6 +267,8 @@ export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardPro
 
   const handleGenerate = async (data: WizardData) => {
     try {
+      // Preserve inputs before any request or authentication redirect. This grants no paid access.
+      savePlannerDraft(localStorage, data);
       const isMultiCity = data.tripMode === "multi" && data.citySlugs.length >= 2;
       const response = await fetch("/api/itineraries/generate", {
         method: "POST",
@@ -297,20 +302,23 @@ export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardPro
       const result = await response.json();
 
       if (!response.ok) {
+        const errorCode = typeof result.error === "string" ? result.error : result.error?.code;
+        const errorMessage = typeof result.message === "string" ? result.message
+          : typeof result.error?.message === "string" ? result.error.message : undefined;
         // Handle specific error types
-        if (result.error === "signup_required") {
+        if (errorCode === "signup_required" || errorCode === "unauthorized") {
           toast({
             title: "Sign up to continue",
-            description: result.message,
+            description: errorMessage,
           });
-          router.push("/sign-up?redirect=/itineraries/new");
+          router.push(`/sign-up?redirect_url=${encodeURIComponent(PLANNER_RESUME_PATH)}`);
           return;
         }
 
-        if (result.error === "limit_exceeded") {
+        if (errorCode === "limit_exceeded") {
           toast({
             title: "Limit reached",
-            description: result.message,
+            description: errorMessage,
           });
           if (result.upgrade) {
             router.push("/pricing");
@@ -318,18 +326,13 @@ export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardPro
           return;
         }
 
-        throw new Error(result.message || result.error || "Failed to generate itinerary");
+        throw new Error(errorMessage || (typeof result.error === "string" ? result.error : "Failed to generate itinerary"));
       }
 
-      // Handle anonymous user - show itinerary with signup prompt
-      if (result.isAnonymous) {
-        toast({
-          title: "Itinerary created!",
-          description: "Sign up to save it and create more",
-        });
-        // Store in localStorage for retrieval after signup
-        localStorage.setItem("pendingItinerary", JSON.stringify(result.itinerary));
-        router.push("/sign-up?redirect=/itineraries/claim");
+      // Free generation is a full readable browser preview. Saving is a separate paid action.
+      if (result.isAnonymous || result.requiresSaveUpgrade) {
+        storeGeneratedPreview(localStorage, { ...result.itinerary, city: result.itinerary.city || data.city, days: data.days });
+        router.push(GENERATED_PREVIEW_PATH);
       } else {
         // Authenticated user - redirect to saved itinerary
         toast({
@@ -354,7 +357,7 @@ export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardPro
 
   return (
     <WizardProvider initialData={initialData} initialStep={initialStep}>
-      <div className="flex h-full min-h-0 flex-col overflow-hidden bg-background sm:rounded-2xl md:max-h-none md:rounded-none">
+      <div className="flex min-w-0 flex-col bg-background sm:rounded-2xl md:rounded-none">
         <WizardContent onGenerate={handleGenerate} />
       </div>
     </WizardProvider>

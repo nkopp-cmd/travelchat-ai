@@ -1,8 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Bookmark, Calendar, Check, Gem, MapPin, Sparkles, Star } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { Loader2, Bookmark, Calendar, Check, Gem, MapPin, Sparkles, Star } from "@/components/ui/icons";
+import type { LucideIcon } from "@/components/ui/icons";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ItineraryInsightsPanel } from "@/components/itinerary/itinerary-insights-panel";
@@ -77,7 +77,7 @@ function ChatPreviewActivityImage({
             : null;
 
     return (
-        <span className="relative mt-0.5 h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-violet-300/20 bg-violet-950/40 shadow-lg shadow-violet-950/10 sm:h-14 sm:w-14">
+        <span className="relative mt-0.5 h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-violet-950/40 shadow-lg shadow-violet-950/10 sm:h-14 sm:w-14">
             {photoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -97,12 +97,12 @@ function ChatPreviewActivityImage({
                     sizes="56px"
                 />
             )}
-            <span className="absolute bottom-1 right-1 flex h-5 w-5 items-center justify-center rounded-md border border-white/15 bg-black/60 text-violet-100 backdrop-blur">
+            <span className="absolute bottom-1 right-1 flex h-5 w-5 items-center justify-center rounded-md bg-black/60 text-violet-100 backdrop-blur">
                 <Icon className="h-3 w-3" aria-hidden="true" />
             </span>
             {placeData.isLoading && (
                 <span className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[1px]">
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/25 border-t-white" />
+                    <Loader2 className="size-4 animate-spin" aria-hidden="true" />
                 </span>
             )}
         </span>
@@ -206,9 +206,9 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
 
     const getTypeBadge = (type: string) => {
         switch (type) {
-            case 'hidden-gem': return { label: 'Hidden Gem', className: 'text-violet-100 bg-violet-500/15 border-violet-300/25' };
-            case 'local-favorite': return { label: 'Local Fave', className: 'text-sky-100 bg-sky-500/15 border-sky-300/25' };
-            case 'mixed': return { label: 'Mixed', className: 'text-amber-100 bg-amber-500/15 border-amber-300/25' };
+            case 'hidden-gem': return { label: 'Hidden Gem', className: 'text-violet-100 bg-violet-500/15 ' };
+            case 'local-favorite': return { label: 'Local Fave', className: 'text-sky-100 bg-sky-500/15 ' };
+            case 'mixed': return { label: 'Mixed', className: 'text-amber-100 bg-amber-500/15 ' };
             default: return null;
         }
     };
@@ -223,14 +223,14 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
     };
 
     return (
-        <div className="overflow-hidden rounded-lg border border-violet-200/15 bg-[#100b1c]/92 text-white shadow-2xl shadow-violet-950/20 backdrop-blur-xl">
+        <div className="overflow-hidden rounded-lg bg-[#100b1c]/92 text-white shadow-2xl shadow-violet-950/20 backdrop-blur-xl">
             {/* Header */}
-            <div className="border-b border-white/10 px-4 pb-4 pt-4 sm:px-5">
+            <div className=" px-4 pb-4 pt-4 sm:px-5">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="flex min-w-0 flex-1 items-start gap-3">
                         <CityImageAvatar
                             city={city}
-                            className="h-12 w-12 rounded-xl border border-violet-300/20 shadow-lg shadow-violet-950/15"
+                            className="h-12 w-12 rounded-xl shadow-lg shadow-violet-950/15"
                             imageClassName="saturate-110"
                             imageWidth={360}
                             quality={90}
@@ -266,7 +266,7 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                             </>
                         ) : isSaving ? (
                             <span className="flex items-center gap-1.5">
-                                <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                <Loader2 className="size-4 animate-spin" aria-hidden="true" />
                                 Saving...
                             </span>
                         ) : (
@@ -290,18 +290,18 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                             Route by day
                         </h4>
                     </div>
-                    <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-xs font-medium text-violet-50/75">
+                    <span className="shrink-0 rounded-full bg-white/[0.06] px-2.5 py-1 text-xs font-medium text-violet-50/75">
                         {days.length} {days.length === 1 ? "day" : "days"}
                     </span>
                 </div>
 
                 <div className="space-y-3" data-testid="chat-day-schedule">
                     {days.map((day, dayIndex) => (
-                        <div key={dayIndex} className="overflow-hidden rounded-lg border border-white/10 bg-white/[0.045] shadow-lg shadow-violet-950/10 backdrop-blur">
+                        <div key={dayIndex} className="overflow-hidden rounded-lg bg-white/[0.045] shadow-lg shadow-violet-950/10 backdrop-blur">
                             {/* Day Header - Gradient */}
-                            <div className="grid gap-2 border-b border-white/10 bg-violet-500/16 px-3 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:px-4">
+                            <div className="grid gap-2 bg-violet-500/16 px-3 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:px-4">
                                 <div className="flex min-w-0 items-start gap-2">
-                                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-violet-200/20 bg-violet-500/25 text-xs font-bold text-violet-100">
+                                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-violet-500/25 text-xs font-bold text-violet-100">
                                         {dayIndex + 1}
                                     </span>
                                     <div className="min-w-0 flex-1">
@@ -314,10 +314,10 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                                     </div>
                                 </div>
                                 <div className="flex flex-wrap items-center gap-1.5 pl-9 sm:justify-end sm:pl-0">
-                                    <span className="rounded-full border border-white/10 bg-white/[0.08] px-2 py-0.5 text-[11px] font-medium text-violet-50/75">
+                                    <span className="rounded-full bg-white/[0.08] px-2 py-0.5 text-[11px] font-medium text-violet-50/75">
                                         Route order
                                     </span>
-                                    <span className="w-fit shrink-0 whitespace-nowrap rounded-full border border-white/10 bg-white/[0.08] px-2 py-0.5 text-xs text-violet-50/80">
+                                    <span className="w-fit shrink-0 whitespace-nowrap rounded-full bg-white/[0.08] px-2 py-0.5 text-xs text-violet-50/80">
                                         {day.activities.length} {day.activities.length === 1 ? 'spot' : 'spots'}
                                     </span>
                                 </div>
@@ -331,13 +331,9 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                                     const TypeIcon = getTypeIcon(activity.type);
 
                                     return (
-                                        <div key={actIndex} className="relative rounded-lg border border-white/10 bg-white/[0.04] p-2.5 shadow-sm shadow-violet-950/10 transition-colors hover:border-violet-300/24 hover:bg-white/[0.06] sm:p-3">
-                                            <div
-                                                className="absolute bottom-3 left-[21px] top-12 w-px bg-violet-300/20 sm:left-[25px]"
-                                                aria-hidden="true"
-                                            />
+                                        <div key={actIndex} className="relative rounded-lg bg-white/[0.04] p-2.5 shadow-sm shadow-violet-950/10 transition-colors hover:bg-white/[0.06] sm:p-3">
                                             <div className="relative flex items-start gap-2.5 sm:gap-3">
-                                                <span className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-violet-200/25 bg-violet-500/25 text-[11px] font-bold text-violet-50 shadow-lg shadow-violet-950/20 sm:h-8 sm:w-8">
+                                                <span className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-violet-500/25 text-[11px] font-bold text-violet-50 shadow-lg shadow-violet-950/20 sm:h-8 sm:w-8">
                                                     {actIndex + 1}
                                                 </span>
                                                 <ChatPreviewActivityImage
@@ -351,7 +347,7 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                                                             {activity.title}
                                                         </h5>
                                                         {badge && (
-                                                            <span className={`rounded-full border px-1.5 py-0.5 text-[10px] font-medium ${badge.className}`}>
+                                                            <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium ${badge.className}`}>
                                                                 {badge.label}
                                                             </span>
                                                         )}
@@ -380,16 +376,14 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                 {insights.length > 0 && (
                     <div className="pt-1" data-testid="chat-trip-notes">
                         <div className="mb-2 flex items-center gap-2 px-1 text-[11px] font-semibold uppercase tracking-wide text-violet-200/70">
-                            <span className="h-px flex-1 bg-violet-300/16" aria-hidden="true" />
                             Outside the day schedule
-                            <span className="h-px flex-1 bg-violet-300/16" aria-hidden="true" />
                         </div>
                         <ItineraryInsightsPanel
                             insights={insights}
                             title="Trip notes"
                             description="Tips, transit, and booking notes stay outside the day schedule."
                             compact
-                            className="border-violet-300/15 bg-violet-950/[0.18] shadow-none"
+                            className=" bg-violet-950/[0.18] shadow-none"
                         />
                     </div>
                 )}

@@ -261,7 +261,7 @@ export function MetricCard({
 }: MetricCardProps) {
     return (
         <div className={cn(
-            "p-4 rounded-xl bg-gradient-to-br from-background to-muted/30 border",
+            "p-4 rounded-xl bg-gradient-to-br from-background to-muted/30 ",
             className
         )}>
             <div className="flex items-start justify-between">

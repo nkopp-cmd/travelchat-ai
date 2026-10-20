@@ -10,8 +10,8 @@ import {
   Loader2,
   RotateCcw,
   Video,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+} from "@/components/ui/icons";
+import type { LucideIcon } from "@/components/ui/icons";
 import type { SocialMediaProcessingSummary } from "@/lib/social-spot-media-jobs";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -203,32 +203,32 @@ const statePresentations: Record<SubmissionMediaState, StatePresentation> = {
     label: "Queued",
     icon: Clock3,
     className:
-      "bg-slate-100 text-slate-800 ring-slate-300 dark:bg-slate-800 dark:text-slate-100 dark:ring-slate-600",
+      "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-100 ",
   },
   processing: {
     label: "Processing",
     icon: Loader2,
     className:
-      "bg-sky-100 text-sky-900 ring-sky-300 dark:bg-sky-950 dark:text-sky-100 dark:ring-sky-700",
+      "bg-sky-100 text-sky-900 dark:bg-sky-950 dark:text-sky-100 ",
     iconClassName: "motion-safe:animate-spin",
   },
   retry_wait: {
     label: "Waiting to retry",
     icon: RotateCcw,
     className:
-      "bg-amber-100 text-amber-950 ring-amber-300 dark:bg-amber-950 dark:text-amber-100 dark:ring-amber-700",
+      "bg-amber-100 text-amber-950 dark:bg-amber-950 dark:text-amber-100 ",
   },
   succeeded: {
     label: "Complete",
     icon: CheckCircle2,
     className:
-      "bg-emerald-100 text-emerald-950 ring-emerald-300 dark:bg-emerald-950 dark:text-emerald-100 dark:ring-emerald-700",
+      "bg-emerald-100 text-emerald-950 dark:bg-emerald-950 dark:text-emerald-100 ",
   },
   dead_letter: {
     label: "Couldn't process",
     icon: CircleX,
     className:
-      "bg-rose-100 text-rose-950 ring-rose-300 dark:bg-rose-950 dark:text-rose-100 dark:ring-rose-700",
+      "bg-rose-100 text-rose-950 dark:bg-rose-950 dark:text-rose-100 ",
   },
 };
 
@@ -266,7 +266,7 @@ function PollingUpdateStatus({
       role="status"
       aria-live="polite"
       aria-atomic="true"
-      className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3"
+      className="mt-3 flex flex-wrap items-center justify-between gap-2 pt-3"
     >
       <div className="min-w-0">
         <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">
@@ -311,7 +311,7 @@ function MediaItemRow({
 
   return (
     <li
-      className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2.5 border-b border-border bg-card px-3 py-2.5 text-card-foreground last:border-b-0"
+      className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2.5 bg-card px-3 py-2.5 text-card-foreground last:border-b-0"
       data-state={item.state}
     >
       <span
@@ -326,7 +326,7 @@ function MediaItemRow({
           <span className="text-sm font-semibold text-foreground">{mediaLabel}</span>
           <span
             className={cn(
-              "inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-semibold ring-1 ring-inset",
+              "inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-semibold ",
               state.className,
             )}
           >
@@ -469,11 +469,11 @@ export function SubmissionMediaProgress({
     <section
       aria-labelledby={headingId}
       className={cn(
-        "overflow-hidden rounded-md border border-border bg-card text-card-foreground",
+        "overflow-hidden rounded-md bg-card text-card-foreground",
         className,
       )}
     >
-      <div className="border-b border-border px-3 py-3">
+      <div className=" px-3 py-3">
         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
           <h3 id={headingId} className="text-sm font-semibold text-foreground">
             Media processing
@@ -521,7 +521,7 @@ export function SubmissionMediaProgress({
       </div>
 
       {visibleItems.length > 0 ? (
-        <ol aria-label="Media items" className="divide-y-0">
+        <ol aria-label="Media items" className="">
           {visibleItems.map((item) => (
             <MediaItemRow key={item.id} item={item} onRetry={onRetry} />
           ))}
@@ -529,7 +529,7 @@ export function SubmissionMediaProgress({
       ) : null}
 
       {additionalItems.length > 0 ? (
-        <details className="group border-t border-border">
+        <details className="group ">
           <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-3 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-violet-500 [&::-webkit-details-marker]:hidden">
             <span>
               Show {pluralize(additionalItems.length, "more media item")}
@@ -542,7 +542,7 @@ export function SubmissionMediaProgress({
           <ol
             start={VISIBLE_ITEM_LIMIT + 1}
             aria-label="Additional media items"
-            className="border-t border-border"
+            className=" "
           >
             {additionalItems.map((item) => (
               <MediaItemRow key={item.id} item={item} onRetry={onRetry} />

@@ -4,9 +4,10 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
-import { Heart } from "lucide-react";
+import { Heart } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { trackSpotEvent } from "@/lib/spot-analytics";
 
 interface SaveSpotButtonProps {
     spotId: string;
@@ -64,6 +65,7 @@ export function SaveSpotButton({ spotId, spotName, className, size = "icon" }: S
             if (response.ok) {
                 const data = await response.json();
                 setIsSaved(data.saved);
+                if (data.saved === true) trackSpotEvent("save", spotId);
                 toast({
                     title: data.saved ? "Spot saved!" : "Spot removed",
                     description: data.saved

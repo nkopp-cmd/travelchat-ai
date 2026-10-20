@@ -6,7 +6,7 @@ import {
   getTemplateSampleCity,
   ItineraryTemplate,
 } from "@/lib/templates";
-import { ArrowRight, Check, Clock } from "lucide-react";
+import { ArrowRight, Check, Clock } from "@/components/ui/icons";
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -49,19 +49,19 @@ const paceAccents = {
   relaxed: {
     bg: "bg-emerald-100 dark:bg-emerald-900/40",
     text: "text-emerald-700 dark:text-emerald-300",
-    border: "border-emerald-200 dark:border-emerald-700/50",
+    border: " ",
     glow: "group-hover:shadow-emerald-500/20",
   },
   moderate: {
     bg: "bg-blue-100 dark:bg-blue-900/40",
     text: "text-blue-700 dark:text-blue-300",
-    border: "border-blue-200 dark:border-blue-700/50",
+    border: " ",
     glow: "group-hover:shadow-blue-500/20",
   },
   active: {
     bg: "bg-orange-100 dark:bg-orange-900/40",
     text: "text-orange-700 dark:text-orange-300",
-    border: "border-orange-200 dark:border-orange-700/50",
+    border: " ",
     glow: "group-hover:shadow-orange-500/20",
   },
 };
@@ -93,13 +93,13 @@ function TemplateCardContent({
       <Card className={cn(
         "group relative flex min-h-[54px] cursor-pointer flex-col overflow-hidden !gap-0 !py-0 sm:min-h-[66px]",
         "bg-white/70 dark:bg-white/5 backdrop-blur-md",
-        "border border-black/5 dark:border-white/10",
+        " ",
         "transition-all duration-300 ease-out",
         "hover:shadow-lg hover:shadow-violet-500/10",
         accent.glow,
-        "hover:border-violet-400/50 dark:hover:border-violet-500/40",
+        " ",
         "hover:-translate-y-0.5",
-        isSelected && "border-violet-400/70 bg-violet-500/10 shadow-lg shadow-violet-500/15 ring-2 ring-violet-400/50"
+        isSelected && " bg-violet-500/10 shadow-lg shadow-violet-500/15 "
       )}>
         {/* Animated gradient background */}
         <div className={cn(
@@ -117,7 +117,7 @@ function TemplateCardContent({
         >
           {/* Header */}
           <div className="flex items-start gap-1.5 sm:gap-2">
-            <div className="relative h-8 w-9 shrink-0 overflow-hidden rounded-md border border-white/10 bg-black/20 shadow-sm sm:h-10 sm:w-11">
+            <div className="relative h-8 w-9 shrink-0 overflow-hidden rounded-md bg-black/20 shadow-sm sm:h-10 sm:w-11">
               <Image
                 src={imageUrl}
                 alt={`${sampleCity} inspiration for ${template.name}`}
@@ -145,12 +145,12 @@ function TemplateCardContent({
 
           {/* Compact Meta Row */}
           <div className="mt-auto flex items-center gap-1 pt-0.5 text-[9px] font-semibold leading-none text-muted-foreground sm:gap-1.5 sm:pt-1 sm:text-[10px]">
-            <span className="inline-flex min-w-0 items-center gap-0.5 rounded-md border border-violet-200/40 bg-violet-100/65 px-1 py-0.5 text-violet-700 dark:border-violet-700/35 dark:bg-violet-900/30 dark:text-violet-200 sm:gap-1 sm:px-1.5 sm:py-1">
+            <span className="inline-flex min-w-0 items-center gap-0.5 rounded-md bg-violet-100/65 px-1 py-0.5 text-violet-700 dark:bg-violet-900/30 dark:text-violet-200 sm:gap-1 sm:px-1.5 sm:py-1">
               <Clock className="h-2.5 w-2.5 shrink-0 sm:h-3 sm:w-3" />
               <span className="whitespace-nowrap">{template.days}d</span>
             </span>
             <span className={cn(
-              "inline-flex min-w-0 items-center gap-0.5 rounded-md border px-1 py-0.5 sm:gap-1 sm:px-1.5 sm:py-1",
+              "inline-flex min-w-0 items-center gap-0.5 rounded-md px-1 py-0.5 sm:gap-1 sm:px-1.5 sm:py-1",
               accent.bg, accent.text, accent.border
             )}>
               <span aria-hidden="true" className="shrink-0 text-[10px] leading-none sm:text-[11px]">{pace.icon}</span>
@@ -162,7 +162,7 @@ function TemplateCardContent({
         </div>
 
         {isSelected && (
-          <div className="absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full border border-violet-100/50 bg-violet-600 text-white shadow-lg shadow-violet-950/20 sm:left-2 sm:top-2">
+          <div className="absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-violet-600 text-white shadow-lg shadow-violet-950/20 sm:left-2 sm:top-2">
             <Check className="h-3 w-3" aria-hidden="true" />
             <span className="sr-only">Selected</span>
           </div>
@@ -211,7 +211,7 @@ export function TemplateCard({ template, href, actionHref, primaryHref, isSelect
         {isSelected && primaryHref && (
           <Link
             href={primaryHref}
-            className="absolute right-1.5 top-1.5 z-20 hidden h-6 items-center justify-center gap-1 rounded-md border border-violet-100/35 bg-violet-600 px-1.5 text-[10px] font-semibold text-white shadow-lg shadow-violet-950/25 transition hover:bg-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-300 focus:ring-offset-2 focus:ring-offset-[#100b1c] sm:inset-x-1.5 sm:top-auto sm:bottom-1.5 sm:inline-flex sm:h-8 sm:px-2 sm:text-xs"
+            className="absolute right-1.5 top-1.5 z-20 hidden h-6 items-center justify-center gap-1 rounded-md bg-violet-600 px-1.5 text-[10px] font-semibold text-white shadow-lg shadow-violet-950/25 transition hover:bg-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-300 focus:ring-offset-2 focus:ring-offset-[#100b1c] sm:inset-x-1.5 sm:top-auto sm:bottom-1.5 sm:inline-flex sm:h-8 sm:px-2 sm:text-xs"
             aria-label={`Use ${template.name} template`}
             data-testid="template-card-inline-action"
           >

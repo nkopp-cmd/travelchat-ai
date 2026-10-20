@@ -14,7 +14,7 @@ import {
     Sparkles,
     Tag,
     ImageOff,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import { SubscriptionTier, hasFeature } from "@/lib/subscription";
 import { CityImageAvatar } from "@/components/ui/city-image";
@@ -162,7 +162,7 @@ export function ViatorSuggestions({
                         {activities.map((activity) => (
                             <div
                                 key={activity.id}
-                                className="group relative rounded-xl border border-border/50 bg-card hover:shadow-md transition-all overflow-hidden"
+                                className="group relative rounded-xl bg-card hover:shadow-md transition-all overflow-hidden"
                             >
                                 {/* Activity Image */}
                                 <div className="relative aspect-[16/9] bg-muted overflow-hidden">
@@ -239,7 +239,7 @@ export function ViatorSuggestions({
                                             {showDeals && (
                                                 <Badge
                                                     variant="outline"
-                                                    className="ml-2 text-xs border-violet-500 text-violet-600"
+                                                    className="ml-2 text-xs text-violet-600"
                                                 >
                                                     <Tag className="h-2.5 w-2.5 mr-1" />
                                                     Best Price
@@ -263,7 +263,7 @@ export function ViatorSuggestions({
 
                 {/* View More Link */}
                 {activities.length > 0 && (
-                    <div className="mt-4 pt-4 border-t text-center">
+                    <div className="mt-4 pt-4 text-center">
                         <Button
                             variant="ghost"
                             className="text-violet-500 hover:text-violet-600 hover:bg-violet-50"

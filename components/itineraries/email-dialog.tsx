@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, Loader2, CheckCircle } from "lucide-react";
+import { Mail, Loader2, CheckCircle } from "@/components/ui/icons";
 import { useToast } from "@/hooks/use-toast";
 
 interface EmailDialogProps {

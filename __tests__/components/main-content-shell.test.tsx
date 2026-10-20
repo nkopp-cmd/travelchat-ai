@@ -12,7 +12,7 @@ describe("mobile page scrolling", () => {
     render(<MainContentShell><button>Last action</button></MainContentShell>);
     const main = screen.getByRole("main");
     expect(main.className).not.toMatch(/overflow-|h-\[/);
-    expect(main.className).toContain("pb-[calc(4rem+1px+env(safe-area-inset-bottom,0px))]");
+    expect(main.className).toContain("pb-[var(--ll-nav-clearance)]");
     expect(main.hasAttribute("data-main-scroll-host")).toBe(false);
   });
   it.each(["/", "/sign-in", "/sign-up", "/itineraries/new"])("does not reserve space for absent navigation on %s", (pathname) => {
@@ -25,6 +25,6 @@ describe("mobile page scrolling", () => {
     render(<MainContentShell>Chat</MainContentShell>);
     const main = screen.getByRole("main");
     expect(main.className).not.toMatch(/overflow-|h-\[/);
-    expect(main.className).toContain("pb-[calc(4rem+1px+env(safe-area-inset-bottom,0px))]");
+    expect(main.className).toContain("pb-[var(--ll-nav-clearance)]");
   });
 });

@@ -14,6 +14,7 @@ import { LandingPresetPhoto } from "@/components/landing/preset-photo";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import sharp from "sharp";
+import LandingPage from "@/app/page";
 
 const { push } = vi.hoisted(() => ({ push: vi.fn() }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
@@ -35,6 +36,16 @@ const cities = [
   { name: "Tokyo", slug: "tokyo", vibe: "Small streets" },
   { name: "Bangkok", slug: "bangkok", vibe: "Markets" },
 ];
+
+describe("plan-first landing entry", () => {
+  it("sends every Start planning link on the real landing page directly to the planner", () => {
+    const html = renderToStaticMarkup(<LandingPage />);
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const links = Array.from(doc.querySelectorAll("a")).filter(link => link.textContent?.trim() === "Start planning");
+    expect(links.length).toBeGreaterThanOrEqual(2);
+    for (const link of links) expect(new URL(link.getAttribute("href")!, "https://localley.io").pathname).toBe("/itineraries/new");
+  });
+});
 
 describe("landing preset photo delivery", () => {
   it.each(["Seoul", "Tokyo", "Bangkok"])(
@@ -89,7 +100,7 @@ function mount() {
 }
 function tripParams() {
   return new URL(
-    screen.getByRole("link", { name: "Build trip" }).getAttribute("href")!,
+    screen.getByRole("link", { name: "Start planning" }).getAttribute("href")!,
     "https://localley.io",
   ).searchParams;
 }

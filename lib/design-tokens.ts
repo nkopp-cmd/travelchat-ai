@@ -92,8 +92,8 @@ export const zIndex = {
 
 // Common Tailwind class combinations for consistent styling
 export const cardStyles = {
-  base: 'rounded-xl border border-border/50 bg-card transition-all duration-200',
-  hover: 'hover:shadow-lg hover:border-violet-300/50 hover:-translate-y-1',
+  base: 'rounded-xl bg-card transition-all duration-200',
+  hover: 'hover:shadow-lg hover:-translate-y-1',
   interactive: 'cursor-pointer active:scale-[0.98]',
 } as const;
 

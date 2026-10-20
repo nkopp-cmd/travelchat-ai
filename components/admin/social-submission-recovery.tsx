@@ -13,7 +13,7 @@ import {
   Search,
   ShieldCheck,
   TriangleAlert,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -182,7 +182,7 @@ export function SocialSubmissionRecovery({
   return (
     <div className="mx-auto min-h-screen w-full max-w-6xl px-4 pb-28 pt-6 sm:px-6 md:pb-12 md:pt-8">
       <nav aria-label="Admin navigation" className="mb-5 flex flex-wrap items-center gap-2">
-        <Button asChild variant="outline" className="border-white/10 bg-white/[0.04] text-white hover:bg-white/[0.09]">
+        <Button asChild variant="outline" className=" bg-white/[0.04] text-white hover:bg-white/[0.09]">
           <Link href="/spots/submissions">
             <ArrowLeft aria-hidden="true" />
             Tracker
@@ -193,7 +193,7 @@ export function SocialSubmissionRecovery({
         </Button>
       </nav>
 
-      <header className="border-b border-white/10 pb-6">
+      <header className=" pb-6">
         <div className="flex flex-wrap items-center gap-2 text-sm font-semibold text-emerald-200">
           <ShieldCheck className="size-4" aria-hidden="true" />
           Admin review
@@ -206,7 +206,7 @@ export function SocialSubmissionRecovery({
         </p>
       </header>
 
-      <section aria-labelledby="recovery-controls" className="grid gap-5 border-b border-white/10 py-6 lg:grid-cols-[1fr_auto] lg:items-end">
+      <section aria-labelledby="recovery-controls" className="grid gap-5 py-6 lg:grid-cols-[1fr_auto] lg:items-end">
         <div>
           <h2 id="recovery-controls" className="text-lg font-semibold text-white">Review scope</h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
@@ -219,7 +219,7 @@ export function SocialSubmissionRecovery({
                   setLimit(Number(event.target.value));
                   invalidatePlan();
                 }}
-                className="h-11 rounded-md border border-white/10 bg-[#17131f] px-3 text-white outline-none focus:border-violet-300 focus:ring-2 focus:ring-violet-300/25"
+                className="h-11 rounded-md bg-[#17131f] px-3 text-white outline-none focus:border-violet-300 focus:ring-2 focus:ring-violet-300/25"
               >
                 <option value={1}>1 post</option>
                 <option value={2}>2 posts</option>
@@ -227,7 +227,7 @@ export function SocialSubmissionRecovery({
               </select>
             </label>
 
-            <div className="flex min-h-20 items-center justify-between gap-3 rounded-md border border-white/10 bg-white/[0.035] px-3 py-2">
+            <div className="flex min-h-20 items-center justify-between gap-3 rounded-md bg-white/[0.035] px-3 py-2">
               <div>
                 <p className="text-sm font-medium text-zinc-100">Instagram</p>
                 <p className="mt-1 text-xs text-zinc-400">
@@ -245,7 +245,7 @@ export function SocialSubmissionRecovery({
               />
             </div>
 
-            <div className="flex min-h-20 items-center justify-between gap-3 rounded-md border border-white/10 bg-white/[0.035] px-3 py-2">
+            <div className="flex min-h-20 items-center justify-between gap-3 rounded-md bg-white/[0.035] px-3 py-2">
               <div>
                 <p className="text-sm font-medium text-zinc-100">Existing spots</p>
                 <p className="mt-1 text-xs text-zinc-400">Allow enrichment</p>
@@ -261,7 +261,7 @@ export function SocialSubmissionRecovery({
             </div>
           </div>
           {includeResolved && (
-            <div role="status" className="mt-3 flex gap-2 rounded-md border border-amber-300/20 bg-amber-300/10 px-3 py-2 text-sm text-amber-100">
+            <div role="status" className="mt-3 flex gap-2 rounded-md bg-amber-300/10 px-3 py-2 text-sm text-amber-100">
               <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
               Existing community spots can receive new evidence and photos.
             </div>
@@ -295,13 +295,13 @@ export function SocialSubmissionRecovery({
         </div>
 
         {error && (
-          <div role="alert" className="mt-4 rounded-md border border-rose-300/25 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
+          <div role="alert" className="mt-4 rounded-md bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
             {error}
           </div>
         )}
 
         {execution && (
-          <div role="status" aria-live="polite" className="mt-4 rounded-md border border-emerald-300/20 bg-emerald-300/10 p-4 text-emerald-50">
+          <div role="status" aria-live="polite" className="mt-4 rounded-md bg-emerald-300/10 p-4 text-emerald-50">
             <div className="flex items-start gap-3">
               <CheckCircle2 className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
               <div>
@@ -323,7 +323,7 @@ export function SocialSubmissionRecovery({
         )}
 
         {plan && plan.eligible.length === 0 && (
-          <div className="mt-4 rounded-md border border-white/10 bg-white/[0.035] p-5 text-sm text-zinc-300">
+          <div className="mt-4 rounded-md bg-white/[0.035] p-5 text-sm text-zinc-300">
             No legacy posts match this scope.
           </div>
         )}
@@ -332,7 +332,7 @@ export function SocialSubmissionRecovery({
           <>
             <div className="mt-4 grid gap-3" role="list" aria-label="Eligible legacy posts">
               {plan.eligible.map((submission) => (
-                <article key={submission.id} role="listitem" className="grid gap-3 rounded-md border border-white/10 bg-[#14101c] p-4 sm:grid-cols-[1fr_auto] sm:items-center">
+                <article key={submission.id} role="listitem" className="grid gap-3 rounded-md bg-[#14101c] p-4 sm:grid-cols-[1fr_auto] sm:items-center">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase text-zinc-400">
                       <span>{submission.platform}</span>
@@ -347,7 +347,7 @@ export function SocialSubmissionRecovery({
                   </div>
                   <Link
                     href={`/spots/submissions?submission=${encodeURIComponent(submission.id)}`}
-                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-white/10 px-3 text-sm font-semibold text-zinc-200 hover:bg-white/[0.06]"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-3 text-sm font-semibold text-zinc-200 hover:bg-white/[0.06]"
                   >
                     Inspect
                     <ExternalLink className="size-4" aria-hidden="true" />
@@ -356,7 +356,7 @@ export function SocialSubmissionRecovery({
               ))}
             </div>
 
-            <div className="sticky bottom-20 z-20 mt-5 rounded-md border border-violet-300/20 bg-[#15101f]/95 p-3 shadow-2xl shadow-black/40 backdrop-blur md:bottom-4">
+            <div className="sticky bottom-20 z-20 mt-5 rounded-md bg-[#15101f]/95 p-3 shadow-2xl shadow-black/40 backdrop-blur md:bottom-4">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="text-sm text-zinc-300">
                   <span className="font-semibold text-white">{selectedCount} reviewed</span>
@@ -372,7 +372,7 @@ export function SocialSubmissionRecovery({
                       Queue and run {selectedCount} {selectedCount === 1 ? "post" : "posts"}
                     </Button>
                   </AlertDialogTrigger>
-                  <AlertDialogContent className="border-white/10 bg-[#15111d] text-white">
+                  <AlertDialogContent className=" bg-[#15111d] text-white">
                     <AlertDialogHeader>
                       <AlertDialogTitle>Start {selectedCount} reviewed {selectedCount === 1 ? "post" : "posts"}?</AlertDialogTitle>
                       <AlertDialogDescription className="leading-6 text-zinc-300">
@@ -380,7 +380,7 @@ export function SocialSubmissionRecovery({
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel className="border-white/10 bg-transparent text-white hover:bg-white/[0.08] hover:text-white">
+                      <AlertDialogCancel className=" bg-transparent text-white hover:bg-white/[0.08] hover:text-white">
                         Cancel
                       </AlertDialogCancel>
                       <AlertDialogAction
@@ -398,7 +398,7 @@ export function SocialSubmissionRecovery({
         )}
 
         {!plan && !execution && !error && (
-          <div className="mt-4 flex min-h-36 items-center justify-center rounded-md border border-dashed border-white/10 text-center text-sm text-zinc-500">
+          <div className="mt-4 flex min-h-36 items-center justify-center rounded-md text-center text-sm text-zinc-500">
             <div>
               <RefreshCw className="mx-auto mb-2 size-5" aria-hidden="true" />
               Run a review to load exact legacy posts.

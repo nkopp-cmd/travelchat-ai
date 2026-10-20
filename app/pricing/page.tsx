@@ -12,7 +12,7 @@ import {
     ShieldCheck,
     Sparkles,
     Zap,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -151,7 +151,7 @@ export default function PricingPage() {
                         <ArrowLeft className="h-4 w-4" />
                         Back
                     </Link>
-                    <Badge className="rounded-md border border-violet-300/20 bg-violet-300/10 px-3 py-1.5 text-violet-100">
+                    <Badge className="rounded-md bg-violet-300/10 px-3 py-1.5 text-violet-100">
                         Paid access only
                     </Badge>
                 </header>
@@ -159,7 +159,7 @@ export default function PricingPage() {
                 <main className="flex flex-1 flex-col">
                     <section className="grid gap-6 py-8 md:grid-cols-[1fr_320px] md:items-end lg:py-12">
                         <div>
-                            <div className="mb-4 inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2 text-sm text-white/75">
+                            <div className="mb-4 inline-flex items-center gap-2 rounded-lg bg-white/[0.05] px-3 py-2 text-sm text-white/75">
                                 <ShieldCheck className="h-4 w-4 text-violet-300" />
                                 Secure subscription through Stripe
                             </div>
@@ -171,7 +171,7 @@ export default function PricingPage() {
                             </p>
                         </div>
 
-                        <div className="rounded-lg border border-white/10 bg-white/[0.04] p-4">
+                        <div className="rounded-lg bg-white/[0.04] p-4">
                             <div className="mb-4 flex items-center gap-3">
                                 <Zap className="h-5 w-5 text-violet-300" />
                                 <div>
@@ -179,7 +179,7 @@ export default function PricingPage() {
                                     <p className="text-sm text-white/55">Annual billing lowers the monthly equivalent.</p>
                                 </div>
                             </div>
-                            <div className="flex items-center justify-between rounded-lg border border-white/10 bg-black/25 p-3">
+                            <div className="flex items-center justify-between rounded-lg bg-black/25 p-3">
                                 <Label
                                     htmlFor="billing-toggle"
                                     className={cn("text-sm", !isYearly ? "font-semibold text-white" : "text-white/50")}
@@ -287,7 +287,7 @@ export default function PricingPage() {
                         />
                     </section>
 
-                    <section className="mb-4 rounded-lg border border-white/10 bg-white/[0.04] p-5">
+                    <section className="mb-4 rounded-lg bg-white/[0.04] p-5">
                         <h2 className="text-xl font-semibold text-white">Billing notes</h2>
                         <div className="mt-4 grid gap-4 text-sm leading-6 text-white/65 md:grid-cols-2">
                             <p>Subscriptions can be changed or cancelled through Stripe Billing Portal.</p>
@@ -332,8 +332,8 @@ function PlanCard({
     return (
         <article
             className={cn(
-                "relative flex min-h-full flex-col rounded-lg border bg-white/[0.055] p-5 shadow-2xl backdrop-blur-xl",
-                isPremium ? "border-indigo-300/35 shadow-indigo-950/20" : "border-violet-300/35 shadow-violet-950/20"
+                "relative flex min-h-full flex-col rounded-lg bg-white/[0.055] p-5 shadow-2xl backdrop-blur-xl",
+                isPremium ? " shadow-indigo-950/20" : " shadow-violet-950/20"
             )}
         >
             <div className="mb-5 flex items-start justify-between gap-4">
@@ -356,7 +356,7 @@ function PlanCard({
             <h2 className="mt-1 text-2xl font-semibold text-white">{title}</h2>
             <p className="mt-2 min-h-[72px] text-sm leading-6 text-white/65">{description}</p>
 
-            <div className="my-6 rounded-lg border border-white/10 bg-black/25 p-4">
+            <div className="my-6 rounded-lg bg-black/25 p-4">
                 <div className="flex items-end gap-2">
                     <span className="text-5xl font-semibold tracking-normal text-white">{price}</span>
                     <span className="pb-1 text-base text-white/55">{billingLabel}</span>
@@ -388,7 +388,7 @@ function ProofBlock({
     text: string;
 }) {
     return (
-        <div className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
+        <div className="rounded-lg bg-white/[0.035] p-4">
             <Icon className="mb-3 h-5 w-5 text-cyan-200" />
             <h3 className="font-semibold text-white">{title}</h3>
             <p className="mt-2 text-sm leading-6 text-white/60">{text}</p>
