@@ -9,7 +9,8 @@ const net = vi.hoisted(() => {
   return { state, fetchStub };
 });
 
-import { authClient, safeRedirect, useAuth, useUser } from "@/lib/auth/client";
+import { safeRedirect, useAuth, useUser } from "@/lib/auth/client";
+import { resetSessionStore } from "@/lib/auth/session-store";
 
 const date = new Date().toISOString();
 function mockSession(user: Record<string, unknown> | null) {
@@ -44,9 +45,20 @@ describe("client auth adapter", () => {
 
   it("reports signed-out", async () => {
     mockSession(null);
+    resetSessionStore(); // the session store is a singleton: force a refetch
     const { result } = renderHook(() => useAuth());
-    authClient.$store.notify("$sessionSignal"); // the session store is a singleton: force a refetch
     await waitFor(() => expect(result.current).toMatchObject({ isLoaded: true, isSignedIn: false, userId: null }));
+  });
+
+  it("shares one get-session request between hooks and keeps the auth client out of the module", async () => {
+    const fetchMock = mockSession({ id: "user_1", name: "A B", email: "a@test.invalid" });
+    resetSessionStore();
+    const { result } = renderHook(() => ({ a: useUser(), b: useAuth(), c: useUser() }));
+    await waitFor(() => expect(result.current.b.isSignedIn).toBe(true));
+    expect(fetchMock.mock.calls.filter(([u]) => String(u).includes("/api/auth/get-session"))).toHaveLength(1);
+    const source = (await import("node:fs")).readFileSync("lib/auth/client.ts", "utf8");
+    expect(source).not.toMatch(/^import[^;]*from "better-auth/m);
+    expect(source).not.toMatch(/^import \{[^}]*\} from "@\/lib\/auth\/auth-client"/m);
   });
 
   it.each([["/dashboard?x=1", "/dashboard?x=1"], ["//evil.test", "/dashboard"], ["https://evil.test", "/dashboard"], ["/\\evil", "/dashboard"], [null, "/dashboard"]])("safeRedirect(%s)", (input, expected) => {
