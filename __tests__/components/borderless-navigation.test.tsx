@@ -44,4 +44,8 @@ describe('borderless navigation state',()=>{
   const source=readFileSync('components/layout/navbar.tsx','utf8');
   expect(source).not.toMatch(/@\/components\/(auth\/user-menu|subscription|notifications)/);expect(source).toMatch(/dynamic\(\(\) => import\("@\/components\/layout\/navbar-account"\)/);
  });
+ it('loads the mobile drawer (Radix Dialog) only on demand',()=>{
+  const source=readFileSync('components/layout/navbar.tsx','utf8');
+  expect(source).not.toMatch(/@\/components\/ui\/sheet|@radix-ui/);expect(source).toMatch(/import\("@\/components\/layout\/navbar-drawer"\)/);
+ });
 });
