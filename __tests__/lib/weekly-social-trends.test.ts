@@ -17,10 +17,13 @@ import {
   dedupeSocialTrendLeadItems,
   getSocialTrendRetentionCutoffs,
   getWeekStart,
+  linkSignalsToSpots,
   mentionsSpot,
   normalizeSocialTrendItem,
   refreshWeeklySocialTrends,
+  shouldRebuildCity,
   SOCIAL_SCOUT_CITIES,
+  TREND_LINKER_RELEASED_AT,
 } from "@/lib/weekly-social-trends";
 
 describe("weekly social trend normalization", () => {
@@ -344,5 +347,37 @@ describe("weekly social trend normalization", () => {
       spot,
     )).toBe(false);
     expect(mentionsSpot("Locals queue at Tiny Noodle House every Friday.", spot)).toBe(true);
+  });
+
+  it("links a spot named only in the post's place hint", () => {
+    const signal = {
+      weekStart: "2026-10-19",
+      citySlug: "bangkok",
+      platform: "instagram" as const,
+      externalId: "1",
+      canonicalUrl: "https://www.instagram.com/p/1/",
+      contentText: "Sunday morning run, then iced coffee.",
+      placeHint: "สวนลุมพินี Lumphini Park",
+      publishedAt: "2026-10-19T02:00:00Z",
+      viewCount: 0,
+      likeCount: 40,
+      commentCount: 2,
+      shareCount: 0,
+      saveCount: 0,
+    };
+    const spot = { id: "spot-1", name: { en: "Lumphini Park" }, localley_score: 4 };
+    expect(linkSignalsToSpots({ signals: [signal], spots: [spot] as never })).toEqual([
+      { spotId: "spot-1", signalIds: ["instagram:1"] },
+    ]);
+  });
+
+  it("rebuilds a city once when it succeeded before the linker fix", () => {
+    const before = new Date(Date.parse(TREND_LINKER_RELEASED_AT) - 60_000).toISOString();
+    const after = new Date(Date.parse(TREND_LINKER_RELEASED_AT) + 60_000).toISOString();
+    expect(shouldRebuildCity({ state: "succeeded", attempt_count: 1, completed_at: before })).toBe(true);
+    expect(shouldRebuildCity({ state: "succeeded", attempt_count: 2, completed_at: after })).toBe(false);
+    expect(shouldRebuildCity({ state: "running", attempt_count: 1, completed_at: null })).toBe(false);
+    expect(shouldRebuildCity({ state: "failed", attempt_count: 2, completed_at: after })).toBe(true);
+    expect(shouldRebuildCity({ state: "failed", attempt_count: 3, completed_at: after })).toBe(false);
   });
 });
