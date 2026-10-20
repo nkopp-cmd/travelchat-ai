@@ -62,6 +62,12 @@ const MAX_LINKER_SPOTS_PER_CITY = 160;
 const MAX_NEW_RUNS_PER_INVOCATION = 3;
 const MAX_RUN_ATTEMPTS = 3;
 const MAX_CITY_BUILD_ATTEMPTS = 3;
+// Builds that succeeded before the linker accepted unverified catalog spots
+// published empty rankings. Each such build reruns once; its new completed_at
+// is later than this mark, so it never reruns again.
+export const TREND_LINKER_RELEASED_AT = "2026-10-20T14:30:00.000Z";
+// PostgREST returns at most 1000 rows; the per-city query stays under it.
+const MAX_TREND_CANDIDATE_SPOTS = 1_000;
 const DERIVED_DATA_RETENTION_DAYS = 16 * 7;
 const STALE_STARTING_MINUTES = 30;
 // Must stay ABOVE the interval of the cron that reads these runs, or a finished
@@ -637,7 +643,7 @@ function signalKey(item: Pick<NormalizedSocialTrendItem, "platform" | "externalI
   return `${item.platform}:${item.externalId}`;
 }
 
-function linkSignalsToSpots(input: {
+export function linkSignalsToSpots(input: {
   signals: NormalizedSocialTrendItem[];
   spots: RawSpot[];
 }): SpotSignalLink[] {
@@ -653,7 +659,8 @@ function linkSignalsToSpots(input: {
   const hardLinks = new Map<string, Set<string>>();
   for (const spot of eligibleSpots) {
     for (const signal of eligibleSignals) {
-      if (!mentionsSpot(signal.contentText, spot)) continue;
+      const evidence = signal.placeHint ? `${signal.contentText}\n${signal.placeHint}` : signal.contentText;
+      if (!mentionsSpot(evidence, spot)) continue;
       const linked = hardLinks.get(spot.id) || new Set<string>();
       linked.add(signalKey(signal));
       hardLinks.set(spot.id, linked);
@@ -668,9 +675,19 @@ function linkSignalsToSpots(input: {
 
 async function rebuildCityRankings(weekStart: string, citySlug: string): Promise<number> {
   const supabase = createSupabaseAdmin();
+  const city = SOCIAL_SCOUT_CITIES.find((candidate) => candidate.slug === citySlug);
+  if (!city) throw new Error(`Unsupported social trend city: ${citySlug}`);
+  // Candidates are public catalog spots with a strong local score. Manual
+  // verification left about ten spots per city, so posts almost never matched.
   const [{ data: contentRows, error: contentError }, { data: spotRows, error: spotError }] = await Promise.all([
     supabase.from("weekly_social_content").select("*").eq("week_start", weekStart),
-    supabase.from("spots").select("*").gte("localley_score", 4).eq("verified", true),
+    supabase
+      .from("spots")
+      .select("*")
+      .gte("localley_score", 4)
+      .ilike("address->>en", `%${city.name}%`)
+      .order("localley_score", { ascending: false })
+      .limit(MAX_TREND_CANDIDATE_SPOTS),
   ]);
   if (contentError) throw new Error(`Could not load social signals: ${contentError.message}`);
   if (spotError) throw new Error(`Could not load trend candidates: ${spotError.message}`);
@@ -697,8 +714,6 @@ async function rebuildCityRankings(weekStart: string, citySlug: string): Promise
     );
   });
 
-  const city = SOCIAL_SCOUT_CITIES.find((candidate) => candidate.slug === citySlug);
-  if (!city) throw new Error(`Unsupported social trend city: ${citySlug}`);
     const cityContent = content.filter(
       (item) => item.citySlug === city.slug && engagementValue(item) > 0,
     );
@@ -934,17 +949,28 @@ async function runsReadyForBuild(weekStart: string): Promise<boolean> {
   return areTrendRunsReadyForBuild(data || []);
 }
 
+export function shouldRebuildCity(build: {
+  state: string;
+  attempt_count: number;
+  completed_at?: string | null;
+}): boolean {
+  if (build.state === "failed") return build.attempt_count < MAX_CITY_BUILD_ATTEMPTS;
+  return build.state === "succeeded" &&
+    Boolean(build.completed_at) &&
+    new Date(build.completed_at as string).getTime() < Date.parse(TREND_LINKER_RELEASED_AT);
+}
+
 async function claimNextCityBuild(weekStart: string): Promise<string | null> {
   const supabase = createSupabaseAdmin();
   const { data, error } = await supabase
     .from("weekly_social_trend_city_builds")
-    .select("city_slug,state,attempt_count")
+    .select("city_slug,state,attempt_count,completed_at")
     .eq("week_start", weekStart);
   if (error) throw new Error(`Could not inspect city ranking builds: ${error.message}`);
   const builds = new Map((data || []).map((build) => [build.city_slug, build]));
   const city = SOCIAL_SCOUT_CITIES.find((candidate) => {
     const build = builds.get(candidate.slug);
-    return !build || (build.state === "failed" && build.attempt_count < MAX_CITY_BUILD_ATTEMPTS);
+    return !build || shouldRebuildCity(build);
   });
   if (!city) return null;
 
@@ -966,7 +992,7 @@ async function claimNextCityBuild(weekStart: string): Promise<string | null> {
         .update(claim)
         .eq("week_start", weekStart)
         .eq("city_slug", city.slug)
-        .eq("state", "failed")
+        .eq("state", existing.state)
         .eq("attempt_count", existing.attempt_count)
     : supabase.from("weekly_social_trend_city_builds").insert(claim);
   const { data: claimed, error: claimError } = await query.select("city_slug").maybeSingle();
