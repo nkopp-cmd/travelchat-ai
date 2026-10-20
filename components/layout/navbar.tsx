@@ -3,15 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useUser } from "@/lib/auth/client";
-import { UserMenu } from "@/components/auth/user-menu";
+import dynamic from "next/dynamic";
 import { ArrowRight, Map, Menu, Compass, Award, Settings, CreditCard, Sparkles } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { SubscriptionBadge } from "@/components/subscription";
-import { NotificationCenter } from "@/components/notifications/notification-center";
 import { Logo } from "@/components/brand/logo";
 import { useScrollDirection } from "@/hooks/use-scroll-direction";
+
+const NavbarAccount = dynamic(() => import("@/components/layout/navbar-account").then((module) => module.NavbarAccount), {
+  ssr: false,
+  loading: () => <div className="h-11 w-20 rounded-xl bg-raised" aria-hidden="true" />,
+});
 
 const routes = [
   { href: "/spots", label: "Explore", icon: Compass },
@@ -54,7 +57,7 @@ export function Navbar() {
         return <Link key={route.href} href={route.href} aria-current={active ? 'page' : undefined} className={cn("flex min-h-11 items-center gap-2 rounded-xl px-4 py-2 text-sm text-muted-foreground hover:bg-raised hover:text-foreground", active && "bg-raised font-semibold text-foreground")}><route.icon className="size-4" />{route.label}</Link>;
       })}</nav>
       <div className="flex min-h-11 items-center gap-2 sm:gap-4">
-        {!isLoaded ? <div role="status" aria-label="Checking account" className="h-11 w-20 rounded-xl bg-raised"><span className="sr-only">Checking account</span></div> : isSignedIn ? <><SubscriptionBadge className="hidden sm:flex" /><NotificationCenter /><UserMenu /></> : <><Button asChild variant="ghost" size="sm"><Link href="/sign-in">Sign in</Link></Button><Button asChild size="sm" className="hidden sm:inline-flex"><Link href="/itineraries/new">Start planning</Link></Button></>}
+        {!isLoaded ? <div role="status" aria-label="Checking account" className="h-11 w-20 rounded-xl bg-raised"><span className="sr-only">Checking account</span></div> : isSignedIn ? <NavbarAccount /> : <><Button asChild variant="ghost" size="sm"><Link href="/sign-in">Sign in</Link></Button><Button asChild size="sm" className="hidden sm:inline-flex"><Link href="/itineraries/new">Start planning</Link></Button></>}
       </div>
     </div>
   </header>;
