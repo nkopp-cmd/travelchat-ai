@@ -134,11 +134,13 @@ export default function SpotsMap({ spots, footer, onClose }: SpotsMapProps) {
                 <div className="shrink-0 cursor-grab touch-none select-none px-5 pb-3 pt-2 active:cursor-grabbing lg:cursor-default lg:pt-4"
                     onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp}
                     onPointerCancel={onPointerUp}>
-                    <button type="button" className="mx-auto mb-2 block h-1.5 w-10 rounded-full bg-muted-foreground/40 lg:hidden"
+                    <button type="button" className="mx-auto -mt-2 grid h-6 w-16 place-items-center lg:hidden"
                         aria-controls={sheetId} aria-expanded={snap !== "map"}
                         aria-label={snap === "list" ? "Show the map" : snap === "half" ? "Show only the map" : "Show the list"}
                         onPointerDown={(event) => event.stopPropagation()}
-                        onClick={() => setSnap(snap === "map" ? "list" : snap === "half" ? "map" : "half")} />
+                        onClick={() => setSnap(snap === "map" ? "list" : snap === "half" ? "map" : "half")}>
+                        <span aria-hidden="true" className="block h-1.5 w-10 rounded-full bg-muted-foreground/40" />
+                    </button>
                     <div className="relative">
                         <p className="text-center text-[15px] font-semibold lg:text-left">{countLabel}</p>
                         {onClose && (
@@ -158,10 +160,11 @@ export default function SpotsMap({ spots, footer, onClose }: SpotsMapProps) {
                 <ul aria-label="Spots on this page"
                     className={cn("min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-4 pb-6",
                         snap === "map" && dragPx === null && "max-lg:invisible")}>
-                    {spots.map((spot) => (
+                    {spots.map((spot, index) => (
                         <li key={spot.id} aria-current={spot.id === selectedId ? "true" : undefined}
                             className="rounded-2xl">
-                            <SpotCard spot={spot} />
+                            {/* The first card is the LCP image in map view. */}
+                            <SpotCard spot={spot} priority={index === 0} />
                         </li>
                     ))}
                     {footer && <li className="list-none">{footer}</li>}
