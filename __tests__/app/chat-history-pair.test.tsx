@@ -50,7 +50,7 @@ describe("persisted chat exchange", () => {
  });
  it("does not start another conversation while an exchange is in flight", async () => {
  let resolve!: (value: { id: string }) => void; mocks.create.mockImplementation(() => new Promise(r => { resolve = r; }));
- render(<ChatInterface />); submit(); fireEvent.click(screen.getByRole("button", { name: "New Chat" }));
+ render(<ChatInterface />); submit(); fireEvent.click(screen.getByRole("button", { name: /new chat/i }));
  expect(mocks.create).toHaveBeenCalledTimes(1); expect(screen.getByText("Hello Alley")).toBeTruthy();
  fireEvent.submit(document.querySelector("form")!); expect(mocks.create).toHaveBeenCalledTimes(1);
  await act(async () => resolve({ id: "exchange-one" })); await waitFor(() => expect(mocks.save).toHaveBeenCalledTimes(2)); expect(mocks.create).toHaveBeenCalledTimes(1);

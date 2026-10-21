@@ -46,7 +46,7 @@ export function ChatMessageSkeleton() {
     return (
         <div className="flex gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
             <Skeleton className="h-8 w-8 rounded-full shrink-0" />
-            <div className="rounded-2xl px-5 py-4 bg-muted/50 max-w-[85%] space-y-2">
+            <div className="rounded-2xl px-4 py-3 bg-surface max-w-[85%] space-y-2">
                 <Skeleton className="h-4 w-64" />
                 <Skeleton className="h-4 w-48" />
                 <Skeleton className="h-4 w-56" />

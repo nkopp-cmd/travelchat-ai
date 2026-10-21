@@ -111,8 +111,8 @@ export function MobileChatFAB({ itineraryContext, selectedTemplate }: MobileChat
       <Button
         onClick={handleOpen}
         className={cn(
-          "fixed bottom-24 right-6 z-40 h-14 w-14 rounded-full shadow-lg shadow-violet-500/30",
-          "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700",
+          "fixed bottom-24 right-6 z-40 h-14 w-14 rounded-full",
+          "bg-primary text-primary-foreground hover:bg-primary/90",
           "transition-all duration-300 hidden md:flex lg:hidden",
           isOpen && "scale-0 opacity-0",
           !isVisible && !isOpen && "translate-y-24 opacity-0"
@@ -126,7 +126,7 @@ export function MobileChatFAB({ itineraryContext, selectedTemplate }: MobileChat
           <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 animate-pulse" />
         )}
         {/* Pulse animation ring */}
-        <span className="absolute inset-0 rounded-full bg-violet-500 animate-ping opacity-20" />
+        <span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-20" />
       </Button>
 
       {/* Bottom Sheet Backdrop - Only on tablet */}
@@ -154,8 +154,8 @@ export function MobileChatFAB({ itineraryContext, selectedTemplate }: MobileChat
           {/* Header */}
           <div className="flex items-center justify-between px-4 pb-3 flex-shrink-0">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center">
-                <span className="text-white font-bold">A</span>
+              <div className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                <span className="text-foreground font-bold">A</span>
               </div>
               <div>
                 <h3 className="font-semibold">Alley</h3>

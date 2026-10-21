@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Send, Plus, Sparkles, X, Map, LayoutTemplate } from "@/components/ui/icons";
@@ -47,6 +47,10 @@ interface ItineraryTemplate {
 
 interface ChatInterfaceProps {
   className?: string;
+  /** Replaces the default "Ask Alley anything" label, e.g. with the /chat page header. */
+  header?: ReactNode;
+  /** Rendered between the header row and the messages, e.g. recent chats on /chat. */
+  belowHeader?: ReactNode;
   itineraryContext?: ItineraryContext;
   selectedTemplate?: ItineraryTemplate;
   conversationId?: string;
@@ -55,7 +59,7 @@ interface ChatInterfaceProps {
 // Helper to generate stable IDs
 const generateMessageId = () => crypto.randomUUID();
 
-export function ChatInterface({ className, itineraryContext, selectedTemplate, conversationId: initialConversationId }: ChatInterfaceProps) {
+export function ChatInterface({ className, header, belowHeader, itineraryContext, selectedTemplate, conversationId: initialConversationId }: ChatInterfaceProps) {
   const getInitialMessage = () => {
     if (itineraryContext) {
       return `Hey! I can see you're working on "${itineraryContext.title}". What would you like to change? I can help you add activities, change the order, or adjust anything else!`;
@@ -218,11 +222,11 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
 
       {/* Active Itinerary Context Banner */}
       {activeItinerary && (
-        <Card className="mb-4 bg-gradient-to-r from-violet-500/10 to-indigo-500/10 flex-shrink-0">
+        <Card className="mb-3 bg-surface flex-shrink-0">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-start gap-3 flex-1">
-                <Sparkles className="h-5 w-5 text-violet-600 mt-0.5 flex-shrink-0" />
+                <Sparkles className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                 <div>
                   <h4 className="font-semibold text-sm mb-1">Editing: {activeItinerary.title}</h4>
                   <p className="text-xs text-muted-foreground">
@@ -250,16 +254,16 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
 
       {/* Linked Itinerary Badge */}
       {linkedItineraryId && !activeItinerary && (
-        <Card className="mb-2 bg-violet-500/5 flex-shrink-0">
+        <Card className="mb-2 bg-surface flex-shrink-0">
           <CardContent className="p-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Map className="h-4 w-4 text-violet-600" />
+              <Map className="h-4 w-4 text-primary" />
               <span className="text-sm text-muted-foreground">
                 This chat generated a saved itinerary
               </span>
             </div>
             <Link href={`/itineraries/${linkedItineraryId}`}>
-              <Button size="sm" variant="ghost" className="text-violet-600 hover:text-violet-700">
+              <Button size="sm" variant="ghost" className="text-primary">
                 View Itinerary
               </Button>
             </Link>
@@ -269,18 +273,18 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
 
       {/* Itinerary Suggestion Banner */}
       {showItineraryPrompt && !activeItinerary && (
-        <Card className="mb-4 bg-gradient-to-r from-violet-500/10 to-indigo-500/10 flex-shrink-0 animate-in slide-in-from-top">
+        <Card className="mb-3 bg-surface flex-shrink-0 animate-in slide-in-from-top">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-start gap-3 flex-1">
-                <Sparkles className="h-5 w-5 text-violet-600 mt-0.5 flex-shrink-0" />
+                <Sparkles className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                 <div>
                   <h4 className="font-semibold text-sm mb-1">Want a full itinerary?</h4>
                   <p className="text-xs text-muted-foreground mb-3">
                     Use our itinerary generator for a personalized day-by-day plan with hidden gems!
                   </p>
                   <Link href="/itineraries/new">
-                    <Button size="sm" className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700">
+                    <Button size="sm" className="rounded-full">
                       <Sparkles className="mr-2 h-3 w-3" />
                       Generate Itinerary
                     </Button>
@@ -301,22 +305,23 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
         </Card>
       )}
 
-      <div className="flex items-center justify-between mb-2 px-2 flex-shrink-0">
-        <h3 className="text-sm font-semibold text-muted-foreground">Ask Alley anything</h3>
+      <div className="mb-3 flex flex-shrink-0 items-center justify-between gap-3">
+        {header ?? <h3 className="text-sm font-semibold text-muted-foreground">Ask Alley anything</h3>}
         <Button
-          variant="ghost"
+          variant="secondary"
           size="sm"
           onClick={createNewConversation}
           disabled={isLoading}
-          className="text-muted-foreground hover:text-foreground"
+          className="shrink-0 rounded-full"
         >
-          <Plus className="h-4 w-4 mr-2" />
-          New Chat
+          <Plus className="h-4 w-4" />
+          New chat
         </Button>
       </div>
+      {belowHeader}
 
       {/* Messages container - Native overflow for proper flex constraints (replaces Radix ScrollArea) */}
-      <div ref={messagesRef} className="flex-1 min-h-0 overflow-y-auto p-4 rounded-2xl bg-white/50 dark:bg-white/5 backdrop-blur-md shadow-sm mb-3">
+      <div ref={messagesRef} className="flex-1 min-h-0 overflow-y-auto px-1 py-2 mb-3">
         <div className="space-y-6">
           {isLoadingHistory && (
             <div className="flex items-center justify-center py-8">
@@ -340,8 +345,8 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
                 <Avatar className="h-8 w-8 shrink-0">
                   <AvatarFallback className={cn(
                     message.role === "user"
-                      ? "bg-violet-500 text-white"
-                      : "bg-gradient-to-br from-violet-600 to-indigo-600 text-white"
+                      ? "bg-raised text-foreground"
+                      : "bg-primary text-primary-foreground font-semibold"
                   )}>
                     {message.role === "user" ? "U" : "A"}
                   </AvatarFallback>
@@ -353,10 +358,10 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
                 ) : (
                   <div
                     className={cn(
-                      "rounded-2xl px-5 py-4 shadow-sm",
+                      "rounded-2xl px-4 py-3 text-[15px] leading-6",
                       message.role === "user"
-                        ? "bg-violet-500 text-white max-w-[75%]"
-                        : "bg-muted/50 text-foreground max-w-[85%]"
+                        ? "bg-primary text-primary-foreground max-w-[80%]"
+                        : "bg-surface text-foreground max-w-[85%]"
                     )}
                   >
                     <FormattedMessage content={message.content} role={message.role} conversationId={currentConversationId || undefined} />
@@ -372,7 +377,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
             <Link href="/itineraries/new" className="flex-shrink-0">
               <Button
                 size="sm"
-                className="rounded-full text-xs gap-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-md shadow-violet-500/20 whitespace-nowrap"
+                className="rounded-full gap-1.5 whitespace-nowrap"
               >
                 <Sparkles className="h-3.5 w-3.5" />
                 Generate Itinerary
@@ -381,9 +386,9 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
             <div className="flex flex-wrap gap-1.5">
               <Link href="/templates">
                 <Button
-                  variant="ghost"
+                  variant="secondary"
                   size="sm"
-                  className="rounded-full text-xs gap-1.5 text-muted-foreground hover:text-foreground whitespace-nowrap"
+                  className="rounded-full gap-1.5 whitespace-nowrap"
                 >
                   <LayoutTemplate className="h-3.5 w-3.5" />
                   Templates
@@ -391,9 +396,9 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
               </Link>
               <Link href="/spots">
                 <Button
-                  variant="ghost"
+                  variant="secondary"
                   size="sm"
-                  className="rounded-full text-xs gap-1.5 text-muted-foreground hover:text-foreground whitespace-nowrap"
+                  className="rounded-full gap-1.5 whitespace-nowrap"
                 >
                   <Map className="h-3.5 w-3.5" />
                   Spots
@@ -412,7 +417,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
       )}
 
       {/* INPUT ANCHOR - Always visible at bottom */}
-      <form onSubmit={handleSubmit} className="flex gap-2 flex-shrink-0 pt-2 pb-0" role="search">
+      <form onSubmit={handleSubmit} className="flex flex-shrink-0 items-end gap-2 rounded-2xl bg-surface p-2 shadow-surface" role="search">
         <label htmlFor="chat-input" className="sr-only">
           Message to Alley
         </label>
@@ -433,7 +438,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
           rows={1}
           aria-describedby={chatError ? "chat-error" : isLoading ? "chat-loading" : undefined}
           aria-invalid={!!chatError}
-          className="flex-1 rounded-2xl bg-white/70 dark:bg-white/5 backdrop-blur-md focus-visible:ring-violet-500 min-h-[40px] max-h-[120px] resize-none py-2.5"
+          className="min-h-11 max-h-[120px] flex-1 resize-none rounded-xl bg-transparent py-2.5 text-[15px] shadow-none placeholder:text-muted-foreground"
         />
         {isLoading && (
           <span id="chat-loading" className="sr-only">
@@ -450,7 +455,7 @@ export function ChatInterface({ className, itineraryContext, selectedTemplate, c
           size="icon"
           disabled={isLoading || !input.trim()}
           aria-label="Send message"
-          className="rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-lg shadow-violet-500/20"
+          className="size-11 shrink-0 rounded-full"
         >
           <Send className="h-4 w-4" />
         </Button>
