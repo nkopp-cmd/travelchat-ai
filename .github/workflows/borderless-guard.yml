@@ -2,7 +2,7 @@ name: Borderless guard
 
 # d1-preview-verification.yml runs only for its listed paths, so a new
 # decorative border in any other UI file never met the guard. This job runs
-# the two border guards for every UI change.
+# the two border guards and the design-token ratchet for every UI change.
 on:
   pull_request:
     paths:
@@ -15,6 +15,9 @@ on:
       - 'tailwind.config.ts'
       - 'scripts/check-borderless.mjs'
       - 'scripts/check-embedded-borders.checks.mjs'
+      - 'scripts/check-design-tokens.mjs'
+      - 'scripts/check-design-tokens.checks.mjs'
+      - 'scripts/design-token-baseline.json'
       - '.github/workflows/borderless-guard.yml'
   push:
     branches: [main]
@@ -28,6 +31,9 @@ on:
       - 'tailwind.config.ts'
       - 'scripts/check-borderless.mjs'
       - 'scripts/check-embedded-borders.checks.mjs'
+      - 'scripts/check-design-tokens.mjs'
+      - 'scripts/check-design-tokens.checks.mjs'
+      - 'scripts/design-token-baseline.json'
       - '.github/workflows/borderless-guard.yml'
 
 jobs:
@@ -42,11 +48,13 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-      - name: Reject new decorative borders
+      - name: Reject new decorative borders and legacy colours
         run: |
           /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh bash -lc '
             set -e
             npm ci --ignore-scripts
             node scripts/check-borderless.mjs
             node --test scripts/check-embedded-borders.checks.mjs
+            node scripts/check-design-tokens.mjs
+            node --test scripts/check-design-tokens.checks.mjs
           '
