@@ -177,7 +177,7 @@ export default function SpotPinMap({ spots, selectedId = null, onSelect }: {
                     slot.host, slot.key) : null;
             })}
             {selected && cardPoint && (
-                <PinCard spot={selected} point={cardPoint} titleId={titleId} onClose={close} />
+                <PinCard key={selected.id} spot={selected} point={cardPoint} titleId={titleId} onClose={close} />
             )}
         </div>
     );
@@ -221,16 +221,26 @@ export function PinCard({ spot, point, titleId, onClose }: {
     spot: Spot; point: { x: number; y: number }; titleId: string; onClose: () => void;
 }) {
     const card = useRef<HTMLDivElement>(null);
+    // Second step of the pin -> card -> detail morph: the card grows to fill the map in place.
+    const [expanded, setExpanded] = useState(false);
+    const detailsId = useId();
     const tone = pinTone(spot.category);
     const Icon = TONE_ICONS[tone];
     const photo = pinPhoto(spot);
     const area = spot.areaName || spot.cityName;
+    const tips = (spot.tips || []).filter((tip) => typeof tip === "string" && tip.trim()).slice(0, 3);
     useEffect(() => { card.current?.focus(); }, [spot.id]);
     return (
         <div ref={card} role="dialog" aria-modal="false" aria-labelledby={titleId} tabIndex={-1}
-            className="ll-pin-card" data-tone={tone}
+            className="ll-pin-card" data-tone={tone} data-expanded={expanded || undefined}
             style={{ left: `clamp(150px, ${point.x}px, calc(100% - 150px))`, top: point.y - CARD_OFFSET_PX }}
-            onKeyDown={(event) => { if (event.key === "Escape") { event.stopPropagation(); onClose(); } }}>
+            onKeyDown={(event) => {
+                if (event.key !== "Escape") return;
+                event.stopPropagation();
+                // Escape steps back one level: detail -> card -> closed.
+                if (expanded) setExpanded(false);
+                else onClose();
+            }}>
             <div className="ll-pin-card-media">
                 {photo
                     // eslint-disable-next-line @next/next/no-img-element -- first-party photo already allowed on cards.
@@ -242,7 +252,23 @@ export function PinCard({ spot, point, titleId, onClose }: {
                 <h3 id={titleId} className="text-[17px] font-semibold leading-snug">{spot.name}</h3>
                 {area && <p className="text-sm text-muted-foreground">{area}</p>}
                 <p className="text-sm text-muted-foreground">Localley score {spot.localleyScore}</p>
-                <div className="flex gap-2 pt-2">
+                {expanded && (
+                    <div id={detailsId} className="space-y-3 pt-2 text-sm">
+                        {spot.description && <p className="leading-relaxed text-foreground">{spot.description}</p>}
+                        {spot.location?.address && <p className="text-muted-foreground">{spot.location.address}</p>}
+                        {spot.bestTime && <p className="text-muted-foreground">Best time: {spot.bestTime}</p>}
+                        {tips.length > 0 && (
+                            <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
+                                {tips.map((tip) => <li key={tip}>{tip}</li>)}
+                            </ul>
+                        )}
+                    </div>
+                )}
+                <button type="button" onClick={() => setExpanded((value) => !value)} aria-expanded={expanded} aria-controls={detailsId}
+                    className="min-h-11 text-sm font-medium text-primary">
+                    {expanded ? "Show less" : "More about this spot"}
+                </button>
+                <div className="flex gap-2 pt-1">
                     <Link href={`/spots/${spot.id}`} prefetch={false}
                         className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground">
                         Details
