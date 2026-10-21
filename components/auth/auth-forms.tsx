@@ -10,14 +10,14 @@ import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth/auth-client";
 import { safeRedirect } from "@/lib/auth/client";
 
-const inputClass = "bg-white/10 text-white placeholder:text-gray-500";
-const primaryClass = "w-full bg-violet-600 hover:bg-violet-700 text-white";
-const secondaryClass = "w-full bg-white/10 text-white hover:bg-white/20";
+const inputClass = "bg-raised text-foreground placeholder:text-muted-foreground";
+const primaryClass = "w-full  text-foreground";
+const secondaryClass = "w-full bg-raised text-foreground hover:bg-raised";
 
 function Field({ id, label, children }: { id: string; label: string; children: ReactNode }) {
     return (
         <div className="space-y-2">
-            <Label htmlFor={id} className="text-gray-300">{label}</Label>
+            <Label htmlFor={id} className="text-muted-foreground">{label}</Label>
             {children}
         </div>
     );
@@ -26,7 +26,7 @@ function Field({ id, label, children }: { id: string; label: string; children: R
 function Notice({ tone, children }: { tone: "error" | "success"; children: ReactNode }) {
     const cls = tone === "error"
         ? " bg-red-500/10 text-red-200"
-        : " bg-emerald-500/10 text-emerald-200";
+        : " bg-[rgb(var(--ll-success)/0.12)] text-foreground";
     return <div role={tone === "error" ? "alert" : "status"} className={`rounded-md px-3 py-2 text-sm ${cls}`}>{children}</div>;
 }
 
@@ -101,7 +101,7 @@ export function SignInForm({ googleEnabled }: { googleEnabled: boolean }) {
                     <Input id="password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className={inputClass} />
                 </Field>
                 <div className="flex justify-end">
-                    <Link href="/forgot-password" className="text-sm text-violet-400 hover:text-violet-300">Forgot password?</Link>
+                    <Link href="/forgot-password" className="text-sm text-primary hover:text-primary">Forgot password?</Link>
                 </div>
                 <Button type="submit" className={primaryClass} disabled={busy !== null || !password}>
                     {busy === "password" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -113,8 +113,8 @@ export function SignInForm({ googleEnabled }: { googleEnabled: boolean }) {
                 {busy === "link" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 Email me a sign-in link
             </Button>
-            <p className="text-center text-sm text-gray-400">
-                No account? <Link href={`/sign-up${redirectTo !== "/dashboard" ? `?redirect_url=${encodeURIComponent(redirectTo)}` : ""}`} className="text-violet-400 hover:text-violet-300">Sign up</Link>
+            <p className="text-center text-sm text-muted-foreground">
+                No account? <Link href={`/sign-up${redirectTo !== "/dashboard" ? `?redirect_url=${encodeURIComponent(redirectTo)}` : ""}`} className="text-primary hover:text-primary">Sign up</Link>
             </p>
         </div>
     );
@@ -174,8 +174,8 @@ export function SignUpForm({ googleEnabled }: { googleEnabled: boolean }) {
                     Create account
                 </Button>
             </form>
-            <p className="text-center text-sm text-gray-400">
-                Have an account? <Link href={`/sign-in${redirectTo !== "/dashboard" ? `?redirect_url=${encodeURIComponent(redirectTo)}` : ""}`} className="text-violet-400 hover:text-violet-300">Sign in</Link>
+            <p className="text-center text-sm text-muted-foreground">
+                Have an account? <Link href={`/sign-in${redirectTo !== "/dashboard" ? `?redirect_url=${encodeURIComponent(redirectTo)}` : ""}`} className="text-primary hover:text-primary">Sign in</Link>
             </p>
         </div>
     );
@@ -207,7 +207,7 @@ export function ForgotPasswordForm() {
                 {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 Send reset link
             </Button>
-            <p className="text-center text-sm text-gray-400"><Link href="/sign-in" className="text-violet-400 hover:text-violet-300">Back to sign in</Link></p>
+            <p className="text-center text-sm text-muted-foreground"><Link href="/sign-in" className="text-primary hover:text-primary">Back to sign in</Link></p>
         </form>
     );
 }
@@ -248,7 +248,7 @@ export function ResetPasswordForm() {
                 {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 Set password
             </Button>
-            <p className="text-center text-sm text-gray-400"><Link href="/forgot-password" className="text-violet-400 hover:text-violet-300">Request a new link</Link></p>
+            <p className="text-center text-sm text-muted-foreground"><Link href="/forgot-password" className="text-primary hover:text-primary">Request a new link</Link></p>
         </form>
     );
 }

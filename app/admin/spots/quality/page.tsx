@@ -15,7 +15,7 @@ export default function AdminSpotQualityPage() {
             <div className="mx-auto flex w-full max-w-7xl justify-end px-4 pt-6 sm:px-6 lg:px-8">
                 <Link
                     href="/admin/spots/discovery"
-                    className="rounded-lg bg-violet-400/10 px-3 py-2 text-sm font-medium text-violet-100 hover:bg-violet-400/20"
+                    className="rounded-lg bg-primary/10 px-3 py-2 text-sm font-medium text-foreground hover:bg-primary/15"
                 >
                     Review Apify discoveries
                 </Link>

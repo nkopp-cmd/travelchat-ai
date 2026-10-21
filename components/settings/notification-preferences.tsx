@@ -121,9 +121,9 @@ export function NotificationPreferencesSection() {
             {/* Push Notification Toggle */}
             <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-full bg-violet-100 dark:bg-violet-900/30">
+                    <div className="p-2 rounded-full bg-primary/15">
                         {isSubscribed ? (
-                            <Bell className="h-5 w-5 text-violet-600" />
+                            <Bell className="h-5 w-5 text-primary" />
                         ) : (
                             <BellOff className="h-5 w-5 text-muted-foreground" />
                         )}
@@ -151,7 +151,7 @@ export function NotificationPreferencesSection() {
                     size="sm"
                     onClick={handlePushToggle}
                     disabled={!isSupported || pushLoading || !isWritable}
-                    className={isSubscribed ? "" : "bg-violet-600 hover:bg-violet-700"}
+                    className={isSubscribed ? "" : ""}
                 >
                     {pushLoading ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -175,7 +175,7 @@ export function NotificationPreferencesSection() {
                 {/* Achievements & Progress */}
                 <div className="flex items-center justify-between gap-4">
                     <div className="flex min-w-0 flex-1 items-center gap-3">
-                        <Trophy className="h-4 w-4 shrink-0 text-amber-500" />
+                        <Trophy className="h-4 w-4 shrink-0 text-[rgb(var(--ll-warning))]" />
                         <div className="min-w-0 flex-1">
                             <Label htmlFor="achievements">Achievements & Level Ups</Label>
                             <p className="text-xs text-muted-foreground">
@@ -194,7 +194,7 @@ export function NotificationPreferencesSection() {
                 {/* New Spots */}
                 <div className="flex items-center justify-between gap-4">
                     <div className="flex min-w-0 flex-1 items-center gap-3">
-                        <Star className="h-4 w-4 shrink-0 text-violet-500" />
+                        <Star className="h-4 w-4 shrink-0 text-primary" />
                         <div className="min-w-0 flex-1">
                             <Label htmlFor="newSpots">New Spots</Label>
                             <p className="text-xs text-muted-foreground">
@@ -213,7 +213,7 @@ export function NotificationPreferencesSection() {
                 {/* Social */}
                 <div className="flex items-center justify-between gap-4">
                     <div className="flex min-w-0 flex-1 items-center gap-3">
-                        <Users className="h-4 w-4 shrink-0 text-indigo-500" />
+                        <Users className="h-4 w-4 shrink-0 text-primary" />
                         <div className="min-w-0 flex-1">
                             <Label htmlFor="social">Social Activity</Label>
                             <p className="text-xs text-muted-foreground">
@@ -297,7 +297,7 @@ export function NotificationPreferencesSection() {
 
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <Mail className="h-4 w-4 text-blue-500" />
+                        <Mail className="h-4 w-4 text-primary" />
                         <div>
                             <Label htmlFor="emailEnabled">Email Notifications</Label>
                             <p className="text-xs text-muted-foreground">

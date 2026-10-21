@@ -86,7 +86,7 @@ export default async function ItinerariesPage({ searchParams }: {
                         </p>
                     </div>
                     <Link href="/itineraries/new">
-                        <Button className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-lg shadow-violet-500/20">
+                        <Button className="bg-primary text-primary-foreground">
                             <Plus className="mr-2 h-4 w-4" />
                             New Itinerary
                         </Button>
@@ -94,7 +94,7 @@ export default async function ItinerariesPage({ searchParams }: {
                 </div>
 
                 {error && (
-                    <div className="rounded-xl bg-amber-50/80 dark:bg-amber-950/20 backdrop-blur-sm p-4 text-amber-800 dark:text-amber-200">
+                    <div className="rounded-xl bg-[rgb(var(--ll-warning)/0.14)] p-4 text-foreground">
                         <p>{error}. Please try refreshing the page.</p>
                     </div>
                 )}

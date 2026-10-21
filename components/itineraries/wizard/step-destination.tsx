@@ -141,13 +141,13 @@ export function StepDestination() {
       {/* Header */}
       <div className={cn("text-center", templateMode ? "mb-2 sm:mb-3" : "mb-3 sm:mb-4")}>
         <div className={cn(
-          "mb-2 inline-flex items-center justify-center rounded-full bg-violet-600/20 sm:mb-3",
+          "mb-2 inline-flex items-center justify-center rounded-full bg-primary/15 sm:mb-3",
           templateMode ? "h-9 w-9 sm:h-11 sm:w-11" : "h-10 w-10 sm:h-12 sm:w-12"
         )}>
-          <MapPin className="h-5 w-5 text-violet-400 sm:h-6 sm:w-6" />
+          <MapPin className="h-5 w-5 text-primary sm:h-6 sm:w-6" />
         </div>
-        <h2 className="mb-1 text-xl font-bold text-white sm:mb-2 sm:text-2xl">Where to?</h2>
-        <p className="text-sm text-gray-400 sm:text-base">
+        <h2 className="mb-1 text-xl font-bold text-foreground sm:mb-2 sm:text-2xl">Where to?</h2>
+        <p className="text-sm text-muted-foreground sm:text-base">
           {data.templateName
             ? "Confirm the suggested city or switch it before generating"
             : multiMode
@@ -158,14 +158,14 @@ export function StepDestination() {
 
       {showModeToggle && (
         <div className="mb-3 flex justify-center sm:mb-4">
-          <div className="inline-flex rounded-full bg-white/5 p-1">
+          <div className="inline-flex rounded-full bg-raised p-1">
             <button
               type="button"
               onClick={() => handleModeChange("single")}
               aria-pressed={!multiMode}
               className={cn(
                 "rounded-full px-4 py-1.5 text-xs font-semibold transition-colors sm:text-sm",
-                !multiMode ? "bg-violet-600 text-white" : "text-gray-400 hover:text-white",
+                !multiMode ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
               )}
             >
               One city
@@ -176,7 +176,7 @@ export function StepDestination() {
               aria-pressed={multiMode}
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-semibold transition-colors sm:text-sm",
-                multiMode ? "bg-violet-600 text-white" : "text-gray-400 hover:text-white",
+                multiMode ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
               )}
             >
               <Route className="h-3.5 w-3.5" />
@@ -187,16 +187,16 @@ export function StepDestination() {
       )}
 
       {multiMode && data.citySlugs.length > 0 && (
-        <div className="mb-2 flex items-center gap-2 rounded-lg bg-violet-500/10 p-2 text-left shadow-lg shadow-violet-950/15 backdrop-blur sm:mb-3 sm:p-2.5">
+        <div className="mb-2 flex items-center gap-2 rounded-lg bg-primary/10 p-2 text-left backdrop-blur sm:mb-3 sm:p-2.5">
           <div className="flex min-w-0 items-center gap-2">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-violet-500 text-white">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground">
               <Route className="h-4 w-4" aria-hidden="true" />
             </span>
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold leading-tight text-white">
+              <p className="truncate text-sm font-semibold leading-tight text-foreground">
                 {data.citySlugs.length} {data.citySlugs.length === 1 ? "city" : "cities"} selected
               </p>
-              <p className="truncate text-[11px] leading-tight text-violet-100/65">
+              <p className="truncate text-xs leading-tight text-foreground">
                 {data.citySlugs.length < 2
                   ? "Connected cities in the same country stay available."
                   : data.citySlugs
@@ -209,22 +209,22 @@ export function StepDestination() {
       )}
 
       {multiMode && data.citySlugs.length === 0 && (
-        <p className="mb-2 text-center text-[11px] text-gray-500 sm:mb-3">
+        <p className="mb-2 text-center text-xs text-muted-foreground sm:mb-3">
           Multi-city currently covers connected cities within Korea and within Japan.
         </p>
       )}
 
       {data.city && !templateMode && !multiMode && (
-        <div className="mb-2 flex items-center gap-2 rounded-lg bg-violet-500/10 p-2 text-left shadow-lg shadow-violet-950/15 backdrop-blur sm:mb-3 sm:p-2.5">
+        <div className="mb-2 flex items-center gap-2 rounded-lg bg-primary/10 p-2 text-left backdrop-blur sm:mb-3 sm:p-2.5">
           <div className="flex min-w-0 items-center gap-2">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-violet-500 text-white">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground">
               <Check className="h-4 w-4" aria-hidden="true" />
             </span>
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold leading-tight text-white">
+              <p className="truncate text-sm font-semibold leading-tight text-foreground">
                 {data.city} selected
               </p>
-              <p className="truncate text-[11px] leading-tight text-violet-100/65">
+              <p className="truncate text-xs leading-tight text-foreground">
                 {templateMode ? "Template settings are ready." : "Continue to trip length."}
               </p>
             </div>
@@ -266,7 +266,7 @@ export function StepDestination() {
           <p className="text-red-400 mb-3">Failed to load cities. Please try again.</p>
           <button
             onClick={loadCities}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg  text-foreground text-sm font-medium transition-colors"
           >
             <RefreshCw className="w-4 h-4" />
             Retry
@@ -276,11 +276,11 @@ export function StepDestination() {
 
       {/* Fallback if no cities (but no error) */}
       {cities.length === 0 && !isLoading && !hasError && (
-        <div className="text-center text-gray-500 py-8">
+        <div className="text-center text-muted-foreground py-8">
           <p className="mb-3">No cities available. Please try again later.</p>
           <button
             onClick={loadCities}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-gray-400 text-sm transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-muted-foreground text-sm transition-colors"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             Refresh

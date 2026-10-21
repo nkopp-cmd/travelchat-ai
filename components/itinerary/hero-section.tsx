@@ -4,7 +4,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { MapPin, Calendar, Star } from "@/components/ui/icons";
 import { Badge } from "@/components/ui/badge";
-import { getCityImageUrl, getCityGradient } from "@/lib/city-images";
+import { getCityImageUrl } from "@/lib/city-images";
 import { CityImageAvatar } from "@/components/ui/city-image";
 
 interface HeroSectionProps {
@@ -43,7 +43,7 @@ export function HeroSection({
             quality={92}
           />
         ) : (
-          <div className={cn("absolute inset-0 bg-gradient-to-br", getCityGradient(city))} />
+          <div className="absolute inset-0 bg-raised" />
         )}
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
@@ -53,7 +53,7 @@ export function HeroSection({
           <div className="absolute top-4 right-4">
             <Badge
               variant="secondary"
-              className="bg-violet-600/90 text-white border-0 px-3 py-1"
+              className="bg-primary text-primary-foreground border-0 px-3 py-1"
             >
               <Star className="w-3.5 h-3.5 mr-1.5 fill-current" />
               {localScore}% Local
@@ -69,20 +69,20 @@ export function HeroSection({
           </h1>
 
           {subtitle && (
-            <p className="text-gray-300 mb-3 line-clamp-1">{subtitle}</p>
+            <p className="text-muted-foreground mb-3 line-clamp-1">{subtitle}</p>
           )}
 
           {/* Meta info */}
-          <div className="flex flex-wrap items-center gap-4 text-gray-300">
+          <div className="flex flex-wrap items-center gap-4 text-muted-foreground">
             {city && city !== "Adventure Awaits" && (
               <div className="flex items-center gap-2 rounded-full bg-black/30 py-1 pl-1 pr-3 backdrop-blur-sm">
                 <CityImageAvatar city={city} className="h-7 w-7 rounded-full " sizes="28px" />
-                <MapPin className="w-4 h-4 text-violet-300" />
+                <MapPin className="w-4 h-4 text-primary" />
                 <span className="text-sm font-medium">{city}</span>
               </div>
             )}
             <div className="flex items-center gap-1.5">
-              <Calendar className="w-4 h-4 text-violet-400" />
+              <Calendar className="w-4 h-4 text-primary" />
               <span className="text-sm font-medium">
                 {days} {days === 1 ? "day" : "days"}
               </span>
@@ -93,13 +93,13 @@ export function HeroSection({
 
       {/* Highlights pills - horizontal scroll */}
       {highlights && highlights.length > 0 && (
-        <div className="scrollbar-hide overflow-x-auto bg-[#0b0714]/70 px-4 py-3 backdrop-blur-xl">
+        <div className="scrollbar-hide overflow-x-auto bg-surface px-4 py-3 backdrop-blur-xl">
           <div className="flex gap-2">
             {highlights.map((highlight, index) => (
               <Badge
                 key={index}
                 variant="outline"
-                className="whitespace-nowrap bg-violet-400/10 text-violet-50"
+                className="whitespace-nowrap bg-primary/10 text-foreground"
               >
                 {highlight}
               </Badge>

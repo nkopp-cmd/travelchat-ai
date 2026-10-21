@@ -62,31 +62,31 @@ function highQualityUnsplashUrl(imageUrl: string | undefined, width = 1200, qual
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#0b0714] text-white selection:bg-violet-300/30 mobile-sticky-safe-space md:pb-0">
+    <div className="min-h-screen bg-surface text-foreground selection:bg-primary/15 mobile-sticky-safe-space md:pb-0">
       <LandingPlanner cities={CITY_OPTIONS.map(({ name, slug, vibe }) => ({ name, slug, vibe }))}>
 
       <section className="relative overflow-hidden ">
         <LandingHero />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(11,7,20,0.98)_0%,rgba(20,12,36,0.9)_48%,rgba(30,18,55,0.58)_100%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(124,58,237,0.2),rgba(255,255,255,0)_42%,rgba(79,70,229,0.16))]" />
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0b0714] to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/60" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-primary/10" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent" />
 
         <div className="container relative z-10 mx-auto grid min-h-[calc(100svh-1rem)] max-w-7xl items-center gap-8 px-4 pb-10 pt-8 md:grid-cols-[1fr_420px] md:px-6 lg:pb-16">
           <div className="max-w-3xl">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-md bg-violet-400/12 px-3 py-2 text-sm font-semibold text-violet-100 shadow-lg shadow-violet-500/10">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-md bg-primary/10 px-3 py-2 text-sm font-semibold text-foreground">
               <MapPin className="h-4 w-4" />
               Asia trip planner for places locals actually like
             </div>
 
-            <h1 className="text-5xl font-black leading-[0.96] tracking-normal text-white sm:text-6xl lg:text-7xl">
+            <h1 className="text-5xl font-black leading-[0.96] tracking-normal text-foreground sm:text-6xl lg:text-7xl">
               Travel like a local friend planned it.
             </h1>
-            <p className="mt-5 max-w-2xl text-xl leading-8 text-slate-200 md:text-2xl">
+            <p className="mt-5 max-w-2xl text-xl leading-8 text-foreground md:text-2xl">
               Choose a city and a vibe. Localley finds the restaurants, cafes, alleys, markets, and neighborhoods you would normally only hear about after you land.
             </p>
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="lg" className="h-12 rounded-lg bg-violet-500 px-6 text-base font-bold text-white shadow-lg shadow-violet-500/30 hover:bg-violet-400">
+              <Button asChild size="lg" className="h-12 rounded-lg bg-primary px-6 text-base font-bold text-primary-foreground hover:bg-primary/90">
                 <Link prefetch={false} href="/itineraries/new">
                   Start planning
                   <ArrowRight className="h-4 w-4" />
@@ -96,7 +96,7 @@ export default function LandingPage() {
                 asChild
                 variant="outline"
                 size="lg"
-                className="h-12 rounded-lg bg-white/10 px-6 text-base font-semibold text-white hover:bg-white/15 hover:text-white"
+                className="h-12 rounded-lg bg-raised px-6 text-base font-semibold text-foreground hover:bg-overlay"
               >
                 <LandingExploreLink />
               </Button>
@@ -104,8 +104,8 @@ export default function LandingPage() {
 
             <div className="mt-8 grid gap-2">
               {RECEIPTS.map((receipt) => (
-                <div key={receipt} className="flex items-start gap-3 text-sm leading-6 text-slate-300">
-                  <Check className="mt-1 h-4 w-4 shrink-0 text-violet-300" />
+                <div key={receipt} className="flex items-start gap-3 text-sm leading-6 text-muted-foreground">
+                  <Check className="mt-1 h-4 w-4 shrink-0 text-primary" />
                   <span>{receipt}</span>
                 </div>
               ))}
@@ -117,7 +117,7 @@ export default function LandingPage() {
                   prefetch={false}
                   key={city.slug}
                   href={`/spots?city=${city.slug}&sort=local`}
-                  className="group flex items-center gap-2 rounded-full bg-white/[0.06] py-1 pl-1 pr-3 text-sm text-white/85 backdrop-blur-sm transition hover:bg-violet-400/10"
+                  className="group flex items-center gap-2 rounded-full bg-raised py-1 pl-1 pr-3 text-sm text-muted-foreground backdrop-blur-sm transition hover:bg-primary/10"
                 >
                   <CityImageAvatar city={city.name} className="h-8 w-8 rounded-full" sizes="32px" />
                   <span>{city.name}</span>
@@ -135,38 +135,38 @@ export default function LandingPage() {
       <LandingPresets />
       </LandingPlanner>
 
-      <section className="bg-[#0b0714] py-14">
+      <section className="bg-surface py-14">
         <div className="container mx-auto max-w-7xl px-4 md:px-6">
           <div className="max-w-2xl">
-            <p className="text-sm font-bold uppercase tracking-[0.16em] text-violet-300">The useful part</p>
-            <h2 className="mt-3 text-3xl font-black leading-tight text-white md:text-5xl">
+            <p className="text-sm font-bold uppercase tracking-[0.16em] text-primary">The useful part</p>
+            <h2 className="mt-3 text-3xl font-black leading-tight text-foreground md:text-5xl">
               Stop planning from 47 tabs.
             </h2>
-            <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-400">
+            <p className="mt-4 max-w-2xl text-lg leading-8 text-muted-foreground">
               Localley turns scattered TikToks, blog posts, maps, and friend recommendations into one local-first route you can actually follow.
             </p>
           </div>
 
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             {PRODUCT_STEPS.map((step) => (
-              <div key={step.title} className="rounded-lg bg-white/[0.04] p-5">
-                <step.icon className="mb-4 h-6 w-6 text-violet-300" />
-                <h3 className="text-xl font-bold text-white">{step.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-400">{step.text}</p>
+              <div key={step.title} className="rounded-lg bg-raised p-5">
+                <step.icon className="mb-4 h-6 w-6 text-primary" />
+                <h3 className="text-xl font-bold text-foreground">{step.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">{step.text}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className=" bg-[#10131a] py-14">
+      <section className="bg-surface py-14">
         <div className="container mx-auto max-w-7xl px-4 md:px-6">
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
             <div>
-              <p className="text-sm font-bold uppercase tracking-[0.16em] text-indigo-200">Cities live now</p>
-              <h2 className="mt-3 text-3xl font-black text-white md:text-5xl">Start where Localley is strongest.</h2>
+              <p className="text-sm font-bold uppercase tracking-[0.16em] text-foreground">Cities live now</p>
+              <h2 className="mt-3 text-3xl font-black text-foreground md:text-5xl">Start where Localley is strongest.</h2>
             </div>
-            <Button asChild variant="outline" className="h-11 rounded-lg bg-white/[0.04] text-white hover:bg-white/10 hover:text-white">
+            <Button asChild variant="outline" className="h-11 rounded-lg bg-raised text-foreground hover:bg-overlay">
               <Link prefetch={false} href="/spots">See all spots</Link>
             </Button>
           </div>
@@ -180,7 +180,7 @@ export default function LandingPage() {
                   prefetch={false}
                   key={city.slug}
                   href={`/spots?city=${city.slug}&sort=local`}
-                  className="group relative min-h-[180px] overflow-hidden rounded-lg bg-slate-900 transition "
+                  className="group relative min-h-[180px] overflow-hidden rounded-lg bg-surface transition"
                 >
                   {imageUrl && (
                     <Image
@@ -196,10 +196,10 @@ export default function LandingPage() {
                   <div className="absolute inset-x-0 bottom-0 p-4">
                     <div className="flex items-center gap-2">
                       <span className="text-2xl">{city.emoji}</span>
-                      <h3 className="text-xl font-black text-white">{city.name}</h3>
+                      <h3 className="text-xl font-black text-foreground">{city.name}</h3>
                     </div>
-                    <p className="mt-1 text-sm text-slate-300">{city.vibe}</p>
-                    <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-violet-200">
+                    <p className="mt-1 text-sm text-muted-foreground">{city.vibe}</p>
+                    <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-foreground">
                       Browse local spots
                     </p>
                   </div>
@@ -210,25 +210,25 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="bg-[#0b0714] py-14">
+      <section className="bg-surface py-14">
         <div className="container mx-auto grid max-w-7xl gap-6 px-4 md:grid-cols-[1fr_0.9fr] md:px-6">
           <div>
-            <p className="text-sm font-bold uppercase tracking-[0.16em] text-violet-200">Paid only</p>
-            <h2 className="mt-3 text-3xl font-black leading-tight text-white md:text-5xl">
+            <p className="text-sm font-bold uppercase tracking-[0.16em] text-foreground">Paid only</p>
+            <h2 className="mt-3 text-3xl font-black leading-tight text-foreground md:text-5xl">
               Built for people with a ticket booked.
             </h2>
-            <p className="mt-4 text-lg leading-8 text-slate-400">
+            <p className="mt-4 text-lg leading-8 text-muted-foreground">
               Localley is not an endless inspiration feed. It is a practical trip-planning tool for turning a messy city into a route with better local signal.
             </p>
           </div>
 
-          <div className="rounded-lg bg-white/[0.04] p-5">
-            <CreditCard className="mb-4 h-6 w-6 text-violet-200" />
-            <h3 className="text-2xl font-bold text-white">Pro starts at $9/month.</h3>
-            <p className="mt-3 text-sm leading-6 text-slate-400">
+          <div className="rounded-lg bg-raised p-5">
+            <CreditCard className="mb-4 h-6 w-6 text-foreground" />
+            <h3 className="text-2xl font-bold text-foreground">Pro starts at $9/month.</h3>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">
               Pro is for regular travelers. Premium is for heavier planning, maps, collaboration and high-capacity usage.
             </p>
-            <Button asChild className="mt-5 h-12 w-full rounded-lg bg-violet-500 text-white shadow-lg shadow-violet-500/25 hover:bg-violet-400">
+            <Button asChild className="mt-5 h-12 w-full rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">
               <Link prefetch={false} href="/pricing">
                 Compare paid plans
                 <ArrowRight className="h-4 w-4" />
@@ -238,10 +238,10 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className=" bg-[#0b0714] py-8">
+      <footer className="bg-surface py-8">
         <div className="container mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 md:flex-row md:px-6">
           <Logo size="md" isLanding />
-          <p className="text-sm text-slate-500">Local routes for Asian cities.</p>
+          <p className="text-sm text-muted-foreground">Local routes for Asian cities.</p>
         </div>
       </footer>
       <MobileSignupBar />
@@ -251,13 +251,13 @@ export default function LandingPage() {
 
 function MobileSignupBar() {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 bg-[#0b0714]/92 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] pt-3 shadow-2xl shadow-black/40 backdrop-blur-xl md:hidden">
+    <div className="fixed inset-x-0 bottom-0 z-50 bg-surface px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] pt-3 shadow-2xl shadow-black/40 backdrop-blur-xl md:hidden">
       <div className="mx-auto flex max-w-md items-center gap-3">
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-bold text-white">Plan a local-first trip</p>
-          <p className="truncate text-xs text-violet-100/70">Choose your city and travel style</p>
+          <p className="truncate text-sm font-bold text-foreground">Plan a local-first trip</p>
+          <p className="truncate text-xs text-foreground">Choose your city and travel style</p>
         </div>
-        <Button asChild size="sm" className="h-11 shrink-0 rounded-lg bg-violet-500 px-4 font-bold text-white shadow-lg shadow-violet-500/30 hover:bg-violet-400">
+        <Button asChild size="sm" className="h-11 shrink-0 rounded-lg bg-primary px-4 font-bold text-primary-foreground hover:bg-primary/90">
           <Link prefetch={false} href="/itineraries/new">
             Start planning
             <ArrowRight className="h-4 w-4" />

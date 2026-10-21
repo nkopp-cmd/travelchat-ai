@@ -20,49 +20,25 @@ interface TemplateCardProps {
   onSelect?: () => void;
 }
 
-// Template-specific gradient backgrounds for visual variety
-const templateGradients: Record<string, string> = {
-  foodie: "from-orange-500/20 via-amber-500/10 to-yellow-500/5",
-  culture: "from-violet-500/20 via-purple-500/10 to-indigo-500/5",
-  adventure: "from-emerald-500/20 via-teal-500/10 to-cyan-500/5",
-  romantic: "from-rose-500/20 via-pink-500/10 to-fuchsia-500/5",
-  family: "from-blue-500/20 via-sky-500/10 to-cyan-500/5",
-  budget: "from-green-500/20 via-emerald-500/10 to-teal-500/5",
-  luxury: "from-amber-500/20 via-yellow-500/10 to-orange-500/5",
-  wellness: "from-teal-500/20 via-cyan-500/10 to-sky-500/5",
-  nightlife: "from-purple-500/20 via-violet-500/10 to-indigo-500/5",
-  photography: "from-pink-500/20 via-rose-500/10 to-red-500/5",
-};
-
-// Get gradient based on template ID or name
-function getTemplateGradient(template: ItineraryTemplate): string {
-  const id = template.id.toLowerCase();
-  for (const [key, gradient] of Object.entries(templateGradients)) {
-    if (id.includes(key)) return gradient;
-  }
-  // Default gradient
-  return "from-violet-500/20 via-purple-500/10 to-indigo-500/5";
-}
-
 // Accent color based on pace
 const paceAccents = {
   relaxed: {
-    bg: "bg-emerald-100 dark:bg-emerald-900/40",
-    text: "text-emerald-700 dark:text-emerald-300",
+    bg: "bg-raised",
+    text: "text-foreground",
     border: " ",
-    glow: "group-hover:shadow-emerald-500/20",
+    glow: "",
   },
   moderate: {
-    bg: "bg-blue-100 dark:bg-blue-900/40",
-    text: "text-blue-700 dark:text-blue-300",
+    bg: "bg-raised",
+    text: "text-foreground",
     border: " ",
-    glow: "group-hover:shadow-blue-500/20",
+    glow: "",
   },
   active: {
-    bg: "bg-orange-100 dark:bg-orange-900/40",
-    text: "text-orange-700 dark:text-orange-300",
+    bg: "bg-raised",
+    text: "text-foreground",
     border: " ",
-    glow: "group-hover:shadow-orange-500/20",
+    glow: "",
   },
 };
 
@@ -81,7 +57,6 @@ function TemplateCardContent({
 
   const pace = paceConfig[template.pace];
   const accent = paceAccents[template.pace];
-  const gradient = getTemplateGradient(template);
   const sampleCity = getTemplateSampleCity(template);
   const imageUrl = getTemplateImageUrl(template, {
     width: 240,
@@ -92,20 +67,15 @@ function TemplateCardContent({
   return (
       <Card className={cn(
         "group relative flex min-h-[54px] cursor-pointer flex-col overflow-hidden !gap-0 !py-0 sm:min-h-[66px]",
-        "bg-white/70 dark:bg-white/5 backdrop-blur-md",
+        "bg-raised backdrop-blur-md",
         " ",
         "transition-all duration-300 ease-out",
-        "hover:shadow-lg hover:shadow-violet-500/10",
+        "",
         accent.glow,
         " ",
         "hover:-translate-y-0.5",
-        isSelected && " bg-violet-500/10 shadow-lg shadow-violet-500/15 "
+        isSelected && " bg-primary/10 "
       )}>
-        {/* Animated gradient background */}
-        <div className={cn(
-          "absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500",
-          gradient
-        )} />
 
         {/* Main Content */}
         <div
@@ -126,26 +96,26 @@ function TemplateCardContent({
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
-              <div className="absolute bottom-0.5 right-0.5 rounded-full bg-black/55 px-1 text-[10px] leading-4 shadow-sm backdrop-blur-sm sm:text-[11px]">
+              <div className="absolute bottom-0.5 right-0.5 rounded-full bg-black/55 px-1 text-xs leading-4 shadow-sm backdrop-blur-sm sm:text-xs">
                 {template.emoji}
               </div>
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="line-clamp-2 text-[10px] font-bold leading-tight transition-colors duration-200 group-hover:text-violet-600 dark:group-hover:text-violet-400 sm:text-xs">
+              <h3 className="line-clamp-2 text-xs font-bold leading-tight transition-colors duration-200 group-hover:text-primary dark:group-hover:text-primary sm:text-xs">
                 {template.name}
               </h3>
-              <p className="mt-0.5 hidden truncate text-[9px] font-medium leading-none text-violet-200/70 min-[380px]:block sm:text-[10px]">
+              <p className="mt-0.5 hidden truncate text-xs font-medium leading-none text-foreground min-[380px]:block sm:text-xs">
                 Inspired by {sampleCity}
               </p>
-              <p className="mt-0.5 hidden text-[10px] leading-snug text-muted-foreground/80 xl:line-clamp-1 xl:block">
+              <p className="mt-0.5 hidden text-xs leading-snug text-muted-foreground/80 xl:line-clamp-1 xl:block">
                 {template.description}
               </p>
             </div>
           </div>
 
           {/* Compact Meta Row */}
-          <div className="mt-auto flex items-center gap-1 pt-0.5 text-[9px] font-semibold leading-none text-muted-foreground sm:gap-1.5 sm:pt-1 sm:text-[10px]">
-            <span className="inline-flex min-w-0 items-center gap-0.5 rounded-md bg-violet-100/65 px-1 py-0.5 text-violet-700 dark:bg-violet-900/30 dark:text-violet-200 sm:gap-1 sm:px-1.5 sm:py-1">
+          <div className="mt-auto flex items-center gap-1 pt-0.5 text-xs font-semibold leading-none text-muted-foreground sm:gap-1.5 sm:pt-1 sm:text-xs">
+            <span className="inline-flex min-w-0 items-center gap-0.5 rounded-md bg-primary/15 px-1 py-0.5 text-foreground sm:gap-1 sm:px-1.5 sm:py-1">
               <Clock className="h-2.5 w-2.5 shrink-0 sm:h-3 sm:w-3" />
               <span className="whitespace-nowrap">{template.days}d</span>
             </span>
@@ -153,32 +123,27 @@ function TemplateCardContent({
               "inline-flex min-w-0 items-center gap-0.5 rounded-md px-1 py-0.5 sm:gap-1 sm:px-1.5 sm:py-1",
               accent.bg, accent.text, accent.border
             )}>
-              <span aria-hidden="true" className="shrink-0 text-[10px] leading-none sm:text-[11px]">{pace.icon}</span>
+              <span aria-hidden="true" className="shrink-0 text-xs leading-none sm:text-xs">{pace.icon}</span>
               <span className="whitespace-nowrap xl:hidden">{pace.shortLabel}</span>
               <span className="hidden whitespace-nowrap xl:inline">{pace.label}</span>
             </span>
-            <ArrowRight className="ml-auto h-3 w-3 shrink-0 text-violet-300/80 transition-transform duration-200 group-hover:translate-x-0.5 sm:h-3.5 sm:w-3.5" />
+            <ArrowRight className="ml-auto h-3 w-3 shrink-0 text-primary/80 transition-transform duration-200 group-hover:translate-x-0.5 sm:h-3.5 sm:w-3.5" />
           </div>
         </div>
 
         {isSelected && (
-          <div className="absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-violet-600 text-white shadow-lg shadow-violet-950/20 sm:left-2 sm:top-2">
+          <div className="absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground sm:left-2 sm:top-2">
             <Check className="h-3 w-3" aria-hidden="true" />
             <span className="sr-only">Selected</span>
           </div>
         )}
 
-        {/* Corner accent */}
-        <div className={cn(
-          "absolute right-0 top-0 h-14 w-14 opacity-0 transition-opacity duration-500 group-hover:opacity-100",
-          "bg-gradient-to-bl from-violet-500/10 to-transparent"
-        )} />
       </Card>
   );
 }
 
 export function TemplateCard({ template, href, actionHref, primaryHref, isSelected, onSelect }: TemplateCardProps) {
-  const className = "block h-full rounded-lg text-left focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-background";
+  const className = "block h-full rounded-lg text-left focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background";
   const content = <TemplateCardContent template={template} isSelected={isSelected} />;
 
   if (actionHref) {
@@ -211,7 +176,7 @@ export function TemplateCard({ template, href, actionHref, primaryHref, isSelect
         {isSelected && primaryHref && (
           <Link
             href={primaryHref}
-            className="absolute right-1.5 top-1.5 z-20 hidden h-6 items-center justify-center gap-1 rounded-md bg-violet-600 px-1.5 text-[10px] font-semibold text-white shadow-lg shadow-violet-950/25 transition hover:bg-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-300 focus:ring-offset-2 focus:ring-offset-[#100b1c] sm:inset-x-1.5 sm:top-auto sm:bottom-1.5 sm:inline-flex sm:h-8 sm:px-2 sm:text-xs"
+            className="absolute right-1.5 top-1.5 z-20 hidden h-6 items-center justify-center gap-1 rounded-md bg-primary px-1.5 text-xs font-semibold text-primary-foreground transition hover:bg-primary focus:outline-none focus:ring-2 focus:ring-violet-300 focus:ring-offset-2 focus:ring-offset-[#100b1c] sm:inset-x-1.5 sm:top-auto sm:bottom-1.5 sm:inline-flex sm:h-8 sm:px-2 sm:text-xs"
             aria-label={`Use ${template.name} template`}
             data-testid="template-card-inline-action"
           >

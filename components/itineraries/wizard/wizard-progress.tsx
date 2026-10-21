@@ -25,9 +25,9 @@ export function WizardProgress() {
             disabled={index > currentStep}
             className={cn(
               "w-2.5 h-2.5 rounded-full transition-all",
-              index === currentStep && "w-8 bg-violet-500",
-              index < currentStep && "bg-violet-500/60",
-              index > currentStep && "bg-white/20"
+              index === currentStep && "w-8 bg-primary",
+              index < currentStep && "bg-primary/60",
+              index > currentStep && "bg-raised"
             )}
             aria-label={`Step ${index + 1}: ${steps[index].label}`}
           />
@@ -44,9 +44,9 @@ export function WizardProgress() {
               className={cn(
                 "flex items-center justify-center w-10 h-10 rounded-full transition-all",
                 "text-sm font-semibold",
-                index === currentStep && "bg-violet-600 text-white ",
-                index < currentStep && "bg-violet-600 text-white cursor-pointer",
-                index > currentStep && "bg-white/10 text-white/40 cursor-not-allowed"
+                index === currentStep && "bg-primary text-primary-foreground ",
+                index < currentStep && "bg-primary text-primary-foreground cursor-pointer",
+                index > currentStep && "bg-raised text-muted-foreground cursor-not-allowed"
               )}
             >
               {index < currentStep ? (
@@ -58,9 +58,9 @@ export function WizardProgress() {
             <span
               className={cn(
                 "ml-3 text-sm font-medium",
-                index === currentStep && "text-white",
-                index < currentStep && "text-violet-400",
-                index > currentStep && "text-white/40"
+                index === currentStep && "text-foreground",
+                index < currentStep && "text-primary",
+                index > currentStep && "text-muted-foreground"
               )}
             >
               {step.label}
@@ -69,7 +69,7 @@ export function WizardProgress() {
               <div
                 className={cn(
                   "flex-1 h-0.5 mx-4",
-                  index < currentStep ? "bg-violet-600" : "bg-white/10"
+                  index < currentStep ? "bg-primary" : "bg-raised"
                 )}
               />
             )}

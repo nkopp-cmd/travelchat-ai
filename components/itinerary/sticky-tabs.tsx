@@ -84,8 +84,8 @@ export function StickyTabs({
                   "px-4 py-2 rounded-full text-sm font-medium transition-all",
                   "whitespace-nowrap flex items-center gap-1.5",
                   isActive
-                    ? "bg-violet-600 text-white"
-                    : "text-gray-400 hover:text-white hover:bg-white/10"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-raised"
                 )}
               >
                 {Icon && <Icon className="w-4 h-4" />}

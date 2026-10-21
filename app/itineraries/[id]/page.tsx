@@ -195,7 +195,7 @@ export default async function ItineraryViewPage({
     }
     if (!candidate || !userId) notFound();
     return <div className="mx-auto w-full max-w-5xl space-y-5 px-3 py-4 sm:px-4">
-      <Link href="/itineraries?data_candidate=d1" className="inline-flex min-h-10 items-center text-violet-200">
+      <Link href="/itineraries?data_candidate=d1" className="inline-flex min-h-10 items-center text-foreground">
         <ArrowLeft className="mr-2 h-4 w-4" />My trips
       </Link>
       <HeroSection title={candidate.title} subtitle={candidate.subtitle ?? undefined} city={candidate.city}
@@ -269,7 +269,7 @@ export default async function ItineraryViewPage({
         {/* Back Button */}
         <Link
           href="/itineraries"
-          className="inline-flex min-h-10 items-center rounded-full bg-white/[0.045] px-3 text-sm font-medium text-violet-100/70 transition hover:bg-white/[0.075] hover:text-white"
+          className="inline-flex min-h-10 items-center rounded-full bg-raised px-3 text-sm font-medium text-foreground transition hover:bg-overlay"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           My trips
@@ -285,16 +285,16 @@ export default async function ItineraryViewPage({
             itinerary.localScore ? itinerary.localScore * 10 : undefined
           }
           highlights={itinerary.highlights}
-          className="overflow-hidden rounded-2xl shadow-2xl shadow-violet-950/20"
+          className="overflow-hidden rounded-2xl"
         />
 
         {/* Action Bar */}
-        <div className="flex gap-2 overflow-x-auto rounded-2xl bg-[#0b0714]/72 p-2 shadow-2xl shadow-violet-950/20 backdrop-blur-xl md:flex-wrap md:overflow-visible">
+        <div className="flex gap-2 overflow-x-auto rounded-2xl bg-surface p-2 backdrop-blur-xl md:flex-wrap md:overflow-visible">
           <Link href={`/itineraries/${itinerary.id}/edit`} className="shrink-0">
             <Button
               variant="outline"
               size="sm"
-              className="h-10 shrink-0 gap-2 rounded-xl bg-white/[0.055] hover:bg-white/[0.09]"
+              className="h-10 shrink-0 gap-2 rounded-xl bg-raised hover:bg-raised"
             >
               <Edit2 className="h-4 w-4" />
               Edit
@@ -306,7 +306,7 @@ export default async function ItineraryViewPage({
           >
             <Button
               size="sm"
-              className="h-10 shrink-0 gap-2 whitespace-nowrap rounded-xl bg-gradient-to-r text-white from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/20 hover:from-violet-700 hover:to-indigo-700"
+              className="h-10 shrink-0 gap-2 whitespace-nowrap rounded-xl"
             >
               <MessageSquare className="h-4 w-4" />
               Revise with Alley
@@ -321,7 +321,7 @@ export default async function ItineraryViewPage({
             <Button
               variant="outline"
               size="sm"
-              className="h-10 shrink-0 gap-2 rounded-xl bg-white/[0.055] hover:bg-white/[0.09]"
+              className="h-10 shrink-0 gap-2 rounded-xl bg-raised hover:bg-raised"
             >
               <Download className="h-4 w-4" />
               Export
@@ -365,7 +365,7 @@ export default async function ItineraryViewPage({
               insights={itineraryInsights}
               title="Trip notes"
               description="Useful local context, transport notes, and practical details for the whole trip."
-              className=" bg-[#1a102e]/92"
+              className="bg-surface"
             />
           </aside>
 
@@ -376,10 +376,10 @@ export default async function ItineraryViewPage({
           >
             <div className="flex flex-col gap-1 px-1 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-violet-200/70">
+                <p className="text-xs font-semibold uppercase tracking-wide text-foreground">
                   Day schedule
                 </p>
-                <h2 className="text-xl font-bold leading-tight text-white sm:text-2xl">
+                <h2 className="text-xl font-bold leading-tight text-foreground sm:text-2xl">
                   Route by day
                 </h2>
               </div>
@@ -400,7 +400,7 @@ export default async function ItineraryViewPage({
 
             {/* Fallback if no activities */}
             {dailyPlansForDisplay.length === 0 && (
-              <div className="rounded-2xl bg-white/[0.045] p-6 text-center text-muted-foreground backdrop-blur-xl">
+              <div className="rounded-2xl bg-raised p-6 text-center text-muted-foreground backdrop-blur-xl">
                 No activities planned yet. Start exploring!
               </div>
             )}
@@ -411,7 +411,7 @@ export default async function ItineraryViewPage({
         <ViatorSuggestions city={displayCity} userTier={userTier} limit={4} />
 
         {/* Footer Actions */}
-        <section className="rounded-2xl bg-white/[0.045] p-4 shadow-2xl shadow-violet-950/15 backdrop-blur-xl sm:p-5">
+        <section className="rounded-2xl bg-raised p-4 backdrop-blur-xl sm:p-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
               <h3 className="font-semibold">Ready to use this trip?</h3>
@@ -440,7 +440,7 @@ export default async function ItineraryViewPage({
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Button className="gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700">
+                <Button className="gap-2 rounded-xl bg-primary text-primary-foreground">
                   <Download className="h-4 w-4" />
                   Download PDF
                 </Button>

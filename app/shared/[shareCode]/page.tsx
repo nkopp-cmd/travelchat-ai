@@ -188,7 +188,7 @@ export default async function SharedItineraryPage({ params, searchParams }: { pa
                             Back to Localley
                         </Link>
                         <div className="text-right">
-                            <div className="font-bold text-lg bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
+                            <div className="font-bold text-lg bg-primary text-primary-foreground bg-clip-text text-transparent">
                                 Localley
                             </div>
                             <p className="text-xs text-muted-foreground">Shared Itinerary</p>
@@ -205,7 +205,7 @@ export default async function SharedItineraryPage({ params, searchParams }: { pa
                     />
 
                     {/* CTA Banner */}
-                    <section className="rounded-xl bg-[#10081c]/82 p-3 shadow-2xl shadow-violet-950/20 backdrop-blur-xl sm:p-4">
+                    <section className="rounded-xl bg-surface p-3 backdrop-blur-xl sm:p-4">
                             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                 <div className="min-w-0">
                                     <h3 className="font-semibold leading-tight">Make this trip yours</h3>
@@ -214,7 +214,7 @@ export default async function SharedItineraryPage({ params, searchParams }: { pa
                                 <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
                                     <SharedActions itineraryId={itinerary.id} shareCode={shareCode} candidate={candidate} />
                                     <Link href="/sign-up">
-                                        <Button className="h-10 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/20 hover:from-violet-700 hover:to-indigo-700">
+                                        <Button className="h-10 rounded-xl bg-primary text-primary-foreground">
                                             <Sparkles className="mr-2 h-4 w-4" />
                                             Create mine
                                         </Button>
@@ -225,10 +225,10 @@ export default async function SharedItineraryPage({ params, searchParams }: { pa
 
                     {/* Story Slides Gallery */}
                     {itinerary.storySlides && Object.keys(itinerary.storySlides).length > 0 && (
-                        <Card className=" overflow-hidden">
+                        <Card className="overflow-hidden">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-lg">
-                                    <Instagram className="h-5 w-5 text-violet-600" />
+                                    <Instagram className="h-5 w-5 text-primary" />
                                     Story Slides
                                 </CardTitle>
                             </CardHeader>
@@ -263,7 +263,7 @@ export default async function SharedItineraryPage({ params, searchParams }: { pa
                                                         loading="lazy"
                                                     />
                                                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
-                                                        <span className="text-white text-xs font-medium">{label}</span>
+                                                        <span className="text-foreground text-xs font-medium">{label}</span>
                                                     </div>
                                                 </a>
                                             );
@@ -284,7 +284,7 @@ export default async function SharedItineraryPage({ params, searchParams }: { pa
                                 insights={itineraryInsights}
                                 title="Trip notes"
                                 description="Practical tips and transport context stay outside the day schedule."
-                                className=" bg-violet-950/[0.18]"
+                                className="bg-raised"
                             />
                         </aside>
 
@@ -292,10 +292,10 @@ export default async function SharedItineraryPage({ params, searchParams }: { pa
                         <div className="order-1 space-y-4 sm:space-y-5 lg:order-1" data-testid="itinerary-day-schedule">
                             <div className="flex flex-col gap-1 px-1 sm:flex-row sm:items-end sm:justify-between">
                                 <div>
-                                    <p className="text-xs font-semibold uppercase tracking-wide text-violet-200/70">
+                                    <p className="text-xs font-semibold uppercase tracking-wide text-foreground">
                                         Day schedule
                                     </p>
-                                    <h2 className="text-xl font-bold leading-tight text-white sm:text-2xl">
+                                    <h2 className="text-xl font-bold leading-tight text-foreground sm:text-2xl">
                                         Route by day
                                     </h2>
                                 </div>
@@ -316,7 +316,7 @@ export default async function SharedItineraryPage({ params, searchParams }: { pa
                     </div>
 
                 {/* Footer CTA */}
-                <Card className="bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-950/20 dark:to-indigo-950/20 ">
+                <Card className="bg-surface">
                     <CardContent className="p-6">
                         <div className="text-center space-y-4">
                             <div>
@@ -324,7 +324,7 @@ export default async function SharedItineraryPage({ params, searchParams }: { pa
                                 <p className="text-muted-foreground">Join Localley and create personalized itineraries for authentic local experiences</p>
                             </div>
                             <Link href="/sign-up">
-                                <Button size="lg" className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700">
+                                <Button size="lg" className="bg-primary text-primary-foreground">
                                     <Sparkles className="mr-2 h-5 w-5" />
                                     Start planning
                                 </Button>

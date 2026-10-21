@@ -48,26 +48,26 @@ export function DaySection({
       {/* Day header - always visible */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between p-4 hover:bg-white/5 transition-colors"
+        className="w-full flex items-center justify-between p-4 hover:bg-raised transition-colors"
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-violet-600/20 flex items-center justify-center">
-            <span className="text-violet-400 font-bold">{day}</span>
+          <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center">
+            <span className="text-primary font-bold">{day}</span>
           </div>
           <div className="text-left">
-            <h3 className="font-semibold text-white">Day {day}</h3>
+            <h3 className="font-semibold text-foreground">Day {day}</h3>
             {theme && (
-              <p className="text-sm text-gray-400 line-clamp-1">{theme}</p>
+              <p className="text-sm text-muted-foreground line-clamp-1">{theme}</p>
             )}
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="secondary" className="bg-white/10 text-gray-300">
+          <Badge variant="secondary" className="bg-raised text-muted-foreground">
             {activities.length} spots
           </Badge>
           <ChevronDown
             className={cn(
-              "w-5 h-5 text-gray-400 transition-transform",
+              "w-5 h-5 text-muted-foreground transition-transform",
               isExpanded && "rotate-180"
             )}
           />
@@ -82,17 +82,17 @@ export function DaySection({
             {activities.map((activity, index) => (
               <div key={index} className="relative">
                 {/* Timeline dot */}
-                <div className="absolute -left-[25px] w-4 h-4 rounded-full bg-violet-600/50 " />
+                <div className="absolute -left-[25px] w-4 h-4 rounded-full bg-primary " />
 
                 {/* Activity card */}
-                <div className="bg-white/5 rounded-xl p-3">
+                <div className="bg-raised rounded-xl p-3">
                   {/* Time */}
                   {activity.time && (
-                    <div className="flex items-center gap-1 text-xs text-violet-400 mb-1">
+                    <div className="flex items-center gap-1 text-xs text-primary mb-1">
                       <Clock className="w-3 h-3" />
                       {activity.time}
                       {activity.duration && (
-                        <span className="text-gray-500">
+                        <span className="text-muted-foreground">
                           {" "}
                           ({activity.duration})
                         </span>
@@ -102,11 +102,11 @@ export function DaySection({
 
                   {/* Name and category */}
                   <div className="flex items-start justify-between gap-2">
-                    <h4 className="font-medium text-white">{activity.name}</h4>
+                    <h4 className="font-medium text-foreground">{activity.name}</h4>
                     {activity.category && (
                       <Badge
                         variant="outline"
-                        className="text-xs bg-transparent text-gray-400 shrink-0"
+                        className="text-xs bg-transparent text-muted-foreground shrink-0"
                       >
                         {activity.category}
                       </Badge>
@@ -115,13 +115,13 @@ export function DaySection({
 
                   {/* Description - truncated on mobile */}
                   {activity.description && (
-                    <p className="text-sm text-gray-400 mt-1 line-clamp-2">
+                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
                       {activity.description}
                     </p>
                   )}
 
                   {/* Address and cost */}
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs text-gray-500">
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs text-muted-foreground">
                     {activity.address && (
                       <div className="flex items-center gap-1">
                         <MapPin className="w-3 h-3" />
@@ -129,7 +129,7 @@ export function DaySection({
                       </div>
                     )}
                     {activity.cost && (
-                      <span className="text-green-400">{activity.cost}</span>
+                      <span className="text-[rgb(var(--ll-success))]">{activity.cost}</span>
                     )}
                   </div>
                 </div>
@@ -143,7 +143,7 @@ export function DaySection({
               <Button
                 variant="outline"
                 size="sm"
-                className="mt-4 w-full text-violet-400 hover:bg-violet-500/10"
+                className="mt-4 w-full text-primary hover:bg-primary/10"
               >
                 <Navigation className="w-4 h-4 mr-2" />
                 Open Day {day} Route

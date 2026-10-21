@@ -94,18 +94,18 @@ export default function GuideApplyPage() {
         <div className="container max-w-4xl mx-auto py-8 px-4">
             <Link
                 href="/"
-                className="inline-flex items-center text-sm text-white/65 hover:text-white mb-6"
+                className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6"
             >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back
             </Link>
 
-            <div className="mb-8 rounded-lg bg-white/[0.08] p-6 shadow-2xl shadow-violet-950/30 backdrop-blur-xl sm:p-8">
-                <Badge className="mb-4 bg-violet-400/15 text-violet-100 hover:bg-violet-400/20">
+            <div className="mb-8 rounded-lg bg-raised p-6 backdrop-blur-xl sm:p-8">
+                <Badge className="mb-4 bg-primary/15 text-foreground hover:bg-primary/15">
                     Creator program
                 </Badge>
-                <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl">Become a Local Guide</h1>
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65 sm:text-base">
+                <h1 className="text-3xl font-black tracking-tight text-foreground sm:text-4xl">Become a Local Guide</h1>
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
                     Share city knowledge, build paid guide content, and help travelers follow routes that feel local from the first day.
                 </p>
             </div>
@@ -125,7 +125,7 @@ export default function GuideApplyPage() {
                 </Card>
                 <Card className="liquid-panel ">
                     <CardContent className="pt-6 flex items-start gap-3">
-                        <Users className="h-5 w-5 text-blue-500 mt-0.5" />
+                        <Users className="h-5 w-5 text-primary mt-0.5" />
                         <div>
                             <p className="font-medium">Grow Your Audience</p>
                             <p className="text-sm text-muted-foreground">
@@ -136,7 +136,7 @@ export default function GuideApplyPage() {
                 </Card>
                 <Card className="liquid-panel ">
                     <CardContent className="pt-6 flex items-start gap-3">
-                        <TrendingUp className="h-5 w-5 text-purple-500 mt-0.5" />
+                        <TrendingUp className="h-5 w-5 text-primary mt-0.5" />
                         <div>
                             <p className="font-medium">Monthly Payouts</p>
                             <p className="text-sm text-muted-foreground">
@@ -188,8 +188,8 @@ export default function GuideApplyPage() {
                                     type="button"
                                     className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium transition ${
                                         selectedCities.includes(city)
-                                            ? " bg-violet-500 text-white shadow-lg shadow-violet-500/20"
-                                            : " bg-white/5 text-white/75 hover:bg-violet-500/10"
+                                            ? " bg-primary text-primary-foreground"
+                                            : " bg-raised text-muted-foreground hover:bg-primary/10"
                                     }`}
                                     onClick={() => toggleCity(city)}
                                 >

@@ -39,11 +39,11 @@ export function StepPreferences() {
   return (
     <div className="flex min-h-full flex-col px-4 py-4 sm:py-6">
       <div className="mb-4 text-center sm:mb-6">
-        <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-violet-600/20 sm:mb-4 sm:h-14 sm:w-14">
-          <Settings className="h-6 w-6 text-violet-400 sm:h-7 sm:w-7" />
+        <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/15 sm:mb-4 sm:h-14 sm:w-14">
+          <Settings className="h-6 w-6 text-primary sm:h-7 sm:w-7" />
         </div>
-        <h2 className="mb-1.5 text-xl font-bold text-white sm:mb-2 sm:text-2xl">Almost there!</h2>
-        <p className="text-sm text-gray-400 sm:text-base">
+        <h2 className="mb-1.5 text-xl font-bold text-foreground sm:mb-2 sm:text-2xl">Almost there!</h2>
+        <p className="text-sm text-muted-foreground sm:text-base">
           Customize your experience
         </p>
       </div>
@@ -51,12 +51,12 @@ export function StepPreferences() {
       {/* Localness Level */}
       <div className="mb-6 sm:mb-8">
         <div className="mb-3 flex items-center gap-2 sm:mb-4">
-          <Compass className="w-4 h-4 text-violet-400" />
-          <span className="text-sm font-medium text-white">How local?</span>
+          <Compass className="w-4 h-4 text-primary" />
+          <span className="text-sm font-medium text-foreground">How local?</span>
         </div>
-        <div className="rounded-xl bg-white/5 p-3.5 sm:p-4">
+        <div className="rounded-xl bg-raised p-3.5 sm:p-4">
           <div className="mb-4 text-center">
-            <span className="text-base font-semibold text-violet-400 sm:text-lg">
+            <span className="text-base font-semibold text-primary sm:text-lg">
               {LOCALNESS_LABELS[data.localnessLevel - 1]}
             </span>
           </div>
@@ -69,7 +69,7 @@ export function StepPreferences() {
             aria-label="Localness level"
             className="w-full"
           />
-          <div className="flex justify-between text-xs text-gray-500 mt-2">
+          <div className="flex justify-between text-xs text-muted-foreground mt-2">
             <span>Tourist</span>
             <span>Local</span>
           </div>
@@ -79,8 +79,8 @@ export function StepPreferences() {
       {/* Pace */}
       <div className="mb-6 sm:mb-8">
         <div className="mb-3 flex items-center gap-2">
-          <Zap className="w-4 h-4 text-violet-400" />
-          <span className="text-sm font-medium text-white">Travel pace</span>
+          <Zap className="w-4 h-4 text-primary" />
+          <span className="text-sm font-medium text-foreground">Travel pace</span>
         </div>
         <div className="grid grid-cols-2 gap-2">
           {PACE_OPTIONS.map((option) => {
@@ -92,16 +92,16 @@ export function StepPreferences() {
                 aria-pressed={isSelected}
                 className={cn(
                   "rounded-xl p-2.5 text-center transition-all sm:p-3",
-                  "focus:outline-none focus:ring-2 focus:ring-violet-500",
+                  "focus:outline-none focus:ring-2 focus:ring-ring",
                   isSelected
-                    ? "bg-violet-600/20 "
-                    : "bg-white/5 hover:bg-white/10"
+                    ? "bg-primary/15 "
+                    : "bg-raised hover:bg-raised"
                 )}
               >
-                <div className={cn("font-medium", isSelected ? "text-white" : "text-gray-300")}>
+                <div className={cn("font-medium", isSelected ? "text-foreground" : "text-muted-foreground")}>
                   {option.label}
                 </div>
-                <div className="text-xs text-gray-500">{option.description}</div>
+                <div className="text-xs text-muted-foreground">{option.description}</div>
               </button>
             );
           })}
@@ -111,8 +111,8 @@ export function StepPreferences() {
       {/* Group Type */}
       <div>
         <div className="mb-3 flex items-center gap-2">
-          <Users className="w-4 h-4 text-violet-400" />
-          <span className="text-sm font-medium text-white">Traveling with</span>
+          <Users className="w-4 h-4 text-primary" />
+          <span className="text-sm font-medium text-foreground">Traveling with</span>
         </div>
         <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
           {GROUP_OPTIONS.map((option) => {
@@ -124,14 +124,14 @@ export function StepPreferences() {
                 aria-pressed={isSelected}
                 className={cn(
                   "rounded-xl p-2 text-center transition-all sm:p-3",
-                  "focus:outline-none focus:ring-2 focus:ring-violet-500",
+                  "focus:outline-none focus:ring-2 focus:ring-ring",
                   isSelected
-                    ? "bg-violet-600/20 "
-                    : "bg-white/5 hover:bg-white/10"
+                    ? "bg-primary/15 "
+                    : "bg-raised hover:bg-raised"
                 )}
               >
                 <div className="mb-1 text-xl sm:text-2xl">{option.emoji}</div>
-                <div className={cn("text-xs font-medium", isSelected ? "text-white" : "text-gray-400")}>
+                <div className={cn("text-xs font-medium", isSelected ? "text-foreground" : "text-muted-foreground")}>
                   {option.label}
                 </div>
               </button>

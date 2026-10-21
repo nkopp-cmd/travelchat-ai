@@ -145,10 +145,10 @@ export function ExploreContent({
     };
 
     const getScoreLabel = (score: number) => {
-        if (score >= 8) return { label: "Hidden Gem", color: "bg-violet-500" };
-        if (score >= 6) return { label: "Local Favorite", color: "bg-indigo-500" };
-        if (score >= 4) return { label: "Off the Path", color: "bg-blue-500" };
-        return { label: "Mixed", color: "bg-gray-500" };
+        if (score >= 8) return { label: "Hidden Gem", color: "bg-primary text-primary-foreground" };
+        if (score >= 6) return { label: "Local Favorite", color: "bg-primary text-primary-foreground" };
+        if (score >= 4) return { label: "Off the Path", color: "bg-overlay text-foreground" };
+        return { label: "Mixed", color: "bg-overlay text-foreground" };
     };
 
     const formatDate = (dateString: string) => {
@@ -244,7 +244,7 @@ export function ExploreContent({
                                 className="!py-0 !gap-0 group overflow-hidden hover:shadow-lg transition-all duration-300 "
                             >
                                 {/* Card Header with city image */}
-                                <CardHeader className="relative min-h-[164px] overflow-hidden bg-gradient-to-br from-violet-500 to-indigo-600 p-5 text-white">
+                                <CardHeader className="relative min-h-[164px] overflow-hidden bg-primary text-primary-foreground p-5 text-primary-foreground">
                                     <CityImageAvatar
                                         city={itinerary.city}
                                         className="absolute inset-0 h-full w-full rounded-none"
@@ -261,13 +261,13 @@ export function ExploreContent({
                                                     {itinerary.title}
                                                 </Link>
                                             </h3>
-                                            <div className="flex items-center gap-2 text-violet-100">
+                                            <div className="flex items-center gap-2 text-foreground">
                                                 <MapPin className="h-4 w-4" />
                                                 <span>{itinerary.city}</span>
                                             </div>
                                         </div>
                                         {itinerary.localScore > 0 && (
-                                            <Badge className={cn("text-white shrink-0", scoreInfo.color)}>
+                                            <Badge className={cn("shrink-0", scoreInfo.color)}>
                                                 <Star className="h-3 w-3 mr-1 fill-current" />
                                                 {itinerary.localScore}
                                             </Badge>
@@ -302,7 +302,7 @@ export function ExploreContent({
                                             <ul className="space-y-1">
                                                 {itinerary.highlights.slice(0, 3).map((highlight, i) => (
                                                     <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
-                                                        <span className="text-violet-500 mt-1">•</span>
+                                                        <span className="text-primary mt-1">•</span>
                                                         <span className="line-clamp-1">{highlight}</span>
                                                     </li>
                                                 ))}
@@ -370,7 +370,7 @@ export function ExploreContent({
                         Try adjusting your filters or be the first to share an itinerary!
                     </p>
                     <Link href="/itineraries/new">
-                        <Button className="bg-gradient-to-r from-violet-600 to-indigo-600">
+                        <Button className="bg-primary text-primary-foreground">
                             <Sparkles className="mr-2 h-4 w-4" />
                             Create an Itinerary
                         </Button>

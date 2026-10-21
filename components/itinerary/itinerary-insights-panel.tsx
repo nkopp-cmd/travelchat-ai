@@ -16,8 +16,8 @@ function getInsightTone(kind: ItineraryInsight["kind"]) {
     return {
       Icon: Bus,
       itemClass:
-        " bg-sky-400/8 text-sky-100",
-      iconClass: "text-sky-300",
+        " bg-primary/10 text-foreground",
+      iconClass: "text-primary",
     };
   }
 
@@ -25,16 +25,16 @@ function getInsightTone(kind: ItineraryInsight["kind"]) {
     return {
       Icon: Lightbulb,
       itemClass:
-        " bg-amber-400/8 text-amber-100",
-      iconClass: "text-amber-300",
+        " bg-[rgb(var(--ll-warning)/0.14)] text-foreground",
+      iconClass: "text-[rgb(var(--ll-warning))]",
     };
   }
 
   return {
     Icon: Sparkles,
     itemClass:
-      " bg-violet-400/8 text-violet-100",
-    iconClass: "text-violet-300",
+      " bg-primary/10 text-foreground",
+    iconClass: "text-primary",
   };
 }
 
@@ -70,7 +70,7 @@ export function ItineraryInsightsPanel({
   return (
     <section
       className={cn(
-        "rounded-xl bg-[#130b22]/76 shadow-xl shadow-violet-950/10 backdrop-blur-xl",
+        "rounded-xl bg-surface backdrop-blur-xl",
         compact ? "p-3" : "p-3 sm:p-4 md:p-5",
         className
       )}
@@ -79,7 +79,7 @@ export function ItineraryInsightsPanel({
       <div className={cn("flex gap-3", compact ? "mb-2 items-center justify-between" : "mb-3 items-start justify-between")}>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-violet-300" aria-hidden="true" />
+            <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
             <h2 className={cn("font-bold leading-tight text-foreground", compact ? "text-sm" : "text-base sm:text-xl")}>
               {title}
             </h2>
@@ -92,7 +92,7 @@ export function ItineraryInsightsPanel({
         </div>
         <Badge
           variant="secondary"
-          className="h-7 w-fit shrink-0 rounded-full bg-violet-400/12 px-2.5 text-[11px] text-violet-100"
+          className="h-7 w-fit shrink-0 rounded-full bg-primary/10 px-2.5 text-xs text-foreground"
         >
           {insights.length} {insights.length === 1 ? "tip" : "tips"}
         </Badge>
@@ -103,7 +103,7 @@ export function ItineraryInsightsPanel({
           {localCount > 0 && (
             <Badge
               variant="secondary"
-              className="h-6 rounded-full bg-amber-400/10 px-2 text-[10px] text-amber-100"
+              className="h-6 rounded-full bg-[rgb(var(--ll-warning)/0.14)] px-2 text-xs text-foreground"
             >
               {localCount} local
             </Badge>
@@ -111,7 +111,7 @@ export function ItineraryInsightsPanel({
           {transportCount > 0 && (
             <Badge
               variant="secondary"
-              className="h-6 rounded-full bg-sky-400/10 px-2 text-[10px] text-sky-100"
+              className="h-6 rounded-full bg-primary/10 px-2 text-xs text-foreground"
             >
               {transportCount} transport
             </Badge>
@@ -126,7 +126,7 @@ export function ItineraryInsightsPanel({
           return (
             <div key={group.kind} className="space-y-1.5">
               {!compact && (
-                <h3 className="px-1 text-[11px] font-semibold uppercase tracking-wide text-violet-100/62">
+                <h3 className="px-1 text-xs font-semibold uppercase tracking-wide text-foreground">
                   {group.title}
                 </h3>
               )}

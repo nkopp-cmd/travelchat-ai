@@ -20,9 +20,9 @@ import { EditProfileDialog } from "@/components/profile/edit-profile-dialog";
 import { AppBackground } from "@/components/layout/app-background";
 import { CityImageAvatar } from "@/components/ui/city-image";
 
-const LIQUID_CARD = "rounded-2xl bg-white/[0.055] shadow-2xl shadow-violet-950/20 backdrop-blur-xl";
-const LIQUID_CARD_SOFT = "rounded-2xl bg-white/[0.04] shadow-xl shadow-violet-950/10 backdrop-blur-xl";
-const STAT_TILE = "rounded-xl bg-white/[0.055] p-3 backdrop-blur-xl";
+const LIQUID_CARD = "rounded-2xl bg-raised backdrop-blur-xl";
+const LIQUID_CARD_SOFT = "rounded-2xl bg-raised backdrop-blur-xl";
+const STAT_TILE = "rounded-xl bg-raised p-3 backdrop-blur-xl";
 
 function usagePercent(used: number, limit: number) {
     if (!limit || limit === 999) return used > 0 ? 10 : 0;
@@ -220,7 +220,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
             {/* Profile Header */}
             <div className={`relative overflow-hidden ${LIQUID_CARD}`}>
                 {/* Enhanced header with pattern overlay */}
-                <div className="h-24 sm:h-32 bg-gradient-to-r from-violet-700 via-purple-700 to-indigo-700 relative overflow-hidden">
+                <div className="h-24 sm:h-32 bg-raised relative overflow-hidden">
                     {/* Decorative pattern overlay */}
                     <div className="absolute inset-0 opacity-10">
                         <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
@@ -231,7 +231,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                                     <path d="M2 2 L12 8" stroke="currentColor" strokeWidth="0.5" strokeDasharray="2" />
                                 </pattern>
                             </defs>
-                            <rect width="100" height="100" fill="url(#profile-pattern)" className="text-white" />
+                            <rect width="100" height="100" fill="url(#profile-pattern)" className="text-primary" />
                         </svg>
                     </div>
                     {/* Gradient fade at bottom */}
@@ -240,9 +240,9 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                 <div className="px-4 sm:px-8 pb-6 sm:pb-8">
                     <div className="relative flex flex-col md:flex-row justify-between items-start md:items-end -mt-10 sm:-mt-12 mb-4 sm:mb-6 gap-4">
                         <div className="flex items-end gap-4 sm:gap-6">
-                            <Avatar className={`h-20 w-20 sm:h-24 sm:w-24 shadow-lg ${tierRingColor} ring-offset-2 ring-offset-[#12091f]`}>
+                            <Avatar className={`h-20 w-20 sm:h-24 sm:w-24 shadow-lg ${tierRingColor} ring-offset-2 ring-offset-background`}>
                                 <AvatarImage src={user.imageUrl} />
-                                <AvatarFallback className="text-xl sm:text-2xl bg-slate-200 dark:bg-slate-800">
+                                <AvatarFallback className="text-xl sm:text-2xl bg-overlay">
                                     {user.firstName?.[0]}{user.lastName?.[0]}
                                 </AvatarFallback>
                             </Avatar>
@@ -264,7 +264,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                             <EditProfileDialog
                                 initialBio={(user.unsafeMetadata?.bio as string) || ""}
                             />
-                            <Button size="sm" className="bg-violet-600 hover:bg-violet-700">
+                            <Button size="sm" className="">
                                 <Share2 className="mr-2 h-4 w-4" />
                                 <span className="hidden sm:inline">Share Profile</span>
                                 <span className="sm:hidden">Share</span>
@@ -277,7 +277,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                         <div className="space-y-2">
                             <div className="flex justify-between text-sm font-medium">
                                 <div className="flex items-center gap-2">
-                                    <Star className="h-4 w-4 text-violet-500" />
+                                    <Star className="h-4 w-4 text-primary" />
                                     <span>{rank}</span>
                                 </div>
                                 <span className="text-muted-foreground">{nextLevelXp - progress.xp} XP to go</span>
@@ -292,7 +292,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                         <div className="grid grid-cols-3 gap-2 sm:gap-4">
                             <div className={`${STAT_TILE} text-center flex-1`}>
                                 <div className="flex justify-center mb-1">
-                                    <MapPin className="h-5 w-5 text-violet-500" />
+                                    <MapPin className="h-5 w-5 text-primary" />
                                 </div>
                                 <div className="font-bold text-xl">{progress.discoveries || 0}</div>
                                 <div className="text-xs text-muted-foreground">Places found</div>
@@ -304,9 +304,9 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                                 <div className="font-bold text-xl">{progress.streak || 0}</div>
                                 <div className="text-xs text-muted-foreground">{progress.streak === 1 ? "Day" : "Days"} exploring</div>
                             </div>
-                            <Link href="/leaderboard" className={`${STAT_TILE} text-center flex-1 transition-colors hover:bg-white/[0.08]`}>
+                            <Link href="/leaderboard" className={`${STAT_TILE} text-center flex-1 transition-colors hover:bg-raised`}>
                                 <div className="flex justify-center mb-1">
-                                    <Trophy className="h-5 w-5 text-yellow-500" />
+                                    <Trophy className="h-5 w-5 text-[rgb(var(--ll-warning))]" />
                                 </div>
                                 <div className="font-bold text-xl">{completedChallenges.length}</div>
                                 <div className="text-xs text-muted-foreground">{completedChallenges.length === 1 ? "Badge" : "Badges"} earned</div>
@@ -317,14 +317,14 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                     {/* CTAs */}
                     <div className="mt-4 flex gap-2 pt-4">
                         <Link href="/leaderboard" className="flex-1">
-                            <Button variant="outline" className="w-full gap-2 bg-white/10 hover:bg-yellow-500/10 ">
-                                <Trophy className="h-4 w-4 text-yellow-500" />
+                            <Button variant="outline" className="w-full gap-2 bg-raised hover:bg-[rgb(var(--ll-warning)/0.15)] ">
+                                <Trophy className="h-4 w-4 text-[rgb(var(--ll-warning))]" />
                                 Leaderboard
                             </Button>
                         </Link>
                         <Link href="/challenges" className="flex-1">
-                            <Button variant="outline" className="w-full gap-2 bg-white/10 hover:bg-violet-500/10 ">
-                                <Star className="h-4 w-4 text-violet-500" />
+                            <Button variant="outline" className="w-full gap-2 bg-raised hover:bg-primary/10 ">
+                                <Star className="h-4 w-4 text-primary" />
                                 Challenges
                             </Button>
                         </Link>
@@ -347,16 +347,16 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                             <div className="flex items-center gap-3">
                                 <div className={`p-2 rounded-full ${
                                     subscription.tier === "premium"
-                                        ? "bg-amber-400/15"
+                                        ? "bg-[rgb(var(--ll-warning)/0.14)]"
                                         : subscription.tier === "pro"
-                                        ? "bg-violet-500/15"
-                                        : "bg-white/10"
+                                        ? "bg-primary/15"
+                                        : "bg-raised"
                                 }`}>
                                     <TierIcon className={`h-5 w-5 ${
                                         subscription.tier === "premium"
-                                            ? "text-amber-600"
+                                            ? "text-[rgb(var(--ll-warning))]"
                                             : subscription.tier === "pro"
-                                            ? "text-violet-600"
+                                            ? "text-primary"
                                             : "text-muted-foreground"
                                     }`} />
                                 </div>
@@ -372,12 +372,12 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                                 </div>
                             </div>
                             {subscription.tier === "free" && (
-                                <Badge variant="secondary" className="bg-violet-400/15 text-violet-200">
+                                <Badge variant="secondary" className="bg-primary/15 text-foreground">
                                     Plan required
                                 </Badge>
                             )}
                             {subscription.tier !== "free" && isActiveSub && (
-                                <Badge variant="secondary" className="bg-emerald-400/15 text-emerald-300">
+                                <Badge variant="secondary" className="bg-[rgb(var(--ll-success)/0.12)] text-[rgb(var(--ll-success))]">
                                     Active
                                 </Badge>
                             )}
@@ -391,7 +391,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                                 </p>
                                 <div className="flex gap-2">
                                     <Link href="/pricing" className="flex-1">
-                                        <Button className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700">
+                                        <Button className="w-full bg-primary text-primary-foreground">
                                             <Rocket className="h-4 w-4 mr-2" />
                                             Choose Pro
                                         </Button>
@@ -411,7 +411,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                                     </div>
                                 )}
                                 {subscription.cancelAtPeriodEnd && (
-                                    <Badge variant="outline" className="text-amber-600 ">
+                                    <Badge variant="outline" className="text-[rgb(var(--ll-warning))] ">
                                         Cancels at period end
                                     </Badge>
                                 )}
@@ -438,7 +438,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                     </CardHeader>
                     <CardContent className="space-y-4">
                         {subscription.tier === "free" ? (
-                            <div className="rounded-xl bg-white/[0.035] p-4 text-sm leading-6 text-muted-foreground">
+                            <div className="rounded-xl bg-raised p-4 text-sm leading-6 text-muted-foreground">
                                 Choose Pro or Premium to start planning with Localley. Your saved trips, chats, images, and spot collection will appear here.
                             </div>
                         ) : (
@@ -447,7 +447,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                         <div className="space-y-2">
                             <div className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2">
-                                    <Calendar className="h-4 w-4 text-violet-500" />
+                                    <Calendar className="h-4 w-4 text-primary" />
                                     <span>
                                         {usage.itinerariesThisMonth === 0
                                             ? "No trips planned yet this month"
@@ -470,7 +470,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                         <div className="space-y-2">
                             <div className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2">
-                                    <MessageSquare className="h-4 w-4 text-indigo-500" />
+                                    <MessageSquare className="h-4 w-4 text-primary" />
                                     <span>
                                         {usage.chatMessagesToday === 0
                                             ? "Chat with Alley anytime"
@@ -493,7 +493,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                         <div className="space-y-2">
                             <div className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2">
-                                    <ImageIcon className="h-4 w-4 text-emerald-500" />
+                                    <ImageIcon className="h-4 w-4 text-primary" />
                                     <span>
                                         {usage.aiImagesThisMonth === 0
                                             ? "Create AI images of your trips"
@@ -514,7 +514,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                         <div className="space-y-2">
                             <div className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2">
-                                    <Bookmark className="h-4 w-4 text-rose-500" />
+                                    <Bookmark className="h-4 w-4 text-primary" />
                                     <span>
                                         {usage.savedSpots === 0
                                             ? "Save spots you want to visit"
@@ -540,7 +540,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
 
             {/* Content Tabs */}
             <Tabs defaultValue="achievements" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 bg-white/[0.055] backdrop-blur-xl lg:w-[400px]">
+                <TabsList className="grid w-full grid-cols-3 bg-raised backdrop-blur-xl lg:w-[400px]">
                     <TabsTrigger value="achievements">Achievements</TabsTrigger>
                     <TabsTrigger value="history">History</TabsTrigger>
                     <TabsTrigger value="saved">Saved</TabsTrigger>
@@ -549,10 +549,10 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                 <TabsContent value="achievements" className="mt-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {/* First Steps Achievement */}
-                        <Card className={`${LIQUID_CARD_SOFT} transition-all hover:bg-white/[0.07]`}>
+                        <Card className={`${LIQUID_CARD_SOFT} transition-all hover:bg-raised`}>
                             <CardHeader className="flex flex-row items-center gap-4 pb-2">
-                                <div className="h-12 w-12 rounded-full bg-yellow-500/10 flex items-center justify-center">
-                                    <Trophy className="h-6 w-6 text-yellow-500" />
+                                <div className="h-12 w-12 rounded-full bg-[rgb(var(--ll-warning)/0.15)] flex items-center justify-center">
+                                    <Trophy className="h-6 w-6 text-[rgb(var(--ll-warning))]" />
                                 </div>
                                 <div>
                                     <CardTitle className="text-base">First Steps</CardTitle>
@@ -560,7 +560,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                                 </div>
                             </CardHeader>
                             <CardContent>
-                                <Badge variant="secondary" className="bg-green-500/10 text-green-600 hover:bg-green-500/20">
+                                <Badge variant="secondary" className="bg-[rgb(var(--ll-success)/0.12)] text-green-600 hover:bg-[rgb(var(--ll-success)/0.12)]">
                                     Completed
                                 </Badge>
                                 <p className="text-xs text-muted-foreground mt-2">Earned {joinedDate}</p>
@@ -571,11 +571,11 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                         {completedChallenges.slice(0, 5).map((userChallenge) => (
                             <Card
                                 key={userChallenge.id}
-                                className={`${LIQUID_CARD_SOFT} transition-all hover:bg-white/[0.07]`}
+                                className={`${LIQUID_CARD_SOFT} transition-all hover:bg-raised`}
                             >
                                 <CardHeader className="flex flex-row items-center gap-4 pb-2">
-                                    <div className="h-12 w-12 rounded-full bg-violet-500/10 flex items-center justify-center">
-                                        <Star className="h-6 w-6 text-violet-500" />
+                                    <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                                        <Star className="h-6 w-6 text-primary" />
                                     </div>
                                     <div>
                                         <CardTitle className="text-base">{userChallenge.challenges.title}</CardTitle>
@@ -583,7 +583,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                                     </div>
                                 </CardHeader>
                                 <CardContent>
-                                    <Badge variant="secondary" className="bg-green-500/10 text-green-600 hover:bg-green-500/20">
+                                    <Badge variant="secondary" className="bg-[rgb(var(--ll-success)/0.12)] text-green-600 hover:bg-[rgb(var(--ll-success)/0.12)]">
                                         Completed
                                     </Badge>
                                     <p className="text-xs text-muted-foreground mt-2">
@@ -627,9 +627,9 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
 
                                 return (
                                     <Link key={itinerary.id} href={`/itineraries/${itinerary.id}`} className="group block h-full">
-                                        <Card className={`h-full overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-violet-500/10 flex flex-col ${LIQUID_CARD_SOFT}`}>
+                                        <Card className={`h-full overflow-hidden transition-all hover:-translate-y-1 flex flex-col ${LIQUID_CARD_SOFT}`}>
                                             {/* Gradient Header */}
-                                            <div className="relative h-24 overflow-hidden bg-gradient-to-r from-violet-500 to-indigo-500">
+                                            <div className="relative h-24 overflow-hidden bg-raised">
                                                 <CityImageAvatar
                                                     city={itinerary.city}
                                                     className="absolute inset-0 h-full w-full rounded-none"
@@ -640,10 +640,10 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                                                 />
                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/5" />
                                                 <div className="absolute bottom-2 left-3 right-3 flex justify-between items-end">
-                                                    <Badge className="bg-white/90 text-violet-700 hover:bg-white">
+                                                    <Badge className="bg-raised text-primary hover:bg-white">
                                                         {itinerary.city}
                                                     </Badge>
-                                                    <span className="text-white/90 text-xs">{itinerary.days} days</span>
+                                                    <span className="text-muted-foreground text-xs">{itinerary.days} days</span>
                                                 </div>
                                             </div>
                                             <CardContent className="p-3 flex-1 flex flex-col">
@@ -705,7 +705,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
 
                                 return (
                                     <Link key={saved.id} href={`/spots/${spot.id}`} className="group block h-full">
-                                        <Card className={`h-full overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-violet-500/10 flex flex-col ${LIQUID_CARD_SOFT}`}>
+                                        <Card className={`h-full overflow-hidden transition-all hover:-translate-y-1 flex flex-col ${LIQUID_CARD_SOFT}`}>
                                             <div className="relative aspect-video w-full overflow-hidden">
                                                 <Image
                                                     src={spot.photos?.[0] || "/placeholder-spot.svg"}
@@ -718,7 +718,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                                                         <Heart className="h-3 w-3 text-white fill-white" />
                                                     </div>
                                                 </div>
-                                                <Badge className="absolute top-2 left-2 bg-violet-600/90 backdrop-blur-sm">
+                                                <Badge className="absolute top-2 left-2 bg-primary backdrop-blur-sm">
                                                     {spot.localley_score}/6
                                                 </Badge>
                                             </div>

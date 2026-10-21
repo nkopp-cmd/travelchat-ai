@@ -23,10 +23,10 @@ import { PreviewBillingSummary } from "@/components/settings/preview-billing-sum
 import { previewBillingSettings } from "@/lib/app-data/preview-billing-settings";
 import { assertPreviewNotificationUser } from "@/lib/app-data/preview-notifications";
 
-const LIQUID_CARD = "rounded-2xl bg-white/[0.055] shadow-2xl shadow-violet-950/20 backdrop-blur-xl";
-const LIQUID_CARD_SOFT = "rounded-2xl bg-white/[0.04] shadow-xl shadow-violet-950/10 backdrop-blur-xl";
-const LIQUID_ROW = "flex flex-col items-start gap-3 rounded-xl bg-white/[0.035] p-4 transition-colors hover:bg-white/[0.07] sm:flex-row sm:items-center sm:justify-between";
-const LIQUID_INPUT = " bg-white/[0.05] backdrop-blur-xl";
+const LIQUID_CARD = "rounded-2xl bg-raised backdrop-blur-xl";
+const LIQUID_CARD_SOFT = "rounded-2xl bg-raised backdrop-blur-xl";
+const LIQUID_ROW = "flex flex-col items-start gap-3 rounded-xl bg-raised p-4 transition-colors hover:bg-raised sm:flex-row sm:items-center sm:justify-between";
+const LIQUID_INPUT = " bg-raised backdrop-blur-xl";
 
 function usagePercent(used: number, limit: number) {
     if (!limit || limit === 999) return used > 0 ? 10 : 0;
@@ -160,11 +160,10 @@ export default async function SettingsPage({ searchParams }: {
 
     return (
         <div className="mx-auto w-full max-w-5xl space-y-4 px-4 pb-28 pt-5 sm:space-y-6 sm:px-6 sm:pb-10 sm:pt-8">
-            <div className="relative overflow-hidden rounded-2xl bg-white/[0.06] p-5 shadow-2xl shadow-violet-950/20 backdrop-blur-xl sm:p-6">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(139,92,246,0.28),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(79,70,229,0.18),transparent_30%)]" />
+            <div className="relative overflow-hidden rounded-2xl bg-surface p-5 shadow-surface sm:p-6">
                 <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                     <div className="space-y-2">
-                        <Badge className="w-fit bg-white/10 text-white shadow-none hover:bg-white/10">
+                        <Badge variant="secondary" className="w-fit">
                             Account cockpit
                         </Badge>
                         <div>
@@ -175,7 +174,7 @@ export default async function SettingsPage({ searchParams }: {
                         </div>
                     </div>
                     <Link href="/pricing" className="sm:self-center">
-                        <Button variant="outline" className="w-full gap-2 bg-white/10 backdrop-blur-xl hover:bg-white/15 sm:w-auto">
+                        <Button variant="outline" className="w-full gap-2 bg-raised backdrop-blur-xl hover:bg-raised sm:w-auto">
                             Compare plans
                             <ArrowRight className="h-4 w-4" />
                         </Button>
@@ -191,29 +190,21 @@ export default async function SettingsPage({ searchParams }: {
                     ? ""
                     : ""
             }`}>
-                {/* Premium glow effect */}
-                {subscription.tier !== "free" && (
-                    <div className={`absolute inset-0 pointer-events-none ${
-                        subscription.tier === "premium"
-                            ? "bg-gradient-to-br from-amber-400/5 via-transparent to-yellow-400/5"
-                            : "bg-gradient-to-br from-violet-400/5 via-transparent to-indigo-400/5"
-                    }`} />
-                )}
                 <CardHeader>
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex items-center gap-3">
                             <div className={`p-2.5 rounded-full ${
                                 subscription.tier === "premium"
-                                    ? "bg-amber-400/15"
+                                    ? "bg-[rgb(var(--ll-warning)/0.14)]"
                                     : subscription.tier === "pro"
-                                    ? "bg-violet-500/15"
-                                    : "bg-white/10"
+                                    ? "bg-primary/15"
+                                    : "bg-raised"
                             }`}>
                                 <TierIcon className={`h-6 w-6 ${
                                     subscription.tier === "premium"
-                                        ? "text-amber-600"
+                                        ? "text-[rgb(var(--ll-warning))]"
                                         : subscription.tier === "pro"
-                                        ? "text-violet-600"
+                                        ? "text-primary"
                                         : "text-muted-foreground"
                                 }`} />
                             </div>
@@ -223,12 +214,12 @@ export default async function SettingsPage({ searchParams }: {
                             </div>
                         </div>
                         {isActiveSub && (
-                            <Badge variant="secondary" className="w-fit bg-emerald-400/15 text-emerald-300">
+                            <Badge variant="secondary" className="w-fit bg-[rgb(var(--ll-success)/0.12)] text-[rgb(var(--ll-success))]">
                                 Active
                             </Badge>
                         )}
                         {subscription.tier === "free" && (
-                            <Badge variant="secondary" className="w-fit bg-violet-400/15 text-violet-200">
+                            <Badge variant="secondary" className="w-fit bg-primary/15 text-foreground">
                                 Plan required
                             </Badge>
                         )}
@@ -274,8 +265,8 @@ export default async function SettingsPage({ searchParams }: {
                     </div>
 
                     {subscription.cancelAtPeriodEnd && (
-                        <div className="rounded-xl bg-amber-400/10 p-3">
-                            <p className="text-sm text-amber-100">
+                        <div className="rounded-xl bg-[rgb(var(--ll-warning)/0.14)] p-3">
+                            <p className="text-sm text-foreground">
                                 Your subscription will be cancelled at the end of the current billing period. You will retain access until then.
                             </p>
                         </div>
@@ -289,42 +280,42 @@ export default async function SettingsPage({ searchParams }: {
                             {subscription.tier === "free" ? "Pick a plan to activate" : "Your Plan Includes"}
                         </Label>
                         {subscription.tier === "free" ? (
-                            <div className="rounded-xl bg-violet-400/10 p-4 text-sm leading-6 text-violet-50/80">
+                            <div className="rounded-xl bg-primary/10 p-4 text-sm leading-6 text-foreground">
                                 Localley is paid-only. Choose Pro for fast AI planning and exact addresses, or Premium for richer media, exports, and collaboration.
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 <div className="flex items-center gap-2 text-sm">
-                                    <Check className="h-4 w-4 text-emerald-400" />
+                                    <Check className="h-4 w-4 text-[rgb(var(--ll-success))]" />
                                     <span>{tierConfig.limits.itinerariesPerMonth === 999 ? "Unlimited" : tierConfig.limits.itinerariesPerMonth} itineraries/month</span>
                                 </div>
                                 <div className="flex items-center gap-2 text-sm">
-                                    <Check className="h-4 w-4 text-emerald-400" />
+                                    <Check className="h-4 w-4 text-[rgb(var(--ll-success))]" />
                                     <span>{tierConfig.limits.chatMessagesPerDay === 999 ? "Unlimited" : tierConfig.limits.chatMessagesPerDay} messages/day</span>
                                 </div>
                                 <div className="flex items-center gap-2 text-sm">
-                                    <Check className="h-4 w-4 text-emerald-400" />
+                                    <Check className="h-4 w-4 text-[rgb(var(--ll-success))]" />
                                     <span>{tierConfig.limits.aiImagesPerMonth} AI images/month</span>
                                 </div>
                                 <div className="flex items-center gap-2 text-sm">
-                                    <Check className="h-4 w-4 text-emerald-400" />
+                                    <Check className="h-4 w-4 text-[rgb(var(--ll-success))]" />
                                     <span>{tierConfig.limits.savedSpotsLimit === 999 ? "Unlimited" : tierConfig.limits.savedSpotsLimit} saved spots</span>
                                 </div>
                                 {tierConfig.features.activityImages !== "placeholder" && (
                                     <div className="flex items-center gap-2 text-sm">
-                                        <Check className="h-4 w-4 text-emerald-400" />
+                                        <Check className="h-4 w-4 text-[rgb(var(--ll-success))]" />
                                         <span>AI-generated activity images</span>
                                     </div>
                                 )}
                                 {tierConfig.features.addressDisplay !== "area-only" && (
                                     <div className="flex items-center gap-2 text-sm">
-                                        <Check className="h-4 w-4 text-emerald-400" />
+                                        <Check className="h-4 w-4 text-[rgb(var(--ll-success))]" />
                                         <span>Full addresses revealed</span>
                                     </div>
                                 )}
                                 {tierConfig.features.bookingDeals && (
                                     <div className="flex items-center gap-2 text-sm">
-                                        <Check className="h-4 w-4 text-emerald-400" />
+                                        <Check className="h-4 w-4 text-[rgb(var(--ll-success))]" />
                                         <span>Exclusive booking deals</span>
                                     </div>
                                 )}
@@ -338,7 +329,7 @@ export default async function SettingsPage({ searchParams }: {
                     <div className="grid gap-2 sm:flex sm:flex-wrap sm:gap-3">
                         {subscription.tier === "free" ? (
                             <Link href="/pricing" className="w-full sm:w-auto">
-                                <Button className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 sm:w-auto">
+                                <Button className="w-full bg-primary text-primary-foreground sm:w-auto">
                                     <Rocket className="h-4 w-4 mr-2" />
                                     Choose Pro
                                 </Button>
@@ -350,8 +341,8 @@ export default async function SettingsPage({ searchParams }: {
                                 )}
                                 {subscription.tier === "pro" && (
                                     <Link href="/pricing" className="w-full sm:w-auto">
-                                        <Button variant="outline" className="w-full gap-2 bg-white/10 backdrop-blur-xl hover:bg-white/15 sm:w-auto">
-                                            <Crown className="h-4 w-4 text-amber-500" />
+                                        <Button variant="outline" className="w-full gap-2 bg-raised backdrop-blur-xl hover:bg-raised sm:w-auto">
+                                            <Crown className="h-4 w-4 text-[rgb(var(--ll-warning))]" />
                                             Choose Premium
                                         </Button>
                                     </Link>
@@ -359,7 +350,7 @@ export default async function SettingsPage({ searchParams }: {
                             </>
                         )}
                         <Link href="/pricing" className="w-full sm:w-auto">
-                            <Button variant="ghost" className="w-full gap-2 hover:bg-white/10 sm:w-auto">
+                            <Button variant="ghost" className="w-full gap-2 hover:bg-raised sm:w-auto">
                                 Compare Plans
                                 <ArrowRight className="h-4 w-4" />
                             </Button>
@@ -380,7 +371,7 @@ export default async function SettingsPage({ searchParams }: {
                 </CardHeader>
                 <CardContent className="space-y-4">
                     {subscription.tier === "free" ? (
-                        <div className="rounded-xl bg-white/[0.035] p-4 text-sm leading-6 text-muted-foreground">
+                        <div className="rounded-xl bg-raised p-4 text-sm leading-6 text-muted-foreground">
                             Choose Pro or Premium to start planning with Localley. Your billing-period usage will appear here after activation.
                         </div>
                     ) : (
@@ -389,7 +380,7 @@ export default async function SettingsPage({ searchParams }: {
                         <div className="space-y-2">
                             <div className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2">
-                                    <Calendar className="h-4 w-4 text-violet-500" />
+                                    <Calendar className="h-4 w-4 text-primary" />
                                     <span className="font-medium">Itineraries Created</span>
                                 </div>
                                 <span className="text-muted-foreground">
@@ -406,7 +397,7 @@ export default async function SettingsPage({ searchParams }: {
                         <div className="space-y-2">
                             <div className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2">
-                                    <MessageSquare className="h-4 w-4 text-indigo-500" />
+                                    <MessageSquare className="h-4 w-4 text-primary" />
                                     <span className="font-medium">Chat Messages (Today)</span>
                                 </div>
                                 <span className="text-muted-foreground">
@@ -423,7 +414,7 @@ export default async function SettingsPage({ searchParams }: {
                         <div className="space-y-2">
                             <div className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2">
-                                    <ImageIcon className="h-4 w-4 text-emerald-500" />
+                                    <ImageIcon className="h-4 w-4 text-primary" />
                                     <span className="font-medium">AI Images Generated</span>
                                 </div>
                                 <span className="text-muted-foreground">
@@ -440,7 +431,7 @@ export default async function SettingsPage({ searchParams }: {
                         <div className="space-y-2">
                             <div className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2">
-                                    <Bookmark className="h-4 w-4 text-rose-500" />
+                                    <Bookmark className="h-4 w-4 text-primary" />
                                     <span className="font-medium">Saved Spots</span>
                                 </div>
                                 <span className="text-muted-foreground">
@@ -499,7 +490,7 @@ export default async function SettingsPage({ searchParams }: {
                                 Show spots near you automatically when browsing
                             </p>
                         </div>
-                        <Switch id="location" defaultChecked className="self-end data-[state=checked]:bg-violet-600 sm:self-auto" />
+                        <Switch id="location" defaultChecked className="self-end data-[state=checked]:bg-primary sm:self-auto" />
                     </div>
                 </CardContent>
             </Card>
@@ -556,7 +547,7 @@ export default async function SettingsPage({ searchParams }: {
                                 Help us improve Localley with anonymous usage insights
                             </p>
                         </div>
-                        <Switch id="analytics" defaultChecked className="self-end data-[state=checked]:bg-violet-600 sm:self-auto" />
+                        <Switch id="analytics" defaultChecked className="self-end data-[state=checked]:bg-primary sm:self-auto" />
                     </div>
 
                     <div className={`${LIQUID_ROW} group`}>
@@ -566,7 +557,7 @@ export default async function SettingsPage({ searchParams }: {
                                 Get smarter spot suggestions based on your travel style
                             </p>
                         </div>
-                        <Switch id="personalization" defaultChecked className="self-end data-[state=checked]:bg-violet-600 sm:self-auto" />
+                        <Switch id="personalization" defaultChecked className="self-end data-[state=checked]:bg-primary sm:self-auto" />
                     </div>
                 </CardContent>
             </Card>
@@ -597,7 +588,7 @@ export default async function SettingsPage({ searchParams }: {
                     <div className="space-y-2">
                         <Label>Danger Zone</Label>
                         <div className="flex flex-col gap-2 sm:flex-row">
-                            <Button variant="outline" className=" text-destructive hover:bg-destructive/10">
+                            <Button variant="outline" className="text-destructive hover:bg-destructive/10">
                                 Clear All Data
                             </Button>
                             <Button variant="destructive">
@@ -609,9 +600,9 @@ export default async function SettingsPage({ searchParams }: {
             </Card>
 
             {/* Save Button */}
-            <div className="sticky bottom-20 z-10 grid grid-cols-2 gap-2 rounded-2xl bg-[#0b0714]/88 p-3 shadow-2xl shadow-violet-950/30 backdrop-blur-xl md:bottom-4 md:flex md:justify-end">
-                <Button variant="outline" className=" bg-white/10 hover:bg-white/15">Cancel</Button>
-                <Button className="bg-violet-600 hover:bg-violet-700">
+            <div className="sticky bottom-20 z-10 grid grid-cols-2 gap-2 rounded-2xl bg-surface p-3 backdrop-blur-xl md:bottom-4 md:flex md:justify-end">
+                <Button variant="outline" className="bg-raised hover:bg-raised">Cancel</Button>
+                <Button className="">
                     Save Changes
                 </Button>
             </div>

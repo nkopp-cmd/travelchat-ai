@@ -131,18 +131,18 @@ function WizardContent({
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
         <div className="relative mb-8">
-          <div className="w-20 h-20 rounded-full bg-violet-600/20 flex items-center justify-center">
-            <Loader2 className="w-10 h-10 text-violet-500 animate-spin" />
+          <div className="w-20 h-20 rounded-full bg-primary/15 flex items-center justify-center">
+            <Loader2 className="w-10 h-10 text-primary animate-spin" />
           </div>
-          <div className="absolute inset-0 rounded-full bg-violet-500/20 animate-ping" />
+          <div className="absolute inset-0 rounded-full bg-primary/15 animate-ping" />
         </div>
-        <h2 className="text-xl font-bold text-white mb-2 text-center">
+        <h2 className="text-xl font-bold text-foreground mb-2 text-center">
           Creating your itinerary
         </h2>
-        <p className="text-violet-400 text-center animate-pulse">
+        <p className="text-primary text-center animate-pulse">
           {progressMessage}
         </p>
-        <p className="text-gray-500 text-sm mt-4">
+        <p className="text-muted-foreground text-sm mt-4">
           This usually takes 20-30 seconds
         </p>
       </div>
@@ -154,9 +154,9 @@ function WizardContent({
       <WizardProgress />
 
       {templateApplied && !compactTemplateFooter && (
-        <div className="mx-3 mt-1.5 rounded-lg bg-violet-500/10 px-3 py-1.5 text-xs text-violet-100 sm:mx-4 sm:mt-2 sm:py-2 sm:text-sm">
+        <div className="mx-3 mt-1.5 rounded-lg bg-primary/10 px-3 py-1.5 text-xs text-foreground sm:mx-4 sm:mt-2 sm:py-2 sm:text-sm">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 shrink-0 text-violet-300" />
+            <Sparkles className="h-4 w-4 shrink-0 text-primary" />
             <span className="min-w-0 truncate">
               {data.city
                 ? `${data.templateName} is ready for ${data.city}. Generate now or change the city.`
@@ -176,18 +176,18 @@ function WizardContent({
       <div className="z-30 shrink-0 bg-black/92 p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] shadow-[0_-10px_26px_rgba(0,0,0,0.24)] backdrop-blur-xl sm:p-3 sm:pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] md:p-4 md:pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
         <div className="mx-auto max-w-xl">
           {templateApplied && !compactTemplateFooter && (
-            <div className="mb-1.5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg bg-violet-500/10 px-2.5 py-1.5 text-[11px] font-medium leading-none text-violet-100 sm:mb-2 sm:px-3 sm:text-xs">
+            <div className="mb-1.5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg bg-primary/10 px-2.5 py-1.5 text-xs font-medium leading-none text-foreground sm:mb-2 sm:px-3 sm:text-xs">
               <span className="min-w-0 truncate">{data.templateName}</span>
-              <span className="shrink-0 text-violet-200">
+              <span className="shrink-0 text-foreground">
                 Step {currentStep + 1}/{totalSteps}
               </span>
             </div>
           )}
           <div className={getTemplateFooterLayoutClass(compactTemplateFooter)}>
             {compactTemplateFooter && (
-              <div className="min-w-0 rounded-lg bg-violet-500/10 px-2.5 py-1.5 text-[11px] font-medium leading-tight text-violet-100 sm:flex-1 sm:px-3 sm:text-xs">
+              <div className="min-w-0 rounded-lg bg-primary/10 px-2.5 py-1.5 text-xs font-medium leading-tight text-foreground sm:flex-1 sm:px-3 sm:text-xs">
                 <span className="block truncate">{data.templateName}</span>
-                <span className="block truncate text-violet-200/80">
+                <span className="block truncate text-foreground">
                   {data.city ? getTemplateFooterCityLabel(data.city) : `Step ${currentStep + 1}/${totalSteps}`}
                 </span>
               </div>
@@ -197,7 +197,7 @@ function WizardContent({
               <Button
                 variant="outline"
                 onClick={prevStep}
-                className="h-10 flex-1 text-white hover:bg-white/10 sm:h-11"
+                className="h-10 flex-1 text-foreground hover:bg-raised sm:h-11"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back
@@ -208,7 +208,7 @@ function WizardContent({
                 type="button"
                 variant="outline"
                 onClick={handleCustomizeTemplate}
-                className="hidden h-10 shrink-0 px-2 text-xs text-white hover:bg-white/10 sm:inline-flex sm:h-11 sm:px-3 sm:text-sm"
+                className="hidden h-10 shrink-0 px-2 text-xs text-foreground hover:bg-raised sm:inline-flex sm:h-11 sm:px-3 sm:text-sm"
               >
                 <ArrowRight className="mr-1.5 h-4 w-4" />
                 Customize
@@ -218,13 +218,13 @@ function WizardContent({
               onClick={handleNext}
               disabled={!canProceed}
               className={cn(
-                "h-10 min-w-0 flex-1 text-white sm:h-11",
+                "h-10 min-w-0 flex-1 text-foreground sm:h-11",
                 currentStep === 0 && !compactTemplateFooter && "w-full",
                 compactTemplateFooter && "w-full px-3 sm:w-auto sm:min-w-[8.5rem] sm:shrink-0",
                 canGenerateFromTemplate && "sm:min-w-[9.25rem] sm:max-w-[9.75rem]",
-                "bg-gradient-to-r from-violet-600 to-indigo-600",
-                "hover:from-violet-500 hover:to-indigo-500",
-                "shadow-lg shadow-violet-500/30",
+                "bg-primary text-primary-foreground",
+                "",
+                "",
                 "disabled:opacity-50 disabled:cursor-not-allowed"
               )}
             >
@@ -245,7 +245,7 @@ function WizardContent({
                 type="button"
                 variant="outline"
                 onClick={handleChangeTemplateCity}
-                className="h-10 shrink-0 px-2 text-xs text-white hover:bg-white/10 sm:hidden"
+                className="h-10 shrink-0 px-2 text-xs text-foreground hover:bg-raised sm:hidden"
               >
                 <MapPin className="mr-1 h-3.5 w-3.5" />
                 Change

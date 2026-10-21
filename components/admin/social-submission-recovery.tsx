@@ -182,35 +182,35 @@ export function SocialSubmissionRecovery({
   return (
     <div className="mx-auto min-h-screen w-full max-w-6xl px-4 pb-28 pt-6 sm:px-6 md:pb-12 md:pt-8">
       <nav aria-label="Admin navigation" className="mb-5 flex flex-wrap items-center gap-2">
-        <Button asChild variant="outline" className=" bg-white/[0.04] text-white hover:bg-white/[0.09]">
+        <Button asChild variant="outline" className="bg-raised text-foreground hover:bg-raised">
           <Link href="/spots/submissions">
             <ArrowLeft aria-hidden="true" />
             Tracker
           </Link>
         </Button>
-        <Button asChild variant="ghost" className="text-violet-100 hover:bg-violet-400/10 hover:text-white">
+        <Button asChild variant="ghost" className="text-foreground hover:bg-overlay">
           <Link href="/admin/spots/quality">Spot quality</Link>
         </Button>
       </nav>
 
-      <header className=" pb-6">
-        <div className="flex flex-wrap items-center gap-2 text-sm font-semibold text-emerald-200">
+      <header className="pb-6">
+        <div className="flex flex-wrap items-center gap-2 text-sm font-semibold text-[rgb(var(--ll-success))]">
           <ShieldCheck className="size-4" aria-hidden="true" />
           Admin review
         </div>
-        <h1 className="mt-3 text-3xl font-bold text-white md:text-4xl">
+        <h1 className="mt-3 text-3xl font-bold text-foreground md:text-4xl">
           Community recovery queue
         </h1>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-300 md:text-base">
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">
           Review exact legacy posts before starting complete media extraction and place verification.
         </p>
       </header>
 
       <section aria-labelledby="recovery-controls" className="grid gap-5 py-6 lg:grid-cols-[1fr_auto] lg:items-end">
         <div>
-          <h2 id="recovery-controls" className="text-lg font-semibold text-white">Review scope</h2>
+          <h2 id="recovery-controls" className="text-lg font-semibold text-foreground">Review scope</h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
-            <label className="grid gap-2 text-sm font-medium text-zinc-200">
+            <label className="grid gap-2 text-sm font-medium text-foreground">
               Posts per run
               <select
                 aria-label="Posts per run"
@@ -219,7 +219,7 @@ export function SocialSubmissionRecovery({
                   setLimit(Number(event.target.value));
                   invalidatePlan();
                 }}
-                className="h-11 rounded-md bg-[#17131f] px-3 text-white outline-none focus:border-violet-300 focus:ring-2 focus:ring-violet-300/25"
+                className="h-11 rounded-md bg-surface px-3 text-foreground outline-none focus:ring-2 focus:ring-violet-300/25"
               >
                 <option value={1}>1 post</option>
                 <option value={2}>2 posts</option>
@@ -227,10 +227,10 @@ export function SocialSubmissionRecovery({
               </select>
             </label>
 
-            <div className="flex min-h-20 items-center justify-between gap-3 rounded-md bg-white/[0.035] px-3 py-2">
+            <div className="flex min-h-20 items-center justify-between gap-3 rounded-md bg-raised px-3 py-2">
               <div>
-                <p className="text-sm font-medium text-zinc-100">Instagram</p>
-                <p className="mt-1 text-xs text-zinc-400">
+                <p className="text-sm font-medium text-foreground">Instagram</p>
+                <p className="mt-1 text-xs text-muted-foreground">
                   {instagramConfigured ? "Include Instagram posts" : "Provider unavailable"}
                 </p>
               </div>
@@ -245,10 +245,10 @@ export function SocialSubmissionRecovery({
               />
             </div>
 
-            <div className="flex min-h-20 items-center justify-between gap-3 rounded-md bg-white/[0.035] px-3 py-2">
+            <div className="flex min-h-20 items-center justify-between gap-3 rounded-md bg-raised px-3 py-2">
               <div>
-                <p className="text-sm font-medium text-zinc-100">Existing spots</p>
-                <p className="mt-1 text-xs text-zinc-400">Allow enrichment</p>
+                <p className="text-sm font-medium text-foreground">Existing spots</p>
+                <p className="mt-1 text-xs text-muted-foreground">Allow enrichment</p>
               </div>
               <Switch
                 aria-label="Include submissions with existing spots"
@@ -261,7 +261,7 @@ export function SocialSubmissionRecovery({
             </div>
           </div>
           {includeResolved && (
-            <div role="status" className="mt-3 flex gap-2 rounded-md bg-amber-300/10 px-3 py-2 text-sm text-amber-100">
+            <div role="status" className="mt-3 flex gap-2 rounded-md bg-[rgb(var(--ll-warning)/0.14)] px-3 py-2 text-sm text-foreground">
               <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
               Existing community spots can receive new evidence and photos.
             </div>
@@ -281,13 +281,13 @@ export function SocialSubmissionRecovery({
       <section aria-labelledby="review-results" className="py-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 id="review-results" className="text-lg font-semibold text-white">Reviewed posts</h2>
-            <p className="mt-1 text-sm text-zinc-400">
+            <h2 id="review-results" className="text-lg font-semibold text-foreground">Reviewed posts</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
               {plan ? `${selectedCount} eligible` : "No active review plan"}
             </p>
           </div>
           {plan?.expiresAt && (
-            <div className="flex items-center gap-2 text-sm text-zinc-300">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Clock3 className="size-4" aria-hidden="true" />
               {planExpired ? "Plan expired" : `Expires in ${countdown}`}
             </div>
@@ -295,20 +295,20 @@ export function SocialSubmissionRecovery({
         </div>
 
         {error && (
-          <div role="alert" className="mt-4 rounded-md bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
+          <div role="alert" className="mt-4 rounded-md bg-[rgb(var(--ll-error)/0.12)] px-4 py-3 text-sm text-foreground">
             {error}
           </div>
         )}
 
         {execution && (
-          <div role="status" aria-live="polite" className="mt-4 rounded-md bg-emerald-300/10 p-4 text-emerald-50">
+          <div role="status" aria-live="polite" className="mt-4 rounded-md bg-[rgb(var(--ll-success)/0.12)] p-4 text-foreground">
             <div className="flex items-start gap-3">
               <CheckCircle2 className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
               <div>
                 <p className="font-semibold">
                   {execution.claimed.length} {execution.claimed.length === 1 ? "post" : "posts"} admitted
                 </p>
-                <p className="mt-1 text-sm text-emerald-100/75">
+                <p className="mt-1 text-sm text-foreground">
                   {execution.worker.started
                     ? `Worker completed the current batch${workerProcessed === null ? "" : ` with ${workerProcessed} state updates`}.`
                     : "The posts are queued for the next bounded worker run."}
@@ -323,7 +323,7 @@ export function SocialSubmissionRecovery({
         )}
 
         {plan && plan.eligible.length === 0 && (
-          <div className="mt-4 rounded-md bg-white/[0.035] p-5 text-sm text-zinc-300">
+          <div className="mt-4 rounded-md bg-raised p-5 text-sm text-muted-foreground">
             No legacy posts match this scope.
           </div>
         )}
@@ -332,22 +332,22 @@ export function SocialSubmissionRecovery({
           <>
             <div className="mt-4 grid gap-3" role="list" aria-label="Eligible legacy posts">
               {plan.eligible.map((submission) => (
-                <article key={submission.id} role="listitem" className="grid gap-3 rounded-md bg-[#14101c] p-4 sm:grid-cols-[1fr_auto] sm:items-center">
+                <article key={submission.id} role="listitem" className="grid gap-3 rounded-md bg-surface p-4 sm:grid-cols-[1fr_auto] sm:items-center">
                   <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase text-zinc-400">
+                    <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase text-muted-foreground">
                       <span>{submission.platform}</span>
                       <span aria-hidden="true">·</span>
                       <span>{submission.status.replaceAll("_", " ")}</span>
-                      {submission.hasSpot && <span className="rounded-md bg-amber-300/10 px-2 py-1 text-amber-100">Existing spot</span>}
+                      {submission.hasSpot && <span className="rounded-md bg-[rgb(var(--ll-warning)/0.14)] px-2 py-1 text-foreground">Existing spot</span>}
                     </div>
-                    <h3 className="mt-2 truncate font-semibold text-white">
+                    <h3 className="mt-2 truncate font-semibold text-foreground">
                       {submission.name || "Unnamed social post"}
                     </h3>
-                    <p className="mt-1 text-sm text-zinc-400">{formatDate(submission.createdAt)}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{formatDate(submission.createdAt)}</p>
                   </div>
                   <Link
                     href={`/spots/submissions?submission=${encodeURIComponent(submission.id)}`}
-                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-3 text-sm font-semibold text-zinc-200 hover:bg-white/[0.06]"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-3 text-sm font-semibold text-foreground hover:bg-raised"
                   >
                     Inspect
                     <ExternalLink className="size-4" aria-hidden="true" />
@@ -356,36 +356,36 @@ export function SocialSubmissionRecovery({
               ))}
             </div>
 
-            <div className="sticky bottom-20 z-20 mt-5 rounded-md bg-[#15101f]/95 p-3 shadow-2xl shadow-black/40 backdrop-blur md:bottom-4">
+            <div className="sticky bottom-20 z-20 mt-5 rounded-md bg-surface p-3 shadow-2xl shadow-black/40 backdrop-blur md:bottom-4">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="text-sm text-zinc-300">
-                  <span className="font-semibold text-white">{selectedCount} reviewed</span>
+                <div className="text-sm text-muted-foreground">
+                  <span className="font-semibold text-foreground">{selectedCount} reviewed</span>
                   <span className="ml-2">Exact IDs are locked in this plan.</span>
                 </div>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button
                       disabled={!plan.planToken || planExpired || Boolean(loading)}
-                      className="h-11 bg-violet-500 text-white hover:bg-violet-400"
+                      className="h-11 bg-primary text-primary-foreground hover:bg-primary/90"
                     >
                       {loading === "execute" ? <Loader2 className="animate-spin" aria-hidden="true" /> : <Play aria-hidden="true" />}
                       Queue and run {selectedCount} {selectedCount === 1 ? "post" : "posts"}
                     </Button>
                   </AlertDialogTrigger>
-                  <AlertDialogContent className=" bg-[#15111d] text-white">
+                  <AlertDialogContent className="bg-surface text-foreground">
                     <AlertDialogHeader>
                       <AlertDialogTitle>Start {selectedCount} reviewed {selectedCount === 1 ? "post" : "posts"}?</AlertDialogTitle>
-                      <AlertDialogDescription className="leading-6 text-zinc-300">
+                      <AlertDialogDescription className="leading-6 text-muted-foreground">
                         Complete media extraction and place research starts immediately. Existing spots are enriched only when that option is enabled.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel className=" bg-transparent text-white hover:bg-white/[0.08] hover:text-white">
+                      <AlertDialogCancel className="bg-transparent text-foreground hover:bg-overlay">
                         Cancel
                       </AlertDialogCancel>
                       <AlertDialogAction
                         onClick={executePlan}
-                        className="bg-violet-500 text-white hover:bg-violet-400"
+                        className="bg-primary text-primary-foreground hover:bg-primary/90"
                       >
                         Start recovery
                       </AlertDialogAction>
@@ -398,7 +398,7 @@ export function SocialSubmissionRecovery({
         )}
 
         {!plan && !execution && !error && (
-          <div className="mt-4 flex min-h-36 items-center justify-center rounded-md text-center text-sm text-zinc-500">
+          <div className="mt-4 flex min-h-36 items-center justify-center rounded-md text-center text-sm text-muted-foreground">
             <div>
               <RefreshCw className="mx-auto mb-2 size-5" aria-hidden="true" />
               Run a review to load exact legacy posts.
