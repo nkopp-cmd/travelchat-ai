@@ -326,7 +326,7 @@ async function geocodeWithNominatim(query: string, center?: { lat: number; lng: 
         const url = urlStr;
         const response = await fetch(url, {
             headers: {
-                'User-Agent': 'Localley Travel App (https://localley.ai)',
+                'User-Agent': 'Localley Travel App (https://localley.io)',
             },
         });
 

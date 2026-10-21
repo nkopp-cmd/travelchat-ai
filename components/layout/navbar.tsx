@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { IntentLink } from "@/components/navigation/intent-link";
 import { usePathname } from "next/navigation";
 import { useUser } from "@/lib/auth/client";
@@ -46,7 +45,7 @@ export function Navbar() {
         return <IntentLink key={route.href} href={route.href} aria-current={active ? 'page' : undefined} className={cn("flex min-h-11 items-center gap-2 rounded-xl px-4 py-2 text-sm text-muted-foreground hover:bg-raised hover:text-foreground", active && "bg-raised font-semibold text-foreground")}><route.icon className="size-4" />{route.label}</IntentLink>;
       })}</nav>
       <div className="flex min-h-11 items-center gap-2 sm:gap-4">
-        {!isLoaded ? <div role="status" aria-label="Checking account" className="h-11 w-20 rounded-xl bg-raised"><span className="sr-only">Checking account</span></div> : isSignedIn ? <NavbarAccount /> : <><Button asChild variant="ghost" size="sm"><Link href="/sign-in">Sign in</Link></Button><Button asChild size="sm" className="hidden sm:inline-flex"><Link href="/itineraries/new">Start planning</Link></Button></>}
+        {!isLoaded ? <div role="status" aria-label="Checking account" className="h-11 w-20 rounded-xl bg-raised"><span className="sr-only">Checking account</span></div> : isSignedIn ? <NavbarAccount /> : <><Button asChild variant="ghost" size="sm"><IntentLink href="/sign-in">Sign in</IntentLink></Button><Button asChild size="sm" className="hidden sm:inline-flex"><IntentLink href="/itineraries/new">Start planning</IntentLink></Button></>}
       </div>
     </div>
   </header>;
