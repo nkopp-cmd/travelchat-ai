@@ -24,4 +24,10 @@ describe("lifetime premium plan display", () => {
       expect(source).not.toMatch(/\["active", "trialing"\]\.includes/);
     }
   });
+
+  it("does not show a monthly price to lifetime accounts on the profile plan card", () => {
+    const source = readFileSync("app/profile/page.tsx", "utf8");
+    expect(source).toMatch(/subscription\.status === "lifetime_premium"\s*\?\s*"Lifetime · included"/);
+  });
 });
+
