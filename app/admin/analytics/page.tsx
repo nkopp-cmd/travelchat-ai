@@ -138,7 +138,7 @@ export default function AdminAnalyticsPage() {
         <AppBackground ambient className="min-h-screen">
         <div className="min-h-screen p-6 space-y-6">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 rounded-lg bg-white/[0.08] p-5 backdrop-blur-xl">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 rounded-lg bg-raised p-5 backdrop-blur-xl">
                 <div>
                     <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
                     <p className="text-muted-foreground">
@@ -265,7 +265,7 @@ export default function AdminAnalyticsPage() {
                                 }))}
                             />
 
-                            <div className="mt-6 pt-4 ">
+                            <div className="mt-6 pt-4">
                                 <h3 className="text-sm font-medium text-muted-foreground mb-3">
                                     Partner Earnings
                                 </h3>
@@ -359,10 +359,10 @@ export default function AdminAnalyticsPage() {
                                             <span
                                                 className={cn(
                                                     "text-xs px-2 py-0.5 rounded-full",
-                                                    sub.status === "active" && "bg-green-500/10 text-green-500",
-                                                    sub.status === "canceled" && "bg-red-500/10 text-red-500",
-                                                    sub.status === "trialing" && "bg-blue-500/10 text-blue-500",
-                                                    sub.status === "past_due" && "bg-yellow-500/10 text-yellow-500"
+                                                    sub.status === "active" && "bg-[rgb(var(--ll-success)/0.12)] text-foreground0",
+                                                    sub.status === "canceled" && "bg-[rgb(var(--ll-error)/0.12)] text-[rgb(var(--ll-error))]",
+                                                    sub.status === "trialing" && "bg-primary/10 text-foreground0",
+                                                    sub.status === "past_due" && "bg-[rgb(var(--ll-warning)/0.15)] text-[rgb(var(--ll-warning))]"
                                                 )}
                                             >
                                                 {sub.status}
@@ -397,7 +397,7 @@ function UsageStatCard({
     value: number;
 }) {
     return (
-        <div className="p-4 rounded-lg bg-muted/30 ">
+        <div className="p-4 rounded-lg bg-muted/30">
             <div className="flex items-center gap-2 text-muted-foreground mb-2">
                 {icon}
                 <span className="text-sm">{label}</span>

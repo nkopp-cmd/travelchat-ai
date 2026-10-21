@@ -128,7 +128,7 @@ export function SimpleLineChart({
                         </div>
                         {/* Date label - show every 5th or if data is small */}
                         {(index % Math.max(Math.floor(data.length / 7), 1) === 0) && (
-                            <span className="text-[10px] text-muted-foreground rotate-0">
+                            <span className="text-xs text-muted-foreground rotate-0">
                                 {new Date(item.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                             </span>
                         )}
@@ -261,7 +261,7 @@ export function MetricCard({
 }: MetricCardProps) {
     return (
         <div className={cn(
-            "p-4 rounded-xl bg-gradient-to-br from-background to-muted/30 ",
+            "p-4 rounded-xl bg-surface",
             className
         )}>
             <div className="flex items-start justify-between">
@@ -271,7 +271,7 @@ export function MetricCard({
                     {change !== undefined && (
                         <p className={cn(
                             "text-xs",
-                            change >= 0 ? "text-green-500" : "text-red-500"
+                            change >= 0 ? "text-[rgb(var(--ll-success))]" : "text-[rgb(var(--ll-error))]"
                         )}>
                             {change >= 0 ? "+" : ""}{change}% {changeLabel}
                         </p>

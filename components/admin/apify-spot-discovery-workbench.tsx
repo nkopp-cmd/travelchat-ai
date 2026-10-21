@@ -96,22 +96,22 @@ export function ApifySpotDiscoveryWorkbench() {
 
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="rounded-2xl bg-[#171126]/95 p-5 shadow-2xl shadow-violet-950/20 sm:p-7">
+      <div className="rounded-2xl bg-surface p-5 sm:p-7">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <Badge className=" bg-violet-400/10 text-violet-100">
+            <Badge className="bg-primary/10 text-foreground">
               Private review queue
             </Badge>
-            <h1 className="mt-3 text-2xl font-semibold text-white sm:text-3xl">Apify spot discovery</h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-violet-100/65">
+            <h1 className="mt-3 text-2xl font-semibold text-foreground sm:text-3xl">Apify spot discovery</h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-foreground">
               One cost-capped city scrape per day, prioritizing structured leads from this week&apos;s viral posts. Results remain private until an admin approves the place and its Localley score.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button asChild variant="outline" className=" bg-white/5 text-violet-50">
+            <Button asChild variant="outline" className="bg-raised text-foreground">
               <Link href="/admin/spots/quality">Quality queue</Link>
             </Button>
-            <Button onClick={() => void loadCandidates()} disabled={loading} className="bg-violet-500 text-white hover:bg-violet-400">
+            <Button onClick={() => void loadCandidates()} disabled={loading} className="bg-primary text-primary-foreground hover:bg-primary/90">
               {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
               Refresh
             </Button>
@@ -124,23 +124,23 @@ export function ApifySpotDiscoveryWorkbench() {
             onChange={(event) => setCity(event.target.value)}
             onKeyDown={(event) => { if (event.key === "Enter") void loadCandidates(); }}
             placeholder="Filter by city slug, e.g. seoul"
-            className=" bg-white/5 text-white placeholder:text-violet-100/35"
+            className="bg-raised text-foreground placeholder:text-muted-foreground"
           />
-          <div className="flex items-center gap-2 text-sm text-violet-100/60">
+          <div className="flex items-center gap-2 text-sm text-foreground">
             <MapPin className="h-4 w-4" />
             {items.length} pending across {groupedCities.length} cities
           </div>
         </div>
 
-        {error && <p className="mt-4 rounded-lg bg-rose-400/10 p-3 text-sm text-rose-100">{error}</p>}
-        {notice && <p className="mt-4 rounded-lg bg-emerald-400/10 p-3 text-sm text-emerald-100">{notice}</p>}
+        {error && <p className="mt-4 rounded-lg bg-[rgb(var(--ll-error)/0.12)] p-3 text-sm text-foreground">{error}</p>}
+        {notice && <p className="mt-4 rounded-lg bg-[rgb(var(--ll-success)/0.12)] p-3 text-sm text-foreground">{notice}</p>}
 
         {loading ? (
-          <div className="flex min-h-64 items-center justify-center text-violet-100/55">
+          <div className="flex min-h-64 items-center justify-center text-foreground">
             <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading private candidates
           </div>
         ) : items.length === 0 ? (
-          <div className="mt-6 rounded-xl p-12 text-center text-violet-100/55">
+          <div className="mt-6 rounded-xl p-12 text-center text-foreground">
             No pending candidates for this filter.
           </div>
         ) : (
@@ -155,56 +155,56 @@ export function ApifySpotDiscoveryWorkbench() {
                     sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
                     className="object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a0712]/65 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/65 to-transparent" />
                 </div>
                 <div className="p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-xs font-medium uppercase tracking-wide text-violet-300/75">{item.city_slug.replaceAll("-", " ")}</p>
-                      <h2 className="mt-1 text-lg font-semibold text-white">{item.name}</h2>
+                      <p className="text-xs font-medium uppercase tracking-wide text-primary/75">{item.city_slug.replaceAll("-", " ")}</p>
+                      <h2 className="mt-1 text-lg font-semibold text-foreground">{item.name}</h2>
                     </div>
-                    <a href={item.maps_url} target="_blank" rel="noreferrer" className="rounded-md p-2 text-violet-100/65 hover:text-white" aria-label={`Open ${item.name} in Google Maps`}>
+                    <a href={item.maps_url} target="_blank" rel="noreferrer" className="rounded-md p-2 text-foreground hover:text-foreground" aria-label={`Open ${item.name} in Google Maps`}>
                       <ExternalLink className="h-4 w-4" />
                     </a>
                   </div>
-                  <p className="mt-2 line-clamp-2 text-sm text-violet-100/55">{item.address}</p>
+                  <p className="mt-2 line-clamp-2 text-sm text-foreground">{item.address}</p>
                   <div className="mt-3 flex flex-wrap gap-2 text-xs">
                     {item.source_type === "social_trend" && (
-                      <Badge className=" bg-fuchsia-400/10 text-fuchsia-100">
+                      <Badge className="bg-primary/10 text-foreground">
                         Viral social lead
                       </Badge>
                     )}
-                    {item.category_name && <Badge className=" bg-white/5 text-violet-100">{item.category_name}</Badge>}
+                    {item.category_name && <Badge className="bg-raised text-foreground">{item.category_name}</Badge>}
                     {item.total_score !== null && (
-                      <Badge className=" bg-amber-400/10 text-amber-100">
+                      <Badge className="bg-[rgb(var(--ll-warning)/0.14)] text-foreground">
                         <Star className="mr-1 h-3 w-3 fill-current" /> {Number(item.total_score).toFixed(1)}
                       </Badge>
                     )}
-                    {item.reviews_count !== null && <Badge className=" bg-white/5 text-violet-100">{item.reviews_count.toLocaleString()} reviews</Badge>}
+                    {item.reviews_count !== null && <Badge className="bg-raised text-foreground">{item.reviews_count.toLocaleString()} reviews</Badge>}
                   </div>
                   {item.source_type === "social_trend" && item.social_source_url && (
                     <a
                       href={item.social_source_url}
                       target="_blank"
                       rel="noreferrer"
-                      className="mt-3 inline-flex items-center gap-1 text-xs text-fuchsia-200/80 hover:text-fuchsia-100"
+                      className="mt-3 inline-flex items-center gap-1 text-xs text-foreground hover:text-foreground"
                     >
                       Review private source evidence <ExternalLink className="h-3 w-3" />
                     </a>
                   )}
                   <div className="mt-4 flex items-center gap-2">
                     <Select value={scores[item.id]} onValueChange={(value) => setScores((current) => ({ ...current, [item.id]: value }))}>
-                      <SelectTrigger className=" bg-white/5 text-white"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="bg-raised text-foreground"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="3">3 · Mixed crowd</SelectItem>
                         <SelectItem value="4">4 · Local favorite</SelectItem>
                         <SelectItem value="5">5 · Hidden gem</SelectItem>
                       </SelectContent>
                     </Select>
-                    <Button size="icon" variant="outline" disabled={reviewingId === item.id} onClick={() => void reviewCandidate(item, "reject")} className="shrink-0 bg-rose-400/10 text-rose-100 hover:bg-rose-400/20" aria-label={`Reject ${item.name}`}>
+                    <Button size="icon" variant="outline" disabled={reviewingId === item.id} onClick={() => void reviewCandidate(item, "reject")} className="shrink-0 bg-[rgb(var(--ll-error)/0.12)] text-foreground hover:bg-rose-400/20" aria-label={`Reject ${item.name}`}>
                       <X className="h-4 w-4" />
                     </Button>
-                    <Button size="icon" disabled={reviewingId === item.id} onClick={() => void reviewCandidate(item, "approve")} className="shrink-0 bg-emerald-500 text-white hover:bg-emerald-400" aria-label={`Approve ${item.name}`}>
+                    <Button size="icon" disabled={reviewingId === item.id} onClick={() => void reviewCandidate(item, "approve")} className="shrink-0" aria-label={`Approve ${item.name}`}>
                       {reviewingId === item.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
                     </Button>
                   </div>

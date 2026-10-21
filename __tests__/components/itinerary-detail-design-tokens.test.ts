@@ -50,6 +50,12 @@ const FILES = [
   "app/pricing/page.tsx",
   "app/page.tsx",
   "components/landing/planner.tsx",
+  // batch 7: admin (chart series colours in app/admin/analytics/page.tsx are data-viz, not UI chrome)
+  "components/admin/apify-spot-discovery-workbench.tsx",
+  "components/admin/social-submission-recovery.tsx",
+  "components/admin/spot-quality-workbench.tsx",
+  "components/admin/analytics-charts.tsx",
+  "components/ui/glass-card.tsx",
 ];
 
 describe("itinerary detail design tokens", () => {

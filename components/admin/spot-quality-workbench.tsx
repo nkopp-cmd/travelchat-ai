@@ -213,17 +213,17 @@ function SummaryTile({
     tone?: "good" | "warn" | "danger";
 }) {
     return (
-        <div className="rounded-lg bg-white/[0.055] p-3">
-            <p className="text-xs font-medium text-violet-50/55">{label}</p>
+        <div className="rounded-lg bg-raised p-3">
+            <p className="text-xs font-medium text-foreground">{label}</p>
             <p className={cn(
                 "mt-1 text-2xl font-semibold",
                 tone === "good"
-                    ? "text-emerald-200"
+                    ? "text-[rgb(var(--ll-success))]"
                     : tone === "warn"
-                        ? "text-amber-200"
+                        ? "text-[rgb(var(--ll-warning))]"
                         : tone === "danger"
-                            ? "text-rose-200"
-                            : "text-white"
+                            ? "text-foreground"
+                            : "text-foreground"
             )}>
                 {typeof value === "number" ? value.toLocaleString() : value}
             </p>
@@ -238,14 +238,14 @@ function IssueBadges({ issues }: { issues: SpotQualityIssue[] }) {
                 <Badge
                     key={issue}
                     className={cn(
-                        "rounded-md px-1.5 py-0 text-[10px]",
+                        "rounded-md px-1.5 py-0 text-xs",
                         issue === "missing_real_photo"
-                            ? " bg-rose-400/10 text-rose-100"
+                            ? " bg-[rgb(var(--ll-error)/0.12)] text-foreground"
                             : issue === "inexact_location"
-                                ? " bg-amber-400/10 text-amber-100"
+                                ? " bg-[rgb(var(--ll-warning)/0.14)] text-foreground"
                                 : issue === "mismatched_place_photo_identity"
-                                    ? " bg-fuchsia-400/10 text-fuchsia-100"
-                                : " bg-violet-400/10 text-violet-100"
+                                    ? " bg-primary/10 text-foreground"
+                                : " bg-primary/10 text-foreground"
                     )}
                 >
                     {ISSUE_LABELS[issue]}
@@ -278,13 +278,13 @@ function OperatorStatusPill({
         <div className={cn(
             "rounded-md px-2 py-1",
             good
-                ? " bg-emerald-400/10"
+                ? " bg-[rgb(var(--ll-success)/0.12)]"
                 : danger
-                    ? " bg-rose-400/10"
-                    : " bg-amber-400/10"
+                    ? " bg-[rgb(var(--ll-error)/0.12)]"
+                    : " bg-[rgb(var(--ll-warning)/0.14)]"
         )}>
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-violet-50/45">{label}</p>
-            <p className="mt-0.5 text-xs font-semibold text-white">{STATUS_LABELS[status] || status}</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-foreground">{label}</p>
+            <p className="mt-0.5 text-xs font-semibold text-foreground">{STATUS_LABELS[status] || status}</p>
         </div>
     );
 }
@@ -654,31 +654,31 @@ export function SpotQualityWorkbench() {
     const verifyCommand = schemaStatus?.commands.verifyColumn || "";
 
     return (
-        <div className="mx-auto max-w-7xl px-3 py-4 text-white sm:px-5 lg:px-6">
-            <div className="mb-4 flex flex-col gap-3 rounded-lg bg-[#100b1c]/88 p-4 shadow-lg shadow-violet-950/20 backdrop-blur-xl lg:flex-row lg:items-end lg:justify-between">
+        <div className="mx-auto max-w-7xl px-3 py-4 text-foreground sm:px-5 lg:px-6">
+            <div className="mb-4 flex flex-col gap-3 rounded-lg bg-surface p-4 backdrop-blur-xl lg:flex-row lg:items-end lg:justify-between">
                 <div>
-                    <div className="inline-flex items-center gap-2 rounded-full bg-violet-400/10 px-3 py-1 text-xs font-semibold text-violet-100">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-foreground">
                         <ShieldCheck className="h-3.5 w-3.5" />
                         Spot Quality
                     </div>
                     <h1 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">Enrichment Queue</h1>
-                    <p className="mt-1 max-w-2xl text-sm leading-6 text-violet-50/60">
+                    <p className="mt-1 max-w-2xl text-sm leading-6 text-foreground">
                         Review spots blocked by image, location, name, or place identity quality gates.
                     </p>
                 </div>
 
                 <div className="grid gap-2 sm:grid-cols-[minmax(0,12rem)_minmax(0,12rem)_auto]">
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-violet-50/40" />
+                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground" />
                         <Input
                             value={city}
                             onChange={(event) => setCity(event.target.value)}
                             placeholder="City"
-                            className="h-10 bg-white/[0.06] pl-9 text-white placeholder:text-violet-50/35"
+                            className="h-10 bg-raised pl-9 text-foreground placeholder:text-muted-foreground"
                         />
                     </div>
                     <Select value={issue} onValueChange={(value) => setIssue(value as IssueFilter)}>
-                        <SelectTrigger className="h-10 bg-white/[0.06] text-white">
+                        <SelectTrigger className="h-10 bg-raised text-foreground">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -689,7 +689,7 @@ export function SpotQualityWorkbench() {
                             ))}
                         </SelectContent>
                     </Select>
-                    <Button onClick={loadQueue} disabled={loading} className="h-10 bg-violet-600 hover:bg-violet-700">
+                    <Button onClick={loadQueue} disabled={loading} className="h-10">
                         <RefreshCw className={cn("mr-2 h-4 w-4", loading && "animate-spin")} />
                         Refresh
                     </Button>
@@ -711,7 +711,7 @@ export function SpotQualityWorkbench() {
                         <SummaryTile label="Mismatches" value={queue.summary.mismatchedPlacePhotoIdentity} tone={queue.summary.mismatchedPlacePhotoIdentity ? "danger" : undefined} />
                         <SummaryTile label="Names" value={queue.summary.broadPlaceName + queue.summary.missingName} />
                     </div>
-                    <div className="flex flex-col gap-2 rounded-lg bg-white/[0.045] px-3 py-2 text-xs text-violet-50/60 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-col gap-2 rounded-lg bg-raised px-3 py-2 text-xs text-foreground sm:flex-row sm:items-center sm:justify-between">
                         <span>
                             Showing {visibleCount.toLocaleString()} of {filteredCount.toLocaleString()} {issueLabel.toLowerCase()} spots.
                         </span>
@@ -720,9 +720,9 @@ export function SpotQualityWorkbench() {
                             {queue.city ? ` in ${queue.city}` : ""}.
                         </span>
                     </div>
-                    <div className="grid gap-2 rounded-lg bg-violet-500/[0.07] p-3 text-xs text-violet-50/70 sm:grid-cols-3">
+                    <div className="grid gap-2 rounded-lg bg-primary/10 p-3 text-xs text-foreground sm:grid-cols-3">
                         <div>
-                            <p className="font-semibold text-white">Next data gate</p>
+                            <p className="font-semibold text-foreground">Next data gate</p>
                             <p className="mt-1 leading-5">
                                 {queue.hasGooglePlaceIdColumn
                                     ? "Place ID storage is ready. Keep photo, address, and map evidence aligned."
@@ -730,13 +730,13 @@ export function SpotQualityWorkbench() {
                             </p>
                         </div>
                         <div>
-                            <p className="font-semibold text-white">Image backlog</p>
+                            <p className="font-semibold text-foreground">Image backlog</p>
                             <p className="mt-1 leading-5">
                                 {queue.summary.missingRealPhoto.toLocaleString()} spot{queue.summary.missingRealPhoto === 1 ? "" : "s"} still need reviewed real imagery.
                             </p>
                         </div>
                         <div>
-                            <p className="font-semibold text-white">Location backlog</p>
+                            <p className="font-semibold text-foreground">Location backlog</p>
                             <p className="mt-1 leading-5">
                                 {queue.summary.inexactLocation.toLocaleString()} spot{queue.summary.inexactLocation === 1 ? "" : "s"} still need exact addresses or trusted pins.
                             </p>
@@ -746,17 +746,17 @@ export function SpotQualityWorkbench() {
             )}
 
             {queue && (
-                <div className="mb-4 rounded-lg bg-[#100b1c]/88 p-3 shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:p-4">
+                <div className="mb-4 rounded-lg bg-surface p-3 backdrop-blur-xl sm:p-4">
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                         <div className="min-w-0">
-                            <div className="flex items-center gap-2 text-sm font-semibold text-white">
-                                <Images className="h-4 w-4 text-violet-200" />
+                            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                                <Images className="h-4 w-4 text-foreground" />
                                 Real-image batch
                             </div>
-                            <p className="mt-1 max-w-3xl text-xs leading-5 text-violet-50/60">
+                            <p className="mt-1 max-w-3xl text-xs leading-5 text-foreground">
                                 Dry-run the next capped set of spots that need own Google Place photos. Apply only after the preview shows confident matches.
                             </p>
-                            <p className="mt-1 text-xs text-violet-50/45">
+                            <p className="mt-1 text-xs text-foreground">
                                 Scope: {city.trim() ? city.trim() : "all cities"} / 10 updates max / 80 spots scanned.
                             </p>
                         </div>
@@ -766,7 +766,7 @@ export function SpotQualityWorkbench() {
                                 variant="outline"
                                 onClick={previewBatchPhotoBackfill}
                                 disabled={previewingBatchPhotoBackfill}
-                                className="h-10 bg-white/[0.05] text-sm text-white hover:bg-white/10 hover:text-white"
+                                className="h-10 bg-raised text-sm text-foreground hover:bg-overlay"
                             >
                                 {previewingBatchPhotoBackfill ? (
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -779,7 +779,7 @@ export function SpotQualityWorkbench() {
                                 type="button"
                                 onClick={applyBatchPhotoBackfill}
                                 disabled={applyingBatchPhotoBackfill || !batchPhotoBackfillPreview?.wouldUpdate}
-                                className="h-10 bg-emerald-600 text-sm text-white hover:bg-emerald-700 disabled:opacity-45"
+                                className="h-10 text-sm disabled:opacity-45"
                             >
                                 {applyingBatchPhotoBackfill ? (
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -792,7 +792,7 @@ export function SpotQualityWorkbench() {
                     </div>
 
                     {batchPhotoBackfillPreview && (
-                        <div className="mt-3 rounded-md bg-black/15 p-3 text-xs leading-5 text-violet-50/70">
+                        <div className="mt-3 rounded-md bg-black/15 p-3 text-xs leading-5 text-foreground">
                             <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
                                 <SummaryTile label="Candidates" value={batchPhotoBackfillPreview.candidates ?? 0} />
                                 <SummaryTile label="Processed" value={batchPhotoBackfillPreview.processed ?? 0} />
@@ -803,10 +803,10 @@ export function SpotQualityWorkbench() {
                             {batchPhotoBackfillPreview.results?.length ? (
                                 <div className="mt-3 grid gap-2 lg:grid-cols-2">
                                     {batchPhotoBackfillPreview.results.slice(0, 6).map((result) => (
-                                        <div key={result.id} className="rounded-md bg-white/[0.045] p-2">
+                                        <div key={result.id} className="rounded-md bg-raised p-2">
                                             <div className="flex items-start justify-between gap-2">
-                                                <p className="line-clamp-1 font-semibold text-white">{result.name}</p>
-                                                <span className="shrink-0 rounded-md bg-white/[0.055] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-100">
+                                                <p className="line-clamp-1 font-semibold text-foreground">{result.name}</p>
+                                                <span className="shrink-0 rounded-md bg-raised px-1.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-foreground">
                                                     {result.status.replace("_", " ")}
                                                 </span>
                                             </div>
@@ -825,17 +825,17 @@ export function SpotQualityWorkbench() {
             )}
 
             {queue && (
-                <div className="mb-4 rounded-lg bg-[#0b1220]/88 p-3 shadow-lg shadow-sky-950/20 backdrop-blur-xl sm:p-4">
+                <div className="mb-4 rounded-lg bg-surface p-3 backdrop-blur-xl sm:p-4">
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                         <div className="min-w-0">
-                            <div className="flex items-center gap-2 text-sm font-semibold text-white">
-                                <MapPin className="h-4 w-4 text-sky-200" />
+                            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                                <MapPin className="h-4 w-4 text-primary" />
                                 Exact-location batch
                             </div>
-                            <p className="mt-1 max-w-3xl text-xs leading-5 text-violet-50/60">
+                            <p className="mt-1 max-w-3xl text-xs leading-5 text-foreground">
                                 Dry-run high-confidence Google Places matches that can upgrade address, pin, Place ID, and eligible place photos together.
                             </p>
-                            <p className="mt-1 text-xs text-violet-50/45">
+                            <p className="mt-1 text-xs text-foreground">
                                 Scope: {city.trim() ? city.trim() : "all cities"} / 8 updates max / 80 spots scanned.
                             </p>
                         </div>
@@ -845,7 +845,7 @@ export function SpotQualityWorkbench() {
                                 variant="outline"
                                 onClick={previewBatchLocationBackfill}
                                 disabled={previewingBatchLocationBackfill}
-                                className="h-10 bg-white/[0.05] text-sm text-white hover:bg-white/10 hover:text-white"
+                                className="h-10 bg-raised text-sm text-foreground hover:bg-overlay"
                             >
                                 {previewingBatchLocationBackfill ? (
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -858,7 +858,7 @@ export function SpotQualityWorkbench() {
                                 type="button"
                                 onClick={applyBatchLocationBackfill}
                                 disabled={applyingBatchLocationBackfill || !batchLocationBackfillPreview?.wouldUpdate}
-                                className="h-10 bg-emerald-600 text-sm text-white hover:bg-emerald-700 disabled:opacity-45"
+                                className="h-10 text-sm disabled:opacity-45"
                             >
                                 {applyingBatchLocationBackfill ? (
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -871,7 +871,7 @@ export function SpotQualityWorkbench() {
                     </div>
 
                     {batchLocationBackfillPreview && (
-                        <div className="mt-3 rounded-md bg-black/15 p-3 text-xs leading-5 text-violet-50/70">
+                        <div className="mt-3 rounded-md bg-black/15 p-3 text-xs leading-5 text-foreground">
                             <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
                                 <SummaryTile label="Candidates" value={batchLocationBackfillPreview.candidates ?? 0} />
                                 <SummaryTile label="Processed" value={batchLocationBackfillPreview.processed ?? 0} />
@@ -882,10 +882,10 @@ export function SpotQualityWorkbench() {
                             {batchLocationBackfillPreview.results?.length ? (
                                 <div className="mt-3 grid gap-2 lg:grid-cols-2">
                                     {batchLocationBackfillPreview.results.slice(0, 6).map((result) => (
-                                        <div key={result.id} className="rounded-md bg-white/[0.045] p-2">
+                                        <div key={result.id} className="rounded-md bg-raised p-2">
                                             <div className="flex items-start justify-between gap-2">
-                                                <p className="line-clamp-1 font-semibold text-white">{result.name}</p>
-                                                <span className="shrink-0 rounded-md bg-white/[0.055] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-100">
+                                                <p className="line-clamp-1 font-semibold text-foreground">{result.name}</p>
+                                                <span className="shrink-0 rounded-md bg-raised px-1.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-foreground">
                                                     {result.status.replace("_", " ")}
                                                 </span>
                                             </div>
@@ -905,17 +905,17 @@ export function SpotQualityWorkbench() {
             )}
 
             {schemaStatus?.migrationRequired && (
-                <div className="mb-4 rounded-lg bg-amber-500/10 p-3 text-sm text-amber-50">
+                <div className="mb-4 rounded-lg bg-[rgb(var(--ll-warning)/0.15)] p-3 text-sm text-foreground">
                     <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
                         <div className="min-w-0">
                             <div className="flex items-center gap-2 font-semibold">
                                 <AlertTriangle className="h-4 w-4 shrink-0" />
                                 Place ID storage is blocked by a missing database column
                             </div>
-                            <p className="mt-1 leading-6 text-amber-50/75">
+                            <p className="mt-1 leading-6 text-foreground">
                                 Apply `{schemaStatus.migrationPath}` before saving durable Google Place IDs for exact directions and photo provenance.
                             </p>
-                            <div className="mt-2 grid gap-1.5 text-xs text-amber-50/70 sm:grid-cols-3">
+                            <div className="mt-2 grid gap-1.5 text-xs text-foreground sm:grid-cols-3">
                                 {schemaStatus.blockedOperations.map((operation) => (
                                     <span
                                         key={operation}
@@ -932,7 +932,7 @@ export function SpotQualityWorkbench() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => copyText(migrationCommand, "migration command")}
-                                className="h-9 shrink-0 bg-amber-100/10 text-xs text-amber-50 hover:bg-amber-100/15 hover:text-white"
+                                className="h-9 shrink-0 bg-[rgb(var(--ll-warning)/0.12)] text-xs text-foreground hover:bg-[rgb(var(--ll-warning)/0.18)] hover:text-foreground"
                             >
                                 <Copy className="mr-2 h-3.5 w-3.5" />
                                 CLI
@@ -942,7 +942,7 @@ export function SpotQualityWorkbench() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => copyText(migrationSql, "SQL fallback")}
-                                className="h-9 shrink-0 bg-amber-100/10 text-xs text-amber-50 hover:bg-amber-100/15 hover:text-white"
+                                className="h-9 shrink-0 bg-[rgb(var(--ll-warning)/0.12)] text-xs text-foreground hover:bg-[rgb(var(--ll-warning)/0.18)] hover:text-foreground"
                             >
                                 <Copy className="mr-2 h-3.5 w-3.5" />
                                 SQL
@@ -952,7 +952,7 @@ export function SpotQualityWorkbench() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => copyText(verifyCommand, "verification command")}
-                                className="h-9 shrink-0 bg-amber-100/10 text-xs text-amber-50 hover:bg-amber-100/15 hover:text-white"
+                                className="h-9 shrink-0 bg-[rgb(var(--ll-warning)/0.12)] text-xs text-foreground hover:bg-[rgb(var(--ll-warning)/0.18)] hover:text-foreground"
                             >
                                 <Copy className="mr-2 h-3.5 w-3.5" />
                                 Verify
@@ -963,12 +963,12 @@ export function SpotQualityWorkbench() {
             )}
 
             {error && (
-                <div className="mb-4 rounded-lg bg-rose-500/10 p-3 text-sm text-rose-100">
+                <div className="mb-4 rounded-lg bg-[rgb(var(--ll-error)/0.12)] p-3 text-sm text-foreground">
                     {error}
                 </div>
             )}
             {notice && (
-                <div className="mb-4 rounded-lg bg-emerald-500/10 p-3 text-sm text-emerald-100">
+                <div className="mb-4 rounded-lg bg-[rgb(var(--ll-success)/0.12)] p-3 text-sm text-foreground">
                     {notice}
                 </div>
             )}
@@ -976,7 +976,7 @@ export function SpotQualityWorkbench() {
             <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_26rem]">
                 <section className="space-y-2">
                     {loading && !queue ? (
-                        <div className="rounded-lg bg-white/[0.045] p-5 text-sm text-violet-50/70">
+                        <div className="rounded-lg bg-raised p-5 text-sm text-foreground">
                             <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
                             Loading queue
                         </div>
@@ -992,37 +992,37 @@ export function SpotQualityWorkbench() {
                                     className={cn(
                                         "grid w-full grid-cols-[5.25rem_minmax(0,1fr)] gap-3 rounded-lg p-2 text-left transition sm:grid-cols-[6.5rem_minmax(0,1fr)_auto]",
                                         selected
-                                            ? " bg-violet-500/15"
-                                            : " bg-[#100b1c]/76 hover:bg-white/[0.055]"
+                                            ? " bg-primary/15"
+                                            : " bg-surface hover:bg-raised"
                                     )}
                                 >
-                                    <div className="relative aspect-[4/3] overflow-hidden rounded-md bg-violet-950/70">
+                                    <div className="relative aspect-[4/3] overflow-hidden rounded-md bg-raised">
                                         {photo ? (
                                             <Image src={photo} alt="" fill sizes="112px" className="object-cover" />
                                         ) : (
-                                            <div className="flex h-full items-center justify-center text-violet-100/40">
+                                            <div className="flex h-full items-center justify-center text-foreground">
                                                 <ImageIcon className="h-6 w-6" />
                                             </div>
                                         )}
                                     </div>
                                     <div className="min-w-0">
                                         <div className="flex min-w-0 items-start justify-between gap-2">
-                                            <h2 className="line-clamp-1 text-sm font-semibold text-white sm:text-base">{item.name || "Unnamed spot"}</h2>
+                                            <h2 className="line-clamp-1 text-sm font-semibold text-foreground sm:text-base">{item.name || "Unnamed spot"}</h2>
                                             {item.publicReady ? (
-                                                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-300" />
+                                                <CheckCircle2 className="h-4 w-4 shrink-0 text-[rgb(var(--ll-success))]" />
                                             ) : (
-                                                <AlertTriangle className="h-4 w-4 shrink-0 text-amber-300" />
+                                                <AlertTriangle className="h-4 w-4 shrink-0 text-[rgb(var(--ll-warning))]" />
                                             )}
                                         </div>
-                                        <p className="mt-1 flex min-w-0 items-center gap-1.5 text-xs text-violet-50/55">
-                                            <MapPin className="h-3.5 w-3.5 shrink-0 text-violet-300" />
+                                        <p className="mt-1 flex min-w-0 items-center gap-1.5 text-xs text-foreground">
+                                            <MapPin className="h-3.5 w-3.5 shrink-0 text-primary" />
                                             <span className="truncate">{item.address || "No address"}</span>
                                         </p>
                                         <div className="mt-2">
                                             <IssueBadges issues={item.issues} />
                                         </div>
                                     </div>
-                                    <div className="hidden min-w-[7rem] text-right text-xs text-violet-50/55 sm:block">
+                                    <div className="hidden min-w-[7rem] text-right text-xs text-foreground sm:block">
                                         <p>{item.category || "Uncategorized"}</p>
                                         <p className="mt-1">{item.locationConfidence.label}</p>
                                     </div>
@@ -1030,22 +1030,22 @@ export function SpotQualityWorkbench() {
                             );
                         })
                     ) : (
-                        <div className="rounded-lg bg-white/[0.045] p-5 text-sm text-violet-50/70">
+                        <div className="rounded-lg bg-raised p-5 text-sm text-foreground">
                             No spots match this queue filter.
                         </div>
                     )}
                 </section>
 
                 <aside className="lg:sticky lg:top-20 lg:self-start">
-                    <div className="rounded-lg bg-[#100b1c]/92 p-3 shadow-xl shadow-violet-950/20 backdrop-blur-xl sm:p-4">
+                    <div className="rounded-lg bg-surface p-3 backdrop-blur-xl sm:p-4">
                         {selectedItem && editState ? (
                             <div className="space-y-3">
                                 <div className="flex items-start justify-between gap-3">
                                     <div className="min-w-0">
-                                        <h2 className="line-clamp-2 text-lg font-semibold text-white">{selectedItem.name || "Unnamed spot"}</h2>
-                                        <p className="mt-1 text-xs text-violet-50/55">{selectedItem.id}</p>
+                                        <h2 className="line-clamp-2 text-lg font-semibold text-foreground">{selectedItem.name || "Unnamed spot"}</h2>
+                                        <p className="mt-1 text-xs text-foreground">{selectedItem.id}</p>
                                     </div>
-                                    <Link href={`/spots/${selectedItem.id}`} target="_blank" className="rounded-md bg-white/[0.055] p-2 text-violet-100 hover:bg-white/10">
+                                    <Link href={`/spots/${selectedItem.id}`} target="_blank" className="rounded-md bg-raised p-2 text-foreground hover:bg-raised">
                                         <ExternalLink className="h-4 w-4" />
                                         <span className="sr-only">Open public spot</span>
                                     </Link>
@@ -1054,20 +1054,20 @@ export function SpotQualityWorkbench() {
                                 <IssueBadges issues={selectedItem.issues} />
 
                                 {selectedOperatorStatus && selectedImageGuidance && (
-                                    <div className="rounded-lg bg-violet-400/10 p-3">
+                                    <div className="rounded-lg bg-primary/10 p-3">
                                         <div className="flex items-start justify-between gap-3">
                                             <div className="min-w-0">
-                                                <p className="text-[10px] font-semibold uppercase tracking-wide text-violet-50/45">
+                                                <p className="text-xs font-semibold uppercase tracking-wide text-foreground">
                                                     Operator next action
                                                 </p>
-                                                <h3 className="mt-1 text-sm font-semibold text-white">
+                                                <h3 className="mt-1 text-sm font-semibold text-foreground">
                                                     <ActionLabel action={selectedRecommendedAction} />
                                                 </h3>
-                                                <p className="mt-1 text-xs leading-5 text-violet-50/65">
+                                                <p className="mt-1 text-xs leading-5 text-foreground">
                                                     {selectedImageGuidance.reason}
                                                 </p>
                                             </div>
-                                            <Badge className="shrink-0 rounded-md bg-violet-300/10 text-[10px] text-violet-100">
+                                            <Badge className="shrink-0 rounded-md bg-primary/10 text-xs text-foreground">
                                                 {IMAGE_LANE_LABELS[selectedImageGuidance.lane]}
                                             </Badge>
                                         </div>
@@ -1080,11 +1080,11 @@ export function SpotQualityWorkbench() {
                                         </div>
 
                                         <div className="mt-3 rounded-md bg-black/15 p-2">
-                                            <p className="text-xs font-semibold text-white">Checklist</p>
-                                            <ol className="mt-2 space-y-1.5 text-xs leading-5 text-violet-50/70">
+                                            <p className="text-xs font-semibold text-foreground">Checklist</p>
+                                            <ol className="mt-2 space-y-1.5 text-xs leading-5 text-foreground">
                                                 {selectedChecklist.map((step) => (
                                                     <li key={step} className="flex gap-2">
-                                                        <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-violet-200/70" />
+                                                        <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-primary/70" />
                                                         <span>{step}</span>
                                                     </li>
                                                 ))}
@@ -1096,30 +1096,30 @@ export function SpotQualityWorkbench() {
                                 <div className={cn(
                                     "rounded-lg p-3",
                                     selectedItem.photoReadiness.tone === "good"
-                                        ? " bg-emerald-400/10"
+                                        ? " bg-[rgb(var(--ll-success)/0.12)]"
                                         : selectedItem.photoReadiness.tone === "warn"
-                                            ? " bg-amber-400/10"
-                                            : " bg-rose-400/10"
+                                            ? " bg-[rgb(var(--ll-warning)/0.14)]"
+                                            : " bg-[rgb(var(--ll-error)/0.12)]"
                                 )}>
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="min-w-0">
-                                            <div className="flex items-center gap-2 text-sm font-semibold text-white">
-                                                <Camera className="h-4 w-4 text-violet-200" />
+                                            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                                                <Camera className="h-4 w-4 text-foreground" />
                                                 {selectedItem.photoReadiness.label}
                                             </div>
-                                            <p className="mt-1 text-xs leading-5 text-violet-50/65">
+                                            <p className="mt-1 text-xs leading-5 text-foreground">
                                                 {selectedItem.photoReadiness.description}
                                             </p>
-                                            <p className="mt-1 text-xs text-violet-50/45">
+                                            <p className="mt-1 text-xs text-foreground">
                                                 {selectedItem.photoReadiness.realPhotoCount} real / {selectedItem.photoSummary.total} stored photo{selectedItem.photoSummary.total === 1 ? "" : "s"}
                                             </p>
                                             <p className={cn(
                                                 "mt-1 text-xs font-medium",
                                                 selectedItem.placePhotoIdentity.ready
-                                                    ? "text-emerald-100/80"
+                                                    ? "text-foreground"
                                                     : selectedItem.placePhotoIdentity.hasIdentityMismatch
-                                                        ? "text-rose-100/80"
-                                                        : "text-amber-100/80"
+                                                        ? "text-[rgb(var(--ll-error))]"
+                                                        : "text-foreground"
                                             )}>
                                                 {selectedItem.placePhotoIdentity.ready
                                                     ? "Own Google Place image + ID ready"
@@ -1130,7 +1130,7 @@ export function SpotQualityWorkbench() {
                                                             : "Needs own Google Place image"}
                                             </p>
                                         </div>
-                                        <Badge className="shrink-0 rounded-md bg-white/[0.055] text-[10px] text-violet-100">
+                                        <Badge className="shrink-0 rounded-md bg-raised text-xs text-foreground">
                                             {selectedItem.photoSummary.primaryKind}
                                         </Badge>
                                     </div>
@@ -1142,7 +1142,7 @@ export function SpotQualityWorkbench() {
                                             size="sm"
                                             onClick={previewSelectedPhotoBackfill}
                                             disabled={previewingPhotoBackfill}
-                                            className="mt-3 h-9 w-full bg-white/[0.05] text-xs text-white hover:bg-white/10 hover:text-white"
+                                            className="mt-3 h-9 w-full bg-raised text-xs text-foreground hover:bg-overlay"
                                         >
                                             {previewingPhotoBackfill ? (
                                                 <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
@@ -1154,8 +1154,8 @@ export function SpotQualityWorkbench() {
                                     )}
 
                                     {photoBackfillPreview?.results?.[0] && (
-                                        <div className="mt-3 rounded-md bg-black/15 p-2 text-xs leading-5 text-violet-50/70">
-                                            <p className="font-semibold text-white">
+                                        <div className="mt-3 rounded-md bg-black/15 p-2 text-xs leading-5 text-foreground">
+                                            <p className="font-semibold text-foreground">
                                                 {photoBackfillPreview.results[0].status.replace("_", " ")}
                                             </p>
                                             {photoBackfillPreview.results[0].placeName && (
@@ -1182,7 +1182,7 @@ export function SpotQualityWorkbench() {
                                                     size="sm"
                                                     onClick={applySelectedPhotoBackfill}
                                                     disabled={applyingPhotoBackfill}
-                                                    className="mt-2 h-8 w-full bg-emerald-600 text-xs text-white hover:bg-emerald-700"
+                                                    className="mt-2 h-8 w-full text-xs"
                                                 >
                                                     {applyingPhotoBackfill ? (
                                                         <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
@@ -1197,11 +1197,11 @@ export function SpotQualityWorkbench() {
                                 </div>
 
                                 {selectedResearch && (
-                                    <div className="rounded-lg bg-white/[0.045] p-3">
+                                    <div className="rounded-lg bg-raised p-3">
                                         <div className="mb-3 flex items-start justify-between gap-3">
                                             <div>
-                                                <h3 className="text-sm font-semibold text-white">Research assist</h3>
-                                                <p className="mt-1 text-xs leading-5 text-violet-50/55">
+                                                <h3 className="text-sm font-semibold text-foreground">Research assist</h3>
+                                                <p className="mt-1 text-xs leading-5 text-foreground">
                                                     {selectedResearch.recommendedFocus}
                                                 </p>
                                             </div>
@@ -1209,7 +1209,7 @@ export function SpotQualityWorkbench() {
                                                 type="button"
                                                 size="icon"
                                                 variant="ghost"
-                                                className="h-8 w-8 shrink-0 text-violet-100 hover:bg-white/10 hover:text-white"
+                                                className="h-8 w-8 shrink-0 text-foreground hover:bg-overlay"
                                                 onClick={() => copyText(selectedResearch.query, "research query")}
                                             >
                                                 <Copy className="h-4 w-4" />
@@ -1217,7 +1217,7 @@ export function SpotQualityWorkbench() {
                                             </Button>
                                         </div>
 
-                                        <div className="rounded-md bg-black/15 p-2 text-xs leading-5 text-violet-50/70">
+                                        <div className="rounded-md bg-black/15 p-2 text-xs leading-5 text-foreground">
                                             {selectedResearch.query}
                                         </div>
 
@@ -1226,7 +1226,7 @@ export function SpotQualityWorkbench() {
                                                 href={selectedResearch.mapsUrl}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-white/[0.055] px-3 text-xs font-semibold text-violet-100 transition hover:bg-white/10"
+                                                className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-raised px-3 text-xs font-semibold text-foreground transition hover:bg-raised"
                                             >
                                                 <MapPin className="h-3.5 w-3.5" />
                                                 Maps
@@ -1235,7 +1235,7 @@ export function SpotQualityWorkbench() {
                                                 href={selectedResearch.directionsUrl}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-white/[0.055] px-2 text-xs font-semibold text-violet-100 transition hover:bg-white/10"
+                                                className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-raised px-2 text-xs font-semibold text-foreground transition hover:bg-raised"
                                             >
                                                 <Navigation className="h-3.5 w-3.5" />
                                                 Route
@@ -1244,7 +1244,7 @@ export function SpotQualityWorkbench() {
                                                 href={selectedResearch.imageSearchUrl}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-white/[0.055] px-3 text-xs font-semibold text-violet-100 transition hover:bg-white/10"
+                                                className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-raised px-3 text-xs font-semibold text-foreground transition hover:bg-raised"
                                             >
                                                 <Images className="h-3.5 w-3.5" />
                                                 Images
@@ -1256,7 +1256,7 @@ export function SpotQualityWorkbench() {
                                                 type="button"
                                                 variant="outline"
                                                 size="sm"
-                                                className="h-9 bg-white/[0.04] text-xs text-white hover:bg-white/10 hover:text-white"
+                                                className="h-9 bg-raised text-xs text-foreground hover:bg-overlay"
                                                 onClick={() => copyText(selectedResearch.query, "research query")}
                                             >
                                                 <Copy className="mr-2 h-3.5 w-3.5" />
@@ -1267,7 +1267,7 @@ export function SpotQualityWorkbench() {
                                                 variant="outline"
                                                 size="sm"
                                                 disabled={!selectedResearch.coordinateText}
-                                                className="h-9 bg-white/[0.04] text-xs text-white hover:bg-white/10 hover:text-white disabled:opacity-45"
+                                                className="h-9 bg-raised text-xs text-foreground hover:bg-overlay disabled:opacity-45"
                                                 onClick={() => selectedResearch.coordinateText && copyText(selectedResearch.coordinateText, "coordinates")}
                                             >
                                                 <Copy className="mr-2 h-3.5 w-3.5" />
@@ -1279,7 +1279,7 @@ export function SpotQualityWorkbench() {
                                             href={selectedResearch.placeIdSearchUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="mt-2 inline-flex items-center text-xs font-medium text-violet-200/85 underline-offset-4 hover:text-white hover:underline"
+                                            className="mt-2 inline-flex items-center text-xs font-medium text-foreground underline-offset-4 hover:text-foreground hover:underline"
                                         >
                                             Place ID lookup guide
                                             <ExternalLink className="ml-1 h-3 w-3" />
@@ -1288,18 +1288,18 @@ export function SpotQualityWorkbench() {
                                 )}
 
                                 {selectedItem.issues.some((itemIssue) => itemIssue === "inexact_location" || itemIssue === "missing_place_id" || itemIssue === "missing_real_photo" || itemIssue === "mismatched_place_photo_identity") && (
-                                    <div className="rounded-lg bg-sky-400/10 p-3">
+                                    <div className="rounded-lg bg-primary/10 p-3">
                                         <div className="flex items-start justify-between gap-3">
                                             <div className="min-w-0">
-                                                <div className="flex items-center gap-2 text-sm font-semibold text-white">
-                                                    <MapPin className="h-4 w-4 text-sky-200" />
+                                                <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                                                    <MapPin className="h-4 w-4 text-primary" />
                                                     Exact place match
                                                 </div>
-                                                <p className="mt-1 text-xs leading-5 text-violet-50/65">
+                                                <p className="mt-1 text-xs leading-5 text-foreground">
                                                     Preview a Google Places match that can update the exact address, map pin, Place ID, and eligible place photos together.
                                                 </p>
                                             </div>
-                                            <Badge className="shrink-0 rounded-md bg-sky-300/10 text-[10px] text-sky-100">
+                                            <Badge className="shrink-0 rounded-md bg-primary/10 text-xs text-foreground">
                                                 Dry-run first
                                             </Badge>
                                         </div>
@@ -1310,7 +1310,7 @@ export function SpotQualityWorkbench() {
                                             size="sm"
                                             onClick={previewSelectedLocationBackfill}
                                             disabled={previewingLocationBackfill}
-                                            className="mt-3 h-9 w-full bg-white/[0.05] text-xs text-white hover:bg-white/10 hover:text-white"
+                                            className="mt-3 h-9 w-full bg-raised text-xs text-foreground hover:bg-overlay"
                                         >
                                             {previewingLocationBackfill ? (
                                                 <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
@@ -1321,8 +1321,8 @@ export function SpotQualityWorkbench() {
                                         </Button>
 
                                         {locationBackfillPreview?.result && (
-                                            <div className="mt-3 rounded-md bg-black/15 p-2 text-xs leading-5 text-violet-50/70">
-                                                <p className="font-semibold text-white">
+                                            <div className="mt-3 rounded-md bg-black/15 p-2 text-xs leading-5 text-foreground">
+                                                <p className="font-semibold text-foreground">
                                                     {locationBackfillPreview.result.status.replace("_", " ")}
                                                 </p>
                                                 {locationBackfillPreview.result.placeName && (
@@ -1355,7 +1355,7 @@ export function SpotQualityWorkbench() {
                                                         size="sm"
                                                         onClick={applySelectedLocationBackfill}
                                                         disabled={applyingLocationBackfill}
-                                                        className="mt-2 h-8 w-full bg-emerald-600 text-xs text-white hover:bg-emerald-700"
+                                                        className="mt-2 h-8 w-full text-xs"
                                                     >
                                                         {applyingLocationBackfill ? (
                                                             <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
@@ -1371,67 +1371,67 @@ export function SpotQualityWorkbench() {
                                 )}
 
                                 <label className="block space-y-1.5 text-sm">
-                                    <span className="font-medium text-violet-50/75">Address</span>
+                                    <span className="font-medium text-foreground">Address</span>
                                     <Textarea
                                         value={editState.address}
                                         onChange={(event) => setEditState({ ...editState, address: event.target.value })}
-                                        className="min-h-20 bg-white/[0.06] text-white placeholder:text-violet-50/35"
+                                        className="min-h-20 bg-raised text-foreground placeholder:text-muted-foreground"
                                     />
                                 </label>
 
                                 <div className="grid grid-cols-2 gap-2">
                                     <label className="block space-y-1.5 text-sm">
-                                        <span className="font-medium text-violet-50/75">Latitude</span>
+                                        <span className="font-medium text-foreground">Latitude</span>
                                         <Input
                                             value={editState.lat}
                                             onChange={(event) => setEditState({ ...editState, lat: event.target.value })}
-                                            className=" bg-white/[0.06] text-white"
+                                            className="bg-raised text-foreground"
                                         />
                                     </label>
                                     <label className="block space-y-1.5 text-sm">
-                                        <span className="font-medium text-violet-50/75">Longitude</span>
+                                        <span className="font-medium text-foreground">Longitude</span>
                                         <Input
                                             value={editState.lng}
                                             onChange={(event) => setEditState({ ...editState, lng: event.target.value })}
-                                            className=" bg-white/[0.06] text-white"
+                                            className="bg-raised text-foreground"
                                         />
                                     </label>
                                 </div>
 
                                 <label className="block space-y-1.5 text-sm">
-                                    <span className="font-medium text-violet-50/75">Photos</span>
+                                    <span className="font-medium text-foreground">Photos</span>
                                     <Textarea
                                         value={editState.photos}
                                         onChange={(event) => setEditState({ ...editState, photos: event.target.value })}
-                                        className="min-h-28 bg-white/[0.06] text-white placeholder:text-violet-50/35"
+                                        className="min-h-28 bg-raised text-foreground placeholder:text-muted-foreground"
                                     />
                                 </label>
 
                                 <label className="block space-y-1.5 text-sm">
-                                    <span className="font-medium text-violet-50/75">Google Place ID</span>
+                                    <span className="font-medium text-foreground">Google Place ID</span>
                                     <Input
                                         value={editState.googlePlaceId}
                                         onChange={(event) => setEditState({ ...editState, googlePlaceId: event.target.value })}
                                         disabled={queue?.hasGooglePlaceIdColumn === false}
-                                        className=" bg-white/[0.06] text-white disabled:opacity-50"
+                                        className="bg-raised text-foreground disabled:opacity-50"
                                     />
                                 </label>
 
                                 {queue?.hasGooglePlaceIdColumn === false && (
-                                    <div className="rounded-lg bg-amber-500/10 p-2 text-xs leading-5 text-amber-100">
+                                    <div className="rounded-lg bg-[rgb(var(--ll-warning)/0.15)] p-2 text-xs leading-5 text-foreground">
                                         Apply `supabase/migrations/006_spots_google_place_id.sql` before saving Place IDs.
                                     </div>
                                 )}
 
-                                <div className="sticky bottom-0 -mx-3 -mb-3 bg-[#100b1c]/96 p-3 backdrop-blur-xl sm:-mx-4 sm:-mb-4 sm:p-4 lg:static lg:m-0 lg:border-0 lg:bg-transparent lg:p-0">
-                                    <Button onClick={saveSelected} disabled={saving} className="h-11 w-full bg-violet-600 hover:bg-violet-700">
+                                <div className="sticky bottom-0 -mx-3 -mb-3 bg-surface p-3 backdrop-blur-xl sm:-mx-4 sm:-mb-4 sm:p-4 lg:static lg:m-0 lg:border-0 lg:bg-transparent lg:p-0">
+                                    <Button onClick={saveSelected} disabled={saving} className="h-11 w-full">
                                         {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                                         Save spot
                                     </Button>
                                 </div>
                             </div>
                         ) : (
-                            <div className="rounded-lg bg-white/[0.045] p-5 text-sm text-violet-50/70">
+                            <div className="rounded-lg bg-raised p-5 text-sm text-foreground">
                                 Select a spot from the queue.
                             </div>
                         )}
