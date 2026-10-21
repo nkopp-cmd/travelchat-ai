@@ -365,6 +365,8 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                                     <CardDescription>
                                         {subscription.tier === "free"
                                             ? "Pro or Premium is required for the full Localley app"
+                                            : subscription.status === "lifetime_premium"
+                                            ? "Lifetime · included"
                                             : `$${tierConfig.price}/month`}
                                     </CardDescription>
                                 </div>
