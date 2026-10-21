@@ -49,27 +49,10 @@ function getShortTitle(title: string, city: string | null | undefined): string {
     return shortCity;
 }
 
-// Generate a gradient based on city name for consistent colors (fallback)
-function getCityGradient(city: string): string {
-    const gradients = [
-        "from-rose-500 via-pink-500 to-orange-400",
-        "from-violet-500 via-purple-500 to-indigo-400",
-        "from-cyan-500 via-sky-500 to-blue-400",
-        "from-emerald-500 via-teal-500 to-cyan-400",
-        "from-amber-500 via-orange-500 to-yellow-400",
-        "from-pink-500 via-rose-500 to-red-400",
-        "from-indigo-500 via-violet-500 to-purple-400",
-        "from-lime-500 via-emerald-500 to-green-400",
-    ];
-    const hash = city.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return gradients[hash % gradients.length];
-}
-
 // Story bubble component with loading state
 function StoryBubble({ itinerary }: { itinerary: RecentItinerary }) {
     const [imageLoaded, setImageLoaded] = useState(false);
     const shortCity = getShortCity(itinerary.city);
-    const gradient = getCityGradient(itinerary.city || "default");
     const imageUrl = getCityImageUrl(itinerary.city || "", { width: 200 });
 
     return (
@@ -79,21 +62,10 @@ function StoryBubble({ itinerary }: { itinerary: RecentItinerary }) {
         >
             {/* Story Circle with premium ring animation */}
             <div className="relative">
-                {/* Animated gradient ring */}
-                <div className={cn(
-                    "absolute inset-0 w-[68px] h-[68px] rounded-full",
-                    "bg-gradient-to-br",
-                    gradient,
-                    "opacity-80 group-hover:opacity-100",
-                    "group-hover:scale-105 transition-all duration-300",
-                    "blur-[2px] group-hover:blur-[3px]"
-                )} />
-
                 {/* Main ring container */}
                 <div className={cn(
                     "relative w-[68px] h-[68px] rounded-full p-[3px]",
-                    "bg-gradient-to-br",
-                    gradient,
+                    "bg-primary",
                     "group-hover:scale-105 transition-transform duration-300"
                 )}>
                     {/* Inner white border */}
@@ -104,11 +76,7 @@ function StoryBubble({ itinerary }: { itinerary: RecentItinerary }) {
                                 <>
                                     {/* Skeleton loader */}
                                     {!imageLoaded && (
-                                        <div className={cn(
-                                            "absolute inset-0 rounded-full bg-gradient-to-br",
-                                            gradient,
-                                            "opacity-30 animate-pulse"
-                                        )} />
+                                        <div className="absolute inset-0 rounded-full bg-raised animate-pulse" />
                                     )}
                                     <Image
                                         src={imageUrl}
@@ -124,12 +92,8 @@ function StoryBubble({ itinerary }: { itinerary: RecentItinerary }) {
                                     />
                                 </>
                             ) : (
-                                <div className={cn(
-                                    "w-full h-full rounded-full bg-gradient-to-br flex items-center justify-center",
-                                    gradient,
-                                    "group-hover:brightness-110 transition-all duration-300"
-                                )}>
-                                    <span className="text-white font-bold text-xl drop-shadow-md">
+                                <div className="flex h-full w-full items-center justify-center rounded-full bg-raised">
+                                    <span className="text-xl font-bold text-foreground">
                                         {shortCity.charAt(0).toUpperCase()}
                                     </span>
                                 </div>
@@ -141,11 +105,9 @@ function StoryBubble({ itinerary }: { itinerary: RecentItinerary }) {
                 {/* Days badge with glow */}
                 <div className={cn(
                     "absolute -bottom-0.5 -right-0.5",
-                    "bg-gradient-to-r from-violet-600 to-indigo-600",
-                    "text-white text-[10px] font-bold",
+                    "bg-primary text-primary-foreground",
+                    "text-xs font-bold",
                     "px-2 py-0.5 rounded-full",
-                    "shadow-lg shadow-violet-500/30",
-                    " ",
                     "group-hover:scale-110 transition-transform duration-300"
                 )}>
                     {itinerary.days}d
@@ -153,12 +115,12 @@ function StoryBubble({ itinerary }: { itinerary: RecentItinerary }) {
             </div>
 
             {/* Location Name */}
-            <span className="text-xs font-medium text-foreground truncate max-w-[68px] text-center group-hover:text-violet-600 transition-colors">
+            <span className="text-xs font-medium text-foreground truncate max-w-[68px] text-center group-hover:text-primary transition-colors">
                 {getShortTitle(itinerary.title, itinerary.city)}
             </span>
 
             {/* Relative Time with subtle styling */}
-            <span className="text-[10px] text-muted-foreground/70">
+            <span className="text-xs text-muted-foreground">
                 {getRelativeTime(itinerary.created_at)}
             </span>
         </Link>
@@ -174,10 +136,8 @@ export function RecentStories({ itineraries }: RecentStoriesProps) {
         <div className="space-y-3 py-2">
             {/* Section Label with premium styling */}
             <div className="flex items-center gap-2 px-1">
-                <div className="h-5 w-5 rounded-full bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center">
-                    <Sparkles className="h-3 w-3 text-white" />
-                </div>
-                <span className="text-xs font-semibold text-foreground/80 uppercase tracking-wider">
+                <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
+                <span className="text-[13px] font-semibold text-muted-foreground">
                     Recent Trips
                 </span>
                 <div className="flex-1" aria-hidden="true" />
@@ -197,38 +157,27 @@ export function RecentStories({ itineraries }: RecentStoriesProps) {
                     <div className="relative">
                         {/* Glow effect on hover */}
                         <div className={cn(
-                            "absolute inset-0 w-[68px] h-[68px] rounded-full",
-                            "bg-gradient-to-br from-violet-500 to-indigo-500",
-                            "opacity-0 group-hover:opacity-40",
-                            "blur-lg transition-opacity duration-300"
-                        )} />
-
-                        <div className={cn(
                             "relative w-[68px] h-[68px] rounded-full",
-                            " ",
-                            " ",
                             "flex items-center justify-center",
-                            "bg-muted/30 group-hover:bg-violet-50 dark:group-hover:bg-violet-950/30",
+                            "bg-raised group-hover:bg-primary/15",
                             "transition-all duration-300",
                             "group-hover:scale-105"
                         )}>
                             <div className={cn(
                                 "h-10 w-10 rounded-full",
-                                "bg-gradient-to-br from-violet-500 to-indigo-500",
+                                "bg-primary text-primary-foreground",
                                 "flex items-center justify-center",
-                                "opacity-60 group-hover:opacity-100",
-                                "shadow-lg shadow-violet-500/20",
                                 "transition-all duration-300",
                                 "group-hover:scale-110"
                             )}>
-                                <Plus className="h-5 w-5 text-white" />
+                                <Plus className="h-5 w-5" aria-hidden="true" />
                             </div>
                         </div>
                     </div>
-                    <span className="text-xs font-medium text-muted-foreground group-hover:text-violet-600 transition-colors">
+                    <span className="text-xs font-medium text-muted-foreground group-hover:text-primary transition-colors">
                         New Trip
                     </span>
-                    <span className="text-[10px] text-transparent">
+                    <span className="text-xs text-transparent" aria-hidden="true">
                         &nbsp;
                     </span>
                 </Link>
@@ -242,27 +191,19 @@ export function RecentStories({ itineraries }: RecentStoriesProps) {
                         <div className="relative">
                             {/* Subtle glow on hover */}
                             <div className={cn(
-                                "absolute inset-0 w-[68px] h-[68px] rounded-full",
-                                "bg-gradient-to-br from-emerald-500 to-teal-500",
-                                "opacity-0 group-hover:opacity-30",
-                                "blur-lg transition-opacity duration-300"
-                            )} />
-
-                            <div className={cn(
                                 "relative w-[68px] h-[68px] rounded-full",
-                                "bg-muted/50 group-hover:bg-emerald-50 dark:group-hover:bg-emerald-950/30",
+                                "bg-raised group-hover:bg-primary/15",
                                 "flex items-center justify-center",
-                                " ",
                                 "transition-all duration-300",
                                 "group-hover:scale-105"
                             )}>
-                                <MapPin className="h-6 w-6 text-muted-foreground group-hover:text-emerald-600 transition-colors" />
+                                <MapPin className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
                             </div>
                         </div>
-                        <span className="text-xs font-medium text-muted-foreground group-hover:text-emerald-600 transition-colors">
+                        <span className="text-xs font-medium text-muted-foreground group-hover:text-primary transition-colors">
                             View All
                         </span>
-                        <span className="text-[10px] text-transparent">
+                        <span className="text-xs text-transparent" aria-hidden="true">
                             &nbsp;
                         </span>
                     </Link>

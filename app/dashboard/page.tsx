@@ -55,15 +55,15 @@ export default async function DashboardPage({
             <div className="flex flex-col h-full overflow-hidden">
                 {/* Top: Recent Itineraries Stories */}
                 {recentItineraries.length > 0 && (
-                    <div className="flex-shrink-0 bg-[#0b0714]/65 px-4 py-3 shadow-lg shadow-violet-950/20 backdrop-blur-xl">
+                    <div className="container mx-auto flex-shrink-0 px-4 pt-4">
                         <RecentStories itineraries={recentItineraries} />
                     </div>
                 )}
 
                 {/* Main Content: Full-width Chat Interface */}
-                <div className="flex-1 flex flex-col px-2 sm:px-4 py-4 overflow-hidden">
+                <div className="flex-1 flex flex-col py-4 overflow-hidden">
                     {/* Desktop - Chat or Onboarding */}
-                    <div className="hidden lg:flex flex-1 min-h-0 w-full max-w-5xl xl:max-w-6xl mx-auto">
+                    <div className="container mx-auto hidden min-h-0 w-full flex-1 px-4 lg:flex">
                         {recentItineraries.length === 0 && !itineraryContext && !selectedTemplate ? (
                             // Show onboarding panel for new users
                             <div className="flex-1 min-h-0 overflow-y-auto px-2 py-6">
