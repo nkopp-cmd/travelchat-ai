@@ -7,6 +7,7 @@ import { Suspense } from "react";
 import { AppBackground } from "@/components/layout/app-background";
 import { GradientText } from "@/components/ui/gradient-text";
 import { MessageCircle } from "@/components/ui/icons";
+import { PageEyebrow } from "@/components/layout/page-header";
 
 // Use the same borderless header and safe-area navigation tokens as the shell.
 const CHAT_VIEWPORT = "h-[calc(100dvh-var(--ll-topbar-height)-var(--ll-nav-clearance))] min-h-0";
@@ -47,10 +48,7 @@ function ChatPageContent() {
           conversationId={conversationId}
           header={
             <div className="min-w-0">
-              <div className="mb-2 hidden items-center gap-2 rounded-full bg-violet-400/10 px-3 py-1 text-sm font-medium text-violet-100 sm:inline-flex">
-                <MessageCircle className="h-4 w-4" aria-hidden="true" />
-                Your local guide
-              </div>
+              <PageEyebrow icon={MessageCircle} className="mb-2 hidden sm:inline-flex">Your local guide</PageEyebrow>
               <h1 className="text-[22px] font-bold leading-tight tracking-tight md:text-3xl">
                 <GradientText variant="violet">Chat with Alley</GradientText>
               </h1>
