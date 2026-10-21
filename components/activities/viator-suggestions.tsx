@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -56,12 +56,34 @@ export function ViatorSuggestions({
     const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
 
     const showDeals = hasFeature(userTier, "bookingDeals");
+    // The card sits below the itinerary; ask Viator only when it is about to scroll into view,
+    // so the first view of the page does not wait on (or pay for) an off-screen partner call.
+    const rootRef = useRef<HTMLDivElement>(null);
+    const [nearViewport, setNearViewport] = useState(false);
+
+    useEffect(() => {
+        const node = rootRef.current;
+        if (!node || nearViewport) return;
+        if (typeof IntersectionObserver === "undefined") {
+            setNearViewport(true);
+            return;
+        }
+        const observer = new IntersectionObserver((entries) => {
+            if (entries.some((entry) => entry.isIntersecting)) {
+                setNearViewport(true);
+                observer.disconnect();
+            }
+        }, { rootMargin: "600px 0px" });
+        observer.observe(node);
+        return () => observer.disconnect();
+    }, [nearViewport]);
 
     const handleImageError = useCallback((activityId: string) => {
         setFailedImages(prev => new Set(prev).add(activityId));
     }, []);
 
     useEffect(() => {
+        if (!nearViewport) return;
         async function fetchActivities() {
             setIsLoading(true);
             setError(null);
@@ -93,7 +115,7 @@ export function ViatorSuggestions({
         }
 
         fetchActivities();
-    }, [city, category, limit]);
+    }, [city, category, limit, nearViewport]);
 
     const handleBookClick = async (activity: ViatorActivity) => {
         // Track affiliate click
@@ -121,7 +143,7 @@ export function ViatorSuggestions({
     }
 
     return (
-        <Card className={cn("overflow-hidden !py-0 !gap-0", className)}>
+        <Card ref={rootRef} className={cn("overflow-hidden !py-0 !gap-0", className)}>
             <CardHeader className="relative min-h-28 overflow-hidden bg-gradient-to-r from-violet-600 to-purple-700 text-white">
                 <CityImageAvatar
                     city={city}

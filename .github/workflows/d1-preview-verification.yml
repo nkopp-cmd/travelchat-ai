@@ -84,6 +84,8 @@ on:
       - '__tests__/components/spot-detail-map.test.tsx'
       - 'components/spots/spots-map.tsx'
       - 'lib/spots/pin-clusters.ts'
+      - 'components/activities/viator-suggestions.tsx'
+      - '__tests__/components/viator-suggestions-lazy.test.tsx'
       - 'lib/itineraries/grounded-generation.ts'
       - '__tests__/lib/itinerary-grounded-generation.test.ts'
       - '__tests__/lib/pin-clusters.test.ts'
@@ -418,6 +420,7 @@ jobs:
             npx vitest run __tests__/components/landing-planner.test.tsx __tests__/components/conditional-navbar.test.tsx --maxWorkers=1
             npx eslint app/page.tsx components/landing/ components/layout/navbar.tsx components/layout/navbar-drawer.tsx components/layout/navbar-routes.ts components/layout/conditional-navbar.tsx __tests__/components/landing-planner.test.tsx __tests__/components/conditional-navbar.test.tsx
             npx vitest run __tests__/lib/auth-notification-store.test.ts --maxWorkers=1
+            npx vitest run __tests__/components/viator-suggestions-lazy.test.tsx --maxWorkers=1
             npx vitest run __tests__/lib/itinerary-grounded-generation.test.ts --maxWorkers=1
             npx eslint lib/itineraries/grounded-generation.ts __tests__/lib/itinerary-grounded-generation.test.ts
             npx eslint lib/notifications/auth-store.ts lib/notifications/validation.ts __tests__/lib/auth-notification-store.test.ts
