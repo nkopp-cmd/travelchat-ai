@@ -249,4 +249,22 @@ describe("grounded itinerary generation", () => {
       ],
     }], candidates, { days: 1, pace: "relaxed" })).toThrow("geographically feasible");
   });
+
+  it("reports no coverage when the counts fit but no feasible route exists", () => {
+    const candidates = [
+      spot("1", "Start", "Outdoor", { location: "POINT(126.90 37.55)" }),
+      spot("2", "Far Dinner", "Food", { location: "POINT(127.50 37.90)" }),
+    ];
+    expect(hasItineraryGroundingCoverage(candidates, { days: 1, pace: "relaxed" })).toBe(false);
+  });
+
+  it("keeps coverage for a nearby pool that grounds into a valid schedule", () => {
+    const candidates = [
+      spot("1", "Morning Walk", "Outdoor"),
+      spot("2", "Lunch Counter", "Food"),
+      spot("3", "Gallery Lane", "Culture"),
+      spot("4", "Night Bar", "Nightlife"),
+    ];
+    expect(hasItineraryGroundingCoverage(candidates, { days: 2, pace: "relaxed" })).toBe(true);
+  });
 });
