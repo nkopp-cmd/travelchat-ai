@@ -1,5 +1,8 @@
 import { Suspense } from "react";
 import { createSupabaseAdmin } from "@/lib/supabase";
+import { isPreviewItineraryListCandidate } from "@/lib/app-data/preview-itinerary-list";
+import { previewPopularCities, previewPublicItineraries } from "@/lib/app-data/preview-explore";
+import { headers } from "next/headers";
 import { ExploreContent } from "./explore-content";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AppBackground } from "@/components/layout/app-background";
@@ -164,17 +167,18 @@ async function getPopularCities(): Promise<string[]> {
 export default async function ExplorePage({
     searchParams,
 }: {
-    searchParams: Promise<{ city?: string; duration?: string; sort?: string }>;
+    searchParams: Promise<{ city?: string; duration?: string; sort?: string; data_candidate?: string }>;
 }) {
     const params = await searchParams;
+    // Candidate requests read only D1 and fail closed (no Supabase fallback).
+    const candidate = isPreviewItineraryListCandidate((await headers()).get("host"), params.data_candidate);
     const city = params.city;
     const duration = params.duration;
     const sortBy = params.sort || "recent";
 
-    const [itineraries, popularCities] = await Promise.all([
-        getPublicItineraries(city, duration, sortBy),
-        getPopularCities(),
-    ]);
+    const [itineraries, popularCities] = await Promise.all(candidate
+        ? [previewPublicItineraries(city, duration, sortBy), previewPopularCities()] as const
+        : [getPublicItineraries(city, duration, sortBy), getPopularCities()] as const);
 
     return (
         <AppBackground ambient className="min-h-screen">
