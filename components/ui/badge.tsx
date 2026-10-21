@@ -19,11 +19,11 @@ const badgeVariants = cva(
           "bg-secondary text-secondary-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
         // Semantic variants for consistent category colors
         violet:
-          "bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300",
+          "bg-primary/15 text-foreground",
         emerald:
-          "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300",
+          "bg-[rgb(var(--ll-success)/0.15)] text-[rgb(var(--ll-success))]",
         amber:
-          "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
+          "bg-[rgb(var(--ll-warning)/0.15)] text-[rgb(var(--ll-warning))]",
         muted:
           "bg-muted text-muted-foreground",
       },
