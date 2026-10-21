@@ -183,25 +183,25 @@ export function LandingSearch() {
   return (
     <form
       onSubmit={handleSearch}
-      className="mt-8 flex max-w-2xl flex-col gap-2 rounded-lg bg-black/35 p-2 shadow-xl shadow-violet-950/20 backdrop-blur-md sm:flex-row"
+      className="mt-8 flex max-w-2xl flex-col gap-2 rounded-lg bg-black/35 p-2 backdrop-blur-md sm:flex-row"
     >
       <label className="sr-only" htmlFor="landing-search">
         Search for a city, food, cafe, or neighborhood
       </label>
       <div className="flex min-h-12 flex-1 items-center gap-3 px-3">
-        <Search className="h-5 w-5 text-slate-400" aria-hidden="true" />
+        <Search className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
         <input
           id="landing-search"
           value={searchQuery}
           onChange={(event) => setSearchQuery(event.target.value)}
           placeholder="Search Seoul cafes, Bangkok food, Tokyo vintage..."
-          className="w-full bg-transparent text-base text-white outline-none placeholder:text-slate-500"
+          className="w-full bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
         />
       </div>
       <Button
         type="submit"
         size="lg"
-        className="h-12 rounded-lg bg-white text-slate-950 hover:bg-slate-200"
+        className="h-12 rounded-lg"
       >
         Search
       </Button>
@@ -239,27 +239,27 @@ export function LandingTripBuilder() {
 export function LandingPresets() {
   const { applyPreset } = usePlanner();
   return (
-    <section className=" bg-[#10131a] py-8">
+    <section className="bg-surface py-8">
       <div className="container mx-auto grid max-w-7xl gap-3 px-4 md:grid-cols-3 md:px-6">
         {QUICK_PRESETS.map((preset) => (
           <button
             key={preset.title}
             type="button"
             onClick={() => applyPreset(preset)}
-            className="group overflow-hidden rounded-lg bg-white/[0.04] text-left transition hover:bg-white/[0.07] focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300"
+            className="group overflow-hidden rounded-lg bg-raised text-left transition hover:bg-raised focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <div className="relative h-24 overflow-hidden">
               <LandingPresetPhoto city={preset.city} />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              <span className="absolute bottom-3 left-4 rounded-md bg-black/45 px-2 py-1 text-xs font-semibold text-white backdrop-blur-sm">
+              <span className="absolute bottom-3 left-4 rounded-md bg-black/45 px-2 py-1 text-xs font-semibold text-foreground backdrop-blur-sm">
                 {preset.city}
               </span>
             </div>
             <div className="p-5">
-              <h2 className="mb-3 text-lg font-bold text-white">
+              <h2 className="mb-3 text-lg font-bold text-foreground">
                 {preset.title}
               </h2>
-              <p className="text-sm leading-6 text-slate-400">
+              <p className="text-sm leading-6 text-muted-foreground">
                 {preset.detail}
               </p>
             </div>
@@ -293,23 +293,23 @@ function TripBuilder({
   toggleInterest: (interest: string) => void;
 }) {
   return (
-    <div className="rounded-lg bg-[#120d20]/92 p-4 shadow-2xl shadow-violet-950/30 backdrop-blur-xl">
+    <div className="rounded-lg bg-surface p-4 backdrop-blur-xl">
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold text-violet-200">Build a route</p>
-          <h2 className="mt-1 text-2xl font-black text-white">
+          <p className="text-sm font-semibold text-foreground">Build a route</p>
+          <h2 className="mt-1 text-2xl font-black text-foreground">
             Where are you going?
           </h2>
         </div>
-        <div className="rounded-md bg-violet-300/10 px-2 py-1 text-xs font-semibold text-violet-100">
+        <div className="rounded-md bg-primary/10 px-2 py-1 text-xs font-semibold text-foreground">
           60 sec setup
         </div>
       </div>
 
       <div className="space-y-5">
         <div>
-          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-300">
-            <MapPin className="h-4 w-4 text-violet-300" />
+          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+            <MapPin className="h-4 w-4 text-primary" />
             City
           </div>
           <div className="grid grid-cols-2 gap-2">
@@ -322,10 +322,10 @@ function TripBuilder({
                   onClick={() => setSelectedCity(city.name)}
                   aria-pressed={isSelected}
                   className={cn(
-                    "flex min-h-12 items-center gap-2 rounded-lg px-2 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300",
+                    "flex min-h-12 items-center gap-2 rounded-lg px-2 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     isSelected
-                      ? " bg-violet-400/15 text-white"
-                      : " bg-white/[0.04] text-slate-300 hover:bg-white/[0.07]",
+                      ? " bg-primary/15 text-foreground"
+                      : " bg-raised text-muted-foreground hover:bg-raised",
                   )}
                 >
                   <CityImageAvatar
@@ -337,7 +337,7 @@ function TripBuilder({
                     <span className="block truncate text-sm font-bold">
                       {city.name}
                     </span>
-                    <span className="block truncate text-xs text-slate-400">
+                    <span className="block truncate text-xs text-muted-foreground">
                       {city.vibe}
                     </span>
                   </span>
@@ -348,8 +348,8 @@ function TripBuilder({
         </div>
 
         <div>
-          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-300">
-            <CalendarDays className="h-4 w-4 text-indigo-300" />
+          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+            <CalendarDays className="h-4 w-4 text-primary" />
             Days
           </div>
           <div
@@ -364,10 +364,10 @@ function TripBuilder({
                 onClick={() => setDays(option)}
                 aria-pressed={days === option}
                 className={cn(
-                  "min-h-11 rounded-lg text-sm font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300",
+                  "min-h-11 rounded-lg text-sm font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                   days === option
-                    ? " bg-indigo-300/15 text-white"
-                    : " bg-white/[0.04] text-slate-300 ",
+                    ? " bg-primary/15 text-foreground"
+                    : " bg-raised text-muted-foreground ",
                 )}
               >
                 {option}d
@@ -377,8 +377,8 @@ function TripBuilder({
         </div>
 
         <div>
-          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-300">
-            <Sparkles className="h-4 w-4 text-violet-300" />
+          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+            <Sparkles className="h-4 w-4 text-primary" />
             Vibe
           </div>
           <div className="grid grid-cols-2 gap-2">
@@ -392,24 +392,24 @@ function TripBuilder({
                   onClick={() => toggleInterest(vibe.id)}
                   aria-pressed={isSelected}
                   className={cn(
-                    "flex min-h-12 items-center justify-between rounded-lg px-3 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300",
+                    "flex min-h-12 items-center justify-between rounded-lg px-3 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     isSelected
-                      ? " bg-violet-400/15 text-white"
-                      : " bg-white/[0.04] text-slate-300 ",
+                      ? " bg-primary/15 text-foreground"
+                      : " bg-raised text-muted-foreground ",
                   )}
                 >
                   <span className="flex items-center gap-2">
                     <Icon className="h-4 w-4" />
                     {vibe.label}
                   </span>
-                  {isSelected && <Check className="h-4 w-4 text-violet-200" />}
+                  {isSelected && <Check className="h-4 w-4 text-foreground" />}
                 </button>
               );
             })}
           </div>
         </div>
 
-        <div className="rounded-lg bg-white/[0.04] p-3">
+        <div className="rounded-lg bg-raised p-3">
           <div className="flex items-center gap-3">
             <CityImageAvatar
               city={selectedCityMeta?.name ?? selectedCity}
@@ -417,11 +417,11 @@ function TripBuilder({
               sizes="48px"
             />
             <div className="min-w-0">
-              <p className="font-bold text-white">
+              <p className="font-bold text-foreground">
                 {selectedCityMeta?.name ?? selectedCity}, {days}{" "}
                 {days === 1 ? "day" : "days"}
               </p>
-              <p className="mt-1 line-clamp-2 text-sm leading-6 text-slate-400">
+              <p className="mt-1 line-clamp-2 text-sm leading-6 text-muted-foreground">
                 {interests.join(", ")} with a local-first route and fewer
                 obvious tourist stops.
               </p>
@@ -433,7 +433,7 @@ function TripBuilder({
           <Button
             asChild
             size="lg"
-            className="h-12 rounded-lg bg-violet-500 font-bold text-white shadow-lg shadow-violet-500/25 hover:bg-violet-400"
+            className="h-12 rounded-lg bg-primary font-bold text-primary-foreground hover:bg-primary/90"
           >
             <Link prefetch={false} href={itineraryHref}>
               Start planning
@@ -444,7 +444,7 @@ function TripBuilder({
             asChild
             variant="outline"
             size="lg"
-            className="h-12 rounded-lg bg-white/[0.04] text-white hover:bg-white/10 hover:text-white"
+            className="h-12 rounded-lg bg-raised text-foreground hover:bg-overlay"
           >
             <Link prefetch={false} href={exploreHref}>
               Browse spots

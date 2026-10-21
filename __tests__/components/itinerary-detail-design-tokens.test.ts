@@ -37,6 +37,19 @@ const FILES = [
   "components/itineraries/wizard/wizard-progress.tsx",
   "components/auth/auth-forms.tsx",
   "components/auth/auth-shell.tsx",
+  // batch 6
+  "components/spots/spots-filter-bar.tsx",
+  "components/templates/template-card.tsx",
+  "components/templates/template-picker.tsx",
+  "components/spots/submission-media-progress.tsx",
+  "app/spots/submissions/evidence-form.tsx",
+  "app/shared/[shareCode]/page.tsx",
+  "app/explore/explore-content.tsx",
+  "components/guide/source-guide-application.tsx",
+  "components/guide/source-guide-dashboard.tsx",
+  "app/pricing/page.tsx",
+  "app/page.tsx",
+  "components/landing/planner.tsx",
 ];
 
 describe("itinerary detail design tokens", () => {
@@ -48,5 +61,8 @@ describe("itinerary detail design tokens", () => {
     expect(source).not.toMatch(/\bshadow-violet-\d+\/\d+/);
     expect(source).not.toMatch(/text-\[(?:9|10|11)px\]/);
     expect(source).not.toMatch(/bg-primary[^"']*text-white/);
+    // A primary fill needs its own ink, never the light foreground.
+    expect(source).not.toMatch(/(?<![\w/:-])bg-primary(?![/\w-])[^"'`]*(?<![\w:-])text-foreground\b/);
+    expect(source).not.toMatch(/rgba\((?:124|139|79|11|20|30),/);
   });
 });

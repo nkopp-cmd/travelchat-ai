@@ -167,16 +167,16 @@ function GuideDashboardContent() {
         <div className="container max-w-4xl mx-auto py-8 px-4">
             <Link
                 href="/settings"
-                className="inline-flex items-center text-sm text-white/65 hover:text-white mb-6"
+                className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6"
             >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Settings
             </Link>
 
-            <div className="mb-8 flex items-center justify-between rounded-lg bg-white/[0.08] p-6 shadow-2xl shadow-violet-950/30 backdrop-blur-xl">
+            <div className="mb-8 flex items-center justify-between rounded-lg bg-raised p-6 backdrop-blur-xl">
                 <div>
-                    <h1 className="text-3xl font-black text-white">Guide Dashboard</h1>
-                    <p className="text-white/60">Manage creator earnings, engagement, and payouts</p>
+                    <h1 className="text-3xl font-black text-foreground">Guide Dashboard</h1>
+                    <p className="text-muted-foreground">Manage creator earnings, engagement, and payouts</p>
                 </div>
                 <Badge variant={guideStatus.status === "approved" ? "default" : "secondary"}>
                     {guideStatus.status}
@@ -185,9 +185,9 @@ function GuideDashboardContent() {
 
             {/* Pending/Onboarding States */}
             {guideStatus.status === "pending" && (
-                <Card className="mb-6 bg-yellow-400/10 backdrop-blur-xl">
+                <Card className="mb-6 bg-[rgb(var(--ll-warning)/0.14)] backdrop-blur-xl">
                     <CardContent className="pt-6 flex items-start gap-3">
-                        <AlertCircle className="h-5 w-5 text-yellow-500 mt-0.5" />
+                        <AlertCircle className="h-5 w-5 text-[rgb(var(--ll-warning))] mt-0.5" />
                         <div>
                             <p className="font-medium">Application Under Review</p>
                             <p className="text-sm text-muted-foreground">
@@ -199,10 +199,10 @@ function GuideDashboardContent() {
             )}
 
             {guideStatus.status === "approved" && !guideStatus.onboardingComplete && (
-                <Card className="mb-6 bg-blue-400/10 backdrop-blur-xl">
+                <Card className="mb-6 bg-primary/10 backdrop-blur-xl">
                     <CardContent className="pt-6">
                         <div className="flex items-start gap-3 mb-4">
-                            <AlertCircle className="h-5 w-5 text-blue-500 mt-0.5" />
+                            <AlertCircle className="h-5 w-5 text-primary mt-0.5" />
                             <div>
                                 <p className="font-medium">Complete Stripe Onboarding</p>
                                 <p className="text-sm text-muted-foreground">
@@ -244,7 +244,7 @@ function GuideDashboardContent() {
                             </CardHeader>
                             <CardContent>
                                 <div className="flex items-center gap-2">
-                                    <TrendingUp className="h-5 w-5 text-blue-500" />
+                                    <TrendingUp className="h-5 w-5 text-primary" />
                                     <span className="text-2xl font-bold">
                                         ${(earnings?.summary.pendingBalance || 0).toFixed(2)}
                                     </span>

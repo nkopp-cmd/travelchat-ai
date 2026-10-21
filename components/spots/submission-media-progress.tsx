@@ -202,33 +202,28 @@ const statePresentations: Record<SubmissionMediaState, StatePresentation> = {
   queued: {
     label: "Queued",
     icon: Clock3,
-    className:
-      "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-100 ",
+    className: "bg-raised text-foreground",
   },
   processing: {
     label: "Processing",
     icon: Loader2,
-    className:
-      "bg-sky-100 text-sky-900 dark:bg-sky-950 dark:text-sky-100 ",
+    className: "bg-primary/15 text-foreground",
     iconClassName: "motion-safe:animate-spin",
   },
   retry_wait: {
     label: "Waiting to retry",
     icon: RotateCcw,
-    className:
-      "bg-amber-100 text-amber-950 dark:bg-amber-950 dark:text-amber-100 ",
+    className: "bg-[rgb(var(--ll-warning)/0.14)] text-foreground",
   },
   succeeded: {
     label: "Complete",
     icon: CheckCircle2,
-    className:
-      "bg-emerald-100 text-emerald-950 dark:bg-emerald-950 dark:text-emerald-100 ",
+    className: "bg-[rgb(var(--ll-success)/0.12)] text-foreground",
   },
   dead_letter: {
     label: "Couldn't process",
     icon: CircleX,
-    className:
-      "bg-rose-100 text-rose-950 dark:bg-rose-950 dark:text-rose-100 ",
+    className: "bg-[rgb(var(--ll-error)/0.12)] text-foreground",
   },
 };
 
@@ -269,10 +264,10 @@ function PollingUpdateStatus({
       className="mt-3 flex flex-wrap items-center justify-between gap-2 pt-3"
     >
       <div className="min-w-0">
-        <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">
+        <p className="text-xs font-semibold text-foreground">
           {retrying ? "Checking for updates" : "Live updates are taking longer than usual"}
         </p>
-        <p className="mt-0.5 text-xs font-medium leading-5 text-slate-600 dark:text-slate-300">
+        <p className="mt-0.5 text-xs font-medium leading-5 text-muted-foreground">
           Your latest results are still shown. Last successful update: {lastSuccessfulUpdate}.
           {!retrying ? " We’ll keep trying automatically." : null}
         </p>
@@ -316,7 +311,7 @@ function MediaItemRow({
     >
       <span
         aria-hidden="true"
-        className="flex size-8 shrink-0 items-center justify-center rounded-md bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-100"
+        className="flex size-8 shrink-0 items-center justify-center rounded-md bg-raised text-foreground"
       >
         <KindIcon className="size-4" />
       </span>
@@ -337,11 +332,11 @@ function MediaItemRow({
             {state.label}
           </span>
         </div>
-        <p className="mt-1 text-xs font-medium text-slate-600 dark:text-slate-300">
+        <p className="mt-1 text-xs font-medium text-muted-foreground">
           Attempts {item.attempts} of {item.maxAttempts}
         </p>
         {item.publicErrorCode ? (
-          <p className="mt-1 break-all text-xs font-semibold text-rose-800 dark:text-rose-200">
+          <p className="mt-1 break-all text-xs font-semibold text-[rgb(var(--ll-error))]">
             Error <code className="font-mono">{item.publicErrorCode}</code>
           </p>
         ) : null}
@@ -473,7 +468,7 @@ export function SubmissionMediaProgress({
         className,
       )}
     >
-      <div className=" px-3 py-3">
+      <div className="px-3 py-3">
         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
           <h3 id={headingId} className="text-sm font-semibold text-foreground">
             Media processing
@@ -483,7 +478,7 @@ export function SubmissionMediaProgress({
             role="status"
             aria-live="polite"
             aria-atomic="true"
-            className="text-xs font-semibold text-slate-700 dark:text-slate-200"
+            className="text-xs font-semibold text-foreground"
           >
             {total > 0 ? `${finished} of ${total} finished` : parentStatus?.label || "No media to process"}
             {stateSummary ? <span className="sr-only">. {stateSummary}</span> : null}
@@ -500,14 +495,14 @@ export function SubmissionMediaProgress({
               aria-valuemax={100}
               aria-valuenow={progress}
               aria-valuetext={progressValueText}
-              className="mt-2 h-2 bg-slate-200 dark:bg-slate-700 [&_[data-slot=progress-indicator]]:bg-violet-600 dark:[&_[data-slot=progress-indicator]]:bg-violet-400"
+              className="mt-2 h-2 bg-raised [&_[data-slot=progress-indicator]]:bg-primary"
             />
-            <p className="mt-1.5 text-xs font-medium text-slate-600 dark:text-slate-300">
+            <p className="mt-1.5 text-xs font-medium text-muted-foreground">
               {stateSummary}
             </p>
           </>
         ) : parentStatus ? (
-          <p className="mt-2 text-xs font-medium leading-5 text-slate-600 dark:text-slate-300">
+          <p className="mt-2 text-xs font-medium leading-5 text-muted-foreground">
             {parentStatus.helper}
           </p>
         ) : null}
@@ -542,7 +537,7 @@ export function SubmissionMediaProgress({
           <ol
             start={VISIBLE_ITEM_LIMIT + 1}
             aria-label="Additional media items"
-            className=" "
+            className=""
           >
             {additionalItems.map((item) => (
               <MediaItemRow key={item.id} item={item} onRetry={onRetry} />

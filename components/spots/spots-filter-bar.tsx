@@ -41,55 +41,48 @@ const QUICK_FILTERS = [
     id: "trending",
     label: "Trending",
     icon: Flame,
-    color:
-      "bg-rose-100 text-rose-700 hover:bg-rose-200 dark:bg-rose-900/30 dark:text-rose-400",
+    color: "bg-raised text-foreground hover:bg-overlay",
   },
   {
     id: "Food",
     label: "Food",
     icon: Utensils,
-    color:
-      "bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-400",
+    color: "bg-raised text-foreground hover:bg-overlay",
   },
   {
     id: "Cafe",
     label: "Cafes",
     icon: Coffee,
-    color:
-      "bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400",
+    color: "bg-raised text-foreground hover:bg-overlay",
   },
   {
     id: "Nightlife",
     label: "Nightlife",
     icon: Moon,
-    color:
-      "bg-violet-100 text-violet-700 hover:bg-violet-200 dark:bg-violet-900/30 dark:text-violet-400",
+    color: "bg-raised text-foreground hover:bg-overlay",
   },
   {
     id: "Shopping",
     label: "Shopping",
     icon: ShoppingBag,
-    color:
-      "bg-pink-100 text-pink-700 hover:bg-pink-200 dark:bg-pink-900/30 dark:text-pink-400",
+    color: "bg-raised text-foreground hover:bg-overlay",
   },
   {
     id: "Outdoor",
     label: "Outdoor",
     icon: Trees,
-    color:
-      "bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400",
+    color: "bg-raised text-foreground hover:bg-overlay",
   },
   {
     id: "Market",
     label: "Markets",
     icon: Store,
-    color:
-      "bg-cyan-100 text-cyan-700 hover:bg-cyan-200 dark:bg-cyan-900/30 dark:text-cyan-400",
+    color: "bg-raised text-foreground hover:bg-overlay",
   },
 ];
 
 const FILTER_TRIGGER_CLASS =
-  "relative h-10 w-full min-w-0 max-w-full justify-start gap-1 overflow-hidden bg-white/[0.055] px-2 text-xs text-white data-[state=open]:z-30 sm:px-3 sm:text-sm [&>svg:last-child]:ml-auto [&>svg:last-child]:shrink-0 [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:flex-1 [&_[data-slot=select-value]]:overflow-hidden [&_[data-slot=select-value]]:truncate [&_[data-slot=select-value]]:whitespace-nowrap";
+  "relative h-10 w-full min-w-0 max-w-full justify-start gap-1 overflow-hidden bg-raised px-2 text-xs text-foreground data-[state=open]:z-30 sm:px-3 sm:text-sm [&>svg:last-child]:ml-auto [&>svg:last-child]:shrink-0 [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:flex-1 [&_[data-slot=select-value]]:overflow-hidden [&_[data-slot=select-value]]:truncate [&_[data-slot=select-value]]:whitespace-nowrap";
 
 interface SpotsFilterBarProps {
   filterOptions: FilterOptions;
@@ -189,23 +182,23 @@ export function SpotsFilterBar({
       ?.label || currentFilters.sortBy;
 
   return (
-    <div className="mb-4 space-y-3 rounded-lg bg-[#100b1c]/86 p-2.5 text-white shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:mb-5 sm:space-y-4 sm:p-4">
+    <div className="mb-4 space-y-3 rounded-lg bg-surface p-2.5 text-foreground backdrop-blur-xl sm:mb-5 sm:space-y-4 sm:p-4">
       {/* Search Bar */}
       <div className="relative flex-1">
         <Search
-          className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-violet-100/45"
+          className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-foreground"
           aria-hidden="true"
         />
         <Input
           placeholder="Search spots or areas"
           value={searchValue}
           onChange={(e) => handleSearchChange(e.target.value)}
-          className="h-10 min-w-0 bg-white/[0.06] pl-10 pr-10 text-sm text-white placeholder:text-violet-50/35 focus-visible:ring-violet-400 sm:h-11 sm:text-base"
+          className="h-10 min-w-0 bg-raised pl-10 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-ring sm:h-11 sm:text-base"
           aria-label="Search spots"
         />
         {isPending && (
           <Loader2
-            className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-violet-500"
+            className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-primary"
             aria-hidden="true"
           />
         )}
@@ -231,8 +224,8 @@ export function SpotsFilterBar({
               className={cn(
                 "flex min-h-8 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium transition-all sm:min-h-9 sm:px-3 sm:py-1.5 sm:text-sm",
                 isActive
-                  ? " bg-violet-500 text-white shadow-md shadow-violet-500/20"
-                  : " bg-white/[0.055] text-violet-50/70 hover:bg-violet-400/10 hover:text-white",
+                  ? " bg-primary text-primary-foreground"
+                  : " bg-raised text-foreground hover:bg-overlay",
               )}
               aria-pressed={isActive}
             >
@@ -257,7 +250,7 @@ export function SpotsFilterBar({
           variant="ghost"
           size="sm"
           onClick={() => setShowMobileFilters((value) => !value)}
-          className="h-9 w-full min-w-0 max-w-full justify-center overflow-hidden rounded-full bg-white/[0.055] px-3 text-xs text-violet-50/80 hover:bg-white/10 hover:text-white"
+          className="h-9 w-full min-w-0 max-w-full justify-center overflow-hidden rounded-full bg-raised px-3 text-xs text-foreground hover:bg-overlay"
           aria-expanded={showMobileFilters}
           aria-controls="spots-advanced-filters"
           data-testid="spots-mobile-filter-toggle"
@@ -269,7 +262,7 @@ export function SpotsFilterBar({
             </span>
           </span>
           {advancedFilterCount > 0 && (
-            <span className="ml-1.5 shrink-0 rounded-full bg-violet-500 px-1.5 py-0.5 text-[11px] font-semibold leading-none text-white">
+            <span className="ml-1.5 shrink-0 rounded-full bg-primary px-1.5 py-0.5 text-xs font-semibold leading-none text-primary-foreground">
               {advancedFilterCount}
             </span>
           )}
@@ -279,7 +272,7 @@ export function SpotsFilterBar({
             type="button"
             variant="ghost"
             onClick={onClearFilters}
-            className="h-9 w-9 shrink-0 justify-self-end rounded-full bg-white/[0.045] p-0 text-violet-50/65 hover:bg-white/10 hover:text-white"
+            className="h-9 w-9 shrink-0 justify-self-end rounded-full bg-raised p-0 text-foreground hover:bg-overlay"
             data-testid="spots-mobile-clear-filters"
           >
             <X className="h-4 w-4" aria-hidden="true" />
@@ -299,7 +292,7 @@ export function SpotsFilterBar({
         aria-label="Filter options"
         data-testid="spots-advanced-filters"
       >
-        <div className="flex min-w-0 items-center gap-2 text-sm font-medium text-violet-50/65 sm:col-span-2 xl:hidden">
+        <div className="flex min-w-0 items-center gap-2 text-sm font-medium text-foreground sm:col-span-2 xl:hidden">
           <Filter className="h-4 w-4" aria-hidden="true" />
           More filters
         </div>
@@ -415,7 +408,7 @@ export function SpotsFilterBar({
             variant="ghost"
             size="sm"
             onClick={onClearFilters}
-            className="hidden h-10 w-full shrink-0 rounded-lg bg-white/[0.035] text-violet-50/65 hover:bg-white/10 hover:text-white sm:col-span-2 md:inline-flex xl:col-span-4"
+            className="hidden h-10 w-full shrink-0 rounded-lg bg-raised text-foreground hover:bg-overlay sm:col-span-2 md:inline-flex xl:col-span-4"
           >
             <X className="mr-1 h-4 w-4" aria-hidden="true" />
             Clear
