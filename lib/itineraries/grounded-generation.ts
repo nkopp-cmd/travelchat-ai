@@ -158,7 +158,28 @@ export function hasItineraryGroundingCoverage(
   );
   const interestsFitSchedule = requestedInterestGroups(preferences.interests).length <=
     preferences.days * getPaceStopRange(preferences.pace).max;
-  return usableCapacity >= required && interestsCovered && interestsFitSchedule;
+  if (!(usableCapacity >= required && interestsCovered && interestsFitSchedule)) return false;
+  return canGroundFillerOnlyPlan(spots, preferences);
+}
+
+/**
+ * Counts alone can pass while the spots are too far apart for a feasible day route,
+ * which made the route throw after the paid model call. Grounding is deterministic,
+ * so a filler-only plan proves the pool can produce a valid schedule before quota
+ * and generation are spent.
+ */
+function canGroundFillerOnlyPlan(
+  spots: ItineraryGroundingSpot[],
+  preferences: ItineraryGroundingPreferences,
+): boolean {
+  const { min, max } = getPaceStopRange(preferences.pace);
+  try {
+    const plans = groundGeneratedDailyPlans([], spots, preferences);
+    return plans.length === preferences.days &&
+      plans.every((day) => (day.activities?.length || 0) >= min && (day.activities?.length || 0) <= max);
+  } catch {
+    return false;
+  }
 }
 
 function rankingScore(spot: ItineraryGroundingSpot, interests: string[] | undefined): number {
