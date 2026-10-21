@@ -17,12 +17,28 @@ const TONE_ICONS: Record<PinTone, ComponentType<IconProps>> = {
     outdoor: Trees, culture: Camera, entertainment: Ticket, transport: Train, other: MapPin,
 };
 const NEAR_ZOOM = 15;
+const NO_ROUTES: PinRoute[] = [];
 const CARD_OFFSET_PX = 30;
 
 interface MarkerSlot { key: string; ids: string[]; host: HTMLElement }
 
-export default function SpotPinMap({ spots, selectedId = null, onSelect }: {
-    spots: Spot[];
+/** The fields a pin and its card read, so non-catalog places (itinerary stops) can use the same pins. */
+export type PinSpot = Pick<Spot, "id" | "name" | "category" | "location" | "photos"> &
+    Partial<Pick<Spot, "description" | "areaName" | "cityName" | "localleyScore" | "bestTime" | "tips">> & {
+        /** Numbered stop badge, e.g. the visit order on an itinerary day. */
+        stop?: { label: string; color: string; ariaPrefix: string };
+        /** Card subtitle in place of the area name, e.g. "Day 1 · 9:00 AM". */
+        meta?: string;
+        /** Details link target; null hides it (no catalog page). Default: /spots/<id>. */
+        href?: string | null;
+    };
+
+/** A dashed line through one day's stops, in visit order. */
+export interface PinRoute { key: string; color: string; points: Array<[number, number]> }
+
+export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = null, onSelect }: {
+    spots: PinSpot[];
+    routes?: PinRoute[];
     selectedId?: string | null;
     /** Omit for a static map (e.g. the spot's own detail page): pins become labelled images, no card. */
     onSelect?: (id: string | null) => void;
@@ -30,6 +46,7 @@ export default function SpotPinMap({ spots, selectedId = null, onSelect }: {
     const container = useRef<HTMLDivElement>(null);
     const mapRef = useRef<L.Map | null>(null);
     const layerRef = useRef<L.LayerGroup | null>(null);
+    const routeLayerRef = useRef<L.LayerGroup | null>(null);
     const spotsRef = useRef(spots);
     const [slots, setSlots] = useState<MarkerSlot[]>([]);
     const [near, setNear] = useState(false);
@@ -89,6 +106,7 @@ export default function SpotPinMap({ spots, selectedId = null, onSelect }: {
             maxZoom: 19,
             className: "ll-map-tiles",
         }).addTo(map);
+        routeLayerRef.current = L.layerGroup().addTo(map);
         layerRef.current = L.layerGroup().addTo(map);
         mapRef.current = map;
         const resize = new ResizeObserver(() => map.invalidateSize());
@@ -98,6 +116,7 @@ export default function SpotPinMap({ spots, selectedId = null, onSelect }: {
             map.remove();
             mapRef.current = null;
             layerRef.current = null;
+            routeLayerRef.current = null;
         };
     }, []);
 
@@ -111,6 +130,18 @@ export default function SpotPinMap({ spots, selectedId = null, onSelect }: {
         }
         drawMarkers();
     }, [spots, drawMarkers]);
+
+    useEffect(() => {
+        const layer = routeLayerRef.current;
+        if (!layer) return;
+        layer.clearLayers();
+        for (const route of routes) {
+            if (route.points.length < 2) continue;
+            L.polyline(route.points, {
+                color: route.color, weight: 3, opacity: 0.85, dashArray: "6 8", interactive: false, className: "ll-pin-route",
+            }).addTo(layer);
+        }
+    }, [routes]);
 
     useEffect(() => {
         const map = mapRef.current;
@@ -187,11 +218,11 @@ function prefersReducedMotion(): boolean {
     return typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
 }
 
-function pinPhoto(spot: Spot): string | undefined {
+function pinPhoto(spot: PinSpot): string | undefined {
     return getDirectVenuePhotos(spot.photos)[0]?.url;
 }
 
-function PinButton({ spot, selected, onSelect }: { spot: Spot; selected: boolean; onSelect?: () => void }) {
+function PinButton({ spot, selected, onSelect }: { spot: PinSpot; selected: boolean; onSelect?: () => void }) {
     const tone = pinTone(spot.category);
     const Icon = TONE_ICONS[tone];
     const photo = pinPhoto(spot);
@@ -204,21 +235,25 @@ function PinButton({ spot, selected, onSelect }: { spot: Spot; selected: boolean
                     : <Icon className="h-[18px] w-[18px]" />}
             </span>
             <span className="ll-pin-chip" aria-hidden="true">{spot.category}</span>
+            {spot.stop && (
+                <span className="ll-pin-stop" aria-hidden="true" style={{ backgroundColor: spot.stop.color }}>{spot.stop.label}</span>
+            )}
         </>
     );
+    const label = `${spot.stop ? `${spot.stop.ariaPrefix}: ` : ""}${spot.name}, ${spot.category}`;
     if (!onSelect) {
-        return <span className="ll-pin" role="img" data-tone={tone} data-pin-id={spot.id} aria-label={`${spot.name}, ${spot.category}`}>{face}</span>;
+        return <span className="ll-pin" role="img" data-tone={tone} data-pin-id={spot.id} aria-label={label}>{face}</span>;
     }
     return (
         <button type="button" className="ll-pin" data-tone={tone} data-pin-id={spot.id} data-selected={selected || undefined}
-            aria-label={`${spot.name}, ${spot.category}`} aria-pressed={selected} onClick={onSelect}>
+            aria-label={label} aria-pressed={selected} onClick={onSelect}>
             {face}
         </button>
     );
 }
 
 export function PinCard({ spot, point, titleId, onClose }: {
-    spot: Spot; point: { x: number; y: number }; titleId: string; onClose: () => void;
+    spot: PinSpot; point: { x: number; y: number }; titleId: string; onClose: () => void;
 }) {
     const card = useRef<HTMLDivElement>(null);
     // Second step of the pin -> card -> detail morph: the card grows to fill the map in place.
@@ -227,7 +262,8 @@ export function PinCard({ spot, point, titleId, onClose }: {
     const tone = pinTone(spot.category);
     const Icon = TONE_ICONS[tone];
     const photo = pinPhoto(spot);
-    const area = spot.areaName || spot.cityName;
+    const area = spot.meta || spot.areaName || spot.cityName;
+    const href = spot.href === undefined ? `/spots/${spot.id}` : spot.href;
     const tips = (spot.tips || []).filter((tip) => typeof tip === "string" && tip.trim()).slice(0, 3);
     useEffect(() => { card.current?.focus(); }, [spot.id]);
     return (
@@ -251,7 +287,7 @@ export function PinCard({ spot, point, titleId, onClose }: {
             <div className="space-y-1 p-4">
                 <h3 id={titleId} className="text-[17px] font-semibold leading-snug">{spot.name}</h3>
                 {area && <p className="text-sm text-muted-foreground">{area}</p>}
-                <p className="text-sm text-muted-foreground">Localley score {spot.localleyScore}</p>
+                {spot.localleyScore !== undefined && <p className="text-sm text-muted-foreground">Localley score {spot.localleyScore}</p>}
                 {expanded && (
                     <div id={detailsId} className="space-y-3 pt-2 text-sm">
                         {spot.description && <p className="leading-relaxed text-foreground">{spot.description}</p>}
@@ -269,10 +305,12 @@ export function PinCard({ spot, point, titleId, onClose }: {
                     {expanded ? "Show less" : "More about this spot"}
                 </button>
                 <div className="flex gap-2 pt-1">
-                    <Link href={`/spots/${spot.id}`} prefetch={false}
-                        className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground">
-                        Details
-                    </Link>
+                    {href && (
+                        <Link href={href} prefetch={false}
+                            className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground">
+                            Details
+                        </Link>
+                    )}
                     <button type="button" onClick={onClose} aria-label="Close spot card"
                         className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl bg-raised text-foreground">
                         <X className="h-4 w-4" aria-hidden="true" />

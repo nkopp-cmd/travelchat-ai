@@ -1,15 +1,23 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import dynamic from "next/dynamic";
 import MapComponent, { type Location } from "@/components/ui/map";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { MapPin, Loader2, AlertCircle, ChevronDown, ChevronUp, ExternalLink, X, Navigation, Copy, Check } from "@/components/ui/icons";
-import { isKoreanCity } from "@/hooks/use-map-provider";
+import { isKoreanCity, useMapProvider } from "@/hooks/use-map-provider";
 import { getCityBySlug, getCityByName } from "@/lib/cities";
 import { distanceKm } from "@/lib/geocoding";
 import type { SubscriptionTier } from "@/lib/subscription";
 import { buildDayRouteUrl, getActivitySearchText } from "@/lib/itineraries/map-links";
+import { buildItineraryPins } from "@/lib/itineraries/itinerary-pins";
+
+// OpenStreetMap path: the photo-pin map (shared/plans/map-photo-pins.md). Paid tiers keep Kakao/Google.
+const SpotPinMap = dynamic(() => import("@/components/spots/spot-pin-map"), {
+    ssr: false,
+    loading: () => <div className="h-full w-full rounded-xl bg-muted/30" aria-hidden="true" />,
+});
 
 interface Activity {
     name: string;
@@ -22,6 +30,8 @@ interface Activity {
     lng?: number;
     image?: string;
     category?: string;
+    /** Catalog spot id on grounded itineraries. */
+    spotId?: string;
 }
 
 interface DayPlan {
@@ -41,6 +51,7 @@ interface GeocodedLocation extends Location {
     activityName: string;
     day: number;
     activityIndex: number;
+    spotId?: string;
 }
 
 interface UnmappedActivity {
@@ -62,6 +73,9 @@ export function ItineraryMap({ city, dailyPlans, className, userTier }: Itinerar
     const [copied, setCopied] = useState(false);
 
     const isPaidUser = userTier === "pro" || userTier === "premium";
+    const { provider } = useMapProvider({ city, userTier });
+    const usePhotoPins = provider === "openstreetmap";
+    const [selectedPinId, setSelectedPinId] = useState<string | null>(null);
 
     useEffect(() => {
         if (dailyPlans.length === 0) return;
@@ -96,6 +110,7 @@ export function ItineraryMap({ city, dailyPlans, className, userTier }: Itinerar
                             activityName: activity.name,
                             day: dayPlan.day,
                             activityIndex,
+                            spotId: activity.spotId,
                         });
                     } else if (activity.address || activity.name) {
                         needsGeocoding.push({ activity, day: dayPlan.day, activityIndex });
@@ -168,6 +183,7 @@ export function ItineraryMap({ city, dailyPlans, className, userTier }: Itinerar
                                 activityName: activity.name,
                                 day,
                                 activityIndex,
+                                spotId: activity.spotId,
                             });
                         } else {
                             unmapped.push({ name: activity.name, nameKo: activity.nameKo, address: activity.address, day });
@@ -219,9 +235,10 @@ export function ItineraryMap({ city, dailyPlans, className, userTier }: Itinerar
     }, [dailyPlans, city]);
 
     // Filter locations by selected day
-    const filteredLocations = selectedDay
+    const filteredLocations = useMemo(() => (selectedDay
         ? locations.filter((loc) => loc.day === selectedDay)
-        : locations;
+        : locations), [locations, selectedDay]);
+    const pins = useMemo(() => buildItineraryPins(filteredLocations), [filteredLocations]);
 
     const handleMarkerClick = useCallback(
         (marker: Location, index: number) => {
@@ -367,7 +384,7 @@ export function ItineraryMap({ city, dailyPlans, className, userTier }: Itinerar
                                 size="sm"
                                 variant={selectedDay === null ? "default" : "outline"}
                                 className="rounded-xl"
-                                onClick={() => setSelectedDay(null)}
+                                onClick={() => { setSelectedDay(null); setSelectedPinId(null); }}
                             >
                                 All Days
                             </Button>
@@ -377,7 +394,7 @@ export function ItineraryMap({ city, dailyPlans, className, userTier }: Itinerar
                                     size="sm"
                                     variant={selectedDay === day ? "default" : "outline"}
                                     className="rounded-xl"
-                                    onClick={() => setSelectedDay(day)}
+                                    onClick={() => { setSelectedDay(day); setSelectedPinId(null); }}
                                 >
                                     Day {day}
                                 </Button>
@@ -386,14 +403,21 @@ export function ItineraryMap({ city, dailyPlans, className, userTier }: Itinerar
                     )}
 
                     {/* Map */}
-                    <div className="h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px]">
-                        <MapComponent
-                            markers={filteredLocations}
-                            onMarkerClick={handleMarkerClick}
-                            city={city}
-                            userTier={userTier}
-                        />
-                    </div>
+                    {usePhotoPins ? (
+                        // Taller than the provider maps so the pin card fits inside the map at 390 px.
+                        <div className="h-[440px] sm:h-[480px]">
+                            <SpotPinMap spots={pins.spots} routes={pins.routes} selectedId={selectedPinId} onSelect={setSelectedPinId} />
+                        </div>
+                    ) : (
+                        <div className="h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px]">
+                            <MapComponent
+                                markers={filteredLocations}
+                                onMarkerClick={handleMarkerClick}
+                                city={city}
+                                userTier={userTier}
+                            />
+                        </div>
+                    )}
 
                     {/* Unmapped activities warning (partial success) */}
                     {unmappedActivities.length > 0 && (
@@ -408,7 +432,7 @@ export function ItineraryMap({ city, dailyPlans, className, userTier }: Itinerar
                     )}
 
                     {/* Selected Location Info */}
-                    {selectedLocation && (
+                    {!usePhotoPins && selectedLocation && (
                         <div className=" bg-violet-400/10 p-4">
                             <div className="flex items-start justify-between gap-4">
                                 <div>

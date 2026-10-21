@@ -72,4 +72,18 @@ describe("map pin card", () => {
     fireEvent.keyDown(dialog, { key: "Escape" });
     expect(onClose).toHaveBeenCalledOnce();
   });
+
+  it("shows an itinerary stop without a catalog link or score when the stop has no spot page", () => {
+    const itineraryStop = {
+      id: "day1-0", name: "Hawker Breakfast", category: "Food", photos: [],
+      location: { lat: 1.29, lng: 103.85, address: "" }, meta: "Day 1 · 9:00 AM", href: null,
+      stop: { label: "1", color: "#7c3aed", ariaPrefix: "Day 1, stop 1" },
+    };
+    render(<PinCard spot={itineraryStop} point={{ x: 120, y: 300 }} titleId="stop-title" onClose={() => {}} />);
+    expect(screen.getByRole("dialog", { name: "Hawker Breakfast" })).toBeTruthy();
+    expect(screen.getByText("Day 1 · 9:00 AM")).toBeTruthy();
+    expect(screen.queryByRole("link", { name: "Details" })).toBeNull();
+    expect(screen.queryByText(/Localley score/)).toBeNull();
+  });
 });
+
