@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Crown, Rocket, Sparkles, Check, Calendar, MessageSquare, Image as ImageIcon, Bookmark, ArrowRight } from "@/components/ui/icons";
 import { auth, currentUser } from "@/lib/auth/server";
+import { isActivePlanStatus, withLifetimePremium } from "@/lib/lifetime-premium";
 import { redirect } from "next/navigation";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { SubscriptionTier, TIER_CONFIGS } from "@/lib/subscription";
@@ -147,9 +148,12 @@ export default async function SettingsPage({ searchParams }: {
         );
     }
 
-    const { subscription, usage } = await getSubscriptionData();
+    const data = await getSubscriptionData();
+    const subscription = withLifetimePremium(data.subscription, user.emailAddresses[0]?.emailAddress);
+    const { usage } = data;
     const tierConfig = TIER_CONFIGS[subscription.tier];
-    const isActiveSub = ["active", "trialing"].includes(subscription.status);
+    const isActiveSub = isActivePlanStatus(subscription.status);
+    const isLifetime = subscription.status === "lifetime_premium";
     const planLabel = subscription.tier === "free" ? "Choose a paid plan" : `${tierConfig.name} Plan`;
 
     const TierIcon = subscription.tier === "premium" ? Crown : subscription.tier === "pro" ? Rocket : Sparkles;
@@ -241,14 +245,16 @@ export default async function SettingsPage({ searchParams }: {
                             <>
                                 <div className="space-y-1">
                                     <Label className="text-muted-foreground">Billing Cycle</Label>
-                                    <p className="font-semibold capitalize">{subscription.billingCycle}</p>
+                                    <p className="font-semibold capitalize">{isLifetime ? "Lifetime" : subscription.billingCycle}</p>
                                 </div>
                                 <div className="space-y-1">
                                     <Label className="text-muted-foreground">
                                         {subscription.cancelAtPeriodEnd ? "Subscription Ends" : "Next Billing Date"}
                                     </Label>
                                     <p className="font-semibold">
-                                        {subscription.currentPeriodEnd
+                                        {isLifetime
+                                            ? "None"
+                                            : subscription.currentPeriodEnd
                                             ? new Date(subscription.currentPeriodEnd).toLocaleDateString("en-US", {
                                                 month: "long",
                                                 day: "numeric",
@@ -260,7 +266,7 @@ export default async function SettingsPage({ searchParams }: {
                                 <div className="space-y-1">
                                     <Label className="text-muted-foreground">Price</Label>
                                     <p className="font-semibold">
-                                        ${tierConfig.price}/{subscription.billingCycle === "yearly" ? "year" : "month"}
+                                        {isLifetime ? "Included" : `$${tierConfig.price}/${subscription.billingCycle === "yearly" ? "year" : "month"}`}
                                     </p>
                                 </div>
                             </>

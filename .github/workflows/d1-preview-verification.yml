@@ -92,6 +92,8 @@ on:
       - 'app/api/cron/ai-provider-probe/**'
       - '__tests__/lib/provider-probe.test.ts'
       - '__tests__/api/ai-provider-probe-route.test.ts'
+      - 'lib/lifetime-premium.ts'
+      - '__tests__/lib/lifetime-plan-display.test.ts'
       - '__tests__/lib/pin-clusters.test.ts'
       - '__tests__/components/spot-pin-map.test.tsx'
       - 'components/itinerary/itinerary-map.tsx'
@@ -433,6 +435,7 @@ jobs:
             npx eslint lib/itineraries/grounded-generation.ts __tests__/lib/itinerary-grounded-generation.test.ts
             npx vitest run __tests__/lib/provider-probe.test.ts __tests__/api/ai-provider-probe-route.test.ts --maxWorkers=1
             npx eslint lib/llm/provider-probe.ts app/api/cron/ai-provider-probe/route.ts __tests__/lib/provider-probe.test.ts __tests__/api/ai-provider-probe-route.test.ts
+            npx vitest run __tests__/lib/lifetime-plan-display.test.ts --maxWorkers=1
             npx eslint lib/notifications/auth-store.ts lib/notifications/validation.ts __tests__/lib/auth-notification-store.test.ts
             npx vitest run __tests__/api/auth-notification-routes.test.ts __tests__/hooks/auth-notification-ownership.test.tsx --maxWorkers=1
             npx eslint lib/notifications/auth-http.ts lib/auth/client.ts __tests__/api/auth-notification-routes.test.ts __tests__/hooks/auth-notification-ownership.test.tsx
