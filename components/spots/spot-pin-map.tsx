@@ -21,10 +21,11 @@ const CARD_OFFSET_PX = 30;
 
 interface MarkerSlot { key: string; ids: string[]; host: HTMLElement }
 
-export default function SpotPinMap({ spots, selectedId, onSelect }: {
+export default function SpotPinMap({ spots, selectedId = null, onSelect }: {
     spots: Spot[];
-    selectedId: string | null;
-    onSelect: (id: string | null) => void;
+    selectedId?: string | null;
+    /** Omit for a static map (e.g. the spot's own detail page): pins become labelled images, no card. */
+    onSelect?: (id: string | null) => void;
 }) {
     const container = useRef<HTMLDivElement>(null);
     const mapRef = useRef<L.Map | null>(null);
@@ -135,7 +136,7 @@ export default function SpotPinMap({ spots, selectedId, onSelect }: {
 
     const close = useCallback(() => {
         returnFocus.current = selectedId;
-        onSelect(null);
+        onSelect?.(null);
     }, [onSelect, selectedId]);
 
     useEffect(() => {
@@ -172,7 +173,7 @@ export default function SpotPinMap({ spots, selectedId, onSelect }: {
                 }
                 const spot = byId.get(slot.ids[0]);
                 return spot ? createPortal(
-                    <PinButton spot={spot} selected={spot.id === selectedId} onSelect={() => onSelect(spot.id)} />,
+                    <PinButton spot={spot} selected={spot.id === selectedId} onSelect={onSelect ? () => onSelect(spot.id) : undefined} />,
                     slot.host, slot.key) : null;
             })}
             {selected && cardPoint && (
@@ -190,13 +191,12 @@ function pinPhoto(spot: Spot): string | undefined {
     return getDirectVenuePhotos(spot.photos)[0]?.url;
 }
 
-function PinButton({ spot, selected, onSelect }: { spot: Spot; selected: boolean; onSelect: () => void }) {
+function PinButton({ spot, selected, onSelect }: { spot: Spot; selected: boolean; onSelect?: () => void }) {
     const tone = pinTone(spot.category);
     const Icon = TONE_ICONS[tone];
     const photo = pinPhoto(spot);
-    return (
-        <button type="button" className="ll-pin" data-tone={tone} data-pin-id={spot.id} data-selected={selected || undefined}
-            aria-label={`${spot.name}, ${spot.category}`} aria-pressed={selected} onClick={onSelect}>
+    const face = (
+        <>
             <span className="ll-pin-face" aria-hidden="true">
                 {photo
                     // eslint-disable-next-line @next/next/no-img-element -- Leaflet portal; first-party thumbnail, lazy.
@@ -204,6 +204,15 @@ function PinButton({ spot, selected, onSelect }: { spot: Spot; selected: boolean
                     : <Icon className="h-[18px] w-[18px]" />}
             </span>
             <span className="ll-pin-chip" aria-hidden="true">{spot.category}</span>
+        </>
+    );
+    if (!onSelect) {
+        return <span className="ll-pin" role="img" data-tone={tone} data-pin-id={spot.id} aria-label={`${spot.name}, ${spot.category}`}>{face}</span>;
+    }
+    return (
+        <button type="button" className="ll-pin" data-tone={tone} data-pin-id={spot.id} data-selected={selected || undefined}
+            aria-label={`${spot.name}, ${spot.category}`} aria-pressed={selected} onClick={onSelect}>
+            {face}
         </button>
     );
 }

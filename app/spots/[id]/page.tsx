@@ -1491,7 +1491,7 @@ export default async function SpotPage({
               </div>
 
               <div className="overflow-hidden rounded-lg bg-white/[0.055]">
-                <SpotDetailMap lat={spot.location.lat} lng={spot.location.lng} name={spot.name}
+                <SpotDetailMap lat={spot.location.lat} lng={spot.location.lng} name={spot.name} category={spot.category} photos={spot.photos}
                   searchUrl={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(exactMapQuery)}`} />
                 <div className="p-4">
                   <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-white">
