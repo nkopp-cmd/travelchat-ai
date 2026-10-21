@@ -15,14 +15,14 @@ export function AuthShell({ title, subtitle, children, footer }: {
                     <Logo size="lg" showText={false} href={undefined} />
                 </div>
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-white mb-2">{title}</h1>
-                    <p className="text-gray-400">{subtitle}</p>
+                    <h1 className="text-3xl font-bold text-foreground mb-2">{title}</h1>
+                    <p className="text-muted-foreground">{subtitle}</p>
                 </div>
-                <div className="overflow-hidden rounded-lg bg-card/80 p-6 shadow-2xl shadow-violet-500/20 backdrop-blur-xl sm:p-8">
+                <div className="overflow-hidden rounded-lg bg-card/80 p-6 backdrop-blur-xl sm:p-8">
                     {children}
                 </div>
                 {footer ?? (
-                    <p className="text-center text-sm text-gray-500 mt-6">
+                    <p className="text-center text-sm text-muted-foreground mt-6">
                         By continuing, you agree to our Terms of Service and Privacy Policy
                     </p>
                 )}

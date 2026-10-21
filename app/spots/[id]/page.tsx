@@ -76,7 +76,7 @@ import { previewSavedSpotActor } from "@/lib/app-data/preview-saved-spot-actor";
 import { previewSpotPageData } from "@/lib/app-data/preview-spot-page";
 
 const LIQUID_CARD =
-  "rounded-lg bg-[#100b1c]/[0.86] shadow-lg shadow-violet-950/20 backdrop-blur-xl";
+  "rounded-lg bg-surface/[0.86] backdrop-blur-xl";
 
 interface RelatedSpot {
   id: string;
@@ -321,18 +321,18 @@ function getLocationToneClasses(
   tone: ReturnType<typeof getLocationConfidence>["tone"],
 ) {
   if (tone === "exact")
-    return " bg-emerald-400/10 text-emerald-100";
-  if (tone === "pinned") return " bg-sky-400/10 text-sky-100";
-  return " bg-amber-400/10 text-amber-100";
+    return " bg-[rgb(var(--ll-success)/0.12)] text-foreground";
+  if (tone === "pinned") return " bg-primary/10 text-foreground";
+  return " bg-[rgb(var(--ll-warning)/0.14)] text-foreground";
 }
 
 function getSignalToneClasses(tone: "emerald" | "sky" | "amber" | "violet") {
   if (tone === "emerald")
-    return " bg-emerald-400/10 text-emerald-100";
-  if (tone === "sky") return " bg-sky-400/10 text-sky-100";
+    return " bg-[rgb(var(--ll-success)/0.12)] text-foreground";
+  if (tone === "sky") return " bg-primary/10 text-foreground";
   if (tone === "violet")
-    return " bg-violet-400/10 text-violet-100";
-  return " bg-amber-400/10 text-amber-100";
+    return " bg-primary/10 text-foreground";
+  return " bg-[rgb(var(--ll-warning)/0.14)] text-foreground";
 }
 
 function DetailSignal({
@@ -349,15 +349,15 @@ function DetailSignal({
   tone?: "violet" | "emerald" | "sky" | "amber";
 }) {
   const toneClasses = {
-    violet: " bg-violet-400/10 text-violet-100",
-    emerald: " bg-emerald-400/10 text-emerald-100",
-    sky: " bg-sky-400/10 text-sky-100",
-    amber: " bg-amber-400/10 text-amber-100",
+    violet: " bg-primary/10 text-foreground",
+    emerald: " bg-[rgb(var(--ll-success)/0.12)] text-foreground",
+    sky: " bg-primary/10 text-foreground",
+    amber: " bg-[rgb(var(--ll-warning)/0.14)] text-foreground",
   }[tone];
 
   return (
-    <div className="rounded-lg bg-white/[0.055] p-3">
-      <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-violet-50/45">
+    <div className="rounded-lg bg-raised p-3">
+      <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-foreground">
         <span
           className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${toneClasses}`}
         >
@@ -365,9 +365,9 @@ function DetailSignal({
         </span>
         {label}
       </div>
-      <p className="text-sm font-semibold leading-snug text-white">{value}</p>
+      <p className="text-sm font-semibold leading-snug text-foreground">{value}</p>
       {helper && (
-        <p className="mt-1 text-xs leading-5 text-violet-50/55">{helper}</p>
+        <p className="mt-1 text-xs leading-5 text-foreground">{helper}</p>
       )}
     </div>
   );
@@ -397,13 +397,13 @@ function PlanningSnapshot({
 
   return (
     <section className={`${LIQUID_CARD} overflow-hidden`} aria-label="Plan-ready snapshot">
-      <div className=" bg-white/[0.035] p-3 sm:p-4">
+      <div className="bg-raised p-3 sm:p-4">
         <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-violet-200/70">
+            <p className="text-xs font-semibold uppercase tracking-wide text-foreground">
               Plan-ready snapshot
             </p>
-            <h2 className="text-lg font-bold leading-tight text-white sm:text-2xl">
+            <h2 className="text-lg font-bold leading-tight text-foreground sm:text-2xl">
               What this spot is good for
             </h2>
           </div>
@@ -448,9 +448,9 @@ function RecordConfidencePanel({
   confidence: ReturnType<typeof getSpotRecordConfidence>;
 }) {
   const toneClasses = {
-    emerald: " bg-emerald-400/10 text-emerald-100",
-    sky: " bg-sky-400/10 text-sky-100",
-    amber: " bg-amber-400/10 text-amber-100",
+    emerald: " bg-[rgb(var(--ll-success)/0.12)] text-foreground",
+    sky: " bg-primary/10 text-foreground",
+    amber: " bg-[rgb(var(--ll-warning)/0.14)] text-foreground",
   }[confidence.tone];
 
   return (
@@ -460,21 +460,21 @@ function RecordConfidencePanel({
     >
       <div className="min-w-0">
         <span
-          className={`inline-flex rounded-md px-2 py-1 text-[11px] font-semibold ${toneClasses}`}
+          className={`inline-flex rounded-md px-2 py-1 text-xs font-semibold ${toneClasses}`}
         >
           {confidence.label}
         </span>
-        <p className="mt-2 text-sm leading-6 text-violet-50/65">
+        <p className="mt-2 text-sm leading-6 text-foreground">
           {confidence.helper}
         </p>
-        <div className="mt-3 rounded-lg bg-white/[0.055] p-3">
-          <p className="text-xs font-semibold uppercase tracking-wide text-violet-50/45">
+        <div className="mt-3 rounded-lg bg-raised p-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-foreground">
             Next best action
           </p>
-          <p className="mt-1 text-sm font-semibold leading-5 text-white">
+          <p className="mt-1 text-sm font-semibold leading-5 text-foreground">
             {confidence.actionLabel}
           </p>
-          <p className="mt-1 text-xs leading-5 text-violet-50/60">
+          <p className="mt-1 text-xs leading-5 text-foreground">
             {confidence.actionHelper}
           </p>
         </div>
@@ -483,23 +483,23 @@ function RecordConfidencePanel({
         {confidence.checks.map((check) => (
           <div
             key={check.label}
-            className="min-w-0 rounded-lg bg-white/[0.055] p-2.5"
+            className="min-w-0 rounded-lg bg-raised p-2.5"
           >
-            <div className="mb-1 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-violet-50/45">
+            <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-foreground">
               {check.ready ? (
                 <ShieldCheck
-                  className="h-3.5 w-3.5 shrink-0 text-emerald-300"
+                  className="h-3.5 w-3.5 shrink-0 text-[rgb(var(--ll-success))]"
                   aria-hidden="true"
                 />
               ) : (
                 <AlertTriangle
-                  className="h-3.5 w-3.5 shrink-0 text-amber-300"
+                  className="h-3.5 w-3.5 shrink-0 text-[rgb(var(--ll-warning))]"
                   aria-hidden="true"
                 />
               )}
               <span className="truncate">{check.label}</span>
             </div>
-            <p className="truncate text-xs font-semibold text-white sm:text-sm">
+            <p className="truncate text-xs font-semibold text-foreground sm:text-sm">
               {check.value}
             </p>
           </div>
@@ -531,8 +531,8 @@ function GetDirectionsButton({
     !isKorea;
   const directionToneClass =
     locationConfidence.tone === "area"
-      ? "bg-amber-600 shadow-amber-500/20 hover:bg-amber-700"
-      : "bg-violet-600 shadow-violet-500/20 hover:bg-violet-700";
+      ? "bg-[rgb(var(--ll-warning))] text-[rgb(var(--ll-control-ink))] hover:bg-[rgb(var(--ll-warning)/0.9)]"
+      : "";
 
   return (
     <Button
@@ -597,16 +597,16 @@ function NavigationTargetPanel({
   return (
     <div
       data-testid="spot-detail-navigation-target"
-      className={`rounded-lg bg-white/[0.055] ${
+      className={`rounded-lg bg-raised ${
         compact ? "p-3" : "p-4"
       }`}
     >
       <div className="mb-2 flex flex-wrap items-center gap-2">
-        <span className="text-xs font-semibold uppercase tracking-wide text-violet-50/45">
+        <span className="text-xs font-semibold uppercase tracking-wide text-foreground">
           {navigationMode.targetLabel}
         </span>
         <span
-          className={`inline-flex rounded-md px-2 py-1 text-[11px] font-semibold ${getSignalToneClasses(
+          className={`inline-flex rounded-md px-2 py-1 text-xs font-semibold ${getSignalToneClasses(
             getSpotNavigationSignalTone({
               status: navigationMode.status,
               locationTone: locationConfidence.tone,
@@ -616,30 +616,30 @@ function NavigationTargetPanel({
           {navigationMode.label}
         </span>
       </div>
-      <p className="break-words text-sm font-semibold leading-6 text-white">
+      <p className="break-words text-sm font-semibold leading-6 text-foreground">
         {targetValue}
       </p>
-      <p className="mt-2 break-words text-xs leading-5 text-violet-50/60">
+      <p className="mt-2 break-words text-xs leading-5 text-foreground">
         Address on record:{" "}
         <span data-testid="spot-detail-address">{spot.location.address}</span>
       </p>
       {isSearchFirst && (
-        <p className="mt-2 rounded-md bg-amber-400/10 p-2 text-xs leading-5 text-amber-100/80">
+        <p className="mt-2 rounded-md bg-[rgb(var(--ll-warning)/0.14)] p-2 text-xs leading-5 text-foreground">
           {navigationMode.helper}
         </p>
       )}
       {hasMatchedGooglePlace && (
-        <p className="mt-2 rounded-md bg-emerald-400/10 p-2 text-xs leading-5 text-emerald-100/80">
+        <p className="mt-2 rounded-md bg-[rgb(var(--ll-success)/0.12)] p-2 text-xs leading-5 text-foreground">
           {navigationMode.helper}
         </p>
       )}
       {!isSearchFirst && !hasMatchedGooglePlace && (
-        <p className="mt-2 rounded-md bg-emerald-400/10 p-2 text-xs leading-5 text-emerald-100/80">
+        <p className="mt-2 rounded-md bg-[rgb(var(--ll-success)/0.12)] p-2 text-xs leading-5 text-foreground">
           {navigationMode.helper}
         </p>
       )}
       {lat && lng && (
-        <p className="mt-2 text-xs text-violet-50/45">
+        <p className="mt-2 text-xs text-foreground">
           {getSpotCoordinateEvidenceLabel({
             address: spot.location.address,
             tone: locationConfidence.tone,
@@ -1036,7 +1036,7 @@ export default async function SpotPage({
       <div className="mx-auto max-w-6xl space-y-5 pb-4 animate-in fade-in duration-500 md:space-y-8">
         <Link
           href="/spots"
-          className="inline-flex min-h-10 items-center rounded-full bg-white/[0.055] px-3 text-sm text-violet-50/70 transition-colors hover:bg-violet-400/10 hover:text-white"
+          className="inline-flex min-h-10 items-center rounded-full bg-raised px-3 text-sm text-foreground transition-colors hover:bg-overlay"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to spots
@@ -1052,13 +1052,13 @@ export default async function SpotPage({
           <div className="absolute inset-x-0 bottom-0 w-full p-4 sm:p-6 md:p-8">
             <div className="max-w-3xl">
               <div className="flex flex-wrap items-center gap-2 sm:mb-3">
-                <Badge className=" bg-white/10 text-white shadow-none hover:bg-white/10">
+                <Badge variant="secondary">
                   {spot.category}
                 </Badge>
                 {spot.verified && (
                   <Badge
                     variant="outline"
-                    className=" bg-emerald-400/10 text-emerald-200 backdrop-blur-sm"
+                    className="bg-[rgb(var(--ll-success)/0.12)] text-foreground backdrop-blur-sm"
                   >
                     Curated record
                   </Badge>
@@ -1066,7 +1066,7 @@ export default async function SpotPage({
                 {spot.communitySubmission && (
                   <Badge
                     variant="outline"
-                    className=" bg-sky-400/10 text-sky-100 backdrop-blur-sm"
+                    className="bg-primary/10 text-foreground backdrop-blur-sm"
                   >
                     <UserRound className="mr-1 h-3.5 w-3.5" />
                     {spot.communitySubmission.status === "spot_reused"
@@ -1078,8 +1078,8 @@ export default async function SpotPage({
                   variant="outline"
                   className={
                     spot.hasRealPhoto
-                      ? " bg-violet-400/10 text-violet-100 backdrop-blur-sm"
-                      : " bg-amber-400/10 text-amber-100 backdrop-blur-sm"
+                      ? " bg-primary/10 text-foreground backdrop-blur-sm"
+                      : " bg-[rgb(var(--ll-warning)/0.14)] text-foreground backdrop-blur-sm"
                   }
                 >
                   <ImageIcon className="mr-1 h-3.5 w-3.5" />
@@ -1089,10 +1089,10 @@ export default async function SpotPage({
                   variant="outline"
                   className={
                     locationConfidence.tone === "exact"
-                      ? " bg-emerald-400/10 text-emerald-100 backdrop-blur-sm"
+                      ? " bg-[rgb(var(--ll-success)/0.12)] text-foreground backdrop-blur-sm"
                       : locationConfidence.tone === "pinned"
-                        ? " bg-sky-400/10 text-sky-100 backdrop-blur-sm"
-                        : " bg-amber-400/10 text-amber-100 backdrop-blur-sm"
+                        ? " bg-primary/10 text-foreground backdrop-blur-sm"
+                        : " bg-[rgb(var(--ll-warning)/0.14)] text-foreground backdrop-blur-sm"
                   }
                 >
                   {locationConfidence.tone === "area" ? (
@@ -1103,10 +1103,10 @@ export default async function SpotPage({
                   {locationConfidence.label}
                 </Badge>
               </div>
-              <h1 className="hidden text-4xl font-bold leading-tight text-white sm:block">
+              <h1 className="hidden text-4xl font-bold leading-tight text-foreground sm:block">
                 {spot.name}
               </h1>
-              <div className="mt-3 hidden items-start gap-2 text-sm leading-6 text-violet-50/75 sm:flex">
+              <div className="mt-3 hidden items-start gap-2 text-sm leading-6 text-foreground sm:flex">
                 <MapPin className="mt-1 h-4 w-4 shrink-0" />
                 <span data-testid="spot-detail-address">
                   {spot.location.address}
@@ -1120,11 +1120,11 @@ export default async function SpotPage({
           className={`${LIQUID_CARD} space-y-2 p-3 sm:hidden`}
           aria-label="Spot summary"
         >
-          <h1 className="text-2xl font-bold leading-tight text-white">
+          <h1 className="text-2xl font-bold leading-tight text-foreground">
             {spot.name}
           </h1>
-          <div className="flex items-start gap-2 text-sm leading-6 text-violet-50/70">
-            <MapPin className="mt-1 h-4 w-4 shrink-0 text-violet-300" />
+          <div className="flex items-start gap-2 text-sm leading-6 text-foreground">
+            <MapPin className="mt-1 h-4 w-4 shrink-0 text-primary" />
             <span data-testid="spot-detail-address">
               {spot.location.address}
             </span>
@@ -1142,28 +1142,28 @@ export default async function SpotPage({
             fallbackQuery={exactMapQuery}
             compact
           />
-          <p className="text-xs leading-5 text-violet-50/60">
+          <p className="text-xs leading-5 text-foreground">
             {getDirectionsHelperText(spot)}
           </p>
           <div className="grid grid-cols-2 gap-2">
-            <div className="rounded-lg bg-white/[0.055] p-2.5">
-              <span className="flex items-center gap-1.5 text-xs font-semibold text-white">
-                <MapPin className="h-3.5 w-3.5 text-violet-300" />
+            <div className="rounded-lg bg-raised p-2.5">
+              <span className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                <MapPin className="h-3.5 w-3.5 text-primary" />
                 {navigationMode.label}
               </span>
-              <span className="mt-1 block truncate text-xs text-violet-50/50">
+              <span className="mt-1 block truncate text-xs text-foreground">
                 {primaryArea}
               </span>
             </div>
-            <div className="rounded-lg bg-white/[0.055] p-2.5">
-              <span className="flex items-center gap-1.5 text-xs font-semibold text-white">
-                <Clock className="h-3.5 w-3.5 text-indigo-300" />
+            <div className="rounded-lg bg-raised p-2.5">
+              <span className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                <Clock className="h-3.5 w-3.5 text-primary" />
                 Best time
               </span>
-              <span className="mt-1 block truncate text-xs text-violet-50/50">
+              <span className="mt-1 block truncate text-xs text-foreground">
                 {spot.bestTime}
               </span>
-              <p className="mt-1 text-xs text-violet-100">Visit advice, not opening hours.</p>
+              <p className="mt-1 text-xs text-foreground">Visit advice, not opening hours.</p>
             </div>
           </div>
         </section>
@@ -1184,21 +1184,21 @@ export default async function SpotPage({
         {spot.communitySubmission && (
           <section className={`${LIQUID_CARD} p-4 sm:p-5`} aria-label="Community submission credit">
             <div className="flex items-start gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-sky-400/10 text-sky-100">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-foreground">
                 <UserRound className="h-5 w-5" />
               </span>
               <div>
-                <p className="text-sm font-semibold uppercase tracking-wide text-sky-200/80">
+                <p className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                   {spot.communitySubmission.status === "spot_reused"
                     ? "Found through the community"
                     : "Made by the community"}
                 </p>
-                <h2 className="mt-1 text-xl font-bold leading-tight text-white">
+                <h2 className="mt-1 text-xl font-bold leading-tight text-foreground">
                   {spot.communitySubmission.status === "spot_reused"
                     ? `Matched by ${spot.communitySubmission.contributorCredit}`
                     : `Submitted by ${spot.communitySubmission.contributorCredit}`}
                 </h2>
-                <p className="mt-2 text-sm leading-6 text-violet-50/65">
+                <p className="mt-2 text-sm leading-6 text-foreground">
                   Shared from {spot.communitySubmission.platform}.{" "}
                   {spot.communitySubmission.researchSummary ||
                     "Localley research converted the shared link into this spot record."}
@@ -1207,7 +1207,7 @@ export default async function SpotPage({
                   href={spot.communitySubmission.sourceUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-lg bg-sky-400/10 px-3 text-sm font-semibold text-sky-100 transition-colors hover:bg-sky-400/15"
+                  className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary/10 px-3 text-sm font-semibold text-foreground transition-colors hover:bg-primary/15"
                 >
                   View source post
                   <ExternalLink className="h-4 w-4" />
@@ -1226,7 +1226,7 @@ export default async function SpotPage({
                 <Badge
                   key={sub}
                   variant="secondary"
-                  className=" bg-violet-400/10 px-3 py-1 text-sm text-violet-100"
+                  className="bg-primary/10 px-3 py-1 text-sm text-foreground"
                 >
                   {sub}
                 </Badge>
@@ -1234,7 +1234,7 @@ export default async function SpotPage({
             </div>
 
             <div className={`${LIQUID_CARD} space-y-4 p-4 sm:p-5`}>
-              <p className="text-base leading-7 text-violet-50/70 sm:text-lg">
+              <p className="text-base leading-7 text-foreground sm:text-lg">
                 {spot.description}
               </p>
             </div>
@@ -1242,14 +1242,14 @@ export default async function SpotPage({
             <section className={`${LIQUID_CARD} space-y-4 p-4 sm:p-6`}>
               <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <p className="text-sm font-semibold uppercase tracking-wide text-violet-200/70">
+                  <p className="text-sm font-semibold uppercase tracking-wide text-foreground">
                     Quick read
                   </p>
-                  <h2 className="text-2xl font-bold leading-tight text-white">
+                  <h2 className="text-2xl font-bold leading-tight text-foreground">
                     Know before you route it
                   </h2>
                 </div>
-                <span className="w-fit rounded-md bg-violet-400/10 px-2 py-1 text-[11px] font-semibold text-violet-100">
+                <span className="w-fit rounded-md bg-primary/10 px-2 py-1 text-xs font-semibold text-foreground">
                   {primaryArea}
                 </span>
               </div>
@@ -1288,15 +1288,15 @@ export default async function SpotPage({
             <section className={`${LIQUID_CARD} space-y-4 p-4 sm:p-6`}>
               <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <p className="text-sm font-semibold uppercase tracking-wide text-violet-200/70">
+                  <p className="text-sm font-semibold uppercase tracking-wide text-foreground">
                     Visit plan
                   </p>
-                  <h2 className="text-2xl font-bold leading-tight text-white">
+                  <h2 className="text-2xl font-bold leading-tight text-foreground">
                     How to use {spot.name}
                   </h2>
                 </div>
                 <span
-                  className={`w-fit rounded-md px-2 py-1 text-[11px] font-semibold ${getSignalToneClasses(locationSignalTone)}`}
+                  className={`w-fit rounded-md px-2 py-1 text-xs font-semibold ${getSignalToneClasses(locationSignalTone)}`}
                 >
                   {navigationMode.label}
                 </span>
@@ -1337,15 +1337,15 @@ export default async function SpotPage({
               <div className="grid gap-0 md:grid-cols-[1.1fr_0.9fr]">
                 <div className="space-y-4 p-4 sm:p-6">
                   <div>
-                    <div className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-violet-200/80">
-                      <Sparkles className="h-4 w-4 text-violet-300" />
+                    <div className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-foreground">
+                      <Sparkles className="h-4 w-4 text-primary" />
                       Why locals go
                     </div>
-                    <h2 className="text-2xl font-bold leading-tight text-white">
+                    <h2 className="text-2xl font-bold leading-tight text-foreground">
                       A curated stop{" "}
                       in {primaryArea}
                     </h2>
-                    <p className="mt-2 text-sm leading-6 text-violet-50/65">
+                    <p className="mt-2 text-sm leading-6 text-foreground">
                       {scoreNarrative}
                     </p>
                   </div>
@@ -1381,46 +1381,46 @@ export default async function SpotPage({
                   </div>
                 </div>
 
-                <div className=" bg-white/[0.035] p-4 sm:p-6 md:border-t-0">
+                <div className="bg-raised p-4 sm:p-6 md:border-t-0">
                   <div className="mb-4 flex items-center justify-between gap-3">
                     <div>
-                      <h3 className="font-semibold text-white">
+                      <h3 className="font-semibold text-foreground">
                         {locationPlanningCopy.heading}
                       </h3>
-                      <p className="text-xs leading-5 text-violet-50/55">
+                      <p className="text-xs leading-5 text-foreground">
                         {locationPlanningCopy.description}
                       </p>
                     </div>
                     {locationConfidence.tone === "area" ? (
-                      <AlertTriangle className="h-5 w-5 shrink-0 text-amber-300" />
+                      <AlertTriangle className="h-5 w-5 shrink-0 text-[rgb(var(--ll-warning))]" />
                     ) : (
-                      <ShieldCheck className="h-5 w-5 shrink-0 text-emerald-300" />
+                      <ShieldCheck className="h-5 w-5 shrink-0 text-[rgb(var(--ll-success))]" />
                     )}
                   </div>
                   <div className="space-y-3">
                     <div className="flex gap-3 rounded-lg bg-black/10 p-3">
-                      <Route className="mt-0.5 h-4 w-4 shrink-0 text-violet-300" />
+                      <Route className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                       <div>
-                        <p className="text-sm font-medium text-white">
+                        <p className="text-sm font-medium text-foreground">
                           {locationPlanningCopy.routeTitle}
                         </p>
-                        <p className="mt-1 text-xs leading-5 text-violet-50/60">
+                        <p className="mt-1 text-xs leading-5 text-foreground">
                           {spot.name}, {spot.location.address}
                         </p>
                         <p
-                          className={`mt-2 inline-flex rounded-md px-2 py-1 text-[11px] font-semibold ${getLocationToneClasses(locationConfidence.tone)}`}
+                          className={`mt-2 inline-flex rounded-md px-2 py-1 text-xs font-semibold ${getLocationToneClasses(locationConfidence.tone)}`}
                         >
                           {locationConfidence.label}
                         </p>
                       </div>
                     </div>
                     <div className="flex gap-3 rounded-lg bg-black/10 p-3">
-                      <Compass className="mt-0.5 h-4 w-4 shrink-0 text-indigo-300" />
+                      <Compass className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                       <div>
-                        <p className="text-sm font-medium text-white">
+                        <p className="text-sm font-medium text-foreground">
                           Build nearby time around {primaryArea}
                         </p>
-                        <p className="mt-1 text-xs leading-5 text-violet-50/60">
+                        <p className="mt-1 text-xs leading-5 text-foreground">
                           Save it first, then add cafes, food, markets, or
                           evening stops around the same pocket.
                         </p>
@@ -1434,17 +1434,17 @@ export default async function SpotPage({
             {spot.tips.length > 0 && (
               <div className={`${LIQUID_CARD} space-y-4 p-4 sm:p-6`}>
                 <div>
-                  <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-white">
-                    <Users className="h-5 w-5 text-violet-300" />
+                  <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-foreground">
+                    <Users className="h-5 w-5 text-primary" />
                     Before you go
                   </h3>
                   <ul className="grid gap-2 sm:grid-cols-2">
                     {spot.tips.map((tip: string, i: number) => (
                       <li
                         key={i}
-                        className="flex items-start gap-3 rounded-lg bg-white/[0.055] p-3 text-sm leading-6 text-violet-50/75"
+                        className="flex items-start gap-3 rounded-lg bg-raised p-3 text-sm leading-6 text-foreground"
                       >
-                        <div className="mt-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-violet-400/15 text-xs font-bold text-violet-200">
+                        <div className="mt-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-foreground">
                           {i + 1}
                         </div>
                         <span>{tip}</span>
@@ -1470,7 +1470,7 @@ export default async function SpotPage({
               className={`space-y-5 p-4 sm:p-6 lg:sticky lg:top-24 ${LIQUID_CARD}`}
             >
               <div>
-                <h3 className="mb-4 font-semibold text-white">
+                <h3 className="mb-4 font-semibold text-foreground">
                   Localley Score
                 </h3>
                 <div className="flex justify-center py-4">
@@ -1479,7 +1479,7 @@ export default async function SpotPage({
                     className="scale-125"
                   />
                 </div>
-                <p className="mt-2 px-2 text-center text-sm text-violet-50/60">
+                <p className="mt-2 px-2 text-center text-sm text-foreground">
                   {spot.localleyScore === LocalleyScale.HIDDEN_GEM
                     ? "A rare find! Mostly locals and very few tourists know about this spot."
                     : "A great spot with a mix of people."}
@@ -1490,21 +1490,21 @@ export default async function SpotPage({
                 <GetDirectionsButton spot={spot} />
               </div>
 
-              <div className="overflow-hidden rounded-lg bg-white/[0.055]">
+              <div className="overflow-hidden rounded-lg bg-raised">
                 <SpotDetailMap lat={spot.location.lat} lng={spot.location.lng} name={spot.name} category={spot.category} photos={spot.photos}
                   searchUrl={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(exactMapQuery)}`} />
                 <div className="p-4">
-                  <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-white">
+                  <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
                     {locationConfidence.tone === "area" ? (
-                      <AlertTriangle className="h-4 w-4 text-amber-300" />
+                      <AlertTriangle className="h-4 w-4 text-[rgb(var(--ll-warning))]" />
                     ) : (
-                      <MapPin className="h-4 w-4 text-violet-300" />
+                      <MapPin className="h-4 w-4 text-primary" />
                     )}
                     {locationPlanningCopy.locationHeading}
                   </h3>
                   <p
                     data-testid="spot-detail-sidebar-address"
-                    className="text-sm leading-6 text-violet-50/70"
+                    className="text-sm leading-6 text-foreground"
                   >
                     {spot.location.address}
                   </p>
@@ -1536,7 +1536,7 @@ export default async function SpotPage({
                       tone={locationSignalTone}
                     />
                   </div>
-                  <p className="mt-2 rounded-md bg-violet-400/10 p-2 text-xs leading-5 text-violet-50/65">
+                  <p className="mt-2 rounded-md bg-primary/10 p-2 text-xs leading-5 text-foreground">
                     {locationConfidence.description}{" "}
                     {getDirectionsHelperText(spot)}
                   </p>
@@ -1550,10 +1550,10 @@ export default async function SpotPage({
           <section className={`${LIQUID_CARD} p-4 sm:p-6`}>
             <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-wide text-violet-200/70">
+                <p className="text-sm font-semibold uppercase tracking-wide text-foreground">
                   {hasDistanceRankedRelatedSpots ? "Closest picks" : "Same-city picks"}
                 </p>
-                <h2 className="text-2xl font-bold leading-tight text-white">
+                <h2 className="text-2xl font-bold leading-tight text-foreground">
                   {hasDistanceRankedRelatedSpots
                     ? "Build nearby stops into the route"
                     : "Build the same city into a route"}
@@ -1562,7 +1562,7 @@ export default async function SpotPage({
               {citySlug ? (
                 <Link
                   href={`/spots?city=${encodeURIComponent(citySlug)}`}
-                  className="text-sm font-semibold text-violet-200 transition-colors hover:text-white"
+                  className="text-sm font-semibold text-foreground transition-colors hover:text-foreground"
                 >
                   More in {city}
                 </Link>
@@ -1572,28 +1572,28 @@ export default async function SpotPage({
               {relatedSpots.map((related) => (
                 <div
                   key={related.id}
-                  className="group relative overflow-hidden rounded-lg bg-white/[0.055] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/[0.075]"
+                  className="group relative overflow-hidden rounded-lg bg-raised transition-all duration-300 hover:-translate-y-0.5 hover:bg-raised"
                 >
-                  <div className="relative overflow-hidden bg-violet-950/50">
+                  <div className="relative overflow-hidden bg-raised">
                     <VenueCardPhoto spotId={related.id} name={related.name} directPhotos={related.directPhotos} frameClassName="aspect-[4/3] w-full" />
-                    <span className="absolute left-2 top-2 rounded-full bg-black/80 px-2 py-1 text-[11px] font-semibold text-white">
+                    <span className="absolute left-2 top-2 rounded-full bg-black/80 px-2 py-1 text-xs font-semibold text-foreground">
                       {related.category}
                     </span>
-                    <span className="absolute top-2 right-2 rounded-full bg-violet-500/85 px-2 py-1 text-[11px] font-bold text-white backdrop-blur">
+                    <span className="absolute top-2 right-2 rounded-full bg-primary px-2 py-1 text-xs font-bold text-primary-foreground backdrop-blur">
                       {related.localleyScore}/6
                     </span>
                   </div>
                   <div className="space-y-2 p-3">
                     <div>
-                      <h3 className="line-clamp-1 font-semibold text-white group-hover:text-violet-100">
+                      <h3 className="line-clamp-1 font-semibold text-foreground group-hover:text-foreground">
                         <Link href={`/spots/${related.id}`} className="after:absolute after:inset-0 after:z-[1] focus-visible:outline focus-visible:outline-2">{related.name}</Link>
                       </h3>
-                      <p className="mt-1 line-clamp-1 text-xs text-violet-50/55">
+                      <p className="mt-1 line-clamp-1 text-xs text-foreground">
                         {related.address}
                       </p>
                     </div>
-                    <div className="flex flex-wrap gap-1.5 text-[11px] font-medium">
-                      <span className="rounded-md bg-sky-400/10 px-2 py-1 text-sky-100">
+                    <div className="flex flex-wrap gap-1.5 text-xs font-medium">
+                      <span className="rounded-md bg-primary/10 px-2 py-1 text-foreground">
                         {related.distanceLabel}
                       </span>
                     </div>

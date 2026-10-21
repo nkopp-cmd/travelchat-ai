@@ -23,6 +23,20 @@ const FILES = [
   "components/settings/notification-preferences.tsx",
   "app/profile/page.tsx",
   "app/users/[username]/page.tsx",
+  // batch 5
+  "app/spots/[id]/page.tsx",
+  "components/activities/activity-card.tsx",
+  "app/spots/submissions/page.tsx",
+  "app/spots/submit/page.tsx",
+  "components/itineraries/wizard/index.tsx",
+  "components/itineraries/wizard/route-preview.tsx",
+  "components/itineraries/wizard/step-destination.tsx",
+  "components/itineraries/wizard/step-duration.tsx",
+  "components/itineraries/wizard/step-interests.tsx",
+  "components/itineraries/wizard/step-preferences.tsx",
+  "components/itineraries/wizard/wizard-progress.tsx",
+  "components/auth/auth-forms.tsx",
+  "components/auth/auth-shell.tsx",
 ];
 
 describe("itinerary detail design tokens", () => {

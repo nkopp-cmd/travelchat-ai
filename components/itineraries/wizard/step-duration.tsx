@@ -54,11 +54,11 @@ export function StepDuration() {
   return (
     <div className="flex min-h-full flex-col px-4 py-4 sm:py-6">
       <div className="mb-6 text-center sm:mb-8">
-        <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-violet-600/20 sm:mb-4 sm:h-14 sm:w-14">
-          <Calendar className="h-6 w-6 text-violet-400 sm:h-7 sm:w-7" />
+        <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/15 sm:mb-4 sm:h-14 sm:w-14">
+          <Calendar className="h-6 w-6 text-primary sm:h-7 sm:w-7" />
         </div>
-        <h2 className="mb-1.5 text-xl font-bold text-white sm:mb-2 sm:text-2xl">Trip details</h2>
-        <p className="text-sm text-gray-400 sm:text-base">
+        <h2 className="mb-1.5 text-xl font-bold text-foreground sm:mb-2 sm:text-2xl">Trip details</h2>
+        <p className="text-sm text-muted-foreground sm:text-base">
           When are you going, and what&apos;s your budget?
         </p>
       </div>
@@ -78,8 +78,8 @@ export function StepDuration() {
       {/* Days Slider */}
       <div className="mb-7 sm:mb-10">
         <div className="mb-4 flex items-center justify-between">
-          <span className="text-sm font-medium text-gray-400">Duration</span>
-          <span className="text-lg font-bold text-white">
+          <span className="text-sm font-medium text-muted-foreground">Duration</span>
+          <span className="text-lg font-bold text-foreground">
             {data.days} {data.days === 1 ? "day" : "days"}
           </span>
         </div>
@@ -92,12 +92,12 @@ export function StepDuration() {
           aria-label="Trip duration in days"
           className="w-full"
         />
-        <div className="flex justify-between text-xs text-gray-500 mt-2">
+        <div className="flex justify-between text-xs text-muted-foreground mt-2">
           <span>{minDays} {minDays === 1 ? "day" : "days"}</span>
           <span>{maxDays} days</span>
         </div>
         {multiMode && (
-          <p className="mt-2 text-center text-xs text-gray-500">
+          <p className="mt-2 text-center text-xs text-muted-foreground">
             Multi-city trips work best with at least 3 days per city.
           </p>
         )}
@@ -112,8 +112,8 @@ export function StepDuration() {
       {/* Budget Options */}
       <div className="flex-1">
         <div className="flex items-center gap-2 mb-4">
-          <DollarSign className="w-4 h-4 text-gray-400" />
-          <span className="text-sm font-medium text-gray-400">Budget</span>
+          <DollarSign className="w-4 h-4 text-muted-foreground" />
+          <span className="text-sm font-medium text-muted-foreground">Budget</span>
         </div>
         <div className="space-y-3">
           {BUDGET_OPTIONS.map((option) => {
@@ -126,28 +126,28 @@ export function StepDuration() {
                 className={cn(
               "w-full rounded-xl p-3.5 text-left transition-all sm:p-4",
                   "",
-                  "focus:outline-none focus:ring-2 focus:ring-violet-500",
+                  "focus:outline-none focus:ring-2 focus:ring-ring",
                   isSelected
-                    ? " bg-violet-500/10"
-                    : " bg-white/5 "
+                    ? " bg-primary/10"
+                    : " bg-raised "
                 )}
               >
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-lg font-semibold text-white">
+                      <span className="text-lg font-semibold text-foreground">
                         {option.label}
                       </span>
                       <span
                         className={cn(
                           "text-sm font-bold",
-                          isSelected ? "text-violet-400" : "text-gray-500"
+                          isSelected ? "text-primary" : "text-muted-foreground"
                         )}
                       >
                         {option.icon}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-400 mt-1">
+                    <p className="text-sm text-muted-foreground mt-1">
                       {option.description}
                     </p>
                   </div>
@@ -155,7 +155,7 @@ export function StepDuration() {
                     className={cn(
                       "w-6 h-6 rounded-full flex items-center justify-center",
                       isSelected
-                        ? " bg-violet-500"
+                        ? " bg-primary"
                         : ""
                     )}
                   >

@@ -52,11 +52,11 @@ interface ActivityCardProps {
 
 // Localley score badge configurations
 const getScoreBadge = (score: number) => {
-    if (score >= 6) return { label: "Legendary Alley", color: "bg-yellow-500", icon: "🏆" };
-    if (score >= 5) return { label: "Hidden Gem", color: "bg-violet-500", icon: "💎" };
-    if (score >= 4) return { label: "Local Favorite", color: "bg-indigo-500", icon: "⭐" };
-    if (score >= 3) return { label: "Mixed Crowd", color: "bg-blue-500", icon: "👥" };
-    return { label: "Tourist Spot", color: "bg-gray-500", icon: "📍" };
+    if (score >= 6) return { label: "Legendary Alley", color: "bg-[rgb(var(--ll-warning))] text-[rgb(var(--ll-control-ink))]", icon: "🏆" };
+    if (score >= 5) return { label: "Hidden Gem", color: "bg-primary text-primary-foreground", icon: "💎" };
+    if (score >= 4) return { label: "Local Favorite", color: "bg-primary text-primary-foreground", icon: "⭐" };
+    if (score >= 3) return { label: "Mixed Crowd", color: "bg-overlay text-foreground", icon: "👥" };
+    return { label: "Tourist Spot", color: "bg-overlay text-foreground", icon: "📍" };
 };
 
 export function ActivityCard({
@@ -119,7 +119,7 @@ export function ActivityCard({
                             )}
                             {!canShowImages && activity.image && (
                                 <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center">
-                                    <Lock className="h-4 w-4 text-white" />
+                                    <Lock className="h-4 w-4 text-foreground" />
                                 </div>
                             )}
                         </div>
@@ -160,7 +160,7 @@ export function ActivityCard({
         <>
             <Card className={cn("overflow-hidden hover:shadow-lg transition-all !py-0 !gap-0", className)}>
                 {/* Image Section */}
-                <div className="relative h-48 bg-gradient-to-br from-violet-100 to-indigo-100">
+                <div className="relative h-48 bg-primary text-primary-foreground">
                     {canShowImages && activity.image && !imageError ? (
                         <Image
                             src={activity.image}
@@ -173,11 +173,11 @@ export function ActivityCard({
                         <div className="relative h-full w-full overflow-hidden">
                             <CityImageAvatar city={activity.city} className="absolute inset-0 h-full w-full rounded-none" sizes="(max-width: 768px) 100vw, 33vw" imageWidth={1000} quality={90} />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
-                            <p className="absolute inset-x-4 bottom-4 text-center text-sm text-white/85">
+                            <p className="absolute inset-x-4 bottom-4 text-center text-sm text-muted-foreground">
                                 {userTier === "free" ? (
                                     <button
                                         onClick={() => setShowUpgradePrompt(true)}
-                                        className="inline-flex items-center gap-1 rounded-full bg-black/45 px-3 py-1.5 text-white backdrop-blur-sm hover:bg-violet-600/80"
+                                        className="inline-flex items-center gap-1 rounded-full bg-black/45 px-3 py-1.5 text-foreground backdrop-blur-sm hover:bg-primary/20"
                                     >
                                         <Sparkles className="h-3 w-3" />
                                         Unlock AI images
@@ -191,7 +191,7 @@ export function ActivityCard({
 
                     {/* Blur overlay for free tier with image */}
                     {!canShowImages && activity.image && (
-                        <div className="absolute inset-0 bg-black/50 backdrop-blur-md flex flex-col items-center justify-center text-white">
+                        <div className="absolute inset-0 bg-black/50 backdrop-blur-md flex flex-col items-center justify-center text-foreground">
                             <Lock className="h-8 w-8 mb-2" />
                             <p className="text-sm font-medium">Upgrade to see image</p>
                             <Button
@@ -210,7 +210,7 @@ export function ActivityCard({
                     {scoreBadge && (
                         <Badge
                             className={cn(
-                                "absolute top-3 left-3 text-white shadow-lg",
+                                "absolute top-3 left-3 shadow-lg",
                                 scoreBadge.color
                             )}
                         >
@@ -222,7 +222,7 @@ export function ActivityCard({
                     {activity.time && (
                         <Badge
                             variant="secondary"
-                            className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm"
+                            className="absolute top-3 right-3 bg-raised backdrop-blur-sm"
                         >
                             <Clock className="h-3 w-3 mr-1" />
                             {activity.time}
@@ -233,7 +233,7 @@ export function ActivityCard({
                     {activity.category && (
                         <Badge
                             variant="outline"
-                            className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm text-xs"
+                            className="absolute bottom-3 left-3 bg-raised backdrop-blur-sm text-xs"
                         >
                             {activity.category}
                         </Badge>
@@ -251,7 +251,7 @@ export function ActivityCard({
                                     "flex items-center gap-1 text-sm mt-1",
                                     canShowFullAddress
                                         ? "text-muted-foreground"
-                                        : "text-violet-600 hover:underline cursor-pointer"
+                                        : "text-primary hover:underline cursor-pointer"
                                 )}
                             >
                                 <MapPin className="h-3 w-3" />
@@ -299,7 +299,7 @@ export function ActivityCard({
                         )}
                         {activity.localleyScore && (
                             <div className="flex items-center gap-1 text-muted-foreground">
-                                <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                                <Star className="h-4 w-4 text-[rgb(var(--ll-warning))] fill-yellow-500" />
                                 <span>{activity.localleyScore}/6</span>
                             </div>
                         )}

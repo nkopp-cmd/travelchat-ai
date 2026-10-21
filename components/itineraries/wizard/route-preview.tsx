@@ -40,7 +40,7 @@ function formatDuration(minutes: { min: number; max: number }): string {
 }
 
 function TransferIcon({ mode }: { mode: string }) {
-  const className = "h-3.5 w-3.5 shrink-0 text-violet-300";
+  const className = "h-3.5 w-3.5 shrink-0 text-primary";
   if (mode === "train") return <Train className={className} />;
   if (mode === "flight") return <Plane className={className} />;
   if (mode === "ferry") return <Ship className={className} />;
@@ -100,21 +100,21 @@ export function RoutePreview() {
   if (data.citySlugs.length < 2) return null;
 
   return (
-    <div className="rounded-xl bg-violet-500/5 p-3 sm:p-4">
+    <div className="rounded-xl bg-primary/10 p-3 sm:p-4">
       <div className="mb-2 flex items-center gap-2">
-        <Route className="h-4 w-4 text-violet-400" />
-        <span className="text-sm font-semibold text-white">Your optimized route</span>
+        <Route className="h-4 w-4 text-primary" />
+        <span className="text-sm font-semibold text-foreground">Your optimized route</span>
       </div>
 
       {selectionError && (
-        <div className="flex items-start gap-2 text-xs text-amber-300">
+        <div className="flex items-start gap-2 text-xs text-[rgb(var(--ll-warning))]">
           <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <span>{selectionError}</span>
         </div>
       )}
 
       {!selectionError && isLoading && (
-        <div className="flex items-center gap-2 text-xs text-gray-400">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
           Optimizing route…
         </div>
@@ -128,13 +128,13 @@ export function RoutePreview() {
             return (
               <div key={stop.destinationSlug}>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="min-w-0 truncate text-sm font-medium text-white">{name}</span>
-                  <span className="shrink-0 rounded-full bg-violet-600/80 px-2 py-0.5 text-[10px] font-bold text-white">
+                  <span className="min-w-0 truncate text-sm font-medium text-foreground">{name}</span>
+                  <span className="shrink-0 rounded-full bg-primary px-2 py-0.5 text-xs font-bold text-primary-foreground">
                     {stop.nights} {stop.nights === 1 ? "night" : "nights"}
                   </span>
                 </div>
                 {transfer && (
-                  <div className="my-1 flex items-center gap-2 pl-3 text-[11px] text-gray-400">
+                  <div className="my-1 flex items-center gap-2 pl-3 text-xs text-muted-foreground">
                     <TransferIcon mode={transfer.mode} />
                     <span>
                       {data.cityNameBySlug[transfer.fromSlug] || transfer.fromSlug} →{" "}
@@ -147,7 +147,7 @@ export function RoutePreview() {
             );
           })}
           {result.preview.warnings.includes("TRANSFER_DAY_FULL") && (
-            <div className="flex items-start gap-2 pt-1 text-[11px] text-amber-300">
+            <div className="flex items-start gap-2 pt-1 text-xs text-[rgb(var(--ll-warning))]">
               <AlertTriangle className="mt-0.5 h-3 w-3 shrink-0" />
               <span>One travel day is fully consumed by the transfer — no activities that day.</span>
             </div>
@@ -156,7 +156,7 @@ export function RoutePreview() {
       )}
 
       {!selectionError && !isLoading && result && !result.ok && (
-        <div className="flex items-start gap-2 text-xs text-amber-300">
+        <div className="flex items-start gap-2 text-xs text-[rgb(var(--ll-warning))]">
           <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <span>{result.error?.message || "This route is not available yet. Try different cities."}</span>
         </div>

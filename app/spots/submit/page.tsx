@@ -118,33 +118,33 @@ function SocialSubmissionsUnavailable() {
       <div className="mx-auto max-w-3xl space-y-5 pb-8">
         <Link
           href="/spots"
-          className="inline-flex min-h-10 items-center rounded-full bg-white/[0.055] px-3 text-sm text-violet-50/70 transition-colors hover:bg-violet-400/10 hover:text-white"
+          className="inline-flex min-h-10 items-center rounded-full bg-raised px-3 text-sm text-foreground transition-colors hover:bg-overlay"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to spots
         </Link>
         <Link
           href="/spots/submissions"
-          className="ml-2 inline-flex min-h-10 items-center rounded-full bg-white/[0.055] px-3 text-sm text-violet-50/70 transition-colors hover:bg-violet-400/10 hover:text-white"
+          className="ml-2 inline-flex min-h-10 items-center rounded-full bg-raised px-3 text-sm text-foreground transition-colors hover:bg-overlay"
         >
           <Images className="mr-2 h-4 w-4" />
           Track submissions
         </Link>
 
-        <section className="rounded-lg bg-[#100b1c]/[0.86] p-5 shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:p-7">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-violet-400/10 px-3 py-1 text-sm font-medium text-violet-100">
+        <section className="rounded-lg bg-surface/[0.86] p-5 backdrop-blur-xl sm:p-7">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-foreground">
             <Sparkles className="h-4 w-4" />
             Coming soon
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-white md:text-4xl">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
             Social spot submissions are not open yet
           </h1>
-          <p className="mt-3 text-sm leading-6 text-violet-50/65 md:text-base">
+          <p className="mt-3 text-sm leading-6 text-foreground md:text-base">
             The contribution flow is being prepared. Browse the current Localley spots while submissions are closed.
           </p>
           <Button
             asChild
-            className="mt-5 h-11 rounded-lg bg-white text-violet-950 hover:bg-violet-50"
+            className="mt-5 h-11 rounded-lg"
           >
             <Link href="/spots">Open spots</Link>
           </Button>
@@ -246,32 +246,32 @@ function SubmitSpotForm() {
       <div className="mx-auto max-w-5xl space-y-5 pb-8">
         <Link
           href="/spots"
-          className="inline-flex min-h-10 items-center rounded-full bg-white/[0.055] px-3 text-sm text-violet-50/70 transition-colors hover:bg-violet-400/10 hover:text-white"
+          className="inline-flex min-h-10 items-center rounded-full bg-raised px-3 text-sm text-foreground transition-colors hover:bg-overlay"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to spots
         </Link>
 
         <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
-          <section className="rounded-lg bg-[#100b1c]/[0.86] p-4 shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:p-6">
+          <section className="rounded-lg bg-surface/[0.86] p-4 backdrop-blur-xl sm:p-6">
             <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
               <div>
-                <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-violet-400/10 px-3 py-1 text-sm font-medium text-violet-100">
+                <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-foreground">
                   <Sparkles className="h-4 w-4" />
                   Community discovery
                 </div>
-                <h1 className="text-3xl font-bold tracking-tight text-white md:text-4xl">
+                <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
                   Drop a social post link
                 </h1>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-violet-50/65">
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-foreground">
                   Paste a TikTok or Instagram post, reel, carousel, or video. Localley checks every distinct place and queues verified spots.
                 </p>
               </div>
               <div className="flex gap-2">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-white/[0.06] text-violet-100">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-raised text-foreground">
                   <Instagram className="h-5 w-5" />
                 </span>
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-white/[0.06] text-violet-100">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-raised text-foreground">
                   <ImagePlus className="h-5 w-5" />
                 </span>
               </div>
@@ -279,16 +279,16 @@ function SubmitSpotForm() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               {shareHandoff === "received" ? (
-                <div role="status" className="rounded-lg bg-emerald-400/10 px-3 py-2 text-sm text-emerald-100">
+                <div role="status" className="rounded-lg bg-[rgb(var(--ll-success)/0.12)] px-3 py-2 text-sm text-foreground">
                   Shared post received. Sign in and submit when ready.
                 </div>
               ) : shareHandoff === "unsupported" ? (
-                <div role="alert" className="rounded-lg bg-amber-400/10 px-3 py-2 text-sm text-amber-100">
+                <div role="alert" className="rounded-lg bg-[rgb(var(--ll-warning)/0.14)] px-3 py-2 text-sm text-foreground">
                   The shared item did not include a TikTok or Instagram post URL. Paste its link below.
                 </div>
               ) : null}
               <div className="space-y-2">
-                <Label htmlFor="social-url" className="text-violet-50">
+                <Label htmlFor="social-url" className="text-foreground">
                   TikTok or Instagram post URL
                 </Label>
                 <Input
@@ -298,40 +298,40 @@ function SubmitSpotForm() {
                   placeholder="https://www.instagram.com/reel/..."
                   required
                   inputMode="url"
-                  className=" bg-white/[0.06] text-white placeholder:text-violet-50/55"
+                  className="bg-raised text-foreground placeholder:text-muted-foreground"
                 />
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-violet-50">
-                    Email <span className="text-violet-50/65">(optional)</span>
+                  <Label htmlFor="email" className="text-foreground">
+                    Email <span className="text-foreground">(optional)</span>
                   </Label>
                   <div className="relative">
-                    <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-violet-200/60" />
+                    <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground" />
                     <Input
                       id="email"
                       value={email}
                       onChange={(event) => setEmail(event.target.value)}
                       placeholder="For credits and history"
                       type="email"
-                      className=" bg-white/[0.06] pl-9 text-white placeholder:text-violet-50/55"
+                      className="bg-raised pl-9 text-foreground placeholder:text-muted-foreground"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="contributor-name" className="text-violet-50">
-                    Credit name <span className="text-violet-50/65">(optional)</span>
+                  <Label htmlFor="contributor-name" className="text-foreground">
+                    Credit name <span className="text-foreground">(optional)</span>
                   </Label>
                   <div className="relative">
-                    <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-violet-200/60" />
+                    <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground" />
                     <Input
                       id="contributor-name"
                       value={contributorName}
                       onChange={(event) => setContributorName(event.target.value)}
                       placeholder="Optional"
-                      className=" bg-white/[0.06] pl-9 text-white placeholder:text-violet-50/55"
+                      className="bg-raised pl-9 text-foreground placeholder:text-muted-foreground"
                     />
                   </div>
                 </div>
@@ -339,38 +339,38 @@ function SubmitSpotForm() {
 
               <div className="grid gap-4 sm:grid-cols-[220px_1fr]">
                 <div className="space-y-2">
-                  <Label htmlFor="city" className="text-violet-50">
-                    City or neighborhood <span className="text-violet-50/65">(optional)</span>
+                  <Label htmlFor="city" className="text-foreground">
+                    City or neighborhood <span className="text-foreground">(optional)</span>
                   </Label>
                   <Input
                     id="city"
                     value={cityHint}
                     onChange={(event) => setCityHint(event.target.value)}
                     placeholder="Seoul, Seongsu, Ikseon-dong..."
-                    className=" bg-white/[0.06] text-white placeholder:text-violet-50/55"
+                    className="bg-raised text-foreground placeholder:text-muted-foreground"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="notes" className="text-violet-50">
-                    Place clues <span className="text-violet-50/65">(optional)</span>
+                  <Label htmlFor="notes" className="text-foreground">
+                    Place clues <span className="text-foreground">(optional)</span>
                   </Label>
                   <Textarea
                     id="notes"
                     value={notes}
                     onChange={(event) => setNotes(event.target.value)}
                     placeholder="Place name, sign text, nearest station, caption clue, or address"
-                    className="min-h-24 bg-white/[0.06] text-white placeholder:text-violet-50/55"
+                    className="min-h-24 bg-raised text-foreground placeholder:text-muted-foreground"
                   />
                 </div>
               </div>
 
               {isLoaded && !isSignedIn ? (
-                <div className="flex flex-col gap-3 rounded-lg bg-violet-400/10 p-3 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="text-sm leading-6 text-violet-50/75">
+                <div className="flex flex-col gap-3 rounded-lg bg-primary/10 p-3 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-sm leading-6 text-foreground">
                     Sign in to save this post to the community tracker.
                   </p>
-                  <Button asChild className="h-11 shrink-0 rounded-lg bg-white text-violet-950 hover:bg-violet-50">
+                  <Button asChild className="h-11 shrink-0 rounded-lg">
                     <Link href={signInRedirect}>Sign in to submit</Link>
                   </Button>
                 </div>
@@ -380,7 +380,7 @@ function SubmitSpotForm() {
                 type="submit"
                 disabled={isSubmitting || !isLoaded || !isSignedIn}
                 aria-busy={isSubmitting}
-                className="h-12 w-full rounded-lg bg-violet-500 text-base font-bold text-white shadow-lg shadow-violet-500/25 hover:bg-violet-400 sm:w-auto"
+                className="h-12 w-full rounded-lg text-base font-bold sm:w-auto"
               >
                 {isSubmitting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -392,13 +392,13 @@ function SubmitSpotForm() {
             </form>
           </section>
 
-          <aside className="rounded-lg bg-[#100b1c]/[0.86] p-4 shadow-lg shadow-violet-950/20 backdrop-blur-xl sm:p-5">
+          <aside className="rounded-lg bg-surface/[0.86] p-4 backdrop-blur-xl sm:p-5">
             {result ? (
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="mt-1 h-5 w-5 shrink-0 text-emerald-300" />
+                  <CheckCircle2 className="mt-1 h-5 w-5 shrink-0 text-[rgb(var(--ll-success))]" />
                   <div>
-                    <p className="font-semibold text-white">
+                    <p className="font-semibold text-foreground">
                       {result.spots?.length && unresolvedCandidates.length
                         ? "Partially processed"
                         : readyCount > 1
@@ -407,7 +407,7 @@ function SubmitSpotForm() {
                           ? statusLabel[result.submission.status]
                           : "Submission saved"}
                     </p>
-                    <p className="mt-1 text-sm leading-6 text-violet-50/60">
+                    <p className="mt-1 text-sm leading-6 text-foreground">
                       {readyCount > 0
                         ? `${readyCount} verified spot${readyCount === 1 ? " is" : "s are"} ready from this post.`
                         : isMediaQueued
@@ -418,30 +418,30 @@ function SubmitSpotForm() {
                 </div>
 
                 <div className="grid gap-2">
-                  <div className="rounded-lg bg-white/[0.055] p-3">
-                    <span className="flex items-center gap-2 text-sm font-semibold text-white">
-                      <Images className="h-4 w-4 text-violet-300" />
+                  <div className="rounded-lg bg-raised p-3">
+                    <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                      <Images className="h-4 w-4 text-primary" />
                       Community submission tracker
                     </span>
-                    <p className="mt-1 text-sm leading-6 text-violet-50/65">
+                    <p className="mt-1 text-sm leading-6 text-foreground">
                       This post is saved in the community tracker with its research status and any created spots.
                     </p>
                   </div>
 
                   {result.spots && result.spots.length > 0 && (
-                    <div className="rounded-lg bg-emerald-400/10 p-3">
-                      <span className="text-sm font-semibold text-white">Community spots ready</span>
+                    <div className="rounded-lg bg-[rgb(var(--ll-success)/0.12)] p-3">
+                      <span className="text-sm font-semibold text-foreground">Community spots ready</span>
                       <div className="mt-2 grid gap-2">
                         {result.spots.map((spot) => (
                           <Link
                             key={spot.spotId}
                             href={spot.spotUrl}
-                            className="rounded-lg bg-black/20 px-3 py-2 text-sm text-violet-50/80 transition-colors hover:bg-white/10 hover:text-white"
+                            className="rounded-lg bg-black/20 px-3 py-2 text-sm text-foreground transition-colors hover:bg-overlay"
                           >
-                            <span className="block font-semibold text-white">
+                            <span className="block font-semibold text-foreground">
                               {spot.name || "Created spot"}
                             </span>
-                            <span className="mt-0.5 block text-xs text-violet-50/55">
+                            <span className="mt-0.5 block text-xs text-foreground">
                               {spot.city || "Location"} · {Math.round(spot.confidence * 100)}% confidence
                             </span>
                           </Link>
@@ -451,8 +451,8 @@ function SubmitSpotForm() {
                   )}
 
                   {unresolvedCandidates.length > 0 && (
-                    <div className="rounded-lg bg-amber-400/10 p-3">
-                      <span className="text-sm font-semibold text-amber-100">
+                    <div className="rounded-lg bg-[rgb(var(--ll-warning)/0.14)] p-3">
+                      <span className="text-sm font-semibold text-foreground">
                         {result.spots?.length
                           ? "Other places still need review"
                           : "Candidate places need review"}
@@ -461,12 +461,12 @@ function SubmitSpotForm() {
                         {unresolvedCandidates.slice(0, 6).map((candidate) => (
                           <div
                             key={getCandidateKey(candidate)}
-                            className="rounded-md bg-black/20 px-3 py-2 text-sm text-violet-50/75"
+                            className="rounded-md bg-black/20 px-3 py-2 text-sm text-foreground"
                           >
-                            <span className="block font-semibold text-white">
+                            <span className="block font-semibold text-foreground">
                               {candidate.spotName || "Unverified place"}
                             </span>
-                            <span className="mt-0.5 block text-xs text-violet-50/55">
+                            <span className="mt-0.5 block text-xs text-foreground">
                               {candidate.city || candidate.address || "More source evidence needed"}
                               {typeof candidate.confidence === "number"
                                 ? ` · ${Math.round(candidate.confidence * 100)}% confidence`
@@ -478,7 +478,7 @@ function SubmitSpotForm() {
                       {remainingCandidateCount > 0 ? (
                         <Link
                           href={getSubmissionTrackerHref(result)}
-                          className="mt-2 inline-flex min-h-10 items-center text-sm font-semibold text-amber-100 underline decoration-amber-200/40 underline-offset-4"
+                          className="mt-2 inline-flex min-h-10 items-center text-sm font-semibold text-foreground underline decoration-[rgb(var(--ll-warning)/0.4)] underline-offset-4"
                         >
                           {remainingCandidateCount} more in tracker
                         </Link>
@@ -486,20 +486,20 @@ function SubmitSpotForm() {
                     </div>
                   )}
 
-                  <div className="rounded-lg bg-white/[0.055] p-3">
-                    <span className="flex items-center gap-2 text-sm font-semibold text-white">
-                      <Ticket className="h-4 w-4 text-violet-300" />
+                  <div className="rounded-lg bg-raised p-3">
+                    <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                      <Ticket className="h-4 w-4 text-primary" />
                       Tokens
                     </span>
-                    <p className="mt-1 text-sm text-violet-50/65">
+                    <p className="mt-1 text-sm text-foreground">
                       +{result.contributor?.tokensAwarded || 0} awarded, {result.contributor?.totalTokens || 0} total
                     </p>
                   </div>
 
                   {result.research?.summary && (
-                    <div className="rounded-lg bg-white/[0.055] p-3">
-                      <span className="text-sm font-semibold text-white">Research</span>
-                      <p className="mt-1 text-sm leading-6 text-violet-50/65">
+                    <div className="rounded-lg bg-raised p-3">
+                      <span className="text-sm font-semibold text-foreground">Research</span>
+                      <p className="mt-1 text-sm leading-6 text-foreground">
                         {result.research.summary}
                       </p>
                     </div>
@@ -507,14 +507,14 @@ function SubmitSpotForm() {
                 </div>
 
                 {result.spotUrl && readyCount === 1 && (
-                  <Button asChild className="w-full rounded-lg bg-white text-violet-950 hover:bg-violet-50">
+                  <Button asChild className="w-full rounded-lg">
                     <Link href={result.spotUrl}>
                       Open spot
                       <ExternalLink className="h-4 w-4" />
                     </Link>
                   </Button>
                 )}
-                <Button asChild variant="outline" className="w-full rounded-lg bg-white/[0.04] text-violet-50 hover:bg-violet-400/10 hover:text-white">
+                <Button asChild variant="outline" className="w-full rounded-lg bg-raised text-foreground hover:bg-overlay">
                   <Link href={getSubmissionTrackerHref(result)}>
                     Track this submission
                     <Images className="h-4 w-4" />
@@ -523,24 +523,24 @@ function SubmitSpotForm() {
               </div>
             ) : (
               <div className="space-y-3">
-                <Button asChild variant="outline" className="w-full rounded-lg bg-white/[0.04] text-violet-50 hover:bg-violet-400/10 hover:text-white">
+                <Button asChild variant="outline" className="w-full rounded-lg bg-raised text-foreground hover:bg-overlay">
                   <Link href="/spots/submissions">
                     <Images className="h-4 w-4" />
                     Track submissions
                   </Link>
                 </Button>
-                <div className="rounded-lg bg-white/[0.055] p-3">
-                  <span className="flex items-center gap-2 text-sm font-semibold text-white">
-                    <Ticket className="h-4 w-4 text-violet-300" />
+                <div className="rounded-lg bg-raised p-3">
+                  <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                    <Ticket className="h-4 w-4 text-primary" />
                     25 tokens
                   </span>
-                  <p className="mt-1 text-sm leading-6 text-violet-50/60">
+                  <p className="mt-1 text-sm leading-6 text-foreground">
                     Paste only the social post URL. Add email later if you want credits tied to you.
                   </p>
                 </div>
-                <div className="rounded-lg bg-white/[0.055] p-3">
-                  <span className="text-sm font-semibold text-white">Credit</span>
-                  <p className="mt-1 text-sm leading-6 text-violet-50/60">
+                <div className="rounded-lg bg-raised p-3">
+                  <span className="text-sm font-semibold text-foreground">Credit</span>
+                  <p className="mt-1 text-sm leading-6 text-foreground">
                     Public credit uses your credit name, masked email, or anonymous Localley contributor.
                   </p>
                 </div>
