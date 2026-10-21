@@ -1,48 +1,56 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
+import { rateLimiters } from "@/lib/rate-limit";
+import { clickIp, clickUserAgent, hashIP, parseAffiliateClick, type AffiliateClick } from "@/lib/affiliate-click";
+import { isPreviewAffiliateClickCandidate, recordPreviewAffiliateClick } from "@/lib/app-data/preview-affiliate-clicks";
+
+const candidateHeaders = { "Cache-Control": "private, no-store", "X-Localley-Data-Source": "d1-preview" };
+
+/** Writes to D1 on the exact preview candidate, otherwise to the Source table. Returns the data source used. */
+async function recordClick(req: NextRequest, userId: string | null, click: AffiliateClick): Promise<"d1" | "source"> {
+    const meta = { userAgent: clickUserAgent(req), ipHash: hashIP(clickIp(req)) };
+    if (isPreviewAffiliateClickCandidate(req)) {
+        if (!userId) throw new Error("Candidate click requires a signed-in owner");
+        await recordPreviewAffiliateClick(userId, click, meta);
+        return "d1";
+    }
+    const supabase = createSupabaseAdmin();
+    const { error } = await supabase.from("affiliate_clicks").insert({
+        clerk_user_id: userId,
+        partner: click.partner,
+        tracking_id: click.trackingId,
+        event_type: click.eventType,
+        activity_name: click.activityName,
+        affiliate_url: click.affiliateUrl,
+        user_agent: meta.userAgent,
+        ip_hash: meta.ipHash,
+        created_at: new Date().toISOString(),
+    });
+    if (error) console.error("Failed to log affiliate click:", error);
+    return "source";
+}
 
 export async function POST(req: NextRequest) {
+    const limited = await rateLimiters.relaxed(req);
+    if (limited) return limited;
     try {
         const { userId } = await auth();
-        const body = await req.json();
+        const body = await req.json().catch(() => null);
+        const click = body && typeof body === "object" ? parseAffiliateClick(body) : null;
 
-        const {
-            partner,
-            trackingId,
-            eventType,
-            activityName,
-            url,
-        } = body;
-
-        if (!partner || !trackingId || !eventType) {
+        if (!click) {
             return NextResponse.json(
-                { error: "Missing required fields" },
+                { error: "Missing or invalid fields" },
                 { status: 400 }
             );
         }
-
-        const supabase = createSupabaseAdmin();
-
-        // Log the affiliate click/event
-        const { error } = await supabase.from("affiliate_clicks").insert({
-            clerk_user_id: userId || null, // Can be null for anonymous users
-            partner,
-            tracking_id: trackingId,
-            event_type: eventType,
-            activity_name: activityName || null,
-            affiliate_url: url || null,
-            user_agent: req.headers.get("user-agent") || null,
-            ip_hash: hashIP(req.headers.get("x-forwarded-for") || "unknown"),
-            created_at: new Date().toISOString(),
-        });
-
-        if (error) {
-            console.error("Failed to log affiliate click:", error);
-            // Don't fail the request, just log the error
+        if (isPreviewAffiliateClickCandidate(req) && !userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: candidateHeaders });
         }
 
-        return NextResponse.json({ success: true });
+        const source = await recordClick(req, userId ?? null, click);
+        return NextResponse.json({ success: true }, source === "d1" ? { headers: candidateHeaders } : undefined);
     } catch (error) {
         console.error("Affiliate tracking error:", error);
         // Return success anyway - we don't want tracking to break the UX
@@ -51,39 +59,26 @@ export async function POST(req: NextRequest) {
 }
 
 /**
- * Hash IP for privacy - we only need it for fraud detection
- */
-function hashIP(ip: string): string {
-    // Simple hash for privacy - in production use a proper hashing library
-    let hash = 0;
-    for (let i = 0; i < ip.length; i++) {
-        const char = ip.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash;
-    }
-    return hash.toString(16);
-}
-
-/**
  * GET endpoint for pixel tracking (used in emails, etc.)
  */
 export async function GET(req: NextRequest) {
+    const limited = await rateLimiters.relaxed(req);
+    if (limited) return limited;
     const { searchParams } = new URL(req.url);
-    const partner = searchParams.get("partner");
-    const trackingId = searchParams.get("tid");
-    const eventType = searchParams.get("event") || "view";
+    const click = parseAffiliateClick({
+        partner: searchParams.get("partner"),
+        trackingId: searchParams.get("tid"),
+        eventType: searchParams.get("event") || "view",
+    });
+    let source: "d1" | "source" | null = null;
 
-    if (partner && trackingId) {
-        const supabase = createSupabaseAdmin();
-
-        await supabase.from("affiliate_clicks").insert({
-            partner,
-            tracking_id: trackingId,
-            event_type: eventType,
-            user_agent: req.headers.get("user-agent") || null,
-            ip_hash: hashIP(req.headers.get("x-forwarded-for") || "unknown"),
-            created_at: new Date().toISOString(),
-        });
+    if (click) {
+        try {
+            const { userId } = await auth();
+            if (!isPreviewAffiliateClickCandidate(req) || userId) source = await recordClick(req, userId ?? null, click);
+        } catch (error) {
+            console.error("Affiliate pixel error:", error);
+        }
     }
 
     // Return a 1x1 transparent pixel
@@ -96,6 +91,7 @@ export async function GET(req: NextRequest) {
         headers: {
             "Content-Type": "image/gif",
             "Cache-Control": "no-store, no-cache, must-revalidate",
+            ...(source === "d1" ? { "X-Localley-Data-Source": "d1-preview" } : {}),
         },
     });
 }
