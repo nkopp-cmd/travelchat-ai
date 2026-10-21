@@ -289,7 +289,7 @@ export default async function ItineraryViewPage({
 
         {/* Action Bar */}
         <div className="flex gap-2 overflow-x-auto rounded-2xl bg-[#0b0714]/72 p-2 shadow-2xl shadow-violet-950/20 backdrop-blur-xl md:flex-wrap md:overflow-visible">
-          <Link href={`/itineraries/${itinerary.id}/edit`}>
+          <Link href={`/itineraries/${itinerary.id}/edit`} className="shrink-0">
             <Button
               variant="outline"
               size="sm"
@@ -301,10 +301,11 @@ export default async function ItineraryViewPage({
           </Link>
           <Link
             href={`/dashboard?itinerary=${itinerary.id}&title=${encodeURIComponent(itinerary.title)}&city=${encodeURIComponent(displayCity)}&days=${itinerary.days}`}
+            className="shrink-0"
           >
             <Button
               size="sm"
-              className="h-10 shrink-0 gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/20 hover:from-violet-700 hover:to-indigo-700"
+              className="h-10 shrink-0 gap-2 whitespace-nowrap rounded-xl bg-gradient-to-r text-white from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/20 hover:from-violet-700 hover:to-indigo-700"
             >
               <MessageSquare className="h-4 w-4" />
               Revise with Alley
@@ -314,6 +315,7 @@ export default async function ItineraryViewPage({
             href={`/api/itineraries/${itinerary.id}/export`}
             target="_blank"
             rel="noopener noreferrer"
+            className="shrink-0"
           >
             <Button
               variant="outline"

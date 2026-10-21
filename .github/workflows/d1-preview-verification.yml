@@ -94,6 +94,10 @@ on:
       - '__tests__/api/ai-provider-probe-route.test.ts'
       - '__tests__/lib/pin-clusters.test.ts'
       - '__tests__/components/spot-pin-map.test.tsx'
+      - 'components/itinerary/itinerary-map.tsx'
+      - 'lib/itineraries/itinerary-pins.ts'
+      - '__tests__/lib/itinerary-pins.test.ts'
+      - '__tests__/app/itinerary-action-bar.test.ts'
       - 'lib/weekly-social-trends.ts'
       - '__tests__/lib/weekly-social-trends.test.ts'
       - 'components/spots/city-quick-filters.tsx'
@@ -418,7 +422,7 @@ jobs:
             npx vitest run __tests__/components/city-quick-filters.test.tsx --maxWorkers=1
             npx eslint components/spots/city-quick-filters.tsx __tests__/components/city-quick-filters.test.tsx e2e/spots-layout.spec.ts
             npx vitest run __tests__/components/auth-form-return.test.tsx __tests__/lib/trip-date-range.test.ts __tests__/components/planner-dates.test.tsx __tests__/lib/planner-draft.test.ts __tests__/components/planner-resume.test.tsx __tests__/components/planner-auth-return.test.tsx --maxWorkers=1
-            npx vitest run __tests__/components/weekly-shared-cards.test.tsx __tests__/components/icon-geometry.test.tsx __tests__/components/spot-card.test.tsx __tests__/components/route-preview.test.tsx __tests__/components/place-autocomplete.test.tsx __tests__/lib/places-readiness.test.ts __tests__/lib/spot-display-geography.test.ts __tests__/lib/weekly-trending-spots.test.ts __tests__/lib/pin-clusters.test.ts __tests__/components/spot-pin-map.test.tsx __tests__/components/spot-detail-map.test.tsx __tests__/lib/weekly-social-trends.test.ts --maxWorkers=1
+            npx vitest run __tests__/components/weekly-shared-cards.test.tsx __tests__/components/icon-geometry.test.tsx __tests__/components/spot-card.test.tsx __tests__/components/route-preview.test.tsx __tests__/components/place-autocomplete.test.tsx __tests__/lib/places-readiness.test.ts __tests__/lib/spot-display-geography.test.ts __tests__/lib/weekly-trending-spots.test.ts __tests__/lib/pin-clusters.test.ts __tests__/components/spot-pin-map.test.tsx __tests__/lib/itinerary-pins.test.ts __tests__/app/itinerary-action-bar.test.ts __tests__/components/spot-detail-map.test.tsx __tests__/lib/weekly-social-trends.test.ts --maxWorkers=1
             npx vitest run __tests__/components/source-chat-viewport.test.tsx __tests__/components/main-content-shell.test.tsx __tests__/components/spots-scroll-layout.test.tsx __tests__/lib/mobile-chrome.test.ts --maxWorkers=1
             npx eslint components/chat/source-chat-page.tsx __tests__/components/source-chat-viewport.test.tsx components/layout/main-content-shell.tsx __tests__/components/main-content-shell.test.tsx __tests__/components/spots-scroll-layout.test.tsx
             npx vitest run __tests__/components/landing-planner.test.tsx __tests__/components/conditional-navbar.test.tsx --maxWorkers=1
