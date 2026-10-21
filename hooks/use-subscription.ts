@@ -4,7 +4,7 @@ import { useCallback, useMemo } from "react";
 import { useUser } from "@/lib/auth/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SubscriptionTier, TIER_CONFIGS, hasFeature, isWithinLimit } from "@/lib/subscription";
-import { queryKeys } from "@/hooks/use-queries";
+import { queryKeys } from "@/hooks/query-keys";
 
 async function readErrorMessage(response: Response, fallback: string): Promise<string> {
     const contentType = response.headers.get("content-type") || "";
