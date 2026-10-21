@@ -1,5 +1,6 @@
 "use client";
 
+import { PageHeader } from "@/components/layout/page-header";
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -35,37 +36,18 @@ function getRelativeTime(dateString: string): string {
     return `${Math.floor(diffDays / 30)} months ago`;
 }
 
-// Generate a gradient based on city name (fallback)
-function getCityGradient(city: string): string {
-    const gradients = [
-        "from-rose-500 via-pink-500 to-orange-400",
-        "from-violet-500 via-purple-500 to-indigo-400",
-        "from-cyan-500 via-sky-500 to-blue-400",
-        "from-emerald-500 via-teal-500 to-cyan-400",
-        "from-amber-500 via-orange-500 to-yellow-400",
-        "from-pink-500 via-rose-500 to-red-400",
-        "from-indigo-500 via-violet-500 to-purple-400",
-        "from-lime-500 via-emerald-500 to-green-400",
-    ];
-    const hash = city.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return gradients[hash % gradients.length];
-}
-
 // Trip card component with loading state
 function TripCard({ itinerary }: { itinerary: RecentItinerary }) {
     const [imageLoaded, setImageLoaded] = useState(false);
     const imageUrl = getCityImageUrl(itinerary.city || "", { width: 200 });
-    const gradient = getCityGradient(itinerary.city || "default");
 
     return (
         <Link
             href={`/itineraries/${itinerary.id}`}
             className={cn(
                 "block rounded-2xl overflow-hidden group",
-                " bg-white/[0.055] backdrop-blur-xl",
-                "hover:shadow-xl hover:shadow-violet-500/10",
-                "",
-                "transition-all duration-300",
+                "bg-surface shadow-surface hover:bg-raised",
+                "transition-colors duration-300",
                 "active:scale-[0.98]"
             )}
         >
@@ -73,17 +55,12 @@ function TripCard({ itinerary }: { itinerary: RecentItinerary }) {
                 {/* City image with loading state */}
                 <div className={cn(
                     "h-14 w-14 rounded-xl overflow-hidden flex-shrink-0 relative",
-                    !imageUrl && "bg-gradient-to-br flex items-center justify-center",
-                    !imageUrl && gradient
+                    !imageUrl && "flex items-center justify-center bg-raised"
                 )}>
                     {imageUrl ? (
                         <>
                             {!imageLoaded && (
-                                <div className={cn(
-                                    "absolute inset-0 bg-gradient-to-br",
-                                    gradient,
-                                    "animate-pulse"
-                                )} />
+                                <div className="absolute inset-0 animate-pulse bg-raised" />
                             )}
                             <Image
                                 src={imageUrl}
@@ -99,7 +76,7 @@ function TripCard({ itinerary }: { itinerary: RecentItinerary }) {
                             />
                         </>
                     ) : (
-                        <span className="text-white font-bold text-xl drop-shadow-md">
+                        <span className="text-foreground font-bold text-xl drop-shadow-md">
                             {(itinerary.city || "T").charAt(0).toUpperCase()}
                         </span>
                     )}
@@ -107,7 +84,7 @@ function TripCard({ itinerary }: { itinerary: RecentItinerary }) {
 
                 {/* Trip info */}
                 <div className="flex-1 min-w-0">
-                    <div className="font-semibold truncate group-hover:text-violet-300 transition-colors">
+                    <div className="font-semibold truncate group-hover:text-primary transition-colors">
                         {itinerary.title}
                     </div>
                     <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
@@ -129,7 +106,7 @@ function TripCard({ itinerary }: { itinerary: RecentItinerary }) {
                     </span>
                     <ArrowRight className={cn(
                         "h-4 w-4 text-muted-foreground/50",
-                        "group-hover:text-violet-500 group-hover:translate-x-1",
+                        "group-hover:text-primary group-hover:translate-x-1",
                         "transition-all duration-300"
                     )} />
                 </div>
@@ -142,68 +119,28 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
     const hasItineraries = itineraries.length > 0;
 
     return (
-        <div className="w-full space-y-4 px-3 py-3 sm:px-4">
-            {/* Welcome Section with premium styling */}
-            <div className="relative overflow-hidden rounded-2xl bg-white/[0.055] px-4 py-4 shadow-2xl shadow-violet-950/20 backdrop-blur-xl">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(139,92,246,0.28),transparent_42%)]" />
-                <div className="relative flex items-center gap-3">
-                    <div className="relative flex-shrink-0">
-                        <div className="absolute inset-0 h-14 w-14 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 opacity-40 blur-xl" />
-                        <div className={cn(
-                            "relative flex h-14 w-14 items-center justify-center rounded-2xl",
-                            "bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-600",
-                            "shadow-2xl shadow-violet-500/40"
-                        )}>
-                            <Sparkles className="h-6 w-6 text-white" />
-                        </div>
-                    </div>
-                    <div className="min-w-0 text-left">
-                        <h1 className="bg-gradient-to-r from-violet-200 to-indigo-200 bg-clip-text text-xl font-bold text-transparent">
-                            {hasItineraries ? "Welcome back" : "Start with one good local plan"}
-                        </h1>
-                        <p className="mt-1 text-sm leading-5 text-muted-foreground">
-                            {hasItineraries
-                                ? "Continue a trip, browse real spots, or ask Alley for a tighter route."
-                                : "Pick a city or use Alley to build the first version for you."}
-                        </p>
-                    </div>
-                </div>
-            </div>
+        <div className="w-full space-y-4 px-4 pb-6 pt-6">
+            <PageHeader
+                eyebrow="Dashboard"
+                eyebrowIcon={Sparkles}
+                title={hasItineraries ? "Welcome back" : "Start with one good local plan"}
+                lede={hasItineraries
+                    ? "Continue a trip, browse real spots, or ask Alley for a tighter route."
+                    : "Pick a city or use Alley to build the first version for you."}
+            />
 
-            {/* Premium CTA - Create New Itinerary */}
             <Link
                 href="/itineraries/new"
-                className={cn(
-                    "block w-full rounded-2xl p-4 group",
-                    "bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600",
-                    "text-white",
-                    "shadow-xl shadow-violet-500/30",
-                    "hover:shadow-2xl hover:shadow-violet-500/40",
-                    "transition-all duration-300",
-                    "active:scale-[0.98]",
-                    "relative overflow-hidden"
-                )}
+                className="group flex min-h-11 w-full items-center gap-3 rounded-2xl bg-surface p-4 shadow-surface transition-colors hover:bg-raised"
             >
-                {/* Animated shine effect */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                </div>
-
-                <div className="relative flex items-center gap-3">
-                    <div className={cn(
-                        "h-12 w-12 rounded-xl",
-                        "bg-white/20 backdrop-blur-sm",
-                        "flex items-center justify-center",
-                        "group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300"
-                    )}>
-                        <Plus className="h-6 w-6" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                        <div className="font-bold">Create itinerary</div>
-                        <div className="text-sm text-white/80">One guided flow, local-first spots</div>
-                    </div>
-                    <ArrowRight className="h-6 w-6 text-white/60 group-hover:text-white group-hover:translate-x-1 transition-all" />
-                </div>
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+                    <Plus className="h-6 w-6" aria-hidden="true" />
+                </span>
+                <span className="min-w-0 flex-1">
+                    <span className="block font-semibold">Create itinerary</span>
+                    <span className="block text-[13px] text-muted-foreground">One guided flow, local-first spots</span>
+                </span>
+                <ArrowRight className="h-5 w-5 text-primary transition-transform group-hover:translate-x-1" aria-hidden="true" />
             </Link>
 
             {/* Recent Itineraries with premium cards */}
@@ -211,15 +148,13 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                 <div>
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
-                            <div className="h-5 w-5 rounded-full bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center">
-                                <Calendar className="h-3 w-3 text-white" />
-                            </div>
+                            <Calendar className="h-4 w-4 text-primary" aria-hidden="true" />
                             <h2 className="font-semibold text-lg">Recent Trips</h2>
                         </div>
                         <Link
                             href="/itineraries"
                             className={cn(
-                                "text-sm text-violet-300 hover:text-violet-200",
+                                "text-sm text-primary hover:text-foreground",
                                 "flex items-center gap-1 group"
                             )}
                         >
@@ -238,9 +173,7 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
             {/* Explore Cities with premium grid */}
             <div>
                 <div className="flex items-center gap-2 mb-4">
-                    <div className="h-5 w-5 rounded-full bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center">
-                        <Compass className="h-3 w-3 text-white" />
-                    </div>
+                    <Compass className="h-4 w-4 text-primary" aria-hidden="true" />
                     <h2 className="font-semibold text-lg">
                         {hasItineraries ? "Explore More" : "Start Exploring"}
                     </h2>
@@ -252,9 +185,7 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                             href={`/itineraries/new?city=${encodeURIComponent(city.name)}`}
                             className={cn(
                                 "group relative min-h-[96px] overflow-hidden rounded-xl p-3",
-                                " bg-white/[0.055] backdrop-blur-xl",
-                                "",
-                                "hover:shadow-lg hover:shadow-violet-500/10",
+                                " bg-raised backdrop-blur-xl",
                                 "transition-all duration-300",
                                 "active:scale-[0.97]"
                             )}
@@ -272,14 +203,14 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                                 <div className="truncate font-semibold text-white">
                                     {city.name}
                                 </div>
-                                <div className="text-xs text-white/75">{city.country}</div>
+                                <div className="text-xs text-muted-foreground">{city.country}</div>
                             </div>
                         </Link>
                     ))}
                 </div>
                 <Link
                     href="/spots"
-                    className="mt-3 flex min-h-11 items-center justify-center rounded-xl bg-white/[0.055] text-sm font-semibold text-violet-100 transition hover:bg-violet-400/10"
+                    className="mt-3 flex min-h-11 items-center justify-center rounded-xl bg-raised text-sm font-semibold text-foreground transition hover:bg-primary/10"
                 >
                     Browse all cities
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -292,24 +223,20 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                     href="/spots"
                     className={cn(
                         "rounded-2xl p-3 group",
-                        "bg-white/[0.055] backdrop-blur-xl",
-                        " ",
-                        "",
-                        "hover:shadow-lg hover:shadow-emerald-500/10",
-                        "transition-all duration-300",
+                        "bg-surface shadow-surface hover:bg-raised",
+                        "transition-colors duration-300",
                         "active:scale-[0.97]"
                     )}
                 >
                     <div className={cn(
                         "h-10 w-10 rounded-xl mb-2",
-                        "bg-gradient-to-br from-emerald-600 to-teal-600",
+                        "bg-primary/15 text-primary",
                         "flex items-center justify-center",
-                        "shadow-lg shadow-emerald-500/30",
                         "group-hover:scale-110 transition-transform duration-300"
                     )}>
-                        <Compass className="h-6 w-6 text-white" />
+                        <Compass className="h-6 w-6" aria-hidden="true" />
                     </div>
-                    <div className="font-semibold transition-colors group-hover:text-emerald-600">
+                    <div className="font-semibold transition-colors group-hover:text-primary">
                         Browse Spots
                     </div>
                     <div className="text-xs text-muted-foreground">Discover local gems</div>
@@ -318,24 +245,20 @@ export function MobileDashboardContent({ itineraries }: MobileDashboardContentPr
                     href="/templates"
                     className={cn(
                         "rounded-2xl p-3 group",
-                        "bg-white/[0.055] backdrop-blur-xl",
-                        " ",
-                        "",
-                        "hover:shadow-lg hover:shadow-amber-500/10",
-                        "transition-all duration-300",
+                        "bg-surface shadow-surface hover:bg-raised",
+                        "transition-colors duration-300",
                         "active:scale-[0.97]"
                     )}
                 >
                     <div className={cn(
                         "h-10 w-10 rounded-xl mb-2",
-                        "bg-gradient-to-br from-amber-500 to-orange-500",
+                        "bg-primary/15 text-primary",
                         "flex items-center justify-center",
-                        "shadow-lg shadow-amber-500/30",
                         "group-hover:scale-110 transition-transform duration-300"
                     )}>
-                        <Sparkles className="h-6 w-6 text-white" />
+                        <Sparkles className="h-6 w-6" aria-hidden="true" />
                     </div>
-                    <div className="font-semibold transition-colors group-hover:text-amber-600">
+                    <div className="font-semibold transition-colors group-hover:text-primary">
                         Templates
                     </div>
                     <div className="text-xs text-muted-foreground">Pre-made trip ideas</div>
