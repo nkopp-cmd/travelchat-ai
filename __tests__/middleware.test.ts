@@ -56,3 +56,14 @@ describe("Clerk public route allowlist", () => {
     expect(isPublicRoute(new NextRequest("https://www.localley.io/api/v2/trips/preview"))).toBe(false);
   });
 });
+
+describe("middleware matcher", () => {
+    it("skips static images, including the AVIF hero variants", async () => {
+        const { config } = await import("@/middleware");
+        const pageMatcher = new RegExp(`^${config.matcher[0]}$`);
+        for (const path of ["/images/landing/tokyo-hero-v1-828.avif", "/images/landing/tokyo-hero-v1-1280.webp", "/icon.png"]) {
+            expect(pageMatcher.test(path), path).toBe(false);
+        }
+        expect(pageMatcher.test("/dashboard")).toBe(true);
+    });
+});
