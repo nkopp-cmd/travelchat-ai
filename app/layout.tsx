@@ -4,7 +4,6 @@ import "./globals.css";
 import "@/styles/borderless-tokens.css";
 import "@/styles/borderless-theme.css";
 import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/seo/json-ld";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,6 +27,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  // Absolute URLs resolve against the served host (the sitemap uses www). No root canonical or og:url:
+  // a root value is inherited by every page and declared each one a copy of the home page.
+  metadataBase: new URL("https://www.localley.io"),
   title: {
     default: "Localley - Local-First Asia Trip Planner",
     template: "%s | Localley",
@@ -57,7 +59,6 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Localley - Local-First Asia Trip Planner",
     description: "Plan routes through restaurants, cafes, neighborhoods, and local spots across Asia.",
-    url: "https://localley.ai",
     siteName: "Localley",
     images: [
       {
@@ -76,9 +77,6 @@ export const metadata: Metadata = {
     description: "Plan routes through restaurants, cafes, neighborhoods, and local spots across Asia.",
     images: ["https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1200&h=630&auto=format&fit=crop"],
     creator: "@localleyapp",
-  },
-  alternates: {
-    canonical: "https://localley.ai",
   },
   verification: {
     // Add verification IDs when available
@@ -122,7 +120,6 @@ export default function RootLayout({
           <Toaster />
         </Providers>
         {/* Vercel Speed Insights only exists on Vercel; Workers builds omit it. */}
-        {process.env.VERCEL ? <SpeedInsights /> : null}
       </body>
     </html>
   );

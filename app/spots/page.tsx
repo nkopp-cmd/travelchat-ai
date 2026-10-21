@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import Link from "next/link";
+import { IntentLink } from "@/components/navigation/intent-link";
 import { SpotsExplorer } from "@/components/spots/spots-explorer";
 import { SpotCardSkeleton } from "@/components/ui/skeleton";
 import { CityQuickFilters } from "@/components/spots/city-quick-filters";
@@ -154,27 +154,27 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
                             <p className="text-sm leading-6 text-violet-50/65 md:text-base">
                                 Browse local-first restaurants, alleys, markets, cafes, and night spots across Asia. Pick a city, filter by vibe, then save the places worth building a trip around.
                             </p>
-                            <Button asChild className="mt-4"><Link href="/itineraries/new">Start with a city</Link></Button>
+                            <Button asChild className="mt-4"><IntentLink href="/itineraries/new">Start with a city</IntentLink></Button>
                             {socialSpotSubmissionsEnabled && (
                                 <div className="mt-4 flex flex-wrap gap-2">
                                     <Button
                                         asChild
                                         className="h-10 rounded-lg bg-white text-violet-950 hover:bg-violet-50"
                                     >
-                                        <Link href="/spots/submit">
+                                        <IntentLink href="/spots/submit">
                                             <Plus className="h-4 w-4" />
                                             Submit post
-                                        </Link>
+                                        </IntentLink>
                                     </Button>
                                     <Button
                                         asChild
                                         variant="outline"
                                         className="h-10 rounded-lg bg-white/[0.055] text-violet-50 hover:bg-violet-400/10 hover:text-white"
                                     >
-                                        <Link href="/spots/submissions">
+                                        <IntentLink href="/spots/submissions">
                                             <Images className="h-4 w-4" />
                                             Track submissions
-                                        </Link>
+                                        </IntentLink>
                                     </Button>
                                 </div>
                             )}

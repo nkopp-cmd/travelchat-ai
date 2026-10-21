@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { IntentLink } from "@/components/navigation/intent-link";
 import { usePathname } from "next/navigation";
 import { Compass, MessageCircle, Map } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
@@ -19,11 +19,11 @@ export function MobileBottomNav() {
     <div className="flex h-16 items-center justify-around gap-2 px-3">
       {navItems.map(item => {
         const active = item.paths.some(path => pathname === path || pathname.startsWith(path + '/'));
-        return <Link key={item.href} href={item.href} aria-current={active ? 'page' : undefined}
+        return <IntentLink key={item.href} href={item.href} aria-current={active ? 'page' : undefined}
           className={cn("flex min-h-11 min-w-[72px] flex-col items-center justify-center gap-1 rounded-xl px-4 py-1 text-muted-foreground transition-colors motion-reduce:transition-none", active && "bg-raised font-semibold text-foreground")}>
           <item.icon weight={active ? 'fill' : 'duotone'} className="size-5" />
           <span className="text-xs leading-4">{item.label}</span>
-        </Link>;
+        </IntentLink>;
       })}
     </div>
   </nav>;

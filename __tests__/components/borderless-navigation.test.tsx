@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 const state = vi.hoisted(() => ({ pathname:'/spots', loaded:false, signedIn:false }));
-vi.mock('next/navigation', () => ({usePathname:()=>state.pathname}));
+vi.mock('next/navigation', () => ({usePathname:()=>state.pathname, useRouter:()=>({prefetch:()=>{}})}));
 vi.mock('next/link', () => ({default:({href,...props}:ComponentProps<'a'>)=><a href={href} {...props}/>}));
 vi.mock('@/lib/auth/client', () => ({useUser:()=>({isLoaded:state.loaded,isSignedIn:state.signedIn})}));
 vi.mock('@/components/auth/user-menu', () => ({UserMenu:()=> <button>Account menu</button>}));
