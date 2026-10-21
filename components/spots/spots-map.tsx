@@ -112,7 +112,7 @@ export default function SpotsMap({ spots, footer, onClose }: SpotsMapProps) {
                 "lg:relative lg:inset-auto lg:z-auto lg:grid lg:h-[calc(100dvh-var(--ll-topbar-height)-2rem)] lg:scroll-mt-[calc(var(--ll-topbar-height)+1rem)]",
                 "lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)] lg:gap-5 lg:overflow-visible",
             )}>
-            <div className="absolute inset-0 isolate bg-background lg:relative lg:order-2 lg:min-h-0 lg:overflow-hidden lg:rounded-2xl"
+            <div className="absolute inset-0 isolate bg-background max-lg:[--ll-map-bottom-inset:88px] lg:relative lg:order-2 lg:min-h-0 lg:overflow-hidden lg:rounded-2xl"
                 role="region" aria-label="Map of this page's spots">
                 {pinnedSpots.length > 0 ? (
                     <SpotPinMap spots={pinnedSpots} selectedId={selectedId} onSelect={selectPin} />

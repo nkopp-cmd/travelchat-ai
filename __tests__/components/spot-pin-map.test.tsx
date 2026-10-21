@@ -59,11 +59,13 @@ describe("map pin card", () => {
     const dialog = screen.getByRole("dialog", { name: "Dongmyo Flea Market" });
     const more = screen.getByRole("button", { name: "More about this spot" });
     expect(more.getAttribute("aria-expanded")).toBe("false");
-    expect(screen.queryByText("Saturday flea market with vinyl and vintage.")).toBeNull();
+    // The card previews the description in two lines (reference layout); the detail shows it whole.
+    expect(screen.getByText("Saturday flea market with vinyl and vintage.").className).toContain("line-clamp-2");
+    expect(screen.queryByText("Best time: Saturday morning")).toBeNull();
     fireEvent.click(more);
     expect(screen.getByRole("button", { name: "Show less" }).getAttribute("aria-expanded")).toBe("true");
     expect(dialog.hasAttribute("data-expanded")).toBe(true);
-    expect(screen.getByText("Saturday flea market with vinyl and vintage.")).toBeTruthy();
+    expect(screen.getByText("Saturday flea market with vinyl and vintage.").className).not.toContain("line-clamp");
     expect(screen.getByText("Best time: Saturday morning")).toBeTruthy();
     expect(container.querySelectorAll("li")).toHaveLength(2);
     fireEvent.keyDown(dialog, { key: "Escape" });
