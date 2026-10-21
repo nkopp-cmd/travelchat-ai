@@ -125,7 +125,8 @@ export function ViatorSuggestions({
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     partner: "viator",
-                    activityName: activity.title,
+                    trackingId: `viator-${activity.productCode}`,
+                    activityName: activity.title.slice(0, 200),
                     productCode: activity.productCode,
                     eventType: "click",
                 }),
