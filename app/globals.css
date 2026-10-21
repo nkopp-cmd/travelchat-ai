@@ -646,6 +646,30 @@
     animation: ll-pin-pop 320ms cubic-bezier(0.2, 1.35, 0.4, 1);
 }
 
+/* Expanded detail: a panel at the map's right edge (12px inset), at most 420px wide, so
+   the map and the top-left zoom buttons stay visible on wide screens. */
+.ll-pin-card[data-expanded] {
+    left: auto !important;
+    top: 12px !important;
+    right: 12px;
+    bottom: 12px;
+    width: min(420px, calc(100% - 24px));
+    overflow-y: auto;
+    transform: none;
+    animation: ll-pin-grow 280ms var(--ll-motion-ease);
+}
+
+.ll-pin-card[data-expanded]::after {
+    display: none;
+}
+
+@keyframes ll-pin-grow {
+    from {
+        opacity: 0.6;
+        transform: scale(0.92);
+    }
+}
+
 .ll-pin-card:focus-visible {
     outline: 3px solid rgb(var(--ll-focus));
     outline-offset: 2px;
@@ -717,5 +741,5 @@
 
 @media (prefers-reduced-motion: reduce) {
     .ll-pin, .ll-pin-face { transition: none; }
-    .ll-pin-card { animation: none; }
+    .ll-pin-card, .ll-pin-card[data-expanded] { animation: none; }
 }

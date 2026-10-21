@@ -46,8 +46,30 @@ describe("map pin card", () => {
     const css = readFileSync("app/globals.css", "utf8");
     const pinCss = css.slice(css.indexOf("/* Map photo pins"));
     expect(pinCss).not.toMatch(/border:\s*[1-9]|0 0 0 [1-9]px/);
-    expect(pinCss).toMatch(/prefers-reduced-motion: reduce[\s\S]*\.ll-pin-card \{ animation: none; \}/);
+    expect(pinCss).toMatch(/prefers-reduced-motion: reduce[\s\S]*\.ll-pin-card, \.ll-pin-card\[data-expanded\] \{ animation: none; \}/);
     expect(pinCss).toMatch(/max-width: 639px\)[\s\S]*\.ll-pin-map\[data-card-open\] \.leaflet-control-zoom \{ visibility: hidden; \}/);
     expect(source).toMatch(/data-card-open=\{selected \? "" : undefined\}/);
+  });
+
+  it("expands to the detail in place and Escape steps back detail -> card -> closed", () => {
+    const onClose = vi.fn();
+    const rich = { ...spot, description: "Saturday flea market with vinyl and vintage.", bestTime: "Saturday morning",
+      tips: ["Bring cash", "  ", "Go before 10"] } as unknown as Spot;
+    const { container } = render(<PinCard spot={rich} point={{ x: 120, y: 300 }} titleId="detail-title" onClose={onClose} />);
+    const dialog = screen.getByRole("dialog", { name: "Dongmyo Flea Market" });
+    const more = screen.getByRole("button", { name: "More about this spot" });
+    expect(more.getAttribute("aria-expanded")).toBe("false");
+    expect(screen.queryByText("Saturday flea market with vinyl and vintage.")).toBeNull();
+    fireEvent.click(more);
+    expect(screen.getByRole("button", { name: "Show less" }).getAttribute("aria-expanded")).toBe("true");
+    expect(dialog.hasAttribute("data-expanded")).toBe(true);
+    expect(screen.getByText("Saturday flea market with vinyl and vintage.")).toBeTruthy();
+    expect(screen.getByText("Best time: Saturday morning")).toBeTruthy();
+    expect(container.querySelectorAll("li")).toHaveLength(2);
+    fireEvent.keyDown(dialog, { key: "Escape" });
+    expect(dialog.hasAttribute("data-expanded")).toBe(false);
+    expect(onClose).not.toHaveBeenCalled();
+    fireEvent.keyDown(dialog, { key: "Escape" });
+    expect(onClose).toHaveBeenCalledOnce();
   });
 });
