@@ -33,7 +33,8 @@ vi.mock("@/components/spots/spot-pin-map", () => ({
 const plotted = () => (state.map.mock.lastCall?.[0] as { spots: Spot[] }).spots
     .map((pin) => ({ lat: pin.location.lat, lng: pin.location.lng }));
 vi.mock("@/components/spots/spot-card", () => ({
-    SpotCard: ({ spot }: { spot: Spot }) => <article data-testid="spot-card"><a href={`/spots/${spot.id}`}>{spot.name}</a></article>,
+    SpotCard: ({ spot, priority }: { spot: Spot; priority?: boolean }) =>
+        <article data-testid="spot-card" data-priority={priority ? "" : undefined}><a href={`/spots/${spot.id}`}>{spot.name}</a></article>,
 }));
 vi.mock("@/components/spots/spots-filter-bar", () => ({
     SpotsFilterBar: ({ onFilterChange, onClearFilters }: {
@@ -171,5 +172,12 @@ describe("bounded discovery map", () => {
         render(<SpotsExplorer {...props} initialSpots={[]} totalCount={0} />);
         expect(screen.getByRole("heading", { name: "No spots found" })).toBeTruthy();
         expect(state.map).not.toHaveBeenCalled();
+    });
+
+    it("loads only the first sheet card photo with priority (map-view LCP)", async () => {
+        render(<SpotsMap spots={[spot("a"), spot("b", 37.58, 127), spot("c", 37.59, 127.01)]} currentPage={1} />);
+        await screen.findByTestId("map");
+        const cards = screen.getAllByTestId("spot-card");
+        expect(cards.map((card) => card.hasAttribute("data-priority"))).toEqual([true, false, false]);
     });
 });
