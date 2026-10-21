@@ -37,22 +37,22 @@ export function RecentConversationsPanel({ currentConversationId }: RecentConver
     if (isLoading || recentChats.length === 0) return null;
 
     return (
-        <div className="px-4 py-1 flex-shrink-0 ">
+        <div className="mb-3 flex-shrink-0 rounded-2xl bg-surface p-1">
             <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsOpen(!isOpen)}
-                className="text-muted-foreground text-xs gap-1.5 w-full justify-between h-8 px-2"
+                className="w-full justify-between gap-1.5 rounded-xl px-3 text-[13px] text-muted-foreground"
             >
                 <span className="flex items-center gap-1.5">
-                    <History className="h-3.5 w-3.5" />
-                    Recent Conversations
+                    <History className="h-4 w-4" />
+                    Recent chats
                 </span>
                 <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", isOpen && "rotate-180")} />
             </Button>
 
             {isOpen && (
-                <div className="mt-1 space-y-0.5 pb-2 animate-in slide-in-from-top-2 duration-200">
+                <div className="space-y-0.5 px-1 pb-1 animate-in slide-in-from-top-2 duration-200">
                     {recentChats.map((chat) => {
                         const isActive = chat.id === currentConversationId;
                         const lastMessage = chat.messages?.[chat.messages.length - 1];
@@ -66,10 +66,10 @@ export function RecentConversationsPanel({ currentConversationId }: RecentConver
                                     setIsOpen(false);
                                 }}
                                 className={cn(
-                                    "w-full text-left px-3 py-2 rounded-lg text-sm flex items-start gap-2.5 transition-colors",
+                                    "flex min-h-11 w-full items-start gap-2.5 rounded-xl px-3 py-2 text-left text-[15px] transition-colors",
                                     isActive
-                                        ? "bg-violet-500/10 text-violet-600 dark:text-violet-400"
-                                        : "hover:bg-accent text-muted-foreground hover:text-foreground"
+                                        ? "bg-raised text-foreground"
+                                        : "text-muted-foreground hover:bg-raised hover:text-foreground"
                                 )}
                             >
                                 <MessageCircle className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
@@ -77,14 +77,14 @@ export function RecentConversationsPanel({ currentConversationId }: RecentConver
                                     <div className="flex items-center gap-1.5">
                                         <span className="truncate text-sm font-medium">{chat.title || "New Chat"}</span>
                                         {chat.linked_itinerary_id && (
-                                            <Map className="h-3 w-3 text-violet-500 flex-shrink-0" />
+                                            <Map className="h-3 w-3 flex-shrink-0 text-primary" />
                                         )}
                                     </div>
                                     <div className="flex items-center gap-1.5 mt-0.5">
                                         {preview && (
-                                            <span className="truncate text-xs text-muted-foreground/70">{preview}</span>
+                                            <span className="truncate text-[13px] text-muted-foreground">{preview}</span>
                                         )}
-                                        <span className="text-[10px] text-muted-foreground/50 flex-shrink-0 ml-auto">
+                                        <span className="ml-auto flex-shrink-0 text-[13px] text-muted-foreground">
                                             {formatRelativeTime(chat.updated_at)}
                                         </span>
                                     </div>

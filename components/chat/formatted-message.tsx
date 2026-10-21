@@ -36,7 +36,7 @@ export function FormattedMessage({ content, role, conversationId }: FormattedMes
             case 'day-header':
                 return (
                     <div key={index} className="flex items-center gap-2 mt-4 mb-2 pb-2 ">
-                        <Calendar className="h-4 w-4 text-violet-500" />
+                        <Calendar className="h-4 w-4 text-primary" />
                         <h3 className="font-bold text-base">{cleanContent}</h3>
                     </div>
                 );
@@ -44,7 +44,7 @@ export function FormattedMessage({ content, role, conversationId }: FormattedMes
             case 'time-slot':
                 return (
                     <div key={index} className="flex items-start gap-2 mt-3 mb-1">
-                        <Clock className="h-4 w-4 text-violet-500 mt-0.5 flex-shrink-0" />
+                        <Clock className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                         <div className="flex-1">
                             <p className="font-semibold text-sm">{cleanContent}</p>
                         </div>
@@ -68,7 +68,7 @@ export function FormattedMessage({ content, role, conversationId }: FormattedMes
                             section.indent && "ml-4"
                         )}
                     >
-                        {isLocation && <MapPin className="h-3.5 w-3.5 text-violet-500 mt-0.5 flex-shrink-0" />}
+                        {isLocation && <MapPin className="h-3.5 w-3.5 text-primary mt-0.5 flex-shrink-0" />}
                         <p className="text-sm leading-relaxed flex-1">{cleanContent}</p>
                     </div>
                 );

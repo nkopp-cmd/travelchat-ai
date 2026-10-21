@@ -77,7 +77,7 @@ function ChatPreviewActivityImage({
             : null;
 
     return (
-        <span className="relative mt-0.5 h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-violet-950/40 shadow-lg shadow-violet-950/10 sm:h-14 sm:w-14">
+        <span className="relative mt-0.5 h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-raised sm:h-14 sm:w-14">
             {photoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -97,7 +97,7 @@ function ChatPreviewActivityImage({
                     sizes="56px"
                 />
             )}
-            <span className="absolute bottom-1 right-1 flex h-5 w-5 items-center justify-center rounded-md bg-black/60 text-violet-100 backdrop-blur">
+            <span className="absolute bottom-1 right-1 flex h-5 w-5 items-center justify-center rounded-md bg-black/60 text-foreground backdrop-blur">
                 <Icon className="h-3 w-3" aria-hidden="true" />
             </span>
             {placeData.isLoading && (
@@ -206,7 +206,7 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
 
     const getTypeBadge = (type: string) => {
         switch (type) {
-            case 'hidden-gem': return { label: 'Hidden Gem', className: 'text-violet-100 bg-violet-500/15 ' };
+            case 'hidden-gem': return { label: 'Hidden Gem', className: 'text-foreground bg-primary/15 ' };
             case 'local-favorite': return { label: 'Local Fave', className: 'text-sky-100 bg-sky-500/15 ' };
             case 'mixed': return { label: 'Mixed', className: 'text-amber-100 bg-amber-500/15 ' };
             default: return null;
@@ -223,14 +223,14 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
     };
 
     return (
-        <div className="overflow-hidden rounded-lg bg-[#100b1c]/92 text-white shadow-2xl shadow-violet-950/20 backdrop-blur-xl">
+        <div className="overflow-hidden rounded-2xl bg-surface text-foreground backdrop-blur-xl">
             {/* Header */}
             <div className=" px-4 pb-4 pt-4 sm:px-5">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="flex min-w-0 flex-1 items-start gap-3">
                         <CityImageAvatar
                             city={city}
-                            className="h-12 w-12 rounded-xl shadow-lg shadow-violet-950/15"
+                            className="h-12 w-12 rounded-xl"
                             imageClassName="saturate-110"
                             imageWidth={360}
                             quality={90}
@@ -238,14 +238,14 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                         />
                         <div className="min-w-0 flex-1">
                             <div className="mb-1 flex items-center gap-2">
-                                <Sparkles className="h-4 w-4 flex-shrink-0 text-violet-300" />
-                                <h3 className="min-w-0 break-words text-lg font-bold leading-tight text-white sm:text-xl">{title}</h3>
+                                <Sparkles className="h-4 w-4 flex-shrink-0 text-primary" />
+                                <h3 className="min-w-0 break-words text-lg font-bold leading-tight text-foreground sm:text-xl">{title}</h3>
                             </div>
-                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-violet-50/60">
-                                <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-violet-300" />
+                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
+                                <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-primary" />
                                 <span>{city}</span>
-                                <span className="text-white/20">|</span>
-                                <Calendar className="h-3.5 w-3.5 flex-shrink-0 text-indigo-300" />
+                                <span className="text-muted-foreground">|</span>
+                                <Calendar className="h-3.5 w-3.5 flex-shrink-0 text-primary" />
                                 <span>{days.length} {days.length === 1 ? 'day' : 'days'}</span>
                             </div>
                         </div>
@@ -255,8 +255,8 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                         disabled={isSaved || isSaving}
                         size="sm"
                         className={isSaved
-                            ? "h-10 w-full rounded-lg bg-emerald-600 shadow-md hover:bg-emerald-700 sm:w-auto"
-                            : "h-10 w-full rounded-lg bg-violet-600 shadow-md shadow-violet-500/20 hover:bg-violet-700 sm:w-auto"
+                            ? "w-full rounded-full bg-raised text-foreground hover:bg-raised sm:w-auto"
+                            : "w-full rounded-full sm:w-auto"
                         }
                     >
                         {isSaved ? (
@@ -283,41 +283,41 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
             <div className="space-y-3 px-3 pb-4 pt-3 sm:px-5 sm:pb-5 sm:pt-4">
                 <div className="flex items-center justify-between gap-3 px-1">
                     <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-wide text-violet-200/70">
+                        <p className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
                             Day schedule
                         </p>
-                        <h4 className="text-sm font-bold leading-tight text-white">
+                        <h4 className="text-sm font-bold leading-tight text-foreground">
                             Route by day
                         </h4>
                     </div>
-                    <span className="shrink-0 rounded-full bg-white/[0.06] px-2.5 py-1 text-xs font-medium text-violet-50/75">
+                    <span className="shrink-0 rounded-full bg-raised px-2.5 py-1 text-xs font-medium text-muted-foreground">
                         {days.length} {days.length === 1 ? "day" : "days"}
                     </span>
                 </div>
 
                 <div className="space-y-3" data-testid="chat-day-schedule">
                     {days.map((day, dayIndex) => (
-                        <div key={dayIndex} className="overflow-hidden rounded-lg bg-white/[0.045] shadow-lg shadow-violet-950/10 backdrop-blur">
+                        <div key={dayIndex} className="overflow-hidden rounded-2xl bg-raised">
                             {/* Day Header - Gradient */}
-                            <div className="grid gap-2 bg-violet-500/16 px-3 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:px-4">
+                            <div className="grid gap-2 bg-primary/15 px-3 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:px-4">
                                 <div className="flex min-w-0 items-start gap-2">
-                                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-violet-500/25 text-xs font-bold text-violet-100">
+                                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-foreground">
                                         {dayIndex + 1}
                                     </span>
                                     <div className="min-w-0 flex-1">
-                                        <h4 className="min-w-0 break-words text-sm font-semibold leading-snug text-white sm:truncate" title={day.day}>
+                                        <h4 className="min-w-0 break-words text-sm font-semibold leading-snug text-foreground sm:truncate" title={day.day}>
                                             {day.day}
                                         </h4>
-                                        <p className="mt-0.5 line-clamp-1 text-xs leading-relaxed text-violet-50/58">
+                                        <p className="mt-0.5 line-clamp-1 text-xs leading-relaxed text-muted-foreground">
                                             {getDayRouteSummary(day.activities)}
                                         </p>
                                     </div>
                                 </div>
                                 <div className="flex flex-wrap items-center gap-1.5 pl-9 sm:justify-end sm:pl-0">
-                                    <span className="rounded-full bg-white/[0.08] px-2 py-0.5 text-[11px] font-medium text-violet-50/75">
+                                    <span className="rounded-full bg-raised px-2 py-0.5 text-[13px] font-medium text-muted-foreground">
                                         Route order
                                     </span>
-                                    <span className="w-fit shrink-0 whitespace-nowrap rounded-full bg-white/[0.08] px-2 py-0.5 text-xs text-violet-50/80">
+                                    <span className="w-fit shrink-0 whitespace-nowrap rounded-full bg-raised px-2 py-0.5 text-xs text-muted-foreground">
                                         {day.activities.length} {day.activities.length === 1 ? 'spot' : 'spots'}
                                     </span>
                                 </div>
@@ -331,9 +331,9 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                                     const TypeIcon = getTypeIcon(activity.type);
 
                                     return (
-                                        <div key={actIndex} className="relative rounded-lg bg-white/[0.04] p-2.5 shadow-sm shadow-violet-950/10 transition-colors hover:bg-white/[0.06] sm:p-3">
+                                        <div key={actIndex} className="relative rounded-xl bg-surface p-2.5 transition-colors hover:bg-raised sm:p-3">
                                             <div className="relative flex items-start gap-2.5 sm:gap-3">
-                                                <span className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-violet-500/25 text-[11px] font-bold text-violet-50 shadow-lg shadow-violet-950/20 sm:h-8 sm:w-8">
+                                                <span className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/15 text-[13px] font-bold text-foreground sm:h-8 sm:w-8">
                                                     {actIndex + 1}
                                                 </span>
                                                 <ChatPreviewActivityImage
@@ -343,23 +343,23 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                                                 />
                                                 <div className="min-w-0 flex-1">
                                                     <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-                                                        <h5 className="min-w-0 break-words text-sm font-semibold leading-snug text-white sm:text-[15px]">
+                                                        <h5 className="min-w-0 break-words text-sm font-semibold leading-snug text-foreground sm:text-[15px]">
                                                             {activity.title}
                                                         </h5>
                                                         {badge && (
-                                                            <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium ${badge.className}`}>
+                                                            <span className={`rounded-full px-1.5 py-0.5 text-[13px] font-medium ${badge.className}`}>
                                                                 {badge.label}
                                                             </span>
                                                         )}
                                                     </div>
                                                     {activity.address && (
-                                                        <div className="mt-1.5 flex min-w-0 items-start gap-1.5 text-xs leading-5 text-violet-50/58">
-                                                            <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-violet-300" aria-hidden="true" />
+                                                        <div className="mt-1.5 flex min-w-0 items-start gap-1.5 text-xs leading-5 text-muted-foreground">
+                                                            <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" aria-hidden="true" />
                                                             <span className="line-clamp-2 min-w-0 break-words">{activity.address}</span>
                                                         </div>
                                                     )}
                                                     {desc && (
-                                                        <p className="mt-1.5 line-clamp-3 text-xs leading-relaxed text-violet-50/64 sm:text-[13px]">
+                                                        <p className="mt-1.5 line-clamp-3 text-xs leading-relaxed text-muted-foreground sm:text-[13px]">
                                                             {desc}
                                                         </p>
                                                     )}
@@ -375,7 +375,7 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
 
                 {insights.length > 0 && (
                     <div className="pt-1" data-testid="chat-trip-notes">
-                        <div className="mb-2 flex items-center gap-2 px-1 text-[11px] font-semibold uppercase tracking-wide text-violet-200/70">
+                        <div className="mb-2 flex items-center gap-2 px-1 text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
                             Outside the day schedule
                         </div>
                         <ItineraryInsightsPanel
@@ -383,7 +383,7 @@ export function ItineraryPreview({ content, conversationId }: ItineraryPreviewPr
                             title="Trip notes"
                             description="Tips, transit, and booking notes stay outside the day schedule."
                             compact
-                            className=" bg-violet-950/[0.18] shadow-none"
+                            className=" bg-raised shadow-none"
                         />
                     </div>
                 )}
