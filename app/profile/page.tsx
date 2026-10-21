@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Trophy, Star, MapPin, Flame, Share2, Heart, Crown, Rocket, Sparkles, Calendar, MessageSquare, Image as ImageIcon, Bookmark, CreditCard } from "@/components/ui/icons";
 import { getLevel, getNextLevelXp, getLevelProgress, getRankTitle } from "@/lib/gamification";
 import { auth, currentUser } from "@/lib/auth/server";
+import { isActivePlanStatus, withLifetimePremium } from "@/lib/lifetime-premium";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -185,7 +186,9 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
         return <PreviewProfile profile={profile} />;
     }
 
-    const { progress, completedChallenges, itineraries, savedSpots, subscription, usage } = await getUserProgress();
+    const progressData = await getUserProgress();
+    const { progress, completedChallenges, itineraries, savedSpots, usage } = progressData;
+    const subscription = withLifetimePremium(progressData.subscription, user.emailAddresses[0]?.emailAddress);
 
     const level = getLevel(progress.xp);
     const levelProgress = getLevelProgress(progress.xp);
@@ -193,7 +196,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
     const nextLevelXp = getNextLevelXp(level);
 
     const tierConfig = TIER_CONFIGS[subscription.tier];
-    const isActiveSub = ["active", "trialing"].includes(subscription.status);
+    const isActiveSub = isActivePlanStatus(subscription.status);
     const planLabel = subscription.tier === "free" ? "Choose a paid plan" : `${tierConfig.name} Plan`;
 
     const TierIcon = subscription.tier === "premium" ? Crown : subscription.tier === "pro" ? Rocket : Sparkles;
