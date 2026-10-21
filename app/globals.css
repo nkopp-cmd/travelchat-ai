@@ -510,7 +510,7 @@
 /* Map photo pins (shared/plans/map-photo-pins.md). Depth and tone separate pins from the
    map, never a stroke. The tail is a clip-path shape. */
 .ll-pin-map .ll-map-tiles {
-    filter: invert(1) hue-rotate(200deg) brightness(0.8) contrast(0.85) saturate(0.55);
+    filter: invert(1) hue-rotate(200deg) brightness(0.8) contrast(0.85) saturate(0.25);
 }
 
 .ll-pin-map [data-tone="food"], .ll-pin-card[data-tone="food"] { --ll-pin-tone: 244 200 130; }

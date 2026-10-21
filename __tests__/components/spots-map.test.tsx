@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ComponentProps } from "react";
-import SpotsMap from "@/components/spots/spots-map";
+import SpotsMap, { nextSnap } from "@/components/spots/spots-map";
 import { SpotsExplorer } from "@/components/spots/spots-explorer";
 import type { Spot } from "@/types";
 
@@ -65,22 +65,30 @@ beforeEach(() => {
 });
 
 describe("bounded discovery map", () => {
-    it("plots only usable coordinates and keeps the exact marker-to-card association", async () => {
+    it("plots only usable coordinates and lists every spot in the sheet", async () => {
         const spots = [spot("missing", 0, 0), spot("a"), spot("invalid", NaN, 127), spot("b", 35, 139), spot("range", 91, 0)];
         render(<SpotsMap spots={spots} city="seoul" currentPage={2} />);
         await screen.findByTestId("map");
         expect(plotted()).toEqual([{ lat: 37.57, lng: 126.98 }, { lat: 35, lng: 139 }]);
-        expect(screen.getByText("Page 2 only: 2 of 5 filtered spots have map pins.")).toBeTruthy();
-        expect(screen.getByText(/3 spots have missing or invalid coordinates/)).toBeTruthy();
-        fireEvent.click(screen.getByRole("button", { name: "Marker 2" }));
-        expect(screen.getByTestId("spot-card").textContent).toBe("Spot b");
+        expect(screen.getByText("5 spots")).toBeTruthy();
+        expect(screen.getByText("3 without coordinates are listed but not on the map")).toBeTruthy();
+        expect(screen.getAllByTestId("spot-card").map((card) => card.textContent))
+            .toEqual(["Spot missing", "Spot a", "Spot invalid", "Spot b", "Spot range"]);
         expect(screen.getByRole("link", { name: "Spot b" }).getAttribute("href")).toBe("/spots/b");
-        const noPin = screen.getByRole("button", { name: /No pin: Spot missing/ });
-        noPin.focus();
-        expect(document.activeElement).toBe(noPin);
-        fireEvent.click(noPin);
-        expect(noPin.getAttribute("aria-pressed")).toBe("true");
-        expect(screen.getByTestId("spot-card").textContent).toBe("Spot missing");
+    });
+
+    it("lowers the sheet to the map when a pin is chosen and marks that spot in the list", async () => {
+        const { container } = render(<SpotsMap spots={[spot("a"), spot("b", 35, 139)]} currentPage={1} />);
+        await screen.findByTestId("map");
+        const sheet = container.querySelector("[data-snap]")!;
+        expect(sheet.getAttribute("data-snap")).toBe("half");
+        fireEvent.click(screen.getByRole("button", { name: "Marker 2" }));
+        expect(sheet.getAttribute("data-snap")).toBe("map");
+        expect(screen.getByRole("link", { name: "Spot b" }).closest("li")?.getAttribute("aria-current")).toBe("true");
+        fireEvent.click(screen.getByRole("button", { name: "Show the list" }));
+        expect(sheet.getAttribute("data-snap")).toBe("list");
+        fireEvent.click(screen.getByRole("button", { name: "Show the map" }));
+        expect(sheet.getAttribute("data-snap")).toBe("half");
     });
 
     it.each(["seoul", "tokyo", undefined])("does not invent a center when no pins exist (%s)", (city) => {
@@ -88,6 +96,19 @@ describe("bounded discovery map", () => {
         expect(state.map).not.toHaveBeenCalled();
         expect(screen.getByRole("status").textContent).toContain("No map pins are available");
         expect(screen.getByTestId("spot-card").textContent).toBe("Spot missing");
+    });
+
+    it("snaps a drag to the nearest position and a flick one position on", () => {
+        expect(nextSnap("half", 0.1, 0)).toBe("list");
+        expect(nextSnap("half", 0.55, 0)).toBe("half");
+        expect(nextSnap("half", 0.9, 0)).toBe("map");
+        expect(nextSnap("list", 0.2, 0.8)).toBe("half");
+        expect(nextSnap("map", 0.8, -0.8)).toBe("half");
+        expect(nextSnap("map", 1, 0.9)).toBe("map");
+        expect(nextSnap("list", 0, -0.9)).toBe("list");
+        expect(nextSnap("list", 0.9, 0.8)).toBe("map");
+        expect(nextSnap("half", 0.52, 0.8)).toBe("map");
+        expect(nextSnap("half", 0.48, -0.8)).toBe("list");
     });
 
     it("uses real coordinates outside Seoul rather than a fallback city", async () => {
@@ -141,7 +162,8 @@ describe("bounded discovery map", () => {
         fireEvent.click(screen.getByRole("button", { name: "Marker 2" }));
         state.query = "view=map&page=3";
         rerender(<SpotsExplorer {...props} initialSpots={[spot("c")]} currentPage={3} />);
-        await waitFor(() => expect(screen.getByTestId("spot-card").textContent).toBe("Spot c"));
+        await waitFor(() => expect(screen.getAllByTestId("spot-card").map((card) => card.textContent)).toEqual(["Spot c"]));
+        expect(screen.getByRole("link", { name: "Spot c" }).closest("li")?.getAttribute("aria-current")).toBeNull();
     });
 
     it("shows the existing honest empty state without mounting a map", () => {
