@@ -224,7 +224,7 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
         <TooltipProvider>
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300">
+                    <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/15 text-primary">
                         <Gem className="h-3 w-3" />
                         <span className="text-xs font-semibold">{score || 0}/10</span>
                     </div>
@@ -238,25 +238,9 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
         </TooltipProvider>
     );
 
-    // City-specific gradient colors for visual variety (fallback)
-    const getCityGradient = (city: string): string => {
-        const gradients = [
-            "from-rose-500/80 via-orange-400/60 to-amber-300/40",
-            "from-violet-500/80 via-purple-400/60 to-fuchsia-300/40",
-            "from-cyan-500/80 via-blue-400/60 to-indigo-300/40",
-            "from-emerald-500/80 via-teal-400/60 to-green-300/40",
-            "from-amber-500/80 via-yellow-400/60 to-lime-300/40",
-            "from-pink-500/80 via-rose-400/60 to-red-300/40",
-            "from-indigo-500/80 via-violet-400/60 to-purple-300/40",
-            "from-teal-500/80 via-emerald-400/60 to-green-300/40",
-        ];
-        const hash = city.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-        return gradients[hash % gradients.length];
-    };
 
     // Enhanced card header with city image or gradient fallback
     const CardHeader = ({ city, days }: { city: string; days: number }) => {
-        const gradient = getCityGradient(city);
         const imageUrl = getCityImageUrl(city);
 
         return (
@@ -272,7 +256,7 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                     />
                 ) : (
                     // Gradient fallback for unknown cities
-                    <div className={cn("w-full h-full bg-gradient-to-br", gradient)} />
+                    <div className="h-full w-full bg-raised" />
                 )}
 
                 {/* Dark overlay for text readability */}
@@ -298,16 +282,16 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
 
     if (itineraries.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-16 rounded-xl bg-white/50 dark:bg-white/5 backdrop-blur-sm ">
-                <div className="h-16 w-16 rounded-full bg-violet-100 dark:bg-violet-900/20 flex items-center justify-center mb-4">
-                    <Sparkles className="h-8 w-8 text-violet-600" />
+            <div className="flex flex-col items-center justify-center py-16 rounded-xl bg-raised backdrop-blur-sm ">
+                <div className="h-16 w-16 rounded-full bg-primary/15 flex items-center justify-center mb-4">
+                    <Sparkles className="h-8 w-8 text-primary" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">No itineraries yet</h3>
                 <p className="text-muted-foreground mb-6 text-center max-w-md">
                     Start planning your next adventure with AI-powered recommendations for hidden gems and local favorites
                 </p>
                 <Link href="/itineraries/new">
-                    <Button className="bg-violet-600 hover:bg-violet-700">
+                    <Button className="">
                         <Sparkles className="mr-2 h-4 w-4" />
                         Create Your First Itinerary
                     </Button>
@@ -327,7 +311,7 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                         placeholder="Search itineraries..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10 bg-white/50 dark:bg-white/5 "
+                        className="pl-10 bg-raised "
                     />
                 </div>
 
@@ -340,7 +324,7 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                                 <SlidersHorizontal className="h-4 w-4" />
                                 <span className="hidden sm:inline">Filters</span>
                                 {(filterDays !== "all" || sortBy !== "newest") && (
-                                    <span className="h-2 w-2 rounded-full bg-violet-500" />
+                                    <span className="h-2 w-2 rounded-full bg-primary" />
                                 )}
                             </Button>
                         </DropdownMenuTrigger>
@@ -388,7 +372,7 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                                             setFilterDays("all");
                                             setSortBy("newest");
                                         }}
-                                        className="text-violet-600 focus:text-violet-600"
+                                        className="text-primary focus:text-primary"
                                     >
                                         Clear filters
                                     </DropdownMenuItem>
@@ -427,11 +411,11 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
             {filteredItineraries.length > 0 && !searchQuery && filterDays === "all" && (
                 <div className="mb-6">
                     <div className="flex items-center gap-2 mb-3">
-                        <Sparkles className="h-4 w-4 text-violet-500" />
+                        <Sparkles className="h-4 w-4 text-primary" />
                         <span className="text-sm font-medium text-muted-foreground">Continue where you left off</span>
                     </div>
                     <Link href={`/itineraries/${filteredItineraries[0].id}`}>
-                        <Card className="!py-0 !gap-0 overflow-hidden bg-white/70 dark:bg-white/5 backdrop-blur-md hover:shadow-lg hover:shadow-violet-500/10 transition-all group">
+                        <Card className="!py-0 !gap-0 overflow-hidden bg-raised backdrop-blur-md transition-all group">
                             <div className="flex items-center gap-4 p-4">
                                 {/* Mini thumbnail with city image */}
                                 <div className="h-16 w-16 rounded-xl overflow-hidden flex-shrink-0 relative">
@@ -444,9 +428,9 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                                             sizes="64px"
                                         />
                                     ) : (
-                                        <div className={cn("w-full h-full bg-gradient-to-br relative", getCityGradient(filteredItineraries[0].city || "Trip"))}>
+                                        <div className="relative h-full w-full bg-raised">
                                             <div className="absolute inset-0 flex items-center justify-center">
-                                                <span className="text-2xl font-bold text-white/80">
+                                                <span className="text-2xl font-bold text-muted-foreground">
                                                     {(filteredItineraries[0].city || "T").charAt(0).toUpperCase()}
                                                 </span>
                                             </div>
@@ -455,7 +439,7 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                                 </div>
                                 {/* Content */}
                                 <div className="flex-1 min-w-0">
-                                    <h3 className="font-semibold text-base truncate group-hover:text-violet-600 transition-colors">
+                                    <h3 className="font-semibold text-base truncate group-hover:text-primary transition-colors">
                                         {cleanTitle(filteredItineraries[0].title)}
                                     </h3>
                                     <p className="text-sm text-muted-foreground">
@@ -463,7 +447,7 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                                     </p>
                                 </div>
                                 {/* Continue button */}
-                                <Button size="sm" className="bg-violet-600 hover:bg-violet-700 flex-shrink-0">
+                                <Button size="sm" className="flex-shrink-0">
                                     Continue
                                 </Button>
                             </div>
@@ -496,10 +480,10 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                                 key={itinerary.id}
                                 className={cn(
                                     "!py-0 !gap-0 group overflow-hidden relative",
-                                    "bg-white/70 dark:bg-white/5 backdrop-blur-md",
+                                    "bg-raised backdrop-blur-md",
                                     " ",
                                     "transition-all duration-300 ease-out",
-                                    "hover:shadow-xl hover:shadow-violet-500/10",
+                                    "",
                                     " ",
                                     "hover:-translate-y-1",
                                     viewMode === "list" ? "flex flex-row" : "flex flex-col"
@@ -507,7 +491,7 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                             >
                                 {/* Gradient glow effect on hover */}
                                 <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-                                    <div className="absolute inset-[-1px] rounded-xl bg-gradient-to-r from-violet-500/10 via-purple-500/10 to-indigo-500/10 blur-sm" />
+                                    <div className="absolute inset-[-1px] rounded-xl bg-raised blur-sm" />
                                 </div>
 
                                 {/* Enhanced Thumbnail with City Visual */}
@@ -528,7 +512,7 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                                     viewMode === "list" ? "p-4" : "p-4"
                                 )}>
                                     <Link href={`/itineraries/${itinerary.id}`} className="block flex-1">
-                                        <h3 className="font-semibold text-base leading-snug line-clamp-2 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors duration-200 mb-2">
+                                        <h3 className="font-semibold text-base leading-snug line-clamp-2 group-hover:text-primary dark:group-hover:text-primary transition-colors duration-200 mb-2">
                                             {cleanedTitle}
                                         </h3>
 
@@ -547,7 +531,7 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                                         </div>
 
                                         {/* View details hint on hover */}
-                                        <span className="text-xs text-violet-600 dark:text-violet-400 font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 mr-8">
+                                        <span className="text-xs text-primary dark:text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 mr-8">
                                             View →
                                         </span>
 
@@ -557,7 +541,7 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
-                                                    className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-all duration-200 absolute right-3 bottom-3 hover:bg-violet-100 dark:hover:bg-violet-900/30"
+                                                    className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-all duration-200 absolute right-3 bottom-3 hover:hover:bg-primary/15"
                                                     onClick={(e) => e.preventDefault()}
                                                     aria-label={`Actions for ${cleanedTitle}`}
                                                 >
@@ -599,9 +583,9 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                             <Card className={cn(
                                 "!py-0 !gap-0 min-h-[240px] relative overflow-hidden",
                                 " ",
-                                "bg-white/50 dark:bg-white/5 backdrop-blur-md",
+                                "bg-raised backdrop-blur-md",
                                 " ",
-                                "hover:shadow-xl hover:shadow-violet-500/10",
+                                "",
                                 "transition-all duration-300 cursor-pointer",
                                 "flex items-center justify-center group"
                             )}>
@@ -614,15 +598,15 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
                                 <div className="text-center p-6 relative z-10">
                                     <div className={cn(
                                         "h-14 w-14 rounded-2xl mx-auto mb-4",
-                                        "bg-gradient-to-br from-violet-500 to-indigo-600",
+                                        "bg-primary text-primary-foreground",
                                         "flex items-center justify-center",
-                                        "shadow-lg shadow-violet-500/30",
-                                        "group-hover:scale-110 group-hover:shadow-violet-500/40",
+                                        "",
+                                        "group-hover:scale-110",
                                         "transition-all duration-300"
                                     )}>
-                                        <Plus className="h-7 w-7 text-white" />
+                                        <Plus className="h-7 w-7" />
                                     </div>
-                                    <p className="text-base font-semibold text-foreground/80 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors mb-1">
+                                    <p className="text-base font-semibold text-foreground/80 group-hover:text-primary dark:group-hover:text-primary transition-colors mb-1">
                                         Create New Itinerary
                                     </p>
                                     <p className="text-sm text-muted-foreground">

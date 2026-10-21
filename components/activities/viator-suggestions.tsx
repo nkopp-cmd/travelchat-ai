@@ -144,7 +144,7 @@ export function ViatorSuggestions({
 
     return (
         <Card ref={rootRef} className={cn("overflow-hidden !py-0 !gap-0", className)}>
-            <CardHeader className="relative min-h-28 overflow-hidden bg-gradient-to-r from-violet-600 to-purple-700 text-white">
+            <CardHeader className="relative min-h-28 overflow-hidden bg-surface text-foreground">
                 <CityImageAvatar
                     city={city}
                     className="absolute inset-0 h-full w-full rounded-none opacity-45"
@@ -153,13 +153,13 @@ export function ViatorSuggestions({
                     imageWidth={1200}
                     quality={90}
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-950/85 via-violet-900/65 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/70 to-transparent" />
                 <div className="relative">
                     <CardTitle className="flex items-center gap-2 text-lg">
                         <Sparkles className="h-5 w-5" />
                         Book Tours & Activities in {city}
                     </CardTitle>
-                    <p className="text-sm text-violet-100">
+                    <p className="text-sm text-foreground">
                         Curated experiences from our travel partners
                     </p>
                 </div>
@@ -198,17 +198,17 @@ export function ViatorSuggestions({
                                             onError={() => handleImageError(activity.id)}
                                         />
                                     ) : (
-                                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30">
-                                            <ImageOff className="h-8 w-8 text-violet-400" />
+                                        <div className="w-full h-full flex items-center justify-center bg-raised">
+                                            <ImageOff className="h-8 w-8 text-primary" />
                                         </div>
                                     )}
 
                                     {/* Rating Badge */}
                                     {activity.rating && (
                                         <Badge
-                                            className="absolute top-2 left-2 bg-white/90 text-black"
+                                            className="absolute top-2 left-2 bg-raised text-black"
                                         >
-                                            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-1" />
+                                            <Star className="h-3 w-3 fill-yellow-400 text-[rgb(var(--ll-warning))] mr-1" />
                                             {activity.rating.toFixed(1)}
                                             {activity.reviewCount && (
                                                 <span className="text-muted-foreground ml-1">
@@ -231,7 +231,7 @@ export function ViatorSuggestions({
 
                                 {/* Activity Details */}
                                 <div className="p-3 space-y-2">
-                                    <h4 className="font-semibold text-sm line-clamp-2 group-hover:text-violet-600 transition-colors">
+                                    <h4 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors">
                                         {activity.title}
                                     </h4>
 
@@ -252,7 +252,7 @@ export function ViatorSuggestions({
 
                                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-2">
                                         <div className="flex items-center gap-1 flex-wrap">
-                                            <span className="text-lg font-bold text-violet-600">
+                                            <span className="text-lg font-bold text-primary">
                                                 ${activity.priceFrom}
                                             </span>
                                             <span className="text-xs text-muted-foreground">
@@ -261,7 +261,7 @@ export function ViatorSuggestions({
                                             {showDeals && (
                                                 <Badge
                                                     variant="outline"
-                                                    className="ml-2 text-xs text-violet-600"
+                                                    className="ml-2 text-xs text-primary"
                                                 >
                                                     <Tag className="h-2.5 w-2.5 mr-1" />
                                                     Best Price
@@ -270,7 +270,7 @@ export function ViatorSuggestions({
                                         </div>
                                         <Button
                                             size="sm"
-                                            className="bg-violet-600 hover:bg-violet-700 text-xs px-3 w-full sm:w-auto"
+                                            className="text-xs px-3 w-full sm:w-auto"
                                             onClick={() => handleBookClick(activity)}
                                         >
                                             Book
@@ -288,7 +288,7 @@ export function ViatorSuggestions({
                     <div className="mt-4 pt-4 text-center">
                         <Button
                             variant="ghost"
-                            className="text-violet-500 hover:text-violet-600 hover:bg-violet-50"
+                            className="text-primary hover:text-primary hover:bg-raised"
                             onClick={() => {
                                 const viatorUrl = `https://www.viator.com/searchResults/all?text=${encodeURIComponent(city)}&pid=localley`;
                                 window.open(viatorUrl, "_blank");

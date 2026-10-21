@@ -54,12 +54,12 @@ export function BookingDealsPopover({
                 <Button
                     variant="default"
                     size="sm"
-                    className="gap-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 relative"
+                    className="gap-1.5 bg-primary text-primary-foreground relative"
                 >
                     <Ticket className="h-3.5 w-3.5" />
                     Book deals
                     {showDeals && (
-                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
+                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-[rgb(var(--ll-warning))] rounded-full animate-pulse" />
                     )}
                 </Button>
             </PopoverTrigger>
@@ -84,7 +84,7 @@ export function BookingDealsPopover({
                                 </div>
                                 <div className="flex items-center gap-1.5">
                                     {showDeals && index === 0 && (
-                                        <span className="text-[10px] font-medium bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                                        <span className="text-xs font-medium bg-[rgb(var(--ll-warning)/0.14)] text-foreground px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
                                             <Sparkles className="h-2.5 w-2.5" />
                                             Deal
                                         </span>
@@ -95,7 +95,7 @@ export function BookingDealsPopover({
                         );
                     })}
                     {hotelLinks.length > 0 && activityLinks.length > 0 && (
-                        <div className=" my-1" />
+                        <div className="my-1" />
                     )}
                     {hotelLinks.map((link) => {
                         const partner = AFFILIATE_PARTNERS[link.partner];

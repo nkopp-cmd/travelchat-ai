@@ -208,12 +208,12 @@ export default async function UserProfilePage({ params, searchParams }: PageProp
             <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
                 {/* Profile Header */}
                 <Card className="liquid-panel overflow-hidden ">
-                    <div className="bg-gradient-to-r from-violet-600 via-fuchsia-500 to-indigo-600 h-32" />
+                    <div className="bg-raised h-32" />
                     <CardContent className="relative pt-0 pb-6">
                         <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 -mt-12 sm:-mt-8">
                             <Avatar className="h-24 w-24 shadow-lg">
                                 <AvatarImage src={profile.avatarUrl || undefined} />
-                                <AvatarFallback className="text-2xl bg-gradient-to-br from-violet-500 to-indigo-500 text-white">
+                                <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
                                     {initials}
                                 </AvatarFallback>
                             </Avatar>
@@ -240,7 +240,7 @@ export default async function UserProfilePage({ params, searchParams }: PageProp
                                 <div className="text-sm text-muted-foreground mb-1">Level {profile.level}</div>
                                 <div className="w-32 h-2 bg-muted rounded-full overflow-hidden">
                                     <div
-                                        className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 transition-all"
+                                        className="h-full bg-primary text-primary-foreground transition-all"
                                         style={{ width: `${Math.min(levelProgress, 100)}%` }}
                                     />
                                 </div>
@@ -256,21 +256,21 @@ export default async function UserProfilePage({ params, searchParams }: PageProp
                 <div className="grid grid-cols-3 gap-4">
                     <Card className="liquid-panel ">
                         <CardContent className="pt-6 text-center">
-                            <Map className="h-6 w-6 mx-auto mb-2 text-violet-500" />
+                            <Map className="h-6 w-6 mx-auto mb-2 text-primary" />
                             <div className="text-2xl font-bold">{stats.totalItineraries}</div>
                             <div className="text-sm text-muted-foreground">Itineraries</div>
                         </CardContent>
                     </Card>
                     <Card className="liquid-panel ">
                         <CardContent className="pt-6 text-center">
-                            <Sparkles className="h-6 w-6 mx-auto mb-2 text-indigo-500" />
+                            <Sparkles className="h-6 w-6 mx-auto mb-2 text-primary" />
                             <div className="text-2xl font-bold">{stats.sharedItineraries}</div>
                             <div className="text-sm text-muted-foreground">Shared</div>
                         </CardContent>
                     </Card>
                     <Card className="liquid-panel ">
                         <CardContent className="pt-6 text-center">
-                            <Eye className="h-6 w-6 mx-auto mb-2 text-emerald-500" />
+                            <Eye className="h-6 w-6 mx-auto mb-2 text-primary" />
                             <div className="text-2xl font-bold">{stats.totalViews.toLocaleString()}</div>
                             <div className="text-sm text-muted-foreground">Views</div>
                         </CardContent>
@@ -281,7 +281,7 @@ export default async function UserProfilePage({ params, searchParams }: PageProp
                 <Card className="liquid-panel ">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <Map className="h-5 w-5 text-violet-500" />
+                            <Map className="h-5 w-5 text-primary" />
                             Shared Itineraries
                         </CardTitle>
                     </CardHeader>
@@ -294,7 +294,7 @@ export default async function UserProfilePage({ params, searchParams }: PageProp
                                         href={`/shared/${itinerary.shareCode}`}
                                         className="block"
                                     >
-                                        <Card className="h-full bg-white/70 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-violet-500/10 dark:bg-white/5">
+                                        <Card className="h-full bg-raised transition-all hover:-translate-y-1 dark:bg-raised">
                                             <CardContent className="p-4">
                                                 <div className="flex justify-between items-start mb-2">
                                                     <h3 className="font-semibold line-clamp-1 hover:underline">
@@ -302,7 +302,7 @@ export default async function UserProfilePage({ params, searchParams }: PageProp
                                                     </h3>
                                                     {itinerary.localScore > 0 && (
                                                         <Badge variant="secondary" className="shrink-0 ml-2">
-                                                            <Star className="h-3 w-3 mr-1 fill-current text-yellow-500" />
+                                                            <Star className="h-3 w-3 mr-1 fill-current text-[rgb(var(--ll-warning))]" />
                                                             {itinerary.localScore}
                                                         </Badge>
                                                     )}
@@ -337,7 +337,7 @@ export default async function UserProfilePage({ params, searchParams }: PageProp
                 </Card>
 
                 {/* CTA for visitors */}
-                <Card className="overflow-hidden bg-gradient-to-r from-violet-600/20 to-indigo-600/20 backdrop-blur-xl">
+                <Card className="overflow-hidden bg-raised backdrop-blur-xl">
                     <CardContent className="p-6 text-center">
                         <h3 className="text-lg font-semibold mb-2">
                             Want to share your own adventures?
@@ -346,7 +346,7 @@ export default async function UserProfilePage({ params, searchParams }: PageProp
                             Join Localley, choose a plan, and create beautiful itineraries to share with the world.
                         </p>
                         <Link href="/sign-up">
-                            <Button className="bg-gradient-to-r from-violet-600 to-indigo-600">
+                            <Button className="bg-primary text-primary-foreground">
                                 <Sparkles className="mr-2 h-4 w-4" />
                                 Create Your Profile
                             </Button>

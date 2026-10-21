@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-// shared/plans/localley-design-consistency.md batch 3: itinerary detail uses tokens (story-dialog is protected).
+// shared/plans/localley-design-consistency.md batches 3-4: itinerary detail, list, settings, profile and public profile use tokens (story-dialog is protected).
 const FILES = [
   "app/itineraries/[id]/page.tsx",
   "components/itinerary/itinerary-insights-panel.tsx",
@@ -14,6 +14,15 @@ const FILES = [
   "components/activities/itinerary-activity-card.tsx",
   "components/itineraries/share-dialog.tsx",
   "components/itineraries/email-dialog.tsx",
+  // batch 4
+  "components/activities/viator-suggestions.tsx",
+  "components/activities/booking-deals-popover.tsx",
+  "components/itineraries/itinerary-list.tsx",
+  "app/itineraries/page.tsx",
+  "app/settings/page.tsx",
+  "components/settings/notification-preferences.tsx",
+  "app/profile/page.tsx",
+  "app/users/[username]/page.tsx",
 ];
 
 describe("itinerary detail design tokens", () => {
