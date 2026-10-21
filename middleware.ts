@@ -28,6 +28,7 @@ const PUBLIC_ROUTES = [
     '/api/cron/process-social-submissions',  // Cron; route enforces CRON_SECRET
     '/api/cron/discover-spots-with-apify',  // Cron; route enforces CRON_SECRET
     '/api/cron/refresh-weekly-social-trends',  // Cron; route enforces CRON_SECRET
+    '/api/cron/ai-provider-probe',  // Cron; route enforces CRON_SECRET
     '/spots(.*)',  // Allow browsing spots without login
     '/templates(.*)',  // Allow browsing templates
     '/itineraries/:id/stories',  // Public stories download page
