@@ -1,30 +1,12 @@
 {
-  "app/admin/analytics/page.tsx": {
-    "white-alpha": 1,
-    "palette": 8
-  },
-  "app/admin/spots/quality/page.tsx": {
-    "palette": 3
-  },
   "app/challenges/page.tsx": {
     "palette": 6
   },
   "app/dashboard/error.tsx": {
     "palette": 4
   },
-  "app/explore/explore-content.tsx": {
-    "gradient": 4,
-    "palette": 6
-  },
   "app/itineraries/[id]/edit/page.tsx": {
     "gradient": 6
-  },
-  "app/itineraries/[id]/page.tsx": {
-    "gradient": 8,
-    "raw-hex": 2,
-    "white-alpha": 8,
-    "palette": 3,
-    "colored-shadow": 4
   },
   "app/itineraries/[id]/stories/page.tsx": {
     "gradient": 8
@@ -39,58 +21,23 @@
   "app/itineraries/new/page.tsx": {
     "palette": 2
   },
-  "app/itineraries/page.tsx": {
-    "gradient": 4,
-    "palette": 4,
-    "colored-shadow": 1
-  },
   "app/leaderboard/page.tsx": {
     "palette": 2
   },
-  "app/page.tsx": {
-    "raw-hex": 7,
-    "white-alpha": 8,
-    "palette": 27,
-    "colored-shadow": 4
-  },
   "app/pricing/page.tsx": {
-    "raw-hex": 1,
-    "white-alpha": 16,
-    "palette": 21,
-    "colored-shadow": 4
+    "palette": 1
   },
   "app/profile/error.tsx": {
     "palette": 4
   },
   "app/profile/page.tsx": {
-    "gradient": 9,
-    "white-alpha": 13,
-    "palette": 38,
-    "colored-shadow": 4
+    "palette": 4
   },
   "app/settings/error.tsx": {
     "palette": 4
   },
-  "app/settings/page.tsx": {
-    "gradient": 8,
-    "raw-hex": 1,
-    "white-alpha": 17,
-    "palette": 29,
-    "colored-shadow": 4
-  },
   "app/shared/[shareCode]/page.tsx": {
-    "gradient": 14,
-    "raw-hex": 1,
-    "palette": 3,
-    "colored-shadow": 2,
     "gradient-text": 1
-  },
-  "app/spots/[id]/page.tsx": {
-    "raw-hex": 1,
-    "white-alpha": 15,
-    "palette": 117,
-    "tiny-text": 9,
-    "colored-shadow": 3
   },
   "app/spots/error.tsx": {
     "palette": 4
@@ -98,96 +45,38 @@
   "app/spots/page.tsx": {
     "white-alpha": 3
   },
-  "app/spots/submissions/evidence-form.tsx": {
-    "white-alpha": 1,
-    "palette": 16,
-    "colored-shadow": 1
-  },
-  "app/spots/submissions/page.tsx": {
-    "raw-hex": 5,
-    "white-alpha": 7,
-    "palette": 86,
-    "tiny-text": 1,
-    "colored-shadow": 6
-  },
-  "app/spots/submit/page.tsx": {
-    "raw-hex": 3,
-    "white-alpha": 18,
-    "palette": 66,
-    "colored-shadow": 4
-  },
   "app/templates/error.tsx": {
     "palette": 4
-  },
-  "app/users/[username]/page.tsx": {
-    "gradient": 11,
-    "white-alpha": 2,
-    "palette": 5,
-    "colored-shadow": 1
   },
   "components/accessibility/skip-link.tsx": {
     "palette": 1
   },
   "components/activities/activity-card.tsx": {
-    "gradient": 2,
-    "white-alpha": 3,
-    "palette": 9
+    "palette": 1
   },
   "components/activities/booking-button.tsx": {
     "gradient": 4,
     "palette": 1,
     "tiny-text": 1
   },
-  "components/activities/booking-deals-popover.tsx": {
-    "gradient": 4,
-    "palette": 5,
-    "tiny-text": 1
-  },
   "components/activities/itinerary-activity-card.tsx": {
-    "raw-hex": 2,
-    "white-alpha": 2,
-    "palette": 30,
-    "tiny-text": 7,
-    "colored-shadow": 2
+    "palette": 1
   },
   "components/activities/upgrade-prompt.tsx": {
     "gradient": 18,
     "palette": 1
   },
   "components/activities/viator-suggestions.tsx": {
-    "gradient": 8,
-    "white-alpha": 1,
-    "palette": 12
-  },
-  "components/admin/analytics-charts.tsx": {
-    "palette": 2,
-    "tiny-text": 1
+    "palette": 1
   },
   "components/admin/apify-spot-discovery-workbench.tsx": {
-    "raw-hex": 2,
-    "white-alpha": 5,
-    "palette": 30,
-    "colored-shadow": 1
+    "palette": 1
   },
   "components/admin/social-submission-recovery.tsx": {
-    "raw-hex": 4,
-    "white-alpha": 7,
-    "palette": 33
-  },
-  "components/admin/spot-quality-workbench.tsx": {
-    "raw-hex": 6,
-    "white-alpha": 40,
-    "palette": 116,
-    "tiny-text": 8,
-    "colored-shadow": 3
+    "palette": 2
   },
   "components/auth/auth-forms.tsx": {
-    "white-alpha": 3,
-    "palette": 22
-  },
-  "components/auth/auth-shell.tsx": {
-    "palette": 2,
-    "colored-shadow": 1
+    "palette": 2
   },
   "components/auth/signup-prompt-sheet.tsx": {
     "gradient": 6,
@@ -232,14 +121,10 @@
     "palette": 1
   },
   "components/guide/source-guide-application.tsx": {
-    "white-alpha": 5,
-    "palette": 9,
-    "colored-shadow": 2
+    "palette": 2
   },
   "components/guide/source-guide-dashboard.tsx": {
-    "white-alpha": 3,
-    "palette": 6,
-    "colored-shadow": 1
+    "palette": 1
   },
   "components/itineraries/activity-editor.tsx": {
     "palette": 7
@@ -253,14 +138,7 @@
     "palette": 2
   },
   "components/itineraries/email-dialog.tsx": {
-    "gradient": 4,
     "palette": 1
-  },
-  "components/itineraries/itinerary-list.tsx": {
-    "gradient": 29,
-    "white-alpha": 11,
-    "palette": 24,
-    "colored-shadow": 5
   },
   "components/itineraries/itinerary-skeleton.tsx": {
     "white-alpha": 11
@@ -275,7 +153,6 @@
     "palette": 1
   },
   "components/itineraries/share-dialog.tsx": {
-    "gradient": 4,
     "palette": 1
   },
   "components/itineraries/story-dialog.tsx": {
@@ -285,80 +162,8 @@
     "tiny-text": 1,
     "colored-shadow": 1
   },
-  "components/itineraries/wizard/index.tsx": {
-    "gradient": 4,
-    "white-alpha": 3,
-    "palette": 14,
-    "tiny-text": 2,
-    "colored-shadow": 1
-  },
-  "components/itineraries/wizard/route-preview.tsx": {
-    "palette": 9,
-    "tiny-text": 3
-  },
   "components/itineraries/wizard/step-destination.tsx": {
-    "white-alpha": 1,
-    "palette": 19,
-    "tiny-text": 3,
-    "colored-shadow": 2
-  },
-  "components/itineraries/wizard/step-duration.tsx": {
-    "white-alpha": 1,
-    "palette": 13
-  },
-  "components/itineraries/wizard/step-interests.tsx": {
-    "white-alpha": 2,
-    "palette": 8
-  },
-  "components/itineraries/wizard/step-preferences.tsx": {
-    "white-alpha": 5,
-    "palette": 13
-  },
-  "components/itineraries/wizard/wizard-progress.tsx": {
-    "white-alpha": 5,
-    "palette": 6
-  },
-  "components/itinerary/day-route-section.tsx": {
-    "raw-hex": 1,
-    "white-alpha": 8,
-    "palette": 26,
-    "tiny-text": 3,
-    "colored-shadow": 1
-  },
-  "components/itinerary/day-section.tsx": {
-    "white-alpha": 3,
-    "palette": 14
-  },
-  "components/itinerary/floating-actions.tsx": {
-    "gradient": 2,
-    "white-alpha": 2,
-    "colored-shadow": 2
-  },
-  "components/itinerary/hero-section.tsx": {
-    "raw-hex": 1,
-    "palette": 7
-  },
-  "components/itinerary/itinerary-insights-panel.tsx": {
-    "raw-hex": 1,
-    "palette": 17,
-    "tiny-text": 4,
-    "colored-shadow": 1
-  },
-  "components/itinerary/itinerary-map.tsx": {
-    "gradient": 3,
-    "white-alpha": 7,
-    "palette": 10,
-    "colored-shadow": 3
-  },
-  "components/itinerary/sticky-tabs.tsx": {
-    "white-alpha": 1,
-    "palette": 2
-  },
-  "components/landing/planner.tsx": {
-    "raw-hex": 2,
-    "white-alpha": 9,
-    "palette": 25,
-    "colored-shadow": 3
+    "palette": 1
   },
   "components/layout/sidebar.tsx": {
     "gradient": 12,
@@ -383,7 +188,7 @@
     "palette": 4
   },
   "components/settings/notification-preferences.tsx": {
-    "palette": 14
+    "palette": 5
   },
   "components/settings/preview-billing-summary.tsx": {
     "white-alpha": 2,
@@ -435,18 +240,8 @@
     "white-alpha": 2,
     "palette": 4
   },
-  "components/spots/spots-filter-bar.tsx": {
-    "raw-hex": 1,
-    "white-alpha": 9,
-    "palette": 46,
-    "tiny-text": 1,
-    "colored-shadow": 2
-  },
   "components/spots/spots-pagination.tsx": {
     "palette": 2
-  },
-  "components/spots/submission-media-progress.tsx": {
-    "palette": 42
   },
   "components/spots/submission-preview-image.tsx": {
     "palette": 2
@@ -464,26 +259,8 @@
   "components/subscription/usage-indicator.tsx": {
     "palette": 4
   },
-  "components/templates/template-card.tsx": {
-    "gradient": 34,
-    "white-alpha": 2,
-    "palette": 24,
-    "tiny-text": 11,
-    "colored-shadow": 6
-  },
-  "components/templates/template-picker.tsx": {
-    "gradient": 8,
-    "raw-hex": 2,
-    "white-alpha": 8,
-    "palette": 12,
-    "tiny-text": 7,
-    "colored-shadow": 6
-  },
   "components/ui/animated-gradient.tsx": {
     "gradient": 10
-  },
-  "components/ui/glass-card.tsx": {
-    "white-alpha": 6
   },
   "components/ui/glow-badge.tsx": {
     "palette": 12,
