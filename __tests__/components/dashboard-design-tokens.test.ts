@@ -25,4 +25,12 @@ describe("dashboard design tokens", () => {
       expect(readFileSync(file, "utf8")).toMatch(/<PageHeader\b/);
     }
   });
+
+  it("separates recent-trip photos with depth, not a coloured ring", () => {
+    const source = readFileSync("components/dashboard/recent-stories.tsx", "utf8");
+    // A ring is a padded coloured disc behind the photo (p-[3px] + bg-primary, inner bg-background gap).
+    expect(source).not.toMatch(/rounded-full p-\[\d+px\]/);
+    expect(source).not.toMatch(/rounded-full bg-background p-/);
+    expect(source).toMatch(/w-\[68px\] h-\[68px\] rounded-full shadow-surface/);
+  });
 });
