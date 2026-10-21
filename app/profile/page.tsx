@@ -433,7 +433,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                         <CardDescription>
                             {subscription.tier === "free"
                                 ? "Activity tracking starts after plan activation"
-                                : "Here&apos;s what you&apos;ve been up to"}
+                                : "Here's what you've been up to"}
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
