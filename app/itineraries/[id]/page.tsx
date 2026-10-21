@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { headers } from "next/headers";
 import { isPreviewItineraryListCandidate } from "@/lib/app-data/preview-itinerary-list";
 import { previewItineraryPage } from "@/lib/app-data/preview-itinerary-page";
@@ -70,8 +71,8 @@ function resolveCity(itinerary: { city: string; title: string }): string {
   return getDisplayCity(itinerary.city);
 }
 
-// Fetch itinerary from Supabase
-async function getItinerary(id: string) {
+// Fetch itinerary from Supabase. cache() lets generateMetadata and the page share one query per request.
+const getItinerary = cache(async (id: string) => {
   const { userId } = await auth();
   const supabase = createSupabaseAdmin();
 
@@ -100,7 +101,7 @@ async function getItinerary(id: string) {
     createdAt: itinerary.created_at,
     isPublic: itinerary.is_public === true,
   };
-}
+});
 
 // Get user's subscription tier
 async function getUserSubscriptionTier(): Promise<SubscriptionTier> {
