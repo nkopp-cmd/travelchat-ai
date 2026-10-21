@@ -110,7 +110,6 @@ export function SubmissionEvidenceForm({
             value={placeHint}
             onChange={(event) => setPlaceHint(event.target.value)}
             placeholder="Cafe Saeraul, Gyeongbokgung..."
-            className="bg-black/20 text-foreground placeholder:text-muted-foreground"
           />
         </div>
         <div className="space-y-1.5">
@@ -122,7 +121,6 @@ export function SubmissionEvidenceForm({
             value={cityHint}
             onChange={(event) => setCityHint(event.target.value)}
             placeholder="Seoul"
-            className="bg-black/20 text-foreground placeholder:text-muted-foreground"
           />
         </div>
       </div>
@@ -136,7 +134,7 @@ export function SubmissionEvidenceForm({
           value={notes}
           onChange={(event) => setNotes(event.target.value)}
           placeholder="Caption says the address, storefront sign, neighborhood, menu item..."
-          className="min-h-20 bg-black/20 text-foreground placeholder:text-muted-foreground"
+          className="min-h-20"
         />
       </div>
 

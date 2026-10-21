@@ -669,12 +669,12 @@ export function SpotQualityWorkbench() {
 
                 <div className="grid gap-2 sm:grid-cols-[minmax(0,12rem)_minmax(0,12rem)_auto]">
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground" />
+                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-field-foreground" />
                         <Input
                             value={city}
                             onChange={(event) => setCity(event.target.value)}
                             placeholder="City"
-                            className="h-10 bg-raised pl-9 text-foreground placeholder:text-muted-foreground"
+                            className="h-10 pl-9"
                         />
                     </div>
                     <Select value={issue} onValueChange={(value) => setIssue(value as IssueFilter)}>
@@ -1375,7 +1375,7 @@ export function SpotQualityWorkbench() {
                                     <Textarea
                                         value={editState.address}
                                         onChange={(event) => setEditState({ ...editState, address: event.target.value })}
-                                        className="min-h-20 bg-raised text-foreground placeholder:text-muted-foreground"
+                                        className="min-h-20"
                                     />
                                 </label>
 
@@ -1385,7 +1385,6 @@ export function SpotQualityWorkbench() {
                                         <Input
                                             value={editState.lat}
                                             onChange={(event) => setEditState({ ...editState, lat: event.target.value })}
-                                            className="bg-raised text-foreground"
                                         />
                                     </label>
                                     <label className="block space-y-1.5 text-sm">
@@ -1393,7 +1392,6 @@ export function SpotQualityWorkbench() {
                                         <Input
                                             value={editState.lng}
                                             onChange={(event) => setEditState({ ...editState, lng: event.target.value })}
-                                            className="bg-raised text-foreground"
                                         />
                                     </label>
                                 </div>
@@ -1403,7 +1401,7 @@ export function SpotQualityWorkbench() {
                                     <Textarea
                                         value={editState.photos}
                                         onChange={(event) => setEditState({ ...editState, photos: event.target.value })}
-                                        className="min-h-28 bg-raised text-foreground placeholder:text-muted-foreground"
+                                        className="min-h-28"
                                     />
                                 </label>
 
@@ -1413,7 +1411,7 @@ export function SpotQualityWorkbench() {
                                         value={editState.googlePlaceId}
                                         onChange={(event) => setEditState({ ...editState, googlePlaceId: event.target.value })}
                                         disabled={queue?.hasGooglePlaceIdColumn === false}
-                                        className="bg-raised text-foreground disabled:opacity-50"
+                                        className="disabled:opacity-50"
                                     />
                                 </label>
 

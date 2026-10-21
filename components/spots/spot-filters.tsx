@@ -89,13 +89,13 @@ export function SpotFilters({ onSearch, onFilterChange, categories = [] }: SpotF
         <div className="space-y-4">
             {/* Search Bar */}
             <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-field-foreground/80" />
                 <Input
                     type="text"
                     placeholder="Search spots, neighborhoods, or vibes..."
                     value={searchQuery}
                     onChange={(e) => handleSearchChange(e.target.value)}
-                    className="pl-10 pr-4 h-12 rounded-full bg-background/60 backdrop-blur-sm"
+                    className="pl-10 pr-4 h-12 rounded-full"
                 />
             </div>
 

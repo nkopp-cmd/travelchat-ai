@@ -306,12 +306,12 @@ export function ItineraryList({ initialItineraries }: ItineraryListProps) {
             <div className="flex flex-col sm:flex-row gap-3">
                 {/* Search - standalone and prominent */}
                 <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-field-foreground/80" />
                     <Input
                         placeholder="Search itineraries..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10 bg-raised "
+                        className="pl-10"
                     />
                 </div>
 

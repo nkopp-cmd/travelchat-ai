@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth/auth-client";
 import { safeRedirect } from "@/lib/auth/client";
 
-const inputClass = "bg-raised text-foreground placeholder:text-muted-foreground";
 const primaryClass = "w-full  text-foreground";
 const secondaryClass = "w-full bg-raised text-foreground hover:bg-raised";
 
@@ -95,10 +94,10 @@ export function SignInForm({ googleEnabled }: { googleEnabled: boolean }) {
             {googleEnabled ? <><GoogleButton callbackURL={redirectTo} /><Divider /></> : null}
             <form onSubmit={onPassword} className="space-y-4">
                 <Field id="email" label="Email">
-                    <Input id="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} />
+                    <Input id="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
                 </Field>
                 <Field id="password" label="Password">
-                    <Input id="password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className={inputClass} />
+                    <Input id="password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
                 </Field>
                 <div className="flex justify-end">
                     <Link href="/forgot-password" className="text-sm text-primary hover:text-primary">Forgot password?</Link>
@@ -161,13 +160,13 @@ export function SignUpForm({ googleEnabled }: { googleEnabled: boolean }) {
             {googleEnabled ? <><GoogleButton callbackURL={redirectTo} /><Divider /></> : null}
             <form onSubmit={onSubmit} className="space-y-4">
                 <Field id="name" label="Name">
-                    <Input id="name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} />
+                    <Input id="name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} />
                 </Field>
                 <Field id="email" label="Email">
-                    <Input id="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} />
+                    <Input id="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
                 </Field>
                 <Field id="password" label="Password (8+ characters)">
-                    <Input id="password" type="password" autoComplete="new-password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} className={inputClass} />
+                    <Input id="password" type="password" autoComplete="new-password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
                 </Field>
                 <Button type="submit" className={primaryClass} disabled={busy}>
                     {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -201,7 +200,7 @@ export function ForgotPasswordForm() {
         <form onSubmit={onSubmit} className="space-y-4">
             {error ? <Notice tone="error">{error}</Notice> : null}
             <Field id="email" label="Email">
-                <Input id="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} />
+                <Input id="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
             </Field>
             <Button type="submit" className={primaryClass} disabled={busy}>
                 {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -242,7 +241,7 @@ export function ResetPasswordForm() {
         <form onSubmit={onSubmit} className="space-y-4">
             {error ? <Notice tone="error">{error}</Notice> : null}
             <Field id="password" label="New password (8+ characters)">
-                <Input id="password" type="password" autoComplete="new-password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} className={inputClass} disabled={!token} />
+                <Input id="password" type="password" autoComplete="new-password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} disabled={!token} />
             </Field>
             <Button type="submit" className={primaryClass} disabled={busy || !token}>
                 {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
