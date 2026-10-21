@@ -61,10 +61,7 @@ async function getPublicItineraries(
             created_at,
             view_count,
             like_count,
-            users!itineraries_clerk_user_id_fkey (
-                name,
-                avatar_url
-            )
+            clerk_user_id
         `)
         .eq("shared", true)
         .not("share_code", "is", null);
@@ -117,27 +114,35 @@ async function getPublicItineraries(
         return [];
     }
 
-    return (data || []).map((item) => {
-        // Handle both array and single object returns from Supabase
-        const usersData = item.users;
-        const user = Array.isArray(usersData)
-            ? usersData[0] as { name: string | null; avatar_url: string | null } | undefined
-            : usersData as { name: string | null; avatar_url: string | null } | null;
-        return {
-            id: item.id,
-            title: item.title,
-            city: item.city,
-            days: item.days,
-            localScore: item.local_score || 0,
-            highlights: item.highlights || [],
-            shareCode: item.share_code,
-            createdAt: item.created_at,
-            viewCount: item.view_count || 0,
-            likeCount: item.like_count || 0,
-            creatorName: user?.name || null,
-            creatorAvatar: user?.avatar_url || null,
-        };
-    });
+    // itineraries has no foreign key to users (the old embedded join failed with PGRST200 on every
+    // request), so creators are looked up separately: one bounded query for this page's owners.
+    const rows = data || [];
+    const ownerIds = [...new Set(rows.map((item) => item.clerk_user_id).filter(Boolean))];
+    const creators = new Map<string, string | null>();
+    if (ownerIds.length > 0) {
+        const { data: owners, error: ownersError } = await supabase
+            .from("users")
+            .select("clerk_id, username")
+            .in("clerk_id", ownerIds);
+        if (ownersError) console.error("Error fetching itinerary creators:", ownersError.code);
+        for (const owner of owners || []) creators.set(owner.clerk_id, owner.username ?? null);
+    }
+
+    return rows.map((item) => ({
+        id: item.id,
+        title: item.title,
+        city: item.city,
+        days: item.days,
+        localScore: item.local_score || 0,
+        highlights: item.highlights || [],
+        shareCode: item.share_code,
+        createdAt: item.created_at,
+        viewCount: item.view_count || 0,
+        likeCount: item.like_count || 0,
+        creatorName: creators.get(item.clerk_user_id) ?? null,
+        // users has no avatar column; the card falls back to initials.
+        creatorAvatar: null,
+    }));
 }
 
 async function getPopularCities(): Promise<string[]> {
