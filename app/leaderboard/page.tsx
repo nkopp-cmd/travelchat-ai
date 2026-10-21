@@ -1,4 +1,6 @@
 import { Suspense } from "react";
+import { PageHeader } from "@/components/layout/page-header";
+import { PageShell } from "@/components/layout/page-shell";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -11,7 +13,6 @@ import { auth } from "@/lib/auth/server";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { AppBackground } from "@/components/layout/app-background";
-import { GradientText } from "@/components/ui/gradient-text";
 
 export const metadata: Metadata = {
     title: "Leaderboard - Localley",
@@ -95,11 +96,11 @@ async function getLeaderboard(): Promise<LeaderboardData> {
 function getRankIcon(rank: number) {
     switch (rank) {
         case 1:
-            return <Crown className="h-6 w-6 text-yellow-500" />;
+            return <Crown className="h-6 w-6 text-[rgb(var(--ll-warning))]" />;
         case 2:
-            return <Medal className="h-6 w-6 text-gray-400" />;
+            return <Medal className="h-6 w-6 text-muted-foreground" />;
         case 3:
-            return <Award className="h-6 w-6 text-indigo-400" />;
+            return <Award className="h-6 w-6 text-primary" />;
         default:
             return <span className="text-lg font-bold text-muted-foreground w-6 text-center">{rank}</span>;
     }
@@ -108,11 +109,11 @@ function getRankIcon(rank: number) {
 function getRankBg(rank: number) {
     switch (rank) {
         case 1:
-            return "bg-gradient-to-r from-violet-500/20 to-fuchsia-500/15 ";
+            return "bg-raised ";
         case 2:
-            return "bg-gradient-to-r from-gray-400/20 to-slate-400/20 ";
+            return "bg-raised ";
         case 3:
-            return "bg-gradient-to-r from-indigo-500/20 to-violet-500/15 ";
+            return "bg-raised ";
         default:
             return "bg-background/60 ";
     }
@@ -135,7 +136,7 @@ function LeaderboardEntry({ user }: { user: LeaderboardUser }) {
 
             {/* Avatar */}
             <Avatar className="h-12 w-12 ">
-                <AvatarFallback className="bg-violet-500/20 text-violet-600 font-bold">
+                <AvatarFallback className="bg-primary/15 text-primary font-bold">
                     {displayName.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
             </Avatar>
@@ -146,7 +147,7 @@ function LeaderboardEntry({ user }: { user: LeaderboardUser }) {
                     <span className="font-semibold truncate">
                         {displayName}
                         {user.isCurrentUser && (
-                            <span className="text-violet-500 ml-1">(You)</span>
+                            <span className="text-primary ml-1">(You)</span>
                         )}
                     </span>
                 </div>
@@ -196,7 +197,7 @@ async function LeaderboardContent({ candidate }: { candidate: boolean }) {
 
     if (leaderboard.length === 0) {
         return (
-            <Card className=" bg-background/60 backdrop-blur-sm">
+            <Card className="bg-background/60 backdrop-blur-sm">
                 <CardContent className="pt-6">
                     <div className="text-center py-12">
                         <Trophy className="h-16 w-16 text-muted-foreground/30 mx-auto mb-4" />
@@ -219,11 +220,11 @@ async function LeaderboardContent({ candidate }: { candidate: boolean }) {
                     <div className="flex flex-col items-center pt-8">
                         <div className="relative">
                             <Avatar className="h-16 w-16 ">
-                                <AvatarFallback className="bg-gray-400/20 text-gray-600 font-bold text-xl">
+                                <AvatarFallback className="bg-raised text-gray-600 font-bold text-xl">
                                     {(leaderboard[1]?.username || "E2").slice(0, 2).toUpperCase()}
                                 </AvatarFallback>
                             </Avatar>
-                            <div className="absolute -bottom-2 -right-2 bg-gray-400 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
+                            <div className="absolute -bottom-2 -right-2 bg-raised text-foreground rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
                                 2
                             </div>
                         </div>
@@ -237,14 +238,14 @@ async function LeaderboardContent({ candidate }: { candidate: boolean }) {
 
                     {/* First Place */}
                     <div className="flex flex-col items-center">
-                        <Crown className="h-8 w-8 text-yellow-500 mb-2" />
+                        <Crown className="h-8 w-8 text-[rgb(var(--ll-warning))] mb-2" />
                         <div className="relative">
                             <Avatar className="h-20 w-20 ">
-                                <AvatarFallback className="bg-yellow-500/20 text-yellow-600 font-bold text-2xl">
+                                <AvatarFallback className="bg-[rgb(var(--ll-warning)/0.15)] text-[rgb(var(--ll-warning))] font-bold text-2xl">
                                     {(leaderboard[0]?.username || "E1").slice(0, 2).toUpperCase()}
                                 </AvatarFallback>
                             </Avatar>
-                            <div className="absolute -bottom-2 -right-2 bg-yellow-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
+                            <div className="absolute -bottom-2 -right-2 bg-[rgb(var(--ll-warning))] text-[rgb(var(--ll-control-ink))] rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
                                 1
                             </div>
                         </div>
@@ -260,11 +261,11 @@ async function LeaderboardContent({ candidate }: { candidate: boolean }) {
                     <div className="flex flex-col items-center pt-12">
                         <div className="relative">
                             <Avatar className="h-14 w-14 ">
-                                <AvatarFallback className="bg-indigo-500/20 text-indigo-200 font-bold text-lg">
+                                <AvatarFallback className="bg-primary/15 text-foreground font-bold text-lg">
                                     {(leaderboard[2]?.username || "E3").slice(0, 2).toUpperCase()}
                                 </AvatarFallback>
                             </Avatar>
-                            <div className="absolute -bottom-2 -right-2 bg-indigo-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
+                            <div className="absolute -bottom-2 -right-2 bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
                                 3
                             </div>
                         </div>
@@ -304,7 +305,7 @@ export default async function LeaderboardPage({ searchParams }: {
     const candidate = isPreviewLeaderboardPageCandidate(host, data_candidate);
     return (
         <AppBackground ambient className="min-h-screen">
-            <div className="max-w-3xl mx-auto p-4 pb-24 space-y-6 animate-in fade-in duration-500 md:pb-8">
+            <PageShell width="narrow">
             {/* Back Button */}
             <Link
                 href="/dashboard"
@@ -314,21 +315,15 @@ export default async function LeaderboardPage({ searchParams }: {
                 Back to Dashboard
             </Link>
 
-            {/* Header */}
-            <div className="text-center space-y-2">
-                <div className="flex items-center justify-center gap-3">
-                    <Trophy className="h-10 w-10 text-yellow-500" />
-                    <h1 className="text-4xl font-bold">
-                        <GradientText variant="violet">Leaderboard</GradientText>
-                    </h1>
-                </div>
-                <p className="text-muted-foreground">
-                    Top explorers competing for local legend status
-                </p>
-            </div>
+            <PageHeader
+                eyebrow="Community"
+                eyebrowIcon={Trophy}
+                title="Leaderboard"
+                lede="Top explorers competing for local legend status."
+            />
 
             {/* Stats Banner */}
-            <Card className="bg-gradient-to-r from-violet-500/10 to-indigo-500/10 ">
+            <Card className="bg-surface">
                 <CardContent className="p-4">
                     <div className="flex items-center justify-center gap-2 text-sm">
                         <Flame className="h-4 w-4 text-orange-500" />
@@ -343,7 +338,7 @@ export default async function LeaderboardPage({ searchParams }: {
             <Suspense fallback={<LeaderboardSkeleton />}>
                 <LeaderboardContent candidate={candidate} />
             </Suspense>
-            </div>
+            </PageShell>
         </AppBackground>
     );
 }

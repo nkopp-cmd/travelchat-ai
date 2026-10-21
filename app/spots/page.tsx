@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { IntentLink } from "@/components/navigation/intent-link";
+import { PageEyebrow } from "@/components/layout/page-header";
 import { SpotsExplorer } from "@/components/spots/spots-explorer";
 import { SpotCardSkeleton } from "@/components/ui/skeleton";
 import { CityQuickFilters } from "@/components/spots/city-quick-filters";
@@ -40,7 +41,7 @@ function SpotsLoading() {
     return (
         <div className="space-y-6">
             {/* Filter bar skeleton */}
-            <div className="rounded-lg bg-[#100b1c]/86 p-4 shadow-lg shadow-violet-950/20 backdrop-blur-xl">
+            <div className="rounded-2xl bg-surface p-4 shadow-surface">
                 <div className="h-11 animate-pulse rounded-lg bg-white/10 mb-4" />
                 <div className="flex gap-2">
                     {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -127,7 +128,7 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
             <div className="container mx-auto px-4 pb-24 pt-6 md:pb-10 md:pt-8">
                 {/* Header */}
                 <div className="mb-6 space-y-4 md:mb-8">
-                    <div className="relative overflow-hidden rounded-lg bg-[#100b1c]/82 p-5 shadow-xl shadow-violet-950/20 backdrop-blur-xl md:p-7">
+                    <div className="relative overflow-hidden rounded-2xl bg-surface p-5 shadow-surface md:p-7">
                         <div className="absolute right-3 top-3 hidden -space-x-3 sm:flex">
                             {["Seoul", "Tokyo", "Bangkok", "Singapore"].map((city) => (
                                 <CityImageAvatar
@@ -142,35 +143,25 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
                             ))}
                         </div>
                         <div className="relative max-w-2xl">
-                            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-violet-400/10 px-3 py-1 text-sm font-medium text-violet-100">
-                                <MapPin className="h-4 w-4" />
-                                Asia-First Discovery
-                            </div>
+                            <PageEyebrow icon={MapPin} className="mb-3">Asia-First Discovery</PageEyebrow>
                             <h1 className="mb-2 text-3xl font-bold tracking-tight md:text-4xl">
                                 <GradientText variant="violet">
                                     Discover Hidden Gems
                                 </GradientText>
                             </h1>
-                            <p className="text-sm leading-6 text-violet-50/65 md:text-base">
+                            <p className="text-[15px] leading-6 text-muted-foreground">
                                 Browse local-first restaurants, alleys, markets, cafes, and night spots across Asia. Pick a city, filter by vibe, then save the places worth building a trip around.
                             </p>
                             <Button asChild className="mt-4"><IntentLink href="/itineraries/new">Start with a city</IntentLink></Button>
                             {socialSpotSubmissionsEnabled && (
                                 <div className="mt-4 flex flex-wrap gap-2">
-                                    <Button
-                                        asChild
-                                        className="h-10 rounded-lg bg-white text-violet-950 hover:bg-violet-50"
-                                    >
+                                    <Button asChild variant="secondary">
                                         <IntentLink href="/spots/submit">
                                             <Plus className="h-4 w-4" />
                                             Submit post
                                         </IntentLink>
                                     </Button>
-                                    <Button
-                                        asChild
-                                        variant="outline"
-                                        className="h-10 rounded-lg bg-white/[0.055] text-violet-50 hover:bg-violet-400/10 hover:text-white"
-                                    >
+                                    <Button asChild variant="ghost">
                                         <IntentLink href="/spots/submissions">
                                             <Images className="h-4 w-4" />
                                             Track submissions

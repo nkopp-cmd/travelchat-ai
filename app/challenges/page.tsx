@@ -1,5 +1,7 @@
 "use client";
 
+import { PageHeader } from "@/components/layout/page-header";
+import { PageShell } from "@/components/layout/page-shell";
 import { useCallback, useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -58,7 +60,7 @@ function getChallengeIcon(type: string) {
 function getChallengeColor(type: string) {
     switch (type) {
         case "itinerary_count":
-            return "text-violet-500 bg-violet-500/10";
+            return "text-primary bg-primary/10";
         case "saved_spots":
             return "text-red-500 bg-red-500/10";
         case "following_count":
@@ -67,7 +69,7 @@ function getChallengeColor(type: string) {
         case "streak":
             return "text-orange-500 bg-orange-500/10";
         default:
-            return "text-gray-500 bg-gray-500/10";
+            return "text-muted-foreground bg-raised";
     }
 }
 
@@ -145,7 +147,7 @@ export default function ChallengesPage() {
 
     return (
         <AppBackground ambient className="min-h-screen">
-            <div className="max-w-4xl mx-auto p-4 pb-24 space-y-6 animate-in fade-in duration-500 md:pb-8">
+            <PageShell width="narrow">
             {/* Back Button */}
             <Link
                 href="/profile"
@@ -155,21 +157,15 @@ export default function ChallengesPage() {
                 Back to Profile
             </Link>
 
-            {/* Header */}
-            <div className="text-center space-y-2">
-                <div className="flex items-center justify-center gap-3">
-                    <Target className="h-10 w-10 text-violet-500" />
-                    <h1 className="text-4xl font-bold bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent">
-                        Challenges
-                    </h1>
-                </div>
-                <p className="text-muted-foreground">
-                    Complete challenges to earn XP and unlock achievements
-                </p>
-            </div>
+            <PageHeader
+                eyebrow="Your progress"
+                eyebrowIcon={Target}
+                title="Challenges"
+                lede="Complete challenges to earn XP and unlock achievements."
+            />
 
             {/* Progress Summary */}
-            <Card className="bg-gradient-to-r from-violet-500/10 to-indigo-500/10 ">
+            <Card className="bg-surface">
                 <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                         <div>
@@ -179,7 +175,7 @@ export default function ChallengesPage() {
                             </p>
                         </div>
                         <div className="flex items-center gap-2">
-                            <Trophy className="h-8 w-8 text-yellow-500" />
+                            <Trophy className="h-8 w-8 text-[rgb(var(--ll-warning))]" />
                             <div className="text-right">
                                 <p className="text-sm text-muted-foreground">Total XP Available</p>
                                 <p className="text-xl font-bold">
@@ -193,7 +189,7 @@ export default function ChallengesPage() {
 
             {isLoading ? (
                 <div className="flex items-center justify-center py-12">
-                    <Loader2 className="h-8 w-8 animate-spin text-violet-500" />
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
             ) : (
                 <>
@@ -201,7 +197,7 @@ export default function ChallengesPage() {
                     {inProgressChallenges.length > 0 && (
                         <div className="space-y-4">
                             <h2 className="text-xl font-semibold flex items-center gap-2">
-                                <Sparkles className="h-5 w-5 text-violet-500" />
+                                <Sparkles className="h-5 w-5 text-primary" />
                                 In Progress
                             </h2>
                             <div className="grid gap-4">
@@ -210,7 +206,7 @@ export default function ChallengesPage() {
                                         key={challenge.id}
                                         className={` bg-background/60 backdrop-blur-sm transition-all ${
                                             challenge.canClaim
-                                                ? " bg-violet-500/5"
+                                                ? " bg-primary/10"
                                                 : ""
                                         }`}
                                     >
@@ -250,7 +246,7 @@ export default function ChallengesPage() {
                                                     <Button
                                                         onClick={() => handleClaim(challenge.id)}
                                                         disabled={claimingId === challenge.id}
-                                                        className="bg-violet-600 hover:bg-violet-500 shrink-0"
+                                                        className="shrink-0"
                                                     >
                                                         {claimingId === challenge.id ? (
                                                             <Loader2 className="h-4 w-4 animate-spin" />
@@ -274,18 +270,18 @@ export default function ChallengesPage() {
                     {completedChallenges.length > 0 && (
                         <div className="space-y-4">
                             <h2 className="text-xl font-semibold flex items-center gap-2">
-                                <CheckCircle className="h-5 w-5 text-violet-400" />
+                                <CheckCircle className="h-5 w-5 text-primary" />
                                 Completed
                             </h2>
                             <div className="grid gap-4">
                                 {completedChallenges.map((challenge) => (
                                     <Card
                                         key={challenge.id}
-                                        className=" bg-background/40 backdrop-blur-sm opacity-75"
+                                        className="bg-background/40 backdrop-blur-sm opacity-75"
                                     >
                                         <CardContent className="p-6">
                                             <div className="flex items-start gap-4">
-                                                <div className="p-3 rounded-xl bg-violet-500/10 text-violet-400">
+                                                <div className="p-3 rounded-xl bg-primary/10 text-primary">
                                                     <CheckCircle className="h-6 w-6" />
                                                 </div>
                                                 <div className="flex-1">
@@ -293,7 +289,7 @@ export default function ChallengesPage() {
                                                         <h3 className="font-semibold">{challenge.name}</h3>
                                                         <Badge
                                                             variant="secondary"
-                                                            className="bg-violet-500/10 text-violet-200"
+                                                            className="bg-primary/10 text-foreground"
                                                         >
                                                             +{challenge.xpReward} XP Earned
                                                         </Badge>
@@ -311,7 +307,7 @@ export default function ChallengesPage() {
                     )}
 
                     {challenges.length === 0 && (
-                        <Card className=" bg-background/60">
+                        <Card className="bg-background/60">
                             <CardContent className="pt-6">
                                 <div className="text-center py-12">
                                     <Target className="h-16 w-16 text-muted-foreground/30 mx-auto mb-4" />
@@ -325,7 +321,7 @@ export default function ChallengesPage() {
                     )}
                 </>
             )}
-            </div>
+            </PageShell>
         </AppBackground>
     );
 }

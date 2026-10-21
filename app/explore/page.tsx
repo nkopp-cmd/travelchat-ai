@@ -6,7 +6,9 @@ import { headers } from "next/headers";
 import { ExploreContent } from "./explore-content";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AppBackground } from "@/components/layout/app-background";
-import { GradientText } from "@/components/ui/gradient-text";
+import { PageHeader } from "@/components/layout/page-header";
+import { PageShell } from "@/components/layout/page-shell";
+import { Compass } from "@/components/ui/icons";
 
 import type { Metadata } from "next";
 
@@ -187,17 +189,13 @@ export default async function ExplorePage({
 
     return (
         <AppBackground ambient className="min-h-screen">
-            <div className="max-w-7xl mx-auto px-4 py-8 pb-24 space-y-8 md:pb-8">
-                {/* Header */}
-                <div className="text-center space-y-4">
-                    <h1 className="text-4xl font-bold">
-                        <GradientText variant="violet">Explore Itineraries</GradientText>
-                    </h1>
-                    <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                        Discover travel plans created by our community. Find inspiration for your next adventure
-                        and explore hidden gems around the world.
-                    </p>
-                </div>
+            <PageShell>
+                <PageHeader
+                    eyebrow="Community"
+                    eyebrowIcon={Compass}
+                    title="Explore Itineraries"
+                    lede="Travel plans created by our community. Find inspiration for your next trip."
+                />
 
                 <Suspense fallback={<ExploreLoadingSkeleton />}>
                     <ExploreContent
@@ -208,7 +206,7 @@ export default async function ExplorePage({
                         currentSort={sortBy}
                     />
                 </Suspense>
-            </div>
+            </PageShell>
         </AppBackground>
     );
 }
