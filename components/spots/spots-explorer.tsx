@@ -236,6 +236,16 @@ export function SpotsExplorer({
                                 spots={initialSpots}
                                 city={currentFilters.city || undefined}
                                 currentPage={currentPage}
+                                onClose={() => setViewMode("grid")}
+                                footer={
+                                    <SpotsPagination
+                                        currentPage={currentPage}
+                                        totalCount={totalCount}
+                                        pageSize={pageSize}
+                                        onPageChange={handlePageChange}
+                                        isPending={isPending}
+                                    />
+                                }
                             />
                         ) : viewMode === "grid" ? (
                             <div
@@ -271,14 +281,14 @@ export function SpotsExplorer({
                             </div>
                         )}
 
-                        {/* Pagination */}
-                        <SpotsPagination
+                        {/* Pagination (the map view carries it in its list sheet) */}
+                        {viewMode !== "map" && <SpotsPagination
                             currentPage={currentPage}
                             totalCount={totalCount}
                             pageSize={pageSize}
                             onPageChange={handlePageChange}
                             isPending={isPending}
-                        />
+                        />}
                     </>
                 ) : (
                     <div className="text-center py-16">

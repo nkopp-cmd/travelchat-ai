@@ -510,7 +510,7 @@
 /* Map photo pins (shared/plans/map-photo-pins.md). Depth and tone separate pins from the
    map, never a stroke. The tail is a clip-path shape. */
 .ll-pin-map .ll-map-tiles {
-    filter: invert(1) hue-rotate(200deg) brightness(0.8) contrast(0.85) saturate(0.55);
+    filter: invert(1) grayscale(1) brightness(0.62) contrast(1.15);
 }
 
 .ll-pin-map [data-tone="food"], .ll-pin-card[data-tone="food"] { --ll-pin-tone: 244 200 130; }
@@ -628,27 +628,21 @@
 }
 
 .ll-pin:focus-visible,
-.ll-pin-cluster:focus-visible {
-    outline: 3px solid rgb(var(--ll-focus));
-    outline-offset: 2px;
-    border-radius: 999px;
-}
-
-.ll-pin-cluster {
+.ll-pin-count {
     position: absolute;
-    left: 0;
-    top: 0;
-    transform: translate(-50%, -50%);
-    min-width: 44px;
-    height: 44px;
-    padding: 0 10px;
+    right: 0;
+    top: 2px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
     border-radius: 999px;
     background: rgb(var(--ll-action));
     color: rgb(var(--ll-action-ink));
+    font-size: 12px;
     font-weight: 700;
-    font-size: 15px;
-    box-shadow: 0 8px 20px rgb(0 0 0 / 0.5), 0 0 18px 3px rgb(var(--ll-action) / 0.4);
-    cursor: pointer;
+    line-height: 20px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgb(0 0 0 / 0.45);
 }
 
 .ll-pin-card {
@@ -670,7 +664,8 @@
     left: auto !important;
     top: 12px !important;
     right: 12px;
-    bottom: 12px;
+    /* Clears the peeking list sheet on the phone map view (set by SpotsMap). */
+    bottom: calc(12px + var(--ll-map-bottom-inset, 0px));
     width: min(420px, calc(100% - 24px));
     overflow-y: auto;
     transform: none;
@@ -705,11 +700,21 @@
     clip-path: polygon(0 0, 100% 0, 50% 100%);
 }
 
+.ll-pin-card-dot {
+    display: inline-grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: rgb(var(--ll-pin-tone));
+    color: rgb(var(--ll-control-ink));
+}
+
 .ll-pin-card-media {
     position: relative;
     display: grid;
     place-items: center;
-    height: 104px;
+    height: 136px;
     overflow: hidden;
     border-radius: var(--ll-radius-card) var(--ll-radius-card) 0 0;
     background: rgb(var(--ll-pin-tone) / 0.9);
@@ -720,18 +725,6 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-}
-
-.ll-pin-card-chip {
-    position: absolute;
-    left: 12px;
-    top: 12px;
-    padding: 4px 10px;
-    border-radius: 999px;
-    background: rgb(var(--ll-overlay));
-    color: rgb(var(--ll-text));
-    font-size: 12px;
-    font-weight: 600;
 }
 
 .ll-pin-map .leaflet-bar.leaflet-control a {

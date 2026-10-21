@@ -76,7 +76,8 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
             const point = map.latLngToContainerPoint([spot.location.lat, spot.location.lng]);
             return { id: spot.id, x: point.x, y: point.y };
         }).filter((point) => point.x > -60 && point.y > -60 && point.x < size.x + 60 && point.y < size.y + 60);
-        const clusters = capMarkers(clusterPins(points, zoom >= 17 ? 1 : 56), { x: size.x / 2, y: size.y / 2 });
+        // Pins may overlap a little (as in the reference) before they merge into a count bubble.
+        const clusters = capMarkers(clusterPins(points, zoom >= 17 ? 1 : 40, 34), { x: size.x / 2, y: size.y / 2 });
         const next: MarkerSlot[] = clusters.map((cluster) => {
             const host = document.createElement("div");
             L.DomEvent.disableClickPropagation(host);
@@ -196,10 +197,13 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
                 data-card-open={selected ? "" : undefined} style={{ minHeight: "300px" }} />
             {slots.map((slot) => {
                 if (slot.ids.length > 1) {
+                    // A group looks like a pin (its first place) with a count badge, as in the reference.
+                    const lead = byId.get(slot.ids[0]);
                     return createPortal(
-                        <button type="button" className="ll-pin-cluster" aria-label={`${slot.ids.length} spots here. Zoom in`}
-                            onClick={() => zoomInto(slot.ids)}>
-                            {slot.ids.length}
+                        <button type="button" className="ll-pin ll-pin-group" data-tone={lead ? pinTone(lead.category) : "other"}
+                            aria-label={`${slot.ids.length} spots here. Zoom in`} onClick={() => zoomInto(slot.ids)}>
+                            {lead && <PinFace spot={lead} />}
+                            <span className="ll-pin-count" aria-hidden="true">{slot.ids.length}</span>
                         </button>, slot.host, slot.key);
                 }
                 const spot = byId.get(slot.ids[0]);
@@ -222,18 +226,24 @@ function pinPhoto(spot: PinSpot): string | undefined {
     return getDirectVenuePhotos(spot.photos)[0]?.url;
 }
 
+function PinFace({ spot }: { spot: PinSpot }) {
+    const Icon = TONE_ICONS[pinTone(spot.category)];
+    const photo = pinPhoto(spot);
+    return (
+        <span className="ll-pin-face" aria-hidden="true">
+            {photo
+                // eslint-disable-next-line @next/next/no-img-element -- Leaflet portal; first-party thumbnail, lazy.
+                ? <img src={photo} alt="" loading="lazy" decoding="async" width={44} height={44} />
+                : <Icon className="h-[18px] w-[18px]" />}
+        </span>
+    );
+}
+
 function PinButton({ spot, selected, onSelect }: { spot: PinSpot; selected: boolean; onSelect?: () => void }) {
     const tone = pinTone(spot.category);
-    const Icon = TONE_ICONS[tone];
-    const photo = pinPhoto(spot);
     const face = (
         <>
-            <span className="ll-pin-face" aria-hidden="true">
-                {photo
-                    // eslint-disable-next-line @next/next/no-img-element -- Leaflet portal; first-party thumbnail, lazy.
-                    ? <img src={photo} alt="" loading="lazy" decoding="async" width={44} height={44} />
-                    : <Icon className="h-[18px] w-[18px]" />}
-            </span>
+            <PinFace spot={spot} />
             <span className="ll-pin-chip" aria-hidden="true">{spot.category}</span>
             {spot.stop && (
                 <span className="ll-pin-stop" aria-hidden="true" style={{ backgroundColor: spot.stop.color }}>{spot.stop.label}</span>
@@ -265,6 +275,8 @@ export function PinCard({ spot, point, titleId, onClose }: {
     const area = spot.meta || spot.areaName || spot.cityName;
     const href = spot.href === undefined ? `/spots/${spot.id}` : spot.href;
     const tips = (spot.tips || []).filter((tip) => typeof tip === "string" && tip.trim()).slice(0, 3);
+    // Photo strip for the expanded card: the venue's other first-party photos.
+    const strip = getDirectVenuePhotos(spot.photos).slice(1, 4).map((item) => item.url);
     useEffect(() => { card.current?.focus(); }, [spot.id]);
     return (
         <div ref={card} role="dialog" aria-modal="false" aria-labelledby={titleId} tabIndex={-1}
@@ -277,20 +289,38 @@ export function PinCard({ spot, point, titleId, onClose }: {
                 if (expanded) setExpanded(false);
                 else onClose();
             }}>
-            <div className="ll-pin-card-media">
-                {photo
-                    // eslint-disable-next-line @next/next/no-img-element -- first-party photo already allowed on cards.
-                    ? <img src={photo} alt="" loading="lazy" decoding="async" />
-                    : <Icon className="h-10 w-10" aria-hidden="true" />}
-                <span className="ll-pin-card-chip">{spot.category}</span>
-            </div>
-            <div className="space-y-1 p-4">
+            {photo && (
+                <div className="ll-pin-card-media">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- first-party photo already allowed on cards. */}
+                    <img src={photo} alt="" loading="lazy" decoding="async" />
+                </div>
+            )}
+            <div className="space-y-1.5 p-4">
                 <h3 id={titleId} className="text-[17px] font-semibold leading-snug">{spot.name}</h3>
-                {area && <p className="text-sm text-muted-foreground">{area}</p>}
-                {spot.localleyScore !== undefined && <p className="text-sm text-muted-foreground">Localley score {spot.localleyScore}</p>}
+                {area && <p className="truncate text-[13px] text-muted-foreground">{area}</p>}
+                <p className="flex items-center gap-1.5 text-[13px] text-foreground">
+                    <span className="ll-pin-card-dot" aria-hidden="true"><Icon className="h-3 w-3" /></span>
+                    <span>{spot.category}</span>
+                    {spot.localleyScore !== undefined && (
+                        <span className="text-muted-foreground">· Localley score {spot.localleyScore}</span>
+                    )}
+                </p>
+                {spot.description && (
+                    <p className={expanded ? "pt-1 text-sm leading-relaxed" : "line-clamp-2 pt-1 text-sm leading-relaxed text-muted-foreground"}>
+                        {spot.description}
+                    </p>
+                )}
                 {expanded && (
-                    <div id={detailsId} className="space-y-3 pt-2 text-sm">
-                        {spot.description && <p className="leading-relaxed text-foreground">{spot.description}</p>}
+                    <div id={detailsId} className="space-y-3 pt-1 text-sm">
+                        {strip.length > 0 && (
+                            <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
+                                {strip.map((url) => (
+                                    // eslint-disable-next-line @next/next/no-img-element -- first-party venue photos, lazy.
+                                    <img key={url} src={url} alt="" loading="lazy" decoding="async"
+                                        className="h-24 w-36 shrink-0 rounded-xl object-cover" />
+                                ))}
+                            </div>
+                        )}
                         {spot.location?.address && <p className="text-muted-foreground">{spot.location.address}</p>}
                         {spot.bestTime && <p className="text-muted-foreground">Best time: {spot.bestTime}</p>}
                         {tips.length > 0 && (
