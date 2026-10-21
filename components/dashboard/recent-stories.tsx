@@ -62,14 +62,12 @@ function StoryBubble({ itinerary }: { itinerary: RecentItinerary }) {
         >
             {/* Story Circle with premium ring animation */}
             <div className="relative">
-                {/* Main ring container */}
+                {/* Borderless: depth (shadow) separates the photo, no ring */}
                 <div className={cn(
-                    "relative w-[68px] h-[68px] rounded-full p-[3px]",
-                    "bg-primary",
-                    "group-hover:scale-105 transition-transform duration-300"
+                    "relative w-[68px] h-[68px] rounded-full shadow-surface",
+                    "group-hover:scale-105 transition-transform duration-300 motion-reduce:transition-none"
                 )}>
-                    {/* Inner white border */}
-                    <div className="w-full h-full rounded-full bg-background p-[2px]">
+                    <div className="w-full h-full rounded-full">
                         {/* Image container */}
                         <div className="w-full h-full rounded-full relative overflow-hidden">
                             {imageUrl ? (
