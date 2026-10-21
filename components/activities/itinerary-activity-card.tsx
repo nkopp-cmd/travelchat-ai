@@ -59,21 +59,21 @@ const getScoreBadge = (score: number) => {
   if (score >= 6)
     return {
       label: "Legendary",
-      className: " bg-amber-400/15 text-amber-100",
+      className: " bg-[rgb(var(--ll-warning)/0.14)] text-foreground",
     };
   if (score >= 5)
     return {
       label: "Hidden gem",
-      className: " bg-violet-400/15 text-violet-100",
+      className: " bg-primary/15 text-foreground",
     };
   if (score >= 4)
     return {
       label: "Local favorite",
-      className: " bg-indigo-400/15 text-indigo-100",
+      className: " bg-primary/15 text-foreground",
     };
   return {
     label: "Mixed crowd",
-    className: " bg-sky-400/15 text-sky-100",
+    className: " bg-primary/10 text-foreground",
   };
 };
 
@@ -95,7 +95,7 @@ function getMapConfidenceCopy({
   if (hasExactStoredAddress) {
     return {
       label: "Exact pin",
-      className: " bg-emerald-400/10 text-emerald-100",
+      className: " bg-[rgb(var(--ll-success)/0.12)] text-foreground",
       helper: "Directions open the saved street address.",
       buttonLabel: "Open pin",
     };
@@ -104,7 +104,7 @@ function getMapConfidenceCopy({
   if (hasMatchedPlace) {
     return {
       label: "Verified pin",
-      className: " bg-emerald-400/10 text-emerald-100",
+      className: " bg-[rgb(var(--ll-success)/0.12)] text-foreground",
       helper: "Matched with place data for a more exact map result.",
       buttonLabel: "Open pin",
     };
@@ -112,7 +112,7 @@ function getMapConfidenceCopy({
 
   return {
     label: "Confirm pin",
-    className: " bg-amber-400/10 text-amber-100",
+    className: " bg-[rgb(var(--ll-warning)/0.14)] text-foreground",
     helper: "Only an area or name is available. Choose the correct map result before routing.",
     buttonLabel: "Confirm map",
   };
@@ -216,16 +216,16 @@ export function ItineraryActivityCard({
     >
       {/* Timeline Dot */}
       <div className="absolute -left-2.5 top-3.5 sm:-left-3 sm:top-5">
-        <div className="grid h-5 w-5 place-items-center rounded-full bg-violet-400 text-[9px] font-bold text-violet-950 shadow-lg shadow-violet-500/35 sm:h-6 sm:w-6 sm:text-[10px]">
+        <div className="grid h-5 w-5 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground sm:h-6 sm:w-6 sm:text-xs">
           {position ?? ""}
         </div>
       </div>
 
-      <div className="group overflow-hidden rounded-lg bg-[#1b1030]/92 shadow-lg shadow-violet-950/10 backdrop-blur-xl transition-colors hover:bg-[#21143a] sm:rounded-xl">
+      <div className="group overflow-hidden rounded-lg bg-surface backdrop-blur-xl transition-colors hover:bg-raised sm:rounded-xl">
         <div className="flex gap-2 p-2 sm:gap-4 sm:p-3">
           {/* Activity Thumbnail - shows existing image or Google Places photo */}
           <div className="flex-shrink-0">
-            <div ref={photoRef} className={cn("relative overflow-hidden rounded-lg bg-violet-950/20 sm:rounded-xl", storedProxy ? "w-24 sm:w-28" : "h-16 w-16 min-[420px]:h-[76px] min-[420px]:w-[76px] sm:h-24 sm:w-28")}>
+            <div ref={photoRef} className={cn("relative overflow-hidden rounded-lg bg-primary/15 sm:rounded-xl", storedProxy ? "w-24 sm:w-28" : "h-16 w-16 min-[420px]:h-[76px] min-[420px]:w-[76px] sm:h-24 sm:w-28")}>
               {storedProxy ? (
                 <SpotPhotoImage photo={venuePhotoData?.photos[0]} alt={activity.name}
                   sizes="(max-width: 640px) 96px, 112px" frameClassName="aspect-square w-full"
@@ -266,7 +266,7 @@ export function ItineraryActivityCard({
                 </div>
               )}
               {activity.time && (
-                <span className={cn("absolute left-1.5 rounded-full bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold text-white backdrop-blur", storedProxy ? "top-1.5" : "bottom-1.5")}>
+                <span className={cn("absolute left-1.5 rounded-full bg-black/70 px-1.5 py-0.5 text-xs font-semibold text-white backdrop-blur", storedProxy ? "top-1.5" : "bottom-1.5")}>
                   {activity.time}
                 </span>
               )}
@@ -286,7 +286,7 @@ export function ItineraryActivityCard({
                   {scoreBadge && (
                     <Badge
                       className={cn(
-                        "h-5 rounded-full px-1.5 text-[10px] font-semibold sm:px-2",
+                        "h-5 rounded-full px-1.5 text-xs font-semibold sm:px-2",
                         scoreBadge.className,
                       )}
                     >
@@ -296,7 +296,7 @@ export function ItineraryActivityCard({
                   {activity.category && (
                     <Badge
                       variant="secondary"
-                      className="hidden h-5 rounded-full bg-white/[0.06] px-2 text-[10px] text-violet-100 min-[420px]:inline-flex"
+                      className="hidden h-5 rounded-full bg-raised px-2 text-xs text-foreground min-[420px]:inline-flex"
                     >
                       {activity.category}
                     </Badge>
@@ -304,7 +304,7 @@ export function ItineraryActivityCard({
                   <Badge
                     variant="outline"
                     className={cn(
-                      "h-5 rounded-full px-1.5 text-[10px] sm:px-2",
+                      "h-5 rounded-full px-1.5 text-xs sm:px-2",
                       mapConfidence.className,
                     )}
                   >
@@ -317,8 +317,8 @@ export function ItineraryActivityCard({
                       className={cn(
                         "mt-0.5 h-3.5 w-3.5 flex-shrink-0",
                         hasExactStoredAddress || hasMatchedPlace
-                          ? "text-emerald-300"
-                          : "text-violet-300",
+                          ? "text-[rgb(var(--ll-success))]"
+                          : "text-primary",
                       )}
                     />
                     <span className="line-clamp-2 min-w-0 break-words">
@@ -326,8 +326,8 @@ export function ItineraryActivityCard({
                     </span>
                   </div>
                   {displayRating && (
-                    <span className="inline-flex w-fit items-center gap-1 rounded-full bg-amber-400/10 px-1.5 py-0.5 text-xs font-medium text-amber-100/85">
-                      <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                    <span className="inline-flex w-fit items-center gap-1 rounded-full bg-[rgb(var(--ll-warning)/0.14)] px-1.5 py-0.5 text-xs font-medium text-foreground">
+                      <Star className="h-3 w-3 fill-yellow-400 text-[rgb(var(--ll-warning))]" />
                       {displayRating.toFixed(1)}
                       {displayTotalRatings && (
                         <span className="text-xs">
@@ -337,7 +337,7 @@ export function ItineraryActivityCard({
                     </span>
                   )}
                 </div>
-                <p className="text-[11px] leading-4 text-violet-50/70 sm:text-xs">
+                <p className="text-xs leading-4 text-foreground sm:text-xs">
                   {mapConfidence.helper}
                 </p>
               </div>
@@ -345,7 +345,7 @@ export function ItineraryActivityCard({
                 {activity.type && (
                   <Badge
                     variant="outline"
-                    className="h-6 rounded-full bg-white/[0.04] px-2 text-violet-100/80"
+                    className="h-6 rounded-full bg-raised px-2 text-foreground"
                   >
                     {formatActivityType(activity.type)}
                   </Badge>
@@ -355,7 +355,7 @@ export function ItineraryActivityCard({
 
             {/* Activity Description */}
             {activity.description && (
-              <p className="text-xs leading-relaxed text-violet-50/78 min-[420px]:text-sm">
+              <p className="text-xs leading-relaxed text-foreground min-[420px]:text-sm">
                 {activity.description}
               </p>
             )}
@@ -388,7 +388,7 @@ export function ItineraryActivityCard({
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-8 gap-1.5 rounded-lg bg-violet-400/10 px-2.5 text-xs text-violet-100 hover:bg-violet-400/15 sm:rounded-full sm:px-3"
+                  className="h-8 gap-1.5 rounded-lg bg-primary/10 px-2.5 text-xs text-foreground hover:bg-primary/15 sm:rounded-full sm:px-3"
                   onClick={() =>
                     window.open(exactMapUrl, "_blank", "noopener,noreferrer")
                   }

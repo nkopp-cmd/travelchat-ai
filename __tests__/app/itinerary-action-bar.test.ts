@@ -13,9 +13,9 @@ describe("itinerary detail action bar", () => {
     for (const wrapper of wrappers) expect(wrapper).toContain('className="shrink-0"');
   });
 
-  it("keeps the Alley label on one line in white on the violet gradient", () => {
+  it("keeps the Alley label on one line on the default primary button (design tokens, no gradient)", () => {
     const revise = bar.slice(bar.indexOf("/dashboard?itinerary="), bar.indexOf("Revise with Alley"));
     expect(revise).toMatch(/whitespace-nowrap/);
-    expect(revise).toMatch(/text-white/);
+    expect(revise).not.toMatch(/bg-gradient-to-|from-violet-|text-white/);
   });
 });

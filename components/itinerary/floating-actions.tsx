@@ -50,8 +50,8 @@ export function FloatingActions({
             }}
             className={cn(
               "h-10 px-4 rounded-full",
-              "bg-white/10 backdrop-blur-xl ",
-              "text-white hover:bg-white/20",
+              "bg-raised backdrop-blur-xl ",
+              "text-foreground hover:bg-overlay",
               "shadow-lg shadow-black/20",
               "animate-in fade-in slide-in-from-bottom-2",
               "duration-200"
@@ -69,16 +69,15 @@ export function FloatingActions({
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           "w-14 h-14 rounded-full",
-          "bg-gradient-to-br from-violet-600 to-indigo-600",
-          "shadow-lg shadow-violet-500/40",
-          "hover:shadow-violet-500/60 hover:scale-105",
+          "bg-primary text-primary-foreground",
+          " hover:scale-105",
           "transition-all duration-200"
         )}
       >
         {isOpen ? (
-          <X className="w-6 h-6 text-white" />
+          <X className="w-6 h-6" />
         ) : (
-          <MoreVertical className="w-6 h-6 text-white" />
+          <MoreVertical className="w-6 h-6" />
         )}
       </Button>
     </div>

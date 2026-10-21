@@ -263,9 +263,9 @@ export function ItineraryMap({ city, dailyPlans, className, userTier }: Itinerar
 
     if (loading) {
         return (
-            <Card className={` bg-white/[0.055] p-6 shadow-2xl shadow-violet-950/15 backdrop-blur-xl ${className}`}>
+            <Card className={` bg-raised p-6 backdrop-blur-xl ${className}`}>
                 <div className="flex items-center justify-center gap-3 h-[300px]">
-                    <Loader2 className="h-6 w-6 animate-spin text-violet-600" />
+                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
                     <span className="text-muted-foreground">Mapping your itinerary...</span>
                 </div>
             </Card>
@@ -277,9 +277,9 @@ export function ItineraryMap({ city, dailyPlans, className, userTier }: Itinerar
         if (errorDismissed) return null;
 
         return (
-            <div className={`flex items-center justify-between gap-3 rounded-2xl bg-white/[0.055] px-4 py-3 shadow-xl shadow-violet-950/10 backdrop-blur-xl ${className}`}>
+            <div className={`flex items-center justify-between gap-3 rounded-2xl bg-raised px-4 py-3 backdrop-blur-xl ${className}`}>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="h-4 w-4 flex-shrink-0 text-violet-300" />
+                    <MapPin className="h-4 w-4 flex-shrink-0 text-primary" />
                     <span>Map unavailable — addresses couldn&apos;t be resolved.</span>
                 </div>
                 <div className="flex items-center gap-3 flex-shrink-0">
@@ -287,7 +287,7 @@ export function ItineraryMap({ city, dailyPlans, className, userTier }: Itinerar
                         href={getRouteUrl()}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-violet-600 dark:text-violet-400 hover:text-violet-800 dark:hover:text-violet-300 flex items-center gap-1 whitespace-nowrap"
+                        className="text-sm text-primary dark:text-primary hover:hover:text-primary flex items-center gap-1 whitespace-nowrap"
                     >
                         View on Google Maps
                         <ExternalLink className="h-3 w-3" />
@@ -304,10 +304,10 @@ export function ItineraryMap({ city, dailyPlans, className, userTier }: Itinerar
     }
 
     return (
-        <Card className={`!gap-0 !py-0 relative z-0 overflow-hidden bg-white/[0.055] shadow-2xl shadow-violet-950/15 backdrop-blur-xl ${className}`}>
+        <Card className={`!gap-0 !py-0 relative z-0 overflow-hidden bg-raised backdrop-blur-xl ${className}`}>
             {/* Header */}
             <div
-                className="flex cursor-pointer items-center justify-between bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 p-4 text-white"
+                className="flex cursor-pointer items-center justify-between bg-raised p-4 text-foreground"
                 onClick={() => setIsExpanded(!isExpanded)}
             >
                 <div className="flex items-center gap-2">
@@ -321,7 +321,7 @@ export function ItineraryMap({ city, dailyPlans, className, userTier }: Itinerar
                         <Button
                             variant="ghost"
                             size="sm"
-                            className="text-white hover:bg-white/20 gap-1.5"
+                            className="gap-1.5 text-foreground hover:bg-overlay"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 const locs = filteredLocations;
@@ -357,7 +357,7 @@ export function ItineraryMap({ city, dailyPlans, className, userTier }: Itinerar
                         <Button
                             variant="ghost"
                             size="sm"
-                            className="text-white hover:bg-white/20 gap-1.5"
+                            className="gap-1.5 text-foreground hover:bg-overlay"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 navigator.clipboard.writeText(window.location.href);
@@ -369,7 +369,7 @@ export function ItineraryMap({ city, dailyPlans, className, userTier }: Itinerar
                             {copied ? "Copied" : "Copy"}
                         </Button>
                     )}
-                    <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
+                    <Button variant="ghost" size="icon" className="text-foreground hover:bg-overlay">
                         {isExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
                     </Button>
                 </div>
@@ -379,7 +379,7 @@ export function ItineraryMap({ city, dailyPlans, className, userTier }: Itinerar
                 <>
                     {/* Day Filter */}
                     {days.length > 1 && (
-                        <div className="flex gap-2 overflow-x-auto bg-white/[0.04] p-3">
+                        <div className="flex gap-2 overflow-x-auto bg-raised p-3">
                             <Button
                                 size="sm"
                                 variant={selectedDay === null ? "default" : "outline"}
@@ -421,10 +421,10 @@ export function ItineraryMap({ city, dailyPlans, className, userTier }: Itinerar
 
                     {/* Unmapped activities warning (partial success) */}
                     {unmappedActivities.length > 0 && (
-                        <div className=" bg-amber-400/10 px-4 py-2.5">
+                        <div className="bg-[rgb(var(--ll-warning)/0.14)] px-4 py-2.5">
                             <div className="flex items-center gap-2">
-                                <AlertCircle className="h-4 w-4 flex-shrink-0 text-amber-300" />
-                                <p className="text-sm text-amber-100/85">
+                                <AlertCircle className="h-4 w-4 flex-shrink-0 text-[rgb(var(--ll-warning))]" />
+                                <p className="text-sm text-foreground">
                                     {unmappedActivities.length} location{unmappedActivities.length > 1 ? "s" : ""} couldn&apos;t be mapped — check activity cards for map links.
                                 </p>
                             </div>
@@ -433,7 +433,7 @@ export function ItineraryMap({ city, dailyPlans, className, userTier }: Itinerar
 
                     {/* Selected Location Info */}
                     {!usePhotoPins && selectedLocation && (
-                        <div className=" bg-violet-400/10 p-4">
+                        <div className="bg-primary/10 p-4">
                             <div className="flex items-start justify-between gap-4">
                                 <div>
                                     <p className="font-semibold">{selectedLocation.activityName}</p>
