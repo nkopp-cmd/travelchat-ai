@@ -29,6 +29,7 @@ const routes = [
   "/api/connect/webhook",
   "/api/conversations",
   "/api/conversations/messages",
+  "/api/cron/ai-provider-probe",
   "/api/cron/cleanup-stories",
   "/api/cron/discover-spots-with-apify",
   "/api/cron/process-social-submissions",
