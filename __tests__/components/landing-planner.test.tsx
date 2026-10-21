@@ -12,6 +12,7 @@ import {
 import { LandingHero } from "@/components/landing/hero";
 import { LandingPresetPhoto } from "@/components/landing/preset-photo";
 import { readFile } from "node:fs/promises";
+import { statSync } from "node:fs";
 import { resolve } from "node:path";
 import sharp from "sharp";
 import LandingPage from "@/app/page";
@@ -190,17 +191,25 @@ describe("landing CDN hero", () => {
     const html = renderToStaticMarkup(<LandingHero />);
     const doc = new DOMParser().parseFromString(html, "text/html");
     const image = doc.querySelector("img")!;
+    const avif = doc.querySelector('picture > source[type="image/avif"]')!;
     const preload = doc.querySelector('link[rel="preload"]')!;
     expect(doc.querySelectorAll("img")).toHaveLength(1);
-    expect(preload.getAttribute("imagesrcset")).toBe(
-      image.getAttribute("srcset"),
-    );
-    expect(preload.getAttribute("imagesizes")).toBe(
-      image.getAttribute("sizes"),
-    );
+    expect(preload.getAttribute("type")).toBe("image/avif");
+    expect(preload.getAttribute("imagesrcset")).toBe(avif.getAttribute("srcset"));
+    expect(preload.getAttribute("imagesizes")).toBe(avif.getAttribute("sizes"));
+    expect(image.getAttribute("sizes")).toBe(avif.getAttribute("sizes"));
     expect(image.getAttribute("fetchpriority")).toBe("high");
     expect(image.getAttribute("alt")).toBe("");
     expect(html).not.toContain("unsplash.com");
     expect(html).not.toContain("background-image");
+  });
+});
+
+describe("landing hero AVIF variants", () => {
+  it.each([[828, 60_000], [1280, 120_000], [1920, 240_000]])("%ipx is a real AVIF under %i bytes", async (width, maxBytes) => {
+    const file = `public/images/landing/tokyo-hero-v1-${width}.avif`;
+    const metadata = await sharp(file).metadata();
+    expect(metadata).toMatchObject({ format: "heif", compression: "av1", width });
+    expect(statSync(file).size).toBeLessThan(maxBytes);
   });
 });
