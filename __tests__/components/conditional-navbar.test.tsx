@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ConditionalNavbar } from "@/components/layout/conditional-navbar";
 
 const state = vi.hoisted(() => ({ pathname: "/", rendered: vi.fn() }));
-vi.mock("next/navigation", () => ({ usePathname: () => state.pathname }));
+vi.mock("next/navigation", () => ({ usePathname: () => state.pathname, useRouter: () => ({ prefetch: () => {} }) }));
 vi.mock("next/dynamic", () => ({
   default: () =>
     function AppNavigation() {

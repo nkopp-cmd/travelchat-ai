@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ComponentProps } from "react";
 import SpotsMap from "@/components/spots/spots-map";
 import { SpotsExplorer } from "@/components/spots/spots-explorer";
-import type MapComponent from "@/components/ui/map";
 import type { Spot } from "@/types";
 
 const state = vi.hoisted(() => ({ query: "", push: vi.fn(), map: vi.fn() }));
@@ -22,14 +21,17 @@ vi.mock("next/dynamic", async () => {
         };
     } };
 });
-vi.mock("@/components/ui/map", () => ({
-    default: (props: ComponentProps<typeof MapComponent>) => {
+// The real pin layer needs Leaflet and ResizeObserver; this stub keeps the pin -> card contract.
+vi.mock("@/components/spots/spot-pin-map", () => ({
+    default: (props: { spots: Spot[]; selectedId?: string | null; onSelect?: (id: string | null) => void }) => {
         state.map(props);
-        return <div data-testid="map">{props.markers?.map((marker, index) => (
-            <button key={index} onClick={() => props.onMarkerClick?.(marker, index)}>Marker {index + 1}</button>
+        return <div data-testid="map">{props.spots.map((pin, index) => (
+            <button key={pin.id} onClick={() => props.onSelect?.(pin.id)}>Marker {index + 1}</button>
         ))}</div>;
     },
 }));
+const plotted = () => (state.map.mock.lastCall?.[0] as { spots: Spot[] }).spots
+    .map((pin) => ({ lat: pin.location.lat, lng: pin.location.lng }));
 vi.mock("@/components/spots/spot-card", () => ({
     SpotCard: ({ spot }: { spot: Spot }) => <article data-testid="spot-card"><a href={`/spots/${spot.id}`}>{spot.name}</a></article>,
 }));
@@ -63,12 +65,11 @@ beforeEach(() => {
 });
 
 describe("bounded discovery map", () => {
-    it("plots only usable coordinates and keeps the exact marker-to-card association", () => {
+    it("plots only usable coordinates and keeps the exact marker-to-card association", async () => {
         const spots = [spot("missing", 0, 0), spot("a"), spot("invalid", NaN, 127), spot("b", 35, 139), spot("range", 91, 0)];
         render(<SpotsMap spots={spots} city="seoul" currentPage={2} />);
-        expect(state.map.mock.lastCall?.[0].markers).toEqual([{ lat: 37.57, lng: 126.98 }, { lat: 35, lng: 139 }]);
-        expect(state.map.mock.lastCall?.[0].userTier).toBe("free");
-        expect(state.map.mock.lastCall?.[0].forceProvider).toBeUndefined();
+        await screen.findByTestId("map");
+        expect(plotted()).toEqual([{ lat: 37.57, lng: 126.98 }, { lat: 35, lng: 139 }]);
         expect(screen.getByText("Page 2 only: 2 of 5 filtered spots have map pins.")).toBeTruthy();
         expect(screen.getByText(/3 spots have missing or invalid coordinates/)).toBeTruthy();
         fireEvent.click(screen.getByRole("button", { name: "Marker 2" }));
@@ -89,9 +90,10 @@ describe("bounded discovery map", () => {
         expect(screen.getByTestId("spot-card").textContent).toBe("Spot missing");
     });
 
-    it("uses real coordinates outside Seoul rather than a fallback city", () => {
+    it("uses real coordinates outside Seoul rather than a fallback city", async () => {
         render(<SpotsMap spots={[spot("tokyo", 35.68, 139.76)]} city="tokyo" currentPage={1} />);
-        expect(state.map.mock.lastCall?.[0].initialViewState).toEqual({ latitude: 35.68, longitude: 139.76, zoom: 13 });
+        await screen.findByTestId("map");
+        expect(plotted()).toEqual([{ lat: 35.68, lng: 139.76 }]);
     });
 
     it("does not mount the map in grid/list or for unknown URL views", () => {

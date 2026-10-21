@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { IntentLink } from "@/components/navigation/intent-link";
 import { useUser } from "@/lib/auth/client";
 import { cn } from "@/lib/utils";
 
@@ -68,7 +68,7 @@ export function Logo({
   );
 
   if (resolvedHref) {
-    return <Link href={resolvedHref}>{content}</Link>;
+    return <IntentLink href={resolvedHref}>{content}</IntentLink>;
   }
 
   return content;
