@@ -298,7 +298,6 @@ function SubmitSpotForm() {
                   placeholder="https://www.instagram.com/reel/..."
                   required
                   inputMode="url"
-                  className="bg-raised text-foreground placeholder:text-muted-foreground"
                 />
               </div>
 
@@ -308,14 +307,14 @@ function SubmitSpotForm() {
                     Email <span className="text-foreground">(optional)</span>
                   </Label>
                   <div className="relative">
-                    <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground" />
+                    <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-field-foreground" />
                     <Input
                       id="email"
                       value={email}
                       onChange={(event) => setEmail(event.target.value)}
                       placeholder="For credits and history"
                       type="email"
-                      className="bg-raised pl-9 text-foreground placeholder:text-muted-foreground"
+                      className="pl-9"
                     />
                   </div>
                 </div>
@@ -325,13 +324,13 @@ function SubmitSpotForm() {
                     Credit name <span className="text-foreground">(optional)</span>
                   </Label>
                   <div className="relative">
-                    <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground" />
+                    <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-field-foreground" />
                     <Input
                       id="contributor-name"
                       value={contributorName}
                       onChange={(event) => setContributorName(event.target.value)}
                       placeholder="Optional"
-                      className="bg-raised pl-9 text-foreground placeholder:text-muted-foreground"
+                      className="pl-9"
                     />
                   </div>
                 </div>
@@ -347,7 +346,6 @@ function SubmitSpotForm() {
                     value={cityHint}
                     onChange={(event) => setCityHint(event.target.value)}
                     placeholder="Seoul, Seongsu, Ikseon-dong..."
-                    className="bg-raised text-foreground placeholder:text-muted-foreground"
                   />
                 </div>
 
@@ -360,7 +358,7 @@ function SubmitSpotForm() {
                     value={notes}
                     onChange={(event) => setNotes(event.target.value)}
                     placeholder="Place name, sign text, nearest station, caption clue, or address"
-                    className="min-h-24 bg-raised text-foreground placeholder:text-muted-foreground"
+                    className="min-h-24"
                   />
                 </div>
               </div>

@@ -119,7 +119,6 @@ export function DayEditor({ dayPlan, onUpdate }: DayEditorProps) {
                             value={dayPlan.theme || ""}
                             onChange={(e) => onUpdate({ ...dayPlan, theme: e.target.value })}
                             placeholder="Day theme (e.g., 'Food Exploration')"
-                            className="bg-white/10 text-white placeholder:text-white/60"
                         />
                     </div>
                     <Button

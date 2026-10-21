@@ -186,19 +186,19 @@ export function SpotsFilterBar({
       {/* Search Bar */}
       <div className="relative flex-1">
         <Search
-          className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-foreground"
+          className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-field-foreground"
           aria-hidden="true"
         />
         <Input
           placeholder="Search spots or areas"
           value={searchValue}
           onChange={(e) => handleSearchChange(e.target.value)}
-          className="h-10 min-w-0 bg-raised pl-10 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-ring sm:h-11 sm:text-base"
+          className="h-10 min-w-0 pl-10 pr-10 text-sm focus-visible:ring-ring sm:h-11 sm:text-base"
           aria-label="Search spots"
         />
         {isPending && (
           <Loader2
-            className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-primary"
+            className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-field-foreground"
             aria-hidden="true"
           />
         )}

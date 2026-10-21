@@ -124,7 +124,6 @@ export function ApifySpotDiscoveryWorkbench() {
             onChange={(event) => setCity(event.target.value)}
             onKeyDown={(event) => { if (event.key === "Enter") void loadCandidates(); }}
             placeholder="Filter by city slug, e.g. seoul"
-            className="bg-raised text-foreground placeholder:text-muted-foreground"
           />
           <div className="flex items-center gap-2 text-sm text-foreground">
             <MapPin className="h-4 w-4" />
