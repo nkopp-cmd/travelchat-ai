@@ -426,7 +426,7 @@ concurrency:
 
 jobs:
   verify:
-    runs-on: self-hosted
+    runs-on: [ci-1]  # build/test only, no secrets: ci-1 CI server (2026-10-22)
     timeout-minutes: 45
     env:
       NODE_OPTIONS: --max-old-space-size=4096
