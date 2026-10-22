@@ -2,8 +2,8 @@ import { readFileSync } from "node:fs";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("leaflet", () => ({ default: {} }));
-vi.mock("leaflet/dist/leaflet.css", () => ({}));
+vi.mock("maplibre-gl", () => ({ default: {} }));
+vi.mock("maplibre-gl/dist/maplibre-gl.css", () => ({}));
 import { PinCard } from "@/components/spots/spot-pin-map";
 import type { Spot } from "@/types";
 
@@ -47,7 +47,7 @@ describe("map pin card", () => {
     const pinCss = css.slice(css.indexOf("/* Map photo pins"));
     expect(pinCss).not.toMatch(/border:\s*[1-9]|0 0 0 [1-9]px/);
     expect(pinCss).toMatch(/prefers-reduced-motion: reduce[\s\S]*\.ll-pin-card, \.ll-pin-card\[data-expanded\] \{ animation: none; \}/);
-    expect(pinCss).toMatch(/max-width: 639px\)[\s\S]*\.ll-pin-map\[data-card-open\] \.leaflet-control-zoom \{ visibility: hidden; \}/);
+    expect(pinCss).toMatch(/max-width: 639px\)[\s\S]*\.ll-pin-map\[data-card-open\] \.maplibregl-ctrl-top-left \{ visibility: hidden; \}/);
     expect(source).toMatch(/data-card-open=\{selected \? "" : undefined\}/);
   });
 

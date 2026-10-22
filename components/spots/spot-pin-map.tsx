@@ -3,20 +3,27 @@
 import { useCallback, useEffect, useId, useRef, useState, type ComponentType } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+import maplibregl, { type GeoJSONSource, type LngLatLike, type Map as MapLibreMap, type Marker } from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
 import { Camera, Coffee, MapPin, Moon, ShoppingBag, Store, Ticket, Train, Trees, Utensils, X, type IconProps } from "@/components/ui/icons";
 import { getDirectVenuePhotos } from "@/components/spots/venue-photo-provider";
 import { capMarkers, clusterPins, pinTone, type PinTone } from "@/lib/spots/pin-clusters";
+import { localleyMapStyle, readMapTokens } from "@/lib/maps/localley-map-style";
 import type { Spot } from "@/types";
 
-// Photo pins on a dark map (shared/plans/map-photo-pins.md). Pins show the spot's own first-party
-// photo; without one they show a category tile. Pins never call a paid photo API.
+// Photo pins on the Localley vector map (shared/plans/map-photo-pins.md, MapLibre since
+// localley-landing-map-weather.md step 1). Pins show the spot's own first-party photo; without
+// one they show a category tile. Pins never call a paid photo API.
 const TONE_ICONS: Record<PinTone, ComponentType<IconProps>> = {
     food: Utensils, cafe: Coffee, nightlife: Moon, shopping: ShoppingBag, market: Store,
     outdoor: Trees, culture: Camera, entertainment: Ticket, transport: Train, other: MapPin,
 };
-const NEAR_ZOOM = 15;
+// MapLibre zoom levels use 512 px tiles: one level below Leaflet's for the same scale.
+const NEAR_ZOOM = 14;
+const SINGLE_PIN_ZOOM = 14;
+const FIT_MAX_ZOOM = 14;
+const NO_MERGE_ZOOM = 16;
+const ROUTE_SOURCE = "ll-routes";
 const NO_ROUTES: PinRoute[] = [];
 const CARD_OFFSET_PX = 30;
 
@@ -44,9 +51,9 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
     onSelect?: (id: string | null) => void;
 }) {
     const container = useRef<HTMLDivElement>(null);
-    const mapRef = useRef<L.Map | null>(null);
-    const layerRef = useRef<L.LayerGroup | null>(null);
-    const routeLayerRef = useRef<L.LayerGroup | null>(null);
+    const mapRef = useRef<MapLibreMap | null>(null);
+    const markersRef = useRef<Marker[]>([]);
+    const [styleReady, setStyleReady] = useState(false);
     const spotsRef = useRef(spots);
     const [slots, setSlots] = useState<MarkerSlot[]>([]);
     const [near, setNear] = useState(false);
@@ -61,35 +68,32 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
         const map = mapRef.current;
         const spot = selectedId ? spotsRef.current.find((item) => item.id === selectedId) : undefined;
         if (!map || !spot) return setCardPoint(null);
-        const point = map.latLngToContainerPoint([spot.location.lat, spot.location.lng]);
+        const point = map.project(lngLat(spot));
         setCardPoint({ x: point.x, y: point.y });
     }, [selectedId]);
 
     const drawMarkers = useCallback(() => {
         const map = mapRef.current;
-        const layer = layerRef.current;
-        if (!map || !layer) return;
-        layer.clearLayers();
-        const size = map.getSize();
+        if (!map) return;
+        for (const marker of markersRef.current) marker.remove();
+        const size = { x: map.getContainer().clientWidth, y: map.getContainer().clientHeight };
         const zoom = map.getZoom();
         const points = spotsRef.current.map((spot) => {
-            const point = map.latLngToContainerPoint([spot.location.lat, spot.location.lng]);
+            const point = map.project(lngLat(spot));
             return { id: spot.id, x: point.x, y: point.y };
         }).filter((point) => point.x > -60 && point.y > -60 && point.x < size.x + 60 && point.y < size.y + 60);
         // Pins may overlap a little (as in the reference) before they merge into a count bubble.
-        const clusters = capMarkers(clusterPins(points, zoom >= 17 ? 1 : 40, 34), { x: size.x / 2, y: size.y / 2 });
+        const clusters = capMarkers(clusterPins(points, zoom >= NO_MERGE_ZOOM ? 1 : 40, 34), { x: size.x / 2, y: size.y / 2 });
+        const markers: Marker[] = [];
         const next: MarkerSlot[] = clusters.map((cluster) => {
             const host = document.createElement("div");
-            L.DomEvent.disableClickPropagation(host);
+            host.className = cluster.ids.length > 1 ? "ll-pin-icon ll-pin-icon-group" : "ll-pin-icon";
             const only = cluster.ids.length === 1 ? spotsRef.current.find((spot) => spot.id === cluster.ids[0]) : undefined;
-            const latlng = only ? L.latLng(only.location.lat, only.location.lng) : map.containerPointToLatLng([cluster.x, cluster.y]);
-            L.marker(latlng, {
-                icon: L.divIcon({ className: "ll-pin-icon", html: host, iconSize: [0, 0] }),
-                keyboard: false,
-                zIndexOffset: only ? 0 : 500,
-            }).addTo(layer);
+            const at = only ? lngLat(only) : map.unproject([cluster.x, cluster.y]);
+            markers.push(new maplibregl.Marker({ element: host, anchor: "center" }).setLngLat(at).addTo(map));
             return { key: cluster.ids.join("|"), ids: cluster.ids, host };
         });
+        markersRef.current = markers;
         setSlots(next);
         setNear(zoom >= NEAR_ZOOM);
     }, []);
@@ -100,24 +104,40 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
     useEffect(() => {
         if (!container.current || mapRef.current) return;
         const first = spotsRef.current[0];
-        const map = L.map(container.current, { zoomControl: true, attributionControl: true })
-            .setView(first ? [first.location.lat, first.location.lng] : [37.5665, 126.978], 13);
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-            maxZoom: 19,
-            className: "ll-map-tiles",
-        }).addTo(map);
-        routeLayerRef.current = L.layerGroup().addTo(map);
-        layerRef.current = L.layerGroup().addTo(map);
+        const map = new maplibregl.Map({
+            container: container.current,
+            style: localleyMapStyle(readMapTokens(container.current)),
+            center: first ? lngLat(first) : [126.978, 37.5665],
+            zoom: 12,
+            maxZoom: 18,
+            attributionControl: { compact: true },
+            dragRotate: false,
+            pitchWithRotate: false,
+            touchPitch: false,
+            cooperativeGestures: false,
+            fadeDuration: prefersReducedMotion() ? 0 : 200,
+        });
+        map.touchZoomRotate.disableRotation();
+        map.keyboard.disableRotation();
+        map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-left");
+        map.on("load", () => {
+            map.addSource(ROUTE_SOURCE, { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+            map.addLayer({
+                id: ROUTE_SOURCE, type: "line", source: ROUTE_SOURCE,
+                layout: { "line-cap": "round", "line-join": "round" },
+                paint: { "line-color": ["get", "color"], "line-width": 3, "line-opacity": 0.85, "line-dasharray": [2, 2.6] },
+            });
+            setStyleReady(true);
+        });
         mapRef.current = map;
-        const resize = new ResizeObserver(() => map.invalidateSize());
+        const resize = new ResizeObserver(() => map.resize());
         resize.observe(container.current);
         return () => {
             resize.disconnect();
+            for (const marker of markersRef.current) marker.remove();
+            markersRef.current = [];
             map.remove();
             mapRef.current = null;
-            layerRef.current = null;
-            routeLayerRef.current = null;
         };
     }, []);
 
@@ -125,43 +145,46 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
         const map = mapRef.current;
         if (!map) return;
         if (spots.length > 1) {
-            map.fitBounds(L.latLngBounds(spots.map((spot) => [spot.location.lat, spot.location.lng])), { padding: [48, 48], maxZoom: 15 });
+            map.fitBounds(boundsOf(spots.map(lngLat)), { padding: 48, maxZoom: FIT_MAX_ZOOM, animate: false });
         } else if (spots[0]) {
-            map.setView([spots[0].location.lat, spots[0].location.lng], 15);
+            map.jumpTo({ center: lngLat(spots[0]), zoom: SINGLE_PIN_ZOOM });
         }
         drawMarkers();
     }, [spots, drawMarkers]);
 
     useEffect(() => {
-        const layer = routeLayerRef.current;
-        if (!layer) return;
-        layer.clearLayers();
-        for (const route of routes) {
-            if (route.points.length < 2) continue;
-            L.polyline(route.points, {
-                color: route.color, weight: 3, opacity: 0.85, dashArray: "6 8", interactive: false, className: "ll-pin-route",
-            }).addTo(layer);
-        }
-    }, [routes]);
+        const source = styleReady ? mapRef.current?.getSource<GeoJSONSource>(ROUTE_SOURCE) : undefined;
+        if (!source) return;
+        source.setData({
+            type: "FeatureCollection",
+            features: routes.filter((route) => route.points.length >= 2).map((route) => ({
+                type: "Feature",
+                properties: { key: route.key, color: route.color },
+                // Routes arrive as [lat, lng]; GeoJSON wants [lng, lat].
+                geometry: { type: "LineString", coordinates: route.points.map(([lat, lng]) => [lng, lat]) },
+            })),
+        });
+    }, [routes, styleReady]);
 
     useEffect(() => {
         const map = mapRef.current;
         if (!map) return;
         const update = () => { drawMarkers(); placeCard(); };
         const follow = () => placeCard();
-        map.on("zoomend moveend", update);
-        map.on("move zoom", follow);
+        // MapLibre fires moveend after every pan and zoom, and move during both.
+        map.on("moveend", update);
+        map.on("move", follow);
         // Position the card for a new selection on the next frame, not inside the effect body.
         const frame = requestAnimationFrame(placeCard);
-        return () => { cancelAnimationFrame(frame); map.off("zoomend moveend", update); map.off("move zoom", follow); };
+        return () => { cancelAnimationFrame(frame); map.off("moveend", update); map.off("move", follow); };
     }, [drawMarkers, placeCard]);
 
     // Bring the selected pin into the lower part of the map so its card has room above it.
     useEffect(() => {
         const map = mapRef.current;
         if (!map || !selected) return;
-        const point = map.latLngToContainerPoint([selected.location.lat, selected.location.lng]);
-        const size = map.getSize();
+        const point = map.project(lngLat(selected));
+        const size = { x: map.getContainer().clientWidth, y: map.getContainer().clientHeight };
         const target = { x: size.x / 2, y: Math.min(size.y - 40, Math.max(size.y * 0.72, 300)) };
         map.panBy([point.x - target.x, point.y - target.y], { animate: !prefersReducedMotion() });
     }, [selected]);
@@ -184,11 +207,12 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
     const zoomInto = (ids: string[]) => {
         const map = mapRef.current;
         if (!map) return;
-        const bounds = L.latLngBounds(ids.map((id) => {
+        const center = map.getCenter();
+        const bounds = boundsOf(ids.map((id) => {
             const spot = byId.get(id);
-            return spot ? [spot.location.lat, spot.location.lng] as [number, number] : map.getCenter();
+            return spot ? lngLat(spot) : [center.lng, center.lat];
         }));
-        map.fitBounds(bounds, { padding: [64, 64], maxZoom: Math.min(map.getZoom() + 3, 18), animate: !prefersReducedMotion() });
+        map.fitBounds(bounds, { padding: 64, maxZoom: Math.min(map.getZoom() + 3, 17), animate: !prefersReducedMotion() });
     };
 
     return (
@@ -218,6 +242,16 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
     );
 }
 
+function lngLat(spot: Pick<PinSpot, "location">): [number, number] {
+    return [spot.location.lng, spot.location.lat];
+}
+
+function boundsOf(points: LngLatLike[]): maplibregl.LngLatBounds {
+    const bounds = new maplibregl.LngLatBounds();
+    for (const point of points) bounds.extend(point);
+    return bounds;
+}
+
 function prefersReducedMotion(): boolean {
     return typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
 }
@@ -232,7 +266,7 @@ function PinFace({ spot }: { spot: PinSpot }) {
     return (
         <span className="ll-pin-face" aria-hidden="true">
             {photo
-                // eslint-disable-next-line @next/next/no-img-element -- Leaflet portal; first-party thumbnail, lazy.
+                // eslint-disable-next-line @next/next/no-img-element -- map marker portal; first-party thumbnail, lazy.
                 ? <img src={photo} alt="" loading="lazy" decoding="async" width={44} height={44} />
                 : <Icon className="h-[18px] w-[18px]" />}
         </span>
