@@ -509,8 +509,10 @@
 
 /* Map photo pins (shared/plans/map-photo-pins.md). Depth and tone separate pins from the
    map, never a stroke. The tail is a clip-path shape. */
-.ll-pin-map .ll-map-tiles {
-    filter: invert(1) grayscale(1) brightness(0.62) contrast(1.15);
+/* The base map is a MapLibre vector style drawn in the --ll-* tokens
+   (lib/maps/localley-map-style.ts); no tile filter. */
+.ll-pin-map {
+    background: rgb(var(--ll-surface));
 }
 
 .ll-pin-map [data-tone="food"], .ll-pin-card[data-tone="food"] { --ll-pin-tone: 244 200 130; }
@@ -524,9 +526,14 @@
 .ll-pin-map [data-tone="transport"], .ll-pin-card[data-tone="transport"] { --ll-pin-tone: 175 182 204; }
 .ll-pin-map [data-tone="other"], .ll-pin-card[data-tone="other"] { --ll-pin-tone: 210 195 255; }
 
-.leaflet-marker-icon.ll-pin-icon {
-    background: transparent;
-    border: 0;
+/* Zero-size marker host at the spot's point; the pin inside sits its tip on it. */
+.maplibregl-marker.ll-pin-icon {
+    width: 0;
+    height: 0;
+}
+
+.maplibregl-marker.ll-pin-icon-group {
+    z-index: 1;
 }
 
 /* 44px hit area; the visible face is smaller when zoomed out. */
@@ -727,20 +734,55 @@
     object-fit: cover;
 }
 
-.ll-pin-map .leaflet-bar.leaflet-control a {
-    background: rgb(var(--ll-surface));
-    color: rgb(var(--ll-text));
+/* MapLibre's zoom group: borderless, 44px tap targets separated by a gap. */
+.ll-pin-map .maplibregl-ctrl-group {
+    display: grid;
+    gap: 4px;
+    background: transparent;
+    box-shadow: none;
+}
+
+.ll-pin-map .maplibregl-ctrl-group button {
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 8px;
+    background-color: rgb(var(--ll-surface));
     box-shadow: var(--ll-shadow-raised);
+}
+
+.ll-pin-map .maplibregl-ctrl-group button + button {
+    border-top: 0;
+}
+
+.ll-pin-map .maplibregl-ctrl-group button .maplibregl-ctrl-icon {
+    filter: invert(1);
+}
+
+/* Two classes beat maplibre-gl.css, including its white `.maplibregl-compact-show`. */
+.ll-pin-map .maplibregl-ctrl.maplibregl-ctrl-attrib,
+.ll-pin-map .maplibregl-ctrl-attrib.maplibregl-compact-show {
+    background: rgb(var(--ll-background) / 0.7);
+    color: rgb(var(--ll-muted));
+    font-size: 10px;
+}
+
+.ll-pin-map .maplibregl-ctrl-attrib a {
+    color: rgb(var(--ll-muted));
+}
+
+.ll-pin-map .maplibregl-ctrl-attrib-button {
+    filter: invert(1);
 }
 
 @media (min-width: 640px) {
     .ll-pin-card-media { height: 132px; }
 }
 
-/* On phones the open card can sit under Leaflet's zoom buttons (z-index 800); the
-   card's Close button and Escape replace them while it is open. */
+/* On phones the open card can sit under the zoom buttons; the card's Close
+   button and Escape replace them while it is open. */
 @media (max-width: 639px) {
-    .ll-pin-map[data-card-open] .leaflet-control-zoom { visibility: hidden; }
+    .ll-pin-map[data-card-open] .maplibregl-ctrl-top-left { visibility: hidden; }
 }
 
 @keyframes ll-pin-pop {
