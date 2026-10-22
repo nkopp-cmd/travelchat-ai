@@ -54,6 +54,7 @@ export default function SpotsMap({ spots, footer, onClose }: SpotsMapProps) {
     const drag = useRef<{ startY: number; startPx: number; travel: number; lastY: number; lastT: number; velocity: number } | null>(null);
     const section = useRef<HTMLElement | null>(null);
     const sheetId = useId();
+    const sheetInset = useSheetInset(section, snap);
     const pinnedSpots = useMemo(
         () => spots.filter((spot) => getSpotLocationConfidence(spot.location).usableCoordinates),
         [spots]
@@ -115,7 +116,7 @@ export default function SpotsMap({ spots, footer, onClose }: SpotsMapProps) {
             <div className="absolute inset-0 isolate bg-background max-lg:[--ll-map-bottom-inset:88px] lg:relative lg:order-2 lg:min-h-0 lg:overflow-hidden lg:rounded-2xl"
                 role="region" aria-label="Map of this page's spots">
                 {pinnedSpots.length > 0 ? (
-                    <SpotPinMap spots={pinnedSpots} selectedId={selectedId} onSelect={selectPin} />
+                    <SpotPinMap spots={pinnedSpots} selectedId={selectedId} onSelect={selectPin} bottomInset={sheetInset} />
                 ) : (
                     <p role="status" className="grid h-full place-items-center p-6 text-center text-muted-foreground">
                         No map pins are available for this page. No locations have been estimated.
@@ -172,4 +173,31 @@ export default function SpotsMap({ spots, footer, onClose }: SpotsMapProps) {
             </div>
         </section>
     );
+}
+
+/** Visible phone sheet height: it starts 12px below the top (top-3) and moves down by (height - PEEK_PX) * fraction. */
+export function sheetInset(height: number, snap: SheetSnap): number {
+    return Math.max(0, Math.round(height - 12 - (height - PEEK_PX) * SNAP_FRACTION[snap]));
+}
+
+/**
+ * Height of the phone sheet over the map at a snap position (0 on desktop, where the list sits
+ * beside the map), so the map fits its pins into the part that stays visible.
+ */
+function useSheetInset(section: { current: HTMLElement | null }, snap: SheetSnap): number {
+    const [inset, setInset] = useState(0);
+    useEffect(() => {
+        const element = section.current;
+        if (!element) return;
+        const measure = () => {
+            if (window.matchMedia?.("(min-width: 1024px)").matches) return setInset(0);
+            setInset(sheetInset(element.clientHeight, snap));
+        };
+        measure();
+        if (typeof ResizeObserver === "undefined") return;
+        const observer = new ResizeObserver(measure);
+        observer.observe(element);
+        return () => observer.disconnect();
+    }, [section, snap]);
+    return inset;
 }

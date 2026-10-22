@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ComponentProps } from "react";
-import SpotsMap, { nextSnap } from "@/components/spots/spots-map";
+import SpotsMap, { nextSnap, sheetInset } from "@/components/spots/spots-map";
 import { SpotsExplorer } from "@/components/spots/spots-explorer";
 import type { Spot } from "@/types";
 
@@ -179,5 +179,25 @@ describe("bounded discovery map", () => {
         await screen.findByTestId("map");
         const cards = screen.getAllByTestId("spot-card");
         expect(cards.map((card) => card.hasAttribute("data-priority"))).toEqual([true, false, false]);
+    });
+});
+
+describe("map fit under the phone sheet", () => {
+    it("measures the visible sheet at each snap position", () => {
+        // 776px map section on a 390x844 phone; PEEK_PX (88) counts from the section top, the sheet sits 12px lower.
+        expect(sheetInset(776, "list")).toBe(764);
+        expect(sheetInset(776, "half")).toBe(420);
+        expect(sheetInset(776, "map")).toBe(76);
+    });
+
+    it("pads the first fit by the sheet, but keeps a usable box on a short map", async () => {
+        vi.doUnmock("@/components/spots/spot-pin-map");
+        vi.doMock("maplibre-gl", () => ({ default: {} }));
+        vi.doMock("maplibre-gl/dist/maplibre-gl.css", () => ({}));
+        const { fitPadding } = await vi.importActual<typeof import("@/components/spots/spot-pin-map")>("@/components/spots/spot-pin-map");
+        expect(fitPadding(776, 420)).toEqual({ top: 48, right: 48, bottom: 468, left: 48 });
+        expect(fitPadding(776, 0)).toEqual({ top: 48, right: 48, bottom: 48, left: 48 });
+        // 300px map with a 280px overlay: the fit box stays 120px tall.
+        expect(fitPadding(300, 280)).toEqual({ top: 48, right: 48, bottom: 132, left: 48 });
     });
 });
