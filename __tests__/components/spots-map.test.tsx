@@ -153,7 +153,7 @@ describe("bounded discovery map", () => {
         vi.clearAllTimers();
         vi.useRealTimers();
         fireEvent.click(screen.getByRole("button", { name: "Clear filters" }));
-        expect(state.push).toHaveBeenLastCalledWith("/spots?view=map");
+        expect(state.push).toHaveBeenLastCalledWith("/spots?view=map", { scroll: false });
     });
 
     it("drops the previous selection when the filtered page changes", async () => {

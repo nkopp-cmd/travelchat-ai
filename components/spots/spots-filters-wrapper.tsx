@@ -18,7 +18,7 @@ export function SpotsFiltersWrapper({ categories }: SpotsFiltersWrapperProps) {
         } else {
             params.delete("search");
         }
-        router.push(`/spots?${params.toString()}`);
+        router.push(`/spots?${params.toString()}`, { scroll: false });
     };
 
     const handleFilterChange = (filters: FilterState) => {
@@ -45,7 +45,7 @@ export function SpotsFiltersWrapper({ categories }: SpotsFiltersWrapperProps) {
             params.delete("sort");
         }
 
-        router.push(`/spots?${params.toString()}`);
+        router.push(`/spots?${params.toString()}`, { scroll: false });
     };
 
     return (

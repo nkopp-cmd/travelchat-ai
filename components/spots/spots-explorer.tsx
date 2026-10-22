@@ -143,7 +143,7 @@ export function SpotsExplorer({
      */
     const clearFilters = useCallback(() => {
         startTransition(() => {
-            router.push(viewMode === "grid" ? pathname : `${pathname}?view=${viewMode}`);
+            router.push(viewMode === "grid" ? pathname : `${pathname}?view=${viewMode}`, { scroll: false });
         });
     }, [router, pathname, viewMode]);
 
