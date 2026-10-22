@@ -23,6 +23,8 @@ const NEAR_ZOOM = 14;
 const SINGLE_PIN_ZOOM = 14;
 const FIT_MAX_ZOOM = 14;
 const NO_MERGE_ZOOM = 16;
+/** Below this the map is still laying out; the first fit waits for the resize. */
+const MIN_FIT_HEIGHT = 160;
 const ROUTE_SOURCE = "ll-routes";
 const NO_ROUTES: PinRoute[] = [];
 const CARD_OFFSET_PX = 30;
@@ -43,9 +45,11 @@ export type PinSpot = Pick<Spot, "id" | "name" | "category" | "location" | "phot
 /** A dashed line through one day's stops, in visit order. */
 export interface PinRoute { key: string; color: string; points: Array<[number, number]> }
 
-export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = null, onSelect }: {
+export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = null, onSelect, bottomInset = 0 }: {
     spots: PinSpot[];
     routes?: PinRoute[];
+    /** Pixels at the bottom covered by an overlay (the phone list sheet); the first fit keeps pins above it. */
+    bottomInset?: number;
     selectedId?: string | null;
     /** Omit for a static map (e.g. the spot's own detail page): pins become labelled images, no card. */
     onSelect?: (id: string | null) => void;
@@ -55,6 +59,8 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
     const markersRef = useRef<Marker[]>([]);
     const [styleReady, setStyleReady] = useState(false);
     const spotsRef = useRef(spots);
+    const bottomInsetRef = useRef(bottomInset);
+    const fitPendingRef = useRef(false);
     const [slots, setSlots] = useState<MarkerSlot[]>([]);
     const [near, setNear] = useState(false);
     const [cardPoint, setCardPoint] = useState<{ x: number; y: number } | null>(null);
@@ -98,8 +104,27 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
         setNear(zoom >= NEAR_ZOOM);
     }, []);
 
+    const fitToSpots = useCallback(() => {
+        const map = mapRef.current;
+        const current = spotsRef.current;
+        if (!map) return;
+        fitPendingRef.current = false;
+        const height = map.getContainer().clientHeight;
+        if (current.length > 1) {
+            map.fitBounds(boundsOf(current.map(lngLat)), { padding: fitPadding(height, bottomInsetRef.current), maxZoom: FIT_MAX_ZOOM, animate: false });
+        } else if (current[0]) {
+            const bottom = fitPadding(height, bottomInsetRef.current).bottom - 48;
+            map.jumpTo({ center: lngLat(current[0]), zoom: SINGLE_PIN_ZOOM });
+            map.panBy([0, bottom / 2], { animate: false });
+        }
+        drawMarkers();
+    }, [drawMarkers]);
+    const fitRef = useRef(fitToSpots);
+    useEffect(() => { fitRef.current = fitToSpots; }, [fitToSpots]);
+
     // Map event handlers read the latest spots; this effect runs before the ones that use it.
     useEffect(() => { spotsRef.current = spots; }, [spots]);
+    useEffect(() => { bottomInsetRef.current = bottomInset; }, [bottomInset]);
 
     useEffect(() => {
         if (!container.current || mapRef.current) return;
@@ -130,7 +155,11 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
             setStyleReady(true);
         });
         mapRef.current = map;
-        const resize = new ResizeObserver(() => map.resize());
+        const resize = new ResizeObserver(() => {
+            map.resize();
+            // The view can mount before its layout settles; fit once the map has a real height.
+            if (fitPendingRef.current && map.getContainer().clientHeight >= MIN_FIT_HEIGHT) fitRef.current();
+        });
         resize.observe(container.current);
         return () => {
             resize.disconnect();
@@ -144,13 +173,9 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
     useEffect(() => {
         const map = mapRef.current;
         if (!map) return;
-        if (spots.length > 1) {
-            map.fitBounds(boundsOf(spots.map(lngLat)), { padding: 48, maxZoom: FIT_MAX_ZOOM, animate: false });
-        } else if (spots[0]) {
-            map.jumpTo({ center: lngLat(spots[0]), zoom: SINGLE_PIN_ZOOM });
-        }
-        drawMarkers();
-    }, [spots, drawMarkers]);
+        if (map.getContainer().clientHeight >= MIN_FIT_HEIGHT) fitToSpots();
+        else fitPendingRef.current = true;
+    }, [spots, fitToSpots]);
 
     useEffect(() => {
         const source = styleReady ? mapRef.current?.getSource<GeoJSONSource>(ROUTE_SOURCE) : undefined;
@@ -250,6 +275,12 @@ function boundsOf(points: LngLatLike[]): maplibregl.LngLatBounds {
     const bounds = new maplibregl.LngLatBounds();
     for (const point of points) bounds.extend(point);
     return bounds;
+}
+
+/** Fit padding with room for a bottom overlay; capped so a short map still keeps a usable box. */
+export function fitPadding(height: number, bottomInset: number) {
+    const bottom = 48 + Math.max(0, Math.min(bottomInset, height - 48 - 48 - 120));
+    return { top: 48, right: 48, bottom, left: 48 };
 }
 
 function prefersReducedMotion(): boolean {
