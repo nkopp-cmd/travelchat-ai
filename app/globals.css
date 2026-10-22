@@ -797,6 +797,52 @@
     .ll-pin-card, .ll-pin-card[data-expanded] { animation: none; }
 }
 
+/* Season chip and weather icons (components/spots/city-conditions.tsx). */
+.ll-season-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: rgb(var(--ll-raised));
+    color: rgb(var(--ll-text));
+    font-size: 13px;
+}
+
+.ll-season-chip::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: rgb(var(--ll-season-tone, var(--ll-muted)));
+}
+
+.ll-season-chip[data-kind="blossom"] { --ll-season-tone: 255 180 188; }
+.ll-season-chip[data-kind="foliage"] { --ll-season-tone: 250 176 128; }
+.ll-season-chip[data-kind="festival"] { --ll-season-tone: 210 195 255; }
+.ll-season-chip[data-kind="rainy"], .ll-season-chip[data-kind="typhoon"] { --ll-season-tone: 160 205 255; }
+.ll-season-chip[data-kind="hot"] { --ll-season-tone: 244 200 130; }
+.ll-season-chip[data-kind="snow"], .ll-season-chip[data-kind="cold"] { --ll-season-tone: 220 230 255; }
+.ll-season-chip[data-kind="mild"], .ll-season-chip[data-kind="dry"] { --ll-season-tone: 156 228 194; }
+
+.ll-wx { color: rgb(var(--ll-muted)); overflow: visible; }
+.ll-wx .ll-wx-sun, .ll-wx .ll-wx-moon { color: rgb(244 200 130); }
+.ll-wx .ll-wx-cloud { color: rgb(var(--ll-muted)); }
+.ll-wx .ll-wx-drops { color: rgb(160 205 255); }
+.ll-wx .ll-wx-bolt { color: rgb(244 200 130); }
+
+@media (prefers-reduced-motion: no-preference) {
+    .ll-wx .ll-wx-sun { transform-origin: 12px 12px; animation: ll-wx-spin 24s linear infinite; }
+    .ll-wx .ll-wx-drops { animation: ll-wx-fall 1.6s ease-in infinite; }
+}
+
+@keyframes ll-wx-spin { to { transform: rotate(360deg); } }
+@keyframes ll-wx-fall {
+    0% { transform: translateY(-2px); opacity: 0; }
+    30% { opacity: 1; }
+    100% { transform: translateY(2px); opacity: 0; }
+}
+
 /* Weekend picks (components/landing/weekend-picks.tsx): a snapping vertical
    list where the centred card is open and the others clip, shrink and darken
    with their distance from the centre. transform, clip-path and opacity only. */

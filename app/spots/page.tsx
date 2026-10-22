@@ -4,6 +4,10 @@ import { PageEyebrow } from "@/components/layout/page-header";
 import { SpotsExplorer } from "@/components/spots/spots-explorer";
 import { SpotCardSkeleton } from "@/components/ui/skeleton";
 import { CityQuickFilters } from "@/components/spots/city-quick-filters";
+import { CityConditions } from "@/components/spots/city-conditions";
+import { getCityBySlug } from "@/lib/cities";
+import { localMonth, seasonFor } from "@/lib/season/season-table";
+import { getWeather } from "@/lib/weather/met-norway";
 import { WeeklyTrendingSpots } from "@/components/spots/weekly-trending-spots";
 import { Images, MapPin, Plus } from "@/components/ui/icons";
 import { AppBackground } from "@/components/layout/app-background";
@@ -85,14 +89,21 @@ async function SpotsContent({
 }) {
     const filters = parseFilterParams(searchParams);
 
-    const [spotsData, filterOptions, weeklyTrending] = await Promise.all([
+    const city = filters.city ? getCityBySlug(filters.city) : undefined;
+    // Weather comes from the edge cache or one capped MET request, in parallel with the spots.
+    const [spotsData, filterOptions, weeklyTrending, weather] = await Promise.all([
         fetchFilteredSpots(filters),
         fetchFilterOptions(),
         fetchWeeklyTrendingSpots(filters.city),
+        city ? getWeather({ lat: city.center.lat, lng: city.center.lng, timeZone: city.timezone }) : null,
     ]);
 
     return (
         <>
+            {city && (
+                <CityConditions cityName={city.name} timeZone={city.timezone} weather={weather}
+                    season={seasonFor(city.slug, localMonth(city.timezone))} />
+            )}
             <WeeklyTrendingSpots items={weeklyTrending} citySlug={filters.city} />
             <SpotsExplorer
                 initialSpots={spotsData.spots}
