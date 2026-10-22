@@ -15,6 +15,7 @@ import { CityImageAvatar } from "@/components/ui/city-image";
 import { ENABLED_CITIES } from "@/lib/cities";
 import { LandingPlanner, LandingExploreLink, LandingSearch, LandingTripBuilder, LandingPresets } from "@/components/landing/planner";
 import { LandingHero } from "@/components/landing/hero";
+import { WeekendPicks } from "@/components/landing/weekend-picks";
 
 const CITY_OPTIONS = ENABLED_CITIES.slice(0, 8);
 const FEATURED_CITIES = ENABLED_CITIES.slice(0, 6);
@@ -134,6 +135,8 @@ export default function LandingPage() {
 
       <LandingPresets />
       </LandingPlanner>
+
+      <WeekendPicks />
 
       <section className="bg-surface py-14">
         <div className="container mx-auto max-w-7xl px-4 md:px-6">

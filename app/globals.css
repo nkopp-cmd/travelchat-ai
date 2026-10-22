@@ -754,3 +754,106 @@
     .ll-pin, .ll-pin-face { transition: none; }
     .ll-pin-card, .ll-pin-card[data-expanded] { animation: none; }
 }
+
+/* Weekend picks (components/landing/weekend-picks.tsx): a snapping vertical
+   list where the centred card is open and the others clip, shrink and darken
+   with their distance from the centre. transform, clip-path and opacity only. */
+.ll-picks {
+    --pick-h: 220px;
+    --picks-h: min(70svh, 560px);
+    display: grid;
+    gap: 10px;
+    height: var(--picks-h);
+    padding-block: calc((var(--picks-h) - var(--pick-h)) / 2);
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: none;
+    list-style: none;
+}
+
+.ll-picks::-webkit-scrollbar { display: none; }
+
+@media (min-width: 640px) {
+    .ll-picks { --pick-h: 300px; }
+}
+
+.ll-pick {
+    height: var(--pick-h);
+    scroll-snap-align: center;
+}
+
+.ll-pick-card {
+    position: relative;
+    display: block;
+    height: 100%;
+    overflow: hidden;
+    border-radius: var(--ll-radius-card);
+    background: rgb(var(--ll-raised));
+    color: rgb(var(--ll-text));
+}
+
+.ll-pick-card:focus-visible {
+    outline: 3px solid rgb(var(--ll-focus));
+    outline-offset: 3px;
+}
+
+.ll-pick-photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ll-pick-shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgb(var(--ll-background) / 0.85), rgb(var(--ll-background) / 0.15) 60%);
+}
+
+.ll-pick-caption {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 18px;
+    display: grid;
+    gap: 2px;
+    text-align: center;
+}
+
+.ll-pick-name { font-size: 24px; font-weight: 800; line-height: 1.15; }
+.ll-pick-tagline { font-size: 13px; color: rgb(var(--ll-text) / 0.8); }
+
+@supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+        .ll-pick-card,
+        .ll-pick-shade,
+        .ll-pick-caption {
+            animation-timing-function: linear;
+            animation-fill-mode: both;
+            animation-timeline: view();
+            animation-range: cover 0% cover 100%;
+        }
+        .ll-pick-card { animation-name: ll-pick-focus; }
+        .ll-pick-shade { animation-name: ll-pick-dim; }
+        .ll-pick-caption { animation-name: ll-pick-caption; }
+    }
+}
+
+/* Entering from below (0%) a card sits pulled up toward the centre, leaving at
+   the top (100%) pulled down, so collapsed rows stay close like the reference. */
+@keyframes ll-pick-focus {
+    0% { transform: translateY(-14%) scale(0.88); clip-path: inset(20% 0 round var(--ll-radius-card)); }
+    50% { transform: none; clip-path: inset(0 0 round var(--ll-radius-card)); }
+    100% { transform: translateY(14%) scale(0.88); clip-path: inset(20% 0 round var(--ll-radius-card)); }
+}
+
+@keyframes ll-pick-dim {
+    0%, 100% { background-color: rgb(var(--ll-background) / 0.7); }
+    50% { background-color: rgb(var(--ll-background) / 0); }
+}
+
+/* Collapsed, the caption rises into the visible middle strip of the card. */
+@keyframes ll-pick-caption {
+    0%, 100% { opacity: 0.55; transform: translateY(calc(var(--pick-h) * -0.24)) scale(0.84); }
+    50% { opacity: 1; transform: none; }
+}
