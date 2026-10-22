@@ -9,3 +9,6 @@
 
 /images/landing/seoul-map-v1-*
   Cache-Control: public, max-age=31536000, immutable
+
+/images/picks/*-pick-v1-*
+  Cache-Control: public, max-age=31536000, immutable

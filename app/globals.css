@@ -509,8 +509,10 @@
 
 /* Map photo pins (shared/plans/map-photo-pins.md). Depth and tone separate pins from the
    map, never a stroke. The tail is a clip-path shape. */
-.ll-pin-map .ll-map-tiles {
-    filter: invert(1) grayscale(1) brightness(0.62) contrast(1.15);
+/* The base map is a MapLibre vector style drawn in the --ll-* tokens
+   (lib/maps/localley-map-style.ts); no tile filter. */
+.ll-pin-map {
+    background: rgb(var(--ll-surface));
 }
 
 .ll-pin-map [data-tone="food"], .ll-pin-card[data-tone="food"] { --ll-pin-tone: 244 200 130; }
@@ -524,9 +526,14 @@
 .ll-pin-map [data-tone="transport"], .ll-pin-card[data-tone="transport"] { --ll-pin-tone: 175 182 204; }
 .ll-pin-map [data-tone="other"], .ll-pin-card[data-tone="other"] { --ll-pin-tone: 210 195 255; }
 
-.leaflet-marker-icon.ll-pin-icon {
-    background: transparent;
-    border: 0;
+/* Zero-size marker host at the spot's point; the pin inside sits its tip on it. */
+.maplibregl-marker.ll-pin-icon {
+    width: 0;
+    height: 0;
+}
+
+.maplibregl-marker.ll-pin-icon-group {
+    z-index: 1;
 }
 
 /* 44px hit area; the visible face is smaller when zoomed out. */
@@ -727,20 +734,55 @@
     object-fit: cover;
 }
 
-.ll-pin-map .leaflet-bar.leaflet-control a {
-    background: rgb(var(--ll-surface));
-    color: rgb(var(--ll-text));
+/* MapLibre's zoom group: borderless, 44px tap targets separated by a gap. */
+.ll-pin-map .maplibregl-ctrl-group {
+    display: grid;
+    gap: 4px;
+    background: transparent;
+    box-shadow: none;
+}
+
+.ll-pin-map .maplibregl-ctrl-group button {
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 8px;
+    background-color: rgb(var(--ll-surface));
     box-shadow: var(--ll-shadow-raised);
+}
+
+.ll-pin-map .maplibregl-ctrl-group button + button {
+    border-top: 0;
+}
+
+.ll-pin-map .maplibregl-ctrl-group button .maplibregl-ctrl-icon {
+    filter: invert(1);
+}
+
+/* Two classes beat maplibre-gl.css, including its white `.maplibregl-compact-show`. */
+.ll-pin-map .maplibregl-ctrl.maplibregl-ctrl-attrib,
+.ll-pin-map .maplibregl-ctrl-attrib.maplibregl-compact-show {
+    background: rgb(var(--ll-background) / 0.7);
+    color: rgb(var(--ll-muted));
+    font-size: 10px;
+}
+
+.ll-pin-map .maplibregl-ctrl-attrib a {
+    color: rgb(var(--ll-muted));
+}
+
+.ll-pin-map .maplibregl-ctrl-attrib-button {
+    filter: invert(1);
 }
 
 @media (min-width: 640px) {
     .ll-pin-card-media { height: 132px; }
 }
 
-/* On phones the open card can sit under Leaflet's zoom buttons (z-index 800); the
-   card's Close button and Escape replace them while it is open. */
+/* On phones the open card can sit under the zoom buttons; the card's Close
+   button and Escape replace them while it is open. */
 @media (max-width: 639px) {
-    .ll-pin-map[data-card-open] .leaflet-control-zoom { visibility: hidden; }
+    .ll-pin-map[data-card-open] .maplibregl-ctrl-top-left { visibility: hidden; }
 }
 
 @keyframes ll-pin-pop {
@@ -854,4 +896,107 @@
 @media (prefers-reduced-motion: reduce) {
     .ll-hero-pin .ll-pin, .ll-hero-pin[data-featured] .ll-pin-face { animation: none; }
     .ll-hero-card { animation: none; transform: translateX(-50%); }
+}
+
+/* Weekend picks (components/landing/weekend-picks.tsx): a snapping vertical
+   list where the centred card is open and the others clip, shrink and darken
+   with their distance from the centre. transform, clip-path and opacity only. */
+.ll-picks {
+    --pick-h: 220px;
+    --picks-h: min(70svh, 560px);
+    display: grid;
+    gap: 10px;
+    height: var(--picks-h);
+    padding-block: calc((var(--picks-h) - var(--pick-h)) / 2);
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: none;
+    list-style: none;
+}
+
+.ll-picks::-webkit-scrollbar { display: none; }
+
+@media (min-width: 640px) {
+    .ll-picks { --pick-h: 300px; }
+}
+
+.ll-pick {
+    height: var(--pick-h);
+    scroll-snap-align: center;
+}
+
+.ll-pick-card {
+    position: relative;
+    display: block;
+    height: 100%;
+    overflow: hidden;
+    border-radius: var(--ll-radius-card);
+    background: rgb(var(--ll-raised));
+    color: rgb(var(--ll-text));
+}
+
+.ll-pick-card:focus-visible {
+    outline: 3px solid rgb(var(--ll-focus));
+    outline-offset: 3px;
+}
+
+.ll-pick-photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ll-pick-shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgb(var(--ll-background) / 0.85), rgb(var(--ll-background) / 0.15) 60%);
+}
+
+.ll-pick-caption {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 18px;
+    display: grid;
+    gap: 2px;
+    text-align: center;
+}
+
+.ll-pick-name { font-size: 24px; font-weight: 800; line-height: 1.15; }
+.ll-pick-tagline { font-size: 13px; color: rgb(var(--ll-text) / 0.8); }
+
+@supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+        .ll-pick-card,
+        .ll-pick-shade,
+        .ll-pick-caption {
+            animation-timing-function: linear;
+            animation-fill-mode: both;
+            animation-timeline: view();
+            animation-range: cover 0% cover 100%;
+        }
+        .ll-pick-card { animation-name: ll-pick-focus; }
+        .ll-pick-shade { animation-name: ll-pick-dim; }
+        .ll-pick-caption { animation-name: ll-pick-caption; }
+    }
+}
+
+/* Entering from below (0%) a card sits pulled up toward the centre, leaving at
+   the top (100%) pulled down, so collapsed rows stay close like the reference. */
+@keyframes ll-pick-focus {
+    0% { transform: translateY(-14%) scale(0.88); clip-path: inset(20% 0 round var(--ll-radius-card)); }
+    50% { transform: none; clip-path: inset(0 0 round var(--ll-radius-card)); }
+    100% { transform: translateY(14%) scale(0.88); clip-path: inset(20% 0 round var(--ll-radius-card)); }
+}
+
+@keyframes ll-pick-dim {
+    0%, 100% { background-color: rgb(var(--ll-background) / 0.7); }
+    50% { background-color: rgb(var(--ll-background) / 0); }
+}
+
+/* Collapsed, the caption rises into the visible middle strip of the card. */
+@keyframes ll-pick-caption {
+    0%, 100% { opacity: 0.55; transform: translateY(calc(var(--pick-h) * -0.24)) scale(0.84); }
+    50% { opacity: 1; transform: none; }
 }

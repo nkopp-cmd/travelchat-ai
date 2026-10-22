@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("leaflet", () => ({ default: {} }));
-vi.mock("leaflet/dist/leaflet.css", () => ({}));
+vi.mock("maplibre-gl", () => ({ default: {} }));
+vi.mock("maplibre-gl/dist/maplibre-gl.css", () => ({}));
 import { buildItineraryPins, ITINERARY_DAY_COLORS, ITINERARY_ROUTE_COLORS, itineraryDayColor, itineraryRouteColor } from "@/lib/itineraries/itinerary-pins";
 
 const SPOT_ID = "550e8400-e29b-41d4-a716-446655440000";

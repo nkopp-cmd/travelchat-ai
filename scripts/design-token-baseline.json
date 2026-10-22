@@ -131,7 +131,7 @@
   },
   "components/itineraries/day-editor.tsx": {
     "gradient": 2,
-    "white-alpha": 3,
+    "white-alpha": 1,
     "palette": 2
   },
   "components/itineraries/edit-form.tsx": {
