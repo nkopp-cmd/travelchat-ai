@@ -817,13 +817,13 @@
     background: rgb(var(--ll-season-tone, var(--ll-muted)));
 }
 
-.ll-season-chip[data-kind="blossom"] { --ll-season-tone: 255 180 188; }
-.ll-season-chip[data-kind="foliage"] { --ll-season-tone: 250 176 128; }
-.ll-season-chip[data-kind="festival"] { --ll-season-tone: 210 195 255; }
-.ll-season-chip[data-kind="rainy"], .ll-season-chip[data-kind="typhoon"] { --ll-season-tone: 160 205 255; }
-.ll-season-chip[data-kind="hot"] { --ll-season-tone: 244 200 130; }
-.ll-season-chip[data-kind="snow"], .ll-season-chip[data-kind="cold"] { --ll-season-tone: 220 230 255; }
-.ll-season-chip[data-kind="mild"], .ll-season-chip[data-kind="dry"] { --ll-season-tone: 156 228 194; }
+:is(.ll-season-chip, .ll-pick-chip)[data-kind="blossom"] { --ll-season-tone: 255 180 188; }
+:is(.ll-season-chip, .ll-pick-chip)[data-kind="foliage"] { --ll-season-tone: 250 176 128; }
+:is(.ll-season-chip, .ll-pick-chip)[data-kind="festival"] { --ll-season-tone: 210 195 255; }
+:is(.ll-season-chip, .ll-pick-chip)[data-kind="rainy"], :is(.ll-season-chip, .ll-pick-chip)[data-kind="typhoon"] { --ll-season-tone: 160 205 255; }
+:is(.ll-season-chip, .ll-pick-chip)[data-kind="hot"] { --ll-season-tone: 244 200 130; }
+:is(.ll-season-chip, .ll-pick-chip)[data-kind="snow"], :is(.ll-season-chip, .ll-pick-chip)[data-kind="cold"] { --ll-season-tone: 220 230 255; }
+:is(.ll-season-chip, .ll-pick-chip)[data-kind="mild"], :is(.ll-season-chip, .ll-pick-chip)[data-kind="dry"] { --ll-season-tone: 156 228 194; }
 
 .ll-wx { color: rgb(var(--ll-muted)); overflow: visible; }
 .ll-wx .ll-wx-sun, .ll-wx .ll-wx-moon { color: rgb(244 200 130); }
@@ -910,6 +910,24 @@
 
 .ll-pick-name { font-size: 24px; font-weight: 800; line-height: 1.15; }
 .ll-pick-tagline { font-size: 13px; color: rgb(var(--ll-text) / 0.8); }
+
+/* Season + weather chip (components/landing/pick-conditions.tsx). The slot keeps its height
+   before the data arrives, so the caption does not move when the chip appears. */
+.ll-pick-chip-slot { display: flex; justify-content: center; min-height: 26px; margin-top: 6px; }
+.ll-pick-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: rgb(var(--ll-background) / 0.7);
+    color: rgb(var(--ll-text));
+    font-size: 12px;
+    animation: ll-pick-chip-in 240ms ease-out both;
+}
+.ll-pick-chip[data-kind]::before { content: ""; width: 7px; height: 7px; border-radius: 999px; background: rgb(var(--ll-season-tone, var(--ll-muted))); }
+@keyframes ll-pick-chip-in { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .ll-pick-chip { animation: none; } }
 
 @supports (animation-timeline: view()) {
     @media (prefers-reduced-motion: no-preference) {
