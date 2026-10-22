@@ -38,7 +38,7 @@ on:
 
 jobs:
   borderless:
-    runs-on: self-hosted
+    runs-on: [ci-1]  # build/test only, no secrets: ci-1 CI server (2026-10-22)
     timeout-minutes: 30
     env:
       HEAVY_LOCK_WAIT_SECONDS: '1200'
