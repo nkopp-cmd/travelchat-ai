@@ -136,6 +136,14 @@ Review preload and font cost before adding weights or subsets.
 Use short CSS transitions, approximately 120–180ms.
 Remove decorative continuous animation. Respect `prefers-reduced-motion`.
 
+## Interaction rules
+
+- **Selection controls must never change scroll position.** Filters, tabs, pickers, chips, toggles, view switches and "Clear filters" update in place.
+  - In-page controls are `<button type="button">`; never `href="#"`.
+  - Query-param changes use `router.push(url, { scroll: false })` / `router.replace(url, { scroll: false })` (or `history.replaceState`), never a plain navigation that resets scroll.
+  - No `scrollTo`/`scrollIntoView`/`focus()` in a selection handler (pagination may scroll to the results on purpose).
+  - Regression test: `e2e/spots-scroll.spec.ts`.
+
 ## Shared components
 
 Apply tokens to Card, Chip/Badge, Input, Tabs, Dialog, Sheet and navigation first.

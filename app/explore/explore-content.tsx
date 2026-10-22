@@ -91,7 +91,7 @@ export function ExploreContent({
         } else {
             params.set(key, value);
         }
-        router.push(`/explore?${params.toString()}`);
+        router.push(`/explore?${params.toString()}`, { scroll: false });
     };
 
     const handleCityChange = (value: string) => {
