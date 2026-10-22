@@ -7,7 +7,7 @@
     "build": "next build",
     "build:analyze": "ANALYZE=true next build",
     "start": "next start",
-    "cf:build": "opennextjs-cloudflare build",
+    "cf:build": "opennextjs-cloudflare build && node scripts/cf-static-public-html.mjs",
     "cf:preview:local": "opennextjs-cloudflare preview",
     "cf:deploy:preview": "CLOUDFLARE_ACCOUNT_ID=664f242340bcec2f32daaeee15f58bde opennextjs-cloudflare deploy",
     "cf:upload:preview": "CLOUDFLARE_ACCOUNT_ID=664f242340bcec2f32daaeee15f58bde opennextjs-cloudflare upload",
