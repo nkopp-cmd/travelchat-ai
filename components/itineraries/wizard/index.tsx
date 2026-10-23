@@ -16,6 +16,7 @@ import { getErrorMessage } from "@/lib/error-utils";
 import { PLANNER_RESUME_PATH, savePlannerDraft } from "@/lib/trips/planner-draft";
 
 import { GENERATED_PREVIEW_PATH, storeGeneratedPreview } from "@/lib/trips/generated-preview";
+import { funnelSource, trackFunnelStep } from "@/lib/funnel-analytics";
 
 const PROGRESS_MESSAGES = [
   "Finding hidden gems...",
@@ -267,8 +268,16 @@ interface ItineraryWizardProps {
   initialStep?: number;
 }
 
+// One planner_start per page load, even when the wizard remounts (restored draft, StrictMode).
+let plannerStartTracked = false;
+
 export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardProps) {
   const router = useRouter();
+  useEffect(() => {
+    if (plannerStartTracked) return;
+    plannerStartTracked = true;
+    trackFunnelStep("planner_start", funnelSource(document.referrer, location.origin));
+  }, []);
   const { toast } = useToast();
 
   const handleGenerate = async (data: WizardData) => {
@@ -335,6 +344,7 @@ export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardPro
         throw new Error(errorMessage || (typeof result.error === "string" ? result.error : "Failed to generate itinerary"));
       }
 
+      trackFunnelStep("trip_generated", "direct");
       // Free generation is a full readable browser preview. Saving is a separate paid action.
       if (result.isAnonymous || result.requiresSaveUpgrade) {
         storeGeneratedPreview(localStorage, { ...result.itinerary, city: result.itinerary.city || data.city, days: data.days });

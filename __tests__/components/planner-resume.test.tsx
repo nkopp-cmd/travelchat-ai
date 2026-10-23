@@ -5,6 +5,7 @@ import { savePlannerDraft, PLANNER_DRAFT_TTL } from "@/lib/trips/planner-draft";
 import type { WizardData } from "@/components/itineraries/wizard/wizard-context";
 
 const state = vi.hoisted(() => ({ query: "" }));
+vi.mock("@/lib/funnel-analytics", () => ({ trackFunnelStep: vi.fn(), funnelSource: () => "direct" }));
 vi.mock("next/navigation", () => ({ useSearchParams: () => new URLSearchParams(state.query) }));
 vi.mock("@/components/itineraries/wizard", () => ({
   ItineraryWizard: (props: unknown) => <pre data-testid="wizard-inputs">{JSON.stringify(props)}</pre>,

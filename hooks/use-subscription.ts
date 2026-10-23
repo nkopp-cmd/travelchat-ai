@@ -5,6 +5,7 @@ import { useUser } from "@/lib/auth/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SubscriptionTier, TIER_CONFIGS, hasFeature, isWithinLimit } from "@/lib/subscription";
 import { queryKeys } from "@/hooks/query-keys";
+import { trackFunnelStep } from "@/lib/funnel-analytics";
 
 async function readErrorMessage(response: Response, fallback: string): Promise<string> {
     const contentType = response.headers.get("content-type") || "";
@@ -130,6 +131,7 @@ export function useSubscription(): UseSubscriptionReturn {
             tier: "pro" | "premium";
             billingCycle: "monthly" | "yearly";
         }) => {
+            trackFunnelStep("checkout_start", "pricing");
             const response = await fetch("/api/subscription/checkout", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

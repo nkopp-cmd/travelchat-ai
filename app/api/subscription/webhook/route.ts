@@ -1,3 +1,4 @@
+import { recordFunnelSteps } from "@/lib/spot-event-store";
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import Stripe from "stripe";
@@ -76,6 +77,8 @@ export async function POST(req: NextRequest) {
             case "checkout.session.completed": {
                 const session = event.data.object as Stripe.Checkout.Session;
                 await handleCheckoutComplete(supabase, session);
+                // Trusted paid step (server only). Never throws; a Stripe retry may count twice.
+                await recordFunnelSteps([{ step: "checkout_paid", source: "stripe", count: 1 }]);
                 break;
             }
 
