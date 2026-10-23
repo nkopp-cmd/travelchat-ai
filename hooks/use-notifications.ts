@@ -4,8 +4,10 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useUser } from "@/lib/auth/client";
 import type { Notification, NotificationPreferences } from "@/types";
 import { isPreviewNotificationSettings, notificationPreferencesUrl, notificationInboxUrl } from "@/lib/app-data/notification-candidate-url";
+import { INBOX_PAGE, inboxOwnerHeaders, takePrefetchedInbox } from "@/lib/notifications/inbox-prefetch";
 
-const ownerHeaders = (id: string) => ({ "X-Localley-Notification-Owner": id });
+const ownerHeaders = inboxOwnerHeaders;
+const limit = INBOX_PAGE;
 const unavailable = "Notifications are currently unavailable.";
 type InboxState = { owner: string | null; notifications: Notification[]; unreadCount: number; isLoading: boolean;
     error: string | null; offset: number; hasMore: boolean; isWritable: boolean };
@@ -19,7 +21,6 @@ export function useNotifications() {
     const epoch = useRef(0), readSequence = useRef(0), controller = useRef<AbortController | null>(null);
     // Hide old-owner content synchronously; effects and network cleanup follow after render.
     const visible = state.owner === owner ? state : emptyInbox(owner);
-    const limit = 20;
 
     const fetchPage = useCallback(async (offset: number, reset: boolean) => {
         if (!owner) return;
@@ -29,10 +30,15 @@ export function useNotifications() {
         const current = () => epoch.current === generation && readSequence.current === sequence;
         setState(prev => prev.owner === owner ? { ...prev, isLoading: true, error: null } : emptyInbox(owner));
         try {
-            const response = await fetch(notificationInboxUrl(undefined, { limit, offset }),
-                { signal: abort.signal, headers: ownerHeaders(owner) });
-            if (!response.ok) throw Error("Failed to fetch notifications");
-            const data = await response.json();
+            // The navbar may already have started this first page (lib/notifications/inbox-prefetch).
+            const early = offset === 0 && reset ? await takePrefetchedInbox(owner) : undefined;
+            let data = (early ?? null) as Awaited<ReturnType<Response["json"]>> | null;
+            if (!data) {
+                const response = await fetch(notificationInboxUrl(undefined, { limit, offset }),
+                    { signal: abort.signal, headers: ownerHeaders(owner) });
+                if (!response.ok) throw Error("Failed to fetch notifications");
+                data = await response.json();
+            }
             if (!Array.isArray(data.notifications) || !Number.isSafeInteger(data.unreadCount) || data.unreadCount < 0) throw Error(unavailable);
             if (!current()) return;
             setState(prev => prev.owner !== owner ? prev : { ...prev,
