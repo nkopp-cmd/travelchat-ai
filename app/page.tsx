@@ -2,7 +2,6 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   ArrowRight,
-  Check,
   CreditCard,
   MapPin,
   Route,
@@ -11,20 +10,13 @@ import {
 } from "@/components/ui/icons";
 import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
-import { CityImageAvatar } from "@/components/ui/city-image";
 import { ENABLED_CITIES } from "@/lib/cities";
 import { LandingPlanner, LandingExploreLink, LandingSearch, LandingTripBuilder, LandingPresets } from "@/components/landing/planner";
-import { LandingHero } from "@/components/landing/hero";
+import { HeroCategoryChips, LandingHero } from "@/components/landing/hero";
 import { WeekendPicks } from "@/components/landing/weekend-picks";
 
 const CITY_OPTIONS = ENABLED_CITIES.slice(0, 8);
 const FEATURED_CITIES = ENABLED_CITIES.slice(0, 6);
-
-const RECEIPTS = [
-  "Seoul, Tokyo, Bangkok, Singapore and more Asian cities",
-  "Localley Score separates tourist traps from places locals actually rate",
-  "Paid product for travelers with real trips to plan",
-];
 
 const PRODUCT_STEPS = [
   {
@@ -66,69 +58,60 @@ export default function LandingPage() {
     <div className="min-h-screen bg-surface text-foreground selection:bg-primary/15 mobile-sticky-safe-space md:pb-0">
       <LandingPlanner cities={CITY_OPTIONS.map(({ name, slug, vibe }) => ({ name, slug, vibe }))}>
 
-      <section className="relative overflow-hidden ">
+      <section className="relative overflow-hidden">
         <LandingHero />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/60" />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-primary/10" />
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent" />
+        {/* Keep the copy readable on the left (desktop) and top/bottom (phone); the pins stay clear. */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-background/85 via-background/10 to-background md:bg-gradient-to-r md:from-background md:from-25% md:via-background/70 md:via-40% md:to-transparent md:to-55%" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent" />
 
-        <div className="container relative z-10 mx-auto grid min-h-[calc(100svh-1rem)] max-w-7xl items-center gap-8 px-4 pb-10 pt-8 md:grid-cols-[1fr_420px] md:px-6 lg:pb-16">
-          <div className="max-w-3xl">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-md bg-primary/10 px-3 py-2 text-sm font-semibold text-foreground">
-              <MapPin className="h-4 w-4" />
-              Asia trip planner for places locals actually like
-            </div>
-
-            <h1 className="text-5xl font-black leading-[0.96] tracking-normal text-foreground sm:text-6xl lg:text-7xl">
+        <div className="container relative z-10 mx-auto flex min-h-[calc(100svh-4rem)] max-w-7xl flex-col justify-between gap-8 px-4 pb-28 pt-8 md:pb-10 md:justify-center md:px-6 lg:pb-16">
+          <div className="max-w-xl">
+            <p className="mb-4 inline-flex items-center gap-2 rounded-full bg-raised/85 px-3 py-1.5 text-sm font-semibold text-foreground backdrop-blur-sm">
+              <MapPin className="h-4 w-4 text-primary" />
+              Seoul, Tokyo, Bangkok, Singapore and more
+            </p>
+            <h1 className="text-[2.5rem] font-black leading-[0.98] tracking-normal text-foreground min-[380px]:text-5xl min-[380px]:leading-[0.96] sm:text-6xl lg:text-7xl">
               Travel like a local friend planned it.
             </h1>
-            <p className="mt-5 max-w-2xl text-xl leading-8 text-foreground md:text-2xl">
-              Choose a city and a vibe. Localley finds the restaurants, cafes, alleys, markets, and neighborhoods you would normally only hear about after you land.
+            {/* Short phones drop the subtitle so the headline never reaches the pins. */}
+            <p className="mt-5 max-w-lg text-lg leading-7 text-foreground/90 md:text-xl md:leading-8 [@media(max-height:780px)_and_(max-width:767px)]:hidden">
+              The spots locals rate, on one map. Pick a vibe and leave with a day-by-day route.
             </p>
+          </div>
 
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="lg" className="h-12 rounded-lg bg-primary px-6 text-base font-bold text-primary-foreground hover:bg-primary/90">
+          <div className="max-w-xl space-y-4 md:space-y-5">
+            <HeroCategoryChips />
+            <div className="flex gap-3">
+              {/* Phones get Start planning from the fixed MobileSignupBar below. */}
+              <Button asChild size="lg" className="hidden h-12 rounded-lg bg-primary px-6 text-base sm:inline-flex font-bold text-primary-foreground hover:bg-primary/90">
                 <Link prefetch={false} href="/itineraries/new">
                   Start planning
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="h-12 rounded-lg bg-raised px-6 text-base font-semibold text-foreground hover:bg-overlay"
-              >
-                <LandingExploreLink />
+              <Button asChild size="lg" className="h-12 flex-1 rounded-lg bg-raised/90 px-6 text-base sm:flex-none font-semibold text-foreground backdrop-blur-sm hover:bg-overlay">
+                <Link prefetch={false} href="/spots?city=seoul&view=map">
+                  Open the map
+                </Link>
               </Button>
             </div>
+          </div>
+        </div>
+      </section>
 
-            <div className="mt-8 grid gap-2">
-              {RECEIPTS.map((receipt) => (
-                <div key={receipt} className="flex items-start gap-3 text-sm leading-6 text-muted-foreground">
-                  <Check className="mt-1 h-4 w-4 shrink-0 text-primary" />
-                  <span>{receipt}</span>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-4 flex flex-wrap gap-2" aria-label="Supported city previews">
-              {FEATURED_CITIES.slice(0, 4).map((city) => (
-                <Link
-                  prefetch={false}
-                  key={city.slug}
-                  href={`/spots?city=${city.slug}&sort=local`}
-                  className="group flex items-center gap-2 rounded-full bg-raised py-1 pl-1 pr-3 text-sm text-muted-foreground backdrop-blur-sm transition hover:bg-primary/10"
-                >
-                  <CityImageAvatar city={city.name} className="h-8 w-8 rounded-full" sizes="32px" />
-                  <span>{city.name}</span>
-                </Link>
-              ))}
-            </div>
-
+      <section className="bg-background py-12">
+        <div className="container mx-auto grid max-w-7xl items-start gap-8 px-4 md:grid-cols-[1fr_420px] md:px-6">
+          <div className="max-w-xl">
+            <p className="text-sm font-bold uppercase tracking-[0.16em] text-primary">Plan in a minute</p>
+            <h2 className="mt-3 text-3xl font-black leading-tight text-foreground md:text-4xl">Pick a city and a vibe.</h2>
+            <p className="mt-4 text-lg leading-8 text-muted-foreground">
+              Localley finds the restaurants, cafes, alleys, markets and neighborhoods you would normally only hear about after you land.
+            </p>
+            <Button asChild variant="outline" size="lg" className="mt-6 h-12 rounded-lg bg-raised px-6 text-base font-semibold text-foreground hover:bg-overlay">
+              <LandingExploreLink />
+            </Button>
             <LandingSearch />
           </div>
-
           <LandingTripBuilder />
         </div>
       </section>

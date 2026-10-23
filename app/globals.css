@@ -797,6 +797,107 @@
     .ll-pin-card, .ll-pin-card[data-expanded] { animation: none; }
 }
 
+/* Landing hero map poster (components/landing/hero.tsx). The stage covers the
+   hero like object-fit: cover, so the image and the % pin positions crop alike. */
+.ll-hero-scene {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    container-type: size;
+}
+
+.ll-hero-stage {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100cqw, calc(100cqh * 16 / 9));
+    height: max(100cqh, calc(100cqw * 9 / 16));
+    transform: translate(-50%, -50%);
+}
+
+.ll-hero-poster {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.ll-hero-pin {
+    position: absolute;
+    left: var(--dx);
+    top: var(--dy);
+    width: 0;
+    height: 0;
+}
+
+.ll-hero-pin[data-featured] {
+    z-index: 2;
+}
+
+@media (max-width: 767px) {
+    .ll-hero-stage {
+        width: max(100cqw, calc(100cqh * 414 / 736));
+        height: max(100cqh, calc(100cqw * 736 / 414));
+    }
+    .ll-hero-pin { left: var(--mx); top: var(--my); }
+    .ll-hero-pin[data-mobile="hidden"] { display: none; }
+    /* Below its pin on phones, clear of the headline above. */
+    .ll-hero-card { bottom: auto; top: 10px; transform-origin: 50% 0; }
+}
+
+/* Pins pop in one after another with a small overshoot (spring). */
+.ll-hero-pin .ll-pin {
+    cursor: default;
+    animation: ll-hero-pop 620ms cubic-bezier(0.34, 1.56, 0.64, 1) var(--delay) both;
+}
+
+@keyframes ll-hero-pop {
+    from { opacity: 0; transform: translate(-50%, -100%) translateY(14px) scale(0.3); }
+    to { opacity: 1; transform: translate(-50%, -100%) scale(1); }
+}
+
+/* One pin opens its card on a loop. */
+.ll-hero-card {
+    position: absolute;
+    left: 0;
+    bottom: 54px;
+    display: grid;
+    gap: 2px;
+    width: max-content;
+    max-width: 230px;
+    padding: 10px 14px;
+    border-radius: var(--ll-radius-card);
+    background: rgb(var(--ll-surface));
+    color: rgb(var(--ll-text));
+    box-shadow: var(--ll-shadow-overlay);
+    transform-origin: 50% 100%;
+    animation: ll-hero-card 6s var(--ll-motion-ease) 1.4s infinite both;
+}
+
+.ll-hero-card-title { font-size: 14px; font-weight: 700; line-height: 1.3; }
+.ll-hero-card-meta { font-size: 12px; line-height: 1.35; color: rgb(var(--ll-muted)); }
+
+.ll-hero-pin[data-featured] .ll-pin-face {
+    animation: ll-hero-focus 6s var(--ll-motion-ease) 1.4s infinite both;
+}
+
+@keyframes ll-hero-card {
+    0%, 8% { opacity: 0; transform: translateX(-50%) translateY(8px) scale(0.92); }
+    16%, 72% { opacity: 1; transform: translateX(-50%) scale(1); }
+    82%, 100% { opacity: 0; transform: translateX(-50%) translateY(8px) scale(0.92); }
+}
+
+@keyframes ll-hero-focus {
+    0%, 8%, 82%, 100% { transform: scale(1); }
+    16%, 72% { transform: scale(1.18); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ll-hero-pin .ll-pin, .ll-hero-pin[data-featured] .ll-pin-face { animation: none; }
+    .ll-hero-card { animation: none; transform: translateX(-50%); }
+}
+
 /* Season chip and weather icons (components/spots/city-conditions.tsx). */
 .ll-season-chip {
     display: inline-flex;

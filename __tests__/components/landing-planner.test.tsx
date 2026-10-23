@@ -9,10 +9,10 @@ import {
   LandingSearch,
   LandingTripBuilder,
 } from "@/components/landing/planner";
-import { LandingHero } from "@/components/landing/hero";
+import { HERO_CATEGORIES, HERO_PINS, HeroCategoryChips, LandingHero } from "@/components/landing/hero";
 import { LandingPresetPhoto } from "@/components/landing/preset-photo";
 import { readFile } from "node:fs/promises";
-import { statSync } from "node:fs";
+import { readFileSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 import sharp from "sharp";
 import LandingPage from "@/app/page";
@@ -186,28 +186,60 @@ describe("landing planner islands", () => {
   });
 });
 
-describe("landing CDN hero", () => {
-  it("preloads exactly the same responsive source set as its decorative image", () => {
-    const html = renderToStaticMarkup(<LandingHero />);
-    const doc = new DOMParser().parseFromString(html, "text/html");
+describe("landing map hero", () => {
+  const html = renderToStaticMarkup(<LandingHero />);
+  const doc = new DOMParser().parseFromString(html, "text/html");
+
+  it("preloads exactly the AVIF poster each breakpoint shows", () => {
+    const preloads = [...doc.querySelectorAll('link[rel="preload"]')];
+    const sources = [...doc.querySelectorAll('picture > source[type="image/avif"]')];
+    expect(preloads).toHaveLength(2);
+    for (const preload of preloads) {
+      expect(preload.getAttribute("type")).toBe("image/avif");
+      expect(preload.getAttribute("fetchpriority")).toBe("high");
+      const media = preload.getAttribute("media");
+      const source = sources.find((item) => (item.getAttribute("media") ?? "(min-width: 768px)") === media)!;
+      expect(preload.getAttribute("imagesrcset")).toBe(source.getAttribute("srcset"));
+      expect(preload.getAttribute("imagesizes")).toBe(source.getAttribute("sizes"));
+    }
     const image = doc.querySelector("img")!;
-    const avif = doc.querySelector('picture > source[type="image/avif"]')!;
-    const preload = doc.querySelector('link[rel="preload"]')!;
     expect(doc.querySelectorAll("img")).toHaveLength(1);
-    expect(preload.getAttribute("type")).toBe("image/avif");
-    expect(preload.getAttribute("imagesrcset")).toBe(avif.getAttribute("srcset"));
-    expect(preload.getAttribute("imagesizes")).toBe(avif.getAttribute("sizes"));
-    expect(image.getAttribute("sizes")).toBe(avif.getAttribute("sizes"));
     expect(image.getAttribute("fetchpriority")).toBe("high");
     expect(image.getAttribute("alt")).toBe("");
-    expect(html).not.toContain("unsplash.com");
-    expect(html).not.toContain("background-image");
+    expect(html).not.toMatch(/unsplash\.com|background-image|<script/);
+  });
+
+  it("shows real catalog spots as decorative pins, one with a looping card", () => {
+    expect(doc.querySelector(".ll-hero-scene")?.getAttribute("aria-hidden")).toBe("true");
+    expect(doc.querySelectorAll(".ll-hero-pin")).toHaveLength(HERO_PINS.length);
+    for (const pin of HERO_PINS) {
+      expect(pin.id).toMatch(/^[0-9a-f-]{36}$/);
+      expect(pin.d[0]).toBeGreaterThanOrEqual(0);
+      expect(pin.d[0]).toBeLessThanOrEqual(100);
+    }
+    const featured = doc.querySelector(".ll-hero-pin[data-featured]")!;
+    expect(featured.querySelector(".ll-hero-card-title")?.textContent).toBe("Euljiro Nogari Alley");
+    // Pins cut off by the phone crop are hidden there instead of half-drawn.
+    expect(doc.querySelectorAll('.ll-hero-pin[data-mobile="hidden"]').length).toBeGreaterThan(0);
+    expect(doc.querySelectorAll(".ll-hero-pin:not([data-mobile])").length).toBeGreaterThanOrEqual(5);
+  });
+
+  it("links each category chip to the matching /spots quick filter", () => {
+    const chips = new DOMParser().parseFromString(renderToStaticMarkup(<HeroCategoryChips />), "text/html");
+    const hrefs = [...chips.querySelectorAll("a")].map((link) => link.getAttribute("href"));
+    expect(hrefs).toEqual(HERO_CATEGORIES.map(({ id }) => `/spots?city=seoul&category=${id}`));
+    expect(hrefs).toContain("/spots?city=seoul&category=Cafe");
+  });
+
+  it("respects reduced motion for the pins and the card loop", () => {
+    const css = readFileSync("app/globals.css", "utf8");
+    expect(css).toMatch(/prefers-reduced-motion: reduce\) \{\s*\.ll-hero-pin \.ll-pin, \.ll-hero-pin\[data-featured\] \.ll-pin-face \{ animation: none; \}/);
   });
 });
 
-describe("landing hero AVIF variants", () => {
-  it.each([[828, 60_000], [1280, 120_000], [1920, 240_000]])("%ipx is a real AVIF under %i bytes", async (width, maxBytes) => {
-    const file = `public/images/landing/tokyo-hero-v1-${width}.avif`;
+describe("landing map poster variants", () => {
+  it.each([["m", 828, 40_000], ["d", 1280, 45_000], ["d", 1920, 90_000]])("%s %ipx is a real AVIF under %i bytes", async (kind, width, maxBytes) => {
+    const file = `public/images/landing/seoul-map-v1-${kind}-${width}.avif`;
     const metadata = await sharp(file).metadata();
     expect(metadata).toMatchObject({ format: "heif", compression: "av1", width });
     expect(statSync(file).size).toBeLessThan(maxBytes);
