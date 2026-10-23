@@ -4,6 +4,7 @@ import { Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore } 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useUser } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
+import { trackFunnelStep } from "@/lib/funnel-analytics";
 import { GENERATED_PREVIEW_KEY, GENERATED_PREVIEW_PATH, parseGeneratedPreview, generatedPreviewSnapshot, generatedPreviewServerSnapshot, subscribeGeneratedPreview } from "@/lib/trips/generated-preview";
 
 function Preview() {
@@ -11,6 +12,12 @@ function Preview() {
   const raw = useSyncExternalStore(subscribeGeneratedPreview, generatedPreviewSnapshot, generatedPreviewServerSnapshot);
   const draft = useMemo(() => parseGeneratedPreview(raw), [raw]);
   const [busy, setBusy] = useState(false), [error, setError] = useState("");
+  const viewed = useRef(false);
+  useEffect(() => {
+    if (!draft || viewed.current) return;
+    viewed.current = true;
+    trackFunnelStep("preview_view", "preview");
+  }, [draft]);
   const returned = useRef(false);
   async function save() {
     if (!draft || busy) return;
@@ -25,6 +32,7 @@ function Preview() {
       const data = await response.json();
       if (response.status === 402) {
         if (search.get("payment") === "success") throw new Error("Payment confirmation is still processing. Try saving again shortly; no new checkout is needed.");
+        trackFunnelStep("checkout_start", "preview");
         const checkout = await fetch("/api/subscription/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tier: "pro", billingCycle: "monthly", returnTo: "itinerary-preview" }) });
         const result = await checkout.json();
         if (!checkout.ok || !result.url) throw new Error(result.error?.message || "Checkout is unavailable. Your itinerary is still here.");

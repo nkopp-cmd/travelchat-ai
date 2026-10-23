@@ -7,6 +7,7 @@ import type { WizardData } from "@/components/itineraries/wizard/wizard-context"
 import { apiError, ErrorCodes } from "@/lib/api-errors";
 
 const state = vi.hoisted(() => ({ push: vi.fn(), toast: vi.fn() }));
+vi.mock("@/lib/funnel-analytics", () => ({ trackFunnelStep: vi.fn(), funnelSource: () => "direct" }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: state.push }) }));
 vi.mock("@/hooks/use-toast", () => ({ useToast: () => ({ toast: state.toast }) }));
 const saved: WizardData = {

@@ -71,3 +71,37 @@ describe("collector route", () => {
     expect(ok.headers.get("x-localley-events")).toBe("unavailable");
   });
 });
+
+describe("planner funnel", () => {
+  it("accepts browser steps with coarse sources, never the paid step or the stripe source", async () => {
+    const { parseFunnelSteps } = await import("@/lib/spot-event-store");
+    expect(parseFunnelSteps({ funnel: [{ step: "planner_start", source: "home" }, { step: "planner_start", source: "home" }] }))
+      .toEqual([{ step: "planner_start", source: "home", count: 2 }]);
+    expect(parseFunnelSteps({ funnel: [{ step: "checkout_paid", source: "preview" }] })).toBeNull();
+    expect(parseFunnelSteps({ funnel: [{ step: "checkout_start", source: "stripe" }] })).toBeNull();
+    expect(parseFunnelSteps({ funnel: [{ step: "planner_start", source: "https://x.test" }] })).toBeNull();
+  });
+
+  it("stores daily step counts with the real migration and shares the daily ceiling", async () => {
+    const { recordFunnelSteps } = await import("@/lib/spot-event-store");
+    const db = createAuthTestDatabase();
+    const store = db as unknown as SpotEventDatabase;
+    expect(await recordFunnelSteps([{ step: "planner_start", source: "home", count: 1 }], store, day)).toBe("stored");
+    expect(await recordFunnelSteps([{ step: "checkout_paid", source: "stripe", count: 1 }], store, day)).toBe("stored");
+    expect(await recordFunnelSteps([{ step: "planner_start", source: "home", count: 1 }], store, day)).toBe("stored");
+    expect(db.sqlite.prepare("SELECT step, source, count FROM funnel_events_daily ORDER BY step").all()).toEqual([
+      { step: "checkout_paid", source: "stripe", count: 1 }, { step: "planner_start", source: "home", count: 2 },
+    ]);
+    db.sqlite.prepare("UPDATE spot_card_events_budget SET total = ?").run(DAILY_LIMIT);
+    expect(await recordFunnelSteps([{ step: "trip_generated", source: "direct", count: 1 }], store, day)).toBe("limited");
+  });
+
+  it("route accepts a funnel beacon and refuses a forged paid step", async () => {
+    const { POST } = await import("@/app/api/events/spots/route");
+    const send = (body: unknown) => POST(new NextRequest("https://www.localley.io/api/events/spots", {
+      method: "POST", body: JSON.stringify(body), headers: { origin: "https://www.localley.io" },
+    }));
+    expect((await send({ funnel: [{ step: "preview_view", source: "preview" }] })).status).toBe(204);
+    expect((await send({ funnel: [{ step: "checkout_paid", source: "stripe" }] })).status).toBe(400);
+  });
+});
