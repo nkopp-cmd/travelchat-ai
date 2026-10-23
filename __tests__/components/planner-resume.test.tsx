@@ -6,11 +6,16 @@ import type { WizardData } from "@/components/itineraries/wizard/wizard-context"
 
 const state = vi.hoisted(() => ({ query: "" }));
 vi.mock("@/lib/funnel-analytics", () => ({ trackFunnelStep: vi.fn(), funnelSource: () => "direct" }));
-vi.mock("next/navigation", () => ({ useSearchParams: () => new URLSearchParams(state.query) }));
 vi.mock("@/components/itineraries/wizard", () => ({
   ItineraryWizard: (props: unknown) => <pre data-testid="wizard-inputs">{JSON.stringify(props)}</pre>,
 }));
-import NewItineraryPage from "@/app/itineraries/new/page";
+import { NewItineraryClient } from "@/app/itineraries/new/planner-client";
+
+// The planner reads its query from the browser URL (server HTML is the plain planner).
+function NewItineraryPage() {
+  window.history.replaceState(null, "", `/itineraries/new${state.query ? `?${state.query}` : ""}`);
+  return <NewItineraryClient initialCities={null} />;
+}
 
 const saved: WizardData = {
   city: "Seoul", selectedSpotId: "0041a575-c6fd-4a7e-b9c3-56cc50e201d6", startDate: "2026-12-30", days: 3, budget: "moderate", interests: ["Food & Dining"],
@@ -25,24 +30,24 @@ describe("explicit planner resume", () => {
   it("keeps a card's canonical spot reference when starting a new plan", () => {
     state.query = "city=Seoul&spot=0041A575-C6FD-4A7E-B9C3-56CC50E201D6";
     render(<NewItineraryPage />);
-    expect(props()).toEqual({ initialData: { city: "Seoul", selectedSpotId: saved.selectedSpotId }, initialStep: 1 });
+    expect(props()).toEqual({ initialData: { city: "Seoul", selectedSpotId: saved.selectedSpotId }, initialStep: 1, initialCities: null });
   });
   it("ignores a malformed spot reference without importing it into inputs", () => {
     state.query = "city=Seoul&spot=..%2Fprivate";
     render(<NewItineraryPage />);
-    expect(props()).toEqual({ initialData: { city: "Seoul" }, initialStep: 1 });
+    expect(props()).toEqual({ initialData: { city: "Seoul" }, initialStep: 1, initialCities: null });
   });
   it("restores all saved inputs only on an explicit same-origin resume", () => {
     savePlannerDraft(localStorage, saved);
     state.query = "resume=1";
     render(<NewItineraryPage />);
-    expect(props()).toEqual({ initialData: saved, initialStep: 3 });
+    expect(props()).toEqual({ initialData: saved, initialStep: 3, initialCities: null });
     expect(screen.getByRole("status").textContent).toContain("inputs are restored");
   });
   it("starts fresh when resume was not requested", () => {
     savePlannerDraft(localStorage, saved);
     render(<NewItineraryPage />);
-    expect(props()).toEqual({ initialData: {}, initialStep: 0 });
+    expect(props()).toEqual({ initialData: {}, initialStep: 0, initialCities: null });
     expect(screen.queryByRole("status")).toBeNull();
   });
   it("uses explicit URL edits without changing the saved inputs", () => {

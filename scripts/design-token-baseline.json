@@ -18,9 +18,6 @@
   "app/itineraries/error.tsx": {
     "palette": 4
   },
-  "app/itineraries/new/page.tsx": {
-    "palette": 2
-  },
   "app/leaderboard/page.tsx": {
     "palette": 2
   },

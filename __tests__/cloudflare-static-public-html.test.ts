@@ -28,19 +28,18 @@ async function buildTree(routes: Record<string, unknown>, html = page) {
 
 describe("static public HTML assets", () => {
   it("covers only the fully static public pages", () => {
-    expect(STATIC_PUBLIC_PAGES).toEqual({ "/": "index.html", "/pricing": "pricing.html", "/itineraries/new": "itineraries/new.html" });
+    expect(STATIC_PUBLIC_PAGES).toEqual({ "/": "index.html", "/pricing": "pricing.html" });
   });
 
   it("copies the exact prerendered bytes, scripts included", async () => {
-    const dir = await buildTree({ "/": route(false), "/pricing": route(false), "/itineraries/new": route(false) });
-    expect(await packageStaticPublicHtml(dir)).toEqual(["/ -> index.html", "/pricing -> pricing.html", "/itineraries/new -> itineraries/new.html"]);
-    expect(await readFile(path.join(dir, ".open-next", "assets", "itineraries", "new.html"), "utf8")).toBe(page);
+    const dir = await buildTree({ "/": route(false), "/pricing": route(false) });
+    expect(await packageStaticPublicHtml(dir)).toEqual(["/ -> index.html", "/pricing -> pricing.html"]);
     expect(await readFile(path.join(dir, ".open-next", "assets", "index.html"), "utf8")).toBe(page);
     expect(await readFile(path.join(dir, ".open-next", "assets", "pricing.html"), "utf8")).toBe(page);
   });
 
   it("refuses a page that revalidates or is not prerendered", async () => {
-    await expect(packageStaticPublicHtml(await buildTree({ "/": route(60), "/pricing": route(false), "/itineraries/new": route(false) }))).rejects.toThrow(/revalidates/);
+    await expect(packageStaticPublicHtml(await buildTree({ "/": route(60), "/pricing": route(false) }))).rejects.toThrow(/revalidates/);
     await rm(root!, { recursive: true, force: true });
     await expect(packageStaticPublicHtml(await buildTree({ "/": route(false) }))).rejects.toThrow(/\/pricing is not prerendered/);
   });
