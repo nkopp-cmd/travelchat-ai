@@ -322,4 +322,33 @@ describe("story media step 1: R2 reads", () => {
         expect(mocks.download).toHaveBeenCalledWith(path);
         expect(sources()).toEqual(["[STORY_ROUTE] story_media_source=supabase_fallback"]);
     });
+
+    it("reads a migrated /media/story/<sha> background only from R2, with no other fallback", async () => {
+        const key = `${"a".repeat(64)}.png`;
+        mocks.single.mockResolvedValue({ data: { ...fixture, ai_backgrounds: { cover: `/media/story/${key}` } }, error: null });
+        const bytes = await png();
+        get.mockResolvedValue({ arrayBuffer: async () => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) });
+        expect((await request("slide=cover")).status).toBe(200);
+        expect(get).toHaveBeenCalledWith(`legacy/${key}`);
+        expect(mocks.storageFrom).not.toHaveBeenCalled();
+        expect(sources()).toEqual(["[STORY_ROUTE] story_media_source=r2_path"]);
+    });
+
+    it("renders the branded fallback when a migrated object is missing, without fetching anything else", async () => {
+        mocks.single.mockResolvedValue({ data: { ...fixture, ai_backgrounds: { cover: `/media/story/${"b".repeat(64)}.png` } }, error: null });
+        get.mockResolvedValue(null);
+        expect((await request("slide=cover")).status).toBe(200);
+        expect(mocks.storageFrom).not.toHaveBeenCalled();
+        expect(fetch).not.toHaveBeenCalledWith(expect.stringContaining("/media/story/"), expect.anything());
+        expect(sources()).toEqual(["[STORY_ROUTE] story_media_source=r2_path_missing"]);
+    });
+
+    it("ignores paths that are not exact content addresses", async () => {
+        for (const cover of ["/media/story/../secret.png", `/media/story/${"c".repeat(63)}.png`, `/media/story/${"d".repeat(64)}.webp`]) {
+            get.mockClear();
+            mocks.single.mockResolvedValue({ data: { ...fixture, ai_backgrounds: { cover } }, error: null });
+            await request("slide=cover");
+            expect(get).not.toHaveBeenCalled();
+        }
+    });
 });
