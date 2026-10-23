@@ -220,6 +220,7 @@ User triggers story → POST /api/images/story-background (generate + store)
 - Do not create release worktrees under disposable test-output directories.
 - Keep new paid generation disabled until its activation gates pass. The initial shared media test ceiling is $20.
 - Current release evidence is in `docs/releases/seoul-discovery.md`.
+- CI runs a fixed test list: `.github/workflows/d1-preview-verification.yml` has path filters and explicit `npx vitest run` lines. A new test file or source folder does not run in CI until you add it to both.
 
 - For Next.js private-page denial tests, retain status and body before assertions. Verify the denial UI and absent private content; streamed notFound may return200. Check each API handler's actual forbidden/missing contract separately.
 

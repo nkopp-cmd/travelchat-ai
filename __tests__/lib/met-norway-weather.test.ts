@@ -20,7 +20,7 @@ function metResponse(expires = new Date(Date.now() + 40 * 60_000).toUTCString())
 }
 
 describe("MET Norway forecast summary", () => {
-  const weather = summarizeForecast(fixture as never, "Asia/Seoul")!;
+  const weather = summarizeForecast(fixture as never, "Asia/Seoul", Date.parse(fixture.properties.timeseries[0].time))!;
 
   it("summarises a real Locationforecast response into current weather and 7 local days", () => {
     expect(weather.updatedAt).toBe(fixture.properties.meta.updated_at);
@@ -34,6 +34,14 @@ describe("MET Norway forecast summary", () => {
     // Days are consecutive local dates.
     const dates = weather.days.map((day) => Date.parse(`${day.date}T00:00:00Z`));
     for (let index = 1; index < dates.length; index++) expect(dates[index] - dates[index - 1]).toBe(86_400_000);
+  });
+
+  it("reads current weather from the latest started hour, not the first step of a cached forecast", () => {
+    const series = fixture.properties.timeseries;
+    const later = summarizeForecast(fixture as never, "Asia/Seoul", Date.parse(series[2].time) + 10 * 60_000)!;
+    expect(later.current.tempC).toBe(Math.round(series[2].data.instant.details.air_temperature));
+    const early = summarizeForecast(fixture as never, "Asia/Seoul", Date.parse(series[0].time) - 60_000)!;
+    expect(early.current.tempC).toBe(Math.round(series[0].data.instant.details.air_temperature));
   });
 
   it("maps MET symbol codes to icon kinds", () => {

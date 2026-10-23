@@ -72,9 +72,10 @@ function localDate(iso: string, timeZone: string): { date: string; hour: number 
     return { date: `${get("year")}-${get("month")}-${get("day")}`, hour: Number(get("hour")) };
 }
 
-export function summarizeForecast(forecast: MetForecast, timeZone: string): CityWeather | null {
+export function summarizeForecast(forecast: MetForecast, timeZone: string, now = Date.now()): CityWeather | null {
     const series = forecast.properties?.timeseries ?? [];
-    const first = series[0];
+    // A cached forecast can be up to an hour old: "now" is the latest step that has started.
+    const first = series.findLast((entry) => Date.parse(entry.time) <= now) ?? series[0];
     const firstTemp = first?.data.instant.details.air_temperature;
     if (!first || typeof firstTemp !== "number") return null;
     const firstSymbol = first.data.next_1_hours?.summary.symbol_code ?? first.data.next_6_hours?.summary.symbol_code ?? "cloudy";
@@ -142,7 +143,7 @@ function defaultCache(): WeatherCache | undefined {
  */
 export async function getWeather(
     point: { lat: number; lng: number; timeZone: string },
-    deps: { cache?: WeatherCache; fetcher?: typeof fetch; waitUntil?: (promise: Promise<unknown>) => void } = {},
+    deps: { cache?: WeatherCache; fetcher?: typeof fetch; waitUntil?: (promise: Promise<unknown>) => void; now?: number } = {},
 ): Promise<CityWeather | null> {
     const cache = deps.cache ?? defaultCache();
     const fetcher = deps.fetcher ?? fetch;
@@ -150,7 +151,7 @@ export async function getWeather(
     const key = new Request(`${CACHE_ORIGIN}/v1/${cell}`);
     try {
         const hit = await cache?.match(key);
-        if (hit) return summarizeForecast(await hit.json(), point.timeZone);
+        if (hit) return summarizeForecast(await hit.json(), point.timeZone, deps.now);
 
         const [lat, lng] = cell.split(",");
         const response = await fetcher(`${MET_ENDPOINT}?lat=${lat}&lon=${lng}`, {
@@ -159,7 +160,7 @@ export async function getWeather(
         });
         if (!response.ok) return null;
         const body = await response.text();
-        const weather = summarizeForecast(JSON.parse(body), point.timeZone);
+        const weather = summarizeForecast(JSON.parse(body), point.timeZone, deps.now);
         if (weather && cache) {
             const stored = new Response(body, {
                 headers: {

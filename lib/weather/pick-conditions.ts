@@ -20,7 +20,7 @@ export async function pickConditions(
         const city = getCityBySlug(slug);
         if (!city) return null;
         const season = seasonFor(slug, localMonth(city.timezone, now));
-        const weather = await getWeather({ lat: city.center.lat, lng: city.center.lng, timeZone: city.timezone }, deps);
+        const weather = await getWeather({ lat: city.center.lat, lng: city.center.lng, timeZone: city.timezone }, { ...deps, now: now.getTime() });
         return [slug, {
             season: season && { label: season.label, kind: season.kind, score: season.score },
             now: weather?.current ?? null,
