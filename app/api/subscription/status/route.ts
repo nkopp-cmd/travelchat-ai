@@ -44,10 +44,9 @@ export async function GET(req: NextRequest) {
             return Errors.unauthorized();
         }
 
-        const user = await currentUser();
-        const primaryEmail = user?.emailAddresses[0]?.emailAddress;
-
         if (isPreviewBillingStatusCandidate(req)) {
+            const user = await currentUser();
+            const primaryEmail = user?.emailAddresses[0]?.emailAddress;
             if (!user || user.id !== userId) return Errors.unauthorized();
             const status = await previewBillingStatus(userId, primaryEmail ?? null);
             return NextResponse.json(status, {
@@ -56,52 +55,28 @@ export async function GET(req: NextRequest) {
         }
 
         const supabase = await createSupabaseServerClient();
-
-        // Get subscription
-        const { data: subscription } = await supabase
-            .from("subscriptions")
-            .select("*")
-            .eq("clerk_user_id", userId)
-            .single();
-
-        // Get base tier from subscription
-        const baseTier: SubscriptionTier = subscription?.tier || "free";
-        const status = subscription?.status || "none";
-
-        // Check beta mode and early adopter status
-        const betaMode = isBetaMode();
-        const earlyAdopterStatus = await getEarlyAdopterStatus(userId);
-        const hasLifetimePremium = isLifetimePremiumEmail(primaryEmail);
-
-        // Determine effective tier
-        // Priority: Beta mode > lifetime premium > Early adopter > Actual subscription
-        let tier: SubscriptionTier = baseTier;
-        if (betaMode) {
-            tier = "premium";
-        } else if (hasLifetimePremium) {
-            tier = "premium";
-        } else if (earlyAdopterStatus.isEarlyAdopter) {
-            tier = "premium";
-        }
-
-        const isActive =
-            betaMode ||
-            hasLifetimePremium ||
-            earlyAdopterStatus.isEarlyAdopter ||
-            ["active", "trialing"].includes(status);
-
-        // Get usage data
         const today = new Date().toISOString().split("T")[0];
         const weekStart = getWeekStart();
         const monthStart = getMonthStart();
 
-        // Fetch all usage in parallel
+        // One parallel round: the user, the subscription row, early-adopter status and all usage
+        // reads are independent (they were three sequential database round trips before).
         const [
+            user,
+            { data: subscription },
+            earlyAdopterStatus,
             { data: monthlyUsage },
             { data: dailyUsage },
             { data: weeklyUsage },
             { count: savedSpotsCount },
         ] = await Promise.all([
+            currentUser(),
+            supabase
+                .from("subscriptions")
+                .select("*")
+                .eq("clerk_user_id", userId)
+                .single(),
+            getEarlyAdopterStatus(userId),
             supabase
                 .from("usage_tracking")
                 .select("usage_type, count")
@@ -125,6 +100,32 @@ export async function GET(req: NextRequest) {
                 .select("*", { count: "exact", head: true })
                 .eq("clerk_user_id", userId),
         ]);
+        const primaryEmail = user?.emailAddresses[0]?.emailAddress;
+
+        // Get base tier from subscription
+        const baseTier: SubscriptionTier = subscription?.tier || "free";
+        const status = subscription?.status || "none";
+
+        // Check beta mode and early adopter status
+        const betaMode = isBetaMode();
+        const hasLifetimePremium = isLifetimePremiumEmail(primaryEmail);
+
+        // Determine effective tier
+        // Priority: Beta mode > lifetime premium > Early adopter > Actual subscription
+        let tier: SubscriptionTier = baseTier;
+        if (betaMode) {
+            tier = "premium";
+        } else if (hasLifetimePremium) {
+            tier = "premium";
+        } else if (earlyAdopterStatus.isEarlyAdopter) {
+            tier = "premium";
+        }
+
+        const isActive =
+            betaMode ||
+            hasLifetimePremium ||
+            earlyAdopterStatus.isEarlyAdopter ||
+            ["active", "trialing"].includes(status);
 
         // Parse usage
         const getUsage = (
