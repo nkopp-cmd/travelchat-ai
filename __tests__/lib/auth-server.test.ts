@@ -8,7 +8,7 @@ vi.mock("next/headers", () => ({ headers: async () => state.headers }));
 const sync = vi.hoisted(() => ({ created: vi.fn(async () => {}), updated: vi.fn(async () => {}) }));
 vi.mock("@/lib/auth/user-sync", () => ({ syncAppUserCreated: sync.created, syncAppUserUpdated: sync.updated }));
 
-import { auth, currentUser, getAuth, getSession, requireUser, toAppUser } from "@/lib/auth/server";
+import { auth, currentUser, getAuth, getPublicSession, getSession, requireUser, toAppUser } from "@/lib/auth/server";
 // @ts-expect-error plain ESM script without types
 import { toInsertSql } from "@/scripts/auth/clerk-to-better-auth.mjs";
 
@@ -105,6 +105,13 @@ describe("server auth adapter", () => {
     expect(user).toMatchObject({ id: state1.userId, firstName: "Ada", lastName: "Lovelace", fullName: "Ada Lovelace", emailVerified: true });
     expect(user?.primaryEmailAddress?.emailAddress).toBe(email);
     expect((await requireUser(withCookie(cookie))).userId).toBe(state1.userId);
+
+    // The client session seed gets only public user fields, never the session row or its token.
+    state.headers = withCookie(cookie);
+    const seed = await getPublicSession();
+    expect(seed).toEqual({ user: { id: state1.userId, name: "Ada Lovelace", email, emailVerified: true, image: null, firstName: "Ada", lastName: "Lovelace", bio: null }, session: {} });
+    expect(JSON.stringify(seed)).not.toContain(cookie.split("better-auth.session_token=")[1].split(";")[0].split(".")[0]);
+    state.headers = new Headers();
 
     const out = await call("/sign-out", { method: "POST", body: {}, cookie });
     expect(out.status).toBe(200);

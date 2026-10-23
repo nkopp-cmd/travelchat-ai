@@ -12,6 +12,7 @@ import "server-only";
  * Storage: Cloudflare D1 binding AUTH_DB (docs/AUTH_BETTER_AUTH.md). In `next dev`
  * the binding comes from initOpenNextCloudflareForDev (local miniflare D1).
  */
+import { cache } from "react";
 import { headers as nextHeaders } from "next/headers";
 import { NextResponse } from "next/server";
 import { createAuth, type AuthUserRecord, type LocalleyAuth } from "./config";
@@ -90,8 +91,16 @@ export function getAuth(): LocalleyAuth {
 
 export type AuthSession = NonNullable<Awaited<ReturnType<LocalleyAuth["api"]["getSession"]>>>;
 
+// One lookup per server render: pages call auth() from metadata, the page and the session
+// seed. React's cache() is per request in Server Components and a no-op elsewhere.
+const requestSession = cache((): Promise<AuthSession | null> => lookupSession());
+
 /** Current session, or null when signed out or when the auth store is unavailable. */
 export async function getSession(requestHeaders?: Headers): Promise<AuthSession | null> {
+  return requestHeaders ? lookupSession(requestHeaders) : requestSession();
+}
+
+async function lookupSession(requestHeaders?: Headers): Promise<AuthSession | null> {
   // Outside the try: headers() throws Next's dynamic-rendering signal during a static
   // build, which must propagate (same as Clerk's auth()) so the page renders per request.
   const hdrs = requestHeaders ?? (await nextHeaders());
@@ -169,4 +178,23 @@ export async function requireUser(
     return { userId: null, response: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
   }
   return { userId, response: null };
+}
+
+/** Public fields of the signed-in user for the client session store (never tokens or ids of the session row). */
+export interface PublicSession {
+  user: { id: string; name: string; email: string; emailVerified: boolean; image: string | null; firstName: string | null; lastName: string | null; bio: string | null };
+  session: Record<string, never>;
+}
+
+export async function getPublicSession(): Promise<PublicSession | null> {
+  const found = await getSession();
+  if (!found) return null;
+  const user = found.user as typeof found.user & { firstName?: string | null; lastName?: string | null; bio?: string | null };
+  return {
+    user: {
+      id: user.id, name: user.name, email: user.email, emailVerified: Boolean(user.emailVerified), image: user.image ?? null,
+      firstName: user.firstName ?? null, lastName: user.lastName ?? null, bio: user.bio ?? null,
+    },
+    session: {},
+  };
 }

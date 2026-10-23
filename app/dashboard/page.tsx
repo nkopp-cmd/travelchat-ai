@@ -2,7 +2,7 @@ import { ErrorBoundary } from "@/components/error-boundary";
 import { ChatInterface } from "@/components/chat/chat-interface";
 import { MobileChatFAB } from "@/components/chat/mobile-chat-fab";
 import { createSupabaseAdmin } from "@/lib/supabase";
-import { auth } from "@/lib/auth/server";
+import { auth, getPublicSession } from "@/lib/auth/server";
 import { getTemplateById } from "@/lib/templates";
 import { RecentStories } from "@/components/dashboard/recent-stories";
 import { MobileDashboardContent } from "@/components/dashboard/mobile-dashboard-content";
@@ -10,6 +10,7 @@ import { OnboardingPanel } from "@/components/dashboard/onboarding-panel";
 import { AppBackground } from "@/components/layout/app-background";
 import { isPreviewItineraryListCandidate, previewRecentItineraries } from "@/lib/app-data/preview-itinerary-list";
 import { headers } from "next/headers";
+import { SessionSeed } from "@/components/auth/session-seed";
 
 // Fetch user's recent itineraries. Candidate requests read only D1 (no Supabase fallback).
 async function getRecentItineraries(candidate: boolean) {
@@ -50,8 +51,11 @@ export default async function DashboardPage({
           }
         : undefined;
 
+    // Private, no-store page: hand the already validated session to the client store.
+    const sessionSeed = await getPublicSession();
     return (
         <AppBackground ambient fitParent className="lg:h-[calc(100dvh-var(--ll-topbar-height)-4rem)]" contentClassName="lg:h-full">
+            <SessionSeed session={sessionSeed} />
             <div className="flex flex-col h-full overflow-hidden">
                 {/* Top: Recent Itineraries Stories */}
                 {recentItineraries.length > 0 && (

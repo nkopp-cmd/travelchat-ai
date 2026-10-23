@@ -3,7 +3,7 @@ import React from "react";
 
 const mocks = vi.hoisted(() => ({ headers: vi.fn(), auth: vi.fn(), gate: vi.fn(), recent: vi.fn(), admin: vi.fn() }));
 vi.mock("next/headers", () => ({ headers: mocks.headers }));
-vi.mock("@/lib/auth/server", () => ({ auth: mocks.auth }));
+vi.mock("@/lib/auth/server", () => ({ auth: mocks.auth, getPublicSession: async () => null }));
 vi.mock("@/lib/supabase", () => ({ createSupabaseAdmin: mocks.admin }));
 vi.mock("@/lib/app-data/preview-itinerary-list", () => ({
   isPreviewItineraryListCandidate: mocks.gate, previewRecentItineraries: mocks.recent,
