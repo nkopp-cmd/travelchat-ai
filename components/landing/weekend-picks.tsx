@@ -1,4 +1,9 @@
 import Link from "next/link";
+import { WEEKEND_PICKS } from "@/components/landing/weekend-picks-data";
+import { PickAttribution, PickChip } from "@/components/landing/pick-conditions";
+
+export { WEEKEND_PICKS };
+export type { WeekendPick } from "@/components/landing/weekend-picks-data";
 
 // "Weekend picks" scroll-snap selector (shared/plans/localley-landing-map-weather.md step 2b,
 // reference: District "Weekend pick", 60fps.design shot 2110; frames in
@@ -6,22 +11,8 @@ import Link from "next/link";
 // cards away from it shrink, clip and darken with their distance while scrolling, and the list
 // snaps one card into focus. CSS only: scroll-snap + scroll-driven animations
 // (animation-timeline: view()). Browsers without scroll-driven animations, and reduced motion,
-// get a static, fully open list. Season and live weather chips join the focused card in step 3.
-export interface WeekendPick {
-    slug: string;
-    name: string;
-    tagline: string;
-}
-
-export const WEEKEND_PICKS: WeekendPick[] = [
-    { slug: "seoul", name: "Seoul", tagline: "Alleys that wake up after dark" },
-    { slug: "tokyo", name: "Tokyo", tagline: "Tiny bars, quiet side streets" },
-    { slug: "osaka", name: "Osaka", tagline: "Eat until you drop" },
-    { slug: "kyoto", name: "Kyoto", tagline: "Temples and slow lanes" },
-    { slug: "taipei", name: "Taipei", tagline: "Night markets and tea" },
-    { slug: "bangkok", name: "Bangkok", tagline: "Street food until late" },
-    { slug: "singapore", name: "Singapore", tagline: "Hawker halls and gardens" },
-];
+// get a static, fully open list. Season + live weather chips load in one cached request
+// (components/landing/pick-conditions.tsx), so the page itself stays static.
 
 // Unsplash city photos already used by lib/city-images.ts, resized to 3:2 and served by the
 // static-asset CDN (public/images/picks/README.md).
@@ -61,12 +52,14 @@ export function WeekendPicks() {
                                 <span className="ll-pick-caption" aria-hidden="true">
                                     <span className="ll-pick-name">{pick.name}</span>
                                     <span className="ll-pick-tagline">{pick.tagline}</span>
+                                    <PickChip slug={pick.slug} />
                                 </span>
                             </Link>
                         </li>
                     );
                 })}
             </ol>
+            <PickAttribution />
         </section>
     );
 }
