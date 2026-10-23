@@ -9,6 +9,9 @@
  * (account controls render on the client). Without this, every visit runs the
  * full OpenNext handler. The key carries the Worker version id, so a deploy
  * never serves HTML that points at removed hashed assets.
+ *
+ * One JSON exception: the planner's city list ("/api/cities?minSpots=1"), public catalog data
+ * that is the same for every visitor and that the planner preloads with its HTML.
  */
 import { ENABLED_CITIES } from "../../lib/cities";
 
@@ -21,6 +24,7 @@ export const EDGE_HTML_TTL_SECONDS: Record<string, number> = {
   "/sign-up": 86400,
   "/forgot-password": 86400,
   "/spots": 300,
+  "/api/cities": 300,
 };
 // The only query the edge keys on: one enabled-city slug, so the key set stays bounded.
 const EDGE_SPOTS_CITIES = new Set(ENABLED_CITIES.map((city) => city.slug));
@@ -46,6 +50,7 @@ export function isEdgeCacheable(request: Request): boolean {
 }
 
 function cacheableQuery(url: URL): boolean {
+  if (url.pathname === "/api/cities") return url.search === "?minSpots=1";
   if (!url.search) return true;
   if (url.pathname !== "/spots") return false;
   const keys = [...url.searchParams.keys()];
@@ -55,14 +60,16 @@ function cacheableQuery(url: URL): boolean {
 export function edgeCacheKey(request: Request, version: string): Request {
   const url = new URL(request.url);
   const city = url.searchParams.get("city");
-  const variant = city ? `&city=${encodeURIComponent(city)}` : "";
+  const variant = city ? `&city=${encodeURIComponent(city)}` : url.pathname === "/api/cities" ? "&minSpots=1" : "";
   return new Request(`${url.origin}${url.pathname}?__edge=${encodeURIComponent(version)}${variant}`);
 }
 
-function storable(response: Response): boolean {
+function storable(request: Request, response: Response): boolean {
+  const type = response.headers.get("content-type") ?? "";
+  const json = new URL(request.url).pathname === "/api/cities";
   return response.status === 200
     && !response.headers.has("set-cookie")
-    && (response.headers.get("content-type") ?? "").startsWith("text/html");
+    && (json ? type.startsWith("application/json") : type.startsWith("text/html"));
 }
 
 export async function serveWithEdgeCache(
@@ -84,7 +91,7 @@ export async function serveWithEdgeCache(
     return response;
   }
   const fresh = await handler(request);
-  if (!storable(fresh)) return fresh;
+  if (!storable(request, fresh)) return fresh;
   const stored = new Response(fresh.clone().body, fresh);
   // The Cache API honours Cache-Control on put; visitors still get Next's own header.
   stored.headers.set(ORIGIN_CACHE_CONTROL, fresh.headers.get("cache-control") ?? "");

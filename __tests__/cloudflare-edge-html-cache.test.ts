@@ -105,4 +105,32 @@ describe("public HTML edge cache", () => {
       "https://www.localley.io/spots?__edge=v1&city=tokyo",
     ]);
   });
+
+  it("caches only the planner's public city list as JSON, for five minutes", async () => {
+    const cache = memoryCache();
+    const json = () => new Response('{"success":true,"cities":[]}', { status: 200, headers: { "content-type": "application/json" } });
+    const handler = vi.fn(async () => json());
+    const url = "https://www.localley.io/api/cities?minSpots=1";
+    expect((await serve(new Request(url), cache, handler)).headers.get(EDGE_CACHE_HEADER)).toBe("MISS");
+    const hit = await serve(new Request(url), cache, handler);
+    expect(hit.headers.get(EDGE_CACHE_HEADER)).toBe("HIT");
+    expect(await hit.text()).toBe('{"success":true,"cities":[]}');
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect([...cache.store.values()][0].headers.get("cache-control")).toBe("public, s-maxage=300");
+    for (const other of ["/api/cities", "/api/cities?minSpots=0", "/api/cities?minSpots=1&data_candidate=d1", "/api/cities?minSpots=1&noCache=true", "/api/conditions"]) {
+      expect(isEdgeCacheable(new Request(`https://www.localley.io${other}`)), other).toBe(false);
+    }
+  });
+
+  it("never stores a city list that is not JSON, failed or sets a cookie", async () => {
+    for (const response of [
+      new Response("<html>", { headers: { "content-type": "text/html" } }),
+      new Response("{}", { status: 500, headers: { "content-type": "application/json" } }),
+      new Response("{}", { headers: { "content-type": "application/json", "set-cookie": "a=1" } }),
+    ]) {
+      const cache = memoryCache();
+      await serve(new Request("https://www.localley.io/api/cities?minSpots=1"), cache, async () => response);
+      expect(cache.put).not.toHaveBeenCalled();
+    }
+  });
 });
