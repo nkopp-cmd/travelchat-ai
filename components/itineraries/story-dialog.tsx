@@ -735,7 +735,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
         <>
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:from-violet-700 hover:to-indigo-700 shadow-lg shadow-violet-500/25 border-0">
+                <Button className="gap-2">
                     <Sparkles className="h-4 w-4" />
                     <Instagram className="h-4 w-4" />
                     Stories
@@ -754,7 +754,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
 
                 {slides.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-6 sm:py-12">
-                        <div className="w-32 h-56 sm:w-48 sm:h-80 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center mb-4 sm:mb-6 shadow-xl">
+                        <div className="w-32 h-56 sm:w-48 sm:h-80 rounded-2xl bg-raised flex items-center justify-center mb-4 sm:mb-6 shadow-raised">
                             <div className="text-white text-center px-4">
                                 <Instagram className="h-12 w-12 mx-auto mb-4 opacity-80" />
                                 <p className="text-sm opacity-80">1080 × 1920</p>
@@ -768,7 +768,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                         {/* AI Backgrounds Toggle (only show if AI is available) */}
                         {aiAvailable && city && (
                             <div className="flex flex-col items-center gap-2 mb-6">
-                                <div className="flex items-center gap-3 p-3 rounded-lg bg-violet-50 dark:bg-violet-950/30 ">
+                                <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/10">
                                     <Switch
                                         id="ai-backgrounds"
                                         checked={useAiBackgrounds}
@@ -776,7 +776,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                                         disabled={aiQuota !== null && aiQuota.limit > 0 && aiQuota.used >= aiQuota.limit}
                                     />
                                     <Label htmlFor="ai-backgrounds" className="flex items-center gap-2 cursor-pointer">
-                                        <Sparkles className="h-4 w-4 text-violet-500" />
+                                        <Sparkles className="h-4 w-4 text-primary" />
                                         <span className="text-sm">Use AI-generated backgrounds (Pro)</span>
                                     </Label>
                                 </div>
@@ -809,7 +809,6 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                         <Button
                             onClick={handleGenerate}
                             disabled={isGenerating}
-                            className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
                         >
                             {isGenerating ? (
                                 <>
@@ -845,7 +844,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                                         }`}
                                     >
                                         {brokenSlides.has(index) ? (
-                                            <div className="absolute inset-0 bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center">
+                                            <div className="absolute inset-0 bg-raised flex items-center justify-center">
                                                 <span className="text-white text-xs text-center px-1">{slide.label}</span>
                                             </div>
                                         ) : (
@@ -858,7 +857,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                                                 onError={() => handleImageError(index)}
                                             />
                                         )}
-                                        <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] py-1 text-center">
+                                        <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs py-1 text-center">
                                             {slide.label}
                                         </div>
                                     </button>
@@ -872,7 +871,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                                     className="relative w-full max-w-[240px] aspect-[9/16] rounded-2xl overflow-hidden shadow-xl cursor-pointer transition-all"
                                 >
                                     {brokenSlides.has(selectedSlide) ? (
-                                        <div className="absolute inset-0 bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center p-4">
+                                        <div className="absolute inset-0 bg-raised flex items-center justify-center p-4">
                                             <span className="text-white text-lg font-bold text-center">{slides[selectedSlide]?.label || "Slide"}</span>
                                         </div>
                                     ) : (
@@ -913,8 +912,8 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                                     onClick={handleSaveToCloud}
                                     disabled={isSavingToCloud || cloudSaved || downloadingIndex !== null}
                                     className={cloudSaved
-                                        ? "bg-green-600 hover:bg-green-600 text-white"
-                                        : "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
+                                        ? "bg-raised text-foreground hover:bg-raised"
+                                        : ""
                                     }
                                 >
                                     {isSavingToCloud ? (
@@ -1001,7 +1000,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
             >
                 <button
                     onClick={() => setFullscreenSlide(null)}
-                    className="absolute top-4 right-4 text-white/80 hover:text-white z-10"
+                    className="absolute top-4 right-4 text-foreground/80 hover:text-foreground z-10"
                 >
                     <X className="h-6 w-6" />
                 </button>
@@ -1017,7 +1016,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                         className="max-h-[80vh] max-w-full object-contain rounded-xl"
                     />
                 </div>
-                <p className="text-white/60 text-sm mt-3">
+                <p className="text-muted-foreground text-sm mt-3">
                     {isMobileShare
                         ? "Long-press the image to save to Photos"
                         : slides[fullscreenSlide].label}
@@ -1026,7 +1025,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                     <Button
                         variant="outline"
                         size="sm"
-                        className="mt-2 text-white hover:bg-white/10"
+                        className="mt-2 text-foreground hover:bg-raised"
                         onClick={(e) => { e.stopPropagation(); handleDownload(fullscreenSlide); }}
                         disabled={downloadingIndex !== null}
                     >
