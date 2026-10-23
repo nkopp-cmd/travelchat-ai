@@ -4,7 +4,8 @@ import { IntentLink } from "@/components/navigation/intent-link";
 import { usePathname } from "next/navigation";
 import { useUser } from "@/lib/auth/client";
 import dynamic from "next/dynamic";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { prefetchInbox } from "@/lib/notifications/inbox-prefetch";
 import { Menu } from "@/components/ui/icons";
 import { routes } from "@/components/layout/navbar-routes";
 import { Button } from "@/components/ui/button";
@@ -25,7 +26,10 @@ const NavbarDrawer = dynamic(() => loadDrawer().then((module) => module.NavbarDr
 
 export function Navbar() {
   const pathname = usePathname();
-  const { isLoaded, isSignedIn } = useUser();
+  const { isLoaded, isSignedIn, user } = useUser();
+  // Start the inbox's first page with the session, not after the lazy account chunk.
+  const inboxOwner = isSignedIn && user?.emailVerified ? user.id : null;
+  useEffect(() => { if (inboxOwner) prefetchInbox(inboxOwner); }, [inboxOwner]);
   const scrollDirection = useScrollDirection({ threshold: 20 });
   const isLanding = pathname === "/";
   const isHidden = !isLanding && scrollDirection === "down";
