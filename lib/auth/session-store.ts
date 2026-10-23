@@ -39,8 +39,26 @@ function onVisible() {
   if (document.visibilityState === "visible" && Date.now() - fetchedAt > REFRESH_AFTER_MS) void refreshSession();
 }
 
+export const SESSION_SEED_META = "localley-session";
+
+/** The server-rendered seed of this document, if any (components/auth/session-seed.tsx). */
+function seedFromDocument(): NonNullable<SessionState["data"]> | null {
+  try {
+    const content = document.querySelector(`meta[name="${SESSION_SEED_META}"]`)?.getAttribute("content");
+    const parsed = content ? JSON.parse(content) : null;
+    return parsed && typeof parsed === "object" && typeof parsed.user?.id === "string" ? parsed : null;
+  } catch { return null; }
+}
+
 export function subscribeSession(listener: () => void): () => void {
   listeners.add(listener);
+  if (state.isPending && !inflight && typeof document !== "undefined") {
+    const seeded = seedFromDocument();
+    if (seeded) {
+      fetchedAt = Date.now();
+      emit({ data: seeded, isPending: false });
+    }
+  }
   if (state.isPending && !inflight) void refreshSession();
   if (!visibilityBound && typeof document !== "undefined") {
     visibilityBound = true;

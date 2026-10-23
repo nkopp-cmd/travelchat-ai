@@ -14,7 +14,7 @@ function Who() {
   return <p>{isLoaded ? user?.fullName ?? "signed out" : "loading"}</p>;
 }
 
-beforeEach(() => resetSessionStore());
+beforeEach(() => { resetSessionStore(); document.head.querySelectorAll('meta[name="localley-session"]').forEach((m) => m.remove()); });
 afterEach(() => vi.unstubAllGlobals());
 
 describe("server session seed", () => {
@@ -51,5 +51,30 @@ describe("server session seed", () => {
     window.dispatchEvent(Object.assign(new Event("pageshow"), { persisted: true }));
     await waitFor(() => expect(fetcher).toHaveBeenCalledOnce());
     expect(await screen.findByText("signed out")).toBeTruthy();
+  });
+
+  it("uses the seed tag of a page whose content hydrates after the navbar subscribes (loading boundary)", async () => {
+    const fetcher = vi.fn(async () => Response.json({ user: { id: "other" }, session: {} }));
+    vi.stubGlobal("fetch", fetcher);
+    const meta = document.createElement("meta");
+    meta.name = "localley-session";
+    meta.content = JSON.stringify(seed);
+    document.head.append(meta);
+    render(<Who />);
+    expect(await screen.findByText("Hana Kim")).toBeTruthy();
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+
+  it("renders the seed tag with React-escaped content and ignores a malformed tag", async () => {
+    const { container } = render(<SessionSeed session={seed} />);
+    const tag = document.querySelector('meta[name="localley-session"]') ?? container.querySelector("meta");
+    expect(JSON.parse(tag!.getAttribute("content")!)).toEqual(seed);
+    resetSessionStore();
+    document.querySelectorAll('meta[name="localley-session"]').forEach((m) => { m.setAttribute("content", "{not json"); });
+    const fetcher = vi.fn(async () => Response.json(null));
+    vi.stubGlobal("fetch", fetcher);
+    render(<Who />);
+    expect(await screen.findByText("signed out")).toBeTruthy();
+    expect(fetcher).toHaveBeenCalledOnce();
   });
 });
