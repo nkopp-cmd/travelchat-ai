@@ -5,6 +5,10 @@ import type { PhotoGalleryResponse } from "@/lib/spots/photo-contract";
 import { classifySpotPhoto } from "@/lib/place-images";
 
 const pending = new Map<string, Promise<PhotoGalleryResponse>>();
+// Results kept for this page session only (memory, never storage), so a card that remounts after
+// a filter change or a list re-render does not call Places again. Bounded to the newest 200 spots.
+const settled = new Map<string, PhotoGalleryResponse>();
+const SETTLED_LIMIT = 200;
 const unavailable: PhotoGalleryResponse = { status: "unavailable", photos: [] };
 
 export function getDirectVenuePhotos(photos: string[] = []): PhotoGalleryResponse["photos"] {
@@ -21,6 +25,8 @@ export function getDirectVenuePhotos(photos: string[] = []): PhotoGalleryRespons
 }
 
 function requestPhotos(spotId: string) {
+  const done = settled.get(spotId);
+  if (done) return Promise.resolve(done);
   const existing = pending.get(spotId);
   if (existing) return existing;
   const request = fetch(`/api/spots/${encodeURIComponent(spotId)}/photos`, { cache: "no-store" })
@@ -37,10 +43,20 @@ function requestPhotos(spotId: string) {
         return true;
       }).slice(0, 4);
       return photos.length ? { status: "available", photos } : unavailable;
-    }).catch(() => unavailable)
+    }).then((result) => {
+      settled.set(spotId, result);
+      if (settled.size > SETTLED_LIMIT) settled.delete(settled.keys().next().value!);
+      return result;
+    }, () => unavailable)
     .finally(() => { pending.delete(spotId); });
   pending.set(spotId, request);
   return request;
+}
+
+/** Test hook: forget this page's photo results. */
+export function resetVenuePhotoMemory() {
+  settled.clear();
+  pending.clear();
 }
 
 export function useVenuePhotos(spotId: string, priority = false, directPhotos: PhotoGalleryResponse["photos"] = [], allowFetch = true) {

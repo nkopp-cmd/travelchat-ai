@@ -16,11 +16,16 @@ import { isPreviewSpotPhotosCandidate, previewSpotPhotoSource } from "@/lib/app-
 export const dynamic = "force-dynamic";
 const developmentLimit = rateLimit({ windowMs: 60_000, maxRequests: 40 });
 const headers = { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" };
+// Billing (Places API New, highest field tier wins): id + photos = Essentials IDs Only (no usage
+// cap), location = Essentials; displayName = Pro ($17/1000). Cards ask Essentials only; the Pro
+// name fields are fetched only for spots without stored coordinates (name evidence).
+const ESSENTIALS_MASK = "id,location,photos";
+const NAME_MASK = "id,displayName,formattedAddress";
 const detailsSchema = z.object({
     id: z.string(),
-    displayName: z.object({ text: z.string().min(1) }),
-    formattedAddress: z.string().min(1),
-    location: z.object({ latitude: z.number().min(-90).max(90), longitude: z.number().min(-180).max(180) }),
+    displayName: z.object({ text: z.string().min(1) }).optional(),
+    formattedAddress: z.string().min(1).optional(),
+    location: z.object({ latitude: z.number().min(-90).max(90), longitude: z.number().min(-180).max(180) }).optional(),
     photos: z.array(z.object({
         name: z.string(),
         authorAttributions: z.array(z.object({ displayName: z.string(), uri: z.string().optional() })).optional(),
@@ -84,54 +89,64 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
         if (getGooglePlaceIdsFromSpotPhotos(photos).some(photoPlaceId => photoPlaceId !== placeId)) return unavailableForRequest();
         const apiKey = getGooglePlacesApiKey();
         if (!apiKey) return failureForRequest(503, "provider_key_missing");
-        const response = await fetch(`https://places.googleapis.com/v1/places/${placeId}?languageCode=en`, {
-            cache: "no-store", redirect: "manual", signal: controller.signal,
-            headers: { "X-Goog-Api-Key": apiKey, "X-Goog-FieldMask": "id,displayName,formattedAddress,location,photos" },
-        });
-        if (!response.ok) { await response.body?.cancel(); return failureForRequest(502, "provider_http", response.status); }
-        const limit = 256 * 1024;
-        if (Number(response.headers.get("content-length")) > limit) {
-            await response.body?.cancel();
-            return failureForRequest(502, "provider_payload_oversize");
-        }
-        const reader = response.body?.getReader();
-        if (!reader) return failureForRequest(502, "provider_payload_missing");
-        const chunks: Uint8Array[] = [];
-        let size = 0;
-        try {
-            for (;;) {
-                const { done, value } = await reader.read();
-                if (done) break;
-                size += value.length;
-                if (size > limit) { exceptionReason = "provider_payload_oversize"; throw new Error("Response too large"); }
-                chunks.push(value);
+        const readDetails = async (mask: string) => {
+            const response = await fetch(`https://places.googleapis.com/v1/places/${placeId}?languageCode=en`, {
+                cache: "no-store", redirect: "manual", signal: controller.signal,
+                headers: { "X-Goog-Api-Key": apiKey, "X-Goog-FieldMask": mask },
+            });
+            if (!response.ok) { await response.body?.cancel(); return { failure: failureForRequest(502, "provider_http", response.status) }; }
+            const limit = 256 * 1024;
+            if (Number(response.headers.get("content-length")) > limit) {
+                await response.body?.cancel();
+                return { failure: failureForRequest(502, "provider_payload_oversize") };
             }
-        } finally {
-            await reader.cancel();
-            reader.releaseLock();
-        }
-        const bytes = new Uint8Array(size);
-        let offset = 0;
-        for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length; }
-        exceptionReason = "provider_payload_invalid";
-        const parsed = detailsSchema.safeParse(JSON.parse(new TextDecoder().decode(bytes)));
-        exceptionReason = "request_exception";
-        if (!parsed.success) return failureForRequest(502, "provider_payload_invalid");
-        const place = parsed.data;
-        if (place.id !== placeId) return failureForRequest(502, "listing_id_conflict");
+            const reader = response.body?.getReader();
+            if (!reader) return { failure: failureForRequest(502, "provider_payload_missing") };
+            const chunks: Uint8Array[] = [];
+            let size = 0;
+            try {
+                for (;;) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    size += value.length;
+                    if (size > limit) { exceptionReason = "provider_payload_oversize"; throw new Error("Response too large"); }
+                    chunks.push(value);
+                }
+            } finally {
+                await reader.cancel();
+                reader.releaseLock();
+            }
+            const bytes = new Uint8Array(size);
+            let offset = 0;
+            for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length; }
+            exceptionReason = "provider_payload_invalid";
+            const parsed = detailsSchema.safeParse(JSON.parse(new TextDecoder().decode(bytes)));
+            exceptionReason = "request_exception";
+            if (!parsed.success) return { failure: failureForRequest(502, "provider_payload_invalid") };
+            if (parsed.data.id !== placeId) return { failure: failureForRequest(502, "listing_id_conflict") };
+            return { place: parsed.data };
+        };
+        const details = await readDetails(ESSENTIALS_MASK);
+        if (details.failure) return details.failure;
+        const place = details.place;
         const address = getLocalizedText(spot.address);
         const city = inferCityFromAddress(address);
-        const returnedCity = inferCityFromAddress(place.formattedAddress);
-        if (!city || !returnedCity || city.slug !== returnedCity.slug || city.countryCode !== returnedCity.countryCode ||
+        // City identity from the listing's coordinates (Essentials) instead of its address text (Pro).
+        if (!city || !place.location ||
             distanceKm(city.center.lat, city.center.lng, place.location.latitude, place.location.longitude) > 100) return failureForRequest(502, "listing_city_conflict");
         const coordinates = parseSpotCoordinates(spot.location);
         // Coordinates corroborate listing identity, not an entrance or photo verification.
         // Do not reject a Korean display name merely because the saved name is English.
         if (coordinates && (coordinates.lat !== 0 || coordinates.lng !== 0)) {
             if (distanceKm(coordinates.lat, coordinates.lng, place.location.latitude, place.location.longitude) > 1) return failureForRequest(502, "listing_coordinate_conflict");
-        } else if (!getPlacePhotoMatchQuality(getLocalizedText(spot.name), address, spot.category, {
-            displayName: place.displayName.text, formattedAddress: place.formattedAddress, types: [],
-        }).acceptable) return failureForRequest(502, "listing_name_conflict");
+        } else {
+            // Rare: no stored coordinates. Only then pay for the Pro name fields.
+            const named = await readDetails(NAME_MASK);
+            if (named.failure) return named.failure;
+            if (!named.place.displayName || !named.place.formattedAddress || !getPlacePhotoMatchQuality(getLocalizedText(spot.name), address, spot.category, {
+                displayName: named.place.displayName.text, formattedAddress: named.place.formattedAddress, types: [],
+            }).acceptable) return failureForRequest(502, "listing_name_conflict");
+        }
 
         const gallery: PhotoGalleryResponse["photos"] = [];
         const names = new Set<string>();

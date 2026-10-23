@@ -34,7 +34,7 @@ describe("public spot photo gallery", () => {
         const query = { select: mocks.select, eq: vi.fn().mockReturnThis(), abortSignal: vi.fn().mockReturnThis(), maybeSingle: mocks.single };
         mocks.select.mockReset().mockReturnValue(query);
         mocks.admin.mockReset().mockReturnValue({ from: vi.fn().mockReturnValue(query) });
-        vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json(details())));
+        vi.stubGlobal("fetch", vi.fn().mockImplementation(async () => Response.json(details())));
     });
     afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); vi.useRealTimers(); });
 
@@ -47,7 +47,7 @@ describe("public spot photo gallery", () => {
         expect(fetch).toHaveBeenCalledTimes(1);
         expect(fetch).toHaveBeenCalledWith(`https://places.googleapis.com/v1/places/${placeId}?languageCode=en`, expect.objectContaining({
             cache: "no-store", redirect: "manual", headers: { "X-Goog-Api-Key": "test-key",
-                "X-Goog-FieldMask": "id,displayName,formattedAddress,location,photos" },
+                "X-Goog-FieldMask": "id,location,photos" },
         }));
         expect(data.status).toBe("available");
         expect(data.photos).toHaveLength(4);
@@ -120,8 +120,9 @@ describe("public spot photo gallery", () => {
     });
 
     it.each([
-        { id: "different" }, { formattedAddress: "Tokyo, Japan" },
+        { id: "different" },
         { location: { latitude: 35.68, longitude: 139.69 } },
+        { location: undefined },
         { location: { latitude: 37.60, longitude: 126.999 } },
         { location: { latitude: 999, longitude: 126 } },
     ])("rejects contradictory identity evidence", async change => {
@@ -176,12 +177,22 @@ describe("public spot photo gallery", () => {
     it("uses name and address evidence when stored coordinates are absent", async () => {
         mocks.single.mockResolvedValue({ data: { ...spot, location: null } });
         expect((await (await call()).json()).status).toBe("available");
+        // Only this rare path pays for the Pro name fields, in a second call.
+        expect(vi.mocked(fetch).mock.calls.map(([, init]) => (init?.headers as Record<string, string>)["X-Goog-FieldMask"]))
+            .toEqual(["id,location,photos", "id,displayName,formattedAddress"]);
+    });
+
+    it("never asks for Pro fields when stored coordinates corroborate the listing", async () => {
+        await call();
+        expect(fetch).toHaveBeenCalledTimes(1);
+        expect(JSON.stringify(vi.mocked(fetch).mock.calls)).not.toMatch(/displayName|formattedAddress/);
     });
 
     it("rejects unrelated names without coordinate evidence", async () => {
         mocks.single.mockResolvedValue({ data: { ...spot, location: null } });
-        vi.mocked(fetch).mockResolvedValue(Response.json({ ...details(), displayName: { text: "Unrelated Store" }, formattedAddress: "77 Other Road, Seoul, South Korea" }));
+        vi.mocked(fetch).mockImplementation(async () => Response.json({ ...details(), displayName: { text: "Unrelated Store" }, formattedAddress: "77 Other Road, Seoul, South Korea" }));
         expect((await call()).status).toBe(502);
+        expect(fetch).toHaveBeenCalledTimes(2);
     });
 
     it("does not use malformed, cross-place, or absent photo names", async () => {

@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { SpotPhotoImage, VenueCardPhoto, VenueHeroPhoto, VenuePhotoThumbnails } from "@/components/spots/spot-photo-image";
+import { resetVenuePhotoMemory } from "@/components/spots/venue-photo-provider";
 import { getDirectVenuePhotos, VenuePhotoProvider } from "@/components/spots/venue-photo-provider";
 import { useState, type ImgHTMLAttributes } from "react";
 
@@ -12,7 +13,7 @@ vi.mock("next/image", () => ({
 
 const photo = (id: string) => ({ id, url: `/api/places/photo?name=${id}&v=venue-photos-2`, sourceLabel: "Google listing photo", attributions: [] });
 const response = (ids: string[]) => ({ ok: true, json: async () => ({ status: "available", photos: ids.map(photo) }) });
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => { vi.unstubAllGlobals(); resetVenuePhotoMemory(); });
 
 describe("venue photos", () => {
   it("keeps an active hero interaction when metadata changes the image source", () => {
@@ -104,7 +105,7 @@ describe("venue photos", () => {
     expect(screen.getByAltText("New").getAttribute("src")).toContain("name=new");
   });
 
-  it("deduplicates only in-flight requests, not later mounts", async () => {
+  it("deduplicates in-flight requests and reuses this page's result for later mounts (no second Places call)", async () => {
     let resolve!: (value: ReturnType<typeof response>) => void;
     const fetcher = vi.fn().mockImplementationOnce(() => new Promise((done) => { resolve = done; }))
       .mockResolvedValue(response(["fresh"]));
@@ -115,7 +116,8 @@ describe("venue photos", () => {
     first.unmount();
     render(<VenueCardPhoto spotId="shared" name="Later" priority />);
     await screen.findByAltText("Later");
-    expect(fetcher).toHaveBeenCalledTimes(2);
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    expect(screen.getByAltText("Later").getAttribute("src")).toContain("name=first");
   });
 
   it("waits until a card is visible", async () => {
