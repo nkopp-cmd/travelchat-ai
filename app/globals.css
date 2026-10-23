@@ -399,7 +399,7 @@
   }
 
   .animate-spring-up {
-    animation: spring-up 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: spring-up 0.4s var(--ll-motion-spring);
   }
 
   /* Slide in from bottom for sheets */
@@ -416,7 +416,7 @@
   }
 
   .animate-slide-up-spring {
-    animation: slide-up-spring 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: slide-up-spring 0.3s var(--ll-motion-spring);
   }
 
   /* Stagger animation for lists */
@@ -662,7 +662,7 @@
     background: rgb(var(--ll-surface));
     color: rgb(var(--ll-text));
     box-shadow: var(--ll-shadow-overlay);
-    animation: ll-pin-pop 320ms cubic-bezier(0.2, 1.35, 0.4, 1);
+    animation: ll-pin-pop 320ms var(--ll-motion-pop);
 }
 
 /* Expanded detail: a panel at the map's right edge (12px inset), at most 420px wide, so
@@ -676,7 +676,7 @@
     width: min(420px, calc(100% - 24px));
     overflow-y: auto;
     transform: none;
-    animation: ll-pin-grow 280ms var(--ll-motion-ease);
+    animation: ll-pin-grow var(--ll-motion-medium) var(--ll-motion-ease);
 }
 
 .ll-pin-card[data-expanded]::after {
@@ -849,7 +849,7 @@
 /* Pins pop in one after another with a small overshoot (spring). */
 .ll-hero-pin .ll-pin {
     cursor: default;
-    animation: ll-hero-pop 620ms cubic-bezier(0.34, 1.56, 0.64, 1) var(--delay) both;
+    animation: ll-hero-pop var(--ll-motion-long) var(--ll-motion-spring) var(--delay) both;
 }
 
 @keyframes ll-hero-pop {
