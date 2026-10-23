@@ -23,6 +23,7 @@ const routes = [
   "/api/chat",
   "/api/cities",
   "/api/conditions",
+  "/api/conditions/[city]",
   "/api/connect/dashboard",
   "/api/connect/earnings",
   "/api/connect/onboard",

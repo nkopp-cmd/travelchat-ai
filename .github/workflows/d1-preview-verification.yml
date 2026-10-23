@@ -423,6 +423,8 @@ on:
       - '__tests__/lib/met-norway-weather.test.ts'
       - '__tests__/lib/season-table.test.tsx'
       - '__tests__/components/pick-conditions.test.tsx'
+      - '__tests__/components/trip-outlook.test.tsx'
+      - 'components/itineraries/wizard/trip-outlook.tsx'
       - '__tests__/public-headers.test.ts'
   push:
     branches: [feature/opennext-d1-preview]
@@ -489,7 +491,7 @@ jobs:
             npx vitest run __tests__/app/explore-public-itineraries.test.ts __tests__/app/explore-candidate-page.test.tsx --maxWorkers=1
             npx vitest run __tests__/components/itinerary-detail-design-tokens.test.ts __tests__/app/itinerary-action-bar.test.ts --maxWorkers=1
             npx vitest run __tests__/components/intent-link.test.tsx __tests__/components/spots-map.test.tsx __tests__/app/itinerary-detail-cache.test.ts __tests__/app/public-metadata-and-prefetch.test.ts --maxWorkers=1
-            npx vitest run __tests__/lib/met-norway-weather.test.ts __tests__/lib/season-table.test.tsx __tests__/components/pick-conditions.test.tsx __tests__/public-headers.test.ts --maxWorkers=1
+            npx vitest run __tests__/lib/met-norway-weather.test.ts __tests__/lib/season-table.test.tsx __tests__/components/pick-conditions.test.tsx __tests__/components/trip-outlook.test.tsx __tests__/public-headers.test.ts --maxWorkers=1
             npx vitest run __tests__/components/chat-design-tokens.test.ts __tests__/app/chat-history-pair.test.tsx __tests__/components/source-chat-viewport.test.tsx --maxWorkers=1
             npx vitest run __tests__/components/page-header-pattern.test.tsx --maxWorkers=1
             npx vitest run __tests__/components/page-header-pattern.test.tsx __tests__/components/dashboard-design-tokens.test.ts --maxWorkers=1
