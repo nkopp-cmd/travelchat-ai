@@ -86,6 +86,8 @@ on:
       - '__tests__/components/spot-detail-map.test.tsx'
       - 'components/spots/spots-map.tsx'
       - 'lib/spots/pin-clusters.ts'
+      - 'styles/borderless-tokens.css'
+      - '__tests__/motion-tokens.test.ts'
       - 'app/explore/**'
       - '__tests__/app/explore-public-itineraries.test.ts'
       - 'components/admin/**'
@@ -474,6 +476,7 @@ jobs:
             npx vitest run __tests__/components/source-chat-viewport.test.tsx __tests__/components/main-content-shell.test.tsx __tests__/components/spots-scroll-layout.test.tsx __tests__/lib/mobile-chrome.test.ts --maxWorkers=1
             npx eslint components/chat/source-chat-page.tsx __tests__/components/source-chat-viewport.test.tsx components/layout/main-content-shell.tsx __tests__/components/main-content-shell.test.tsx __tests__/components/spots-scroll-layout.test.tsx
             npx vitest run __tests__/components/landing-planner.test.tsx __tests__/components/conditional-navbar.test.tsx --maxWorkers=1
+            npx vitest run __tests__/motion-tokens.test.ts --maxWorkers=1
             npx eslint app/page.tsx components/landing/ components/layout/navbar.tsx components/layout/navbar-drawer.tsx components/layout/navbar-routes.ts components/layout/conditional-navbar.tsx __tests__/components/landing-planner.test.tsx __tests__/components/conditional-navbar.test.tsx
             npx vitest run __tests__/lib/auth-notification-store.test.ts --maxWorkers=1
             npx vitest run __tests__/app/explore-public-itineraries.test.ts __tests__/app/explore-candidate-page.test.tsx --maxWorkers=1
