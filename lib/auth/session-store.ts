@@ -50,16 +50,32 @@ function seedFromDocument(): NonNullable<SessionState["data"]> | null {
   } catch { return null; }
 }
 
+let waitingForDocument = false;
+
+/** Seed from the document if present, otherwise ask the server. */
+function resolveInitialSession() {
+  if (!state.isPending || inflight) return;
+  const seeded = typeof document !== "undefined" ? seedFromDocument() : null;
+  if (seeded) {
+    fetchedAt = Date.now();
+    emit({ data: seeded, isPending: false });
+    return;
+  }
+  void refreshSession();
+}
+
 export function subscribeSession(listener: () => void): () => void {
   listeners.add(listener);
-  if (state.isPending && !inflight && typeof document !== "undefined") {
-    const seeded = seedFromDocument();
-    if (seeded) {
-      fetchedAt = Date.now();
-      emit({ data: seeded, isPending: false });
+  if (state.isPending && !inflight && !waitingForDocument) {
+    if (typeof document !== "undefined" && document.readyState === "loading") {
+      // A streamed page (content behind loading.tsx) delivers its seed tag after the shell
+      // hydrates; wait for the rest of the document before deciding to fetch.
+      waitingForDocument = true;
+      document.addEventListener("DOMContentLoaded", () => { waitingForDocument = false; resolveInitialSession(); }, { once: true });
+    } else {
+      resolveInitialSession();
     }
   }
-  if (state.isPending && !inflight) void refreshSession();
   if (!visibilityBound && typeof document !== "undefined") {
     visibilityBound = true;
     document.addEventListener("visibilitychange", onVisible);
@@ -83,4 +99,4 @@ export function getSessionSnapshot(): SessionState { return state; }
 export function getSessionServerSnapshot(): SessionState { return PENDING; }
 
 /** Test helper: forget the cached session. */
-export function resetSessionStore() { state = PENDING; inflight = null; fetchedAt = 0; }
+export function resetSessionStore() { state = PENDING; inflight = null; fetchedAt = 0; waitingForDocument = false; }
