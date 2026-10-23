@@ -4,6 +4,7 @@ import "./globals.css";
 import "@/styles/borderless-tokens.css";
 import "@/styles/borderless-theme.css";
 import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/seo/json-ld";
+import { APEX_REDIRECT_SCRIPT } from "@/lib/canonical-host";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -100,6 +101,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" data-localley-design="borderless">
       <head>
+        <script dangerouslySetInnerHTML={{ __html: APEX_REDIRECT_SCRIPT }} />
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
