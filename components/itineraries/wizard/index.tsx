@@ -149,8 +149,11 @@ function WizardContent({
     );
   }
 
+  // The wizard fills the screen, so the action bar starts at or below the fold and does not
+  // jump while the city list replaces its skeleton (Lighthouse CLS 0.168 on /itineraries/new).
+  // A sticky bar would need the itineraries layout to clip instead of overflow-hidden.
   return (
-    <div className="flex min-w-0 flex-col">
+    <div className="flex min-h-[calc(100dvh-var(--ll-topbar-height))] min-w-0 flex-col">
       <WizardProgress />
 
       {templateApplied && !compactTemplateFooter && (
@@ -168,7 +171,7 @@ function WizardContent({
 
       <div
         ref={stepScrollRef}
-        className="min-w-0 scroll-mt-[var(--ll-topbar-height)]"
+        className="min-w-0 flex-1 scroll-mt-[var(--ll-topbar-height)]"
       >
         {steps[currentStep]}
       </div>
