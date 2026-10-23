@@ -10,6 +10,7 @@ import { MAX_CORRIDOR_DAYS, MIN_CORRIDOR_DAYS } from "@/lib/trips/wizard-corrido
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatTripDate, tripEndDate } from "@/lib/trips/date-range";
+import { TripOutlook } from "./trip-outlook";
 
 const BUDGET_OPTIONS = [
   {
@@ -73,6 +74,7 @@ export function StepDuration() {
             ? `${formatTripDate(data.startDate)} to ${formatTripDate(endDate)} · ${data.days} ${data.days === 1 ? "day" : "days"}`
             : "Dates flexible? Leave this empty and choose your trip length below."}
         </p>
+        {!multiMode && <TripOutlook city={data.city} startDate={endDate ? data.startDate : undefined} days={data.days} />}
       </div>
 
       {/* Days Slider */}

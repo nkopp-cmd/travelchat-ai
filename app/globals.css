@@ -910,6 +910,14 @@
     font-size: 13px;
 }
 
+.ll-season-dot {
+    width: 8px;
+    height: 8px;
+    margin: 4px 0;
+    border-radius: 999px;
+    background: rgb(var(--ll-season-tone, var(--ll-muted)));
+}
+
 .ll-season-chip::before {
     content: "";
     width: 8px;
@@ -918,13 +926,13 @@
     background: rgb(var(--ll-season-tone, var(--ll-muted)));
 }
 
-:is(.ll-season-chip, .ll-pick-chip)[data-kind="blossom"] { --ll-season-tone: 255 180 188; }
-:is(.ll-season-chip, .ll-pick-chip)[data-kind="foliage"] { --ll-season-tone: 250 176 128; }
-:is(.ll-season-chip, .ll-pick-chip)[data-kind="festival"] { --ll-season-tone: 210 195 255; }
-:is(.ll-season-chip, .ll-pick-chip)[data-kind="rainy"], :is(.ll-season-chip, .ll-pick-chip)[data-kind="typhoon"] { --ll-season-tone: 160 205 255; }
-:is(.ll-season-chip, .ll-pick-chip)[data-kind="hot"] { --ll-season-tone: 244 200 130; }
-:is(.ll-season-chip, .ll-pick-chip)[data-kind="snow"], :is(.ll-season-chip, .ll-pick-chip)[data-kind="cold"] { --ll-season-tone: 220 230 255; }
-:is(.ll-season-chip, .ll-pick-chip)[data-kind="mild"], :is(.ll-season-chip, .ll-pick-chip)[data-kind="dry"] { --ll-season-tone: 156 228 194; }
+:is(.ll-season-chip, .ll-pick-chip, .ll-season-dot)[data-kind="blossom"] { --ll-season-tone: 255 180 188; }
+:is(.ll-season-chip, .ll-pick-chip, .ll-season-dot)[data-kind="foliage"] { --ll-season-tone: 250 176 128; }
+:is(.ll-season-chip, .ll-pick-chip, .ll-season-dot)[data-kind="festival"] { --ll-season-tone: 210 195 255; }
+:is(.ll-season-chip, .ll-pick-chip, .ll-season-dot)[data-kind="rainy"], :is(.ll-season-chip, .ll-pick-chip, .ll-season-dot)[data-kind="typhoon"] { --ll-season-tone: 160 205 255; }
+:is(.ll-season-chip, .ll-pick-chip, .ll-season-dot)[data-kind="hot"] { --ll-season-tone: 244 200 130; }
+:is(.ll-season-chip, .ll-pick-chip, .ll-season-dot)[data-kind="snow"], :is(.ll-season-chip, .ll-pick-chip, .ll-season-dot)[data-kind="cold"] { --ll-season-tone: 220 230 255; }
+:is(.ll-season-chip, .ll-pick-chip, .ll-season-dot)[data-kind="mild"], :is(.ll-season-chip, .ll-pick-chip, .ll-season-dot)[data-kind="dry"] { --ll-season-tone: 156 228 194; }
 
 .ll-wx { color: rgb(var(--ll-muted)); overflow: visible; }
 .ll-wx .ll-wx-sun, .ll-wx .ll-wx-moon { color: rgb(244 200 130); }
