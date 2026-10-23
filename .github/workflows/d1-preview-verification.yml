@@ -279,6 +279,7 @@ on:
       - 'app/api/conversations/messages/route.ts'
       - 'app/api/spots/save/route.ts'
       - 'app/api/spots/[id]/photos/route.ts'
+      - 'components/spots/venue-photo-provider.tsx'
       - 'app/api/cities/route.ts'
       - 'app/api/geocode/route.ts'
       - 'app/api/geocode/batch/route.ts'
