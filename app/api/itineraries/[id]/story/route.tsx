@@ -7,6 +7,7 @@ import { isPreviewStoryCandidate } from "@/lib/app-data/preview-story-candidate"
 import { previewItineraryDetail } from "@/lib/app-data/preview-itinerary-detail";
 import { parsePreviewStoryPatch } from "@/lib/app-data/preview-story-metadata";
 import { normalizeDailyPlansForDisplay } from "@/lib/itineraries/normalize-daily-plans";
+import { STORY_MEDIA_R2 } from "@/lib/story-media-manifest";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -77,6 +78,35 @@ async function prefetchFromSupabase(
     } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
         console.error("[STORY_ROUTE] Supabase SDK download error:", msg);
+        return undefined;
+    }
+}
+
+interface StoryMediaBucket { get(key: string): Promise<{ arrayBuffer(): Promise<ArrayBuffer> } | null> }
+
+/**
+ * Story media step 1 (shared/plans/localley-decisions.md): read a known Supabase story
+ * background from its byte-identical copy in R2 (binding STORY_MEDIA_R2). Same checks as the
+ * Supabase path (size, magic bytes, no WebP). Any miss or error returns undefined, and the
+ * caller falls back to the unchanged Supabase download.
+ */
+async function prefetchFromR2(url: string): Promise<string | undefined> {
+    const marker = "/storage/v1/object/public/generated-images/";
+    const idx = url.indexOf(marker);
+    if (idx === -1) return undefined;
+    const object = STORY_MEDIA_R2[decodeURIComponent(url.substring(idx + marker.length).split("?")[0])];
+    if (!object) return undefined;
+    try {
+        const bucket = (globalThis as Record<symbol, { env?: { STORY_MEDIA_R2?: StoryMediaBucket } } | undefined>)
+            [Symbol.for("__cloudflare-context__")]?.env?.STORY_MEDIA_R2;
+        const found = await bucket?.get(`legacy/${object}`);
+        if (!found) return undefined;
+        const buf = await found.arrayBuffer();
+        if (buf.byteLength < 500) return undefined;
+        const detectedMime = detectMimeFromBytes(buf);
+        if (detectedMime === "image/webp") return undefined;
+        return `data:${detectedMime};base64,${Buffer.from(buf).toString("base64")}`;
+    } catch {
         return undefined;
     }
 }
@@ -926,7 +956,12 @@ export async function GET(
             const hasMarker = aiBackground.includes("/storage/v1/object/public/generated-images/");
             console.log("[STORY_ROUTE] Prefetch attempt:", { isSupabaseUrl, hasMarker, urlLength: aiBackground.length, urlPreview: aiBackground.substring(0, 150) });
 
-            if (isSupabaseUrl && supabase) {
+            if (isSupabaseUrl) {
+                backgroundDataUri = await prefetchFromR2(aiBackground);
+                // Step 1 proof: count Supabase fallbacks until they stay at zero.
+                console.log(`[STORY_ROUTE] story_media_source=${backgroundDataUri ? "r2" : "supabase_fallback"}`);
+            }
+            if (!backgroundDataUri && isSupabaseUrl && supabase) {
                 backgroundDataUri = await prefetchFromSupabase(aiBackground, supabase);
                 if (backgroundDataUri) {
                     console.log("[STORY_ROUTE] Supabase SDK download succeeded, dataUri length:", backgroundDataUri.length);

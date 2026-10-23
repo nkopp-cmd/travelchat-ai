@@ -105,7 +105,12 @@
       "send_email": [{ "name": "AUTH_EMAIL", "allowed_sender_addresses": ["hello@localley.io"] }],
       "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "localley-next" }],
       // Created 2026-09-23 (step P2, approved by Nils).
-      "r2_buckets": [{ "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "localley-next-cache" }],
+      "r2_buckets": [
+        { "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "localley-next-cache" },
+        // Story media step 1 (Nils 2026-10-23 "R2 media path"; shared/plans/localley-decisions.md):
+        // server-side reads of archived story backgrounds (legacy/<sha256>.<ext>). No public route.
+        { "binding": "STORY_MEDIA_R2", "bucket_name": "localley-legacy-media", "jurisdiction": "eu" }
+      ],
       "d1_databases": [{
         "binding": "NAVER_REFERENCE_DB",
         "database_name": "localley-reference-cache",
