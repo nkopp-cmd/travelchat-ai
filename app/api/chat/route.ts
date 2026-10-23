@@ -16,6 +16,7 @@ import { previewChatSpotContext } from "@/lib/app-data/preview-chat-spots";
 import { admitFreshPreviewChatOwner, readPreviewChatRequest } from "@/lib/app-data/preview-chat-request";
 import { formatChatSpotContext, matchedChatCategories } from "@/lib/chat/spot-context";
 import { matchesPreviewActor } from "@/lib/app-data/preview-actor";
+import { chatConditions } from "@/lib/weather/chat-conditions";
 
 // Rate limit: 20 requests per minute per user
 const limiter = rateLimit({
@@ -112,7 +113,7 @@ async function fetchRelevantSpots(city: string, userMessage: string): Promise<st
     }
 }
 
-function buildSystemPrompt(city: string | null, spotsContext: string): string {
+function buildSystemPrompt(city: string | null, spotsContext: string, conditions = ""): string {
     const cityList = ALL_CITIES.map(c => c.name).join(", ");
 
     return `You are Alley, a savvy local friend from the Localley app who helps travelers discover authentic hidden gems and trendy alley spots.
@@ -137,7 +138,7 @@ CRITICAL RULES — NEVER BREAK THESE:
 5. BE HONEST ABOUT CONFIDENCE. If you're confident a place exists and is good, recommend it enthusiastically. If you're less sure, say "I've heard good things about..." or "You might want to check if X is still open." Never present uncertain knowledge as fact.
 
 SUPPORTED CITIES: ${cityList}
-${city ? `\nCURRENT CITY CONTEXT: The user is asking about ${city}.` : ""}
+${city ? `\nCURRENT CITY CONTEXT: The user is asking about ${city}.` : ""}${conditions}
 
 When ranking spots, use the Localley Scale:
 1. Tourist Trap — Warn users unless they insist
@@ -203,12 +204,15 @@ export async function POST(req: NextRequest) {
                 const city = input.city || detectCityFromMessages(input.messages);
                 const question = input.messages.filter(message => message.role === "user").pop()!.content;
                 // Import/visibility failures occur before any quota write or model submission.
-                const context = city ? await previewChatSpotContext(city, question) : null;
+                const [context, conditions] = await Promise.all([
+                    city ? previewChatSpotContext(city, question) : null,
+                    city ? chatConditions(city).catch(() => "") : "",
+                ]);
                 const usage = await incrementPreviewChatUsage(userId, new Date(), true);
                 if (!usage.allowed) return NextResponse.json({ error: "Chat limit reached", usage }, { status: 429, headers });
                 // A failed or lost model reply consumes this reservation. Never retry or refund it here.
                 const reply = await generateChatReplyWithFallback({
-                    systemPrompt: buildSystemPrompt(context?.city ?? null, context?.context ?? ""),
+                    systemPrompt: buildSystemPrompt(context?.city ?? null, context?.context ?? "", context ? conditions : ""),
                     messages: input.messages, maxTokens: 2048, temperature: 0.7,
                 });
                 return NextResponse.json({ message: reply.content, provider: reply.provider, model: reply.model,
@@ -257,11 +261,14 @@ export async function POST(req: NextRequest) {
 
         // Fetch relevant spots from database if we know the city
         const latestUserMessage = messages.filter(m => m.role === "user").pop()?.content || "";
-        const spotsContext = detectedCity
-            ? await fetchRelevantSpots(detectedCity, latestUserMessage)
-            : "";
+        const [spotsContext, conditions] = detectedCity
+            ? await Promise.all([
+                fetchRelevantSpots(detectedCity, latestUserMessage),
+                chatConditions(detectedCity).catch(() => ""),
+            ])
+            : ["", ""];
 
-        const systemPrompt = buildSystemPrompt(detectedCity, spotsContext);
+        const systemPrompt = buildSystemPrompt(detectedCity, spotsContext, conditions);
 
         const reply = await generateChatReplyWithFallback({
             systemPrompt,

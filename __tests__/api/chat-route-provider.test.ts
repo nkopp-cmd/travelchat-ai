@@ -30,6 +30,7 @@ vi.mock("@/lib/usage-tracking", () => ({
   checkAndIncrementUsage: mocks.checkAndIncrementUsage,
 }));
 
+vi.mock("@/lib/weather/chat-conditions", () => ({ chatConditions: async () => "" }));
 vi.mock("@/lib/llm/chat-provider", () => ({
   generateChatReplyWithFallback: mocks.generateChatReplyWithFallback,
 }));

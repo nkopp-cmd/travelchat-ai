@@ -165,6 +165,8 @@ on:
       - '__tests__/lib/preview-saved-spot-actor.test.ts'
       - '__tests__/pages/chat-history-candidate.test.tsx'
       - 'app/api/chat/route.ts'
+      - 'lib/weather/chat-conditions.ts'
+      - '__tests__/lib/chat-conditions.test.ts'
       - '__tests__/api/chat-candidate-route.test.ts'
       - '__tests__/api/chat-route-provider.test.ts'
       - 'lib/app-data/**'
@@ -491,6 +493,7 @@ jobs:
             npx vitest run __tests__/components/intent-link.test.tsx __tests__/components/spots-map.test.tsx __tests__/app/itinerary-detail-cache.test.ts __tests__/app/public-metadata-and-prefetch.test.ts --maxWorkers=1
             npx vitest run __tests__/lib/met-norway-weather.test.ts __tests__/lib/season-table.test.tsx __tests__/components/pick-conditions.test.tsx __tests__/public-headers.test.ts --maxWorkers=1
             npx vitest run __tests__/components/chat-design-tokens.test.ts __tests__/app/chat-history-pair.test.tsx __tests__/components/source-chat-viewport.test.tsx --maxWorkers=1
+            npx vitest run __tests__/lib/chat-conditions.test.ts --maxWorkers=1
             npx vitest run __tests__/components/page-header-pattern.test.tsx --maxWorkers=1
             npx vitest run __tests__/components/page-header-pattern.test.tsx __tests__/components/dashboard-design-tokens.test.ts --maxWorkers=1
             npx vitest run __tests__/components/viator-suggestions-lazy.test.tsx --maxWorkers=1
