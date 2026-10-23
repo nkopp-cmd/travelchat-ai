@@ -11,15 +11,18 @@
 // on deploy, and the HTML ships in the same asset upload as its hashed chunks.
 // The bytes are copied unchanged, scripts included; never transform them.
 import assert from "node:assert/strict";
-import { copyFile, readFile } from "node:fs/promises";
+import { copyFile, mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 // route -> file in .next/server/app and in the asset directory
 // ("/pricing" resolves to pricing.html under the default html_handling).
+// The planner start page is public and fully client-side (signed-in state, drafts and
+// ?template/?city are read in the browser), so it is the same document for everyone.
 export const STATIC_PUBLIC_PAGES = {
   "/": "index.html",
   "/pricing": "pricing.html",
+  "/itineraries/new": "itineraries/new.html",
 };
 
 export function assertStaticPrerender(route, manifest, html) {
@@ -40,6 +43,7 @@ export async function packageStaticPublicHtml(root = process.cwd()) {
   for (const [route, file] of Object.entries(STATIC_PUBLIC_PAGES)) {
     const source = path.join(app, file);
     assertStaticPrerender(route, manifest, await readFile(source, "utf8"));
+    await mkdir(path.dirname(path.join(assets, file)), { recursive: true });
     await copyFile(source, path.join(assets, file));
     copied.push(`${route} -> ${file}`);
   }
