@@ -1,0 +1,245 @@
+{
+ "_comment": "Exact production Worker bindings (names + types; values never stored). scripts/release/production.mjs refuses to promote a version whose bindings differ. Update in the same PR that adds or removes a binding.",
+ "bindings": [
+  {
+   "name": "ADMIN_USER_IDS",
+   "type": "secret_text"
+  },
+  {
+   "name": "APIFY_API_TOKEN",
+   "type": "secret_text"
+  },
+  {
+   "name": "APIFY_SPOT_DISCOVERY_ENABLED",
+   "type": "secret_text"
+  },
+  {
+   "name": "ARK_API_KEY",
+   "type": "secret_text"
+  },
+  {
+   "name": "ASSETS",
+   "type": "assets"
+  },
+  {
+   "name": "AUTH_ALLOWED_HOSTS",
+   "type": "plain_text"
+  },
+  {
+   "name": "AUTH_DB",
+   "type": "d1"
+  },
+  {
+   "name": "AUTH_EMAIL",
+   "type": "send_email"
+  },
+  {
+   "name": "AUTH_NOTIFICATION_STORAGE",
+   "type": "plain_text"
+  },
+  {
+   "name": "BETA_MODE",
+   "type": "secret_text"
+  },
+  {
+   "name": "BETTER_AUTH_SECRET",
+   "type": "secret_text"
+  },
+  {
+   "name": "BETTER_AUTH_URL",
+   "type": "plain_text"
+  },
+  {
+   "name": "BUILD_SHA",
+   "type": "plain_text"
+  },
+  {
+   "name": "BYPASS_IMAGE_TIER_CHECK",
+   "type": "secret_text"
+  },
+  {
+   "name": "CF_VERSION_METADATA",
+   "type": "version_metadata"
+  },
+  {
+   "name": "CIRCUIT_BREAKER_RESET_MS",
+   "type": "secret_text"
+  },
+  {
+   "name": "CIRCUIT_BREAKER_THRESHOLD",
+   "type": "secret_text"
+  },
+  {
+   "name": "CRON_SECRET",
+   "type": "secret_text"
+  },
+  {
+   "name": "ENABLE_MULTI_LLM",
+   "type": "secret_text"
+  },
+  {
+   "name": "FAL_KEY",
+   "type": "secret_text"
+  },
+  {
+   "name": "FROM_EMAIL",
+   "type": "secret_text"
+  },
+  {
+   "name": "GEMINI_API_KEY",
+   "type": "secret_text"
+  },
+  {
+   "name": "GLM_API_KEY",
+   "type": "secret_text"
+  },
+  {
+   "name": "GOOGLE_PLACES_API_KEY",
+   "type": "secret_text"
+  },
+  {
+   "name": "IMAGES",
+   "type": "images"
+  },
+  {
+   "name": "LLM_CACHE_LOCATIONS_TTL",
+   "type": "secret_text"
+  },
+  {
+   "name": "LLM_CACHE_TTL",
+   "type": "secret_text"
+  },
+  {
+   "name": "MULTI_LLM_PREMIUM_TIER",
+   "type": "secret_text"
+  },
+  {
+   "name": "MULTI_LLM_PRO_TIER",
+   "type": "secret_text"
+  },
+  {
+   "name": "NAVER_REFERENCE_DB",
+   "type": "d1"
+  },
+  {
+   "name": "NCP_APIHUB_KEY",
+   "type": "secret_text"
+  },
+  {
+   "name": "NCP_APIHUB_KEY_ID",
+   "type": "secret_text"
+  },
+  {
+   "name": "NEXTJS_ENV",
+   "type": "plain_text"
+  },
+  {
+   "name": "NEXT_INC_CACHE_R2_BUCKET",
+   "type": "r2_bucket"
+  },
+  {
+   "name": "NEXT_TAG_CACHE_D1",
+   "type": "d1"
+  },
+  {
+   "name": "OPENAI_API_KEY",
+   "type": "secret_text"
+  },
+  {
+   "name": "PEXELS_API_KEY",
+   "type": "secret_text"
+  },
+  {
+   "name": "RATE_LIMIT_10",
+   "type": "ratelimit"
+  },
+  {
+   "name": "RATE_LIMIT_120",
+   "type": "ratelimit"
+  },
+  {
+   "name": "RATE_LIMIT_20",
+   "type": "ratelimit"
+  },
+  {
+   "name": "RATE_LIMIT_40",
+   "type": "ratelimit"
+  },
+  {
+   "name": "RATE_LIMIT_5",
+   "type": "ratelimit"
+  },
+  {
+   "name": "RATE_LIMIT_60",
+   "type": "ratelimit"
+  },
+  {
+   "name": "RESEND_API_KEY",
+   "type": "secret_text"
+  },
+  {
+   "name": "SCRAPELET_CLIENT_KEY_LOCALLEY",
+   "type": "secret_text"
+  },
+  {
+   "name": "STORY_MEDIA_R2",
+   "type": "r2_bucket"
+  },
+  {
+   "name": "STRIPE_CONNECT_WEBHOOK_SECRET",
+   "type": "secret_text"
+  },
+  {
+   "name": "STRIPE_PREMIUM_MONTHLY_PRICE_ID",
+   "type": "secret_text"
+  },
+  {
+   "name": "STRIPE_PREMIUM_YEARLY_PRICE_ID",
+   "type": "secret_text"
+  },
+  {
+   "name": "STRIPE_PRO_MONTHLY_PRICE_ID",
+   "type": "secret_text"
+  },
+  {
+   "name": "STRIPE_PRO_YEARLY_PRICE_ID",
+   "type": "secret_text"
+  },
+  {
+   "name": "STRIPE_SECRET_KEY",
+   "type": "secret_text"
+  },
+  {
+   "name": "STRIPE_WEBHOOK_SECRET",
+   "type": "secret_text"
+  },
+  {
+   "name": "SUPABASE_JWT_SECRET",
+   "type": "secret_text"
+  },
+  {
+   "name": "SUPABASE_READ_ONLY",
+   "type": "plain_text"
+  },
+  {
+   "name": "SUPABASE_SERVICE_ROLE_KEY",
+   "type": "secret_text"
+  },
+  {
+   "name": "TRIPADVISOR_API_KEY",
+   "type": "secret_text"
+  },
+  {
+   "name": "VIATOR_API_KEY",
+   "type": "secret_text"
+  },
+  {
+   "name": "WEEKLY_SOCIAL_TRENDS_ENABLED",
+   "type": "secret_text"
+  },
+  {
+   "name": "WORKER_SELF_REFERENCE",
+   "type": "service"
+  }
+ ]
+}
