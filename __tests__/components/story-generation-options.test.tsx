@@ -21,4 +21,19 @@ describe("story generation options", () => {
     expect(screen.queryByRole("radiogroup")).toBeNull();
     expect(screen.queryByText(/FLUX|Seedream|Gemini|Nano Banana|GPT|Luna/i)).toBeNull();
   });
+
+  it("makes no status requests until the dialog is opened, then exactly three once", async () => {
+    const fetcher = vi.fn().mockImplementation(async () => new Response("{}", { headers: { "content-type": "application/json" } }));
+    vi.stubGlobal("fetch", fetcher);
+    render(<StoryDialog itineraryId="lazy-trip" itineraryTitle="Seoul day" totalDays={1} city="Seoul" />);
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(fetcher).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Stories" }));
+    await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(3));
+    expect(fetcher.mock.calls.map(([url]) => url).sort()).toEqual(["/api/images/story-background", "/api/subscription/status", "/api/user/tier"]);
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: "Escape" });
+    fireEvent.click(screen.getByRole("button", { name: "Stories" }));
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(fetcher).toHaveBeenCalledTimes(3);
+  });
 });
