@@ -45,8 +45,20 @@ export function subscribeSession(listener: () => void): () => void {
   if (!visibilityBound && typeof document !== "undefined") {
     visibilityBound = true;
     document.addEventListener("visibilitychange", onVisible);
+    // A page restored from the back/forward cache may show a session that was signed out since.
+    addEventListener("pageshow", (event) => { if ((event as PageTransitionEvent).persisted) void refreshSession(); });
   }
   return () => { listeners.delete(listener); };
+}
+
+/**
+ * Seed from the server render of a dynamic signed-in page (components/auth/session-seed.tsx),
+ * so the first view needs no get-session request. Browser only; only while still pending.
+ */
+export function primeSession(data: NonNullable<SessionState["data"]>) {
+  if (typeof window === "undefined" || !state.isPending || inflight) return;
+  state = { data, isPending: false };
+  fetchedAt = Date.now();
 }
 
 export function getSessionSnapshot(): SessionState { return state; }

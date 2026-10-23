@@ -23,13 +23,14 @@ import { ItineraryInsightsPanel } from "@/components/itinerary/itinerary-insight
 import { DayRouteSection } from "@/components/itinerary/day-route-section";
 import { ViatorSuggestions } from "@/components/activities/viator-suggestions";
 import { HeroSection } from "@/components/itinerary/hero-section";
-import { auth } from "@/lib/auth/server";
+import { auth, getPublicSession } from "@/lib/auth/server";
 import { getUserTier } from "@/lib/usage-tracking";
 import { SubscriptionTier } from "@/lib/subscription";
 import { validateCityForItinerary } from "@/lib/cities";
 import { getDisplayCity } from "@/lib/city-images";
 import { buildItineraryDisplayPayload } from "@/lib/itineraries/display-payload";
 import type { Metadata } from "next";
+import { SessionSeed } from "@/components/auth/session-seed";
 
 // Type definitions for itinerary data
 interface ItineraryActivity {
@@ -257,8 +258,11 @@ export default async function ItineraryViewPage({
       })) || [],
   };
 
+  // Private, no-store page: hand the already validated session to the client store.
+  const sessionSeed = await getPublicSession();
   return (
     <>
+      <SessionSeed session={sessionSeed} />
       {/* JSON-LD Structured Data */}
       <script
         type="application/ld+json"

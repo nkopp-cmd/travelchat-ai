@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks=vi.hoisted(()=>({headers:vi.fn(),auth:vi.fn(),read:vi.fn(),admin:vi.fn(),tier:vi.fn()}));
 vi.mock('next/headers',()=>({headers:mocks.headers}));
 vi.mock('next/navigation',()=>({notFound:()=>{throw Error('notFound');}}));
-vi.mock('@/lib/auth/server',()=>({auth:mocks.auth}));
+vi.mock('@/lib/auth/server',()=>({auth:mocks.auth,getPublicSession:async()=>null}));
 vi.mock('@/lib/app-data/preview-itinerary-page',()=>({previewItineraryPage:mocks.read}));
 vi.mock('@/lib/supabase',()=>({createSupabaseAdmin:mocks.admin}));
 vi.mock('@/lib/usage-tracking',()=>({getUserTier:mocks.tier}));
