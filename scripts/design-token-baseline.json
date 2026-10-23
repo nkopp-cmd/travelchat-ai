@@ -155,13 +155,6 @@
   "components/itineraries/share-dialog.tsx": {
     "palette": 1
   },
-  "components/itineraries/story-dialog.tsx": {
-    "gradient": 18,
-    "white-alpha": 3,
-    "palette": 5,
-    "tiny-text": 1,
-    "colored-shadow": 1
-  },
   "components/itineraries/wizard/step-destination.tsx": {
     "palette": 1
   },
