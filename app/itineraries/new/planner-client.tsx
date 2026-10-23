@@ -1,10 +1,9 @@
 "use client";
 
-import { Suspense, useMemo, useSyncExternalStore } from "react";
-import { useSearchParams } from "next/navigation";
+import { useMemo, useSyncExternalStore } from "react";
 import { ItineraryWizard, WizardData } from "@/components/itineraries/wizard";
+import type { PlannerCity } from "@/lib/cities-catalog";
 import { getTemplateById } from "@/lib/templates";
-import { Loader2 } from "@/components/ui/icons";
 import { parsePlannerDraft, parsePlannerSpotId, plannerDraftSnapshot, plannerDraftServerSnapshot, subscribePlannerDraft } from "@/lib/trips/planner-draft";
 
 const ALLOWED_INTERESTS = new Set([
@@ -40,8 +39,19 @@ function parseInterestsParam(value: string | null) {
   return interests.length ? [...new Set(interests)] : undefined;
 }
 
-function NewItineraryContent() {
-  const searchParams = useSearchParams();
+// The query is read in the browser only: the server renders the plain planner (step 0 with
+// the city list) once for everyone, and hydration sees the same empty query. Links with
+// ?city/?days/?template/?resume then start the wizard at their step (keyed remount).
+function subscribeSearch(onChange: () => void) {
+  addEventListener("popstate", onChange);
+  return () => removeEventListener("popstate", onChange);
+}
+const searchSnapshot = () => location.search;
+const searchServerSnapshot = () => "";
+
+export function NewItineraryClient({ initialCities }: { initialCities: PlannerCity[] | null }) {
+  const search = useSyncExternalStore(subscribeSearch, searchSnapshot, searchServerSnapshot);
+  const searchParams = useMemo(() => new URLSearchParams(search), [search]);
   const rawDraft = useSyncExternalStore(subscribePlannerDraft, plannerDraftSnapshot, plannerDraftServerSnapshot);
   const resume = searchParams.get("resume") === "1";
   const restored = useMemo(() => resume ? parsePlannerDraft(rawDraft) : null, [rawDraft, resume]);
@@ -133,23 +143,6 @@ function NewItineraryContent() {
     {resume && <p role="status" className="px-4 py-3 text-sm text-muted-foreground">
       {restored ? "Your trip inputs are restored. Review them before continuing." : "No current saved inputs. Start a new plan."}
     </p>}
-    <ItineraryWizard key={restored?.savedAt ?? "new"} initialData={initialData} initialStep={initialStep} />
+    <ItineraryWizard key={`${restored?.savedAt ?? "new"}${search}`} initialData={initialData} initialStep={initialStep} initialCities={initialCities} />
   </>;
-}
-
-export default function NewItineraryPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="w-8 h-8 text-violet-500 animate-spin" />
-            <p className="text-gray-400">Loading...</p>
-          </div>
-        </div>
-      }
-    >
-      <NewItineraryContent />
-    </Suspense>
-  );
 }

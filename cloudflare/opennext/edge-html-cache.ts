@@ -24,6 +24,8 @@ export const EDGE_HTML_TTL_SECONDS: Record<string, number> = {
   "/sign-up": 86400,
   "/forgot-password": 86400,
   "/spots": 300,
+  // Planner: server-rendered city list, revalidated every 5 minutes (app/itineraries/new).
+  "/itineraries/new": 300,
   "/api/cities": 300,
 };
 // The only query the edge keys on: one enabled-city slug, so the key set stays bounded.

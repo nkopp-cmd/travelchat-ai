@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useWizard } from "./wizard-context";
@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { MAX_CORRIDOR_DESTINATIONS } from "@/lib/trips/wizard-corridor";
 import { selectableSlugs, type CorridorNetwork } from "@/lib/trips/corridor-network";
 import { PLANNER_CITIES_URL } from "@/lib/trips/planner-cities";
+import { PlannerCitiesContext } from "./planner-cities-context";
 
 interface CityOption {
   slug: string;
@@ -28,9 +29,11 @@ interface CitiesResponse {
 
 export function StepDestination() {
   const { data, setData, setCanProceed } = useWizard();
-  const [citiesData, setCitiesData] = useState<CitiesResponse | null>(null);
+  const serverCities = useContext(PlannerCitiesContext);
+  const [citiesData, setCitiesData] = useState<CitiesResponse | null>(() =>
+    serverCities?.length ? { success: true, cities: serverCities, total: serverCities.length } : null);
   const [citiesError, setCitiesError] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(() => !serverCities?.length);
   const [multiCityAvailable, setMultiCityAvailable] = useState(false);
   const [corridorNetwork, setCorridorNetwork] = useState<CorridorNetwork | null>(null);
 
@@ -51,7 +54,9 @@ export function StepDestination() {
   }, []);
 
   useEffect(() => {
-    loadCities();
+    // The server rendered the list with the page; fetch only without it (retry still fetches).
+    if (!citiesData) loadCities();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadCities]);
 
   useEffect(() => {

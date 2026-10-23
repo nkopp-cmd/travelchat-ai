@@ -17,12 +17,11 @@ import { fileURLToPath } from "node:url";
 
 // route -> file in .next/server/app and in the asset directory
 // ("/pricing" resolves to pricing.html under the default html_handling).
-// The planner start page is public and fully client-side (signed-in state, drafts and
-// ?template/?city are read in the browser), so it is the same document for everyone.
+// The planner (/itineraries/new) renders its live city list and revalidates every 5 minutes,
+// so it stays on the Worker with the edge HTML cache (cloudflare/opennext/edge-html-cache.ts).
 export const STATIC_PUBLIC_PAGES = {
   "/": "index.html",
   "/pricing": "pricing.html",
-  "/itineraries/new": "itineraries/new.html",
 };
 
 export function assertStaticPrerender(route, manifest, html) {

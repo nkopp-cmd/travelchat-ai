@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, ArrowRight, Loader2, MapPin, Sparkles } from "@/components/ui/icons";
 import { WizardProvider, useWizard, WizardData } from "./wizard-context";
+import { PlannerCitiesContext } from "./planner-cities-context";
+import type { PlannerCity } from "@/lib/cities-catalog";
 import { WizardProgress } from "./wizard-progress";
 import { StepDestination } from "./step-destination";
 import { StepDuration } from "./step-duration";
@@ -266,12 +268,14 @@ function WizardContent({
 interface ItineraryWizardProps {
   initialData?: Partial<WizardData>;
   initialStep?: number;
+  /** Destination list from the server render; null -> the step fetches it. */
+  initialCities?: PlannerCity[] | null;
 }
 
 // One planner_start per page load, even when the wizard remounts (restored draft, StrictMode).
 let plannerStartTracked = false;
 
-export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardProps) {
+export function ItineraryWizard({ initialData, initialStep, initialCities = null }: ItineraryWizardProps) {
   const router = useRouter();
   useEffect(() => {
     if (plannerStartTracked) return;
@@ -372,11 +376,13 @@ export function ItineraryWizard({ initialData, initialStep }: ItineraryWizardPro
   };
 
   return (
+    <PlannerCitiesContext.Provider value={initialCities}>
     <WizardProvider initialData={initialData} initialStep={initialStep}>
       <div className="flex min-w-0 flex-col bg-background sm:rounded-2xl md:rounded-none">
         <WizardContent onGenerate={handleGenerate} />
       </div>
     </WizardProvider>
+    </PlannerCitiesContext.Provider>
   );
 }
 
