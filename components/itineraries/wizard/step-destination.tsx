@@ -8,6 +8,7 @@ import { MapPin, Check, RefreshCw, Route } from "@/components/ui/icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MAX_CORRIDOR_DESTINATIONS } from "@/lib/trips/wizard-corridor";
 import { selectableSlugs, type CorridorNetwork } from "@/lib/trips/corridor-network";
+import { PLANNER_CITIES_URL } from "@/lib/trips/planner-cities";
 
 interface CityOption {
   slug: string;
@@ -38,7 +39,7 @@ export function StepDestination() {
     setCitiesError(false);
 
     try {
-      const response = await fetch("/api/cities?minSpots=1");
+      const response = await fetch(PLANNER_CITIES_URL);
       const result = await response.json();
       setCitiesData(result);
       setCitiesError(!response.ok || !result.success);
