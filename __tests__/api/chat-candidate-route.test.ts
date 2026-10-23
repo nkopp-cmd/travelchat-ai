@@ -18,6 +18,7 @@ vi.mock("@/lib/app-data/preview-chat-usage", async importOriginal => ({
   incrementPreviewChatUsage: mocks.usage,
 }));
 vi.mock("@/lib/llm/chat-provider", () => ({ generateChatReplyWithFallback: mocks.model }));
+vi.mock("@/lib/weather/chat-conditions", () => ({ chatConditions: async (city: string) => `\nSEASON AND WEATHER IN ${city.toUpperCase()}` }));
 import { POST } from "@/app/api/chat/route";
 const reply = { content: "A local reply", provider: "openai", model: "test", fallbackUsed: false,
   fallbackReason: null, primaryProvider: "openai", primaryModel: "test", primaryConfigured: true };
@@ -49,6 +50,7 @@ describe("candidate chat admission and submission", () => {
     expect(mocks.context).toHaveBeenCalledWith("Seoul", "Seoul food");
     expect(mocks.model).toHaveBeenCalledOnce();
     expect(mocks.model.mock.calls[0][0].systemPrompt).toContain("COUNTED D1 SPOTS");
+    expect(mocks.model.mock.calls[0][0].systemPrompt).toContain("SEASON AND WEATHER IN SEOUL");
     expect(mocks.admit.mock.invocationCallOrder[0]).toBeLessThan(mocks.context.mock.invocationCallOrder[0]);
     expect(mocks.context.mock.invocationCallOrder[0]).toBeLessThan(mocks.usage.mock.invocationCallOrder[0]);
     expect(mocks.usage.mock.invocationCallOrder[0]).toBeLessThan(mocks.model.mock.invocationCallOrder[0]);
