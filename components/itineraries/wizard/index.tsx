@@ -149,11 +149,11 @@ function WizardContent({
     );
   }
 
-  // The wizard fills the screen, so the action bar starts at or below the fold and does not
-  // jump while the city list replaces its skeleton (Lighthouse CLS 0.168 on /itineraries/new).
-  // A sticky bar would need the itineraries layout to clip instead of overflow-hidden.
+  // The action bar is fixed to the screen bottom (no bottom nav on /itineraries/new), so it
+  // never moves while the city list replaces its skeleton (live CLS 0.12-0.17 when it was in
+  // the flow); the step area keeps room for it.
   return (
-    <div className="flex min-h-[calc(100dvh-var(--ll-topbar-height))] min-w-0 flex-col">
+    <div className="flex min-w-0 flex-col">
       <WizardProgress />
 
       {templateApplied && !compactTemplateFooter && (
@@ -171,12 +171,12 @@ function WizardContent({
 
       <div
         ref={stepScrollRef}
-        className="min-w-0 flex-1 scroll-mt-[var(--ll-topbar-height)]"
+        className="min-w-0 scroll-mt-[var(--ll-topbar-height)] pb-28 sm:pb-32"
       >
         {steps[currentStep]}
       </div>
 
-      <div className="z-30 shrink-0 bg-black/92 p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] shadow-[0_-10px_26px_rgba(0,0,0,0.24)] backdrop-blur-xl sm:p-3 sm:pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] md:p-4 md:pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
+      <div className="fixed inset-x-0 bottom-0 z-30 bg-black/92 p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] shadow-[0_-10px_26px_rgba(0,0,0,0.24)] backdrop-blur-xl sm:p-3 sm:pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] md:p-4 md:pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
         <div className="mx-auto max-w-xl">
           {templateApplied && !compactTemplateFooter && (
             <div className="mb-1.5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg bg-primary/10 px-2.5 py-1.5 text-xs font-medium leading-none text-foreground sm:mb-2 sm:px-3 sm:text-xs">
