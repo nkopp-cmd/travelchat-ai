@@ -10,7 +10,7 @@ vi.mock("@/lib/supabase", () => ({ createSupabaseAdmin: mocks.admin }));
 vi.mock("@/lib/app-data/preview-itinerary-list", () => ({
   isPreviewItineraryListCandidate: mocks.gate, previewItineraryList: mocks.list,
 }));
-import ItinerariesPage from "@/app/itineraries/page";
+import ItinerariesPage from "@/app/itineraries/(list)/page";
 import { ItineraryList } from "@/components/itineraries/itinerary-list";
 
 const row = { id: "550e8400-e29b-41d4-a716-446655440000", title: "D1 trip", city: "Seoul",

@@ -18,7 +18,7 @@ const FILES = [
   "components/activities/viator-suggestions.tsx",
   "components/activities/booking-deals-popover.tsx",
   "components/itineraries/itinerary-list.tsx",
-  "app/itineraries/page.tsx",
+  "app/itineraries/(list)/page.tsx",
   "app/settings/page.tsx",
   "components/settings/notification-preferences.tsx",
   "app/profile/page.tsx",
