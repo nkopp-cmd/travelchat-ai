@@ -140,8 +140,13 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
         setBrokenSlides(prev => new Set(prev).add(index));
     };
 
-    // Check available image sources, models, and user tier
+    // Check available image sources, models, and user tier — only once the dialog is first
+    // opened (Nils 2026-10-23: lazy status fetches), so the itinerary page's first view makes
+    // none of these calls (two dialog instances made six before).
+    const [statusRequested, setStatusRequested] = useState(false);
+    if (open && !statusRequested) setStatusRequested(true);
     useEffect(() => {
+        if (!statusRequested) return;
         fetch("/api/images/story-background")
             .then((res) => {
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -194,7 +199,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 }
             })
             .catch(() => setAiQuota(null));
-    }, []);
+    }, [statusRequested]);
 
     // Auto-enable AI backgrounds when available and user has access (with quota remaining)
     useEffect(() => {
