@@ -73,3 +73,6 @@ reports/
 
 # junk / temp files
 nul
+
+# release lane state (scripts/release/production.mjs)
+.release/

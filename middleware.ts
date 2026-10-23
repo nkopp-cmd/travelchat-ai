@@ -24,6 +24,7 @@ const PUBLIC_ROUTES = [
     '/api/conditions',  // Season + weather chips for the landing picks; fixed city list, cached
     '/api/conditions/:city',  // Planner trip outlook: season table + MET forecast for one reviewed city, cached
     '/api/events/spots',  // Spot-card analytics beacon: same-origin, bounded daily aggregates, no user data
+    '/api/version',  // Release proof: the deployed commit sha (Gravity release lane smoke check)
     '/api/places/naver-local', // Bounded public KR name/address references; no app writes
     '/api/places/photo',  // Public spot image proxy; API key stays server-side
     '/api/spots/social-submissions(.*)',  // Public intake/status; server routes handle validation and rate limits

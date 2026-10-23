@@ -212,6 +212,8 @@ User triggers story → POST /api/images/story-background (generate + store)
 - Config in `lib/cities.ts`
 
 ### Release Workflow
+- Production releases run in the Gravity release lane after each merge (`.gravity/release.json` -> `scripts/release/production.mjs`: build, upload with BUILD_SHA, binding check, promote, smoke `https://www.localley.io/api/version` = new sha, rollback on failure). Do not deploy by hand while the lane is enabled; you get a message only when a release fails.
+- Adding or removing a Worker binding: update `config/production-bindings.json` in the same PR, or the lane refuses to promote. Public build values (NEXT_PUBLIC_*) come from ~/secrets/keys.env through the lane (names in shared/config/gravity-releases.json); never commit them (GitHub push protection rejects them).
 - Install pinned dependencies inside each OpenNext release worktree. Turbopack rejects node_modules symlinks outside its filesystem root.
 - The user authorizes routine commits and production deployment after successful release checks.
 - Verify the target, credentials, required migrations, and release gates before deployment.

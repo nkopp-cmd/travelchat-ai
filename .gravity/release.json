@@ -1,0 +1,16 @@
+{
+  "cwd": ".",
+  "paths": ["."],
+  "vars": { "CLOUDFLARE_ACCOUNT_ID": "664f242340bcec2f32daaeee15f58bde", "WRANGLER_SEND_METRICS": "false" },
+  "steps": [
+    { "run": ["npm", "ci", "--no-audit", "--no-fund"] },
+    { "run": ["node", "scripts/release/production.mjs", "build"], "secrets": true },
+    { "run": ["node", "scripts/release/production.mjs", "deploy"], "secrets": true }
+  ],
+  "smoke": [
+    { "url": "https://www.localley.io/api/version", "contains": "{sha}" },
+    { "url": "https://www.localley.io/", "status": 200 }
+  ],
+  "rollback": { "run": ["node", "scripts/release/production.mjs", "rollback"], "secrets": true },
+  "timeoutSeconds": 1800
+}

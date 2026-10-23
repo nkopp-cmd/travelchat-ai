@@ -25,6 +25,7 @@ const routes = [
   "/api/conditions",
   "/api/conditions/[city]",
   "/api/events/spots",
+  "/api/version",
   "/api/connect/dashboard",
   "/api/connect/earnings",
   "/api/connect/onboard",
