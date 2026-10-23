@@ -77,4 +77,36 @@ describe("server session seed", () => {
     expect(await screen.findByText("signed out")).toBeTruthy();
     expect(fetcher).toHaveBeenCalledOnce();
   });
+
+  describe("while the document is still streaming", () => {
+    const streaming = () => Object.defineProperty(document, "readyState", { value: "loading", configurable: true });
+    afterEach(() => { delete (document as unknown as { readyState?: string }).readyState; });
+
+    it("waits for the rest of the document and then uses the late seed tag without a request", async () => {
+      streaming();
+      const fetcher = vi.fn(async () => Response.json({ user: { id: "other" }, session: {} }));
+      vi.stubGlobal("fetch", fetcher);
+      render(<Who />);
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      expect(fetcher).not.toHaveBeenCalled();
+      const meta = document.createElement("meta");
+      meta.name = "localley-session";
+      meta.content = JSON.stringify(seed);
+      document.head.append(meta);
+      delete (document as unknown as { readyState?: string }).readyState;
+      document.dispatchEvent(new Event("DOMContentLoaded"));
+      expect(await screen.findByText("Hana Kim")).toBeTruthy();
+      expect(fetcher).not.toHaveBeenCalled();
+    });
+
+    it("fetches once the document is complete when no seed arrived", async () => {
+      streaming();
+      const fetcher = vi.fn(async () => Response.json(null));
+      vi.stubGlobal("fetch", fetcher);
+      render(<><Who /><Who /></>);
+      document.dispatchEvent(new Event("DOMContentLoaded"));
+      expect((await screen.findAllByText("signed out")).length).toBe(2);
+      expect(fetcher).toHaveBeenCalledOnce();
+    });
+  });
 });
