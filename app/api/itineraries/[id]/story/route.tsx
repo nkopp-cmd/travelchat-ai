@@ -90,11 +90,15 @@ interface StoryMediaBucket { get(key: string): Promise<{ arrayBuffer(): Promise<
  * Supabase path (size, magic bytes, no WebP). Any miss or error returns undefined, and the
  * caller falls back to the unchanged Supabase download.
  */
+/** Content-addressed story media path stored in ai_backgrounds (no host): /media/story/<sha256>.<ext>. */
+const STORY_MEDIA_PATH = /^\/media\/story\/([0-9a-f]{64}\.(?:png|jpg))$/;
+
 async function prefetchFromR2(url: string): Promise<string | undefined> {
+    const direct = STORY_MEDIA_PATH.exec(url)?.[1];
     const marker = "/storage/v1/object/public/generated-images/";
     const idx = url.indexOf(marker);
-    if (idx === -1) return undefined;
-    const object = STORY_MEDIA_R2[decodeURIComponent(url.substring(idx + marker.length).split("?")[0])];
+    if (!direct && idx === -1) return undefined;
+    const object = direct ?? STORY_MEDIA_R2[decodeURIComponent(url.substring(idx + marker.length).split("?")[0])];
     if (!object) return undefined;
     try {
         const bucket = (globalThis as Record<symbol, { env?: { STORY_MEDIA_R2?: StoryMediaBucket } } | undefined>)
@@ -956,7 +960,11 @@ export async function GET(
             const hasMarker = aiBackground.includes("/storage/v1/object/public/generated-images/");
             console.log("[STORY_ROUTE] Prefetch attempt:", { isSupabaseUrl, hasMarker, urlLength: aiBackground.length, urlPreview: aiBackground.substring(0, 150) });
 
-            if (isSupabaseUrl) {
+            if (STORY_MEDIA_PATH.test(aiBackground)) {
+                // Migrated backgrounds live only in R2; there is no Supabase or HTTP fallback.
+                backgroundDataUri = await prefetchFromR2(aiBackground);
+                console.log(`[STORY_ROUTE] story_media_source=${backgroundDataUri ? "r2_path" : "r2_path_missing"}`);
+            } else if (isSupabaseUrl) {
                 backgroundDataUri = await prefetchFromR2(aiBackground);
                 // Step 1 proof: count Supabase fallbacks until they stay at zero.
                 console.log(`[STORY_ROUTE] story_media_source=${backgroundDataUri ? "r2" : "supabase_fallback"}`);
@@ -969,7 +977,7 @@ export async function GET(
                     console.log("[STORY_ROUTE] Supabase SDK download failed, trying HTTP fetch...");
                 }
             }
-            if (!backgroundDataUri) {
+            if (!backgroundDataUri && !STORY_MEDIA_PATH.test(aiBackground)) {
                 backgroundDataUri = await prefetchImage(aiBackground);
                 if (backgroundDataUri) {
                     console.log("[STORY_ROUTE] HTTP fetch succeeded, dataUri length:", backgroundDataUri.length);
