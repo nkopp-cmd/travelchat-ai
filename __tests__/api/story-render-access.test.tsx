@@ -5,6 +5,7 @@ import { NextRequest } from "next/server";
 import { ImageResponse } from "next/og";
 import sharp from "sharp";
 import { GET } from "@/app/api/itineraries/[id]/story/route";
+import { STORY_MEDIA_R2 } from "@/lib/story-media-manifest";
 
 const mocks = vi.hoisted(() => ({
     auth: vi.fn(),
@@ -279,4 +280,46 @@ describe("candidate story renderer with real ImageResponse", () => {
         }
         expect(mocks.admin).toHaveBeenCalledTimes(2); expect(mocks.reader).not.toHaveBeenCalled();
     }, 30000);
+});
+
+describe("story media step 1: R2 reads", () => {
+    const path = Object.keys(STORY_MEDIA_R2)[0];
+    const supabaseUrl = `https://fixture.supabase.co/storage/v1/object/public/generated-images/${path}`;
+    const contextKey = Symbol.for("__cloudflare-context__");
+    const png = () => sharp({ create: { width: 64, height: 64, channels: 3, background: "blue" } }).png({ compressionLevel: 0 }).toBuffer();
+    let get: ReturnType<typeof vi.fn>;
+
+    beforeEach(() => {
+        get = vi.fn();
+        (globalThis as Record<symbol, unknown>)[contextKey] = { env: { STORY_MEDIA_R2: { get } } };
+        mocks.single.mockResolvedValue({ data: { ...fixture, ai_backgrounds: { cover: supabaseUrl } }, error: null });
+    });
+    afterEach(() => { delete (globalThis as Record<symbol, unknown>)[contextKey]; });
+
+    const sources = () => vi.mocked(console.log).mock.calls.map((call) => String(call[0])).filter((line) => line.includes("story_media_source="));
+
+    it("reads a known Supabase background from its R2 copy without touching Supabase", async () => {
+        expect(STORY_MEDIA_R2[path]).toMatch(/^[0-9a-f]{64}\.(png|jpg)$/);
+        const bytes = await png();
+        get.mockResolvedValue({ arrayBuffer: async () => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) });
+        const response = await request("slide=cover");
+        expect(response.status).toBe(200);
+        expect(get).toHaveBeenCalledWith(`legacy/${STORY_MEDIA_R2[path]}`);
+        expect(mocks.storageFrom).not.toHaveBeenCalled();
+        expect(sources()).toEqual(["[STORY_ROUTE] story_media_source=r2"]);
+    });
+
+    it.each([
+        ["an R2 miss", async () => null],
+        ["a WebP object", async () => ({ arrayBuffer: async () => new Uint8Array([0x52, 0x49, 0x46, 0x46, 0, 0, 0, 0, 0x57, 0x45, 0x42, 0x50, ...new Array(600).fill(0)]).buffer })],
+        ["an R2 error", async () => { throw new Error("R2 down"); }],
+    ])("falls back to the unchanged Supabase download on %s", async (_case, result) => {
+        get.mockImplementation(result);
+        const bytes = await png();
+        mocks.download.mockResolvedValue({ data: new Blob([bytes], { type: "image/png" }), error: null });
+        const response = await request("slide=cover");
+        expect(response.status).toBe(200);
+        expect(mocks.download).toHaveBeenCalledWith(path);
+        expect(sources()).toEqual(["[STORY_ROUTE] story_media_source=supabase_fallback"]);
+    });
 });

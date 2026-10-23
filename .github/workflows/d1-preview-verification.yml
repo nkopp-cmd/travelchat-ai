@@ -272,6 +272,7 @@ on:
       - 'app/api/images/story-background/**'
       - '__tests__/api/story-background-cache-candidate.test.ts'
       - 'app/api/itineraries/[id]/story/route.tsx'
+      - 'lib/story-media-manifest.ts'
       - '__tests__/api/story-render-access.test.tsx'
       - 'app/api/itineraries/[id]/story/persist/route.ts'
       - 'app/api/itineraries/[id]/story/media/**'
