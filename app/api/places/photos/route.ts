@@ -7,9 +7,30 @@ import { buildPlacePhotoProxyUrl, getGooglePlacesApiKey } from '@/lib/place-imag
 /**
  * GET /api/places/photos?query=Lucyd+Brunch&city=Seoul
  *
- * Fetches place details (photo, rating, phone) from Google Places API.
- * Only available for Pro/Premium users. Cached via Redis.
+ * Photo, address and coordinates for a trip activity card (Pro/Premium only).
+ * Places API (New), cheapest tiers (Nils 2026-10-23, option A):
+ *  1. Text Search with only `places.id` -> Essentials IDs Only (no usage cap).
+ *  2. Place Details `id,photos,formattedAddress,location` -> Essentials.
+ * No rating (Enterprise tier) and no phone (unused). Nothing is cached server-side:
+ * Google Maps terms allow storing place IDs only; the browser keeps results for the visit.
  */
+const TIMEOUT_MS = 8000;
+
+interface PlacePhotoResponse {
+    photoUrl: string | null;
+    rating: null;
+    totalRatings: null;
+    phone: null;
+    placeId: string | null;
+    formattedAddress: string | null;
+    lat: number | null;
+    lng: number | null;
+}
+
+const empty = (): PlacePhotoResponse => ({
+    photoUrl: null, rating: null, totalRatings: null, phone: null, placeId: null, formattedAddress: null, lat: null, lng: null,
+});
+
 export async function GET(req: NextRequest) {
     try {
         const { userId } = await auth();
@@ -17,16 +38,14 @@ export async function GET(req: NextRequest) {
             return Errors.unauthorized();
         }
 
-        // Check tier
         const tier = await getUserTier(userId);
         if (tier === 'free') {
             return Errors.forbidden('Place photos require Pro or Premium subscription');
         }
 
         const { searchParams } = new URL(req.url);
-        const query = searchParams.get('query');
-        const city = searchParams.get('city');
-
+        const query = searchParams.get('query')?.trim().slice(0, 200);
+        const city = searchParams.get('city')?.trim().slice(0, 80);
         if (!query) {
             return Errors.validationError('query parameter is required');
         }
@@ -36,106 +55,40 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: 'Google Maps API key not configured' }, { status: 503 });
         }
 
-        // Try Redis cache first
-        let cached: string | null = null;
-        const cacheKey = `places:${query}:${city || ''}`;
-
-        try {
-            const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
-            const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
-            if (redisUrl && redisToken) {
-                const cacheResponse = await fetch(`${redisUrl}/get/${encodeURIComponent(cacheKey)}`, {
-                    headers: { Authorization: `Bearer ${redisToken}` },
-                });
-                if (cacheResponse.ok) {
-                    const cacheData = await cacheResponse.json();
-                    if (cacheData.result) {
-                        cached = cacheData.result;
-                    }
-                }
-            }
-        } catch {
-            // Cache miss — continue to API
-        }
-
-        if (cached) {
-            return NextResponse.json(JSON.parse(cached));
-        }
-
-        // Google Places Text Search (New)
-        const searchQuery = city ? `${query}, ${city}` : query;
-        const textSearchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(searchQuery)}&key=${apiKey}`;
-
-        const searchResponse = await fetch(textSearchUrl);
-        if (!searchResponse.ok) {
+        const signal = AbortSignal.timeout(TIMEOUT_MS);
+        const search = await fetch('https://places.googleapis.com/v1/places:searchText', {
+            method: 'POST',
+            signal,
+            headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': 'places.id' },
+            body: JSON.stringify({ textQuery: city ? `${query}, ${city}` : query, pageSize: 1 }),
+        });
+        if (!search.ok) {
             return NextResponse.json({ error: 'Places search failed' }, { status: 502 });
         }
-
-        const searchData = await searchResponse.json();
-        if (!searchData.results || searchData.results.length === 0) {
-            return NextResponse.json({ photoUrl: null });
+        const placeId: unknown = (await search.json())?.places?.[0]?.id;
+        if (typeof placeId !== 'string' || !/^[A-Za-z0-9_-]{1,256}$/.test(placeId)) {
+            return NextResponse.json(empty());
         }
 
-        const place = searchData.results[0];
-        const result: {
-            photoUrl: string | null;
-            rating: number | null;
-            totalRatings: number | null;
-            phone: string | null;
-            placeId: string | null;
-            formattedAddress: string | null;
-            lat: number | null;
-            lng: number | null;
-        } = {
-            photoUrl: null,
-            rating: place.rating || null,
-            totalRatings: place.user_ratings_total || null,
-            phone: null,
-            placeId: place.place_id || null,
-            formattedAddress: place.formatted_address || null,
-            lat: typeof place.geometry?.location?.lat === 'number' ? place.geometry.location.lat : null,
-            lng: typeof place.geometry?.location?.lng === 'number' ? place.geometry.location.lng : null,
+        const details = await fetch(`https://places.googleapis.com/v1/places/${placeId}`, {
+            signal,
+            headers: { 'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': 'id,photos,formattedAddress,location' },
+        });
+        if (!details.ok) {
+            return NextResponse.json({ ...empty(), placeId });
+        }
+        const place = await details.json();
+        const photoName: unknown = place?.photos?.[0]?.name;
+        const result: PlacePhotoResponse = {
+            ...empty(),
+            placeId,
+            photoUrl: typeof photoName === 'string' && photoName.startsWith(`places/${placeId}/photos/`)
+                ? buildPlacePhotoProxyUrl(photoName, 900) : null,
+            formattedAddress: typeof place?.formattedAddress === 'string' ? place.formattedAddress : null,
+            lat: typeof place?.location?.latitude === 'number' ? place.location.latitude : null,
+            lng: typeof place?.location?.longitude === 'number' ? place.location.longitude : null,
         };
-
-        // Get photo URL through the Localley proxy so no Google API key is exposed.
-        if (place.photos && place.photos.length > 0) {
-            const photoRef = place.photos[0].photo_reference;
-            result.photoUrl = buildPlacePhotoProxyUrl(photoRef, 900);
-        }
-
-        // Get phone from Place Details if available
-        if (place.place_id) {
-            try {
-                const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=formatted_phone_number&key=${apiKey}`;
-                const detailsResponse = await fetch(detailsUrl);
-                if (detailsResponse.ok) {
-                    const detailsData = await detailsResponse.json();
-                    result.phone = detailsData.result?.formatted_phone_number || null;
-                }
-            } catch {
-                // Phone lookup failed — non-critical
-            }
-        }
-
-        // Cache for 30 days
-        try {
-            const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
-            const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
-            if (redisUrl && redisToken) {
-                await fetch(`${redisUrl}/set/${encodeURIComponent(cacheKey)}`, {
-                    method: 'POST',
-                    headers: {
-                        Authorization: `Bearer ${redisToken}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ EX: 2592000, value: JSON.stringify(result) }),
-                });
-            }
-        } catch {
-            // Cache write failed — non-critical
-        }
-
-        return NextResponse.json(result);
+        return NextResponse.json(result, { headers: { 'Cache-Control': 'private, no-store' } });
     } catch (error) {
         return handleApiError(error, 'places-photos');
     }
