@@ -1,6 +1,7 @@
 import "server-only";
 import { appDataDb, dataBackend } from "./backend";
 import { d1Client, TABLES, type D1Role } from "./d1-postgrest";
+import { D1_RPCS, d1Rpc } from "./d1-rpc";
 
 /**
  * With DATA_BACKEND=d1, `client.from(<migrated table>)` is answered by the D1 facade with the same role the
@@ -12,6 +13,14 @@ export function withMigratedTables<T extends object>(client: T, auth: D1Role): T
   return new Proxy(client, {
     get(target, prop, receiver) {
       const value = Reflect.get(target, prop, receiver);
+      if (prop === "rpc" && typeof value === "function") {
+        return (name: string, args?: Record<string, unknown>) => {
+          if (!(name in D1_RPCS)) return value.call(target, name, args);
+          // The migrated functions are only ever called with the service key.
+          if (auth.role !== "service") throw new Error(`D1 rpc: ${name} needs the service role`);
+          return d1Rpc(appDataDb(), name, args);
+        };
+      }
       if (prop !== "from" || typeof value !== "function") return value;
       return (table: string) => {
         if (!(table in TABLES)) return value.call(target, table);

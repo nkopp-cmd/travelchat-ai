@@ -175,6 +175,7 @@ export const TABLES: Record<string, TableSpec> = {
     },
     beforeUpdate: touchUpdatedAt,
     beforeInsert: ensureOwner,
+    checks: (row) => usageCheck(row.usage_type, row.period_type),
   },
   users: {
     table: "profiles",
@@ -224,6 +225,15 @@ export const TABLES: Record<string, TableSpec> = {
 /** Owner rows are the foreign-key parent of every owned table; a first write by a new user creates it. */
 function ensureOwner(row: Row) {
   return [{ sql: "INSERT INTO owners (id, source) VALUES (?, 'new') ON CONFLICT (id) DO NOTHING", params: [String(row.clerk_user_id)] }];
+}
+
+/** usage_tracking_usage_type_check / usage_tracking_period_type_check (undefined = column not written). */
+export function usageCheck(usageType: unknown, periodType: unknown): string | null {
+  if (usageType !== undefined && !["itineraries_created", "chat_messages", "stories_created", "ai_images_generated", "spots_saved"].includes(String(usageType))) {
+    return "usage_tracking_usage_type_check";
+  }
+  if (periodType !== undefined && !["daily", "weekly", "monthly"].includes(String(periodType))) return "usage_tracking_period_type_check";
+  return null;
 }
 
 /** Trigger update_updated_at: BEFORE UPDATE, updated_at = now(). */

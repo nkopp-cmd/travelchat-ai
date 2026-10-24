@@ -33,3 +33,6 @@ CREATE TABLE saved_itineraries (
 
 -- subscriptions_clerk_user_id_key: upserts use onConflict clerk_user_id (= ownerId).
 CREATE UNIQUE INDEX legacy_subscriptions_owner_key ON legacy_subscriptions (ownerId);
+
+-- usage_tracking unique key: the usage functions upsert ON CONFLICT (clerk_user_id, usage_type, period_start, period_type).
+CREATE UNIQUE INDEX legacy_usage_period_key ON legacy_usage (ownerId, usageType, periodStart, periodType);
