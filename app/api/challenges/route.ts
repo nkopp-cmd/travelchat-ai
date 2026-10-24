@@ -161,11 +161,12 @@ export async function POST(req: NextRequest) {
         // Check if already claimed
         const { data: existing } = await supabase
             .from("user_challenges")
-            .select("id")
+            // user_challenges has no id (key: user_id + challenge_id); selecting it failed, so every claim passed.
+            .select("challenge_id")
             .eq("user_id", userData.id)
             .eq("challenge_id", challengeId)
             .eq("completed", true)
-            .single();
+            .maybeSingle();
 
         if (existing) {
             return Errors.validationError("Challenge already claimed");

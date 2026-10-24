@@ -61,13 +61,6 @@ async function getUserProfile(username: string): Promise<UserProfile | null> {
         return null;
     }
 
-    // Get user progress for level/XP
-    const { data: progress } = await supabase
-        .from("user_progress")
-        .select("level, total_xp, title")
-        .eq("user_id", user.id)
-        .single();
-
     return {
         id: user.id,
         clerkId: user.clerk_id,
@@ -75,9 +68,10 @@ async function getUserProfile(username: string): Promise<UserProfile | null> {
         username: user.username,
         avatarUrl: user.avatar_url,
         bio: user.bio,
-        level: progress?.level || 1,
-        totalXp: progress?.total_xp || 0,
-        title: progress?.title || "Tourist",
+        // Level, XP and title live on public.users (user_progress has none of them).
+        level: user.level || 1,
+        totalXp: user.xp || 0,
+        title: user.title || "Tourist",
         joinedAt: user.created_at,
     };
 }
