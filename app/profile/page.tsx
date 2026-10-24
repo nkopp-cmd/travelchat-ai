@@ -41,92 +41,48 @@ async function getUserProgress() {
     }
 
     const supabase = createSupabaseAdmin();
-
-    // Get user's internal ID and XP from users table
-    const { data: userData } = await supabase
-        .from("users")
-        .select("id, xp, level")
-        .eq("clerk_id", userId)
-        .single();
-
-    // Get user progress from user_progress table (uses internal user_id)
-    let progress = null;
-    if (userData?.id) {
-        const { data: progressData } = await supabase
-            .from("user_progress")
-            .select("*")
-            .eq("user_id", userData.id)
-            .single();
-        progress = progressData;
-    }
-
-    // Merge XP from users table with progress data
-    const mergedProgress = {
-        xp: userData?.xp || progress?.xp || 0,
-        level: userData?.level || 1,
-        streak: progress?.current_streak || 0,
-        discoveries: progress?.discoveries || 0,
-        spots_visited: progress?.spots_visited || 0,
-    };
-
-    // Get user's completed challenges (uses internal user_id)
-    // public.challenges has `name` (no `title`); user_challenges is keyed by (user_id, challenge_id).
-    let completedChallenges: Array<{ challenge_id: string; challenges: { name: string; description: string; xp_reward: number } | null }> = [];
-    if (userData?.id) {
-        const { data: challengesData } = await supabase
-            .from("user_challenges")
-            .select("*, challenges(*)")
-            .eq("user_id", userData.id)
-            .eq("completed", true);
-        completedChallenges = challengesData || [];
-    }
-
-    // Get user's saved itineraries with details (uses clerk_user_id)
-    const { data: itineraries } = await supabase
-        .from("itineraries")
-        .select("id, title, city, days, created_at")
-        .eq("clerk_user_id", userId)
-        .order("created_at", { ascending: false })
-        .limit(12);
-
-    // Get user's saved spots
-    const { data: savedSpots } = await supabase
-        .from("saved_spots")
-        .select(`
-            id,
-            spot_id,
-            created_at,
-            spots (
-                id,
-                name,
-                description,
-                category,
-                localley_score,
-                photos,
-                address
-            )
-        `)
-        .eq("clerk_user_id", userId)
-        .order("created_at", { ascending: false })
-        .limit(12);
-
-    // Get subscription data
-    const { data: subscription } = await supabase
-        .from("subscriptions")
-        .select("*")
-        .eq("clerk_user_id", userId)
-        .single();
-
-    // Get usage data
     const today = new Date().toISOString().split("T")[0];
     const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
         .toISOString()
         .split("T")[0];
 
+    // Round 1 (parallel): everything keyed by the signed-in user id. Sequential reads to the
+    // database region made this page ~2 s TTFB; two parallel rounds keep it near two round trips.
     const [
+        { data: userData },
+        { data: itineraries },
+        { data: savedSpots },
+        { data: subscription },
         { data: monthlyUsage },
         { data: dailyUsage },
     ] = await Promise.all([
+        supabase.from("users").select("id, xp, level").eq("clerk_id", userId).single(),
+        supabase
+            .from("itineraries")
+            .select("id, title, city, days, created_at")
+            .eq("clerk_user_id", userId)
+            .order("created_at", { ascending: false })
+            .limit(12),
+        supabase
+            .from("saved_spots")
+            .select(`
+                id,
+                spot_id,
+                created_at,
+                spots (
+                    id,
+                    name,
+                    description,
+                    category,
+                    localley_score,
+                    photos,
+                    address
+                )
+            `)
+            .eq("clerk_user_id", userId)
+            .order("created_at", { ascending: false })
+            .limit(12),
+        supabase.from("subscriptions").select("*").eq("clerk_user_id", userId).single(),
         supabase
             .from("usage_tracking")
             .select("usage_type, count")
@@ -140,6 +96,30 @@ async function getUserProgress() {
             .eq("period_type", "daily")
             .eq("period_start", today),
     ]);
+
+    // Round 2 (parallel): progress and completed challenges use the internal user id.
+    // public.challenges has `name` (no `title`); user_challenges is keyed by (user_id, challenge_id).
+    const [{ data: progress }, { data: challengesData }] = userData?.id
+        ? await Promise.all([
+            supabase.from("user_progress").select("*").eq("user_id", userData.id).single(),
+            supabase
+                .from("user_challenges")
+                .select("*, challenges(*)")
+                .eq("user_id", userData.id)
+                .eq("completed", true),
+        ])
+        : [{ data: null }, { data: null }];
+    const completedChallenges: Array<{ challenge_id: string; challenges: { name: string; description: string; xp_reward: number } | null }> =
+        challengesData || [];
+
+    // Merge XP from users table with progress data
+    const mergedProgress = {
+        xp: userData?.xp || progress?.xp || 0,
+        level: userData?.level || 1,
+        streak: progress?.current_streak || 0,
+        discoveries: progress?.discoveries || 0,
+        spots_visited: progress?.spots_visited || 0,
+    };
 
     const getUsage = (data: { usage_type: string; count: number }[] | null, type: string): number => {
         if (!data) return 0;
