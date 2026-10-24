@@ -124,7 +124,9 @@ export function buildImport(snapshot, projection, rules) {
     expected.owner_limits.push({ ownerId, savedSpotLimit: 10 });
   }
   for (const user of t.users) {
-    expected.profiles.push({ id: user.id, ownerId: user.clerk_id });
+    // Migration 0037: the remaining public.users columns live on profiles too (nulls as in the source).
+    expected.profiles.push({ id: user.id, ownerId: user.clerk_id, username: user.username ?? null, email: user.email ?? null,
+      level: user.level ?? null, xp: user.xp ?? null, title: user.title ?? null, created_at: user.created_at ?? null });
     expected.legacy_profile_stats.push({ profileId: user.id, username: user.username, xp: user.xp, level: user.level, title: user.title, createdAt: user.created_at });
   }
   const issues = {};

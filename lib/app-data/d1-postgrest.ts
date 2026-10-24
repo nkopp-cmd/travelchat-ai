@@ -14,6 +14,7 @@ type Kind = "text" | "int" | "real" | "bool" | "json" | "textArray";
 type Value = string | number | boolean | null | Record<string, unknown> | unknown[];
 type Row = Record<string, Value>;
 type Binding = string | number | null;
+type Action = "select" | "insert" | "update" | "delete";
 
 export interface TableSpec {
   /** D1 table name. */
@@ -25,8 +26,10 @@ export interface TableSpec {
   owner?: string;
   /** Owner rule as D1 SQL on alias t with one `?` for the user id, when the row has no owner column (e.g. messages). */
   ownerExpr?: string;
-  /** false = the user-scoped client may only read (Postgres has a SELECT policy only). */
-  userWrite?: boolean;
+  /** Commands the user-scoped client has a Postgres policy for (default all). Others see no rows / get 42501. */
+  userOps?: Action[];
+  /** D1-only NOT NULL columns the facade fills on insert (never returned), e.g. saved_spots.createdAtMs. */
+  d1Extra?: (row: Row) => Record<string, Binding>;
   /** Extra visible rows for role "user" on SELECT (Postgres permissive SELECT policy), as D1 SQL on the table alias t. */
   userReadAlso?: string;
   /** Postgres WITH CHECK beyond the owner rule, for inserts and update patches by role "user": a query that must
@@ -127,7 +130,7 @@ export const TABLES: Record<string, TableSpec> = {
     table: "legacy_subscriptions",
     primaryKey: ["id"],
     owner: "clerk_user_id",
-    userWrite: false,
+    userOps: ["select"],
     columns: {
       id: { kind: "text", default: uuid },
       clerk_user_id: { kind: "text", d1: "ownerId" },
@@ -152,7 +155,7 @@ export const TABLES: Record<string, TableSpec> = {
     table: "legacy_usage",
     primaryKey: ["id"],
     owner: "clerk_user_id",
-    userWrite: false,
+    userOps: ["select"],
     columns: {
       id: { kind: "text", default: uuid },
       clerk_user_id: { kind: "text", d1: "ownerId" },
@@ -165,6 +168,49 @@ export const TABLES: Record<string, TableSpec> = {
     },
     beforeUpdate: touchUpdatedAt,
     beforeInsert: ensureOwner,
+  },
+  users: {
+    table: "profiles",
+    primaryKey: ["id"],
+    owner: "clerk_id",
+    columns: {
+      id: { kind: "text", default: uuid },
+      clerk_id: { kind: "text", d1: "ownerId" },
+      username: { kind: "text" },
+      email: { kind: "text" },
+      level: { kind: "int", default: () => 1 },
+      xp: { kind: "int", default: () => 0 },
+      title: { kind: "text", default: () => "Tourist" },
+      created_at: { kind: "text", default: nowTimestamptz },
+    },
+    beforeInsert: (row) => ensureOwner({ clerk_user_id: row.clerk_id }),
+  },
+  saved_spots: {
+    table: "saved_spots",
+    primaryKey: ["id"],
+    owner: "clerk_user_id",
+    // Policies: SELECT / INSERT / DELETE own rows; no UPDATE policy.
+    userOps: ["select", "insert", "delete"],
+    columns: {
+      id: { kind: "text", default: uuid },
+      clerk_user_id: { kind: "text", d1: "ownerId" },
+      spot_id: { kind: "text", d1: "spotId" },
+      created_at: { kind: "text", default: nowTimestamptz },
+    },
+    d1Extra: (row) => ({ createdAtMs: row.created_at ? Date.parse(String(row.created_at)) : Date.now() }),
+    beforeInsert: ensureOwner,
+  },
+  saved_itineraries: {
+    table: "saved_itineraries",
+    primaryKey: ["id"],
+    owner: "clerk_user_id",
+    userOps: ["select", "insert", "delete"],
+    columns: {
+      id: { kind: "text", default: uuid },
+      clerk_user_id: { kind: "text" },
+      itinerary_id: { kind: "text" },
+      created_at: { kind: "text", default: nowTimestamptz },
+    },
   },
 };
 
@@ -228,7 +274,6 @@ function parseSelect(s: TableSpec, columns: string): string[] {
 }
 
 type Filter = { sql: string; params: Binding[] };
-type Action = "select" | "insert" | "update" | "delete";
 
 class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
   private action: Action = "select";
@@ -339,19 +384,20 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
   }
 
   /** Visibility for the caller's role: SELECT/UPDATE/DELETE rows outside it do not exist for them. */
-  private policy(forRead: boolean): Filter | null {
+  private policy(op: Action): Filter | null {
+    const forRead = op === "select";
     if (this.auth.role === "service") return null;
     if (this.auth.role === "anon") return { sql: forRead && this.s.anonRead ? `(${this.s.anonRead})` : "0", params: [] };
-    if (!forRead && this.s.userWrite === false) return { sql: "0", params: [] };
+    if (this.s.userOps && !this.s.userOps.includes(op)) return { sql: "0", params: [] };
     const owner = this.s.ownerExpr ?? (this.s.owner ? `${column(this.s, this.s.owner).sql} = ?` : null);
     if (!owner) return { sql: "0", params: [] };
     if (forRead && this.s.userReadAlso) return { sql: `(${owner} OR ${this.s.userReadAlso})`, params: [this.auth.userId] };
     return { sql: `(${owner})`, params: [this.auth.userId] };
   }
 
-  private where(forRead: boolean): Filter {
+  private where(op: Action): Filter {
     const parts = [...this.filters];
-    const policy = this.policy(forRead);
+    const policy = this.policy(op);
     if (policy) parts.push(policy);
     return parts.length
       ? { sql: ` WHERE ${parts.map((p) => p.sql).join(" AND ")}`, params: parts.flatMap((p) => p.params) }
@@ -394,7 +440,7 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
 
   private async runSelect(): Promise<PostgrestResult<T>> {
     const names = this.selected ?? Object.keys(this.s.columns);
-    const where = this.where(true);
+    const where = this.where("select");
     let count: number | null = null;
     if (this.countMode) {
       const row = await this.db.prepare(`SELECT count(*) AS n FROM ${this.s.table} t${where.sql}`).bind(...where.params).first<{ n: number }>();
@@ -417,14 +463,15 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
       for (const [name, col] of Object.entries(this.s.columns)) if (row[name] === undefined && col.default) row[name] = col.default();
       if (this.auth.role === "anon") return this.rlsInsertError();
       if (this.auth.role === "user") {
-        if (this.s.userWrite === false) return this.rlsInsertError();
+        if (this.s.userOps && !this.s.userOps.includes("insert")) return this.rlsInsertError();
         if (this.s.owner ? row[this.s.owner] !== this.auth.userId : !this.s.ownerExpr) return this.rlsInsertError();
         if (!(await this.passesWriteCheck(row))) return this.rlsInsertError();
       }
       for (const before of this.s.beforeInsert?.(row) ?? []) statements.push(this.db.prepare(before.sql).bind(...before.params));
       const names = Object.keys(row).filter((name) => row[name] !== undefined);
-      statements.push(this.db.prepare(`INSERT INTO ${this.s.table} (${names.map((n) => this.s.columns[n].d1 ?? n).join(", ")}) VALUES (${names.map(() => "?").join(", ")})`)
-        .bind(...names.map((n) => toD1(this.s.columns[n].kind, row[n]))));
+      const extra = Object.entries(this.s.d1Extra?.(row) ?? {});
+      statements.push(this.db.prepare(`INSERT INTO ${this.s.table} (${[...names.map((n) => this.s.columns[n].d1 ?? n), ...extra.map(([c]) => c)].join(", ")}) VALUES (${[...names, ...extra].map(() => "?").join(", ")})`)
+        .bind(...names.map((n) => toD1(this.s.columns[n].kind, row[n])), ...extra.map(([, v]) => v)));
       for (const after of this.s.afterInsert?.(row) ?? []) statements.push(this.db.prepare(after.sql).bind(...after.params));
       keys.push(this.s.primaryKey.map((k) => toD1(this.s.columns[k].kind, row[k])));
     }
@@ -452,7 +499,7 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
 
   /** Primary keys of the rows the caller may change, captured before the write so .select() can return them. */
   private async targetKeys(): Promise<Binding[][]> {
-    const where = this.where(false);
+    const where = this.where(this.action);
     const { results } = await this.db.prepare(`SELECT ${this.s.primaryKey.map((k) => `${column(this.s, k).sql} AS ${k}`).join(", ")} FROM ${this.s.table} t${where.sql}`)
       .bind(...where.params).all<Record<string, Binding>>();
     return results.map((r) => this.s.primaryKey.map((k) => r[k]));

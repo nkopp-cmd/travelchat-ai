@@ -111,7 +111,7 @@ describe("D1 PostgREST facade: PostgREST contracts", () => {
   });
 
   it("refuses anything it does not implement instead of guessing", () => {
-    expect(() => service().from("users")).toThrow("not migrated");
+    expect(() => service().from("spot_reviews")).toThrow("not migrated");
     expect(() => service().from("itineraries").select("id, spots(name)")).toThrow("embeds");
     expect(() => service().from("itineraries").select("title:name")).toThrow("embeds and aliases");
     expect(() => service().from("itineraries").eq("metadata", 1)).toThrow("unknown column");
@@ -172,5 +172,42 @@ describe("D1 PostgREST facade: conversations, messages, subscriptions, usage_tra
     const { data } = await service().from("usage_tracking").select("count, updated_at").eq("id", "u1").single();
     expect(data!.count).toBe(3);
     expect(String(data!.updated_at) > "2026-10-01T00:00:00+00:00").toBe(true);
+  });
+});
+
+describe("D1 PostgREST facade: users, saved_spots, saved_itineraries (migration 0037)", () => {
+  const spot = "20000000-0000-4000-8000-000000000001";
+
+  it("users: Postgres shape on profiles, own row only, username unique", async () => {
+    await service().from("users").update({ username: "alice", email: "a@x.test" }).eq("clerk_id", A);
+    expect((await as(A).from("users").select("id, clerk_id, username, level, xp, title")).data)
+      .toEqual([{ id: trip(901), clerk_id: A, username: "alice", level: 1, xp: 0, title: "Tourist" }]);
+    expect((await as(B).from("users").select("id")).data).toEqual([]);
+    const created = await as(B).from("users").insert({ clerk_id: B, username: "bob" }).select("clerk_id, level, title").single();
+    expect(created.data).toEqual({ clerk_id: B, level: 1, title: "Tourist" });
+    expect((await service().from("users").insert({ clerk_id: "user_c", username: "alice" })).error?.code).toBe("23505");
+  });
+
+  it("saved_spots: insert/select/delete own; no update policy; createdAtMs follows created_at", async () => {
+    const saved = await as(A).from("saved_spots").insert({ clerk_user_id: A, spot_id: spot }).select("id, spot_id, created_at").single();
+    expect(saved.error).toBeNull();
+    const ms = (db.sqlite.prepare("SELECT createdAtMs FROM saved_spots").get() as { createdAtMs: number }).createdAtMs;
+    expect(ms).toBe(Date.parse(String(saved.data!.created_at)));
+    expect((await as(A).from("saved_spots").insert({ clerk_user_id: A, spot_id: spot })).error?.code).toBe("23505");
+    expect((await as(B).from("saved_spots").select("id")).data).toEqual([]);
+    expect((await as(A).from("saved_spots").update({ spot_id: spot }).eq("id", String(saved.data!.id)).select("id")).data).toEqual([]);
+    await as(B).from("saved_spots").delete().eq("spot_id", spot);
+    expect((await as(A).from("saved_spots").select("id", { count: "exact", head: true })).count).toBe(1);
+    await as(A).from("saved_spots").delete().eq("spot_id", spot);
+    expect((await as(A).from("saved_spots").select("id", { count: "exact", head: true })).count).toBe(0);
+  });
+
+  it("saved_itineraries: own rows; cascade with the itinerary", async () => {
+    expect((await as(A).from("saved_itineraries").insert({ clerk_user_id: B, itinerary_id: trip(4) })).error?.code).toBe("42501");
+    expect((await as(A).from("saved_itineraries").insert({ clerk_user_id: A, itinerary_id: trip(4) })).error).toBeNull();
+    expect((await as(B).from("saved_itineraries").select("id")).data).toEqual([]);
+    db.sqlite.exec("PRAGMA foreign_keys = ON");
+    await service().from("itineraries").delete().eq("id", trip(4));
+    expect((await as(A).from("saved_itineraries").select("id")).data).toEqual([]);
   });
 });
