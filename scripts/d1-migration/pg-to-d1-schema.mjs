@@ -126,6 +126,10 @@ function indexSql(index, geoColumns) {
 }
 
 /** FK-safe order: a table comes after every table it references (self references allowed). */
+export function tableOrder(schema) {
+  return orderTables([...new Set(schema.columns.map(c => c.t))], schema.constraints);
+}
+
 function orderTables(tables, constraints) {
   const deps = new Map(tables.map(t => [t, new Set()]));
   for (const c of constraints) {
