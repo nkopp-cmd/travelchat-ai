@@ -489,7 +489,7 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
   private patch: Row = {};
   private conflict: { columns: string[]; ignore: boolean } | null = null;
 
-  constructor(private db: PreviewAppDataReader, private s: TableSpec, private auth: D1Role) {}
+  constructor(private db: PreviewAppDataReader, private s: TableSpec, private auth: D1Role, private triggers = true) {}
 
   select(columns = "*", options?: { count?: "exact"; head?: boolean }) {
     if (options && Object.keys(options).some((k) => k !== "count" && k !== "head")) throw new Error("D1 facade: unsupported select option");
@@ -751,7 +751,7 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
       const written = [...names.flatMap((n) => writeColumns(this.s, n, row[n])), ...extra];
       statements.push(this.db.prepare(`INSERT INTO ${this.s.table} (${written.map(([c]) => c).join(", ")}) VALUES (${written.map(() => "?").join(", ")})${onConflict}`)
         .bind(...written.map(([, v]) => v), ...updateParams));
-      for (const after of this.s.afterInsert?.(row) ?? []) statements.push(this.db.prepare(after.sql).bind(...after.params));
+      if (this.triggers) for (const after of this.s.afterInsert?.(row) ?? []) statements.push(this.db.prepare(after.sql).bind(...after.params));
       const keyColumns = this.conflict ? this.conflict.columns : this.s.primaryKey;
       keys.push(keyColumns.map((k) => toD1(this.s.columns[k].kind, row[k])));
     }
@@ -859,7 +859,13 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
 }
 
 /** Supabase-client-shaped entry point: `d1Client(db, auth).from("itineraries").select(...)`. */
-export function d1Client(db: PreviewAppDataReader, auth: D1Role) {
+/**
+ * Supabase-client-shaped entry point: `d1Client(db, auth).from("itineraries").select(...)`.
+ * `{ triggers: false }` is for the import only: a copy of source rows must not run Postgres trigger equivalents
+ * (e.g. a loaded message would move its conversation's updated_at). Derived columns (afterWrite) still apply.
+ */
+export function d1Client(db: PreviewAppDataReader, auth: D1Role, options: { triggers?: boolean } = {}) {
   if (auth.role === "user" && (typeof auth.userId !== "string" || !auth.userId)) throw new Error("D1 facade: user role needs a user id");
-  return { from: (table: string) => new D1Query(db, spec(table), auth) };
+  if (options.triggers === false && auth.role !== "service") throw new Error("D1 facade: triggers can only be skipped by the service role");
+  return { from: (table: string) => new D1Query(db, spec(table), auth, options.triggers !== false) };
 }
