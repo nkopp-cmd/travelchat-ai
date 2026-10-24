@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { savedSpotsWithSpots } from "@/lib/app-data/saved-spots";
 import { previewProfile } from "@/lib/app-data/preview-profile";
 import { PreviewProfile } from "@/components/profile/preview-profile";
 import { Button } from "@/components/ui/button";
@@ -63,25 +64,8 @@ async function getUserProgress() {
             .eq("clerk_user_id", userId)
             .order("created_at", { ascending: false })
             .limit(12),
-        supabase
-            .from("saved_spots")
-            .select(`
-                id,
-                spot_id,
-                created_at,
-                spots (
-                    id,
-                    name,
-                    description,
-                    category,
-                    localley_score,
-                    photos,
-                    address
-                )
-            `)
-            .eq("clerk_user_id", userId)
-            .order("created_at", { ascending: false })
-            .limit(12),
+        savedSpotsWithSpots(supabase, userId,
+            ["id", "name", "description", "category", "localley_score", "photos", "address"], 12),
         supabase.from("subscriptions").select("*").eq("clerk_user_id", userId).single(),
         supabase
             .from("usage_tracking")

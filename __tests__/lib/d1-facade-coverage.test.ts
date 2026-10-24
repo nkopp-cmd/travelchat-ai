@@ -24,8 +24,6 @@ const STILL_ON_SUPABASE = new Set([
 const HAND_PORT_PENDING: Record<string, string> = {
   // D1 branch done (two owner-scoped reads); the embed stays on the Supabase branch until Supabase is removed.
   "app/api/conversations/route.ts": "embed kept for the Supabase branch",
-  "app/api/spots/save/route.ts": "saved_spots embeds spots(...); spots is still on Supabase",
-  "app/profile/page.tsx": "saved_spots embeds spots(...); spots is still on Supabase",
 };
 
 const SUPPORTED = new Set(["select", "insert", "upsert", "update", "delete", "eq", "neq", "gt", "gte", "lt", "lte", "in", "is", "not",
