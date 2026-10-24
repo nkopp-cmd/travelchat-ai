@@ -137,7 +137,11 @@ export function buildImport(snapshot, projection, rules) {
     // Legacy Google photo proxies are not copied: listing photos are resolved at request time instead.
     expected.spots.push({ id: spot.id, name: spot.name, description: spot.description, category: spot.category, localley_score: score,
       photos: [], visible: issue === null ? 1 : 0, city: rules.inferCityFromAddress(address)?.name ?? null, address: address || null,
-      latitude: point?.lat ?? null, longitude: point?.lng ?? null, photo_credits: null, source_urls: null });
+      latitude: point?.lat ?? null, longitude: point?.lng ?? null, photo_credits: null, source_urls: null,
+      subcategories: spot.subcategories ?? null, local_percentage: spot.local_percentage ?? null, best_times: spot.best_times ?? null,
+      tips: spot.tips ?? null, verified: spot.verified === true ? 1 : 0, trending_score: spot.trending_score ?? 0,
+      // Geo links stay null until the geo tables are imported; the source has none today.
+      destination_id: null, local_area_id: null });
     expected.legacy_spot_source.push({ spotId: spot.id, payload: spot, publicIssue: issue });
     const places = photoPlaceIds(spot.photos);
     const placeId = spot.google_place_id ?? (places.length === 1 ? places[0] : null);
