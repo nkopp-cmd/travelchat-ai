@@ -67,3 +67,21 @@ describe("middleware matcher", () => {
         expect(pageMatcher.test("/dashboard")).toBe(true);
     });
 });
+
+describe("Supabase exit write freeze (DATA_WRITE_FREEZE)", () => {
+  it("refuses mutating requests with 503 + Retry-After, keeps reads and sign-in open", async () => {
+    vi.stubEnv("DATA_WRITE_FREEZE", "true");
+    const { writeFreeze } = await import("@/middleware");
+    const req = (method: string, path: string) => new NextRequest(`https://www.localley.io${path}`, { method });
+    const save = writeFreeze(req("POST", "/api/itineraries/save"))!;
+    expect(save.status).toBe(503);
+    expect(save.headers.get("Retry-After")).toBe("600");
+    expect(writeFreeze(req("POST", "/api/subscription/webhook"))?.status).toBe(503);
+    expect(writeFreeze(req("POST", "/itineraries/new"))?.status).toBe(503);
+    expect(writeFreeze(req("GET", "/api/spots"))).toBeNull();
+    expect(writeFreeze(req("POST", "/api/auth/sign-in/email"))).toBeNull();
+    vi.stubEnv("DATA_WRITE_FREEZE", "");
+    expect(writeFreeze(req("POST", "/api/itineraries/save"))).toBeNull();
+    vi.unstubAllEnvs();
+  });
+});

@@ -81,3 +81,12 @@ describe("runScheduledRoute", () => {
     error.mockRestore();
   });
 });
+
+describe("runScheduledRoute during the write freeze", () => {
+  it("skips every cron without calling the Worker", async () => {
+    const self = { fetch: vi.fn() };
+    await runScheduledRoute({ cron: "0 4 * * *", scheduledTime: 0 }, { CRON_SECRET: "s3cret", WORKER_SELF_REFERENCE: self as never, DATA_WRITE_FREEZE: "true" });
+    expect(self.fetch).not.toHaveBeenCalled();
+  });
+});
+

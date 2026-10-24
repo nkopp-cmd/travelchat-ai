@@ -23,6 +23,8 @@ export interface SelfReference {
 
 export interface ScheduledEnv {
   CRON_SECRET?: string;
+  /** "true" during the Supabase exit write freeze: every cron is skipped (gate 3). */
+  DATA_WRITE_FREEZE?: string;
   WORKER_SELF_REFERENCE?: SelfReference;
 }
 
@@ -35,6 +37,10 @@ export async function runScheduledRoute(controller: ScheduledController, env: Sc
   const path = cronRouteFor(controller.cron);
   if (!path) {
     console.error(`[cron] no route mapped for schedule "${controller.cron}"`);
+    return;
+  }
+  if (env.DATA_WRITE_FREEZE === "true") {
+    console.log(`[cron] ${path} skipped: write freeze`);
     return;
   }
   if (!env.CRON_SECRET || !env.WORKER_SELF_REFERENCE) {
