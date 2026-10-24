@@ -131,6 +131,43 @@ describe("public spot photo gallery", () => {
         expect(fetch).toHaveBeenCalledTimes(1);
     });
 
+    it("remembers an identity conflict at the edge so the next visitor costs no Details call", async () => {
+        const store = new Map<string, Response>();
+        vi.stubGlobal("caches", { default: {
+            match: vi.fn(async (request: Request) => store.get(request.url)?.clone()),
+            put: vi.fn(async (request: Request, response: Response) => { store.set(request.url, response); }),
+        } });
+        const log = vi.spyOn(console, "error").mockImplementation(() => {});
+        try {
+            vi.mocked(fetch).mockImplementation(async () => Response.json({ ...details(), location: { latitude: 37.60, longitude: 126.999 } }));
+            expect((await call()).status).toBe(502);
+            expect([...store.keys()]).toEqual([`https://spot-photo-verdict.localley.internal/v1/${id}/${placeId}/37.57,126.999`]);
+            const second = await call();
+            expect(second.status).toBe(200);
+            expect((await second.json()).status).toBe("unavailable");
+            expect(fetch).toHaveBeenCalledTimes(1);
+            expect(log).toHaveBeenCalledOnce();
+            // A corrected listing (new coordinates) is checked again.
+            mocks.single.mockResolvedValue({ data: { ...structuredClone(spot), location: { coordinates: [126.999, 37.60] } }, error: null });
+            expect((await (await call()).json()).status).toBe("available");
+            expect(fetch).toHaveBeenCalledTimes(2);
+        } finally { log.mockRestore(); }
+    });
+
+    it("does not remember provider outages", async () => {
+        const store = new Map<string, Response>();
+        vi.stubGlobal("caches", { default: {
+            match: vi.fn(async (request: Request) => store.get(request.url)?.clone()),
+            put: vi.fn(async (request: Request, response: Response) => { store.set(request.url, response); }),
+        } });
+        const log = vi.spyOn(console, "error").mockImplementation(() => {});
+        try {
+            vi.mocked(fetch).mockResolvedValue(new Response("busy", { status: 429 }));
+            expect((await call()).status).toBe(502);
+            expect(store.size).toBe(0);
+        } finally { log.mockRestore(); }
+    });
+
     it("accepts Korean names when the ID, city and coordinates agree", async () => {
         vi.mocked(fetch).mockResolvedValue(Response.json({ ...details(), displayName: { text: "광장시장" } }));
         expect((await (await call()).json()).status).toBe("available");

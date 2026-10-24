@@ -32,6 +32,17 @@ const detailsSchema = z.object({
     })).optional(),
 });
 
+// Identity conflicts are listing data faults, not outages: remember the verdict (our own result
+// plus the place ID, no Places content) at the edge so later visitors skip the billed Details call.
+// The key carries the place ID and coordinates, so a corrected listing is checked again at once.
+const CONFLICT_TTL_SECONDS = 7 * 86_400;
+const IDENTITY_CONFLICTS = new Set(["listing_id_conflict", "listing_city_conflict", "listing_coordinate_conflict", "listing_name_conflict"]);
+interface VerdictCache {
+    match(request: Request): Promise<Response | undefined>;
+    put(request: Request, response: Response): Promise<void>;
+}
+const verdictCache = () => (globalThis as { caches?: { default?: VerdictCache } }).caches?.default;
+
 function unavailable(status = 200, message = "Listing photos are unavailable.") {
     return NextResponse.json({ status: "unavailable", photos: [], message } satisfies PhotoGalleryResponse, { status, headers });
 }
@@ -48,9 +59,17 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
     if (!z.uuid().safeParse(id).success) return unavailableForRequest(400);
     // Public source identity and fixed codes only: never log provider bodies,
     // photo references, request headers, account identities or exception text.
+    let conflictKey: Request | undefined;
+    let pending: Promise<unknown> | undefined;
     const failureForRequest = (status: 502 | 503 | 504, reason: string, upstreamStatus?: number) => {
         console.error(`[spot-photos] ${JSON.stringify({ spotId: id, reason, status,
             ...(upstreamStatus === undefined ? {} : { upstreamStatus }) })}`);
+        if (conflictKey && IDENTITY_CONFLICTS.has(reason)) {
+            const key = conflictKey;
+            pending = verdictCache()?.put(key, new Response(reason, {
+                headers: { "Cache-Control": `public, max-age=${CONFLICT_TTL_SECONDS}` },
+            })).catch(() => undefined);
+        }
         return unavailableForRequest(status);
     };
     let exceptionReason = "request_exception";
@@ -87,6 +106,11 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
         const placeId = getTrustedSpotGooglePlaceId({ photos, storedGooglePlaceId: spot.google_place_id });
         if (!placeId || !/^[A-Za-z0-9_-]{1,256}$/.test(placeId)) return unavailableForRequest();
         if (getGooglePlaceIdsFromSpotPhotos(photos).some(photoPlaceId => photoPlaceId !== placeId)) return unavailableForRequest();
+        const stored = parseSpotCoordinates(spot.location);
+        conflictKey = new Request(`https://spot-photo-verdict.localley.internal/v1/${id}/${placeId}/${stored ? `${stored.lat},${stored.lng}` : "none"}`);
+        try {
+            if (await verdictCache()?.match(conflictKey)) return unavailableForRequest();
+        } catch { /* A cache fault only costs one Details call. */ }
         const apiKey = getGooglePlacesApiKey();
         if (!apiKey) return failureForRequest(503, "provider_key_missing");
         const readDetails = async (mask: string) => {
@@ -134,7 +158,7 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
         // City identity from the listing's coordinates (Essentials) instead of its address text (Pro).
         if (!city || !place.location ||
             distanceKm(city.center.lat, city.center.lng, place.location.latitude, place.location.longitude) > 100) return failureForRequest(502, "listing_city_conflict");
-        const coordinates = parseSpotCoordinates(spot.location);
+        const coordinates = stored;
         // Coordinates corroborate listing identity, not an entrance or photo verification.
         // Do not reject a Korean display name merely because the saved name is English.
         if (coordinates && (coordinates.lat !== 0 || coordinates.lng !== 0)) {
@@ -173,5 +197,6 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
         return failureForRequest(controller.signal.aborted ? 504 : 502, controller.signal.aborted ? "request_timeout" : exceptionReason);
     } finally {
         clearTimeout(timeout);
+        await pending;
     }
 }
