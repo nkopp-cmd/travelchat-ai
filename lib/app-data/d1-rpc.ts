@@ -9,6 +9,11 @@ import { nowTimestamptz, usageCheck, type PostgrestResult } from "./d1-postgrest
 
 type Args = Record<string, unknown>;
 
+/** Gate 2 write journal entry (replay syncs the Supabase rows matching `key` to the D1 rows matching it). */
+function journal(db: PreviewAppDataReader, table: string, op: "upsert" | "delete", key: Record<string, string | number | null>) {
+  return db.prepare("INSERT INTO _journal (table_name, op, pk) VALUES (?, ?, ?)").bind(table, op, JSON.stringify(key));
+}
+
 /** plpgsql RAISE EXCEPTION -> PostgREST error P0001 with the message. */
 class RaiseException extends Error {}
 
@@ -50,6 +55,7 @@ async function checkAndIncrementUsageWeighted(db: PreviewAppDataReader, args: Ar
       ON CONFLICT (ownerId, usageType, periodStart, periodType) DO UPDATE SET count = legacy_usage.count + excluded.count, updatedAt = excluded.updatedAt
       WHERE legacy_usage.count + excluded.count <= ?
       RETURNING count`).bind(crypto.randomUUID(), owner, usageType, start, periodType, amount, now, now, amount, limit, limit),
+    journal(db, "usage_tracking", "upsert", { clerk_user_id: owner, usage_type: usageType, period_start: start, period_type: periodType }),
   ]);
   const written = upsert.results?.[0] as { count?: number } | undefined;
   if (typeof written?.count === "number") return [{ allowed: true, new_count: written.count, was_at_limit: false }];
@@ -70,6 +76,7 @@ async function incrementUsage(db: PreviewAppDataReader, args: Args) {
       VALUES (?, ?, ?, ?, ?, 1, ?, ?)
       ON CONFLICT (ownerId, usageType, periodStart, periodType) DO UPDATE SET count = legacy_usage.count + 1, updatedAt = excluded.updatedAt
       RETURNING count`).bind(crypto.randomUUID(), owner, usageType, periodStart(periodType), periodType, now, now),
+    journal(db, "usage_tracking", "upsert", { clerk_user_id: owner, usage_type: usageType, period_start: periodStart(periodType), period_type: periodType }),
   ]);
   return (upsert.results?.[0] as { count: number }).count;
 }
@@ -80,11 +87,14 @@ async function trackContentEngagement(db: PreviewAppDataReader, args: Args) {
   if (!["pro", "premium"].includes(tier) || viewer === args.p_creator_clerk_user_id) return false;
   const points = ({ itinerary_view: 1, itinerary_save: 3, spot_view: 1, spot_save: 2 } as Record<string, number>)[type] ?? 1;
   const today = periodStart("daily");
-  await db.prepare(`INSERT INTO content_engagement (id, viewer_clerk_user_id, viewer_tier, content_type, content_id, creator_clerk_user_id,
-      engagement_points, engagement_date, engagement_month, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ON CONFLICT (viewer_clerk_user_id, content_type, content_id, engagement_date) DO NOTHING`)
-    .bind(crypto.randomUUID(), viewer, tier, type, text(args, "p_content_id"), (args.p_creator_clerk_user_id as string | null) ?? null,
-      points, today, periodStart("monthly"), nowTimestamptz()).run();
+  await db.batch([
+    db.prepare(`INSERT INTO content_engagement (id, viewer_clerk_user_id, viewer_tier, content_type, content_id, creator_clerk_user_id,
+        engagement_points, engagement_date, engagement_month, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT (viewer_clerk_user_id, content_type, content_id, engagement_date) DO NOTHING`)
+      .bind(crypto.randomUUID(), viewer, tier, type, text(args, "p_content_id"), (args.p_creator_clerk_user_id as string | null) ?? null,
+        points, today, periodStart("monthly"), nowTimestamptz()),
+    journal(db, "content_engagement", "upsert", { viewer_clerk_user_id: viewer, content_type: type, content_id: text(args, "p_content_id"), engagement_date: today }),
+  ]);
   return true;
 }
 
@@ -95,6 +105,8 @@ async function replaceWeeklyCitySpotRankings(db: PreviewAppDataReader, args: Arg
   const now = nowTimestamptz();
   await db.batch([
     db.prepare("DELETE FROM weekly_city_spot_rankings WHERE week_start = ? AND city_slug = ?").bind(week, city),
+    // The whole week/city set is replaced: replay syncs every Supabase row of that key to D1.
+    journal(db, "weekly_city_spot_rankings", "upsert", { week_start: week, city_slug: city }),
     ...rankings.map((r) => db.prepare(`INSERT INTO weekly_city_spot_rankings (id, week_start, city_slug, spot_id, rank, score, post_count,
         platform_count, signal_summary, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
       .bind(crypto.randomUUID(), week, city, (r.spot_id as string | null) ?? null, (r.rank as number | null) ?? null, (r.score as number | null) ?? null,
@@ -122,6 +134,9 @@ async function awardSocialSubmissionTokens(db: PreviewAppDataReader, args: Args)
     db.prepare(`UPDATE spot_contributors SET total_tokens = total_tokens + ?, last_submitted_at = ?, updated_at = ? WHERE id = ? AND ${inserted}`)
       .bind(delta, now, now, contributor, ledgerId),
     db.prepare(`UPDATE social_spot_submissions SET token_awarded = ?, updated_at = ? WHERE id = ? AND ${inserted}`).bind(delta, now, submission, ledgerId),
+    journal(db, "contribution_token_ledger", "upsert", { submission_id: submission, reason: "social_spot_submission" }),
+    journal(db, "spot_contributors", "upsert", { id: contributor }),
+    journal(db, "social_spot_submissions", "upsert", { id: submission }),
   ]);
   const awarded = await db.prepare("SELECT 1 AS ok FROM contribution_token_ledger WHERE id = ?").bind(ledgerId).first();
   const total = await db.prepare("SELECT total_tokens FROM spot_contributors WHERE id = ?").bind(contributor).first<{ total_tokens: number }>();
