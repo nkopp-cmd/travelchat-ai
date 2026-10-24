@@ -1,0 +1,729 @@
+{
+  "columns": [
+    {
+      "t": "affiliate_clicks",
+      "col": "id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": "gen_random_uuid()"
+    },
+    {
+      "t": "affiliate_clicks",
+      "col": "clerk_user_id",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "affiliate_clicks",
+      "col": "partner",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "affiliate_clicks",
+      "col": "tracking_id",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "affiliate_clicks",
+      "col": "event_type",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "affiliate_clicks",
+      "col": "activity_name",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "affiliate_clicks",
+      "col": "affiliate_url",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "affiliate_clicks",
+      "col": "user_agent",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "affiliate_clicks",
+      "col": "ip_hash",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "affiliate_clicks",
+      "col": "conversion_value",
+      "udt": "numeric",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "affiliate_clicks",
+      "col": "commission_earned",
+      "udt": "numeric",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "affiliate_clicks",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": "now()"
+    },
+    {
+      "t": "content_engagement",
+      "col": "id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": "gen_random_uuid()"
+    },
+    {
+      "t": "content_engagement",
+      "col": "viewer_clerk_user_id",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "content_engagement",
+      "col": "viewer_tier",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "content_engagement",
+      "col": "content_type",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "content_engagement",
+      "col": "content_id",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "content_engagement",
+      "col": "creator_clerk_user_id",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "content_engagement",
+      "col": "engagement_points",
+      "udt": "int4",
+      "nul": "NO",
+      "def": "1"
+    },
+    {
+      "t": "content_engagement",
+      "col": "engagement_date",
+      "udt": "date",
+      "nul": "NO",
+      "def": "CURRENT_DATE"
+    },
+    {
+      "t": "content_engagement",
+      "col": "engagement_month",
+      "udt": "date",
+      "nul": "NO",
+      "def": "(date_trunc('month'::text, (CURRENT_DATE)::timestamp with time zone))::date"
+    },
+    {
+      "t": "content_engagement",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": "now()"
+    },
+    {
+      "t": "guide_earnings",
+      "col": "id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": "gen_random_uuid()"
+    },
+    {
+      "t": "guide_earnings",
+      "col": "guide_clerk_user_id",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "guide_earnings",
+      "col": "earning_month",
+      "udt": "date",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "guide_earnings",
+      "col": "total_engagement_points",
+      "udt": "int4",
+      "nul": "YES",
+      "def": "0"
+    },
+    {
+      "t": "guide_earnings",
+      "col": "platform_engagement_points",
+      "udt": "int4",
+      "nul": "YES",
+      "def": "0"
+    },
+    {
+      "t": "guide_earnings",
+      "col": "subscription_revenue",
+      "udt": "numeric",
+      "nul": "YES",
+      "def": "0"
+    },
+    {
+      "t": "guide_earnings",
+      "col": "revenue_pool",
+      "udt": "numeric",
+      "nul": "YES",
+      "def": "0"
+    },
+    {
+      "t": "guide_earnings",
+      "col": "share_percent",
+      "udt": "numeric",
+      "nul": "YES",
+      "def": "0"
+    },
+    {
+      "t": "guide_earnings",
+      "col": "gross_amount",
+      "udt": "numeric",
+      "nul": "YES",
+      "def": "0"
+    },
+    {
+      "t": "guide_earnings",
+      "col": "stripe_fee",
+      "udt": "numeric",
+      "nul": "YES",
+      "def": "0"
+    },
+    {
+      "t": "guide_earnings",
+      "col": "net_amount",
+      "udt": "numeric",
+      "nul": "YES",
+      "def": "0"
+    },
+    {
+      "t": "guide_earnings",
+      "col": "status",
+      "udt": "text",
+      "nul": "NO",
+      "def": "'calculated'::text"
+    },
+    {
+      "t": "guide_earnings",
+      "col": "stripe_transfer_id",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "guide_earnings",
+      "col": "paid_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "guide_earnings",
+      "col": "rollover_amount",
+      "udt": "numeric",
+      "nul": "YES",
+      "def": "0"
+    },
+    {
+      "t": "guide_earnings",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": "now()"
+    },
+    {
+      "t": "guide_earnings",
+      "col": "updated_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": "now()"
+    },
+    {
+      "t": "guide_profiles",
+      "col": "id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": "gen_random_uuid()"
+    },
+    {
+      "t": "guide_profiles",
+      "col": "clerk_user_id",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "guide_profiles",
+      "col": "status",
+      "udt": "text",
+      "nul": "NO",
+      "def": "'pending'::text"
+    },
+    {
+      "t": "guide_profiles",
+      "col": "applied_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": "now()"
+    },
+    {
+      "t": "guide_profiles",
+      "col": "approved_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "guide_profiles",
+      "col": "approved_by",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "guide_profiles",
+      "col": "stripe_account_id",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "guide_profiles",
+      "col": "stripe_onboarding_complete",
+      "udt": "bool",
+      "nul": "YES",
+      "def": "false"
+    },
+    {
+      "t": "guide_profiles",
+      "col": "stripe_charges_enabled",
+      "udt": "bool",
+      "nul": "YES",
+      "def": "false"
+    },
+    {
+      "t": "guide_profiles",
+      "col": "stripe_payouts_enabled",
+      "udt": "bool",
+      "nul": "YES",
+      "def": "false"
+    },
+    {
+      "t": "guide_profiles",
+      "col": "bio",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "guide_profiles",
+      "col": "specialties",
+      "udt": "_text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "guide_profiles",
+      "col": "cities",
+      "udt": "_text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "guide_profiles",
+      "col": "revenue_share_percent",
+      "udt": "numeric",
+      "nul": "YES",
+      "def": "20.00"
+    },
+    {
+      "t": "guide_profiles",
+      "col": "minimum_payout",
+      "udt": "numeric",
+      "nul": "YES",
+      "def": "10.00"
+    },
+    {
+      "t": "guide_profiles",
+      "col": "total_earned",
+      "udt": "numeric",
+      "nul": "YES",
+      "def": "0"
+    },
+    {
+      "t": "guide_profiles",
+      "col": "total_paid_out",
+      "udt": "numeric",
+      "nul": "YES",
+      "def": "0"
+    },
+    {
+      "t": "guide_profiles",
+      "col": "pending_balance",
+      "udt": "numeric",
+      "nul": "YES",
+      "def": "0"
+    },
+    {
+      "t": "guide_profiles",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": "now()"
+    },
+    {
+      "t": "guide_profiles",
+      "col": "updated_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": "now()"
+    },
+    {
+      "t": "review_helpful_votes",
+      "col": "id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": "gen_random_uuid()"
+    },
+    {
+      "t": "review_helpful_votes",
+      "col": "review_id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "review_helpful_votes",
+      "col": "clerk_user_id",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "review_helpful_votes",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": "now()"
+    },
+    {
+      "t": "spot_reviews",
+      "col": "id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": "gen_random_uuid()"
+    },
+    {
+      "t": "spot_reviews",
+      "col": "spot_id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "spot_reviews",
+      "col": "clerk_user_id",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "spot_reviews",
+      "col": "rating",
+      "udt": "int4",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "spot_reviews",
+      "col": "comment",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "spot_reviews",
+      "col": "visit_date",
+      "udt": "date",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "spot_reviews",
+      "col": "helpful_count",
+      "udt": "int4",
+      "nul": "YES",
+      "def": "0"
+    },
+    {
+      "t": "spot_reviews",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": "now()"
+    },
+    {
+      "t": "spot_reviews",
+      "col": "updated_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": "now()"
+    }
+  ],
+  "constraints": [
+    {
+      "t": "affiliate_clicks",
+      "conname": "affiliate_clicks_event_type_check",
+      "k": "c",
+      "def": "CHECK ((event_type = ANY (ARRAY['view'::text, 'click'::text, 'conversion'::text])))"
+    },
+    {
+      "t": "affiliate_clicks",
+      "conname": "affiliate_clicks_partner_check",
+      "k": "c",
+      "def": "CHECK ((partner = ANY (ARRAY['viator'::text, 'booking'::text, 'getyourguide'::text, 'klook'::text])))"
+    },
+    {
+      "t": "affiliate_clicks",
+      "conname": "affiliate_clicks_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "t": "content_engagement",
+      "conname": "content_engagement_content_type_check",
+      "k": "c",
+      "def": "CHECK ((content_type = ANY (ARRAY['itinerary_view'::text, 'itinerary_save'::text, 'spot_view'::text, 'spot_save'::text])))"
+    },
+    {
+      "t": "content_engagement",
+      "conname": "content_engagement_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "t": "content_engagement",
+      "conname": "content_engagement_viewer_clerk_user_id_content_type_conten_key",
+      "k": "u",
+      "def": "UNIQUE (viewer_clerk_user_id, content_type, content_id, engagement_date)"
+    },
+    {
+      "t": "content_engagement",
+      "conname": "content_engagement_viewer_tier_check",
+      "k": "c",
+      "def": "CHECK ((viewer_tier = ANY (ARRAY['pro'::text, 'premium'::text])))"
+    },
+    {
+      "t": "guide_earnings",
+      "conname": "guide_earnings_guide_clerk_user_id_earning_month_key",
+      "k": "u",
+      "def": "UNIQUE (guide_clerk_user_id, earning_month)"
+    },
+    {
+      "t": "guide_earnings",
+      "conname": "guide_earnings_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "t": "guide_earnings",
+      "conname": "guide_earnings_status_check",
+      "k": "c",
+      "def": "CHECK ((status = ANY (ARRAY['calculated'::text, 'approved'::text, 'processing'::text, 'paid'::text, 'failed'::text, 'below_minimum'::text])))"
+    },
+    {
+      "t": "guide_profiles",
+      "conname": "guide_profiles_clerk_user_id_key",
+      "k": "u",
+      "def": "UNIQUE (clerk_user_id)"
+    },
+    {
+      "t": "guide_profiles",
+      "conname": "guide_profiles_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "t": "guide_profiles",
+      "conname": "guide_profiles_status_check",
+      "k": "c",
+      "def": "CHECK ((status = ANY (ARRAY['pending'::text, 'approved'::text, 'rejected'::text, 'suspended'::text])))"
+    },
+    {
+      "t": "guide_profiles",
+      "conname": "guide_profiles_stripe_account_id_key",
+      "k": "u",
+      "def": "UNIQUE (stripe_account_id)"
+    },
+    {
+      "t": "review_helpful_votes",
+      "conname": "review_helpful_votes_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "t": "review_helpful_votes",
+      "conname": "review_helpful_votes_review_id_clerk_user_id_key",
+      "k": "u",
+      "def": "UNIQUE (review_id, clerk_user_id)"
+    },
+    {
+      "t": "review_helpful_votes",
+      "conname": "review_helpful_votes_review_id_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (review_id) REFERENCES spot_reviews(id) ON DELETE CASCADE"
+    },
+    {
+      "t": "spot_reviews",
+      "conname": "spot_reviews_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "t": "spot_reviews",
+      "conname": "spot_reviews_rating_check",
+      "k": "c",
+      "def": "CHECK (((rating >= 1) AND (rating <= 5)))"
+    },
+    {
+      "t": "spot_reviews",
+      "conname": "spot_reviews_spot_id_clerk_user_id_key",
+      "k": "u",
+      "def": "UNIQUE (spot_id, clerk_user_id)"
+    },
+    {
+      "t": "spot_reviews",
+      "conname": "spot_reviews_spot_id_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (spot_id) REFERENCES spots(id) ON DELETE CASCADE"
+    }
+  ],
+  "indexes": [
+    {
+      "t": "affiliate_clicks",
+      "indexname": "idx_affiliate_clicks_created",
+      "indexdef": "CREATE INDEX idx_affiliate_clicks_created ON public.affiliate_clicks USING btree (created_at)"
+    },
+    {
+      "t": "affiliate_clicks",
+      "indexname": "idx_affiliate_clicks_partner",
+      "indexdef": "CREATE INDEX idx_affiliate_clicks_partner ON public.affiliate_clicks USING btree (partner)"
+    },
+    {
+      "t": "affiliate_clicks",
+      "indexname": "idx_affiliate_clicks_tracking",
+      "indexdef": "CREATE INDEX idx_affiliate_clicks_tracking ON public.affiliate_clicks USING btree (tracking_id)"
+    },
+    {
+      "t": "affiliate_clicks",
+      "indexname": "idx_affiliate_clicks_user",
+      "indexdef": "CREATE INDEX idx_affiliate_clicks_user ON public.affiliate_clicks USING btree (clerk_user_id)"
+    },
+    {
+      "t": "content_engagement",
+      "indexname": "idx_engagement_creator",
+      "indexdef": "CREATE INDEX idx_engagement_creator ON public.content_engagement USING btree (creator_clerk_user_id)"
+    },
+    {
+      "t": "content_engagement",
+      "indexname": "idx_engagement_creator_month",
+      "indexdef": "CREATE INDEX idx_engagement_creator_month ON public.content_engagement USING btree (creator_clerk_user_id, engagement_month)"
+    },
+    {
+      "t": "content_engagement",
+      "indexname": "idx_engagement_date",
+      "indexdef": "CREATE INDEX idx_engagement_date ON public.content_engagement USING btree (engagement_date)"
+    },
+    {
+      "t": "content_engagement",
+      "indexname": "idx_engagement_month",
+      "indexdef": "CREATE INDEX idx_engagement_month ON public.content_engagement USING btree (engagement_month)"
+    },
+    {
+      "t": "guide_earnings",
+      "indexname": "idx_earnings_guide",
+      "indexdef": "CREATE INDEX idx_earnings_guide ON public.guide_earnings USING btree (guide_clerk_user_id)"
+    },
+    {
+      "t": "guide_earnings",
+      "indexname": "idx_earnings_month",
+      "indexdef": "CREATE INDEX idx_earnings_month ON public.guide_earnings USING btree (earning_month)"
+    },
+    {
+      "t": "guide_earnings",
+      "indexname": "idx_earnings_status",
+      "indexdef": "CREATE INDEX idx_earnings_status ON public.guide_earnings USING btree (status)"
+    },
+    {
+      "t": "guide_profiles",
+      "indexname": "idx_guide_profiles_status",
+      "indexdef": "CREATE INDEX idx_guide_profiles_status ON public.guide_profiles USING btree (status)"
+    },
+    {
+      "t": "guide_profiles",
+      "indexname": "idx_guide_profiles_stripe",
+      "indexdef": "CREATE INDEX idx_guide_profiles_stripe ON public.guide_profiles USING btree (stripe_account_id)"
+    },
+    {
+      "t": "review_helpful_votes",
+      "indexname": "idx_review_votes_review",
+      "indexdef": "CREATE INDEX idx_review_votes_review ON public.review_helpful_votes USING btree (review_id)"
+    },
+    {
+      "t": "review_helpful_votes",
+      "indexname": "idx_review_votes_user",
+      "indexdef": "CREATE INDEX idx_review_votes_user ON public.review_helpful_votes USING btree (clerk_user_id)"
+    },
+    {
+      "t": "spot_reviews",
+      "indexname": "idx_spot_reviews_rating",
+      "indexdef": "CREATE INDEX idx_spot_reviews_rating ON public.spot_reviews USING btree (rating)"
+    },
+    {
+      "t": "spot_reviews",
+      "indexname": "idx_spot_reviews_spot",
+      "indexdef": "CREATE INDEX idx_spot_reviews_spot ON public.spot_reviews USING btree (spot_id)"
+    },
+    {
+      "t": "spot_reviews",
+      "indexname": "idx_spot_reviews_user",
+      "indexdef": "CREATE INDEX idx_spot_reviews_user ON public.spot_reviews USING btree (clerk_user_id)"
+    }
+  ],
+  "source": "supabase llehrhqeolfprutcaopi public schema, 2026-10-24, catalog only (no rows): tables first mapped to preview candidates"
+}

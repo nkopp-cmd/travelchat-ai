@@ -60,6 +60,9 @@ function defaultFor(col) {
   if (d === "true" || d === "false") return ` DEFAULT ${d === "true" ? 1 : 0}`;
   if (/^-?\d+(\.\d+)?$/.test(d)) return ` DEFAULT ${d}`;
   if (d === "'{}'::text[]") return " DEFAULT '[]'";
+  // UTC dates, as Supabase's CURRENT_DATE.
+  if (d === "CURRENT_DATE") return " DEFAULT (date('now'))";
+  if (d === "(date_trunc('month'::text, (CURRENT_DATE)::timestamp with time zone))::date") return " DEFAULT (date('now','start of month'))";
   const literal = d.match(/^'((?:[^']|'')*)'::(text|jsonb|character varying)$/);
   if (literal) return ` DEFAULT '${literal[1]}'`;
   throw new Error(`Unsupported default ${d} on ${col.t}.${col.col}`);

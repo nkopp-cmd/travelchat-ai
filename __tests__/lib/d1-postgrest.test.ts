@@ -111,7 +111,7 @@ describe("D1 PostgREST facade: PostgREST contracts", () => {
   });
 
   it("refuses anything it does not implement instead of guessing", () => {
-    expect(() => service().from("spot_reviews")).toThrow("not migrated");
+    expect(() => service().from("spots")).toThrow("not migrated");
     expect(() => service().from("itineraries").select("id, spots(name)")).toThrow("embeds");
     expect(() => service().from("itineraries").select("title:name")).toThrow("embeds and aliases");
     expect(() => service().from("itineraries").eq("metadata", 1)).toThrow("unknown column");
@@ -241,8 +241,8 @@ describe("D1 PostgREST facade: upsert and emulated CHECKs", () => {
 describe("D1 PostgREST facade: generated Supabase-only tables (migration 0034)", () => {
   it("the committed generated specs equal a fresh generation from the pinned catalog", async () => {
     // @ts-expect-error plain .mjs script
-    const { generateSpecs } = await import("../../scripts/d1-migration/facade-specs.mjs");
-    const schema = JSON.parse(readFileSync(path.resolve(__dirname, "../../scripts/d1-migration/fixtures/supabase-exit-schema-20261024.json"), "utf8"));
+    const { generateSpecs, mergedCatalog, CATALOGS } = await import("../../scripts/d1-migration/facade-specs.mjs");
+    const schema = mergedCatalog(CATALOGS.map((f: string) => path.resolve(__dirname, "../..", f)));
     expect(readFileSync(path.resolve(__dirname, "../../lib/app-data/d1-generated-specs.ts"), "utf8")).toBe(generateSpecs(schema));
   });
 

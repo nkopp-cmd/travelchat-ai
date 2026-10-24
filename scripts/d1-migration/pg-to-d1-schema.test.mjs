@@ -20,6 +20,11 @@ test("the committed migration is exactly the translation of the pinned catalog",
   assert.equal(readFileSync(MIGRATION, "utf8"), translateSchema(schema));
 });
 
+test("migration 0038 is exactly the translation of its pinned catalog", () => {
+  const more = JSON.parse(readFileSync("scripts/d1-migration/fixtures/supabase-exit-schema-20261024b.json", "utf8"));
+  assert.equal(readFileSync("migrations/app-preview/0038_supabase_exit_more_tables.sql", "utf8"), translateSchema(more));
+});
+
 test("every Supabase-only table gets a D1 table, in foreign-key order, on top of the candidate schema", () => {
   const db = migratedDb();
   const tables = new Set(db.prepare("SELECT name FROM sqlite_master WHERE type = 'table'").all().map(r => r.name));

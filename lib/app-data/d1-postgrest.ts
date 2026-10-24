@@ -243,7 +243,7 @@ function touchUpdatedAt(patch: Row): Row {
 }
 
 /**
- * Supabase-only tables (migration 0034): columns from the generated catalog specs, policies from pg_policies
+ * Supabase tables generated in migrations 0034 and 0038: columns from the generated catalog specs, policies from pg_policies
  * (2026-10-24). Without an entry here a table is service-key only, which is what Supabase does for the social_*,
  * apify_*, weekly_*, affiliate_* and contributor tables. Filtered public reads that the app never uses (geo_aliases,
  * geo_local_areas, geo_local_area_vibe_scores, transfer_edges) stay service-only: stricter, never wider.
@@ -264,6 +264,11 @@ const GENERATED_POLICIES: Record<string, Partial<TableSpec>> = {
   follows: { owner: "follower_id", anonRead: "1", userReadAlso: "1", userOps: ["select", "insert", "delete"] },
   user_challenges: VIA_PROFILE,
   user_progress: VIA_PROFILE,
+  // Postgres: public SELECT/INSERT/UPDATE/DELETE "true" (0 rows on 2026-10-24); D1 narrows writes to the author.
+  spot_reviews: { owner: "clerk_user_id", anonRead: "1", userReadAlso: "1" },
+  review_helpful_votes: { owner: "clerk_user_id", anonRead: "1", userReadAlso: "1", userOps: ["select", "insert", "delete"] },
+  guide_profiles: { owner: "clerk_user_id", userOps: ["select"] },
+  guide_earnings: { owner: "guide_clerk_user_id", userOps: ["select"] },
 };
 for (const [table, generated] of Object.entries(GENERATED_SPECS)) {
   if (TABLES[table]) throw new Error(`D1 facade: ${table} is both hand-written and generated`);
