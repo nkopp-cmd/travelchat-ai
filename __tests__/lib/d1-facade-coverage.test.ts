@@ -22,7 +22,8 @@ const STILL_ON_SUPABASE = new Set([
 
 /** Chains on facade tables that the facade cannot answer yet (embedded selects etc.): file -> reason. */
 const HAND_PORT_PENDING: Record<string, string> = {
-  "app/api/conversations/route.ts": "conversations embeds messages(...) for the preview text",
+  // D1 branch done (two owner-scoped reads); the embed stays on the Supabase branch until Supabase is removed.
+  "app/api/conversations/route.ts": "embed kept for the Supabase branch",
   "app/api/spots/save/route.ts": "saved_spots embeds spots(...); spots is still on Supabase",
   "app/profile/page.tsx": "saved_spots embeds spots(...); spots is still on Supabase",
 };

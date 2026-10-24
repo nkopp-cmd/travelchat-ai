@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
+import { dataBackend } from "@/lib/app-data/backend";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { Errors, handleApiError } from "@/lib/api-errors";
 import { matchesPreviewActor } from "@/lib/app-data/preview-actor";
@@ -23,6 +24,30 @@ export async function GET(req: NextRequest) {
         }
 
         const supabase = await createSupabaseServerClient();
+
+        if (dataBackend() === "d1") {
+            // The D1 facade has no embedded selects: two owner-scoped reads, grouped here.
+            const { data: rows, error } = await supabase
+                .from("conversations")
+                .select("id, title, created_at, updated_at, linked_itinerary_id")
+                .eq("clerk_user_id", userId)
+                .order("updated_at", { ascending: false });
+            const ids = (rows ?? []).map((row) => row.id as string);
+            const { data: messages, error: messagesError } = ids.length
+                ? await supabase.from("messages").select("id, role, content, created_at, conversation_id")
+                    .in("conversation_id", ids).order("created_at").order("id")
+                : { data: [], error: null };
+            if (error || messagesError) {
+                console.error("Error fetching conversations:", error ?? messagesError);
+                return Errors.databaseError();
+            }
+            const conversations = (rows ?? []).map((row) => ({
+                ...row,
+                messages: (messages ?? []).filter((m) => m.conversation_id === row.id)
+                    .map(({ conversation_id: _conversation, ...message }) => message),
+            }));
+            return NextResponse.json({ conversations });
+        }
 
         const { data: conversations, error } = await supabase
             .from("conversations")
