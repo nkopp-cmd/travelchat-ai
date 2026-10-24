@@ -237,3 +237,40 @@ describe("D1 PostgREST facade: upsert and emulated CHECKs", () => {
     expect((await service().from("subscriptions").update({ billing_cycle: "weekly" }).eq("clerk_user_id", B)).error?.code).toBe("23514");
   });
 });
+
+describe("D1 PostgREST facade: generated Supabase-only tables (migration 0034)", () => {
+  it("the committed generated specs equal a fresh generation from the pinned catalog", async () => {
+    // @ts-expect-error plain .mjs script
+    const { generateSpecs } = await import("../../scripts/d1-migration/facade-specs.mjs");
+    const schema = JSON.parse(readFileSync(path.resolve(__dirname, "../../scripts/d1-migration/fixtures/supabase-exit-schema-20261024.json"), "utf8"));
+    expect(readFileSync(path.resolve(__dirname, "../../lib/app-data/d1-generated-specs.ts"), "utf8")).toBe(generateSpecs(schema));
+  });
+
+  it("challenges: public read for anon and users, no writes", async () => {
+    await service().from("challenges").insert({ name: "Market run", description: "d", xp_reward: 50, requirements: { visits: 3 } });
+    expect((await d1Client(db, { role: "anon" }).from("challenges").select("name, requirements")).data).toEqual([{ name: "Market run", requirements: { visits: 3 } }]);
+    expect((await as(A).from("challenges").insert({ name: "x", description: "d", xp_reward: 1 })).error?.code).toBe("42501");
+  });
+
+  it("follows: anyone reads; only the follower writes or deletes their own follow", async () => {
+    expect((await as(A).from("follows").insert({ follower_id: B, following_id: A })).error?.code).toBe("42501");
+    expect((await as(A).from("follows").insert({ follower_id: A, following_id: B })).error).toBeNull();
+    expect((await d1Client(db, { role: "anon" }).from("follows").select("follower_id, following_id")).data).toEqual([{ follower_id: A, following_id: B }]);
+    await as(B).from("follows").delete().eq("follower_id", A);
+    expect((await service().from("follows").select("id", { count: "exact", head: true })).count).toBe(1);
+  });
+
+  it("user_progress: owner through the caller's profile row", async () => {
+    await service().from("user_progress").insert({ user_id: trip(901), discoveries: 2, unlocked_cities: ["seoul"] });
+    expect((await as(A).from("user_progress").select("discoveries, unlocked_cities")).data).toEqual([{ discoveries: 2, unlocked_cities: ["seoul"] }]);
+    expect((await as(B).from("user_progress").select("discoveries")).data).toEqual([]);
+    expect((await as(B).from("user_progress").insert({ user_id: trip(901), discoveries: 9 })).error?.code).toBe("42501");
+  });
+
+  it("service-only tables return nothing to users and anon; geography columns are refused", async () => {
+    expect((await as(A).from("social_spot_submissions").select("id")).data).toEqual([]);
+    expect((await d1Client(db, { role: "anon" }).from("weekly_city_spot_rankings").select("spot_id")).data).toEqual([]);
+    expect(() => service().from("geo_destinations").select("*")).toThrow("geography/geometry");
+    expect((await d1Client(db, { role: "anon" }).from("geo_destinations").select("slug")).error).toBeNull();
+  });
+});

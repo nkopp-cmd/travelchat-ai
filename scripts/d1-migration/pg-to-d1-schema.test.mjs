@@ -63,10 +63,10 @@ test("anything unknown fails loudly instead of being dropped", () => {
   assert.throws(() => translateSchema({ ...schema, columns: [...schema.columns, { t: "x", col: "v", udt: "tsvector", nul: "YES", def: null }] }), /Unsupported type/);
 });
 
-test("source select reads geography as lat/lng and timestamps as UTC ISO text", () => {
+test("source select reads geography as lat/lng and timestamps as PostgREST text", () => {
   const sql = sourceSelect(schema, "geo_destinations");
   assert.match(sql, /ST_Y\("center"::geometry\) AS center_lat, ST_X\("center"::geometry\) AS center_lng/);
-  assert.match(sql, /to_char\("created_at" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"'\) AS created_at/);
+  assert.match(sql, /to_json\("created_at"\) #>> '\{\}' AS created_at/);
   assert.throws(() => sourceSelect(schema, "nope"), /Unknown table/);
 });
 

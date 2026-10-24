@@ -1,5 +1,6 @@
 import "server-only";
 import type { PreviewAppDataReader, PreviewAppDataStatement } from "./preview-db";
+import { GENERATED_SPECS } from "./d1-generated-specs";
 
 /**
  * Supabase exit step 3 (shared/plans/localley-decisions.md 2026-10-24): a PostgREST-compatible query builder over
@@ -10,7 +11,7 @@ import type { PreviewAppDataReader, PreviewAppDataStatement } from "./preview-db
  * 42501 for a rejected insert, DESC orders NULLs first.
  */
 
-type Kind = "text" | "int" | "real" | "bool" | "json" | "textArray";
+type Kind = "text" | "int" | "real" | "bool" | "json" | "textArray" | "unsupported";
 type Value = string | number | boolean | null | Record<string, unknown> | unknown[];
 type Row = Record<string, Value>;
 type Binding = string | number | null;
@@ -241,6 +242,41 @@ function touchUpdatedAt(patch: Row): Row {
   return { ...patch, updated_at: nowTimestamptz() };
 }
 
+/**
+ * Supabase-only tables (migration 0034): columns from the generated catalog specs, policies from pg_policies
+ * (2026-10-24). Without an entry here a table is service-key only, which is what Supabase does for the social_*,
+ * apify_*, weekly_*, affiliate_* and contributor tables. Filtered public reads that the app never uses (geo_aliases,
+ * geo_local_areas, geo_local_area_vibe_scores, transfer_edges) stay service-only: stricter, never wider.
+ */
+const PUBLIC_READ: Partial<TableSpec> = { anonRead: "1", userReadAlso: "1", userOps: ["select"] };
+const VIA_PROFILE: Partial<TableSpec> = {
+  ownerExpr: "t.user_id IN (SELECT id FROM profiles WHERE ownerId = ?)",
+  userWriteCheck: (row) => row.user_id === undefined ? null
+    : { sql: "SELECT 1 AS ok FROM profiles WHERE id = ? AND ownerId = ?", params: [row.user_id === null ? null : String(row.user_id)] },
+};
+const GENERATED_POLICIES: Record<string, Partial<TableSpec>> = {
+  challenges: PUBLIC_READ,
+  geo_countries: PUBLIC_READ,
+  geo_vibe_taxonomy: PUBLIC_READ,
+  geo_destinations: { anonRead: "t.is_enabled = 1", userReadAlso: "t.is_enabled = 1", userOps: ["select"] },
+  // Postgres allows any INSERT/DELETE here (policies "true", 0 rows on 2026-10-24); D1 narrows writes to the
+  // follower, which is the only write the app makes (app/api/friends).
+  follows: { owner: "follower_id", anonRead: "1", userReadAlso: "1", userOps: ["select", "insert", "delete"] },
+  user_challenges: VIA_PROFILE,
+  user_progress: VIA_PROFILE,
+};
+for (const [table, generated] of Object.entries(GENERATED_SPECS)) {
+  if (TABLES[table]) throw new Error(`D1 facade: ${table} is both hand-written and generated`);
+  TABLES[table] = {
+    table,
+    primaryKey: generated.primaryKey,
+    columns: Object.fromEntries(Object.entries(generated.columns).map(([name, c]) => [name, {
+      kind: c.kind, ...(c.default === "uuid" ? { default: uuid } : c.default === "now" ? { default: nowTimestamptz } : {}),
+    }])),
+    ...(GENERATED_POLICIES[table] ?? { userOps: [] }),
+  };
+}
+
 function spec(table: string): TableSpec {
   const found = TABLES[table];
   if (!found) throw new Error(`D1 facade: table ${table} is not migrated`);
@@ -250,6 +286,7 @@ function spec(table: string): TableSpec {
 function column(s: TableSpec, name: string) {
   const col = s.columns[name];
   if (!col) throw new Error(`D1 facade: unknown column ${s.table}.${name}`);
+  if (col.kind === "unsupported") throw new Error(`D1 facade: ${s.table}.${name} (geography/geometry) is not supported`);
   return { ...col, sql: `t.${col.d1 ?? name}` };
 }
 
@@ -282,7 +319,11 @@ function fromD1(kind: Kind, value: unknown): Value {
 function parseSelect(s: TableSpec, columns: string): string[] {
   const names = columns.split(",").map((c) => c.trim()).filter(Boolean);
   if (names.length === 0) throw new Error("D1 facade: empty select");
-  if (names.length === 1 && names[0] === "*") return Object.keys(s.columns);
+  if (names.length === 1 && names[0] === "*") {
+    const all = Object.keys(s.columns);
+    for (const name of all) column(s, name);
+    return all;
+  }
   for (const name of names) {
     if (!/^[a-z_][a-z0-9_]*$/.test(name)) throw new Error(`D1 facade: unsupported select item "${name}" (embeds and aliases are not supported)`);
     column(s, name);
@@ -417,7 +458,7 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
     if (this.auth.role === "anon") return { sql: forRead && this.s.anonRead ? `(${this.s.anonRead})` : "0", params: [] };
     if (this.s.userOps && !this.s.userOps.includes(op)) return { sql: "0", params: [] };
     const owner = this.s.ownerExpr ?? (this.s.owner ? `${column(this.s, this.s.owner).sql} = ?` : null);
-    if (!owner) return { sql: "0", params: [] };
+    if (!owner) return { sql: forRead && this.s.userReadAlso ? `(${this.s.userReadAlso})` : "0", params: [] };
     if (forRead && this.s.userReadAlso) return { sql: `(${owner} OR ${this.s.userReadAlso})`, params: [this.auth.userId] };
     return { sql: `(${owner})`, params: [this.auth.userId] };
   }

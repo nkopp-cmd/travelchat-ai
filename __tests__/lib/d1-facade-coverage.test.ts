@@ -14,16 +14,15 @@ import { TABLES } from "@/lib/app-data/d1-postgrest";
  * under DATA_BACKEND=d1. Shrink these lists as tables move; never grow them without a plan line.
  */
 const STILL_ON_SUPABASE = new Set([
-  "affiliate_clicks", "affiliate_earnings", "apify_spot_candidates", "challenges", "contribution_token_ledger", "follows",
-  "geo_destinations", "guide_earnings", "guide_profiles", "review_helpful_votes", "social_spot_submission_aliases",
-  "social_spot_submission_candidates", "social_spot_submissions", "spot_contributors", "spot_reviews", "spots",
-  "user_challenges", "user_progress", "weekly_city_spot_rankings",
+  "affiliate_clicks", "guide_earnings", "guide_profiles", "review_helpful_votes", "spot_reviews", "spots",
 ]);
 
-/** Chains on facade tables that the facade cannot answer yet (embedded selects etc.): file -> reason. */
+/** Chains on facade tables that the facade cannot answer yet (embedded selects etc.): "file#table" -> reason. */
 const HAND_PORT_PENDING: Record<string, string> = {
   // D1 branch done (two owner-scoped reads); the embed stays on the Supabase branch until Supabase is removed.
-  "app/api/conversations/route.ts": "embed kept for the Supabase branch",
+  "app/api/conversations/route.ts#conversations": "embed kept for the Supabase branch",
+  "app/profile/page.tsx#user_challenges": "user_challenges embeds challenges(*)",
+  "app/spots/[id]/page.tsx#social_spot_submissions": "contains(research); the D1 detail path (PR582) reads it by hand",
 };
 
 const SUPPORTED = new Set(["select", "insert", "upsert", "update", "delete", "eq", "neq", "gt", "gte", "lt", "lte", "in", "is", "not",
@@ -38,6 +37,15 @@ function chains(): Chain[] {
     const text = readFileSync(file, "utf8");
     if (!text.includes(".from(")) continue;
     const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true);
+    // File-level string constants used as select lists (e.g. const SUBMISSION_SELECT = "id, ...").
+    const constants = new Map<string, string>();
+    source.forEachChild(function collect(node: ts.Node) {
+      if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer
+        && (ts.isStringLiteral(node.initializer) || ts.isNoSubstitutionTemplateLiteral(node.initializer))) {
+        constants.set(node.name.text, JSON.stringify(node.initializer.text));
+      }
+      ts.forEachChild(node, collect);
+    });
     const visit = (node: ts.Node) => {
       if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression) && node.expression.name.text === "from"
         && node.arguments[0] && ts.isStringLiteralLike(node.arguments[0])
@@ -47,7 +55,10 @@ function chains(): Chain[] {
         while (ts.isPropertyAccessExpression(current.parent) && ts.isCallExpression(current.parent.parent)) {
           const call = current.parent.parent;
           chain.methods.push(current.parent.name.text);
-          if (current.parent.name.text === "select" && call.arguments[0]) chain.selects.push(call.arguments[0].getText(source));
+          if (current.parent.name.text === "select" && call.arguments[0]) {
+            const arg = call.arguments[0];
+            chain.selects.push(ts.isIdentifier(arg) && constants.has(arg.text) ? constants.get(arg.text)! : arg.getText(source));
+          }
           current = call;
         }
         out.push(chain);
@@ -72,7 +83,7 @@ describe("D1 facade coverage", () => {
   });
 
   it("chains on facade tables use only supported methods and plain column selects", () => {
-    const problems = all.filter((c) => c.table in TABLES && !(c.file in HAND_PORT_PENDING)).flatMap((c) => {
+    const problems = all.filter((c) => c.table in TABLES && !(`${c.file}#${c.table}` in HAND_PORT_PENDING)).flatMap((c) => {
       const bad = c.methods.filter((m) => !SUPPORTED.has(m)).map((m) => `method ${m}`);
       for (const select of c.selects) {
         const literal = select.match(/^(["'`])([\s\S]*)\1$/);
