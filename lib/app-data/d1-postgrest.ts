@@ -545,6 +545,12 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
   lt(name: string, value: unknown) { return this.compare(name, "<", value); }
   lte(name: string, value: unknown) { return this.compare(name, "<=", value); }
 
+  /** PostgREST match({ a: 1, b: 2 }) = eq on each key. */
+  match(values: Record<string, unknown>) {
+    for (const [name, value] of Object.entries(values)) this.eq(name, value);
+    return this;
+  }
+
   in(name: string, values: unknown[]) {
     const col = column(this.s, name);
     if (!Array.isArray(values)) throw new Error("D1 facade: in() needs an array");

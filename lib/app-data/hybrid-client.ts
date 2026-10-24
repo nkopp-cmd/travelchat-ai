@@ -15,7 +15,8 @@ export function withMigratedTables<T extends object>(client: T, auth: D1Role): T
       const value = Reflect.get(target, prop, receiver);
       if (prop === "rpc" && typeof value === "function") {
         return (name: string, args?: Record<string, unknown>) => {
-          if (!(name in D1_RPCS)) return value.call(target, name, args);
+          // Under D1 an unmigrated function fails loudly instead of silently keeping a Supabase dependency.
+          if (!(name in D1_RPCS)) throw new Error(`D1 rpc: function ${name} is not migrated`);
           // The migrated functions are only ever called with the service key.
           if (auth.role !== "service") throw new Error(`D1 rpc: ${name} needs the service role`);
           return d1Rpc(appDataDb(), name, args);

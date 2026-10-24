@@ -14,7 +14,11 @@ import * as projection from "@/lib/spots/projection";
  * served by Supabase / waiting for a hand port. A new table or a new chain shape fails here instead of at runtime
  * under DATA_BACKEND=d1. Shrink these lists as tables move; never grow them without a plan line.
  */
-const STILL_ON_SUPABASE = new Set<string>([]);
+const STILL_ON_SUPABASE = new Set<string>([
+  // Dead code: lib/web-push.ts (only caller lib/notification-triggers.ts has no importer) queries tables that do not
+  // exist in Supabase (PGRST205); notifications live in AUTH_DB. Removed with the Supabase clients in step 8.
+  "notifications", "notification_preferences", "push_subscriptions",
+]);
 
 /** Chains on facade tables that the facade cannot answer yet (embedded selects etc.): "file#table" -> reason. */
 const HAND_PORT_PENDING: Record<string, string> = {
@@ -36,7 +40,23 @@ const KNOWN_SCHEMA_BUGS: Record<string, string> = {
   "app/api/user/email-preferences/route.ts#users": "users.email_preferences has no column; storage decided at the D1 cutover",
 };
 
-const SUPPORTED = new Set(["select", "insert", "upsert", "update", "delete", "ilike", "eq", "neq", "gt", "gte", "lt", "lte", "in", "is", "not",
+/** Postgres functions not ported yet: name -> why calling them under DATA_BACKEND=d1 cannot happen today. */
+const DEFERRED_RPCS: Record<string, string> = {
+  claim_social_spot_media_jobs_v1: "social submissions are off in production (NEXT_PUBLIC_SOCIAL_SPOT_SUBMISSIONS_ENABLED unset); port before enabling",
+  complete_social_spot_media_job_v1: "same: social submissions off",
+  fail_social_spot_media_job_v1: "same: social submissions off",
+  sync_social_spot_media_v1: "same: social submissions off",
+  sync_social_submission_candidates_v1: "same: social submissions off",
+  defer_social_spot_media_coverage_v1: "same: social submissions off",
+  claim_social_spot_media_coverage_v1: "same: social submissions off",
+  schedule_legacy_social_spot_media_backfill_v1: "same: social submissions off (admin backfill)",
+  list_ready_social_spot_media_work_v1: "same: social submissions off",
+  claim_social_spot_media_finalization_v2: "same: social submissions off",
+  settle_social_spot_media_finalization_v2: "same: social submissions off",
+  calculate_monthly_earnings: "guide payouts are not live (guide tables have 0 rows); port before the first payout run",
+};
+
+const SUPPORTED = new Set(["select", "insert", "upsert", "update", "delete", "ilike", "match", "eq", "neq", "gt", "gte", "lt", "lte", "in", "is", "not",
   "order", "limit", "range", "single", "maybeSingle", "abortSignal"]);
 
 /** A select argument resolved to its possible string values; null = could not resolve statically. */
@@ -80,7 +100,7 @@ function resolveStrings(node: ts.Node, source: ts.SourceFile, seen = new Set<ts.
 }
 
 function chains(): Chain[] {
-  const files = execSync("git ls-files 'app/**/*.ts' 'app/**/*.tsx' 'lib/**/*.ts' 'lib/**/*.tsx'", { encoding: "utf8" }).trim().split("\n");
+  const files = execSync("git ls-files ':(glob)app/**/*.ts' ':(glob)app/**/*.tsx' ':(glob)lib/**/*.ts' ':(glob)lib/**/*.tsx'", { encoding: "utf8" }).trim().split("\n");
   const out: Chain[] = [];
   for (const file of files) {
     const text = readFileSync(file, "utf8");
@@ -136,6 +156,15 @@ describe("D1 facade coverage", () => {
       return bad.map((b) => `${c.file}:${c.line} ${c.table} ${b}`);
     });
     expect(problems).toEqual([]);
+  });
+
+  it("every rpc() is ported to D1 or explicitly deferred with a reason", async () => {
+    const { D1_RPCS } = await import("@/lib/app-data/d1-rpc");
+    const files = execSync("git ls-files ':(glob)app/**/*.ts' ':(glob)app/**/*.tsx' ':(glob)lib/**/*.ts'", { encoding: "utf8" }).trim().split("\n")
+      .filter((f) => !f.startsWith("lib/app-data/"));
+    const names = new Set(files.flatMap((f) => [...readFileSync(f, "utf8").matchAll(/\.rpc\(\s*["']([a-z_0-9]+)["']/g)].map((m) => m[1])));
+    expect([...names].filter((n) => !(n in D1_RPCS) && !(n in DEFERRED_RPCS))).toEqual([]);
+    expect(Object.keys(DEFERRED_RPCS).filter((n) => !names.has(n) || n in D1_RPCS)).toEqual([]);
   });
 
   it("lists only tables that still exist in the code", () => {

@@ -11,7 +11,7 @@ const COLUMNS = new Set(["id", "user_id", "title", "city", "days", "activities",
 
 describe("itineraries selects", () => {
   it("only name columns that exist in Supabase", () => {
-    const files = execSync("git ls-files 'app/**/*.ts' 'app/**/*.tsx' 'lib/**/*.ts' 'lib/**/*.tsx'", { encoding: "utf8" }).trim().split("\n");
+    const files = execSync("git ls-files ':(glob)app/**/*.ts' ':(glob)app/**/*.tsx' ':(glob)lib/**/*.ts' ':(glob)lib/**/*.tsx'", { encoding: "utf8" }).trim().split("\n");
     const unknown: string[] = [];
     let checked = 0;
     for (const file of files) {
