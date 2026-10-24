@@ -1,0 +1,407 @@
+import "server-only";
+import type { PreviewAppDataReader, PreviewAppDataStatement } from "./preview-db";
+
+/**
+ * Supabase exit step 3 (shared/plans/localley-decisions.md 2026-10-24): a PostgREST-compatible query builder over
+ * D1 for simple owner-rule tables. It supports exactly the chain methods the app uses; anything else throws.
+ * Row-level security does not exist in D1, so each table spec re-implements its Postgres policy for the
+ * user-scoped client (role "user"); role "service" matches the service-role key (no policy), "anon" the anon key.
+ * Results mirror PostgREST: { data, error, count }, booleans and JSON decoded, PGRST116 for single() misses,
+ * 42501 for a rejected insert, DESC orders NULLs first.
+ */
+
+type Kind = "text" | "int" | "real" | "bool" | "json" | "textArray";
+type Value = string | number | boolean | null | Record<string, unknown> | unknown[];
+type Row = Record<string, Value>;
+type Binding = string | number | null;
+
+export interface TableSpec {
+  /** D1 table name. */
+  table: string;
+  /** Postgres column -> kind and optional D1 name (same-table renames only). */
+  columns: Record<string, { kind: Kind; d1?: string; default?: () => Binding }>;
+  primaryKey: string[];
+  /** Postgres column that holds the owning user id (RLS `clerk_user_id = jwt.sub`). */
+  owner?: string;
+  /** Extra visible rows for role "user" on SELECT (Postgres permissive SELECT policy), as D1 SQL on the table alias t. */
+  userReadAlso?: string;
+  /** Extra insert check for role "user" (Postgres WITH CHECK beyond the owner rule); bound params: [userId, ...]. */
+  userInsertCheck?: (row: Row) => { sql: string; params: Binding[] } | null;
+  /** Statements that must run before an insert (e.g. the owners row a foreign key needs). */
+  beforeInsert?: (row: Row) => { sql: string; params: Binding[] }[];
+  /** Role "anon" may read these rows (SQL on alias t); no anon writes. Omitted = anon sees nothing. */
+  anonRead?: string;
+}
+
+export type D1Role = { role: "service" } | { role: "user"; userId: string } | { role: "anon" };
+
+export interface PostgrestError { message: string; code: string; details: string | null; hint: string | null }
+export interface PostgrestResult<T> { data: T | null; error: PostgrestError | null; count: number | null; status: number }
+
+const error = (code: string, message: string, status = 400): PostgrestError & { status: number } =>
+  ({ code, message, details: null, hint: null, status });
+
+const uuid = () => crypto.randomUUID();
+// Postgres timestamptz text as PostgREST returns it, e.g. 2026-10-24T17:32:11.615+00:00.
+export const nowTimestamptz = () => new Date().toISOString().replace("Z", "+00:00");
+
+export const TABLES: Record<string, TableSpec> = {
+  itineraries: {
+    table: "itineraries",
+    primaryKey: ["id"],
+    owner: "clerk_user_id",
+    columns: {
+      id: { kind: "text", default: uuid },
+      user_id: { kind: "text" },
+      title: { kind: "text" },
+      city: { kind: "text" },
+      days: { kind: "int" },
+      activities: { kind: "json" },
+      local_score: { kind: "real" },
+      shared: { kind: "bool", default: () => 0 },
+      share_code: { kind: "text" },
+      created_at: { kind: "text", default: nowTimestamptz },
+      clerk_user_id: { kind: "text", d1: "ownerId" },
+      highlights: { kind: "textArray" },
+      estimated_cost: { kind: "text" },
+      subtitle: { kind: "text" },
+      status: { kind: "text" },
+      is_favorite: { kind: "bool", default: () => 0 },
+      is_public: { kind: "bool", default: () => 0 },
+      like_count: { kind: "int", default: () => 0 },
+      view_count: { kind: "int", default: () => 0 },
+      ai_backgrounds: { kind: "json" },
+      story_slides: { kind: "json" },
+    },
+    // "Localley published itinerary read": authenticated users also see public itineraries.
+    userReadAlso: "t.is_public = 1",
+    // "Localley own itinerary" WITH CHECK: user_id is null or one of the caller's own profiles.
+    userInsertCheck: (row) => row.user_id == null ? null
+      : { sql: "SELECT 1 AS ok FROM profiles WHERE id = ? AND ownerId = ?", params: [String(row.user_id)] },
+    beforeInsert: (row) => [{ sql: "INSERT INTO owners (id, source) VALUES (?, 'new') ON CONFLICT (id) DO NOTHING", params: [String(row.clerk_user_id)] }],
+  },
+};
+
+function spec(table: string): TableSpec {
+  const found = TABLES[table];
+  if (!found) throw new Error(`D1 facade: table ${table} is not migrated`);
+  return found;
+}
+
+function column(s: TableSpec, name: string) {
+  const col = s.columns[name];
+  if (!col) throw new Error(`D1 facade: unknown column ${s.table}.${name}`);
+  return { ...col, sql: `t.${col.d1 ?? name}` };
+}
+
+function toD1(kind: Kind, value: unknown): Binding {
+  if (value === null || value === undefined) return null;
+  switch (kind) {
+    case "bool":
+      if (typeof value !== "boolean" && value !== 0 && value !== 1) throw new Error("D1 facade: boolean expected");
+      return value === true || value === 1 ? 1 : 0;
+    case "json": return JSON.stringify(value);
+    case "textArray":
+      if (!Array.isArray(value)) throw new Error("D1 facade: array expected");
+      return JSON.stringify(value);
+    case "int": case "real":
+      if (typeof value !== "number" || !Number.isFinite(value)) throw new Error("D1 facade: number expected");
+      return value;
+    default:
+      if (typeof value !== "string") throw new Error("D1 facade: text expected");
+      return value;
+  }
+}
+
+function fromD1(kind: Kind, value: unknown): Value {
+  if (value === null || value === undefined) return null;
+  if (kind === "bool") return value === 1;
+  if (kind === "json" || kind === "textArray") return JSON.parse(String(value));
+  return value as Value;
+}
+
+function parseSelect(s: TableSpec, columns: string): string[] {
+  const names = columns.split(",").map((c) => c.trim()).filter(Boolean);
+  if (names.length === 0) throw new Error("D1 facade: empty select");
+  if (names.length === 1 && names[0] === "*") return Object.keys(s.columns);
+  for (const name of names) {
+    if (!/^[a-z_][a-z0-9_]*$/.test(name)) throw new Error(`D1 facade: unsupported select item "${name}" (embeds and aliases are not supported)`);
+    column(s, name);
+  }
+  return names;
+}
+
+type Filter = { sql: string; params: Binding[] };
+type Action = "select" | "insert" | "update" | "delete";
+
+class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
+  private action: Action = "select";
+  private selected: string[] | null = null;
+  private countMode: "exact" | null = null;
+  private head = false;
+  private filters: Filter[] = [];
+  private orders: string[] = [];
+  private limitCount: number | null = null;
+  private offsetCount = 0;
+  private cardinality: "many" | "single" | "maybeSingle" = "many";
+  private values: Row[] = [];
+  private patch: Row = {};
+
+  constructor(private db: PreviewAppDataReader, private s: TableSpec, private auth: D1Role) {}
+
+  select(columns = "*", options?: { count?: "exact"; head?: boolean }) {
+    if (options && Object.keys(options).some((k) => k !== "count" && k !== "head")) throw new Error("D1 facade: unsupported select option");
+    if (options?.count && options.count !== "exact") throw new Error("D1 facade: only count exact");
+    this.selected = parseSelect(this.s, columns);
+    this.countMode = options?.count ?? null;
+    this.head = options?.head === true;
+    return this;
+  }
+
+  insert(rows: Row | Row[]) {
+    this.action = "insert";
+    this.values = Array.isArray(rows) ? rows : [rows];
+    for (const row of this.values) for (const key of Object.keys(row)) column(this.s, key);
+    return this;
+  }
+
+  update(patch: Row) {
+    this.action = "update";
+    for (const key of Object.keys(patch)) column(this.s, key);
+    this.patch = patch;
+    return this;
+  }
+
+  delete() {
+    this.action = "delete";
+    return this;
+  }
+
+  private compare(name: string, op: string, value: unknown) {
+    const col = column(this.s, name);
+    if (value === null) throw new Error("D1 facade: use is() for null");
+    this.filters.push({ sql: `${col.sql} ${op} ?`, params: [toD1(col.kind === "json" || col.kind === "textArray" ? "text" : col.kind, value)] });
+    return this;
+  }
+
+  eq(name: string, value: unknown) { return this.compare(name, "=", value); }
+  neq(name: string, value: unknown) { return this.compare(name, "!=", value); }
+  gt(name: string, value: unknown) { return this.compare(name, ">", value); }
+  gte(name: string, value: unknown) { return this.compare(name, ">=", value); }
+  lt(name: string, value: unknown) { return this.compare(name, "<", value); }
+  lte(name: string, value: unknown) { return this.compare(name, "<=", value); }
+
+  in(name: string, values: unknown[]) {
+    const col = column(this.s, name);
+    if (!Array.isArray(values)) throw new Error("D1 facade: in() needs an array");
+    this.filters.push({ sql: `${col.sql} IN (SELECT value FROM json_each(?))`, params: [JSON.stringify(values.map((v) => toD1(col.kind, v)))] });
+    return this;
+  }
+
+  is(name: string, value: null) {
+    if (value !== null) throw new Error("D1 facade: is() supports null only");
+    this.filters.push({ sql: `${column(this.s, name).sql} IS NULL`, params: [] });
+    return this;
+  }
+
+  not(name: string, operator: string, value: unknown) {
+    if (operator !== "is" || value !== null) throw new Error(`D1 facade: unsupported not(${operator})`);
+    this.filters.push({ sql: `${column(this.s, name).sql} IS NOT NULL`, params: [] });
+    return this;
+  }
+
+  order(name: string, options?: { ascending?: boolean; nullsFirst?: boolean }) {
+    const ascending = options?.ascending ?? true;
+    // Postgres default: ASC puts NULLs last, DESC puts them first.
+    const nullsFirst = options?.nullsFirst ?? !ascending;
+    this.orders.push(`${column(this.s, name).sql} ${ascending ? "ASC" : "DESC"} NULLS ${nullsFirst ? "FIRST" : "LAST"}`);
+    return this;
+  }
+
+  limit(count: number) {
+    if (!Number.isSafeInteger(count) || count < 0) throw new Error("D1 facade: bad limit");
+    this.limitCount = count;
+    return this;
+  }
+
+  range(from: number, to: number) {
+    if (!Number.isSafeInteger(from) || !Number.isSafeInteger(to) || from < 0 || to < from) throw new Error("D1 facade: bad range");
+    this.offsetCount = from;
+    this.limitCount = to - from + 1;
+    return this;
+  }
+
+  single() { this.cardinality = "single"; return this as unknown as D1Query<Row>; }
+  maybeSingle() { this.cardinality = "maybeSingle"; return this as unknown as D1Query<Row | null>; }
+  abortSignal() { return this; }
+
+  then<R1 = PostgrestResult<T>, R2 = never>(
+    onfulfilled?: ((value: PostgrestResult<T>) => R1 | PromiseLike<R1>) | null,
+    onrejected?: ((reason: unknown) => R2 | PromiseLike<R2>) | null,
+  ): PromiseLike<R1 | R2> {
+    return this.execute().then(onfulfilled, onrejected);
+  }
+
+  /** Visibility for the caller's role: SELECT/UPDATE/DELETE rows outside it do not exist for them. */
+  private policy(forRead: boolean): Filter | null {
+    if (this.auth.role === "service") return null;
+    if (this.auth.role === "anon") return { sql: forRead && this.s.anonRead ? `(${this.s.anonRead})` : "0", params: [] };
+    if (!this.s.owner) return { sql: "0", params: [] };
+    const owner = column(this.s, this.s.owner).sql;
+    if (forRead && this.s.userReadAlso) return { sql: `(${owner} = ? OR ${this.s.userReadAlso})`, params: [this.auth.userId] };
+    return { sql: `${owner} = ?`, params: [this.auth.userId] };
+  }
+
+  private where(forRead: boolean): Filter {
+    const parts = [...this.filters];
+    const policy = this.policy(forRead);
+    if (policy) parts.push(policy);
+    return parts.length
+      ? { sql: ` WHERE ${parts.map((p) => p.sql).join(" AND ")}`, params: parts.flatMap((p) => p.params) }
+      : { sql: "", params: [] };
+  }
+
+  private decode(row: Record<string, unknown>, names: string[]): Row {
+    return Object.fromEntries(names.map((name) => [name, fromD1(this.s.columns[name].kind, row[name])]));
+  }
+
+  private projection(names: string[]) {
+    return names.map((name) => `${column(this.s, name).sql} AS ${name}`).join(", ");
+  }
+
+  private shape(rows: Row[], count: number | null): PostgrestResult<T> {
+    if (this.cardinality === "many") return { data: (this.selected || this.action === "select" ? rows : null) as T, error: null, count, status: 200 };
+    if (rows.length === 1) return { data: rows[0] as T, error: null, count, status: 200 };
+    if (rows.length === 0 && this.cardinality === "maybeSingle") return { data: null, error: null, count, status: 200 };
+    const e = error("PGRST116", `JSON object requested, multiple (or no) rows returned`, 406);
+    return { data: null, error: e, count: null, status: e.status };
+  }
+
+  private async execute(): Promise<PostgrestResult<T>> {
+    try {
+      switch (this.action) {
+        case "select": return await this.runSelect();
+        case "insert": return await this.runInsert();
+        case "update": return await this.runUpdate();
+        default: return await this.runDelete();
+      }
+    } catch (cause) {
+      const message = cause instanceof Error ? cause.message : String(cause);
+      if (message.startsWith("D1 facade:")) throw cause;
+      if (/UNIQUE constraint failed/i.test(message)) return { data: null, error: error("23505", message, 409), count: null, status: 409 };
+      if (/FOREIGN KEY constraint failed/i.test(message)) return { data: null, error: error("23503", message, 409), count: null, status: 409 };
+      if (/CHECK constraint failed|NOT NULL constraint failed/i.test(message)) return { data: null, error: error("23514", message), count: null, status: 400 };
+      throw cause;
+    }
+  }
+
+  private async runSelect(): Promise<PostgrestResult<T>> {
+    const names = this.selected ?? Object.keys(this.s.columns);
+    const where = this.where(true);
+    let count: number | null = null;
+    if (this.countMode) {
+      const row = await this.db.prepare(`SELECT count(*) AS n FROM ${this.s.table} t${where.sql}`).bind(...where.params).first<{ n: number }>();
+      count = row?.n ?? 0;
+      if (this.head) return { data: null, error: null, count, status: 200 };
+    }
+    const order = this.orders.length ? ` ORDER BY ${this.orders.join(", ")}` : "";
+    const limit = this.limitCount !== null ? ` LIMIT ${this.limitCount} OFFSET ${this.offsetCount}` : this.offsetCount ? ` LIMIT -1 OFFSET ${this.offsetCount}` : "";
+    const { results } = await this.db.prepare(`SELECT ${this.projection(names)} FROM ${this.s.table} t${where.sql}${order}${limit}`)
+      .bind(...where.params).all<Record<string, unknown>>();
+    return this.shape(results.map((r) => this.decode(r, names)), count);
+  }
+
+  private async runInsert(): Promise<PostgrestResult<T>> {
+    if (this.filters.length || this.orders.length) throw new Error("D1 facade: filters on insert");
+    const statements: PreviewAppDataStatement[] = [];
+    const keys: Binding[][] = [];
+    for (const input of this.values) {
+      const row: Row = { ...input };
+      for (const [name, col] of Object.entries(this.s.columns)) if (row[name] === undefined && col.default) row[name] = col.default();
+      if (this.auth.role === "anon") return this.rlsInsertError();
+      if (this.auth.role === "user") {
+        if (!this.s.owner || row[this.s.owner] !== this.auth.userId) return this.rlsInsertError();
+        const check = this.s.userInsertCheck?.(row);
+        if (check && !(await this.db.prepare(check.sql).bind(...check.params, this.auth.userId).first())) return this.rlsInsertError();
+      }
+      for (const before of this.s.beforeInsert?.(row) ?? []) statements.push(this.db.prepare(before.sql).bind(...before.params));
+      const names = Object.keys(row).filter((name) => row[name] !== undefined);
+      statements.push(this.db.prepare(`INSERT INTO ${this.s.table} (${names.map((n) => this.s.columns[n].d1 ?? n).join(", ")}) VALUES (${names.map(() => "?").join(", ")})`)
+        .bind(...names.map((n) => toD1(this.s.columns[n].kind, row[n]))));
+      keys.push(this.s.primaryKey.map((k) => toD1(this.s.columns[k].kind, row[k])));
+    }
+    await this.db.batch(statements);
+    if (!this.selected) return { data: null, error: null, count: null, status: 201 };
+    const rows: Row[] = [];
+    for (const key of keys) {
+      const match = this.s.primaryKey.map((k) => `${column(this.s, k).sql} = ?`).join(" AND ");
+      const row = await this.db.prepare(`SELECT ${this.projection(this.selected)} FROM ${this.s.table} t WHERE ${match}`).bind(...key).first<Record<string, unknown>>();
+      if (row) rows.push(this.decode(row, this.selected));
+    }
+    return this.shape(rows, null);
+  }
+
+  private rlsInsertError(): PostgrestResult<T> {
+    const e = error("42501", `new row violates row-level security policy for table "${this.s.table}"`, 403);
+    return { data: null, error: e, count: null, status: e.status };
+  }
+
+  /** Primary keys of the rows the caller may change, captured before the write so .select() can return them. */
+  private async targetKeys(): Promise<Binding[][]> {
+    const where = this.where(false);
+    const { results } = await this.db.prepare(`SELECT ${this.s.primaryKey.map((k) => `${column(this.s, k).sql} AS ${k}`).join(", ")} FROM ${this.s.table} t${where.sql}`)
+      .bind(...where.params).all<Record<string, Binding>>();
+    return results.map((r) => this.s.primaryKey.map((k) => r[k]));
+  }
+
+  private keyMatch(keys: Binding[][], alias = ""): Filter {
+    const cols = this.s.primaryKey.map((k) => `${alias}${this.s.columns[k].d1 ?? k}`).join(", ");
+    return { sql: `json_array(${cols}) IN (SELECT value FROM json_each(?))`, params: [JSON.stringify(keys)] };
+  }
+
+  private async runUpdate(): Promise<PostgrestResult<T>> {
+    if (this.auth.role === "anon") return { data: this.selected ? [] as T : null, error: null, count: null, status: 200 };
+    const names = Object.keys(this.patch);
+    if (!names.length) throw new Error("D1 facade: empty update");
+    if (this.auth.role === "user" && this.s.owner && names.includes(this.s.owner) && this.patch[this.s.owner] !== this.auth.userId) {
+      return this.rlsInsertError();
+    }
+    const keys = await this.targetKeys();
+    if (keys.length) {
+      const match = this.keyMatch(keys);
+      await this.db.prepare(`UPDATE ${this.s.table} SET ${names.map((n) => `${this.s.columns[n].d1 ?? n} = ?`).join(", ")} WHERE ${match.sql}`)
+        .bind(...names.map((n) => toD1(this.s.columns[n].kind, this.patch[n])), ...match.params).run();
+    }
+    return this.returnKeys(keys);
+  }
+
+  private async runDelete(): Promise<PostgrestResult<T>> {
+    if (this.auth.role === "anon") return { data: this.selected ? [] as T : null, error: null, count: null, status: 200 };
+    const keys = await this.targetKeys();
+    const before = this.selected && keys.length ? await this.rowsFor(keys) : [];
+    if (keys.length) {
+      const match = this.keyMatch(keys);
+      await this.db.prepare(`DELETE FROM ${this.s.table} WHERE ${match.sql}`).bind(...match.params).run();
+    }
+    return this.shape(before, null);
+  }
+
+  private async rowsFor(keys: Binding[][]): Promise<Row[]> {
+    const names = this.selected!;
+    const match = this.keyMatch(keys, "t.");
+    const { results } = await this.db.prepare(`SELECT ${this.projection(names)} FROM ${this.s.table} t WHERE ${match.sql}`)
+      .bind(...match.params).all<Record<string, unknown>>();
+    return results.map((r) => this.decode(r, names));
+  }
+
+  private async returnKeys(keys: Binding[][]): Promise<PostgrestResult<T>> {
+    if (!this.selected) return { data: null, error: null, count: null, status: 204 };
+    return this.shape(keys.length ? await this.rowsFor(keys) : [], null);
+  }
+}
+
+/** Supabase-client-shaped entry point: `d1Client(db, auth).from("itineraries").select(...)`. */
+export function d1Client(db: PreviewAppDataReader, auth: D1Role) {
+  if (auth.role === "user" && (typeof auth.userId !== "string" || !auth.userId)) throw new Error("D1 facade: user role needs a user id");
+  return { from: (table: string) => new D1Query(db, spec(table), auth) };
+}
