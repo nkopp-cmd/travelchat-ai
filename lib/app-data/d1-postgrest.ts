@@ -38,6 +38,8 @@ export interface TableSpec {
   userWriteCheck?: (row: Row) => { sql: string; params: Binding[] } | null;
   /** BEFORE UPDATE trigger equivalent (e.g. updated_at = now()). */
   beforeUpdate?: (patch: Row) => Row;
+  /** BEFORE UPDATE triggers that read OLD: SET expressions per Postgres column (column refs = old values). */
+  updateSql?: (patch: Row) => Record<string, { sql: string; params: Binding[] }>;
   /** Postgres CHECK constraints the D1 table lacks: returns the violated constraint name, or null. */
   checks?: (row: Row) => string | null;
   /** AFTER INSERT trigger equivalent, run in the same batch. */
@@ -270,6 +272,28 @@ const GENERATED_POLICIES: Record<string, Partial<TableSpec>> = {
   guide_profiles: { owner: "clerk_user_id", userOps: ["select"] },
   guide_earnings: { owner: "guide_clerk_user_id", userOps: ["select"] },
 };
+/** Postgres triggers on the generated tables (pg_trigger 2026-10-24). */
+const GENERATED_TRIGGERS: Record<string, Partial<TableSpec>> = {
+  spot_contributors: { beforeUpdate: touchUpdatedAt },
+  guide_profiles: { beforeUpdate: touchUpdatedAt },
+  guide_earnings: { beforeUpdate: touchUpdatedAt },
+  social_spot_submissions: {
+    beforeUpdate: touchUpdatedAt,
+    // reset_social_spot_media_finalization_attempts: a new media_processing_revision resets the finalization retry state.
+    updateSql: (patch): Record<string, { sql: string; params: Binding[] }> => {
+      if (patch.media_processing_revision === undefined) return {};
+      const changed = "media_processing_revision IS NOT ?";
+      const rev = patch.media_processing_revision === null ? null : Number(patch.media_processing_revision);
+      const keep = (column: string) => patch[column] === undefined ? { sql: column, params: [] as Binding[] } : { sql: "?", params: [toD1Value(patch[column])] };
+      const count = keep("media_finalization_attempt_count"), available = keep("media_finalization_available_at");
+      return {
+        media_finalization_attempt_count: { sql: `CASE WHEN ${changed} THEN 0 ELSE ${count.sql} END`, params: [rev, ...count.params] },
+        media_finalization_available_at: { sql: `CASE WHEN ${changed} THEN NULL ELSE ${available.sql} END`, params: [rev, ...available.params] },
+      };
+    },
+  },
+};
+
 for (const [table, generated] of Object.entries(GENERATED_SPECS)) {
   if (TABLES[table]) throw new Error(`D1 facade: ${table} is both hand-written and generated`);
   TABLES[table] = {
@@ -279,6 +303,7 @@ for (const [table, generated] of Object.entries(GENERATED_SPECS)) {
       kind: c.kind, ...(c.default === "uuid" ? { default: uuid } : c.default === "now" ? { default: nowTimestamptz } : {}),
     }])),
     ...(GENERATED_POLICIES[table] ?? { userOps: [] }),
+    ...GENERATED_TRIGGERS[table],
   };
 }
 
@@ -293,6 +318,10 @@ function column(s: TableSpec, name: string) {
   if (!col) throw new Error(`D1 facade: unknown column ${s.table}.${name}`);
   if (col.kind === "unsupported") throw new Error(`D1 facade: ${s.table}.${name} (geography/geometry) is not supported`);
   return { ...col, sql: `t.${col.d1 ?? name}` };
+}
+
+function toD1Value(value: unknown): Binding {
+  return value === null || value === undefined ? null : typeof value === "number" || typeof value === "string" ? value : JSON.stringify(value);
 }
 
 function toD1(kind: Kind, value: unknown): Binding {
@@ -620,8 +649,11 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
     const keys = await this.targetKeys();
     if (keys.length) {
       const match = this.keyMatch(keys);
-      await this.db.prepare(`UPDATE ${this.s.table} SET ${names.map((n) => `${this.s.columns[n].d1 ?? n} = ?`).join(", ")} WHERE ${match.sql}`)
-        .bind(...names.map((n) => toD1(this.s.columns[n].kind, patch[n])), ...match.params).run();
+      const overrides = this.s.updateSql?.(patch) ?? {};
+      const plain = names.filter((n) => !(n in overrides));
+      const sets = [...plain.map((n) => `${this.s.columns[n].d1 ?? n} = ?`), ...Object.entries(overrides).map(([n, o]) => `${this.s.columns[n].d1 ?? n} = ${o.sql}`)];
+      await this.db.prepare(`UPDATE ${this.s.table} SET ${sets.join(", ")} WHERE ${match.sql}`)
+        .bind(...plain.map((n) => toD1(this.s.columns[n].kind, patch[n])), ...Object.values(overrides).flatMap((o) => o.params), ...match.params).run();
     }
     return this.returnKeys(keys);
   }

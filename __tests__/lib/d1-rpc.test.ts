@@ -63,3 +63,54 @@ describe("D1 usage functions", () => {
     expect(mocks.supabaseRpc).not.toHaveBeenCalled();
   });
 });
+
+describe("D1 social/engagement functions and generated-table triggers", () => {
+  const sub = "30000000-0000-4000-8000-000000000001", contributor = "30000000-0000-4000-8000-000000000002";
+  const spot = "30000000-0000-4000-8000-000000000003";
+  beforeEach(() => {
+    db.sqlite.exec(`INSERT INTO spot_contributors (id, email, public_credit_name, total_tokens) VALUES ('${contributor}', 'c@x.test', 'C', 5);
+      INSERT INTO social_spot_submissions (id, contributor_id, source_url, canonical_url, platform, status, contributor_credit, media_processing_revision, media_finalization_attempt_count)
+        VALUES ('${sub}', '${contributor}', 'u', 'u', 'instagram', 'spot_created', 'C', 1, 3);
+      INSERT INTO spots (id, name, description, category, visible) VALUES ('${spot}', '{"en":"S"}', '{"en":"d"}', 'Cafe', 1);`);
+  });
+
+  it("award tokens once per submission; second call awards 0; mismatches raise P0001", async () => {
+    const award = () => d1Rpc(db as never, "award_social_submission_tokens_v1", { p_submission_id: sub, p_contributor_id: contributor, p_delta: 10 });
+    expect((await award()).data).toEqual([{ awarded: 10, total_tokens: 15 }]);
+    expect((await award()).data).toEqual([{ awarded: 0, total_tokens: 15 }]);
+    expect(db.sqlite.prepare("SELECT token_awarded FROM social_spot_submissions").get()).toEqual({ token_awarded: 10 });
+    expect((await d1Rpc(db as never, "award_social_submission_tokens_v1", { p_submission_id: sub, p_contributor_id: spot, p_delta: 1 })).error)
+      .toMatchObject({ code: "P0001", message: "Submission and contributor do not match" });
+    expect((await d1Rpc(db as never, "award_social_submission_tokens_v1", { p_submission_id: sub, p_contributor_id: contributor, p_delta: 0 })).error?.code).toBe("P0001");
+  });
+
+  it("replace weekly rankings swaps the whole week/city set", async () => {
+    const replace = (ranks: number[]) => d1Rpc(db as never, "replace_weekly_city_spot_rankings", { p_week_start: "2026-10-19", p_city_slug: "seoul",
+      p_rankings: ranks.map((rank) => ({ spot_id: spot, rank, score: 50, post_count: 2, platform_count: 1, signal_summary: { tiktok: 2 } })) });
+    expect((await replace([1])).data).toBe(1);
+    expect((await replace([2])).data).toBe(1);
+    expect(db.sqlite.prepare("SELECT rank, signal_summary FROM weekly_city_spot_rankings").all().map((r) => ({ ...r }))).toEqual([{ rank: 2, signal_summary: '{"tiktok":2}' }]);
+    expect((await replace([9])).error?.code).toBe("23514");
+  });
+
+  it("content engagement: paid viewers only, no self views, one per day", async () => {
+    const track = (viewer: string, tier: string) => d1Rpc(db as never, "track_content_engagement",
+      { p_viewer_clerk_user_id: viewer, p_viewer_tier: tier, p_content_type: "itinerary_save", p_content_id: "i1", p_creator_clerk_user_id: "creator" });
+    expect((await track("v1", "free")).data).toBe(false);
+    expect((await track("creator", "pro")).data).toBe(false);
+    expect((await track("v1", "pro")).data).toBe(true);
+    expect((await track("v1", "pro")).data).toBe(true);
+    expect(db.sqlite.prepare("SELECT count(*) AS n, max(engagement_points) AS p FROM content_engagement").get()).toEqual({ n: 1, p: 3 });
+  });
+
+  it("social_spot_submissions update triggers: updated_at and the media finalization reset on a new revision", async () => {
+    const { d1Client } = await import("@/lib/app-data/d1-postgrest");
+    const service = d1Client(db as never, { role: "service" });
+    await service.from("social_spot_submissions").update({ status: "needs_review" }).eq("id", sub);
+    expect(db.sqlite.prepare("SELECT media_finalization_attempt_count AS c FROM social_spot_submissions").get()).toEqual({ c: 3 });
+    await service.from("social_spot_submissions").update({ media_processing_revision: 2 }).eq("id", sub);
+    const row = db.sqlite.prepare("SELECT media_finalization_attempt_count AS c, updated_at FROM social_spot_submissions").get() as { c: number; updated_at: string };
+    expect(row.c).toBe(0);
+    expect(row.updated_at).toMatch(/\+00:00$/);
+  });
+});
