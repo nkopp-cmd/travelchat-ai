@@ -30,3 +30,6 @@ CREATE TABLE saved_itineraries (
   created_at TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')) CHECK (created_at IS NULL OR julianday(created_at) IS NOT NULL),
   UNIQUE (clerk_user_id, itinerary_id)
 );
+
+-- subscriptions_clerk_user_id_key: upserts use onConflict clerk_user_id (= ownerId).
+CREATE UNIQUE INDEX legacy_subscriptions_owner_key ON legacy_subscriptions (ownerId);

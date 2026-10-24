@@ -211,3 +211,29 @@ describe("D1 PostgREST facade: users, saved_spots, saved_itineraries (migration 
     expect((await as(A).from("saved_itineraries").select("id")).data).toEqual([]);
   });
 });
+
+describe("D1 PostgREST facade: upsert and emulated CHECKs", () => {
+  it("upsert onConflict updates only payload columns, keeps id/created_at, runs the updated_at trigger", async () => {
+    await service().from("subscriptions").insert({ id: "s9", clerk_user_id: A, tier: "free", status: "active", created_at: "2026-01-01T00:00:00+00:00", updated_at: "2026-01-01T00:00:00+00:00" });
+    const { error } = await service().from("subscriptions").upsert({ clerk_user_id: A, tier: "pro", stripe_customer_id: "cus_1" }, { onConflict: "clerk_user_id" });
+    expect(error).toBeNull();
+    const { data } = await service().from("subscriptions").select("id, tier, status, stripe_customer_id, created_at, updated_at").eq("clerk_user_id", A).single();
+    expect(data).toMatchObject({ id: "s9", tier: "pro", status: "active", stripe_customer_id: "cus_1", created_at: "2026-01-01T00:00:00+00:00" });
+    expect(String(data!.updated_at) > "2026-01-01T00:00:00+00:00").toBe(true);
+  });
+
+  it("ignoreDuplicates keeps the existing row; a new key inserts", async () => {
+    await service().from("subscriptions").upsert({ clerk_user_id: A, tier: "premium", status: "active" }, { onConflict: "clerk_user_id" });
+    await service().from("subscriptions").upsert({ clerk_user_id: A, tier: "free", status: "active" }, { onConflict: "clerk_user_id", ignoreDuplicates: true });
+    expect((await service().from("subscriptions").select("tier").eq("clerk_user_id", A).single()).data).toEqual({ tier: "premium" });
+    await service().from("users").upsert({ clerk_id: "user_new2", username: "n2" }, { onConflict: "clerk_id", ignoreDuplicates: true });
+    expect((await service().from("users").select("username, level").eq("clerk_id", "user_new2").single()).data).toEqual({ username: "n2", level: 1 });
+  });
+
+  it("subscriptions CHECK constraints are enforced with code 23514", async () => {
+    expect((await service().from("subscriptions").insert({ clerk_user_id: A, tier: "gold", status: "active" })).error?.code).toBe("23514");
+    await service().from("subscriptions").insert({ clerk_user_id: B, tier: "free", status: "active" });
+    expect((await service().from("subscriptions").update({ status: "paused" }).eq("clerk_user_id", B)).error?.code).toBe("23514");
+    expect((await service().from("subscriptions").update({ billing_cycle: "weekly" }).eq("clerk_user_id", B)).error?.code).toBe("23514");
+  });
+});

@@ -37,6 +37,8 @@ export interface TableSpec {
   userWriteCheck?: (row: Row) => { sql: string; params: Binding[] } | null;
   /** BEFORE UPDATE trigger equivalent (e.g. updated_at = now()). */
   beforeUpdate?: (patch: Row) => Row;
+  /** Postgres CHECK constraints the D1 table lacks: returns the violated constraint name, or null. */
+  checks?: (row: Row) => string | null;
   /** AFTER INSERT trigger equivalent, run in the same batch. */
   afterInsert?: (row: Row) => { sql: string; params: Binding[] }[];
   /** Statements that must run before an insert (e.g. the owners row a foreign key needs). */
@@ -150,6 +152,11 @@ export const TABLES: Record<string, TableSpec> = {
     },
     beforeUpdate: touchUpdatedAt,
     beforeInsert: ensureOwner,
+    checks: (row) =>
+      row.tier !== undefined && !["free", "pro", "premium"].includes(String(row.tier)) ? "subscriptions_tier_check"
+      : row.status !== undefined && !["active", "canceled", "past_due", "trialing"].includes(String(row.status)) ? "subscriptions_status_check"
+      : row.billing_cycle != null && !["monthly", "yearly"].includes(String(row.billing_cycle)) ? "subscriptions_billing_cycle_check"
+      : null,
   },
   usage_tracking: {
     table: "legacy_usage",
@@ -287,6 +294,7 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
   private cardinality: "many" | "single" | "maybeSingle" = "many";
   private values: Row[] = [];
   private patch: Row = {};
+  private conflict: { columns: string[]; ignore: boolean } | null = null;
 
   constructor(private db: PreviewAppDataReader, private s: TableSpec, private auth: D1Role) {}
 
@@ -303,6 +311,15 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
     this.action = "insert";
     this.values = Array.isArray(rows) ? rows : [rows];
     for (const row of this.values) for (const key of Object.keys(row)) column(this.s, key);
+    return this;
+  }
+
+  /** PostgREST upsert: ON CONFLICT (onConflict, default primary key) DO UPDATE the payload columns, or DO NOTHING. */
+  upsert(rows: Row | Row[], options?: { onConflict?: string; ignoreDuplicates?: boolean }) {
+    if (options && Object.keys(options).some((k) => k !== "onConflict" && k !== "ignoreDuplicates")) throw new Error("D1 facade: unsupported upsert option");
+    this.insert(rows);
+    this.conflict = { columns: options?.onConflict ? options.onConflict.split(",").map((c) => c.trim()) : this.s.primaryKey, ignore: options?.ignoreDuplicates === true };
+    for (const c of this.conflict.columns) column(this.s, c);
     return this;
   }
 
@@ -467,19 +484,37 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
         if (this.s.owner ? row[this.s.owner] !== this.auth.userId : !this.s.ownerExpr) return this.rlsInsertError();
         if (!(await this.passesWriteCheck(row))) return this.rlsInsertError();
       }
+      const violated = this.s.checks?.(row);
+      if (violated) return this.checkError(violated);
       for (const before of this.s.beforeInsert?.(row) ?? []) statements.push(this.db.prepare(before.sql).bind(...before.params));
       const names = Object.keys(row).filter((name) => row[name] !== undefined);
       const extra = Object.entries(this.s.d1Extra?.(row) ?? {});
-      statements.push(this.db.prepare(`INSERT INTO ${this.s.table} (${[...names.map((n) => this.s.columns[n].d1 ?? n), ...extra.map(([c]) => c)].join(", ")}) VALUES (${[...names, ...extra].map(() => "?").join(", ")})`)
-        .bind(...names.map((n) => toD1(this.s.columns[n].kind, row[n])), ...extra.map(([, v]) => v)));
+      const d1 = (n: string) => this.s.columns[n].d1 ?? n;
+      let onConflict = "";
+      const updateParams: Binding[] = [];
+      if (this.conflict) {
+        const target = this.conflict.columns.map(d1).join(", ");
+        // Only the caller's payload columns change on conflict; defaults (id, created_at) never overwrite stored values.
+        const payload = Object.keys(input).filter((n) => input[n] !== undefined && !this.conflict!.columns.includes(n));
+        const touched = this.s.beforeUpdate ? this.s.beforeUpdate(Object.fromEntries(payload.map((n) => [n, input[n]]))) : Object.fromEntries(payload.map((n) => [n, input[n]]));
+        const sets = Object.keys(touched).map((n) => `${d1(n)} = ?`);
+        updateParams.push(...Object.keys(touched).map((n) => toD1(this.s.columns[n].kind, touched[n])));
+        const ownerGuard = this.auth.role === "user" && this.s.owner ? ` WHERE ${d1(this.s.owner)} = ?` : "";
+        if (ownerGuard) updateParams.push(this.auth.role === "user" ? this.auth.userId : null);
+        onConflict = this.conflict.ignore || !sets.length ? ` ON CONFLICT (${target}) DO NOTHING` : ` ON CONFLICT (${target}) DO UPDATE SET ${sets.join(", ")}${ownerGuard}`;
+        if (this.conflict.ignore || !sets.length) updateParams.length = 0;
+      }
+      statements.push(this.db.prepare(`INSERT INTO ${this.s.table} (${[...names.map(d1), ...extra.map(([c]) => c)].join(", ")}) VALUES (${[...names, ...extra].map(() => "?").join(", ")})${onConflict}`)
+        .bind(...names.map((n) => toD1(this.s.columns[n].kind, row[n])), ...extra.map(([, v]) => v), ...updateParams));
       for (const after of this.s.afterInsert?.(row) ?? []) statements.push(this.db.prepare(after.sql).bind(...after.params));
-      keys.push(this.s.primaryKey.map((k) => toD1(this.s.columns[k].kind, row[k])));
+      const keyColumns = this.conflict ? this.conflict.columns : this.s.primaryKey;
+      keys.push(keyColumns.map((k) => toD1(this.s.columns[k].kind, row[k])));
     }
     await this.db.batch(statements);
     if (!this.selected) return { data: null, error: null, count: null, status: 201 };
     const rows: Row[] = [];
     for (const key of keys) {
-      const match = this.s.primaryKey.map((k) => `${column(this.s, k).sql} = ?`).join(" AND ");
+      const match = (this.conflict ? this.conflict.columns : this.s.primaryKey).map((k) => `${column(this.s, k).sql} = ?`).join(" AND ");
       const row = await this.db.prepare(`SELECT ${this.projection(this.selected)} FROM ${this.s.table} t WHERE ${match}`).bind(...key).first<Record<string, unknown>>();
       if (row) rows.push(this.decode(row, this.selected));
     }
@@ -490,6 +525,11 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
     if (this.auth.role !== "user") return true;
     const check = this.s.userWriteCheck?.(row);
     return !check || Boolean(await this.db.prepare(check.sql).bind(...check.params, this.auth.userId).first());
+  }
+
+  private checkError(constraint: string): PostgrestResult<T> {
+    const e = error("23514", `new row for relation "${this.s.table}" violates check constraint "${constraint}"`);
+    return { data: null, error: e, count: null, status: e.status };
   }
 
   private rlsInsertError(): PostgrestResult<T> {
@@ -519,6 +559,8 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
       return this.rlsInsertError();
     }
     if (this.auth.role === "user" && !(await this.passesWriteCheck(patch))) return this.rlsInsertError();
+    const violated = this.s.checks?.(patch);
+    if (violated) return this.checkError(violated);
     const keys = await this.targetKeys();
     if (keys.length) {
       const match = this.keyMatch(keys);
