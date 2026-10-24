@@ -24,6 +24,8 @@ import {
 import type { LucideIcon } from "@/components/ui/icons";
 import Link from "next/link";
 import { createSupabaseAdmin } from "@/lib/supabase";
+import { dataBackend } from "@/lib/app-data/backend";
+import { d1CommunitySubmission, d1RelatedSpotSources, d1SpotSource } from "@/lib/spots/d1-queries";
 import { SpotInteractions } from "@/components/spots/spot-interactions";
 import { SpotActivities } from "@/components/spots/spot-activities";
 import { ReviewList } from "@/components/spots/review-list";
@@ -660,23 +662,7 @@ async function previewSpotPageCandidate(searchParams: Promise<{ data_candidate?:
     && process.env.SUPABASE_READ_ONLY === "true";
 }
 
-// Keep the existing Supabase page for all normal preview and www requests.
-async function getSpot(id: string, candidate = false) {
-  if (candidate) {
-    const row = await previewSpotPageData(id);
-    if (!row) return null;
-    const photos = normalizeSpotPhotos(row.photos, row.category, 1600);
-    const photoSummary = summarizeSpotPhotos(photos);
-    return {
-      id: row.id, name: row.name, description: row.description,
-      location: { lat: row.lat ?? 0, lng: row.lng ?? 0, address: row.address },
-      category: row.category, subcategories: [] as string[],
-      localleyScore: normalizeLocalleyScore(row.score), localPercentage: 50,
-      bestTime: "Not verified", photos, hasRealPhoto: photoSummary.hasRealPhoto,
-      realPhotoCount: countRealDisplaySpotPhotos(photos), googlePlaceId: null,
-      tips: [] as string[], verified: false, trending: false, communitySubmission: null,
-    };
-  }
+async function getSpotSourceSupabase(id: string) {
   const supabase = createSupabaseAdmin();
 
   const { data: spot, error } = await supabase
@@ -690,7 +676,7 @@ async function getSpot(id: string, candidate = false) {
   }
 
   if (!spot) {
-    return null;
+    return { spot: null, communitySubmission: null };
   }
 
   const { data: primaryCommunitySubmission, error: primaryCommunityError } = await supabase
@@ -720,6 +706,38 @@ async function getSpot(id: string, candidate = false) {
     }
 
     communitySubmission = candidateCommunitySubmission;
+  }
+
+  return { spot, communitySubmission };
+}
+
+async function getSpotSourceD1(id: string) {
+  const [spot, communitySubmission] = await Promise.all([d1SpotSource(id), d1CommunitySubmission(id)]);
+  return { spot, communitySubmission };
+}
+
+// Keep the existing Supabase page for all normal preview and www requests.
+async function getSpot(id: string, candidate = false) {
+  if (candidate) {
+    const row = await previewSpotPageData(id);
+    if (!row) return null;
+    const photos = normalizeSpotPhotos(row.photos, row.category, 1600);
+    const photoSummary = summarizeSpotPhotos(photos);
+    return {
+      id: row.id, name: row.name, description: row.description,
+      location: { lat: row.lat ?? 0, lng: row.lng ?? 0, address: row.address },
+      category: row.category, subcategories: [] as string[],
+      localleyScore: normalizeLocalleyScore(row.score), localPercentage: 50,
+      bestTime: "Not verified", photos, hasRealPhoto: photoSummary.hasRealPhoto,
+      realPhotoCount: countRealDisplaySpotPhotos(photos), googlePlaceId: null,
+      tips: [] as string[], verified: false, trending: false, communitySubmission: null,
+    };
+  }
+  const { spot, communitySubmission } = dataBackend() === "d1"
+    ? await getSpotSourceD1(id)
+    : await getSpotSourceSupabase(id);
+  if (!spot) {
+    return null;
   }
 
   const { lat, lng } = getSpotCoordinateValues(spot.location);
@@ -783,11 +801,7 @@ async function getSpot(id: string, candidate = false) {
   };
 }
 
-async function getRelatedSpots(
-  currentSpot: NonNullable<Awaited<ReturnType<typeof getSpot>>>,
-  city: string,
-  limit = 3,
-): Promise<RelatedSpot[]> {
+async function getRelatedSpotSourcesSupabase(city: string, excludeId: string, minimumScore: number, limit: number) {
   const supabase = createSupabaseAdmin();
 
   let relatedQuery = supabase
@@ -796,19 +810,31 @@ async function getRelatedSpots(
       "id, name, address, category, location, localley_score, local_percentage, photos, google_place_id",
     )
     .ilike("address->>en", `%${city}%`)
-    .neq("id", currentSpot.id)
+    .neq("id", excludeId)
     .order("localley_score", { ascending: false })
     .order("local_percentage", { ascending: false })
-    .limit(limit * 8);
+    .limit(limit);
 
   relatedQuery = relatedQuery.gte(
     "localley_score",
-    Math.max(3, currentSpot.localleyScore - 1),
+    minimumScore,
   );
   relatedQuery = applyPublicSpotVisibilityFilters(relatedQuery);
 
   const { data, error } = await relatedQuery;
-  if (error || !data) return [];
+  return error || !data ? null : data;
+}
+
+async function getRelatedSpots(
+  currentSpot: NonNullable<Awaited<ReturnType<typeof getSpot>>>,
+  city: string,
+  limit = 3,
+): Promise<RelatedSpot[]> {
+  const minimumScore = Math.max(3, currentSpot.localleyScore - 1);
+  const data = dataBackend() === "d1"
+    ? await d1RelatedSpotSources(city, currentSpot.id, minimumScore, limit * 8).catch(() => null)
+    : await getRelatedSpotSourcesSupabase(city, currentSpot.id, minimumScore, limit * 8);
+  if (!data) return [];
 
   return data
     .filter((spot) =>

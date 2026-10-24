@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createSupabaseAdmin } from "@/lib/supabase";
+import { dataBackend } from "@/lib/app-data/backend";
+import { d1SpotSource } from "@/lib/spots/d1-queries";
 import { rateLimit, strictPlatformLimit } from "@/lib/rate-limit";
 import { inferCityFromAddress } from "@/lib/cities";
 import { distanceKm } from "@/lib/geocoding";
@@ -89,6 +91,12 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
         if (candidate) {
             try {
                 spot = await previewSpotPhotoSource(id);
+            } catch {
+                return failureForRequest(503, "source_unavailable");
+            }
+        } else if (dataBackend() === "d1") {
+            try {
+                spot = await d1SpotSource(id);
             } catch {
                 return failureForRequest(503, "source_unavailable");
             }

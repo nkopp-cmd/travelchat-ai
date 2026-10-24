@@ -17,6 +17,7 @@ import { dataBackend } from "@/lib/app-data/backend";
 import { fetchFilterOptions, fetchFilteredSpots, getTotalSpotCount, parseFilterParams } from "@/lib/spots/queries";
 import { fetchWeeklyTrendingSpots } from "@/lib/spots/weekly-trending";
 import { getWeekStart } from "@/lib/weekly-social-trends";
+import { d1CommunitySubmission, d1RelatedSpotSources, d1SpotSource } from "@/lib/spots/d1-queries";
 
 const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 let db: D1Sqlite;
@@ -117,3 +118,34 @@ describe("public spots list on D1", () => {
     expect(mocks.supabase).not.toHaveBeenCalled();
   });
 });
+
+describe("spot detail sources on D1", () => {
+  const source = (n: number, extra: Record<string, unknown> = {}) => db.sqlite.prepare("INSERT INTO legacy_spot_source (spotId, payload, publicIssue) VALUES (?, ?, NULL)")
+    .run(id(n), JSON.stringify({ id: id(n), name: { en: `Spot ${n}` }, photos: [`/api/places/photo?name=places%2FChIJ${n}%2Fphotos%2Fp`], category: "Cafe", ...extra }));
+
+  it("returns the exact imported source row by id (case-insensitive) and null when missing", async () => {
+    source(1, { google_place_id: "ChIJabc123", trending_score: 0.95 });
+    expect(await d1SpotSource(id(1).toUpperCase())).toMatchObject({ id: id(1), google_place_id: "ChIJabc123", trending_score: 0.95 });
+    expect(await d1SpotSource(id(77))).toBeNull();
+  });
+
+  it("finds the oldest direct submission, else one whose research created the spot", async () => {
+    expect(await d1CommunitySubmission(id(6))).toMatchObject({ platform: "instagram", status: "spot_created", contributor_credit: "A" });
+    db.sqlite.prepare(`INSERT INTO social_spot_submissions (contributor_id, source_url, canonical_url, platform, status, contributor_credit, research, created_at)
+      VALUES (?, 'u2', 'https://www.tiktok.com/v/2', 'tiktok', 'needs_review', 'B', ?, '2026-10-01T00:00:00.000Z')`)
+      .run(id(90), JSON.stringify({ createdCandidates: [{ spotId: id(5), status: "spot_created" }] }));
+    const viaCandidate = await d1CommunitySubmission(id(5));
+    expect(viaCandidate).toMatchObject({ canonical_url: "https://www.tiktok.com/v/2" });
+    expect(viaCandidate!.research!.createdCandidates![0].spotId).toBe(id(5));
+    expect(await d1CommunitySubmission(id(1))).toBeNull();
+  });
+
+  it("related candidates: same city, score floor, source photos required, excluded names and self skipped", async () => {
+    for (const n of [1, 2, 3, 4, 6]) source(n);
+    db.sqlite.prepare("UPDATE legacy_spot_source SET payload = json_set(payload, '$.photos', json('[]')) WHERE spotId = ?").run(id(4));
+    const rows = await d1RelatedSpotSources("Seoul", id(6), 4, 24);
+    // 2 is hidden by the import verdict but still a candidate (the page re-checks); 3 has an excluded name; 4 has no photos.
+    expect(rows.map((r) => r.id)).toEqual([id(1), id(2)]);
+  });
+});
+
