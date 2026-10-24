@@ -60,6 +60,9 @@ function defaultFor(col) {
   if (d === "true" || d === "false") return ` DEFAULT ${d === "true" ? 1 : 0}`;
   if (/^-?\d+(\.\d+)?$/.test(d)) return ` DEFAULT ${d}`;
   if (d === "'{}'::text[]") return " DEFAULT '[]'";
+  // UTC dates, as Supabase's CURRENT_DATE.
+  if (d === "CURRENT_DATE") return " DEFAULT (date('now'))";
+  if (d === "(date_trunc('month'::text, (CURRENT_DATE)::timestamp with time zone))::date") return " DEFAULT (date('now','start of month'))";
   const literal = d.match(/^'((?:[^']|'')*)'::(text|jsonb|character varying)$/);
   if (literal) return ` DEFAULT '${literal[1]}'`;
   throw new Error(`Unsupported default ${d} on ${col.t}.${col.col}`);
@@ -157,7 +160,8 @@ export function sourceSelect(schema, table) {
     switch (col.udt) {
       case "geography": return [`ST_Y(${c}::geometry) AS ${col.col}_lat`, `ST_X(${c}::geometry) AS ${col.col}_lng`];
       case "geometry": return [`ST_AsGeoJSON(${c}) AS ${col.col}_geojson`];
-      case "timestamptz": return [`to_char(${c} AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS ${col.col}`];
+      // Exactly the text PostgREST returns (e.g. 2026-07-05T03:23:09.541946+00:00), so D1 rows equal API rows.
+      case "timestamptz": return [`to_json(${c}) #>> '{}' AS ${col.col}`];
       case "date": return [`${c}::text AS ${col.col}`];
       case "bool": return [`${c}::int AS ${col.col}`];
       case "numeric": return [`${c}::float8 AS ${col.col}`];

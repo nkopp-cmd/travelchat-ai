@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { createClient } from '@supabase/supabase-js';
+import { createSupabaseAdmin } from '@/lib/supabase';
 import {
   applyPublicSpotVisibilityFilters,
   shouldShowPublicSpot,
@@ -72,19 +72,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return staticRoutes;
   }
 
-  const supabase = createClient(supabaseUrl, supabaseKey);
+  // The factory so DATA_BACKEND=d1 serves it too (service role, as before).
+  const supabase = createSupabaseAdmin();
 
   // Fetch public itineraries (shared ones)
   const { data: itineraries } = await supabase
     .from('itineraries')
-    .select('id, share_code, updated_at')
+    // itineraries has no updated_at (the old select failed with 42703, so no shared trip was ever listed).
+    .select('id, share_code, created_at')
     .not('share_code', 'is', null)
-    .order('updated_at', { ascending: false })
+    .order('created_at', { ascending: false })
     .limit(1000);
 
   const itineraryRoutes: MetadataRoute.Sitemap = (itineraries || []).map((itinerary) => ({
     url: `${baseUrl}/shared/${itinerary.share_code}`,
-    lastModified: new Date(itinerary.updated_at),
+    lastModified: new Date(itinerary.created_at),
     changeFrequency: 'monthly' as const,
     priority: 0.6,
   }));

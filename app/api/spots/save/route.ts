@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { savedSpotsWithSpots } from "@/lib/app-data/saved-spots";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSupabaseAdmin } from "@/lib/supabase";
@@ -249,23 +250,8 @@ export async function GET(req: NextRequest) {
     }
 
     // Otherwise, return all saved spots
-    const { data: savedSpots, error } = await supabase
-      .from("saved_spots")
-      .select(`
-        id,
-        spot_id,
-        created_at,
-        spots (
-          id,
-          name,
-          description,
-          category,
-          localley_score,
-          photos
-        )
-      `)
-      .eq("clerk_user_id", userId)
-      .order("created_at", { ascending: false });
+    const { data: savedSpots, error } = await savedSpotsWithSpots(supabase, userId,
+      ["id", "name", "description", "category", "localley_score", "photos"]);
 
     if (error) {
       console.error("Error fetching saved spots:", error);

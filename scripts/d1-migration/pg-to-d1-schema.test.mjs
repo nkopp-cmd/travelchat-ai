@@ -20,6 +20,11 @@ test("the committed migration is exactly the translation of the pinned catalog",
   assert.equal(readFileSync(MIGRATION, "utf8"), translateSchema(schema));
 });
 
+test("migration 0038 is exactly the translation of its pinned catalog", () => {
+  const more = JSON.parse(readFileSync("scripts/d1-migration/fixtures/supabase-exit-schema-20261024b.json", "utf8"));
+  assert.equal(readFileSync("migrations/app-preview/0038_supabase_exit_more_tables.sql", "utf8"), translateSchema(more));
+});
+
 test("every Supabase-only table gets a D1 table, in foreign-key order, on top of the candidate schema", () => {
   const db = migratedDb();
   const tables = new Set(db.prepare("SELECT name FROM sqlite_master WHERE type = 'table'").all().map(r => r.name));
@@ -63,10 +68,10 @@ test("anything unknown fails loudly instead of being dropped", () => {
   assert.throws(() => translateSchema({ ...schema, columns: [...schema.columns, { t: "x", col: "v", udt: "tsvector", nul: "YES", def: null }] }), /Unsupported type/);
 });
 
-test("source select reads geography as lat/lng and timestamps as UTC ISO text", () => {
+test("source select reads geography as lat/lng and timestamps as PostgREST text", () => {
   const sql = sourceSelect(schema, "geo_destinations");
   assert.match(sql, /ST_Y\("center"::geometry\) AS center_lat, ST_X\("center"::geometry\) AS center_lng/);
-  assert.match(sql, /to_char\("created_at" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"'\) AS created_at/);
+  assert.match(sql, /to_json\("created_at"\) #>> '\{\}' AS created_at/);
   assert.throws(() => sourceSelect(schema, "nope"), /Unknown table/);
 });
 

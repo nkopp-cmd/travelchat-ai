@@ -71,10 +71,14 @@ test('legacy import builds exact, idempotent D1 rows with the complete current s
       assert.ok(built.expected.owner_limits.every(o => o.savedSpotLimit === 10));
       assert.equal(built.archived.challenges, 1);
     });
-    await t.test('spots use live visibility rules, drop proxy photos and keep listing identity', () => {
+    await t.test('spots use live visibility rules, keep source photos and listing identity', () => {
       const [palace, broad] = built.expected.spots;
       assert.equal(palace.visible, 1); assert.equal(broad.visible, 0);
-      assert.deepEqual(palace.photos, []); assert.equal(palace.city, 'Seoul');
+      // Migration 0039: photos as in the source, plus the remaining Postgres columns and the rule version.
+      assert.deepEqual(palace.photos, [photo]); assert.equal(palace.city, 'Seoul');
+      assert.equal(palace.google_place_id, place);
+      assert.deepEqual(palace.address_json, { en: '161 Sajik-ro, Jongno District, Seoul, South Korea' });
+      assert.match(palace.visibility_version, /^public-spot-visibility-v\d+$/);
       assert.equal(palace.latitude, 37.5798841);
       assert.deepEqual(built.expected.spot_listing_places, [{ spot_id: palace.id, provider: 'google', place_id: place, source: 'live google_place_id' }]);
       assert.equal(built.expected.legacy_spot_source[1].publicIssue, 'broad_place_name');
@@ -90,13 +94,13 @@ test('legacy import builds exact, idempotent D1 rows with the complete current s
       const result = await rehearse(built.sql, built.expected);
       assert.equal(result.mismatchCount, 0, result.mismatches.join(','));
       assert.equal(result.repeatChanges, 0); assert.equal(result.foreignKeyViolations, 0); assert.equal(result.integrity, 'ok');
-      assert.equal(result.migrations, 36);
+      assert.equal(result.migrations, 39);
       assert.equal(result.counts.legacy_profile_emails, 2);
     });
     await t.test('local workerd D1 matches all imported values with no repeat changes', async () => {
       const result = await rehearseCoreD1(built);
       assert.equal(result.mismatchCount, 0); assert.equal(result.repeatChanges, 0);
-      assert.equal(result.foreignKeyViolations, 0); assert.equal(result.migrations, 36);
+      assert.equal(result.foreignKeyViolations, 0); assert.equal(result.migrations, 39);
       assert.equal(result.localOnly, true); assert.equal(result.noOutboundCode, true);
       assert.equal(result.servingApiVerified, false);
       const sqlite = await rehearse(built.sql, built.expected);
