@@ -69,3 +69,19 @@ test("source select reads geography as lat/lng and timestamps as UTC ISO text", 
   assert.match(sql, /to_char\("created_at" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"'\) AS created_at/);
   assert.throws(() => sourceSelect(schema, "nope"), /Unknown table/);
 });
+
+test("migration 0036 backfills the itinerary media columns from legacy_itinerary_media", () => {
+  const db = new DatabaseSync(":memory:");
+  const files = readdirSync("migrations/app-preview").filter(f => f.endsWith(".sql")).sort();
+  for (const file of files.filter(f => f < "0036")) db.exec(readFileSync(`migrations/app-preview/${file}`, "utf8"));
+  const id = "11111111-1111-4111-8111-111111111111", bare = "22222222-2222-4222-8222-222222222222";
+  db.exec("INSERT INTO owners (id, source) VALUES ('user_a', 'legacy-fixture')");
+  for (const trip of [id, bare]) db.prepare("INSERT INTO itineraries (id, ownerId, days, activities) VALUES (?, 'user_a', 1, '[]')").run(trip);
+  db.prepare(`INSERT INTO legacy_itinerary_media (itineraryId, aiBackgrounds, storySlides, isPublic, likeCount, viewCount, sourceProfileId)
+    VALUES (?, '{"cover":"u"}', NULL, 1, 4, 9, 'p1')`).run(id);
+  db.exec(readFileSync("migrations/app-preview/0036_itinerary_media_columns.sql", "utf8"));
+  const row = id => ({ ...db.prepare("SELECT ai_backgrounds, story_slides, is_public, like_count, view_count, user_id FROM itineraries WHERE id = ?").get(id) });
+  assert.deepEqual(row(id), { ai_backgrounds: '{"cover":"u"}', story_slides: null, is_public: 1, like_count: 4, view_count: 9, user_id: "p1" });
+  assert.deepEqual(row(bare), { ai_backgrounds: null, story_slides: null, is_public: 0, like_count: 0, view_count: 0, user_id: null });
+});
+

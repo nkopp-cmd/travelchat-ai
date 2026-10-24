@@ -82,17 +82,21 @@ test('legacy import builds exact, idempotent D1 rows with the complete current s
         [['palace', 'history'], 35, { morning: 'Gate opens 09:00' }, ['Hanbok = free entry'], 1, 7.5]);
       assert.deepEqual([built.expected.spots[1].verified, built.expected.spots[1].trending_score, built.expected.spots[1].tips], [0, 0, null]);
     });
+    await t.test('itineraries carry the Postgres media and visibility columns (migration 0036)', () => {
+      const [trip] = built.expected.itineraries;
+      assert.deepEqual(['ai_backgrounds', 'story_slides', 'is_public', 'like_count', 'view_count'].map(k => trip[k]), [null, null, 0, 0, 3]);
+    });
     await t.test('node:sqlite rehearsal: exact rows, second run changes nothing, no FK violations', async () => {
       const result = await rehearse(built.sql, built.expected);
       assert.equal(result.mismatchCount, 0, result.mismatches.join(','));
       assert.equal(result.repeatChanges, 0); assert.equal(result.foreignKeyViolations, 0); assert.equal(result.integrity, 'ok');
-      assert.equal(result.migrations, 35);
+      assert.equal(result.migrations, 36);
       assert.equal(result.counts.legacy_profile_emails, 2);
     });
     await t.test('local workerd D1 matches all imported values with no repeat changes', async () => {
       const result = await rehearseCoreD1(built);
       assert.equal(result.mismatchCount, 0); assert.equal(result.repeatChanges, 0);
-      assert.equal(result.foreignKeyViolations, 0); assert.equal(result.migrations, 35);
+      assert.equal(result.foreignKeyViolations, 0); assert.equal(result.migrations, 36);
       assert.equal(result.localOnly, true); assert.equal(result.noOutboundCode, true);
       assert.equal(result.servingApiVerified, false);
       const sqlite = await rehearse(built.sql, built.expected);

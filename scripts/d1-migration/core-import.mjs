@@ -160,7 +160,11 @@ export function buildImport(snapshot, projection, rules) {
     expected.itineraries.push({ id: row.id, ownerId: row.clerk_user_id, title: row.title, city: row.city, days: row.days, activities: row.activities ?? [],
       highlights, estimated_cost: row.estimated_cost === null || row.estimated_cost === undefined ? null : String(row.estimated_cost), subtitle: row.subtitle,
       local_score: typeof row.local_score === 'number' ? row.local_score : null, created_at: row.created_at, status: row.status,
-      is_favorite: row.is_favorite ? 1 : 0, shared: 0, share_code: null });
+      is_favorite: row.is_favorite ? 1 : 0, shared: 0, share_code: null,
+      // Migration 0036: the Postgres media/visibility columns, nulls kept as in the source.
+      ai_backgrounds: row.ai_backgrounds ?? null, story_slides: row.story_slides ?? null,
+      is_public: row.is_public === null || row.is_public === undefined ? null : row.is_public ? 1 : 0,
+      like_count: row.like_count ?? null, view_count: row.view_count ?? null, user_id: row.user_id ?? null });
     expected.legacy_itinerary_media.push({ itineraryId: row.id, aiBackgrounds: row.ai_backgrounds ?? null, storySlides: row.story_slides ?? null,
       isPublic: row.is_public ? 1 : 0, likeCount: row.like_count ?? 0, viewCount: row.view_count ?? 0, sourceProfileId: row.user_id });
   }
