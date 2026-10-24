@@ -34,8 +34,6 @@ const HAND_PORT_PENDING: Record<string, string> = {
  * "file#table" -> reason. The guard found them; each entry needs a plan line.
  */
 const KNOWN_SCHEMA_BUGS: Record<string, string> = {
-  "app/api/challenges/route.ts#user_challenges": "selects user_challenges.id; fix PR586",
-  "app/users/[username]/page.tsx#user_progress": "selects level/total_xp/title; fix PR586",
   "app/api/subscription/webhook/route.ts#users": "users.name / users.email_preferences; NEED subscription emails",
   "app/api/user/email-preferences/route.ts#users": "users.email_preferences has no column; storage decided at the D1 cutover",
 };
@@ -165,6 +163,13 @@ describe("D1 facade coverage", () => {
     const names = new Set(files.flatMap((f) => [...readFileSync(f, "utf8").matchAll(/\.rpc\(\s*["']([a-z_0-9]+)["']/g)].map((m) => m[1])));
     expect([...names].filter((n) => !(n in D1_RPCS) && !(n in DEFERRED_RPCS))).toEqual([]);
     expect(Object.keys(DEFERRED_RPCS).filter((n) => !names.has(n) || n in D1_RPCS)).toEqual([]);
+  });
+
+  it("known schema bugs are still present (remove an entry once its fix ships)", () => {
+    const stillFailing = new Set(all.flatMap((c) => c.selects.flatMap((candidates) => (candidates ?? []).flatMap((candidate) => {
+      try { d1Client(NO_DB, { role: "service" }).from(c.table).select(candidate); return []; } catch { return [`${c.file}#${c.table}`]; }
+    }))));
+    expect(Object.keys(KNOWN_SCHEMA_BUGS).filter((k) => !stillFailing.has(k))).toEqual([]);
   });
 
   it("lists only tables that still exist in the code", () => {
