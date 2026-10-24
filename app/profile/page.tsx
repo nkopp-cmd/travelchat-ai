@@ -83,7 +83,7 @@ async function getUserProgress() {
     // Get user's saved itineraries with details (uses clerk_user_id)
     const { data: itineraries } = await supabase
         .from("itineraries")
-        .select("id, title, city, days, created_at, metadata")
+        .select("id, title, city, days, created_at")
         .eq("clerk_user_id", userId)
         .order("created_at", { ascending: false })
         .limit(12);
@@ -623,7 +623,6 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                                     day: "numeric",
                                     year: "numeric",
                                 });
-                                const metadata = itinerary.metadata as { pace?: string; focus?: string[] } | null;
 
                                 return (
                                     <Link key={itinerary.id} href={`/itineraries/${itinerary.id}`} className="group block h-full">
@@ -654,11 +653,6 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                                                     <Calendar className="h-3 w-3" />
                                                     <span>{createdDate}</span>
                                                 </div>
-                                                {metadata?.pace && (
-                                                    <Badge variant="secondary" className="text-xs mt-2 w-fit capitalize">
-                                                        {metadata.pace}
-                                                    </Badge>
-                                                )}
                                             </CardContent>
                                         </Card>
                                     </Link>
