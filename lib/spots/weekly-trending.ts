@@ -6,6 +6,8 @@ import { shouldShowPublicSpot } from "@/lib/spots/public-quality";
 import { transformSpot, type RawSpot } from "@/lib/spots/transform";
 import { PUBLIC_SPOT_CARD_SELECT } from "./projection";
 import { getWeekStart } from "@/lib/weekly-social-trends";
+import { dataBackend } from "@/lib/app-data/backend";
+import { d1SpotCardsByIds, d1WeeklyRankings } from "./d1-queries";
 
 export type WeeklyTrendingSpot = {
   spot: Spot;
@@ -16,9 +18,35 @@ export type WeeklyTrendingSpot = {
   platformCount: number;
 };
 
+async function fetchWeeklyTrendingSpotsD1(
+  citySlug: string | null,
+): Promise<WeeklyTrendingSpot[]> {
+  try {
+    const rankings = await d1WeeklyRankings(getWeekStart(), citySlug);
+    const spots = await d1SpotCardsByIds(rankings.map((ranking) => ranking.spot_id));
+    const spotsById = new Map(spots.map((spot) => [spot.id, transformSpot(spot)]));
+    return rankings.flatMap((ranking) => {
+      const spot = spotsById.get(ranking.spot_id);
+      if (!spot) return [];
+      return [{
+        spot,
+        citySlug: ranking.city_slug,
+        rank: Number(ranking.rank),
+        score: Number(ranking.score),
+        postCount: Number(ranking.post_count),
+        platformCount: Number(ranking.platform_count),
+      }];
+    });
+  } catch (error) {
+    console.error("[weekly-trending] D1 rankings unavailable:", error instanceof Error ? error.message : error);
+    return [];
+  }
+}
+
 async function fetchWeeklyTrendingSpotsInternal(
   citySlug: string | null,
 ): Promise<WeeklyTrendingSpot[]> {
+  if (dataBackend() === "d1") return fetchWeeklyTrendingSpotsD1(citySlug);
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return [];
   const supabase = createSupabaseAdmin();
   let rankingQuery = supabase
@@ -74,7 +102,7 @@ export async function fetchWeeklyTrendingSpots(
   if (process.env.WEEKLY_SOCIAL_TRENDS_ENABLED !== "true") return [];
   const cached = unstable_cache(
     () => fetchWeeklyTrendingSpotsInternal(citySlug),
-    [`weekly-social-trends-card-v2-${getWeekStart()}-${citySlug || "all"}`],
+    [`weekly-social-trends-card-v2-${dataBackend()}-${getWeekStart()}-${citySlug || "all"}`],
     { revalidate: 900, tags: ["weekly-social-trends"] },
   );
   return cached();

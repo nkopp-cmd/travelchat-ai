@@ -22,6 +22,13 @@ import {
 } from "./types";
 
 import { PUBLIC_SPOT_SELECT, PUBLIC_SPOT_CARD_SELECT } from "./projection";
+import { dataBackend } from "@/lib/app-data/backend";
+import {
+  d1CommunitySpotIds,
+  d1FilteredSpotKeys,
+  d1PublicSpotKeys,
+  d1SpotCardsByIds,
+} from "./d1-queries";
 export { PUBLIC_SPOT_SELECT } from "./projection";
 
 const SPOTS_QUERY_PAGE_SIZE = 1000;
@@ -257,10 +264,13 @@ async function fetchPublicCandidateRows(): Promise<{
 }
 
 export function getPublicVisibleSpotRows(rows: RawSpot[]): RawSpot[] {
+  return dedupePublicSpotRows(rows.filter(shouldShowPublicSpot));
+}
+
+/** D1 rows already carry the public-quality verdict; only the dedupe applies. */
+export function dedupePublicSpotRows<T extends Pick<RawSpot, "name" | "address">>(rows: T[]): T[] {
   const seen = new Map<string, boolean>();
   return rows.filter((spot) => {
-    if (!shouldShowPublicSpot(spot)) return false;
-
     // Safety net: deduplicate by (name + address) in case DB has dupes.
     const key = `${getSpotTextFieldValue(spot.name).toLowerCase().trim()}|${getSpotTextFieldValue(spot.address).toLowerCase().trim()}`;
     if (seen.has(key)) return false;
@@ -270,7 +280,7 @@ export function getPublicVisibleSpotRows(rows: RawSpot[]): RawSpot[] {
 }
 
 export function getScoreThresholdCount(
-  rows: RawSpot[],
+  rows: Pick<RawSpot, "localley_score">[],
   minimumScore: number,
 ): number {
   return rows.filter((spot) => (spot.localley_score || 3) >= minimumScore).length;
@@ -353,18 +363,29 @@ async function fetchCommunitySpotIds(spotIds: string[]): Promise<Set<string>> {
 async function fetchFilteredSpotsInternal(
   filters: SpotsFilterState,
 ): Promise<SpotsResponse> {
-  const { rows, error } = await fetchFilteredSpotRows(filters);
-
-  if (error) {
-    console.error("[spots/queries] Error fetching spots:", error);
-    throw new Error("Spots could not be loaded. Please try again.");
-  }
-
-  const publicRows = getPublicVisibleSpotRows(rows);
-  const total = publicRows.length;
   const offset = (filters.page - 1) * filters.limit;
-  const pageRows = publicRows.slice(offset, offset + filters.limit);
-  const communitySpotIds = await fetchCommunitySpotIds(pageRows.map((spot) => spot.id));
+  let total: number;
+  let pageRows: RawSpot[];
+  let communitySpotIds: Set<string>;
+
+  if (dataBackend() === "d1") {
+    const keys = dedupePublicSpotRows(await d1FilteredSpotKeys(filters));
+    const pageIds = keys.slice(offset, offset + filters.limit).map((spot) => spot.id);
+    total = keys.length;
+    [pageRows, communitySpotIds] = await Promise.all([d1SpotCardsByIds(pageIds), d1CommunitySpotIds(pageIds)]);
+  } else {
+    const { rows, error } = await fetchFilteredSpotRows(filters);
+
+    if (error) {
+      console.error("[spots/queries] Error fetching spots:", error);
+      throw new Error("Spots could not be loaded. Please try again.");
+    }
+
+    const publicRows = getPublicVisibleSpotRows(rows);
+    total = publicRows.length;
+    pageRows = publicRows.slice(offset, offset + filters.limit);
+    communitySpotIds = await fetchCommunitySpotIds(pageRows.map((spot) => spot.id));
+  }
   const spots = pageRows.map((spot) => ({
     ...transformSpot(spot),
     communitySubmitted: communitySpotIds.has(spot.id),
@@ -393,6 +414,7 @@ export async function fetchFilteredSpots(
 ): Promise<SpotsResponse> {
   // Create a cache key from filters
   const cacheKey = JSON.stringify({
+    backend: dataBackend(),
     projection: PUBLIC_SPOT_CARD_SELECT,
     visibility: PUBLIC_SPOT_VISIBILITY_CACHE_VERSION,
     provenance: COMMUNITY_PROVENANCE_CACHE_VERSION,
@@ -422,13 +444,7 @@ export async function fetchFilteredSpots(
 async function fetchFilterOptionsInternal(): Promise<FilterOptions> {
   // Get all candidate spots, then apply the same public-quality filter used
   // by the list/detail views so counts do not include hidden weak records.
-  const { rows, error } = await fetchPublicCandidateRows();
-  if (error) {
-    console.error("[spots/queries] Error fetching filter options:", error);
-    throw new Error("Spot filters could not be loaded. Please try again.");
-  }
-
-  const publicSpots = getPublicVisibleSpotRows(rows);
+  const publicSpots = await fetchPublicSpotKeys("Spot filters could not be loaded. Please try again.");
 
   const cities = ENABLED_CITIES.map((city) => {
     const count = publicSpots.filter((spot) => {
@@ -471,7 +487,7 @@ async function fetchFilterOptionsInternal(): Promise<FilterOptions> {
 export async function fetchFilterOptions(): Promise<FilterOptions> {
   const cachedFetch = unstable_cache(
     fetchFilterOptionsInternal,
-    ["spots-filter-options", PUBLIC_SPOT_VISIBILITY_CACHE_VERSION, PUBLIC_SPOT_SELECT],
+    ["spots-filter-options", dataBackend(), PUBLIC_SPOT_VISIBILITY_CACHE_VERSION, PUBLIC_SPOT_SELECT],
     {
       revalidate: 600, // 10 minutes
       tags: ["spots"],
@@ -485,11 +501,23 @@ export async function fetchFilterOptions(): Promise<FilterOptions> {
  * Get total spot count (for header display)
  */
 export async function getTotalSpotCount(): Promise<number> {
-  const { rows, error } = await fetchPublicCandidateRows();
-  if (error) {
+  try {
+    return (await fetchPublicSpotKeys("Spots could not be counted.")).length;
+  } catch (error) {
     console.error("[spots/queries] Error counting spots:", error);
     return 0;
   }
+}
 
-  return getPublicVisibleSpotRows(rows).length;
+/** Public, deduplicated rows with the fields the counts need, from the active backend. */
+async function fetchPublicSpotKeys(
+  failure: string,
+): Promise<Pick<RawSpot, "id" | "name" | "address" | "category" | "localley_score">[]> {
+  if (dataBackend() === "d1") return dedupePublicSpotRows(await d1PublicSpotKeys());
+  const { rows, error } = await fetchPublicCandidateRows();
+  if (error) {
+    console.error("[spots/queries] Error fetching public spots:", error);
+    throw new Error(failure);
+  }
+  return getPublicVisibleSpotRows(rows);
 }

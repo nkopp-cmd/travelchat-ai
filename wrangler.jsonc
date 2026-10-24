@@ -127,6 +127,13 @@
         "database_name": "localley-auth",
         "database_id": "73378d0e-7f2a-465a-8188-a67cb6d2a5c2",
         "migrations_dir": "migrations/auth"
+      }, {
+        // Supabase exit (shared/plans/localley-supabase-exit.md, approved 2026-10-24): application data.
+        // Read only when DATA_BACKEND=d1 (lib/app-data/backend.ts); unset keeps Supabase serving.
+        "binding": "APP_DB",
+        "database_name": "localley-app",
+        "database_id": "f1cc916b-5606-443f-9c4f-695c4ccc4a63",
+        "migrations_dir": "migrations/app-preview"
       }],
       "ratelimits": [
         { "name": "RATE_LIMIT_5", "namespace_id": "4311", "simple": { "limit": 5, "period": 60 } },
