@@ -71,7 +71,7 @@ export function loadProjection(dir) {
 // Existing public-quality and city rules from the live application, bundled from source.
 export async function loadRules() {
   const root = resolve(here, '../..');
-  const out = await build({ stdin: { contents: `export { shouldShowPublicSpot, getPublicSpotQualityIssue } from '@/lib/spots/public-quality';
+  const out = await build({ stdin: { contents: `export { shouldShowPublicSpot, getPublicSpotQualityIssue, PUBLIC_SPOT_VISIBILITY_CACHE_VERSION } from '@/lib/spots/public-quality';
     export { inferCityFromAddress } from '@/lib/cities';`, resolveDir: root, sourcefile: 'rules.ts', loader: 'ts' },
     bundle: true, write: false, format: 'esm', platform: 'neutral', tsconfig: join(root, 'tsconfig.json'), logLevel: 'silent' });
   return import(`data:text/javascript;base64,${Buffer.from(out.outputFiles[0].text).toString('base64')}`);
@@ -136,14 +136,19 @@ export function buildImport(snapshot, projection, rules) {
     issues[issue ?? 'public'] = (issues[issue ?? 'public'] ?? 0) + 1;
     const address = text(spot.address);
     const score = Number.isInteger(spot.localley_score) && spot.localley_score >= 1 && spot.localley_score <= 6 ? spot.localley_score : null;
-    // Legacy Google photo proxies are not copied: listing photos are resolved at request time instead.
+    // Migration 0039: spots carries every Postgres column, photos as in the source (same exposure as Supabase; the
+    // request-time photo follow-up is in localley-decisions.md 2026-10-24).
     expected.spots.push({ id: spot.id, name: spot.name, description: spot.description, category: spot.category, localley_score: score,
-      photos: [], visible: issue === null ? 1 : 0, city: rules.inferCityFromAddress(address)?.name ?? null, address: address || null,
+      photos: spot.photos ?? null, visible: issue === null ? 1 : 0, city: rules.inferCityFromAddress(address)?.name ?? null, address: address || null,
       latitude: point?.lat ?? null, longitude: point?.lng ?? null, photo_credits: null, source_urls: null,
       subcategories: spot.subcategories ?? null, local_percentage: spot.local_percentage ?? null, best_times: spot.best_times ?? null,
       tips: spot.tips ?? null, verified: spot.verified === true ? 1 : 0, trending_score: spot.trending_score ?? 0,
       // Geo links stay null until the geo tables are imported; the source has none today.
-      destination_id: null, local_area_id: null });
+      destination_id: null, local_area_id: null,
+      address_json: spot.address ?? null, google_place_id: spot.google_place_id ?? null, discovered_by: spot.discovered_by ?? null,
+      created_at: spot.created_at ?? null, review_count: spot.review_count ?? null, average_rating: spot.average_rating ?? null,
+      name_en_normalized: spot.name_en_normalized ?? null, address_en_normalized: spot.address_en_normalized ?? null,
+      visibility_version: rules.PUBLIC_SPOT_VISIBILITY_CACHE_VERSION });
     expected.legacy_spot_source.push({ spotId: spot.id, payload: spot, publicIssue: issue });
     const places = photoPlaceIds(spot.photos);
     const placeId = spot.google_place_id ?? (places.length === 1 ? places[0] : null);
