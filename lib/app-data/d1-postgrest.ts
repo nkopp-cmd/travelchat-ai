@@ -139,7 +139,14 @@ export const TABLES: Record<string, TableSpec> = {
     userWriteCheck: (row) => row.conversation_id === undefined ? null
       : { sql: "SELECT 1 AS ok FROM conversations WHERE id = ? AND ownerId = ?", params: [row.conversation_id === null ? null : String(row.conversation_id)] },
     // Trigger update_conversation_on_message: AFTER INSERT, conversations.updated_at = now().
-    afterInsert: (row) => [{ sql: "UPDATE conversations SET updatedAt = ? WHERE id = ?", params: [nowTimestamptz(), row.conversation_id == null ? null : String(row.conversation_id)] }],
+    // The trigger changes another row, so that row's key is journaled too (gate 2 replay).
+    afterInsert: (row) => {
+      const conversation = row.conversation_id == null ? null : String(row.conversation_id);
+      return [
+        { sql: "UPDATE conversations SET updatedAt = ? WHERE id = ?", params: [nowTimestamptz(), conversation] },
+        { sql: "INSERT INTO _journal (table_name, op, pk) VALUES ('conversations', 'upsert', json_object('id', ?))", params: [conversation] },
+      ];
+    },
   },
   subscriptions: {
     table: "legacy_subscriptions",
