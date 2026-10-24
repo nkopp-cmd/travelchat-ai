@@ -18,7 +18,8 @@ function source() {
     users: [{ id: '11111111-1111-4111-8111-111111111111', clerk_id: ids.a, username: null, email: null, level: 2, xp: 40, title: 'Explorer', created_at: '2026-01-01T00:00:00+00:00' },
       { id: '22222222-2222-4222-8222-222222222222', clerk_id: ids.b, username: 'b', email: null, level: 1, xp: 0, title: 'Newbie', created_at: '2026-01-02T00:00:00+00:00' }],
     spots: [{ id: 'cbd403a4-1912-45b8-8ae1-fc13b4c2f1e5', name: { en: 'Gyeongbokgung Palace' }, description: { en: "Seoul's main palace" }, category: 'Culture',
-      localley_score: 5, photos: [photo], address: { en: '161 Sajik-ro, Jongno District, Seoul, South Korea' }, location: point(126.9767996, 37.5798841), google_place_id: place, verified: true },
+      localley_score: 5, photos: [photo], address: { en: '161 Sajik-ro, Jongno District, Seoul, South Korea' }, location: point(126.9767996, 37.5798841), google_place_id: place, verified: true,
+      subcategories: ['palace', 'history'], local_percentage: 35, best_times: { morning: 'Gate opens 09:00' }, tips: ['Hanbok = free entry'], trending_score: 7.5 },
       { id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', name: { en: 'Gangnam Office District' }, description: { en: 'Broad area' }, category: 'Area',
         localley_score: 2, photos: [], address: { en: 'Gangnam, Seoul' }, location: point(127.03, 37.5), google_place_id: null, verified: false }],
     itineraries: [{ id: '33333333-3333-4333-8333-333333333333', clerk_user_id: ids.a, user_id: '11111111-1111-4111-8111-111111111111', title: "Seoul's day\nline two",
@@ -77,18 +78,21 @@ test('legacy import builds exact, idempotent D1 rows with the complete current s
       assert.equal(palace.latitude, 37.5798841);
       assert.deepEqual(built.expected.spot_listing_places, [{ spot_id: palace.id, provider: 'google', place_id: place, source: 'live google_place_id' }]);
       assert.equal(built.expected.legacy_spot_source[1].publicIssue, 'broad_place_name');
+      assert.deepEqual(['subcategories', 'local_percentage', 'best_times', 'tips', 'verified', 'trending_score'].map(k => built.expected.spots[0][k]),
+        [['palace', 'history'], 35, { morning: 'Gate opens 09:00' }, ['Hanbok = free entry'], 1, 7.5]);
+      assert.deepEqual([built.expected.spots[1].verified, built.expected.spots[1].trending_score, built.expected.spots[1].tips], [0, 0, null]);
     });
     await t.test('node:sqlite rehearsal: exact rows, second run changes nothing, no FK violations', async () => {
       const result = await rehearse(built.sql, built.expected);
       assert.equal(result.mismatchCount, 0, result.mismatches.join(','));
       assert.equal(result.repeatChanges, 0); assert.equal(result.foreignKeyViolations, 0); assert.equal(result.integrity, 'ok');
-      assert.equal(result.migrations, 34);
+      assert.equal(result.migrations, 35);
       assert.equal(result.counts.legacy_profile_emails, 2);
     });
     await t.test('local workerd D1 matches all imported values with no repeat changes', async () => {
       const result = await rehearseCoreD1(built);
       assert.equal(result.mismatchCount, 0); assert.equal(result.repeatChanges, 0);
-      assert.equal(result.foreignKeyViolations, 0); assert.equal(result.migrations, 34);
+      assert.equal(result.foreignKeyViolations, 0); assert.equal(result.migrations, 35);
       assert.equal(result.localOnly, true); assert.equal(result.noOutboundCode, true);
       assert.equal(result.servingApiVerified, false);
       const sqlite = await rehearse(built.sql, built.expected);
