@@ -70,7 +70,8 @@ async function getUserProgress() {
     };
 
     // Get user's completed challenges (uses internal user_id)
-    let completedChallenges: Array<{ id: string; challenges: { title: string; description: string; xp_reward: number } }> = [];
+    // public.challenges has `name` (no `title`); user_challenges is keyed by (user_id, challenge_id).
+    let completedChallenges: Array<{ challenge_id: string; challenges: { name: string; description: string; xp_reward: number } | null }> = [];
     if (userData?.id) {
         const { data: challengesData } = await supabase
             .from("user_challenges")
@@ -568,9 +569,9 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                         </Card>
 
                         {/* Display completed challenges */}
-                        {completedChallenges.slice(0, 5).map((userChallenge) => (
+                        {completedChallenges.filter((userChallenge) => userChallenge.challenges).slice(0, 5).map((userChallenge) => (
                             <Card
-                                key={userChallenge.id}
+                                key={userChallenge.challenge_id}
                                 className={`${LIQUID_CARD_SOFT} transition-all hover:bg-raised`}
                             >
                                 <CardHeader className="flex flex-row items-center gap-4 pb-2">
@@ -578,8 +579,8 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                                         <Star className="h-6 w-6 text-primary" />
                                     </div>
                                     <div>
-                                        <CardTitle className="text-base">{userChallenge.challenges.title}</CardTitle>
-                                        <p className="text-xs text-muted-foreground">{userChallenge.challenges.description}</p>
+                                        <CardTitle className="text-base">{userChallenge.challenges!.name}</CardTitle>
+                                        <p className="text-xs text-muted-foreground">{userChallenge.challenges!.description}</p>
                                     </div>
                                 </CardHeader>
                                 <CardContent>
@@ -587,7 +588,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                                         Completed
                                     </Badge>
                                     <p className="text-xs text-muted-foreground mt-2">
-                                        +{userChallenge.challenges.xp_reward} XP
+                                        +{userChallenge.challenges!.xp_reward} XP
                                     </p>
                                 </CardContent>
                             </Card>
