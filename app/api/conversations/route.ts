@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
             const conversations = (rows ?? []).map((row) => ({
                 ...row,
                 messages: (messages ?? []).filter((m) => m.conversation_id === row.id)
-                    .map(({ conversation_id: _conversation, ...message }) => message),
+                    .map((m) => ({ id: m.id, role: m.role, content: m.content, created_at: m.created_at })),
             }));
             return NextResponse.json({ conversations });
         }
