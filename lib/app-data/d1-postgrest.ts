@@ -1,6 +1,9 @@
 import "server-only";
 import type { PreviewAppDataReader, PreviewAppDataStatement } from "./preview-db";
 import { GENERATED_SPECS } from "./d1-generated-specs";
+import { parseSpotCoordinates } from "@/lib/spots/coordinates";
+import { ewkbPoint } from "./ewkb";
+import { recomputeSpots } from "./d1-spot-derived";
 
 /**
  * Supabase exit step 3 (shared/plans/localley-decisions.md 2026-10-24): a PostgREST-compatible query builder over
@@ -11,7 +14,8 @@ import { GENERATED_SPECS } from "./d1-generated-specs";
  * 42501 for a rejected insert, DESC orders NULLs first.
  */
 
-type Kind = "text" | "int" | "real" | "bool" | "json" | "textArray" | "unsupported";
+/** "point": a Postgres geography point stored as two D1 columns (d1: "lat,lng"), returned as EWKB hex like PostgREST. */
+type Kind = "text" | "int" | "real" | "bool" | "json" | "textArray" | "unsupported" | "point";
 type Value = string | number | boolean | null | Record<string, unknown> | unknown[];
 type Row = Record<string, Value>;
 type Binding = string | number | null;
@@ -46,6 +50,10 @@ export interface TableSpec {
   afterInsert?: (row: Row) => { sql: string; params: Binding[] }[];
   /** Statements that must run before an insert (e.g. the owners row a foreign key needs). */
   beforeInsert?: (row: Row) => { sql: string; params: Binding[] }[];
+  /** Many-to-one embeds the app selects, keyed by the select item prefix (e.g. "destination:geo_destinations!fk"). */
+  embeds?: Record<string, { table: string; local: string; remote: string }>;
+  /** Recompute derived D1 columns after inserts/updates (e.g. spots.visible), given the written primary keys. */
+  afterWrite?: (db: PreviewAppDataReader, keys: Binding[][]) => Promise<void>;
   /** Role "anon" may read these rows (SQL on alias t); no anon writes. Omitted = anon sees nothing. */
   anonRead?: string;
 }
@@ -180,6 +188,46 @@ export const TABLES: Record<string, TableSpec> = {
     beforeInsert: ensureOwner,
     checks: (row) => usageCheck(row.usage_type, row.period_type),
   },
+  spots: {
+    table: "spots",
+    primaryKey: ["id"],
+    columns: {
+      id: { kind: "text", default: uuid },
+      name: { kind: "json" },
+      description: { kind: "json" },
+      location: { kind: "point", d1: "latitude,longitude" },
+      address: { kind: "json", d1: "address_json" },
+      category: { kind: "text" },
+      subcategories: { kind: "textArray" },
+      localley_score: { kind: "int" },
+      local_percentage: { kind: "int", default: () => 50 },
+      best_times: { kind: "json" },
+      photos: { kind: "textArray" },
+      tips: { kind: "json" },
+      discovered_by: { kind: "text" },
+      verified: { kind: "bool", default: () => 0 },
+      trending_score: { kind: "real", default: () => 0 },
+      created_at: { kind: "text", default: nowTimestamptz },
+      review_count: { kind: "int", default: () => 0 },
+      average_rating: { kind: "real", default: () => 0 },
+      name_en_normalized: { kind: "text" },
+      address_en_normalized: { kind: "text" },
+      google_place_id: { kind: "text" },
+      destination_id: { kind: "text" },
+      local_area_id: { kind: "text" },
+    },
+    // Policy "Public spots read": anon + authenticated SELECT all rows; writes are service-role only.
+    anonRead: "1",
+    userReadAlso: "1",
+    userOps: ["select"],
+    embeds: {
+      "destination:geo_destinations!spots_destination_id_fk": { table: "geo_destinations", local: "destination_id", remote: "id" },
+      "localArea:geo_local_areas!spots_local_area_destination_fk": { table: "geo_local_areas", local: "local_area_id", remote: "id" },
+    },
+    // visible is NOT NULL in D1; the write hook sets the real verdict right after the write.
+    d1Extra: () => ({ visible: 0 }),
+    afterWrite: recomputeSpots,
+  },
   users: {
     table: "profiles",
     primaryKey: ["id"],
@@ -313,11 +361,41 @@ function spec(table: string): TableSpec {
   return found;
 }
 
-function column(s: TableSpec, name: string) {
+function column(s: TableSpec, name: string): { kind: Kind; d1?: string; sql: string } {
+  // PostgREST JSON path "col->>key": the key's text value (filters and ordering only).
+  const path = name.match(/^([a-z_][a-z0-9_]*)->>([a-z_]+)$/);
+  if (path) {
+    const base = column(s, path[1]);
+    if (base.kind !== "json") throw new Error(`D1 facade: ${s.table}.${path[1]} is not jsonb`);
+    return { kind: "text", sql: `json_extract(${base.sql}, '$.${path[2]}')` };
+  }
   const col = s.columns[name];
   if (!col) throw new Error(`D1 facade: unknown column ${s.table}.${name}`);
   if (col.kind === "unsupported") throw new Error(`D1 facade: ${s.table}.${name} (geography/geometry) is not supported`);
+  if (col.kind === "point") {
+    const [lat, lng] = (col.d1 ?? "").split(",");
+    return { ...col, sql: `CASE WHEN t.${lat} IS NULL OR t.${lng} IS NULL THEN NULL ELSE json_array(t.${lng}, t.${lat}) END` };
+  }
   return { ...col, sql: `t.${col.d1 ?? name}` };
+}
+
+/** Point input (WKT, EWKT, EWKB hex or GeoJSON) -> [lat, lng] bindings for the two D1 columns. */
+function pointBindings(value: unknown): [Binding, Binding] {
+  if (value === null || value === undefined) return [null, null];
+  const parsed = parseSpotCoordinates(typeof value === "string" ? value.replace(/^SRID=4326;/i, "") : value);
+  if (!parsed) throw new Error("D1 facade: unreadable point");
+  return [parsed.lat, parsed.lng];
+}
+
+/** D1 column names and bindings for one Postgres column value (a point writes two columns). */
+function writeColumns(s: TableSpec, name: string, value: unknown): [string, Binding][] {
+  const col = s.columns[name];
+  if (col.kind === "point") {
+    const [lat, lng] = (col.d1 ?? "").split(",");
+    const [latValue, lngValue] = pointBindings(value);
+    return [[lat, latValue], [lng, lngValue]];
+  }
+  return [[col.d1 ?? name, toD1(col.kind, value)]];
 }
 
 function toD1Value(value: unknown): Binding {
@@ -346,23 +424,52 @@ function toD1(kind: Kind, value: unknown): Binding {
 function fromD1(kind: Kind, value: unknown): Value {
   if (value === null || value === undefined) return null;
   if (kind === "bool") return value === 1;
+  if (kind === "point") {
+    const [lng, lat] = JSON.parse(String(value)) as [number, number];
+    return ewkbPoint(lng, lat);
+  }
   if (kind === "json" || kind === "textArray") return JSON.parse(String(value));
   return value as Value;
 }
 
-function parseSelect(s: TableSpec, columns: string): string[] {
-  const names = columns.split(",").map((c) => c.trim()).filter(Boolean);
-  if (names.length === 0) throw new Error("D1 facade: empty select");
-  if (names.length === 1 && names[0] === "*") {
-    const all = Object.keys(s.columns);
-    for (const name of all) column(s, name);
-    return all;
+type Embed = { alias: string; spec: TableSpec; local: string; remote: string; columns: string[] };
+
+/** Top-level comma split that keeps "alias:table!fk(a,b)" together. */
+function selectItems(columns: string): string[] {
+  const items: string[] = [];
+  let depth = 0, current = "";
+  for (const ch of columns) {
+    if (ch === "(") depth++;
+    if (ch === ")") depth--;
+    if (ch === "," && depth === 0) { items.push(current.trim()); current = ""; } else current += ch;
   }
-  for (const name of names) {
-    if (!/^[a-z_][a-z0-9_]*$/.test(name)) throw new Error(`D1 facade: unsupported select item "${name}" (embeds and aliases are not supported)`);
-    column(s, name);
+  items.push(current.trim());
+  return items.filter(Boolean);
+}
+
+function parseSelect(s: TableSpec, columns: string): { names: string[]; embeds: Embed[] } {
+  const items = selectItems(columns);
+  if (items.length === 0) throw new Error("D1 facade: empty select");
+  const names: string[] = [], embeds: Embed[] = [];
+  for (const item of items) {
+    if (item === "*") {
+      for (const name of Object.keys(s.columns)) { column(s, name); names.push(name); }
+      continue;
+    }
+    const embed = item.match(/^([a-zA-Z_]+):([a-z_]+![a-z_]+)\(([a-z_, ]+)\)$/);
+    if (embed && s.embeds?.[`${embed[1]}:${embed[2]}`]) {
+      const def = s.embeds[`${embed[1]}:${embed[2]}`];
+      const target = spec(def.table);
+      const embedColumns = embed[3].split(",").map((c) => c.trim()).filter(Boolean);
+      for (const c of embedColumns) column(target, c);
+      embeds.push({ alias: embed[1], spec: target, local: def.local, remote: def.remote, columns: embedColumns });
+      continue;
+    }
+    if (!/^[a-z_][a-z0-9_]*$/.test(item)) throw new Error(`D1 facade: unsupported select item "${item}" (embeds and aliases are not supported)`);
+    column(s, item);
+    names.push(item);
   }
-  return names;
+  return { names, embeds };
 }
 
 type Filter = { sql: string; params: Binding[] };
@@ -370,6 +477,7 @@ type Filter = { sql: string; params: Binding[] };
 class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
   private action: Action = "select";
   private selected: string[] | null = null;
+  private embeds: Embed[] = [];
   private countMode: "exact" | null = null;
   private head = false;
   private filters: Filter[] = [];
@@ -386,7 +494,9 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
   select(columns = "*", options?: { count?: "exact"; head?: boolean }) {
     if (options && Object.keys(options).some((k) => k !== "count" && k !== "head")) throw new Error("D1 facade: unsupported select option");
     if (options?.count && options.count !== "exact") throw new Error("D1 facade: only count exact");
-    this.selected = parseSelect(this.s, columns);
+    const parsed = parseSelect(this.s, columns);
+    this.selected = parsed.names;
+    this.embeds = parsed.embeds;
     this.countMode = options?.count ?? null;
     this.head = options?.head === true;
     return this;
@@ -423,6 +533,7 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
   private compare(name: string, op: string, value: unknown) {
     const col = column(this.s, name);
     if (value === null) throw new Error("D1 facade: use is() for null");
+    if (col.kind === "point") throw new Error("D1 facade: compare on a point column");
     this.filters.push({ sql: `${col.sql} ${op} ?`, params: [toD1(col.kind === "json" || col.kind === "textArray" ? "text" : col.kind, value)] });
     return this;
   }
@@ -447,9 +558,31 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
     return this;
   }
 
+  /** PostgREST ilike: % and _ wildcards (* also means %). SQLite LIKE folds ASCII case only. */
+  ilike(name: string, pattern: string) {
+    this.filters.push(this.likeFilter(name, pattern));
+    return this;
+  }
+
+  private likeFilter(name: string, pattern: unknown): Filter {
+    const col = column(this.s, name);
+    if (col.kind !== "text") throw new Error("D1 facade: ilike on a non-text column");
+    if (typeof pattern !== "string") throw new Error("D1 facade: ilike needs a text pattern");
+    return { sql: `${col.sql} LIKE ? ESCAPE '\\'`, params: [pattern.replaceAll("*", "%")] };
+  }
+
   not(name: string, operator: string, value: unknown) {
-    if (operator !== "is" || value !== null) throw new Error(`D1 facade: unsupported not(${operator})`);
-    this.filters.push({ sql: `${column(this.s, name).sql} IS NOT NULL`, params: [] });
+    if (operator === "is" && value === null) {
+      this.filters.push({ sql: `${column(this.s, name).sql} IS NOT NULL`, params: [] });
+    } else if (operator === "ilike") {
+      const like = this.likeFilter(name, value);
+      // Postgres NOT (NULL ILIKE x) is NULL: rows with a NULL value are excluded, as in SQLite.
+      this.filters.push({ sql: `NOT (${like.sql})`, params: like.params });
+    } else if (operator === "eq" && column(this.s, name).kind === "textArray" && value === "{}") {
+      this.filters.push({ sql: `NOT (${column(this.s, name).sql} = '[]')`, params: [] });
+    } else {
+      throw new Error(`D1 facade: unsupported not(${operator})`);
+    }
     return this;
   }
 
@@ -507,7 +640,24 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
   }
 
   private decode(row: Record<string, unknown>, names: string[]): Row {
-    return Object.fromEntries(names.map((name) => [name, fromD1(this.s.columns[name].kind, row[name])]));
+    const out: Row = Object.fromEntries(names.map((name) => [name, fromD1(this.s.columns[name].kind, row[name])]));
+    for (const embed of this.embeds) {
+      const raw = row[embed.alias];
+      if (raw === null || raw === undefined) { out[embed.alias] = null; continue; }
+      const values = JSON.parse(String(raw)) as unknown[];
+      out[embed.alias] = Object.fromEntries(embed.columns.map((c, i) => [c, fromD1(embed.spec.columns[c].kind, values[i])]));
+    }
+    return out;
+  }
+
+  /** Embedded rows obey the embedded table's own policy for the caller's role (as PostgREST applies RLS). */
+  private embedProjection(embed: Embed): Filter {
+    const inner = new D1Query(this.db, embed.spec, this.auth).policy("select");
+    const cols = embed.columns.map((c) => column(embed.spec, c).sql.replaceAll("t.", "e.")).join(", ");
+    const remote = column(embed.spec, embed.remote).sql.replaceAll("t.", "e.");
+    const where = inner ? ` AND ${inner.sql.replaceAll("t.", "e.")}` : "";
+    return { sql: `(SELECT json_array(${cols}) FROM ${embed.spec.table} e WHERE ${remote} = ${column(this.s, embed.local).sql}${where}) AS ${embed.alias}`,
+      params: inner?.params ?? [] };
   }
 
   private projection(names: string[]) {
@@ -551,8 +701,10 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
     }
     const order = this.orders.length ? ` ORDER BY ${this.orders.join(", ")}` : "";
     const limit = this.limitCount !== null ? ` LIMIT ${this.limitCount} OFFSET ${this.offsetCount}` : this.offsetCount ? ` LIMIT -1 OFFSET ${this.offsetCount}` : "";
-    const { results } = await this.db.prepare(`SELECT ${this.projection(names)} FROM ${this.s.table} t${where.sql}${order}${limit}`)
-      .bind(...where.params).all<Record<string, unknown>>();
+    const embedded = this.embeds.map((e) => this.embedProjection(e));
+    const projection = [this.projection(names), ...embedded.map((e) => e.sql)].filter(Boolean).join(", ");
+    const { results } = await this.db.prepare(`SELECT ${projection} FROM ${this.s.table} t${where.sql}${order}${limit}`)
+      .bind(...embedded.flatMap((e) => e.params), ...where.params).all<Record<string, unknown>>();
     return this.shape(results.map((r) => this.decode(r, names)), count);
   }
 
@@ -582,20 +734,23 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
         // Only the caller's payload columns change on conflict; defaults (id, created_at) never overwrite stored values.
         const payload = Object.keys(input).filter((n) => input[n] !== undefined && !this.conflict!.columns.includes(n));
         const touched = this.s.beforeUpdate ? this.s.beforeUpdate(Object.fromEntries(payload.map((n) => [n, input[n]]))) : Object.fromEntries(payload.map((n) => [n, input[n]]));
-        const sets = Object.keys(touched).map((n) => `${d1(n)} = ?`);
-        updateParams.push(...Object.keys(touched).map((n) => toD1(this.s.columns[n].kind, touched[n])));
+        const touchedColumns = Object.keys(touched).flatMap((n) => writeColumns(this.s, n, touched[n]));
+        const sets = touchedColumns.map(([c]) => `${c} = ?`);
+        updateParams.push(...touchedColumns.map(([, v]) => v));
         const ownerGuard = this.auth.role === "user" && this.s.owner ? ` WHERE ${d1(this.s.owner)} = ?` : "";
         if (ownerGuard) updateParams.push(this.auth.role === "user" ? this.auth.userId : null);
         onConflict = this.conflict.ignore || !sets.length ? ` ON CONFLICT (${target}) DO NOTHING` : ` ON CONFLICT (${target}) DO UPDATE SET ${sets.join(", ")}${ownerGuard}`;
         if (this.conflict.ignore || !sets.length) updateParams.length = 0;
       }
-      statements.push(this.db.prepare(`INSERT INTO ${this.s.table} (${[...names.map(d1), ...extra.map(([c]) => c)].join(", ")}) VALUES (${[...names, ...extra].map(() => "?").join(", ")})${onConflict}`)
-        .bind(...names.map((n) => toD1(this.s.columns[n].kind, row[n])), ...extra.map(([, v]) => v), ...updateParams));
+      const written = [...names.flatMap((n) => writeColumns(this.s, n, row[n])), ...extra];
+      statements.push(this.db.prepare(`INSERT INTO ${this.s.table} (${written.map(([c]) => c).join(", ")}) VALUES (${written.map(() => "?").join(", ")})${onConflict}`)
+        .bind(...written.map(([, v]) => v), ...updateParams));
       for (const after of this.s.afterInsert?.(row) ?? []) statements.push(this.db.prepare(after.sql).bind(...after.params));
       const keyColumns = this.conflict ? this.conflict.columns : this.s.primaryKey;
       keys.push(keyColumns.map((k) => toD1(this.s.columns[k].kind, row[k])));
     }
     await this.db.batch(statements);
+    if (this.s.afterWrite) await this.s.afterWrite(this.db, await this.primaryKeysFor(keys));
     if (!this.selected) return { data: null, error: null, count: null, status: 201 };
     const rows: Row[] = [];
     for (const key of keys) {
@@ -604,6 +759,19 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
       if (row) rows.push(this.decode(row, this.selected));
     }
     return this.shape(rows, null);
+  }
+
+  /** Primary keys of rows matched by conflict keys (or the keys themselves when they are the primary key). */
+  private async primaryKeysFor(keys: Binding[][]): Promise<Binding[][]> {
+    if (!this.conflict || this.conflict.columns.join() === this.s.primaryKey.join()) return keys;
+    const out: Binding[][] = [];
+    for (const key of keys) {
+      const match = this.conflict.columns.map((k) => `${column(this.s, k).sql} = ?`).join(" AND ");
+      const row = await this.db.prepare(`SELECT ${this.s.primaryKey.map((k) => `${column(this.s, k).sql} AS ${k}`).join(", ")} FROM ${this.s.table} t WHERE ${match}`)
+        .bind(...key).first<Record<string, Binding>>();
+      if (row) out.push(this.s.primaryKey.map((k) => row[k]));
+    }
+    return out;
   }
 
   private async passesWriteCheck(row: Row): Promise<boolean> {
@@ -650,10 +818,11 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
     if (keys.length) {
       const match = this.keyMatch(keys);
       const overrides = this.s.updateSql?.(patch) ?? {};
-      const plain = names.filter((n) => !(n in overrides));
-      const sets = [...plain.map((n) => `${this.s.columns[n].d1 ?? n} = ?`), ...Object.entries(overrides).map(([n, o]) => `${this.s.columns[n].d1 ?? n} = ${o.sql}`)];
+      const plain = names.filter((n) => !(n in overrides)).flatMap((n) => writeColumns(this.s, n, patch[n]));
+      const sets = [...plain.map(([c]) => `${c} = ?`), ...Object.entries(overrides).map(([n, o]) => `${this.s.columns[n].d1 ?? n} = ${o.sql}`)];
       await this.db.prepare(`UPDATE ${this.s.table} SET ${sets.join(", ")} WHERE ${match.sql}`)
-        .bind(...plain.map((n) => toD1(this.s.columns[n].kind, patch[n])), ...Object.values(overrides).flatMap((o) => o.params), ...match.params).run();
+        .bind(...plain.map(([, v]) => v), ...Object.values(overrides).flatMap((o) => o.params), ...match.params).run();
+      if (this.s.afterWrite) await this.s.afterWrite(this.db, keys);
     }
     return this.returnKeys(keys);
   }

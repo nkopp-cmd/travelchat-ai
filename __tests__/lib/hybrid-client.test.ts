@@ -28,7 +28,7 @@ describe("withMigratedTables", () => {
     const hybrid = withMigratedTables(client, { role: "user", userId: "u1" });
     const { data } = await (hybrid.from("itineraries") as unknown as PromiseLike<{ data: unknown }> & { select: (c: string) => PromiseLike<{ data: unknown }> }).select("title");
     expect(data).toEqual([{ title: "mine" }]);
-    expect(hybrid.from("spots")).toEqual({ supabaseTable: "spots" });
+    expect(hybrid.from("no_such_table")).toEqual({ supabaseTable: "no_such_table" });
     expect(hybrid.storage.from("generated-images" as never)).toBe("bucket");
     expect(supabaseFrom).toHaveBeenCalledTimes(1);
     expect(() => withMigratedTables(client, { role: "user", userId: "" }).from("itineraries")).toThrow("user id");

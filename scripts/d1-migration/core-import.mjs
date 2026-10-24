@@ -72,7 +72,8 @@ export function loadProjection(dir) {
 export async function loadRules() {
   const root = resolve(here, '../..');
   const out = await build({ stdin: { contents: `export { shouldShowPublicSpot, getPublicSpotQualityIssue, PUBLIC_SPOT_VISIBILITY_CACHE_VERSION } from '@/lib/spots/public-quality';
-    export { inferCityFromAddress } from '@/lib/cities';`, resolveDir: root, sourcefile: 'rules.ts', loader: 'ts' },
+    export { inferCityFromAddress } from '@/lib/cities';
+    export { listingPlaceFor } from '@/lib/spots/listing-place';`, resolveDir: root, sourcefile: 'rules.ts', loader: 'ts' },
     bundle: true, write: false, format: 'esm', platform: 'neutral', tsconfig: join(root, 'tsconfig.json'), logLevel: 'silent' });
   return import(`data:text/javascript;base64,${Buffer.from(out.outputFiles[0].text).toString('base64')}`);
 }
@@ -83,14 +84,6 @@ export function wkbPoint(value) {
   const bytes = Buffer.from(value, 'hex');
   const lng = bytes.readDoubleLE(9), lat = bytes.readDoubleLE(17);
   return Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180 ? { lat, lng } : null;
-}
-export function photoPlaceIds(photos) {
-  const ids = new Set();
-  for (const photo of Array.isArray(photos) ? photos : []) {
-    const text = typeof photo === 'string' ? photo : JSON.stringify(photo);
-    for (const match of text.matchAll(/places(?:\/|%2F)([A-Za-z0-9_-]{1,256})(?:\/|%2F)photos/g)) ids.add(match[1]);
-  }
-  return [...ids];
 }
 const text = value => value && typeof value === 'object' ? value.en ?? Object.values(value)[0] ?? '' : value ?? '';
 export function sql(value) {
@@ -150,12 +143,8 @@ export function buildImport(snapshot, projection, rules) {
       name_en_normalized: spot.name_en_normalized ?? null, address_en_normalized: spot.address_en_normalized ?? null,
       visibility_version: rules.PUBLIC_SPOT_VISIBILITY_CACHE_VERSION });
     expected.legacy_spot_source.push({ spotId: spot.id, payload: spot, publicIssue: issue });
-    const places = photoPlaceIds(spot.photos);
-    const placeId = spot.google_place_id ?? (places.length === 1 ? places[0] : null);
-    if (placeId && /^[A-Za-z0-9_-]{1,256}$/.test(placeId) && places.every(id => id === placeId)) {
-      expected.spot_listing_places.push({ spot_id: spot.id, provider: 'google', place_id: placeId,
-        source: spot.google_place_id ? 'live google_place_id' : 'live catalog photo reference' });
-    }
+    const listing = rules.listingPlaceFor(spot);
+    if (listing) expected.spot_listing_places.push({ spot_id: spot.id, provider: 'google', place_id: listing.placeId, source: listing.source });
   }
   const itineraryIds = new Set(t.itineraries.map(row => row.id));
   if (projection.rows.size !== itineraryIds.size || [...projection.rows.keys()].some(id => !itineraryIds.has(id))) throw new Error('Projection does not match itineraries');

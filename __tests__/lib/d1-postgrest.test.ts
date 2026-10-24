@@ -6,6 +6,7 @@ import { D1Sqlite } from "@/__tests__/helpers/d1-sqlite";
 
 vi.mock("server-only", () => ({}));
 import { d1Client } from "@/lib/app-data/d1-postgrest";
+import { parseSpotCoordinates } from "@/lib/spots/coordinates";
 
 const A = "user_alice", B = "user_bob";
 const trip = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
@@ -111,7 +112,7 @@ describe("D1 PostgREST facade: PostgREST contracts", () => {
   });
 
   it("refuses anything it does not implement instead of guessing", () => {
-    expect(() => service().from("spots")).toThrow("not migrated");
+    expect(() => service().from("no_such_table")).toThrow("not migrated");
     expect(() => service().from("itineraries").select("id, spots(name)")).toThrow("embeds");
     expect(() => service().from("itineraries").select("title:name")).toThrow("embeds and aliases");
     expect(() => service().from("itineraries").eq("metadata", 1)).toThrow("unknown column");
@@ -272,5 +273,46 @@ describe("D1 PostgREST facade: generated Supabase-only tables (migration 0034)",
     expect((await d1Client(db, { role: "anon" }).from("weekly_city_spot_rankings").select("spot_id")).data).toEqual([]);
     expect(() => service().from("geo_destinations").select("*")).toThrow("geography/geometry");
     expect((await d1Client(db, { role: "anon" }).from("geo_destinations").select("slug")).error).toBeNull();
+  });
+});
+
+describe("D1 PostgREST facade: spots (migration 0039, write hook)", () => {
+  const sid = "40000000-0000-4000-8000-000000000001";
+  const photo = "/api/places/photo?name=places%2FChIJsame123%2Fphotos%2Fp1&w=1200";
+  const insertSpot = () => service().from("spots").insert({ id: sid, name: { en: "Ikseon Tea Room" }, description: { en: "A quiet tea room." },
+    address: { en: "17 Supyo-ro 28-gil, Jongno-gu, Seoul" }, category: "Cafe", location: "POINT(126.9908 37.5744)", photos: [photo], localley_score: 5 });
+
+  it("reads location as PostgREST EWKB and stores WKT input as latitude/longitude", async () => {
+    expect((await insertSpot()).error).toBeNull();
+    const { data } = await service().from("spots").select("location, address, photos").eq("id", sid).single();
+    // Encoding proven byte-identical to PostgREST on all 3,295 live rows; here: prefix + exact round trip.
+    expect(String(data!.location)).toMatch(/^0101000020E6100000[0-9A-F]{32}$/);
+    expect(parseSpotCoordinates(String(data!.location))).toEqual({ lat: 37.5744, lng: 126.9908 });
+    expect(db.sqlite.prepare("SELECT latitude, longitude FROM spots WHERE id = ?").get(sid)).toEqual({ latitude: 37.5744, longitude: 126.9908 });
+  });
+
+  it("the write hook derives visible, city, text address and the listing place; updates recompute them", async () => {
+    await insertSpot();
+    const row = () => ({ ...db.sqlite.prepare("SELECT visible, city, address, visibility_version FROM spots WHERE id = ?").get(sid) as object });
+    expect(row()).toMatchObject({ visible: 1, city: "Seoul", address: "17 Supyo-ro 28-gil, Jongno-gu, Seoul" });
+    expect(db.sqlite.prepare("SELECT place_id, source FROM spot_listing_places WHERE spot_id = ?").get(sid))
+      .toEqual({ place_id: "ChIJsame123", source: "live catalog photo reference" });
+    await service().from("spots").update({ photos: [] }).eq("id", sid);
+    expect(row()).toMatchObject({ visible: 0 });
+    expect(db.sqlite.prepare("SELECT count(*) AS n FROM spot_listing_places").get()).toEqual({ n: 0 });
+  });
+
+  it("JSON-path ilike / not ilike and the empty-array filter behave like PostgREST", async () => {
+    await insertSpot();
+    expect((await service().from("spots").select("id").ilike("address->>en", "%seoul%")).data).toEqual([{ id: sid }]);
+    expect((await service().from("spots").select("id").not("name->>en", "ilike", "%Tea%")).data).toEqual([]);
+    expect((await service().from("spots").select("id").not("photos", "eq", "{}")).data).toEqual([{ id: sid }]);
+  });
+
+  it("anon and users read spots; only the service role writes", async () => {
+    await insertSpot();
+    expect((await d1Client(db, { role: "anon" }).from("spots").select("id")).data).toEqual([{ id: sid }]);
+    expect((await as(A).from("spots").update({ category: "Bar" }).eq("id", sid).select("id")).data).toEqual([]);
+    expect((await as(A).from("spots").insert({ name: { en: "x" }, description: { en: "x" }, address: { en: "x" }, category: "x", location: "POINT(1 1)" })).error?.code).toBe("42501");
   });
 });
