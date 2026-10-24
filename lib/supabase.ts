@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { withReadOnlyGuard } from '@/lib/supabase-read-only';
+import { withMigratedTables } from '@/lib/app-data/hybrid-client';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
@@ -17,7 +18,9 @@ export const createSupabaseClient = (clerkToken?: string) => {
     ? { global: { headers: { Authorization: `Bearer ${clerkToken}` } } }
     : {};
 
-  return createClient(supabaseUrl, supabaseAnonKey, withReadOnlyGuard(options));
+  // A caller-supplied token has no known user id here, so migrated tables are refused for it under D1.
+  return withMigratedTables(createClient(supabaseUrl, supabaseAnonKey, withReadOnlyGuard(options)),
+    clerkToken ? { role: 'user', userId: '' } : { role: 'anon' });
 };
 
 /**
@@ -38,7 +41,7 @@ export const createSupabaseAdmin = () => {
     throw new Error('Supabase environment variables are not configured');
   }
 
-  return createClient(supabaseUrl, serviceRoleKey, withReadOnlyGuard({}));
+  return withMigratedTables(createClient(supabaseUrl, serviceRoleKey, withReadOnlyGuard({})), { role: 'service' });
 };
 
 // For the server-authenticated client, import from lib/supabase-server instead:

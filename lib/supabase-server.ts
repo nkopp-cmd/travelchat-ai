@@ -4,6 +4,7 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { SignJWT } from 'jose';
 import { currentUser } from '@/lib/auth/server';
 import { withReadOnlyGuard } from '@/lib/supabase-read-only';
+import { withMigratedTables } from '@/lib/app-data/hybrid-client';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
@@ -52,14 +53,14 @@ export async function createSupabaseServerClient(): Promise<SupabaseClient> {
       const user = await currentUser();
       if (user) {
         const token = await mintSupabaseAccessToken({ id: user.id, email: user.primaryEmailAddress?.emailAddress }, secret);
-        return createClient(supabaseUrl, supabaseAnonKey, withReadOnlyGuard({
+        return withMigratedTables(createClient(supabaseUrl, supabaseAnonKey, withReadOnlyGuard({
           global: { headers: { Authorization: `Bearer ${token}` } }
-        }));
+        })), { role: 'user', userId: user.id });
       }
     } catch (error) {
       console.warn('[supabase-server] Failed to mint Supabase token:', error instanceof Error ? error.message : 'Unknown error');
     }
   }
 
-  return createClient(supabaseUrl, supabaseAnonKey, withReadOnlyGuard({}));
+  return withMigratedTables(createClient(supabaseUrl, supabaseAnonKey, withReadOnlyGuard({})), { role: 'anon' });
 }
