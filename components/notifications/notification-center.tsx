@@ -14,7 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNotifications } from "@/hooks/use-notifications";
-import { getNotificationMeta, getNotificationUrl } from "@/lib/notifications";
+import { getNotificationMeta, getNotificationUrl } from "@/lib/notification-display";
 import { Notification } from "@/types";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
