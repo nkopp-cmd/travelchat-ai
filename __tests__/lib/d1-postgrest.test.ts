@@ -119,3 +119,58 @@ describe("D1 PostgREST facade: PostgREST contracts", () => {
     expect(() => d1Client(db, { role: "user", userId: "" })).toThrow("user id");
   });
 });
+
+describe("D1 PostgREST facade: conversations, messages, subscriptions, usage_tracking", () => {
+  const conv = (n: number) => `10000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
+  beforeEach(() => {
+    db.sqlite.exec(`INSERT INTO conversations (id, ownerId, title, linkedItineraryId, createdAt, updatedAt) VALUES
+        ('${conv(1)}', '${A}', 'Alice chat', '${trip(1)}', '2026-10-01T00:00:00+00:00', '2026-10-01T00:00:00+00:00'),
+        ('${conv(2)}', '${B}', 'Bob chat', NULL, '2026-10-02T00:00:00+00:00', '2026-10-02T00:00:00+00:00');
+      INSERT INTO messages (id, conversationId, role, content, createdAt) VALUES
+        ('${conv(11)}', '${conv(1)}', 'user', 'hi', '2026-10-01T00:00:01+00:00'),
+        ('${conv(12)}', '${conv(2)}', 'user', 'secret', '2026-10-02T00:00:01+00:00');
+      INSERT INTO legacy_subscriptions (id, ownerId, tier, status, cancelAtPeriodEnd, createdAt, updatedAt) VALUES
+        ('s1', '${A}', 'pro', 'active', 0, '2026-01-01T00:00:00+00:00', '2026-01-01T00:00:00+00:00'),
+        ('s2', '${B}', 'premium', 'active', 1, '2026-01-01T00:00:00+00:00', '2026-01-01T00:00:00+00:00');
+      INSERT INTO legacy_usage (id, ownerId, usageType, periodType, periodStart, count, createdAt, updatedAt) VALUES
+        ('u1', '${A}', 'itineraries_created', 'monthly', '2026-10-01', 2, '2026-10-01T00:00:00+00:00', '2026-10-01T00:00:00+00:00');`);
+  });
+
+  it("conversations: own rows only; a linked itinerary must be the caller's on insert and update", async () => {
+    expect((await as(A).from("conversations").select("id, title, linked_itinerary_id")).data)
+      .toEqual([{ id: conv(1), title: "Alice chat", linked_itinerary_id: trip(1) }]);
+    expect((await as(A).from("conversations").insert({ clerk_user_id: A, linked_itinerary_id: trip(3) })).error?.code).toBe("42501");
+    expect((await as(A).from("conversations").update({ linked_itinerary_id: trip(3) }).eq("id", conv(1))).error?.code).toBe("42501");
+    expect((await as(A).from("conversations").update({ title: "Renamed" }).eq("id", conv(1)).select("title").single()).data).toEqual({ title: "Renamed" });
+  });
+
+  it("messages: visible through the conversation owner; inserts into another user's conversation are rejected", async () => {
+    expect((await as(A).from("messages").select("content")).data).toEqual([{ content: "hi" }]);
+    expect((await as(A).from("messages").insert({ conversation_id: conv(2), role: "user", content: "x" })).error?.code).toBe("42501");
+    expect((await as(A).from("messages").update({ content: "edited" }).eq("id", conv(11)).select("content").single()).data).toEqual({ content: "edited" });
+    expect((await as(A).from("messages").update({ content: "x" }).eq("id", conv(12)).select("id")).data).toEqual([]);
+  });
+
+  it("messages insert runs the update_conversation_on_message trigger", async () => {
+    const ok = await as(A).from("messages").insert({ conversation_id: conv(1), role: "assistant", content: "answer" }).select("id, created_at").single();
+    expect(ok.error).toBeNull();
+    const { data } = await service().from("conversations").select("updated_at").eq("id", conv(1)).single();
+    expect(String(data!.updated_at) > "2026-10-01T00:00:00+00:00").toBe(true);
+  });
+
+  it("subscriptions and usage_tracking: users read their own rows only and cannot write", async () => {
+    expect((await as(A).from("subscriptions").select("tier, cancel_at_period_end")).data).toEqual([{ tier: "pro", cancel_at_period_end: false }]);
+    expect((await as(A).from("subscriptions").update({ tier: "premium" }).eq("id", "s1").select("id")).data).toEqual([]);
+    expect((await as(A).from("subscriptions").insert({ clerk_user_id: A, tier: "premium" })).error?.code).toBe("42501");
+    expect((await as(A).from("usage_tracking").select("usage_type, count, period_start")).data)
+      .toEqual([{ usage_type: "itineraries_created", count: 2, period_start: "2026-10-01" }]);
+    expect((await as(B).from("usage_tracking").select("id")).data).toEqual([]);
+  });
+
+  it("service updates run the update_updated_at trigger", async () => {
+    await service().from("usage_tracking").update({ count: 3 }).eq("id", "u1");
+    const { data } = await service().from("usage_tracking").select("count, updated_at").eq("id", "u1").single();
+    expect(data!.count).toBe(3);
+    expect(String(data!.updated_at) > "2026-10-01T00:00:00+00:00").toBe(true);
+  });
+});

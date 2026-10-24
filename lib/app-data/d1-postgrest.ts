@@ -23,10 +23,19 @@ export interface TableSpec {
   primaryKey: string[];
   /** Postgres column that holds the owning user id (RLS `clerk_user_id = jwt.sub`). */
   owner?: string;
+  /** Owner rule as D1 SQL on alias t with one `?` for the user id, when the row has no owner column (e.g. messages). */
+  ownerExpr?: string;
+  /** false = the user-scoped client may only read (Postgres has a SELECT policy only). */
+  userWrite?: boolean;
   /** Extra visible rows for role "user" on SELECT (Postgres permissive SELECT policy), as D1 SQL on the table alias t. */
   userReadAlso?: string;
-  /** Extra insert check for role "user" (Postgres WITH CHECK beyond the owner rule); bound params: [userId, ...]. */
-  userInsertCheck?: (row: Row) => { sql: string; params: Binding[] } | null;
+  /** Postgres WITH CHECK beyond the owner rule, for inserts and update patches by role "user": a query that must
+   *  return a row; the user id is bound after the returned params. */
+  userWriteCheck?: (row: Row) => { sql: string; params: Binding[] } | null;
+  /** BEFORE UPDATE trigger equivalent (e.g. updated_at = now()). */
+  beforeUpdate?: (patch: Row) => Row;
+  /** AFTER INSERT trigger equivalent, run in the same batch. */
+  afterInsert?: (row: Row) => { sql: string; params: Binding[] }[];
   /** Statements that must run before an insert (e.g. the owners row a foreign key needs). */
   beforeInsert?: (row: Row) => { sql: string; params: Binding[] }[];
   /** Role "anon" may read these rows (SQL on alias t); no anon writes. Omitted = anon sees nothing. */
@@ -76,11 +85,98 @@ export const TABLES: Record<string, TableSpec> = {
     // "Localley published itinerary read": authenticated users also see public itineraries.
     userReadAlso: "t.is_public = 1",
     // "Localley own itinerary" WITH CHECK: user_id is null or one of the caller's own profiles.
-    userInsertCheck: (row) => row.user_id == null ? null
+    userWriteCheck: (row) => row.user_id == null ? null
       : { sql: "SELECT 1 AS ok FROM profiles WHERE id = ? AND ownerId = ?", params: [String(row.user_id)] },
-    beforeInsert: (row) => [{ sql: "INSERT INTO owners (id, source) VALUES (?, 'new') ON CONFLICT (id) DO NOTHING", params: [String(row.clerk_user_id)] }],
+    beforeInsert: ensureOwner,
+  },
+  conversations: {
+    table: "conversations",
+    primaryKey: ["id"],
+    owner: "clerk_user_id",
+    columns: {
+      id: { kind: "text", default: uuid },
+      clerk_user_id: { kind: "text", d1: "ownerId" },
+      title: { kind: "text" },
+      created_at: { kind: "text", d1: "createdAt", default: nowTimestamptz },
+      updated_at: { kind: "text", d1: "updatedAt", default: nowTimestamptz },
+      linked_itinerary_id: { kind: "text", d1: "linkedItineraryId" },
+    },
+    // WITH CHECK: a linked itinerary must belong to the caller.
+    userWriteCheck: (row) => row.linked_itinerary_id == null ? null
+      : { sql: "SELECT 1 AS ok FROM itineraries WHERE id = ? AND ownerId = ?", params: [String(row.linked_itinerary_id)] },
+    beforeInsert: ensureOwner,
+  },
+  messages: {
+    table: "messages",
+    primaryKey: ["id"],
+    ownerExpr: "EXISTS (SELECT 1 FROM conversations c WHERE c.id = t.conversationId AND c.ownerId = ?)",
+    columns: {
+      id: { kind: "text", default: uuid },
+      conversation_id: { kind: "text", d1: "conversationId" },
+      role: { kind: "text" },
+      content: { kind: "text" },
+      created_at: { kind: "text", d1: "createdAt", default: nowTimestamptz },
+    },
+    // Checked when the row names its conversation (always on insert; on update only if the patch moves it).
+    userWriteCheck: (row) => row.conversation_id === undefined ? null
+      : { sql: "SELECT 1 AS ok FROM conversations WHERE id = ? AND ownerId = ?", params: [row.conversation_id === null ? null : String(row.conversation_id)] },
+    // Trigger update_conversation_on_message: AFTER INSERT, conversations.updated_at = now().
+    afterInsert: (row) => [{ sql: "UPDATE conversations SET updatedAt = ? WHERE id = ?", params: [nowTimestamptz(), row.conversation_id == null ? null : String(row.conversation_id)] }],
+  },
+  subscriptions: {
+    table: "legacy_subscriptions",
+    primaryKey: ["id"],
+    owner: "clerk_user_id",
+    userWrite: false,
+    columns: {
+      id: { kind: "text", default: uuid },
+      clerk_user_id: { kind: "text", d1: "ownerId" },
+      tier: { kind: "text" },
+      status: { kind: "text" },
+      stripe_customer_id: { kind: "text", d1: "stripeCustomerId" },
+      stripe_subscription_id: { kind: "text", d1: "stripeSubscriptionId" },
+      stripe_price_id: { kind: "text", d1: "stripePriceId" },
+      billing_cycle: { kind: "text", d1: "billingCycle" },
+      current_period_start: { kind: "text", d1: "currentPeriodStart" },
+      current_period_end: { kind: "text", d1: "currentPeriodEnd" },
+      cancel_at_period_end: { kind: "bool", d1: "cancelAtPeriodEnd" },
+      trial_start: { kind: "text", d1: "trialStart" },
+      trial_end: { kind: "text", d1: "trialEnd" },
+      created_at: { kind: "text", d1: "createdAt", default: nowTimestamptz },
+      updated_at: { kind: "text", d1: "updatedAt", default: nowTimestamptz },
+    },
+    beforeUpdate: touchUpdatedAt,
+    beforeInsert: ensureOwner,
+  },
+  usage_tracking: {
+    table: "legacy_usage",
+    primaryKey: ["id"],
+    owner: "clerk_user_id",
+    userWrite: false,
+    columns: {
+      id: { kind: "text", default: uuid },
+      clerk_user_id: { kind: "text", d1: "ownerId" },
+      usage_type: { kind: "text", d1: "usageType" },
+      count: { kind: "int" },
+      period_start: { kind: "text", d1: "periodStart" },
+      period_type: { kind: "text", d1: "periodType" },
+      created_at: { kind: "text", d1: "createdAt", default: nowTimestamptz },
+      updated_at: { kind: "text", d1: "updatedAt", default: nowTimestamptz },
+    },
+    beforeUpdate: touchUpdatedAt,
+    beforeInsert: ensureOwner,
   },
 };
+
+/** Owner rows are the foreign-key parent of every owned table; a first write by a new user creates it. */
+function ensureOwner(row: Row) {
+  return [{ sql: "INSERT INTO owners (id, source) VALUES (?, 'new') ON CONFLICT (id) DO NOTHING", params: [String(row.clerk_user_id)] }];
+}
+
+/** Trigger update_updated_at: BEFORE UPDATE, updated_at = now(). */
+function touchUpdatedAt(patch: Row): Row {
+  return { ...patch, updated_at: nowTimestamptz() };
+}
 
 function spec(table: string): TableSpec {
   const found = TABLES[table];
@@ -246,10 +342,11 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
   private policy(forRead: boolean): Filter | null {
     if (this.auth.role === "service") return null;
     if (this.auth.role === "anon") return { sql: forRead && this.s.anonRead ? `(${this.s.anonRead})` : "0", params: [] };
-    if (!this.s.owner) return { sql: "0", params: [] };
-    const owner = column(this.s, this.s.owner).sql;
-    if (forRead && this.s.userReadAlso) return { sql: `(${owner} = ? OR ${this.s.userReadAlso})`, params: [this.auth.userId] };
-    return { sql: `${owner} = ?`, params: [this.auth.userId] };
+    if (!forRead && this.s.userWrite === false) return { sql: "0", params: [] };
+    const owner = this.s.ownerExpr ?? (this.s.owner ? `${column(this.s, this.s.owner).sql} = ?` : null);
+    if (!owner) return { sql: "0", params: [] };
+    if (forRead && this.s.userReadAlso) return { sql: `(${owner} OR ${this.s.userReadAlso})`, params: [this.auth.userId] };
+    return { sql: `(${owner})`, params: [this.auth.userId] };
   }
 
   private where(forRead: boolean): Filter {
@@ -320,14 +417,15 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
       for (const [name, col] of Object.entries(this.s.columns)) if (row[name] === undefined && col.default) row[name] = col.default();
       if (this.auth.role === "anon") return this.rlsInsertError();
       if (this.auth.role === "user") {
-        if (!this.s.owner || row[this.s.owner] !== this.auth.userId) return this.rlsInsertError();
-        const check = this.s.userInsertCheck?.(row);
-        if (check && !(await this.db.prepare(check.sql).bind(...check.params, this.auth.userId).first())) return this.rlsInsertError();
+        if (this.s.userWrite === false) return this.rlsInsertError();
+        if (this.s.owner ? row[this.s.owner] !== this.auth.userId : !this.s.ownerExpr) return this.rlsInsertError();
+        if (!(await this.passesWriteCheck(row))) return this.rlsInsertError();
       }
       for (const before of this.s.beforeInsert?.(row) ?? []) statements.push(this.db.prepare(before.sql).bind(...before.params));
       const names = Object.keys(row).filter((name) => row[name] !== undefined);
       statements.push(this.db.prepare(`INSERT INTO ${this.s.table} (${names.map((n) => this.s.columns[n].d1 ?? n).join(", ")}) VALUES (${names.map(() => "?").join(", ")})`)
         .bind(...names.map((n) => toD1(this.s.columns[n].kind, row[n]))));
+      for (const after of this.s.afterInsert?.(row) ?? []) statements.push(this.db.prepare(after.sql).bind(...after.params));
       keys.push(this.s.primaryKey.map((k) => toD1(this.s.columns[k].kind, row[k])));
     }
     await this.db.batch(statements);
@@ -339,6 +437,12 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
       if (row) rows.push(this.decode(row, this.selected));
     }
     return this.shape(rows, null);
+  }
+
+  private async passesWriteCheck(row: Row): Promise<boolean> {
+    if (this.auth.role !== "user") return true;
+    const check = this.s.userWriteCheck?.(row);
+    return !check || Boolean(await this.db.prepare(check.sql).bind(...check.params, this.auth.userId).first());
   }
 
   private rlsInsertError(): PostgrestResult<T> {
@@ -361,16 +465,18 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
 
   private async runUpdate(): Promise<PostgrestResult<T>> {
     if (this.auth.role === "anon") return { data: this.selected ? [] as T : null, error: null, count: null, status: 200 };
-    const names = Object.keys(this.patch);
-    if (!names.length) throw new Error("D1 facade: empty update");
-    if (this.auth.role === "user" && this.s.owner && names.includes(this.s.owner) && this.patch[this.s.owner] !== this.auth.userId) {
+    if (!Object.keys(this.patch).length) throw new Error("D1 facade: empty update");
+    const patch = this.s.beforeUpdate ? this.s.beforeUpdate(this.patch) : this.patch;
+    const names = Object.keys(patch);
+    if (this.auth.role === "user" && this.s.owner && names.includes(this.s.owner) && patch[this.s.owner] !== this.auth.userId) {
       return this.rlsInsertError();
     }
+    if (this.auth.role === "user" && !(await this.passesWriteCheck(patch))) return this.rlsInsertError();
     const keys = await this.targetKeys();
     if (keys.length) {
       const match = this.keyMatch(keys);
       await this.db.prepare(`UPDATE ${this.s.table} SET ${names.map((n) => `${this.s.columns[n].d1 ?? n} = ?`).join(", ")} WHERE ${match.sql}`)
-        .bind(...names.map((n) => toD1(this.s.columns[n].kind, this.patch[n])), ...match.params).run();
+        .bind(...names.map((n) => toD1(this.s.columns[n].kind, patch[n])), ...match.params).run();
     }
     return this.returnKeys(keys);
   }
