@@ -144,3 +144,48 @@ export async function d1WeeklyRankings(weekStart: string, citySlug: string | nul
     .bind(...(citySlug ? [weekStart, citySlug] : [weekStart])).all<D1WeeklyRanking>();
   return results;
 }
+
+/**
+ * The exact imported Supabase row (legacy_spot_source.payload), so detail and photo reads apply the same
+ * public-quality rules to the same fields. Callers still run shouldShowPublicSpot on it.
+ */
+export async function d1SpotSource(id: string): Promise<(RawSpot & Record<string, unknown>) | null> {
+  const row = await appDataDb().prepare("SELECT payload FROM legacy_spot_source WHERE spotId = ?")
+    .bind(id.toLowerCase()).first<{ payload: string }>();
+  if (!row) return null;
+  const spot: unknown = JSON.parse(row.payload);
+  if (!spot || typeof spot !== "object" || Array.isArray(spot) || (spot as { id?: unknown }).id !== id.toLowerCase()) {
+    throw new Error("Invalid D1 spot source");
+  }
+  return spot as RawSpot & Record<string, unknown>;
+}
+
+export type D1CommunitySubmission = {
+  contributor_credit: string; platform: string; status: string; created_at: string;
+  research_summary: string | null; canonical_url: string; research: { createdCandidates?: { spotId?: string | null; status?: string }[] } | null;
+};
+
+/** Oldest submission that created the spot, directly or as one of its research candidates. */
+export async function d1CommunitySubmission(spotId: string): Promise<D1CommunitySubmission | null> {
+  const columns = "contributor_credit, platform, status, created_at, research_summary, canonical_url, research";
+  const db = appDataDb();
+  const row = await db.prepare(`SELECT ${columns} FROM social_spot_submissions WHERE spot_id = ? ORDER BY created_at ASC LIMIT 1`)
+    .bind(spotId).first<Record<string, unknown>>()
+    ?? await db.prepare(`SELECT ${columns} FROM social_spot_submissions WHERE json_valid(research) AND EXISTS (
+        SELECT 1 FROM json_each(research, '$.createdCandidates') c WHERE json_extract(c.value, '$.spotId') = ?)
+      ORDER BY created_at ASC LIMIT 1`).bind(spotId).first<Record<string, unknown>>();
+  if (!row) return null;
+  return { ...row, research: parseJson(row.research) } as D1CommunitySubmission;
+}
+
+/** Related-spot candidates in one city (the Supabase related query), as source rows. */
+export async function d1RelatedSpotSources(city: string, excludeId: string, minimumScore: number, limit: number): Promise<RawSpot[]> {
+  const where = visibilityWhere();
+  // Related spots filter on the source photos, not the import verdict, exactly like the Supabase query.
+  where.sql[0] = "json_array_length(l.payload, '$.photos') > 0";
+  const { results } = await appDataDb().prepare(`SELECT l.payload FROM spots s JOIN legacy_spot_source l ON l.spotId = s.id
+    WHERE ${where.sql.join(" AND ")} AND s.address LIKE ? AND s.id != ? AND s.localley_score >= ?
+    ORDER BY s.localley_score DESC NULLS FIRST, s.local_percentage DESC NULLS FIRST, s.id ASC LIMIT ?`)
+    .bind(...where.params, `%${city}%`, excludeId.toLowerCase(), minimumScore, limit).all<{ payload: string }>();
+  return results.map((row) => JSON.parse(row.payload) as RawSpot);
+}
