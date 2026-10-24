@@ -1,0 +1,3756 @@
+{
+  "source": "supabase llehrhqeolfprutcaopi public schema, 2026-10-24, catalog only (no rows)",
+  "columns": [
+    {
+      "t": "affiliate_earnings",
+      "col": "id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": "gen_random_uuid()"
+    },
+    {
+      "t": "affiliate_earnings",
+      "col": "partner",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "affiliate_earnings",
+      "col": "period_date",
+      "udt": "date",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "affiliate_earnings",
+      "col": "clicks",
+      "udt": "int4",
+      "nul": "YES",
+      "def": "0"
+    },
+    {
+      "t": "affiliate_earnings",
+      "col": "conversions",
+      "udt": "int4",
+      "nul": "YES",
+      "def": "0"
+    },
+    {
+      "t": "affiliate_earnings",
+      "col": "total_value",
+      "udt": "numeric",
+      "nul": "YES",
+      "def": "0"
+    },
+    {
+      "t": "affiliate_earnings",
+      "col": "commission_earned",
+      "udt": "numeric",
+      "nul": "YES",
+      "def": "0"
+    },
+    {
+      "t": "affiliate_earnings",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": "now()"
+    },
+    {
+      "t": "affiliate_earnings",
+      "col": "updated_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": "now()"
+    },
+    {
+      "t": "apify_spot_candidates",
+      "col": "id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": "gen_random_uuid()"
+    },
+    {
+      "t": "apify_spot_candidates",
+      "col": "run_id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "apify_spot_candidates",
+      "col": "city_slug",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "apify_spot_candidates",
+      "col": "place_id",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "apify_spot_candidates",
+      "col": "name",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "apify_spot_candidates",
+      "col": "address",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "apify_spot_candidates",
+      "col": "latitude",
+      "udt": "float8",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "apify_spot_candidates",
+      "col": "longitude",
+      "udt": "float8",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "apify_spot_candidates",
+      "col": "maps_url",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "apify_spot_candidates",
+      "col": "category_name",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "apify_spot_candidates",
+      "col": "categories",
+      "udt": "_text",
+      "nul": "NO",
+      "def": "'{}'::text[]"
+    },
+    {
+      "t": "apify_spot_candidates",
+      "col": "total_score",
+      "udt": "numeric",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "apify_spot_candidates",
+      "col": "reviews_count",
+      "udt": "int4",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "apify_spot_candidates",
+      "col": "price",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "apify_spot_candidates",
+      "col": "primary_image_url",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "apify_spot_candidates",
+      "col": "discovery_query",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "apify_spot_candidates",
+      "col": "recommended_localley_score",
+      "udt": "int2",
+      "nul": "NO",
+      "def": "3"
+    },
+    {
+      "t": "apify_spot_candidates",
+      "col": "status",
+      "udt": "text",
+      "nul": "NO",
+      "def": "'pending'::text"
+    },
+    {
+      "t": "apify_spot_candidates",
+      "col": "rejection_reason",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "apify_spot_candidates",
+      "col": "imported_spot_id",
+      "udt": "uuid",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "apify_spot_candidates",
+      "col": "reviewed_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "apify_spot_candidates",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "apify_spot_candidates",
+      "col": "updated_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "apify_spot_candidates",
+      "col": "source_type",
+      "udt": "text",
+      "nul": "NO",
+      "def": "'map_discovery'::text"
+    },
+    {
+      "t": "apify_spot_candidates",
+      "col": "social_source_url",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "apify_spot_candidates",
+      "col": "social_week_start",
+      "udt": "date",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "apify_spot_discovery_runs",
+      "col": "id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": "gen_random_uuid()"
+    },
+    {
+      "t": "apify_spot_discovery_runs",
+      "col": "discovery_date",
+      "udt": "date",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "apify_spot_discovery_runs",
+      "col": "city_slug",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "apify_spot_discovery_runs",
+      "col": "actor_id",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "apify_spot_discovery_runs",
+      "col": "actor_run_id",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "apify_spot_discovery_runs",
+      "col": "dataset_id",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "apify_spot_discovery_runs",
+      "col": "state",
+      "udt": "text",
+      "nul": "NO",
+      "def": "'starting'::text"
+    },
+    {
+      "t": "apify_spot_discovery_runs",
+      "col": "max_places",
+      "udt": "int2",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "apify_spot_discovery_runs",
+      "col": "error_message",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "apify_spot_discovery_runs",
+      "col": "started_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "apify_spot_discovery_runs",
+      "col": "completed_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "apify_spot_discovery_runs",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "apify_spot_discovery_runs",
+      "col": "updated_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "challenges",
+      "col": "id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": "gen_random_uuid()"
+    },
+    {
+      "t": "challenges",
+      "col": "name",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "challenges",
+      "col": "description",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "challenges",
+      "col": "city",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "challenges",
+      "col": "xp_reward",
+      "udt": "int4",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "challenges",
+      "col": "requirements",
+      "udt": "jsonb",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "challenges",
+      "col": "starts_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "challenges",
+      "col": "ends_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "challenges",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": "now()"
+    },
+    {
+      "t": "contribution_token_ledger",
+      "col": "id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": "gen_random_uuid()"
+    },
+    {
+      "t": "contribution_token_ledger",
+      "col": "contributor_id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "contribution_token_ledger",
+      "col": "submission_id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "contribution_token_ledger",
+      "col": "delta",
+      "udt": "int4",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "contribution_token_ledger",
+      "col": "reason",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "contribution_token_ledger",
+      "col": "metadata",
+      "udt": "jsonb",
+      "nul": "NO",
+      "def": "'{}'::jsonb"
+    },
+    {
+      "t": "contribution_token_ledger",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "follows",
+      "col": "id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": "gen_random_uuid()"
+    },
+    {
+      "t": "follows",
+      "col": "follower_id",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "follows",
+      "col": "following_id",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "follows",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": "now()"
+    },
+    {
+      "t": "geo_aliases",
+      "col": "id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": "gen_random_uuid()"
+    },
+    {
+      "t": "geo_aliases",
+      "col": "entity_type",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_aliases",
+      "col": "destination_id",
+      "udt": "uuid",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "geo_aliases",
+      "col": "local_area_id",
+      "udt": "uuid",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "geo_aliases",
+      "col": "spot_id",
+      "udt": "uuid",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "geo_aliases",
+      "col": "entity_id",
+      "udt": "uuid",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "geo_aliases",
+      "col": "alias",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_aliases",
+      "col": "normalized_alias",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_aliases",
+      "col": "lang",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "geo_aliases",
+      "col": "source",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_aliases",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "geo_countries",
+      "col": "code",
+      "udt": "bpchar",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_countries",
+      "col": "name",
+      "udt": "jsonb",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_countries",
+      "col": "default_currency",
+      "udt": "bpchar",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_countries",
+      "col": "default_languages",
+      "udt": "_text",
+      "nul": "NO",
+      "def": "'{}'::text[]"
+    },
+    {
+      "t": "geo_countries",
+      "col": "source_meta",
+      "udt": "jsonb",
+      "nul": "NO",
+      "def": "'{}'::jsonb"
+    },
+    {
+      "t": "geo_countries",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "geo_countries",
+      "col": "updated_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "geo_destinations",
+      "col": "id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": "gen_random_uuid()"
+    },
+    {
+      "t": "geo_destinations",
+      "col": "slug",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_destinations",
+      "col": "name",
+      "udt": "jsonb",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_destinations",
+      "col": "country_code",
+      "udt": "bpchar",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_destinations",
+      "col": "center",
+      "udt": "geography",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_destinations",
+      "col": "timezone",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_destinations",
+      "col": "currency",
+      "udt": "bpchar",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_destinations",
+      "col": "languages",
+      "udt": "_text",
+      "nul": "NO",
+      "def": "'{}'::text[]"
+    },
+    {
+      "t": "geo_destinations",
+      "col": "ring",
+      "udt": "int2",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_destinations",
+      "col": "is_enabled",
+      "udt": "bool",
+      "nul": "NO",
+      "def": "false"
+    },
+    {
+      "t": "geo_destinations",
+      "col": "targets",
+      "udt": "jsonb",
+      "nul": "NO",
+      "def": "'{}'::jsonb"
+    },
+    {
+      "t": "geo_destinations",
+      "col": "characterization",
+      "udt": "jsonb",
+      "nul": "NO",
+      "def": "'{}'::jsonb"
+    },
+    {
+      "t": "geo_destinations",
+      "col": "source_meta",
+      "udt": "jsonb",
+      "nul": "NO",
+      "def": "'{}'::jsonb"
+    },
+    {
+      "t": "geo_destinations",
+      "col": "reviewed_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "geo_destinations",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "geo_destinations",
+      "col": "updated_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "geo_local_area_vibe_scores",
+      "col": "local_area_id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_local_area_vibe_scores",
+      "col": "vibe_id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_local_area_vibe_scores",
+      "col": "score",
+      "udt": "int2",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_local_area_vibe_scores",
+      "col": "confidence",
+      "udt": "numeric",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_local_area_vibe_scores",
+      "col": "evidence",
+      "udt": "jsonb",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_local_area_vibe_scores",
+      "col": "source_type",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_local_area_vibe_scores",
+      "col": "scored_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_local_area_vibe_scores",
+      "col": "expires_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "geo_local_areas",
+      "col": "id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": "gen_random_uuid()"
+    },
+    {
+      "t": "geo_local_areas",
+      "col": "destination_id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_local_areas",
+      "col": "parent_id",
+      "udt": "uuid",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "geo_local_areas",
+      "col": "kind",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_local_areas",
+      "col": "slug",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_local_areas",
+      "col": "name",
+      "udt": "jsonb",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_local_areas",
+      "col": "characterization",
+      "udt": "jsonb",
+      "nul": "NO",
+      "def": "'{}'::jsonb"
+    },
+    {
+      "t": "geo_local_areas",
+      "col": "traveler_types",
+      "udt": "_text",
+      "nul": "NO",
+      "def": "'{}'::text[]"
+    },
+    {
+      "t": "geo_local_areas",
+      "col": "practical_notes",
+      "udt": "jsonb",
+      "nul": "NO",
+      "def": "'{}'::jsonb"
+    },
+    {
+      "t": "geo_local_areas",
+      "col": "center",
+      "udt": "geography",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "geo_local_areas",
+      "col": "boundary",
+      "udt": "geometry",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "geo_local_areas",
+      "col": "source_meta",
+      "udt": "jsonb",
+      "nul": "NO",
+      "def": "'{}'::jsonb"
+    },
+    {
+      "t": "geo_local_areas",
+      "col": "confidence",
+      "udt": "numeric",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_local_areas",
+      "col": "review_status",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_local_areas",
+      "col": "reviewed_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "geo_local_areas",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "geo_local_areas",
+      "col": "updated_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "geo_vibe_taxonomy",
+      "col": "id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": "gen_random_uuid()"
+    },
+    {
+      "t": "geo_vibe_taxonomy",
+      "col": "slug",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_vibe_taxonomy",
+      "col": "label",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_vibe_taxonomy",
+      "col": "version",
+      "udt": "int4",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_vibe_taxonomy",
+      "col": "rubric",
+      "udt": "jsonb",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "geo_vibe_taxonomy",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "social_spot_submission_aliases",
+      "col": "alias_url",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_aliases",
+      "col": "submission_id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_aliases",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "social_spot_submission_candidates",
+      "col": "id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": "gen_random_uuid()"
+    },
+    {
+      "t": "social_spot_submission_candidates",
+      "col": "submission_id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_candidates",
+      "col": "candidate_key",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_candidates",
+      "col": "ordinal",
+      "udt": "int4",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_candidates",
+      "col": "spot_id",
+      "udt": "uuid",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_candidates",
+      "col": "status",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_candidates",
+      "col": "research",
+      "udt": "jsonb",
+      "nul": "NO",
+      "def": "'{}'::jsonb"
+    },
+    {
+      "t": "social_spot_submission_candidates",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "social_spot_submission_candidates",
+      "col": "updated_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "social_spot_submission_media",
+      "col": "id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": "gen_random_uuid()"
+    },
+    {
+      "t": "social_spot_submission_media",
+      "col": "submission_id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_media",
+      "col": "ordinal",
+      "udt": "int2",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_media",
+      "col": "media_key",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_media",
+      "col": "media_type",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_media",
+      "col": "source_url",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_media",
+      "col": "fingerprint",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_media",
+      "col": "revision",
+      "udt": "int8",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_media",
+      "col": "is_current",
+      "udt": "bool",
+      "nul": "NO",
+      "def": "true"
+    },
+    {
+      "t": "social_spot_submission_media",
+      "col": "payload",
+      "udt": "jsonb",
+      "nul": "NO",
+      "def": "'{}'::jsonb"
+    },
+    {
+      "t": "social_spot_submission_media",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "social_spot_submission_media",
+      "col": "updated_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "col": "id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": "gen_random_uuid()"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "col": "submission_id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "col": "media_id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "col": "ordinal",
+      "udt": "int2",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "col": "media_key",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "col": "media_type",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "col": "source_url",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "col": "payload",
+      "udt": "jsonb",
+      "nul": "NO",
+      "def": "'{}'::jsonb"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "col": "revision",
+      "udt": "int8",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "col": "fingerprint",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "col": "state",
+      "udt": "text",
+      "nul": "NO",
+      "def": "'queued'::text"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "col": "attempt_count",
+      "udt": "int4",
+      "nul": "NO",
+      "def": "0"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "col": "max_attempts",
+      "udt": "int4",
+      "nul": "NO",
+      "def": "5"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "col": "available_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "col": "claim_token",
+      "udt": "uuid",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "col": "claimed_by",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "col": "claimed_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "col": "lease_expires_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "col": "succeeded_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "col": "dead_lettered_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "col": "cancelled_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "col": "last_error",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "col": "result",
+      "udt": "jsonb",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "col": "updated_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": "gen_random_uuid()"
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "contributor_id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "clerk_user_id",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "spot_id",
+      "udt": "uuid",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "source_url",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "canonical_url",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "platform",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "status",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "contributor_credit",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "token_awarded",
+      "udt": "int4",
+      "nul": "NO",
+      "def": "0"
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "notes",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "city_hint",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "extracted_name",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "extracted_address",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "extracted_city",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "localley_score",
+      "udt": "int4",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "local_percentage",
+      "udt": "int4",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "research_confidence",
+      "udt": "numeric",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "research_summary",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "research",
+      "udt": "jsonb",
+      "nul": "NO",
+      "def": "'{}'::jsonb"
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "metadata",
+      "udt": "jsonb",
+      "nul": "NO",
+      "def": "'{}'::jsonb"
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "updated_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "processing_state",
+      "udt": "text",
+      "nul": "NO",
+      "def": "'completed'::text"
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "processing_attempt",
+      "udt": "int4",
+      "nul": "NO",
+      "def": "0"
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "processing_started_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "completed_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "last_error",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "media_processing_state",
+      "udt": "text",
+      "nul": "NO",
+      "def": "'not_started'::text"
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "media_processing_revision",
+      "udt": "int8",
+      "nul": "NO",
+      "def": "0"
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "media_manifest_fingerprint",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "media_item_count",
+      "udt": "int4",
+      "nul": "NO",
+      "def": "0"
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "media_succeeded_count",
+      "udt": "int4",
+      "nul": "NO",
+      "def": "0"
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "media_dead_letter_count",
+      "udt": "int4",
+      "nul": "NO",
+      "def": "0"
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "media_processing_queued_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "media_processing_started_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "media_processing_completed_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "media_finalization_token",
+      "udt": "uuid",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "media_finalization_lease_expires_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "media_extraction_attempt_count",
+      "udt": "int4",
+      "nul": "NO",
+      "def": "0"
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "media_extraction_available_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "media_extraction_token",
+      "udt": "uuid",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "media_extraction_lease_expires_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "media_processing_updated_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "media_finalization_attempt_count",
+      "udt": "int4",
+      "nul": "NO",
+      "def": "0"
+    },
+    {
+      "t": "social_spot_submissions",
+      "col": "media_finalization_available_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "spot_contributors",
+      "col": "id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": "gen_random_uuid()"
+    },
+    {
+      "t": "spot_contributors",
+      "col": "email",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "spot_contributors",
+      "col": "display_name",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "spot_contributors",
+      "col": "public_credit_name",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "spot_contributors",
+      "col": "total_tokens",
+      "udt": "int4",
+      "nul": "NO",
+      "def": "0"
+    },
+    {
+      "t": "spot_contributors",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "spot_contributors",
+      "col": "updated_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "spot_contributors",
+      "col": "last_submitted_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "transfer_edges",
+      "col": "id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": "gen_random_uuid()"
+    },
+    {
+      "t": "transfer_edges",
+      "col": "slug",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "transfer_edges",
+      "col": "from_destination_id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "transfer_edges",
+      "col": "to_destination_id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "transfer_edges",
+      "col": "mode",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "transfer_edges",
+      "col": "duration_min_minutes",
+      "udt": "int4",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "transfer_edges",
+      "col": "duration_max_minutes",
+      "udt": "int4",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "transfer_edges",
+      "col": "departure_buffer_minutes",
+      "udt": "int4",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "transfer_edges",
+      "col": "arrival_buffer_minutes",
+      "udt": "int4",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "transfer_edges",
+      "col": "hotel_change_minutes",
+      "udt": "int4",
+      "nul": "NO",
+      "def": "45"
+    },
+    {
+      "t": "transfer_edges",
+      "col": "cost_band",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "transfer_edges",
+      "col": "booking_hint",
+      "udt": "jsonb",
+      "nul": "NO",
+      "def": "'{}'::jsonb"
+    },
+    {
+      "t": "transfer_edges",
+      "col": "schedule_notes",
+      "udt": "jsonb",
+      "nul": "NO",
+      "def": "'{}'::jsonb"
+    },
+    {
+      "t": "transfer_edges",
+      "col": "source_type",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "transfer_edges",
+      "col": "source_meta",
+      "udt": "jsonb",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "transfer_edges",
+      "col": "confidence",
+      "udt": "numeric",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "transfer_edges",
+      "col": "review_status",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "transfer_edges",
+      "col": "reviewed_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "transfer_edges",
+      "col": "valid_from",
+      "udt": "date",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "transfer_edges",
+      "col": "valid_until",
+      "udt": "date",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "transfer_edges",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "transfer_edges",
+      "col": "updated_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "user_challenges",
+      "col": "user_id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "user_challenges",
+      "col": "challenge_id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "user_challenges",
+      "col": "progress",
+      "udt": "jsonb",
+      "nul": "YES",
+      "def": "'{}'::jsonb"
+    },
+    {
+      "t": "user_challenges",
+      "col": "completed",
+      "udt": "bool",
+      "nul": "YES",
+      "def": "false"
+    },
+    {
+      "t": "user_challenges",
+      "col": "completed_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "user_progress",
+      "col": "user_id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "user_progress",
+      "col": "discoveries",
+      "udt": "int4",
+      "nul": "YES",
+      "def": "0"
+    },
+    {
+      "t": "user_progress",
+      "col": "spots_visited",
+      "udt": "int4",
+      "nul": "YES",
+      "def": "0"
+    },
+    {
+      "t": "user_progress",
+      "col": "tourist_traps_avoided",
+      "udt": "int4",
+      "nul": "YES",
+      "def": "0"
+    },
+    {
+      "t": "user_progress",
+      "col": "current_streak",
+      "udt": "int4",
+      "nul": "YES",
+      "def": "0"
+    },
+    {
+      "t": "user_progress",
+      "col": "achievements",
+      "udt": "jsonb",
+      "nul": "YES",
+      "def": "'[]'::jsonb"
+    },
+    {
+      "t": "user_progress",
+      "col": "unlocked_cities",
+      "udt": "_text",
+      "nul": "YES",
+      "def": "'{}'::text[]"
+    },
+    {
+      "t": "user_progress",
+      "col": "updated_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": "now()"
+    },
+    {
+      "t": "weekly_city_spot_rankings",
+      "col": "id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": "gen_random_uuid()"
+    },
+    {
+      "t": "weekly_city_spot_rankings",
+      "col": "week_start",
+      "udt": "date",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "weekly_city_spot_rankings",
+      "col": "city_slug",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "weekly_city_spot_rankings",
+      "col": "spot_id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "weekly_city_spot_rankings",
+      "col": "rank",
+      "udt": "int2",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "weekly_city_spot_rankings",
+      "col": "score",
+      "udt": "numeric",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "weekly_city_spot_rankings",
+      "col": "post_count",
+      "udt": "int4",
+      "nul": "NO",
+      "def": "0"
+    },
+    {
+      "t": "weekly_city_spot_rankings",
+      "col": "platform_count",
+      "udt": "int2",
+      "nul": "NO",
+      "def": "0"
+    },
+    {
+      "t": "weekly_city_spot_rankings",
+      "col": "signal_summary",
+      "udt": "jsonb",
+      "nul": "NO",
+      "def": "'{}'::jsonb"
+    },
+    {
+      "t": "weekly_city_spot_rankings",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "weekly_city_spot_rankings",
+      "col": "updated_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "weekly_social_content",
+      "col": "id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": "gen_random_uuid()"
+    },
+    {
+      "t": "weekly_social_content",
+      "col": "week_start",
+      "udt": "date",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "weekly_social_content",
+      "col": "city_slug",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "weekly_social_content",
+      "col": "platform",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "weekly_social_content",
+      "col": "external_id",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "weekly_social_content",
+      "col": "canonical_url",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "weekly_social_content",
+      "col": "content_text",
+      "udt": "text",
+      "nul": "NO",
+      "def": "''::text"
+    },
+    {
+      "t": "weekly_social_content",
+      "col": "published_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "weekly_social_content",
+      "col": "view_count",
+      "udt": "int8",
+      "nul": "NO",
+      "def": "0"
+    },
+    {
+      "t": "weekly_social_content",
+      "col": "like_count",
+      "udt": "int8",
+      "nul": "NO",
+      "def": "0"
+    },
+    {
+      "t": "weekly_social_content",
+      "col": "comment_count",
+      "udt": "int8",
+      "nul": "NO",
+      "def": "0"
+    },
+    {
+      "t": "weekly_social_content",
+      "col": "share_count",
+      "udt": "int8",
+      "nul": "NO",
+      "def": "0"
+    },
+    {
+      "t": "weekly_social_content",
+      "col": "save_count",
+      "udt": "int8",
+      "nul": "NO",
+      "def": "0"
+    },
+    {
+      "t": "weekly_social_content",
+      "col": "observed_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "weekly_social_content",
+      "col": "expires_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "(now() + '56 days'::interval)"
+    },
+    {
+      "t": "weekly_social_content",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "weekly_social_content",
+      "col": "updated_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "weekly_social_content",
+      "col": "place_hint",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "weekly_social_spot_leads",
+      "col": "id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": "gen_random_uuid()"
+    },
+    {
+      "t": "weekly_social_spot_leads",
+      "col": "week_start",
+      "udt": "date",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "weekly_social_spot_leads",
+      "col": "city_slug",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "weekly_social_spot_leads",
+      "col": "platform",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "weekly_social_spot_leads",
+      "col": "external_id",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "weekly_social_spot_leads",
+      "col": "place_hint",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "weekly_social_spot_leads",
+      "col": "normalized_hint",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "weekly_social_spot_leads",
+      "col": "canonical_url",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "weekly_social_spot_leads",
+      "col": "engagement_score",
+      "udt": "int8",
+      "nul": "NO",
+      "def": "0"
+    },
+    {
+      "t": "weekly_social_spot_leads",
+      "col": "status",
+      "udt": "text",
+      "nul": "NO",
+      "def": "'pending'::text"
+    },
+    {
+      "t": "weekly_social_spot_leads",
+      "col": "discovery_run_id",
+      "udt": "uuid",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "weekly_social_spot_leads",
+      "col": "searched_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "weekly_social_spot_leads",
+      "col": "expires_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "(now() + '56 days'::interval)"
+    },
+    {
+      "t": "weekly_social_spot_leads",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "weekly_social_spot_leads",
+      "col": "updated_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "weekly_social_trend_city_builds",
+      "col": "week_start",
+      "udt": "date",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "weekly_social_trend_city_builds",
+      "col": "city_slug",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "weekly_social_trend_city_builds",
+      "col": "state",
+      "udt": "text",
+      "nul": "NO",
+      "def": "'running'::text"
+    },
+    {
+      "t": "weekly_social_trend_city_builds",
+      "col": "attempt_count",
+      "udt": "int2",
+      "nul": "NO",
+      "def": "1"
+    },
+    {
+      "t": "weekly_social_trend_city_builds",
+      "col": "error_message",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "weekly_social_trend_city_builds",
+      "col": "lease_expires_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "(now() + '00:10:00'::interval)"
+    },
+    {
+      "t": "weekly_social_trend_city_builds",
+      "col": "completed_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "weekly_social_trend_city_builds",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "weekly_social_trend_city_builds",
+      "col": "updated_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "weekly_social_trend_runs",
+      "col": "id",
+      "udt": "uuid",
+      "nul": "NO",
+      "def": "gen_random_uuid()"
+    },
+    {
+      "t": "weekly_social_trend_runs",
+      "col": "week_start",
+      "udt": "date",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "weekly_social_trend_runs",
+      "col": "platform",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "weekly_social_trend_runs",
+      "col": "actor_id",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "weekly_social_trend_runs",
+      "col": "actor_run_id",
+      "udt": "text",
+      "nul": "NO",
+      "def": null
+    },
+    {
+      "t": "weekly_social_trend_runs",
+      "col": "dataset_id",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "weekly_social_trend_runs",
+      "col": "state",
+      "udt": "text",
+      "nul": "NO",
+      "def": "'starting'::text"
+    },
+    {
+      "t": "weekly_social_trend_runs",
+      "col": "error_message",
+      "udt": "text",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "weekly_social_trend_runs",
+      "col": "started_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "weekly_social_trend_runs",
+      "col": "completed_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "weekly_social_trend_runs",
+      "col": "processed_at",
+      "udt": "timestamptz",
+      "nul": "YES",
+      "def": null
+    },
+    {
+      "t": "weekly_social_trend_runs",
+      "col": "created_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "weekly_social_trend_runs",
+      "col": "updated_at",
+      "udt": "timestamptz",
+      "nul": "NO",
+      "def": "now()"
+    },
+    {
+      "t": "weekly_social_trend_runs",
+      "col": "attempt_count",
+      "udt": "int2",
+      "nul": "NO",
+      "def": "1"
+    }
+  ],
+  "constraints": [
+    {
+      "t": "affiliate_earnings",
+      "conname": "affiliate_earnings_partner_period_date_key",
+      "k": "u",
+      "def": "UNIQUE (partner, period_date)"
+    },
+    {
+      "t": "affiliate_earnings",
+      "conname": "affiliate_earnings_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "t": "apify_spot_candidates",
+      "conname": "apify_spot_candidates_imported_spot_id_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (imported_spot_id) REFERENCES spots(id) ON DELETE SET NULL"
+    },
+    {
+      "t": "apify_spot_candidates",
+      "conname": "apify_spot_candidates_latitude_check",
+      "k": "c",
+      "def": "CHECK (((latitude >= ('-90'::integer)::double precision) AND (latitude <= (90)::double precision)))"
+    },
+    {
+      "t": "apify_spot_candidates",
+      "conname": "apify_spot_candidates_longitude_check",
+      "k": "c",
+      "def": "CHECK (((longitude >= ('-180'::integer)::double precision) AND (longitude <= (180)::double precision)))"
+    },
+    {
+      "t": "apify_spot_candidates",
+      "conname": "apify_spot_candidates_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "t": "apify_spot_candidates",
+      "conname": "apify_spot_candidates_place_id_key",
+      "k": "u",
+      "def": "UNIQUE (place_id)"
+    },
+    {
+      "t": "apify_spot_candidates",
+      "conname": "apify_spot_candidates_recommended_localley_score_check",
+      "k": "c",
+      "def": "CHECK (((recommended_localley_score >= 3) AND (recommended_localley_score <= 5)))"
+    },
+    {
+      "t": "apify_spot_candidates",
+      "conname": "apify_spot_candidates_reviews_count_check",
+      "k": "c",
+      "def": "CHECK ((reviews_count >= 0))"
+    },
+    {
+      "t": "apify_spot_candidates",
+      "conname": "apify_spot_candidates_run_id_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (run_id) REFERENCES apify_spot_discovery_runs(id) ON DELETE CASCADE"
+    },
+    {
+      "t": "apify_spot_candidates",
+      "conname": "apify_spot_candidates_source_type_check",
+      "k": "c",
+      "def": "CHECK ((source_type = ANY (ARRAY['map_discovery'::text, 'social_trend'::text])))"
+    },
+    {
+      "t": "apify_spot_candidates",
+      "conname": "apify_spot_candidates_status_check",
+      "k": "c",
+      "def": "CHECK ((status = ANY (ARRAY['pending'::text, 'importing'::text, 'rejected'::text, 'imported'::text])))"
+    },
+    {
+      "t": "apify_spot_candidates",
+      "conname": "apify_spot_candidates_total_score_check",
+      "k": "c",
+      "def": "CHECK (((total_score >= (0)::numeric) AND (total_score <= (5)::numeric)))"
+    },
+    {
+      "t": "apify_spot_discovery_runs",
+      "conname": "apify_spot_discovery_runs_actor_run_id_key",
+      "k": "u",
+      "def": "UNIQUE (actor_run_id)"
+    },
+    {
+      "t": "apify_spot_discovery_runs",
+      "conname": "apify_spot_discovery_runs_discovery_date_key",
+      "k": "u",
+      "def": "UNIQUE (discovery_date)"
+    },
+    {
+      "t": "apify_spot_discovery_runs",
+      "conname": "apify_spot_discovery_runs_max_places_check",
+      "k": "c",
+      "def": "CHECK (((max_places >= 1) AND (max_places <= 100)))"
+    },
+    {
+      "t": "apify_spot_discovery_runs",
+      "conname": "apify_spot_discovery_runs_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "t": "apify_spot_discovery_runs",
+      "conname": "apify_spot_discovery_runs_state_check",
+      "k": "c",
+      "def": "CHECK ((state = ANY (ARRAY['starting'::text, 'running'::text, 'succeeded'::text, 'failed'::text])))"
+    },
+    {
+      "t": "challenges",
+      "conname": "challenges_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "t": "contribution_token_ledger",
+      "conname": "contribution_token_ledger_contributor_id_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (contributor_id) REFERENCES spot_contributors(id) ON DELETE CASCADE"
+    },
+    {
+      "t": "contribution_token_ledger",
+      "conname": "contribution_token_ledger_delta_check",
+      "k": "c",
+      "def": "CHECK ((delta <> 0))"
+    },
+    {
+      "t": "contribution_token_ledger",
+      "conname": "contribution_token_ledger_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "t": "contribution_token_ledger",
+      "conname": "contribution_token_ledger_reason_check",
+      "k": "c",
+      "def": "CHECK ((reason = ANY (ARRAY['social_spot_submission'::text, 'admin_adjustment'::text, 'token_redemption'::text])))"
+    },
+    {
+      "t": "contribution_token_ledger",
+      "conname": "contribution_token_ledger_submission_id_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (submission_id) REFERENCES social_spot_submissions(id) ON DELETE CASCADE"
+    },
+    {
+      "t": "contribution_token_ledger",
+      "conname": "contribution_token_ledger_submission_unique",
+      "k": "u",
+      "def": "UNIQUE (submission_id, reason)"
+    },
+    {
+      "t": "follows",
+      "conname": "follows_check",
+      "k": "c",
+      "def": "CHECK ((follower_id <> following_id))"
+    },
+    {
+      "t": "follows",
+      "conname": "follows_follower_id_following_id_key",
+      "k": "u",
+      "def": "UNIQUE (follower_id, following_id)"
+    },
+    {
+      "t": "follows",
+      "conname": "follows_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "t": "geo_aliases",
+      "conname": "geo_aliases_alias_check",
+      "k": "c",
+      "def": "CHECK (((char_length(TRIM(BOTH FROM alias)) >= 1) AND (char_length(TRIM(BOTH FROM alias)) <= 160)))"
+    },
+    {
+      "t": "geo_aliases",
+      "conname": "geo_aliases_destination_id_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (destination_id) REFERENCES geo_destinations(id) ON DELETE CASCADE"
+    },
+    {
+      "t": "geo_aliases",
+      "conname": "geo_aliases_entity_type_check",
+      "k": "c",
+      "def": "CHECK ((entity_type = ANY (ARRAY['destination'::text, 'local_area'::text, 'spot'::text])))"
+    },
+    {
+      "t": "geo_aliases",
+      "conname": "geo_aliases_entity_type_entity_id_normalized_alias_key",
+      "k": "u",
+      "def": "UNIQUE (entity_type, entity_id, normalized_alias)"
+    },
+    {
+      "t": "geo_aliases",
+      "conname": "geo_aliases_entity_type_matches_fk",
+      "k": "c",
+      "def": "CHECK ((((entity_type = 'destination'::text) AND (destination_id IS NOT NULL)) OR ((entity_type = 'local_area'::text) AND (local_area_id IS NOT NULL)) OR ((entity_type = 'spot'::text) AND (spot_id IS NOT NULL))))"
+    },
+    {
+      "t": "geo_aliases",
+      "conname": "geo_aliases_exactly_one_entity",
+      "k": "c",
+      "def": "CHECK ((num_nonnulls(destination_id, local_area_id, spot_id) = 1))"
+    },
+    {
+      "t": "geo_aliases",
+      "conname": "geo_aliases_local_area_id_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (local_area_id) REFERENCES geo_local_areas(id) ON DELETE CASCADE"
+    },
+    {
+      "t": "geo_aliases",
+      "conname": "geo_aliases_normalized_alias_check",
+      "k": "c",
+      "def": "CHECK (((char_length(TRIM(BOTH FROM normalized_alias)) >= 1) AND (char_length(TRIM(BOTH FROM normalized_alias)) <= 160)))"
+    },
+    {
+      "t": "geo_aliases",
+      "conname": "geo_aliases_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "t": "geo_aliases",
+      "conname": "geo_aliases_spot_id_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (spot_id) REFERENCES spots(id) ON DELETE CASCADE"
+    },
+    {
+      "t": "geo_countries",
+      "conname": "geo_countries_code_check",
+      "k": "c",
+      "def": "CHECK ((code ~ '^[A-Z]{2}$'::text))"
+    },
+    {
+      "t": "geo_countries",
+      "conname": "geo_countries_default_currency_check",
+      "k": "c",
+      "def": "CHECK ((default_currency ~ '^[A-Z]{3}$'::text))"
+    },
+    {
+      "t": "geo_countries",
+      "conname": "geo_countries_name_check",
+      "k": "c",
+      "def": "CHECK (((jsonb_typeof(name) = 'object'::text) AND (name ? 'en'::text)))"
+    },
+    {
+      "t": "geo_countries",
+      "conname": "geo_countries_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (code)"
+    },
+    {
+      "t": "geo_countries",
+      "conname": "geo_countries_source_meta_check",
+      "k": "c",
+      "def": "CHECK ((jsonb_typeof(source_meta) = 'object'::text))"
+    },
+    {
+      "t": "geo_destinations",
+      "conname": "geo_destinations_characterization_check",
+      "k": "c",
+      "def": "CHECK ((jsonb_typeof(characterization) = 'object'::text))"
+    },
+    {
+      "t": "geo_destinations",
+      "conname": "geo_destinations_country_code_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (country_code) REFERENCES geo_countries(code)"
+    },
+    {
+      "t": "geo_destinations",
+      "conname": "geo_destinations_currency_check",
+      "k": "c",
+      "def": "CHECK ((currency ~ '^[A-Z]{3}$'::text))"
+    },
+    {
+      "t": "geo_destinations",
+      "conname": "geo_destinations_name_check",
+      "k": "c",
+      "def": "CHECK (((jsonb_typeof(name) = 'object'::text) AND (name ? 'en'::text)))"
+    },
+    {
+      "t": "geo_destinations",
+      "conname": "geo_destinations_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "t": "geo_destinations",
+      "conname": "geo_destinations_ring_check",
+      "k": "c",
+      "def": "CHECK (((ring >= 1) AND (ring <= 3)))"
+    },
+    {
+      "t": "geo_destinations",
+      "conname": "geo_destinations_slug_check",
+      "k": "c",
+      "def": "CHECK ((slug ~ '^[a-z0-9]+(?:-[a-z0-9]+)*$'::text))"
+    },
+    {
+      "t": "geo_destinations",
+      "conname": "geo_destinations_slug_key",
+      "k": "u",
+      "def": "UNIQUE (slug)"
+    },
+    {
+      "t": "geo_destinations",
+      "conname": "geo_destinations_source_meta_check",
+      "k": "c",
+      "def": "CHECK ((jsonb_typeof(source_meta) = 'object'::text))"
+    },
+    {
+      "t": "geo_destinations",
+      "conname": "geo_destinations_targets_check",
+      "k": "c",
+      "def": "CHECK ((jsonb_typeof(targets) = 'object'::text))"
+    },
+    {
+      "t": "geo_local_area_vibe_scores",
+      "conname": "geo_local_area_vibe_scores_confidence_check",
+      "k": "c",
+      "def": "CHECK (((confidence >= (0)::numeric) AND (confidence <= (1)::numeric)))"
+    },
+    {
+      "t": "geo_local_area_vibe_scores",
+      "conname": "geo_local_area_vibe_scores_evidence_check",
+      "k": "c",
+      "def": "CHECK ((jsonb_typeof(evidence) = ANY (ARRAY['object'::text, 'array'::text])))"
+    },
+    {
+      "t": "geo_local_area_vibe_scores",
+      "conname": "geo_local_area_vibe_scores_local_area_id_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (local_area_id) REFERENCES geo_local_areas(id) ON DELETE CASCADE"
+    },
+    {
+      "t": "geo_local_area_vibe_scores",
+      "conname": "geo_local_area_vibe_scores_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (local_area_id, vibe_id)"
+    },
+    {
+      "t": "geo_local_area_vibe_scores",
+      "conname": "geo_local_area_vibe_scores_score_check",
+      "k": "c",
+      "def": "CHECK (((score >= 0) AND (score <= 100)))"
+    },
+    {
+      "t": "geo_local_area_vibe_scores",
+      "conname": "geo_local_area_vibe_scores_source_type_check",
+      "k": "c",
+      "def": "CHECK ((source_type = ANY (ARRAY['curated'::text, 'spot_aggregate'::text, 'social_aggregate'::text, 'survey'::text])))"
+    },
+    {
+      "t": "geo_local_area_vibe_scores",
+      "conname": "geo_local_area_vibe_scores_vibe_id_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (vibe_id) REFERENCES geo_vibe_taxonomy(id) ON DELETE RESTRICT"
+    },
+    {
+      "t": "geo_local_areas",
+      "conname": "geo_local_areas_characterization_check",
+      "k": "c",
+      "def": "CHECK ((jsonb_typeof(characterization) = 'object'::text))"
+    },
+    {
+      "t": "geo_local_areas",
+      "conname": "geo_local_areas_confidence_check",
+      "k": "c",
+      "def": "CHECK (((confidence >= (0)::numeric) AND (confidence <= (1)::numeric)))"
+    },
+    {
+      "t": "geo_local_areas",
+      "conname": "geo_local_areas_destination_id_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (destination_id) REFERENCES geo_destinations(id) ON DELETE CASCADE"
+    },
+    {
+      "t": "geo_local_areas",
+      "conname": "geo_local_areas_destination_id_slug_key",
+      "k": "u",
+      "def": "UNIQUE (destination_id, slug)"
+    },
+    {
+      "t": "geo_local_areas",
+      "conname": "geo_local_areas_id_destination_id_key",
+      "k": "u",
+      "def": "UNIQUE (id, destination_id)"
+    },
+    {
+      "t": "geo_local_areas",
+      "conname": "geo_local_areas_kind_check",
+      "k": "c",
+      "def": "CHECK ((kind = ANY (ARRAY['district'::text, 'neighborhood'::text, 'town'::text, 'island'::text, 'day_trip_area'::text, 'spot_cluster'::text])))"
+    },
+    {
+      "t": "geo_local_areas",
+      "conname": "geo_local_areas_name_check",
+      "k": "c",
+      "def": "CHECK (((jsonb_typeof(name) = 'object'::text) AND (name ? 'en'::text)))"
+    },
+    {
+      "t": "geo_local_areas",
+      "conname": "geo_local_areas_parent_id_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (parent_id) REFERENCES geo_local_areas(id) ON DELETE SET NULL"
+    },
+    {
+      "t": "geo_local_areas",
+      "conname": "geo_local_areas_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "t": "geo_local_areas",
+      "conname": "geo_local_areas_practical_notes_check",
+      "k": "c",
+      "def": "CHECK ((jsonb_typeof(practical_notes) = 'object'::text))"
+    },
+    {
+      "t": "geo_local_areas",
+      "conname": "geo_local_areas_review_status_check",
+      "k": "c",
+      "def": "CHECK ((review_status = ANY (ARRAY['draft'::text, 'machine_checked'::text, 'human_verified'::text, 'needs_review'::text])))"
+    },
+    {
+      "t": "geo_local_areas",
+      "conname": "geo_local_areas_slug_check",
+      "k": "c",
+      "def": "CHECK ((slug ~ '^[a-z0-9]+(?:-[a-z0-9]+)*$'::text))"
+    },
+    {
+      "t": "geo_local_areas",
+      "conname": "geo_local_areas_source_meta_check",
+      "k": "c",
+      "def": "CHECK ((jsonb_typeof(source_meta) = 'object'::text))"
+    },
+    {
+      "t": "geo_vibe_taxonomy",
+      "conname": "geo_vibe_taxonomy_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "t": "geo_vibe_taxonomy",
+      "conname": "geo_vibe_taxonomy_rubric_check",
+      "k": "c",
+      "def": "CHECK ((jsonb_typeof(rubric) = 'object'::text))"
+    },
+    {
+      "t": "geo_vibe_taxonomy",
+      "conname": "geo_vibe_taxonomy_slug_version_key",
+      "k": "u",
+      "def": "UNIQUE (slug, version)"
+    },
+    {
+      "t": "geo_vibe_taxonomy",
+      "conname": "geo_vibe_taxonomy_version_check",
+      "k": "c",
+      "def": "CHECK ((version > 0))"
+    },
+    {
+      "t": "social_spot_submission_aliases",
+      "conname": "social_spot_submission_aliases_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (alias_url)"
+    },
+    {
+      "t": "social_spot_submission_aliases",
+      "conname": "social_spot_submission_aliases_submission_id_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (submission_id) REFERENCES social_spot_submissions(id) ON DELETE CASCADE"
+    },
+    {
+      "t": "social_spot_submission_candidates",
+      "conname": "social_spot_submission_candidates_key_unique",
+      "k": "u",
+      "def": "UNIQUE (submission_id, candidate_key)"
+    },
+    {
+      "t": "social_spot_submission_candidates",
+      "conname": "social_spot_submission_candidates_ordinal_check",
+      "k": "c",
+      "def": "CHECK ((ordinal >= 0))"
+    },
+    {
+      "t": "social_spot_submission_candidates",
+      "conname": "social_spot_submission_candidates_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "t": "social_spot_submission_candidates",
+      "conname": "social_spot_submission_candidates_spot_id_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (spot_id) REFERENCES spots(id) ON DELETE SET NULL"
+    },
+    {
+      "t": "social_spot_submission_candidates",
+      "conname": "social_spot_submission_candidates_status_check",
+      "k": "c",
+      "def": "CHECK ((status = ANY (ARRAY['spot_created'::text, 'spot_reused'::text, 'needs_review'::text, 'research_pending'::text])))"
+    },
+    {
+      "t": "social_spot_submission_candidates",
+      "conname": "social_spot_submission_candidates_submission_id_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (submission_id) REFERENCES social_spot_submissions(id) ON DELETE CASCADE"
+    },
+    {
+      "t": "social_spot_submission_media",
+      "conname": "social_spot_submission_media_fingerprint_check",
+      "k": "c",
+      "def": "CHECK (((fingerprint = btrim(fingerprint)) AND ((char_length(fingerprint) >= 1) AND (char_length(fingerprint) <= 512))))"
+    },
+    {
+      "t": "social_spot_submission_media",
+      "conname": "social_spot_submission_media_identity_unique",
+      "k": "u",
+      "def": "UNIQUE (submission_id, media_key)"
+    },
+    {
+      "t": "social_spot_submission_media",
+      "conname": "social_spot_submission_media_media_key_check",
+      "k": "c",
+      "def": "CHECK (((media_key = btrim(media_key)) AND ((char_length(media_key) >= 1) AND (char_length(media_key) <= 512))))"
+    },
+    {
+      "t": "social_spot_submission_media",
+      "conname": "social_spot_submission_media_media_type_check",
+      "k": "c",
+      "def": "CHECK ((media_type = ANY (ARRAY['image'::text, 'video'::text, 'unknown'::text])))"
+    },
+    {
+      "t": "social_spot_submission_media",
+      "conname": "social_spot_submission_media_ordinal_check",
+      "k": "c",
+      "def": "CHECK (((ordinal >= 0) AND (ordinal <= 34)))"
+    },
+    {
+      "t": "social_spot_submission_media",
+      "conname": "social_spot_submission_media_payload_check",
+      "k": "c",
+      "def": "CHECK ((jsonb_typeof(payload) = 'object'::text))"
+    },
+    {
+      "t": "social_spot_submission_media",
+      "conname": "social_spot_submission_media_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "t": "social_spot_submission_media",
+      "conname": "social_spot_submission_media_revision_check",
+      "k": "c",
+      "def": "CHECK ((revision > 0))"
+    },
+    {
+      "t": "social_spot_submission_media",
+      "conname": "social_spot_submission_media_source_url_check",
+      "k": "c",
+      "def": "CHECK (((source_url = btrim(source_url)) AND ((char_length(source_url) >= 1) AND (char_length(source_url) <= 8192))))"
+    },
+    {
+      "t": "social_spot_submission_media",
+      "conname": "social_spot_submission_media_submission_id_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (submission_id) REFERENCES social_spot_submissions(id) ON DELETE CASCADE"
+    },
+    {
+      "t": "social_spot_submission_media",
+      "conname": "social_spot_submission_media_submission_id_id_unique",
+      "k": "u",
+      "def": "UNIQUE (submission_id, id)"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "conname": "social_spot_submission_media_jobs_attempt_bound",
+      "k": "c",
+      "def": "CHECK ((attempt_count <= max_attempts))"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "conname": "social_spot_submission_media_jobs_attempt_count_check",
+      "k": "c",
+      "def": "CHECK ((attempt_count >= 0))"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "conname": "social_spot_submission_media_jobs_claimed_by_check",
+      "k": "c",
+      "def": "CHECK (((claimed_by IS NULL) OR ((char_length(claimed_by) >= 1) AND (char_length(claimed_by) <= 200))))"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "conname": "social_spot_submission_media_jobs_fingerprint_check",
+      "k": "c",
+      "def": "CHECK (((fingerprint = btrim(fingerprint)) AND ((char_length(fingerprint) >= 1) AND (char_length(fingerprint) <= 512))))"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "conname": "social_spot_submission_media_jobs_last_error_check",
+      "k": "c",
+      "def": "CHECK (((last_error IS NULL) OR (char_length(last_error) <= 8000)))"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "conname": "social_spot_submission_media_jobs_lease_shape",
+      "k": "c",
+      "def": "CHECK ((((state = 'leased'::text) AND (claim_token IS NOT NULL) AND (claimed_by IS NOT NULL) AND (claimed_at IS NOT NULL) AND (lease_expires_at IS NOT NULL)) OR ((state <> 'leased'::text) AND (claim_token IS NULL) AND (lease_expires_at IS NULL))))"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "conname": "social_spot_submission_media_jobs_max_attempts_check",
+      "k": "c",
+      "def": "CHECK (((max_attempts >= 1) AND (max_attempts <= 10)))"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "conname": "social_spot_submission_media_jobs_media_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (submission_id, media_id) REFERENCES social_spot_submission_media(submission_id, id) ON DELETE CASCADE"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "conname": "social_spot_submission_media_jobs_media_key_check",
+      "k": "c",
+      "def": "CHECK (((media_key = btrim(media_key)) AND ((char_length(media_key) >= 1) AND (char_length(media_key) <= 512))))"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "conname": "social_spot_submission_media_jobs_media_revision_unique",
+      "k": "u",
+      "def": "UNIQUE (media_id, revision)"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "conname": "social_spot_submission_media_jobs_media_type_check",
+      "k": "c",
+      "def": "CHECK ((media_type = ANY (ARRAY['image'::text, 'video'::text, 'unknown'::text])))"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "conname": "social_spot_submission_media_jobs_ordinal_check",
+      "k": "c",
+      "def": "CHECK (((ordinal >= 0) AND (ordinal <= 34)))"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "conname": "social_spot_submission_media_jobs_ordinal_revision_unique",
+      "k": "u",
+      "def": "UNIQUE (submission_id, revision, ordinal)"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "conname": "social_spot_submission_media_jobs_payload_check",
+      "k": "c",
+      "def": "CHECK ((jsonb_typeof(payload) = 'object'::text))"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "conname": "social_spot_submission_media_jobs_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "conname": "social_spot_submission_media_jobs_revision_check",
+      "k": "c",
+      "def": "CHECK ((revision > 0))"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "conname": "social_spot_submission_media_jobs_source_url_check",
+      "k": "c",
+      "def": "CHECK (((source_url = btrim(source_url)) AND ((char_length(source_url) >= 1) AND (char_length(source_url) <= 8192))))"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "conname": "social_spot_submission_media_jobs_state_check",
+      "k": "c",
+      "def": "CHECK ((state = ANY (ARRAY['queued'::text, 'leased'::text, 'retry_wait'::text, 'succeeded'::text, 'dead_letter'::text, 'cancelled'::text])))"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "conname": "social_spot_submission_media_jobs_terminal_timestamp",
+      "k": "c",
+      "def": "CHECK ((((state <> 'succeeded'::text) OR (succeeded_at IS NOT NULL)) AND ((state <> 'dead_letter'::text) OR (dead_lettered_at IS NOT NULL)) AND ((state <> 'cancelled'::text) OR (cancelled_at IS NOT NULL))))"
+    },
+    {
+      "t": "social_spot_submissions",
+      "conname": "social_spot_submissions_canonical_unique",
+      "k": "u",
+      "def": "UNIQUE (canonical_url)"
+    },
+    {
+      "t": "social_spot_submissions",
+      "conname": "social_spot_submissions_contributor_id_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (contributor_id) REFERENCES spot_contributors(id) ON DELETE CASCADE"
+    },
+    {
+      "t": "social_spot_submissions",
+      "conname": "social_spot_submissions_local_percentage_check",
+      "k": "c",
+      "def": "CHECK (((local_percentage >= 0) AND (local_percentage <= 100)))"
+    },
+    {
+      "t": "social_spot_submissions",
+      "conname": "social_spot_submissions_localley_score_check",
+      "k": "c",
+      "def": "CHECK (((localley_score >= 1) AND (localley_score <= 6)))"
+    },
+    {
+      "t": "social_spot_submissions",
+      "conname": "social_spot_submissions_media_dead_letter_count_check",
+      "k": "c",
+      "def": "CHECK (((media_dead_letter_count >= 0) AND (media_dead_letter_count <= 35)))"
+    },
+    {
+      "t": "social_spot_submissions",
+      "conname": "social_spot_submissions_media_extraction_attempt_count_check",
+      "k": "c",
+      "def": "CHECK (((media_extraction_attempt_count >= 0) AND (media_extraction_attempt_count <= 5)))"
+    },
+    {
+      "t": "social_spot_submissions",
+      "conname": "social_spot_submissions_media_extraction_lease_shape",
+      "k": "c",
+      "def": "CHECK ((((media_processing_state = 'coverage_processing'::text) AND (media_extraction_token IS NOT NULL) AND (media_extraction_lease_expires_at IS NOT NULL)) OR ((media_processing_state <> 'coverage_processing'::text) AND (media_extraction_token IS NULL) AND (media_extraction_lease_expires_at IS NULL))))"
+    },
+    {
+      "t": "social_spot_submissions",
+      "conname": "social_spot_submissions_media_finalization_attempt_count_check",
+      "k": "c",
+      "def": "CHECK (((media_finalization_attempt_count >= 0) AND (media_finalization_attempt_count <= 5)))"
+    },
+    {
+      "t": "social_spot_submissions",
+      "conname": "social_spot_submissions_media_finalization_lease_shape",
+      "k": "c",
+      "def": "CHECK ((((media_processing_state = 'finalizing'::text) AND (media_finalization_token IS NOT NULL) AND (media_finalization_lease_expires_at IS NOT NULL)) OR ((media_processing_state <> 'finalizing'::text) AND (media_finalization_token IS NULL) AND (media_finalization_lease_expires_at IS NULL))))"
+    },
+    {
+      "t": "social_spot_submissions",
+      "conname": "social_spot_submissions_media_item_count_check",
+      "k": "c",
+      "def": "CHECK (((media_item_count >= 0) AND (media_item_count <= 35)))"
+    },
+    {
+      "t": "social_spot_submissions",
+      "conname": "social_spot_submissions_media_processing_revision_check",
+      "k": "c",
+      "def": "CHECK ((media_processing_revision >= 0))"
+    },
+    {
+      "t": "social_spot_submissions",
+      "conname": "social_spot_submissions_media_processing_state_check",
+      "k": "c",
+      "def": "CHECK ((media_processing_state = ANY (ARRAY['not_started'::text, 'queued'::text, 'processing'::text, 'succeeded'::text, 'finalizing'::text, 'completed'::text, 'dead_letter'::text, 'coverage_retry'::text, 'coverage_processing'::text, 'review_required'::text])))"
+    },
+    {
+      "t": "social_spot_submissions",
+      "conname": "social_spot_submissions_media_succeeded_count_check",
+      "k": "c",
+      "def": "CHECK (((media_succeeded_count >= 0) AND (media_succeeded_count <= 35)))"
+    },
+    {
+      "t": "social_spot_submissions",
+      "conname": "social_spot_submissions_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "t": "social_spot_submissions",
+      "conname": "social_spot_submissions_platform_check",
+      "k": "c",
+      "def": "CHECK ((platform = ANY (ARRAY['instagram'::text, 'tiktok'::text])))"
+    },
+    {
+      "t": "social_spot_submissions",
+      "conname": "social_spot_submissions_processing_attempt_check",
+      "k": "c",
+      "def": "CHECK ((processing_attempt >= 0))"
+    },
+    {
+      "t": "social_spot_submissions",
+      "conname": "social_spot_submissions_processing_state_check",
+      "k": "c",
+      "def": "CHECK ((processing_state = ANY (ARRAY['processing'::text, 'retryable'::text, 'completed'::text])))"
+    },
+    {
+      "t": "social_spot_submissions",
+      "conname": "social_spot_submissions_research_confidence_check",
+      "k": "c",
+      "def": "CHECK (((research_confidence >= (0)::numeric) AND (research_confidence <= (1)::numeric)))"
+    },
+    {
+      "t": "social_spot_submissions",
+      "conname": "social_spot_submissions_spot_id_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (spot_id) REFERENCES spots(id) ON DELETE SET NULL"
+    },
+    {
+      "t": "social_spot_submissions",
+      "conname": "social_spot_submissions_status_check",
+      "k": "c",
+      "def": "CHECK ((status = ANY (ARRAY['spot_created'::text, 'spot_reused'::text, 'needs_review'::text, 'research_pending'::text])))"
+    },
+    {
+      "t": "social_spot_submissions",
+      "conname": "social_spot_submissions_token_awarded_check",
+      "k": "c",
+      "def": "CHECK ((token_awarded >= 0))"
+    },
+    {
+      "t": "spot_contributors",
+      "conname": "spot_contributors_email_normalized",
+      "k": "c",
+      "def": "CHECK ((email = lower(TRIM(BOTH FROM email))))"
+    },
+    {
+      "t": "spot_contributors",
+      "conname": "spot_contributors_email_unique",
+      "k": "u",
+      "def": "UNIQUE (email)"
+    },
+    {
+      "t": "spot_contributors",
+      "conname": "spot_contributors_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "t": "spot_contributors",
+      "conname": "spot_contributors_total_tokens_check",
+      "k": "c",
+      "def": "CHECK ((total_tokens >= 0))"
+    },
+    {
+      "t": "transfer_edges",
+      "conname": "transfer_edges_arrival_buffer_minutes_check",
+      "k": "c",
+      "def": "CHECK ((arrival_buffer_minutes >= 0))"
+    },
+    {
+      "t": "transfer_edges",
+      "conname": "transfer_edges_booking_hint_check",
+      "k": "c",
+      "def": "CHECK ((jsonb_typeof(booking_hint) = 'object'::text))"
+    },
+    {
+      "t": "transfer_edges",
+      "conname": "transfer_edges_check",
+      "k": "c",
+      "def": "CHECK ((duration_max_minutes >= duration_min_minutes))"
+    },
+    {
+      "t": "transfer_edges",
+      "conname": "transfer_edges_check1",
+      "k": "c",
+      "def": "CHECK ((from_destination_id <> to_destination_id))"
+    },
+    {
+      "t": "transfer_edges",
+      "conname": "transfer_edges_confidence_check",
+      "k": "c",
+      "def": "CHECK (((confidence >= (0)::numeric) AND (confidence <= (1)::numeric)))"
+    },
+    {
+      "t": "transfer_edges",
+      "conname": "transfer_edges_cost_band_check",
+      "k": "c",
+      "def": "CHECK ((cost_band = ANY (ARRAY['budget'::text, 'moderate'::text, 'premium'::text])))"
+    },
+    {
+      "t": "transfer_edges",
+      "conname": "transfer_edges_departure_buffer_minutes_check",
+      "k": "c",
+      "def": "CHECK ((departure_buffer_minutes >= 0))"
+    },
+    {
+      "t": "transfer_edges",
+      "conname": "transfer_edges_duration_min_minutes_check",
+      "k": "c",
+      "def": "CHECK ((duration_min_minutes > 0))"
+    },
+    {
+      "t": "transfer_edges",
+      "conname": "transfer_edges_from_destination_id_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (from_destination_id) REFERENCES geo_destinations(id) ON DELETE RESTRICT"
+    },
+    {
+      "t": "transfer_edges",
+      "conname": "transfer_edges_from_destination_id_to_destination_id_mode_s_key",
+      "k": "u",
+      "def": "UNIQUE (from_destination_id, to_destination_id, mode, source_type)"
+    },
+    {
+      "t": "transfer_edges",
+      "conname": "transfer_edges_hotel_change_minutes_check",
+      "k": "c",
+      "def": "CHECK ((hotel_change_minutes >= 0))"
+    },
+    {
+      "t": "transfer_edges",
+      "conname": "transfer_edges_mode_check",
+      "k": "c",
+      "def": "CHECK ((mode = ANY (ARRAY['flight'::text, 'train'::text, 'bus'::text, 'ferry'::text, 'car'::text, 'taxi'::text, 'rideshare'::text, 'transit'::text])))"
+    },
+    {
+      "t": "transfer_edges",
+      "conname": "transfer_edges_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "t": "transfer_edges",
+      "conname": "transfer_edges_review_status_check",
+      "k": "c",
+      "def": "CHECK ((review_status = ANY (ARRAY['draft'::text, 'machine_checked'::text, 'human_verified'::text, 'needs_review'::text])))"
+    },
+    {
+      "t": "transfer_edges",
+      "conname": "transfer_edges_schedule_notes_check",
+      "k": "c",
+      "def": "CHECK ((jsonb_typeof(schedule_notes) = 'object'::text))"
+    },
+    {
+      "t": "transfer_edges",
+      "conname": "transfer_edges_slug_check",
+      "k": "c",
+      "def": "CHECK ((slug ~ '^[a-z0-9]+(?:-[a-z0-9]+)*$'::text))"
+    },
+    {
+      "t": "transfer_edges",
+      "conname": "transfer_edges_slug_key",
+      "k": "u",
+      "def": "UNIQUE (slug)"
+    },
+    {
+      "t": "transfer_edges",
+      "conname": "transfer_edges_source_meta_check",
+      "k": "c",
+      "def": "CHECK ((jsonb_typeof(source_meta) = 'object'::text))"
+    },
+    {
+      "t": "transfer_edges",
+      "conname": "transfer_edges_source_type_check",
+      "k": "c",
+      "def": "CHECK ((source_type = ANY (ARRAY['curated'::text, 'google_routes'::text, 'gtfs'::text, 'operator'::text])))"
+    },
+    {
+      "t": "transfer_edges",
+      "conname": "transfer_edges_to_destination_id_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (to_destination_id) REFERENCES geo_destinations(id) ON DELETE RESTRICT"
+    },
+    {
+      "t": "user_challenges",
+      "conname": "user_challenges_challenge_id_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (challenge_id) REFERENCES challenges(id)"
+    },
+    {
+      "t": "user_challenges",
+      "conname": "user_challenges_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (user_id, challenge_id)"
+    },
+    {
+      "t": "user_challenges",
+      "conname": "user_challenges_user_id_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (user_id) REFERENCES users(id)"
+    },
+    {
+      "t": "user_progress",
+      "conname": "user_progress_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (user_id)"
+    },
+    {
+      "t": "user_progress",
+      "conname": "user_progress_user_id_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (user_id) REFERENCES users(id)"
+    },
+    {
+      "t": "weekly_city_spot_rankings",
+      "conname": "weekly_city_spot_rankings_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "t": "weekly_city_spot_rankings",
+      "conname": "weekly_city_spot_rankings_platform_count_check",
+      "k": "c",
+      "def": "CHECK (((platform_count >= 0) AND (platform_count <= 3)))"
+    },
+    {
+      "t": "weekly_city_spot_rankings",
+      "conname": "weekly_city_spot_rankings_post_count_check",
+      "k": "c",
+      "def": "CHECK ((post_count >= 0))"
+    },
+    {
+      "t": "weekly_city_spot_rankings",
+      "conname": "weekly_city_spot_rankings_rank_check",
+      "k": "c",
+      "def": "CHECK (((rank >= 1) AND (rank <= 5)))"
+    },
+    {
+      "t": "weekly_city_spot_rankings",
+      "conname": "weekly_city_spot_rankings_score_check",
+      "k": "c",
+      "def": "CHECK (((score >= (0)::numeric) AND (score <= (100)::numeric)))"
+    },
+    {
+      "t": "weekly_city_spot_rankings",
+      "conname": "weekly_city_spot_rankings_spot_id_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (spot_id) REFERENCES spots(id) ON DELETE CASCADE"
+    },
+    {
+      "t": "weekly_city_spot_rankings",
+      "conname": "weekly_city_spot_rankings_week_start_city_slug_rank_key",
+      "k": "u",
+      "def": "UNIQUE (week_start, city_slug, rank)"
+    },
+    {
+      "t": "weekly_city_spot_rankings",
+      "conname": "weekly_city_spot_rankings_week_start_city_slug_spot_id_key",
+      "k": "u",
+      "def": "UNIQUE (week_start, city_slug, spot_id)"
+    },
+    {
+      "t": "weekly_social_content",
+      "conname": "weekly_social_content_comment_count_check",
+      "k": "c",
+      "def": "CHECK ((comment_count >= 0))"
+    },
+    {
+      "t": "weekly_social_content",
+      "conname": "weekly_social_content_content_text_check",
+      "k": "c",
+      "def": "CHECK ((char_length(content_text) <= 4000))"
+    },
+    {
+      "t": "weekly_social_content",
+      "conname": "weekly_social_content_like_count_check",
+      "k": "c",
+      "def": "CHECK ((like_count >= 0))"
+    },
+    {
+      "t": "weekly_social_content",
+      "conname": "weekly_social_content_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "t": "weekly_social_content",
+      "conname": "weekly_social_content_place_hint_check",
+      "k": "c",
+      "def": "CHECK ((char_length(place_hint) <= 160))"
+    },
+    {
+      "t": "weekly_social_content",
+      "conname": "weekly_social_content_platform_check",
+      "k": "c",
+      "def": "CHECK ((platform = ANY (ARRAY['instagram'::text, 'tiktok'::text, 'youtube'::text])))"
+    },
+    {
+      "t": "weekly_social_content",
+      "conname": "weekly_social_content_save_count_check",
+      "k": "c",
+      "def": "CHECK ((save_count >= 0))"
+    },
+    {
+      "t": "weekly_social_content",
+      "conname": "weekly_social_content_share_count_check",
+      "k": "c",
+      "def": "CHECK ((share_count >= 0))"
+    },
+    {
+      "t": "weekly_social_content",
+      "conname": "weekly_social_content_view_count_check",
+      "k": "c",
+      "def": "CHECK ((view_count >= 0))"
+    },
+    {
+      "t": "weekly_social_content",
+      "conname": "weekly_social_content_week_start_platform_external_id_city__key",
+      "k": "u",
+      "def": "UNIQUE (week_start, platform, external_id, city_slug)"
+    },
+    {
+      "t": "weekly_social_spot_leads",
+      "conname": "weekly_social_spot_leads_discovery_run_id_fkey",
+      "k": "f",
+      "def": "FOREIGN KEY (discovery_run_id) REFERENCES apify_spot_discovery_runs(id) ON DELETE SET NULL"
+    },
+    {
+      "t": "weekly_social_spot_leads",
+      "conname": "weekly_social_spot_leads_engagement_score_check",
+      "k": "c",
+      "def": "CHECK ((engagement_score >= 0))"
+    },
+    {
+      "t": "weekly_social_spot_leads",
+      "conname": "weekly_social_spot_leads_normalized_hint_check",
+      "k": "c",
+      "def": "CHECK (((char_length(normalized_hint) >= 3) AND (char_length(normalized_hint) <= 160)))"
+    },
+    {
+      "t": "weekly_social_spot_leads",
+      "conname": "weekly_social_spot_leads_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "t": "weekly_social_spot_leads",
+      "conname": "weekly_social_spot_leads_place_hint_check",
+      "k": "c",
+      "def": "CHECK (((char_length(place_hint) >= 3) AND (char_length(place_hint) <= 160)))"
+    },
+    {
+      "t": "weekly_social_spot_leads",
+      "conname": "weekly_social_spot_leads_platform_check",
+      "k": "c",
+      "def": "CHECK ((platform = ANY (ARRAY['instagram'::text, 'tiktok'::text, 'youtube'::text])))"
+    },
+    {
+      "t": "weekly_social_spot_leads",
+      "conname": "weekly_social_spot_leads_status_check",
+      "k": "c",
+      "def": "CHECK ((status = ANY (ARRAY['pending'::text, 'searching'::text, 'searched'::text, 'ignored'::text])))"
+    },
+    {
+      "t": "weekly_social_spot_leads",
+      "conname": "weekly_social_spot_leads_week_start_city_slug_normalized_hi_key",
+      "k": "u",
+      "def": "UNIQUE (week_start, city_slug, normalized_hint)"
+    },
+    {
+      "t": "weekly_social_spot_leads",
+      "conname": "weekly_social_spot_leads_week_start_city_slug_platform_exte_key",
+      "k": "u",
+      "def": "UNIQUE (week_start, city_slug, platform, external_id)"
+    },
+    {
+      "t": "weekly_social_trend_city_builds",
+      "conname": "weekly_social_trend_city_builds_attempt_count_check",
+      "k": "c",
+      "def": "CHECK (((attempt_count >= 1) AND (attempt_count <= 3)))"
+    },
+    {
+      "t": "weekly_social_trend_city_builds",
+      "conname": "weekly_social_trend_city_builds_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (week_start, city_slug)"
+    },
+    {
+      "t": "weekly_social_trend_city_builds",
+      "conname": "weekly_social_trend_city_builds_state_check",
+      "k": "c",
+      "def": "CHECK ((state = ANY (ARRAY['running'::text, 'succeeded'::text, 'failed'::text])))"
+    },
+    {
+      "t": "weekly_social_trend_runs",
+      "conname": "weekly_social_trend_runs_actor_run_id_key",
+      "k": "u",
+      "def": "UNIQUE (actor_run_id)"
+    },
+    {
+      "t": "weekly_social_trend_runs",
+      "conname": "weekly_social_trend_runs_attempt_count_check",
+      "k": "c",
+      "def": "CHECK (((attempt_count >= 1) AND (attempt_count <= 3)))"
+    },
+    {
+      "t": "weekly_social_trend_runs",
+      "conname": "weekly_social_trend_runs_pkey",
+      "k": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "t": "weekly_social_trend_runs",
+      "conname": "weekly_social_trend_runs_platform_check",
+      "k": "c",
+      "def": "CHECK ((platform = ANY (ARRAY['instagram'::text, 'tiktok'::text, 'youtube'::text])))"
+    },
+    {
+      "t": "weekly_social_trend_runs",
+      "conname": "weekly_social_trend_runs_state_check",
+      "k": "c",
+      "def": "CHECK ((state = ANY (ARRAY['starting'::text, 'running'::text, 'succeeded'::text, 'failed'::text])))"
+    },
+    {
+      "t": "weekly_social_trend_runs",
+      "conname": "weekly_social_trend_runs_week_start_platform_key",
+      "k": "u",
+      "def": "UNIQUE (week_start, platform)"
+    }
+  ],
+  "indexes": [
+    {
+      "t": "affiliate_earnings",
+      "indexname": "idx_affiliate_earnings_partner_date",
+      "indexdef": "CREATE INDEX idx_affiliate_earnings_partner_date ON public.affiliate_earnings USING btree (partner, period_date)"
+    },
+    {
+      "t": "apify_spot_candidates",
+      "indexname": "apify_spot_candidates_review_idx",
+      "indexdef": "CREATE INDEX apify_spot_candidates_review_idx ON public.apify_spot_candidates USING btree (status, city_slug, recommended_localley_score DESC, created_at DESC)"
+    },
+    {
+      "t": "apify_spot_discovery_runs",
+      "indexname": "apify_spot_discovery_runs_city_date_idx",
+      "indexdef": "CREATE INDEX apify_spot_discovery_runs_city_date_idx ON public.apify_spot_discovery_runs USING btree (city_slug, discovery_date DESC)"
+    },
+    {
+      "t": "apify_spot_discovery_runs",
+      "indexname": "apify_spot_discovery_runs_state_idx",
+      "indexdef": "CREATE INDEX apify_spot_discovery_runs_state_idx ON public.apify_spot_discovery_runs USING btree (state, started_at)"
+    },
+    {
+      "t": "contribution_token_ledger",
+      "indexname": "idx_contribution_token_ledger_contributor",
+      "indexdef": "CREATE INDEX idx_contribution_token_ledger_contributor ON public.contribution_token_ledger USING btree (contributor_id, created_at DESC)"
+    },
+    {
+      "t": "follows",
+      "indexname": "idx_follows_follower",
+      "indexdef": "CREATE INDEX idx_follows_follower ON public.follows USING btree (follower_id)"
+    },
+    {
+      "t": "follows",
+      "indexname": "idx_follows_following",
+      "indexdef": "CREATE INDEX idx_follows_following ON public.follows USING btree (following_id)"
+    },
+    {
+      "t": "geo_aliases",
+      "indexname": "geo_aliases_destination_idx",
+      "indexdef": "CREATE INDEX geo_aliases_destination_idx ON public.geo_aliases USING btree (destination_id, normalized_alias) WHERE (destination_id IS NOT NULL)"
+    },
+    {
+      "t": "geo_aliases",
+      "indexname": "geo_aliases_local_area_idx",
+      "indexdef": "CREATE INDEX geo_aliases_local_area_idx ON public.geo_aliases USING btree (local_area_id, normalized_alias) WHERE (local_area_id IS NOT NULL)"
+    },
+    {
+      "t": "geo_aliases",
+      "indexname": "geo_aliases_lookup_idx",
+      "indexdef": "CREATE INDEX geo_aliases_lookup_idx ON public.geo_aliases USING btree (normalized_alias, entity_type)"
+    },
+    {
+      "t": "geo_aliases",
+      "indexname": "geo_aliases_spot_idx",
+      "indexdef": "CREATE INDEX geo_aliases_spot_idx ON public.geo_aliases USING btree (spot_id, normalized_alias) WHERE (spot_id IS NOT NULL)"
+    },
+    {
+      "t": "geo_destinations",
+      "indexname": "geo_destinations_country_enabled_idx",
+      "indexdef": "CREATE INDEX geo_destinations_country_enabled_idx ON public.geo_destinations USING btree (country_code, is_enabled, ring)"
+    },
+    {
+      "t": "geo_local_areas",
+      "indexname": "geo_local_areas_destination_review_idx",
+      "indexdef": "CREATE INDEX geo_local_areas_destination_review_idx ON public.geo_local_areas USING btree (destination_id, review_status, kind)"
+    },
+    {
+      "t": "social_spot_submission_aliases",
+      "indexname": "idx_social_spot_submission_aliases_submission",
+      "indexdef": "CREATE INDEX idx_social_spot_submission_aliases_submission ON public.social_spot_submission_aliases USING btree (submission_id)"
+    },
+    {
+      "t": "social_spot_submission_candidates",
+      "indexname": "idx_social_spot_submission_candidates_order",
+      "indexdef": "CREATE INDEX idx_social_spot_submission_candidates_order ON public.social_spot_submission_candidates USING btree (submission_id, ordinal)"
+    },
+    {
+      "t": "social_spot_submission_candidates",
+      "indexname": "idx_social_spot_submission_candidates_spot",
+      "indexdef": "CREATE INDEX idx_social_spot_submission_candidates_spot ON public.social_spot_submission_candidates USING btree (spot_id) WHERE (spot_id IS NOT NULL)"
+    },
+    {
+      "t": "social_spot_submission_media",
+      "indexname": "idx_social_spot_submission_media_current_revision",
+      "indexdef": "CREATE INDEX idx_social_spot_submission_media_current_revision ON public.social_spot_submission_media USING btree (submission_id, revision, ordinal) WHERE is_current"
+    },
+    {
+      "t": "social_spot_submission_media",
+      "indexname": "social_spot_submission_media_current_ordinal_unique",
+      "indexdef": "CREATE UNIQUE INDEX social_spot_submission_media_current_ordinal_unique ON public.social_spot_submission_media USING btree (submission_id, ordinal) WHERE is_current"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "indexname": "idx_social_spot_submission_media_jobs_expired_lease",
+      "indexdef": "CREATE INDEX idx_social_spot_submission_media_jobs_expired_lease ON public.social_spot_submission_media_jobs USING btree (submission_id, revision, lease_expires_at, created_at) WHERE (state = 'leased'::text)"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "indexname": "idx_social_spot_submission_media_jobs_media_fk",
+      "indexdef": "CREATE INDEX idx_social_spot_submission_media_jobs_media_fk ON public.social_spot_submission_media_jobs USING btree (submission_id, media_id)"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "indexname": "idx_social_spot_submission_media_jobs_ready",
+      "indexdef": "CREATE INDEX idx_social_spot_submission_media_jobs_ready ON public.social_spot_submission_media_jobs USING btree (submission_id, revision, available_at, created_at) WHERE (state = ANY (ARRAY['queued'::text, 'retry_wait'::text]))"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "indexname": "idx_social_spot_submission_media_jobs_revision",
+      "indexdef": "CREATE INDEX idx_social_spot_submission_media_jobs_revision ON public.social_spot_submission_media_jobs USING btree (submission_id, revision, ordinal)"
+    },
+    {
+      "t": "social_spot_submission_media_jobs",
+      "indexname": "social_spot_submission_media_jobs_claim_token_unique",
+      "indexdef": "CREATE UNIQUE INDEX social_spot_submission_media_jobs_claim_token_unique ON public.social_spot_submission_media_jobs USING btree (claim_token) WHERE (claim_token IS NOT NULL)"
+    },
+    {
+      "t": "social_spot_submissions",
+      "indexname": "idx_social_spot_submissions_contributor",
+      "indexdef": "CREATE INDEX idx_social_spot_submissions_contributor ON public.social_spot_submissions USING btree (contributor_id, created_at DESC)"
+    },
+    {
+      "t": "social_spot_submissions",
+      "indexname": "idx_social_spot_submissions_spot",
+      "indexdef": "CREATE INDEX idx_social_spot_submissions_spot ON public.social_spot_submissions USING btree (spot_id) WHERE (spot_id IS NOT NULL)"
+    },
+    {
+      "t": "social_spot_submissions",
+      "indexname": "idx_social_spot_submissions_status",
+      "indexdef": "CREATE INDEX idx_social_spot_submissions_status ON public.social_spot_submissions USING btree (status, created_at DESC)"
+    },
+    {
+      "t": "transfer_edges",
+      "indexname": "transfer_edges_route_idx",
+      "indexdef": "CREATE INDEX transfer_edges_route_idx ON public.transfer_edges USING btree (from_destination_id, to_destination_id, review_status)"
+    },
+    {
+      "t": "weekly_city_spot_rankings",
+      "indexname": "weekly_city_spot_rankings_lookup_idx",
+      "indexdef": "CREATE INDEX weekly_city_spot_rankings_lookup_idx ON public.weekly_city_spot_rankings USING btree (city_slug, week_start DESC, rank)"
+    },
+    {
+      "t": "weekly_social_content",
+      "indexname": "weekly_social_content_city_week_idx",
+      "indexdef": "CREATE INDEX weekly_social_content_city_week_idx ON public.weekly_social_content USING btree (city_slug, week_start DESC)"
+    },
+    {
+      "t": "weekly_social_content",
+      "indexname": "weekly_social_content_expiry_idx",
+      "indexdef": "CREATE INDEX weekly_social_content_expiry_idx ON public.weekly_social_content USING btree (expires_at)"
+    },
+    {
+      "t": "weekly_social_spot_leads",
+      "indexname": "weekly_social_spot_leads_expiry_idx",
+      "indexdef": "CREATE INDEX weekly_social_spot_leads_expiry_idx ON public.weekly_social_spot_leads USING btree (expires_at)"
+    },
+    {
+      "t": "weekly_social_spot_leads",
+      "indexname": "weekly_social_spot_leads_queue_idx",
+      "indexdef": "CREATE INDEX weekly_social_spot_leads_queue_idx ON public.weekly_social_spot_leads USING btree (status, engagement_score DESC, created_at)"
+    },
+    {
+      "t": "weekly_social_spot_leads",
+      "indexname": "weekly_social_spot_leads_run_idx",
+      "indexdef": "CREATE INDEX weekly_social_spot_leads_run_idx ON public.weekly_social_spot_leads USING btree (discovery_run_id) WHERE (discovery_run_id IS NOT NULL)"
+    },
+    {
+      "t": "weekly_social_trend_city_builds",
+      "indexname": "weekly_social_trend_city_builds_state_idx",
+      "indexdef": "CREATE INDEX weekly_social_trend_city_builds_state_idx ON public.weekly_social_trend_city_builds USING btree (week_start, state, lease_expires_at)"
+    },
+    {
+      "t": "weekly_social_trend_runs",
+      "indexname": "weekly_social_trend_runs_state_idx",
+      "indexdef": "CREATE INDEX weekly_social_trend_runs_state_idx ON public.weekly_social_trend_runs USING btree (week_start, state, processed_at)"
+    }
+  ]
+}
