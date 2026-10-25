@@ -191,6 +191,9 @@ describe("travelling now", () => {
     expect(await listMeetups(d, alice.userId, "tokyo", week)).toEqual([]);
     await hidePerson(d, alice.userId, bob.userId);
     expect(await listMeetups(d, alice.userId, "seoul", week)).toEqual([]);
+  });
+});
+
 describe("answer notifications", () => {
   function authDb() {
     const d = createAuthTestDatabase();
