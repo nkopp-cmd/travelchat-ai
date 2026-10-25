@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ country: 
 
 /** "{n}" marks a number the traveller points at or shows with fingers. */
 function withBlank(text: string) {
-  return text.split("{n}").flatMap((part, i) => (i === 0 ? [part] : [<span key={i} className="mx-1 inline-block min-w-[1.5em] border-b-4 border-current" aria-label="number">&nbsp;</span>, part]));
+  return text.split("{n}").flatMap((part, i) => (i === 0 ? [part] : [<span key={i} className="mx-1 inline-block h-[0.2em] min-w-[1.5em] rounded-full bg-current align-baseline" aria-label="number">&nbsp;</span>, part]));
 }
 
 export default async function HelpCountryPage({ params }: { params: Promise<{ country: string }> }) {
@@ -51,12 +51,12 @@ export default async function HelpCountryPage({ params }: { params: Promise<{ co
                 </a>
                 {/* Full-screen card: shown while its id is the URL fragment. */}
                 <div id={`card-${phrase.id}`} role="dialog" aria-label={phrase.en.replace("{n}", "…")}
-                  className="fixed inset-0 z-[60] hidden flex-col overflow-y-auto bg-white p-6 text-black target:flex">
-                  <a href="#" className="ml-auto inline-flex min-h-11 items-center rounded-full bg-black px-5 text-base font-semibold text-white">Close</a>
+                  className="fixed inset-0 z-[60] hidden flex-col overflow-y-auto bg-foreground p-6 text-background target:flex">
+                  <a href="#" className="ml-auto inline-flex min-h-11 items-center rounded-full bg-background px-5 text-base font-semibold text-foreground">Close</a>
                   <div className="flex flex-1 flex-col justify-center gap-6">
                     <p lang={country.language} className={`text-[clamp(2.5rem,9vw,4.5rem)] font-bold leading-tight ${wrap}`}>{withBlank(phrase.text)}</p>
-                    {phrase.roman && <p className="text-xl text-neutral-600">{phrase.roman.replace("{n}", "…")}</p>}
-                    <p className="text-lg text-neutral-500">{phrase.en.replace("{n}", "…")}</p>
+                    {phrase.roman && <p className="text-xl text-background/75">{phrase.roman.replace("{n}", "…")}</p>}
+                    <p className="text-lg text-background/60">{phrase.en.replace("{n}", "…")}</p>
                   </div>
                 </div>
               </li>
