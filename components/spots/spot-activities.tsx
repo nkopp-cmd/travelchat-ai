@@ -5,6 +5,7 @@ import { ActivityCard, ActivityCardSkeleton } from '@/components/viator/activity
 import { ViatorActivity } from '@/types/viator';
 import { Button } from '@/components/ui/button';
 import { Sparkles, ChevronRight } from '@/components/ui/icons';
+import { useAuth } from '@/lib/auth/client';
 
 interface SpotActivitiesProps {
     spotId: string;
@@ -28,8 +29,16 @@ export function SpotActivities({ city, spotName }: SpotActivitiesProps) {
     const [loading, setLoading] = useState(true);
     const [showAll, setShowAll] = useState(false);
     const copy = getSpotActivitiesCopy(city, spotName);
+    const { isLoaded, isSignedIn } = useAuth();
 
     useEffect(() => {
+        if (!isLoaded) return;
+        // /api/viator/search requires a session; signed-out visitors would only get a 401 and an empty section.
+        if (!isSignedIn) {
+            setActivities([]);
+            setLoading(false);
+            return;
+        }
         const fetchActivities = async () => {
             setLoading(true);
             try {
@@ -54,7 +63,7 @@ export function SpotActivities({ city, spotName }: SpotActivitiesProps) {
         };
 
         fetchActivities();
-    }, [city]);
+    }, [city, isLoaded, isSignedIn]);
 
     // Show 3 by default, all when "View All" is clicked
     const displayedActivities = showAll ? activities : activities.slice(0, 3);
