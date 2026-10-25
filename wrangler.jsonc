@@ -129,7 +129,7 @@
         "migrations_dir": "migrations/auth"
       }, {
         // Supabase exit (shared/plans/localley-supabase-exit.md, approved 2026-10-24): application data.
-        // Read only when DATA_BACKEND=d1 (lib/app-data/backend.ts); unset keeps Supabase serving.
+        // Serving store since 2026-10-25 (DATA_BACKEND=d1 below; lib/app-data/backend.ts).
         "binding": "APP_DB",
         "database_name": "localley-app",
         "database_id": "f1cc916b-5606-443f-9c4f-695c4ccc4a63",
@@ -152,6 +152,8 @@
         // Override any preview-only default embedded by an OpenNext build.
         "SUPABASE_READ_ONLY": "false",
         "NEXTJS_ENV": "production",
+        // Supabase exit: D1 serves since 2026-10-25 01:24Z (shared/plans/localley-supabase-exit.md). Rollback = gate 2 runbook.
+        "DATA_BACKEND": "d1",
         "BETTER_AUTH_URL": "https://www.localley.io",
         "AUTH_ALLOWED_HOSTS": "www.localley.io,localley.io,next.localley.io"
       },
