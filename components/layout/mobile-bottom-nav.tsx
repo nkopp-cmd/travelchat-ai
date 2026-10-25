@@ -16,7 +16,7 @@ const navItems = [
 export function MobileBottomNav() {
   const pathname = usePathname();
   if (isMobileBottomNavHidden(pathname)) return null;
-  return <nav aria-label="Main navigation" className="fixed inset-x-0 bottom-0 z-50 bg-surface/95 shadow-overlay backdrop-blur-xl safe-area-bottom md:hidden">
+  return <nav data-app-chrome aria-label="Main navigation" className="fixed inset-x-0 bottom-0 z-50 bg-surface/95 shadow-overlay backdrop-blur-xl safe-area-bottom md:hidden">
     <div className="flex h-16 items-center justify-around gap-2 px-3">
       {navItems.map(item => {
         const active = item.paths.some(path => pathname === path || pathname.startsWith(path + '/'));
