@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { savedSpotsWithSpots } from "@/lib/app-data/saved-spots";
-import { completedChallengesWithDetails } from "@/lib/app-data/user-challenges";
+import { appDataDb, dataBackend } from "@/lib/app-data/backend";
+import { completedChallengesWithDetails, profileProgressByOwner } from "@/lib/app-data/user-challenges";
 import { previewProfile } from "@/lib/app-data/preview-profile";
 import { PreviewProfile } from "@/components/profile/preview-profile";
 import { Button } from "@/components/ui/button";
@@ -63,7 +64,11 @@ async function getUserProgress(marks: Marks = {}, start = clock()) {
     // user id, so they chain on the users read instead of waiting for the whole first round (one fewer round trip).
     // public.challenges has `name` (no `title`); user_challenges is keyed by (user_id, challenge_id).
     const userRead = timed(marks, start, "users", supabase.from("users").select("id, xp, level").eq("clerk_id", userId).single());
-    const progressReads = Promise.resolve(userRead).then(async ({ data }) => {
+    // D1: one batch keyed by the owner id, in the same round as the reads below (the chain on users cost a round trip).
+    const progressReads = dataBackend() === "d1"
+        ? timed(marks, start, "progress", profileProgressByOwner(appDataDb() as never, userId))
+            .then(({ progress, challenges }) => [{ data: progress }, { data: challenges }] as const)
+        : Promise.resolve(userRead).then(async ({ data }) => {
         if (!data?.id) return [{ data: null }, { data: null }] as const;
         return Promise.all([
             timed(marks, start, "progress", supabase.from("user_progress").select("*").eq("user_id", data.id).single()),
