@@ -1,0 +1,149 @@
+{
+ "categories": [
+  {
+   "id": "basics",
+   "phrases": [
+    {
+     "id": "hello",
+     "en": "Hello"
+    },
+    {
+     "id": "thank_you",
+     "en": "Thank you"
+    },
+    {
+     "id": "excuse_me",
+     "en": "Excuse me"
+    },
+    {
+     "id": "no_language",
+     "en": "Sorry, I don't speak your language. Could you show me on this phone?"
+    },
+    {
+     "id": "write_down",
+     "en": "Could you write it down, please?"
+    },
+    {
+     "id": "where_toilet",
+     "en": "Where is the toilet?"
+    }
+   ]
+  },
+  {
+   "id": "food",
+   "phrases": [
+    {
+     "id": "table_for",
+     "en": "A table for {n}, please."
+    },
+    {
+     "id": "one_person_ok",
+     "en": "Is it okay for one person to order one portion?"
+    },
+    {
+     "id": "recommend",
+     "en": "What do you recommend?"
+    },
+    {
+     "id": "no_spicy",
+     "en": "Not spicy, please."
+    },
+    {
+     "id": "allergy_nuts",
+     "en": "I have a severe allergy to nuts, including peanuts. Please make sure there are no nuts, peanuts or nut oil in my food."
+    },
+    {
+     "id": "allergy_seafood",
+     "en": "I am allergic to all seafood: fish, shrimp, crab and shellfish. I also cannot eat fish sauce or seafood stock."
+    },
+    {
+     "id": "vegetarian",
+     "en": "I am vegetarian. No meat, no fish, and no meat or fish stock, please."
+    },
+    {
+     "id": "check_please",
+     "en": "The bill, please."
+    }
+   ]
+  },
+  {
+   "id": "transport",
+   "phrases": [
+    {
+     "id": "take_me_here",
+     "en": "Please take me to this address."
+    },
+    {
+     "id": "which_exit",
+     "en": "Which exit is for this place?"
+    },
+    {
+     "id": "which_platform",
+     "en": "Which platform is the train to this station?"
+    },
+    {
+     "id": "stop_here",
+     "en": "Please stop here."
+    },
+    {
+     "id": "use_meter",
+     "en": "Please use the meter / the app fare."
+    },
+    {
+     "id": "lost",
+     "en": "I am lost. Can you help me find this place?"
+    }
+   ]
+  },
+  {
+   "id": "pay",
+   "phrases": [
+    {
+     "id": "card_ok",
+     "en": "Can I pay by card?"
+    },
+    {
+     "id": "foreign_card",
+     "en": "My card is foreign. Does it work here?"
+    },
+    {
+     "id": "cash_only",
+     "en": "Is it cash only?"
+    },
+    {
+     "id": "atm_where",
+     "en": "Where is the nearest ATM?"
+    },
+    {
+     "id": "how_much",
+     "en": "How much is it?"
+    }
+   ]
+  },
+  {
+   "id": "emergency",
+   "phrases": [
+    {
+     "id": "help",
+     "en": "Please help me."
+    },
+    {
+     "id": "need_doctor",
+     "en": "I need a doctor."
+    },
+    {
+     "id": "call_ambulance",
+     "en": "Please call an ambulance."
+    },
+    {
+     "id": "pharmacy",
+     "en": "Where is the nearest pharmacy?"
+    },
+    {
+     "id": "lost_phone",
+     "en": "I lost my phone/bag. Where can I report it?"
+    }
+   ]
+  }
+ ]
+}

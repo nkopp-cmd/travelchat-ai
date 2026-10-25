@@ -1,0 +1,69 @@
+{
+ "reviewer": "Claude Opus 5.5 (builder session; claude -p auth expired)",
+ "translator": "codex exec (ChatGPT subscription)",
+ "checked": 150,
+ "changes": [
+  {
+   "id": "cash_only",
+   "lang": "th",
+   "before": {
+    "text": "รับเฉพาะเงินสดใช่ไหม",
+    "roman": "Rap chaph o ngoen sot chai mai?"
+   },
+   "after": {
+    "text": "รับเฉพาะเงินสดใช่ไหม",
+    "roman": "Rap chapho ngoen sot chai mai?"
+   }
+  },
+  {
+   "id": "which_platform",
+   "lang": "vi",
+   "before": {
+    "text": "Tàu đi đến ga này đón ở sân ga nào?",
+    "roman": "Tau di den ga nay don o san ga nao?"
+   },
+   "after": {
+    "text": "Tàu đi đến ga này ở sân ga nào?",
+    "roman": "Tau di den ga nay o san ga nao?"
+   }
+  },
+  {
+   "id": "stop_here",
+   "lang": "vi",
+   "before": {
+    "text": "Cho tôi dừng ở đây.",
+    "roman": "Cho toi dung o day."
+   },
+   "after": {
+    "text": "Làm ơn dừng ở đây.",
+    "roman": "Lam on dung o day."
+   }
+  },
+  {
+   "id": "vegetarian",
+   "lang": "ko",
+   "before": {
+    "text": "저는 채식해요. 고기와 생선은 빼 주세요. 고기나 생선으로 만든 육수도 넣지 말아 주세요.",
+    "roman": "Jeoneun chaesikaeyo. Gogiwa saengseoneun ppae juseyo. Gogina saengseoneuro mandeun yuksudo neochi mara juseyo."
+   },
+   "after": {
+    "text": "저는 채식주의자예요. 고기와 생선은 빼 주세요. 고기나 생선으로 만든 육수도 넣지 말아 주세요.",
+    "roman": "Jeoneun chaesikjuuijayeyo. Gogiwa saengseoneun ppae juseyo. Gogina saengseoneuro mandeun yuksudo neochi mara juseyo."
+   }
+  },
+  {
+   "id": "allergy_nuts",
+   "lang": "en",
+   "before": "I have a severe nut allergy. Please make sure there are no nuts or nut oil in my food.",
+   "after": "I have a severe allergy to nuts, including peanuts. Please make sure there are no nuts, peanuts or nut oil in my food.",
+   "why": "translations name peanuts / each seafood group; safer for allergy, English now matches"
+  },
+  {
+   "id": "allergy_seafood",
+   "lang": "en",
+   "before": "I am allergic to shellfish and seafood, including fish sauce and seafood stock.",
+   "after": "I am allergic to all seafood: fish, shrimp, crab and shellfish. I also cannot eat fish sauce or seafood stock.",
+   "why": "translations name peanuts / each seafood group; safer for allergy, English now matches"
+  }
+ ]
+}
