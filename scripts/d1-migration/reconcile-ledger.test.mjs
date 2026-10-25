@@ -52,7 +52,7 @@ test('guards a complete large schema as a set and refuses later drift',()=>{
 // execution of the copied 0001-0013 base before the complete canonical chain.
 test('builds the complete canonical schema once and retains the latest capacity/storage', () => {
  const expected = expectedSchema();
- assert.equal(expected.migrations.length, 39);
+ assert.equal(expected.migrations.length, 40);
  assert(expected.schema.some(r => r.type === 'table' && r.name === 'geo_destinations'));
  assert(expected.schema.some(r => r.type === 'table' && r.name === 'user'));
  assert(expected.schema.some(r => r.type === 'table' && r.name === 'preview_push_subscriptions'));
