@@ -6,6 +6,7 @@ import { DAILY_LIMITS, type ReportReason } from "./rules";
 export type TipRow = {
   id: string; spot_id: string; user_id: string; author_name: string; body: string; visited_on: string | null;
   status: "visible" | "hidden"; created_at: string; open_reports: number; photo_key: string | null;
+  ai_verdict?: string | null; ai_reason?: string | null;
 };
 
 /** The tip that owns a stored photo, for the media route's access check. */

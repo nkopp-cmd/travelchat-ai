@@ -17,10 +17,12 @@ export type CommunityDb = { prepare(sql: string): Statement; batch(statements: S
 export type QuestionRow = {
   id: string; user_id: string; author_name: string; city: string; topic: string; title: string; body: string;
   status: "visible" | "hidden"; score: number; answer_count: number; created_at: string; voted: number;
+  ai_verdict?: string | null; ai_reason?: string | null;
 };
 export type AnswerRow = {
   id: string; question_id: string; user_id: string; author_name: string; body: string;
   status: "visible" | "hidden"; score: number; created_at: string; voted: number;
+  ai_verdict?: string | null; ai_reason?: string | null;
 };
 
 const QUESTION_SCORE = "UPDATE community_questions SET score = (SELECT count(*) FROM community_votes v WHERE v.target_type = 'question' AND v.target_id = community_questions.id) WHERE id = ?";

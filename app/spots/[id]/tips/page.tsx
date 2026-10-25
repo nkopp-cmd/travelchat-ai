@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Users } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { fieldClass, timeAgo } from "@/components/community/community-ui";
+import { AiNote, fieldClass, timeAgo } from "@/components/community/community-ui";
 import { isAdminUser } from "@/lib/admin-auth";
 import { appDataDb } from "@/lib/app-data/backend";
 import { auth } from "@/lib/auth/server";
@@ -105,6 +105,7 @@ export default async function SpotTipsPage({ params, searchParams }: { params: P
                     <input type="hidden" name="status" value={tip.status === "hidden" ? "visible" : "hidden"} />
                     <Button type="submit" variant="ghost" size="sm">{tip.status === "hidden" ? "Unhide" : "Hide"}</Button>
                     {tip.open_reports > 0 && <span className="text-sm font-semibold text-destructive">{tip.open_reports} open {tip.open_reports === 1 ? "report" : "reports"}</span>}
+                    <AiNote verdict={tip.ai_verdict} reason={tip.ai_reason} />
                   </form>
                 )}
               </div>

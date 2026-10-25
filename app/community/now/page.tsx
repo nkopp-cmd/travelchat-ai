@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Users } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
-import { VoteCount, fieldClass, timeAgo } from "@/components/community/community-ui";
+import { AiNote, VoteCount, fieldClass, timeAgo } from "@/components/community/community-ui";
 import { isAdminUser } from "@/lib/admin-auth";
 import { appDataDb } from "@/lib/app-data/backend";
 import { auth } from "@/lib/auth/server";
@@ -103,6 +103,7 @@ export default async function TravellingNowPage({ searchParams }: { searchParams
                         <input type="hidden" name="status" value={t.status === "hidden" ? "visible" : "hidden"} />
                         <Button type="submit" variant="ghost" size="sm">{t.status === "hidden" ? "Unhide" : "Hide for all"}</Button>
                         {t.open_reports > 0 && <span className="text-sm font-semibold text-destructive">{t.open_reports} open {t.open_reports === 1 ? "report" : "reports"}</span>}
+                        <AiNote verdict={t.ai_verdict} reason={t.ai_reason} />
                       </form>
                     )}
                   </div>

@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "@/components/ui/icons";
 import { Textarea } from "@/components/ui/textarea";
-import { VoteCount, fieldClass, timeAgo } from "@/components/community/community-ui";
+import { AiNote, VoteCount, fieldClass, timeAgo } from "@/components/community/community-ui";
 import { isAdminUser } from "@/lib/admin-auth";
 import { appDataDb } from "@/lib/app-data/backend";
 import { auth } from "@/lib/auth/server";
@@ -17,7 +17,7 @@ import { answerQuestion, moderate, reportContent, vote } from "../actions";
 export const metadata: Metadata = { title: "Community question", robots: { index: false } };
 export const dynamic = "force-dynamic";
 
-type Target = { type: "question" | "answer"; id: string; ownerId: string; score: number; voted: boolean; status: string };
+type Target = { type: "question" | "answer"; id: string; ownerId: string; score: number; voted: boolean; status: string; aiVerdict?: string | null; aiReason?: string | null };
 
 function Actions({ target, questionId, viewerId, admin, reports }: { target: Target; questionId: string; viewerId: string; admin: boolean; reports: number }) {
   const own = target.ownerId === viewerId;
@@ -50,6 +50,7 @@ function Actions({ target, questionId, viewerId, admin, reports }: { target: Tar
           <input type="hidden" name="status" value={target.status === "hidden" ? "visible" : "hidden"} />
           <Button type="submit" variant="ghost" size="sm">{target.status === "hidden" ? "Unhide" : "Hide"}</Button>
           {reports > 0 && <span className="text-sm font-semibold text-destructive">{reports} open {reports === 1 ? "report" : "reports"}</span>}
+          <AiNote verdict={target.aiVerdict} reason={target.aiReason} />
         </form>
       )}
     </div>
@@ -80,7 +81,7 @@ export default async function QuestionPage({ params, searchParams }: { params: P
         {question.body && <p className="mt-3 whitespace-pre-line text-base leading-7 text-foreground">{question.body}</p>}
         <p className="mt-3 text-sm text-muted-foreground">{question.author_name} · {timeAgo(question.created_at)}</p>
         <Actions questionId={question.id} viewerId={userId} admin={admin} reports={reports.get(question.id) ?? 0}
-          target={{ type: "question", id: question.id, ownerId: question.user_id, score: question.score, voted: Boolean(question.voted), status: question.status }} />
+          target={{ type: "question", id: question.id, ownerId: question.user_id, score: question.score, voted: Boolean(question.voted), status: question.status, aiVerdict: question.ai_verdict, aiReason: question.ai_reason }} />
       </article>
 
       <h2 className="mb-3 mt-8 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
@@ -92,7 +93,7 @@ export default async function QuestionPage({ params, searchParams }: { params: P
             <p className="whitespace-pre-line text-base leading-7 text-foreground">{a.body}</p>
             <p className="mt-2 text-sm text-muted-foreground">{a.author_name} · {timeAgo(a.created_at)}{a.status === "hidden" ? " · hidden" : ""}</p>
             <Actions questionId={question.id} viewerId={userId} admin={admin} reports={reports.get(a.id) ?? 0}
-              target={{ type: "answer", id: a.id, ownerId: a.user_id, score: a.score, voted: Boolean(a.voted), status: a.status }} />
+              target={{ type: "answer", id: a.id, ownerId: a.user_id, score: a.score, voted: Boolean(a.voted), status: a.status, aiVerdict: a.ai_verdict, aiReason: a.ai_reason }} />
           </li>
         ))}
       </ul>

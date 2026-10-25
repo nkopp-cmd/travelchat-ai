@@ -6,6 +6,7 @@ import { ACTIVE_TRIP_LIMIT, type ReportReason } from "./rules";
 export type TripRow = {
   id: string; user_id: string; author_name: string; city: string; from_day: string; to_day: string; note: string;
   status: "visible" | "hidden"; created_at: string; open_reports: number;
+  ai_verdict?: string | null; ai_reason?: string | null;
 };
 
 /**
