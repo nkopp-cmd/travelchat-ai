@@ -40,11 +40,13 @@ function remainingCount(used: number, limit: number) {
  * started. Rendered only with ?timing=1 as a JSON block of numbers (no user data). Workers' clock advances on I/O.
  */
 type Marks = Record<string, number>;
+/** Not a render value: only timestamps for the diagnostic block. */
+const clock = () => Date.now();
 function timed<T>(marks: Marks, start: number, name: string, work: PromiseLike<T>): Promise<T> {
-    return Promise.resolve(work).then((value) => { marks[name] = Date.now() - start; return value; });
+    return Promise.resolve(work).then((value) => { marks[name] = clock() - start; return value; });
 }
 
-async function getUserProgress(marks: Marks = {}, start = Date.now()) {
+async function getUserProgress(marks: Marks = {}, start = clock()) {
     const { userId } = await timed(marks, start, "auth", auth());
 
     if (!userId) {
@@ -142,7 +144,7 @@ async function getUserProgress(marks: Marks = {}, start = Date.now()) {
 }
 
 export default async function ProfilePage({ searchParams }: { searchParams: Promise<{ data_candidate?: string; timing?: string }> }) {
-    const start = Date.now();
+    const start = clock();
     const marks: Marks = {};
     const user = await timed(marks, start, "currentUser", currentUser());
 
@@ -163,7 +165,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
     }
 
     const progressData = await getUserProgress(marks, start);
-    marks.data = Date.now() - start;
+    marks.data = clock() - start;
     const { progress, completedChallenges, itineraries, savedSpots, usage } = progressData;
     const subscription = withLifetimePremium(progressData.subscription, user.emailAddresses[0]?.emailAddress);
 
