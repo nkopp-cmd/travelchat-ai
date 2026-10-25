@@ -114,6 +114,7 @@ const routes = [
   "/guide/dashboard",
   "/help",
   "/help/[country]",
+  "/help/[country]/pay",
   "/itineraries",
   "/itineraries/[id]",
   "/itineraries/[id]/edit",

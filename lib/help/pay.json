@@ -1,0 +1,204 @@
+{
+ "checkedAt": "2026-10-25",
+ "method": "codex --search (ChatGPT subscription), 2025-2026 official sources first; reviewed by the builder",
+ "countries": {
+  "korea": {
+   "cards": [
+    "Foreign Visa and Mastercard work widely in shops, restaurants, convenience stores and taxis.",
+    "Amex and UnionPay work at many larger merchants. Confirm acceptance at small restaurants and independent shops.",
+    "Most stores have no card minimum. Carry a physical card because phone payments are less consistent."
+   ],
+   "cash": [
+    "Keep cash for traditional markets, street food, small rural businesses and transit top-ups.",
+    "Suggested daily reserve: KRW50,000–100,000 for food and market purchases. Keep KRW1,000, KRW5,000 and KRW10,000 notes."
+   ],
+   "qr_wallets": [
+    "Existing Alipay, WeChat Pay and UnionPay QR users can pay participating ZeroPay merchants. Check the displayed wallet logos.",
+    "September 2025: Japanese PayPay users gained Korean payments. Complete identity checks in Japan before departure."
+   ],
+   "transit": [
+    "Buy Tmoney at convenience stores or participating subway stations. Carry cash for physical-card top-ups.",
+    "Compatible Galaxy phones can use Korea Tour Card with foreign-card reloads. Check device support before relying on it.",
+    "Convenience stores refund small Tmoney balances, subject to limits. Refunds above KRW50,000 require Tmoney Town near Seoul Station."
+   ],
+   "atm": [
+    "Use Hana, Shinhan or KB machines marked Global ATM or overseas cards. Ordinary domestic machines may reject foreign cards.",
+    "Typical operator fees are KRW3,000–4,000, plus issuer charges. Choose KRW and cover your PIN."
+   ],
+   "tipping": "Tipping is not expected in restaurants, hotels or taxis.",
+   "sources": [
+    "https://english.visitkorea.or.kr/svc/contents/infoBscView.do?menuSn=212&vcontsId=140734",
+    "https://english.visitkorea.or.kr/svc/contents/infoBscView.do?vcontsId=140663",
+    "https://english.seoul.go.kr/seoul-implements-open-loop-payments-for-international-tourists/",
+    "https://about.paypay.ne.jp/en/pr/20250916/01/",
+    "https://visitkr.kr/en/guide/payment"
+   ]
+  },
+  "japan": {
+   "cards": [
+    "Foreign Visa and Mastercard work widely at hotels, chains and larger restaurants. Amex also works at many larger businesses.",
+    "Check UnionPay acceptance before ordering. Many urban taxis accept cards; small restaurants and rural businesses may require cash.",
+    "March 2025: PIN bypass generally ended. Know your card PIN; signing may not replace it when requested."
+   ],
+   "cash": [
+    "Carry yen for markets, small restaurants, shrines, lockers and rural transport. Keep JPY1,000 notes and coins.",
+    "Suggested daily cash reserve: JPY5,000–10,000 for casual meals, markets and small purchases; carry more for shopping."
+   ],
+   "qr_wallets": [
+    "Existing supported wallets, including Alipay and GCash, can scan participating PayPay merchant codes. Use your home wallet.",
+    "June 2026: PayPay expanded support to 35 overseas payment services. Check your wallet's Japan support before departure."
+   ],
+   "transit": [
+    "Buy physical Welcome Suica at designated JR East airport machines. Reload the physical card with cash.",
+    "March 2025: Welcome Suica Mobile launched for compatible iPhones and Apple Watches, with Apple Pay card reloads.",
+    "Welcome Suica balances are non-refundable. Physical cards expire after 28 days; Welcome Suica Mobile expires after 180 days."
+   ],
+   "atm": [
+    "Seven Bank machines inside 7-Eleven accept major foreign networks, including Amex and UnionPay. Japan Post is another reliable option.",
+    "Japan Post charges JPY220; Seven Bank fees depend on the card. Choose yen, cover your PIN and check issuer fees."
+   ],
+   "tipping": "Tipping is not customary. Pay the bill, including any stated service or table charge.",
+   "sources": [
+    "https://www.gotokyo.org/en/plan/money/index.html",
+    "https://www.americanexpress.com/jp/index/offers/Topics/2024/pin-bypass.html",
+    "https://via.tt.se/pressmeddelande/3841246/east-japan-railway-company-releasing-the-welcome-suica-mobile-app-for-overseas-visitors-to-japan?lang=en&publisherId=259167",
+    "https://about.paypay.ne.jp/en/pr/20260629/01/",
+    "https://japanpocketguide.com/plan/credit-cards/",
+    "https://japanpocketguide.com/plan/atm/"
+   ]
+  },
+  "thailand": {
+   "cards": [
+    "Foreign Visa, Mastercard and UnionPay work at hotels, malls and larger restaurants. Confirm Amex acceptance before relying on it.",
+    "Street stalls, markets, tuk-tuks and most meter taxis need cash. Ride-hailing apps can charge a registered foreign card.",
+    "Some smaller merchants add card surcharges. Ask first, and choose THB when terminals offer currency conversion."
+   ],
+   "cash": [
+    "Carry baht for street food, markets, local transport and taxi tolls. Drivers may struggle to change THB1,000.",
+    "Suggested daily reserve: THB500–1,000 for street meals and modest market purchases. Keep THB20, THB50 and THB100 notes."
+   ],
+   "qr_wallets": [
+    "May 2025: TAGTHAi Easy Pay offers tourist QR payments through KBank PAY&TOUR. Register with your passport at participating exchange booths.",
+    "Fund PAY&TOUR with cash exchanged at KBank, then link it in TAGTHAi. Do not assume foreign-card top-ups work.",
+    "Supported home banking apps can pay participating Thai merchant QR codes through cross-border links. Ordinary personal PromptPay codes may fail."
+   ],
+   "transit": [
+    "For Bangkok BTS, buy Rabbit at station offices with your passport; reload with cash. Rabbit excludes MRT Blue and Purple.",
+    "MRT Blue and Purple accept contactless Visa, Mastercard and UnionPay. November 2025: Airport Rail Link added bank-card payments.",
+    "Rabbit requires a physical card. Its purchase fee is non-refundable; ask a BTS office to refund eligible remaining value."
+   ],
+   "atm": [
+    "Krungsri and SCB accept foreign cards. March 2026: Krungsri charges THB350 for Mastercard; Visa and UnionPay cost THB250.",
+    "Your issuer may charge extra. Use bank or mall machines, cover your PIN and decline conversion to your home currency."
+   ],
+   "tipping": "Tipping is optional; rounding taxi fares is common. Check restaurant bills for an included service charge.",
+   "sources": [
+    "https://thailand.go.th/public/issue-focus-detail/scan--pay-like-a-local-tat-backs-tagthai-tourist-e-wallet-now-available?hl=en",
+    "https://www.am2026thailand.go.th/means-of-payment",
+    "https://www.krungsri.com/getmedia/081aac13-5648-4da3-898e-9085f2a7ec0d/fee-withdrawal-via-atm-for-international-card-11032026-th",
+    "https://www.visit-thailand.org/transport/contactless-and-rabbit-card-bangkok",
+    "https://www.visit-thailand.org/plan-your-trip/using-cards-in-thailand",
+    "https://www.approvedthailand.com/guides/money-in-thailand"
+   ]
+  },
+  "vietnam": {
+   "cards": [
+    "Foreign Visa and Mastercard work at hotels, malls, supermarkets and larger restaurants. Amex acceptance is patchy.",
+    "Confirm UnionPay acceptance directly. Carry cash for street food, markets and meter taxis; Grab can charge a linked card.",
+    "Some hotels, boutiques and restaurants add roughly 3% for cards. Ask before paying and choose VND."
+   ],
+   "cash": [
+    "Suggested daily reserve: VND500,000–1,000,000 for street meals, local transport and modest market purchases.",
+    "Keep VND10,000, VND20,000 and VND50,000 notes. Small vendors may lack change for VND500,000."
+   ],
+   "qr_wallets": [
+    "April 2026: Chinese visitors gained Alipay payments at participating VIETQRGlobal merchants through the NAPAS connection.",
+    "Use an eligible Chinese Alipay account and participating merchant QR codes. Do not assume every personal VietQR code works."
+   ],
+   "transit": [
+    "Ho Chi Minh City Metro Line 1 accepts Mastercard directly. Cash tickets remain an alternative at stations.",
+    "April 2025: equipped Ho Chi Minh City buses added foreign Visa and Mastercard payments, including Apple Pay and Samsung Pay.",
+    "Direct bank-card payments need no local balance to reload or refund. Keep cash for other buses and transport systems."
+   ],
+   "atm": [
+    "VPBank and Vietcombank accept foreign cards. April 2026 reports show VPBank fee-free and Vietcombank around VND50,000; check the screen.",
+    "Issuer fees can apply. Choose VND, use machines inside banks or malls, and inspect the card slot."
+   ],
+   "tipping": "Tipping is optional in everyday restaurants and taxis; guides and personal service staff more commonly receive tips.",
+   "sources": [
+    "https://en.napas.com.vn/napas-expands-cross-border-qr-payment-between-vietnam-and-china-18426041513535516.htm",
+    "https://www.sacombank.com.vn/trang-chu/tin-tuc/tin-sacombank/2025/he-thong-thanh-toan-ve-tu-dong-metro-so-1-chap-nhan-them-the-napas.html",
+    "https://www.sacombank.com.vn/en/home/news/sacombank-news/2025/Sacombank-partners-with-HCMC-Department-of-Transportation-to-implement-cashless-payment-solutions-for-the-public-bus-system.html",
+    "https://www.you.co/sg/blog/vietnam-atm-withdrawal-guide/",
+    "https://daytripsvietnam.com/guides/card-vs-cash-vietnam-2026/",
+    "https://wise.com/gb/blog/cash-or-card-in-vietnam"
+   ]
+  },
+  "taiwan": {
+   "cards": [
+    "Foreign Visa and Mastercard work at hotels, malls, chains and larger restaurants. Amex is less consistent; UnionPay is common.",
+    "Night markets, traditional markets and small restaurants often require cash. Confirm foreign-card acceptance before ordering.",
+    "Do not assume a taxi accepts your card. Use cash or book through an app with your card linked."
+   ],
+   "cash": [
+    "Suggested daily reserve: TWD1,000 for street meals, snacks and local transport; carry more for market shopping.",
+    "Keep TWD100 notes and coins. Break TWD1,000 notes at larger shops before visiting markets."
+   ],
+   "qr_wallets": [
+    "April 2026: Japanese PayPay users gained payments at participating TWQR merchants, including some night-market stalls.",
+    "Complete PayPay identity checks in Japan before departure. PayPay cannot pay MRT or bus fares, even beside TWQR logos."
+   ],
+   "transit": [
+    "Buy EasyCard at MRT stations, airports or convenience stores; reload with cash at station machines or shop counters.",
+    "EasyCard cannot be added to Apple Wallet. Physical cards avoid restrictions affecting mobile versions and foreign phones.",
+    "Request balance refunds at Taipei Metro counters. The TWD100 card cost stays non-refundable; short visits usually incur TWD20 processing."
+   ],
+   "atm": [
+    "Cathay United and Taiwan Cooperative machines accept foreign cards and often have no operator fee; CTBC commonly charges TWD100–150.",
+    "Fees depend on your card and machine. Choose TWD, inspect the slot and cover your PIN."
+   ],
+   "tipping": "Tipping is not expected. Restaurants may add a 10% service charge; an extra tip is unnecessary.",
+   "sources": [
+    "https://www.trade.gov/country-commercial-guides/taiwan-business-travel",
+    "https://paypay.ne.jp/notice/20260427/f-overseaspayment/",
+    "https://www.you.co/sg/blog/taiwan-atm-withdrawal-guide/",
+    "https://www.taipeitourism.org/money-in-taipei/",
+    "https://www.taipeitourism.org/easycard-taipei/",
+    "https://www.everlastying.com/taiwan/easycard-guide"
+   ]
+  },
+  "singapore": {
+   "cards": [
+    "Foreign Visa and Mastercard work widely in shops and restaurants. Check Amex and UnionPay acceptance at individual merchants.",
+    "Many taxis accept cards, sometimes with surcharges. Confirm with the driver before departure.",
+    "Some hawker stalls accept only cash or supported QR wallets. A card terminal elsewhere does not guarantee stall acceptance."
+   ],
+   "cash": [
+    "Keep cash for hawker stalls, small purchases and taxi backup. Small notes prevent problems with change.",
+    "Suggested daily reserve: SGD30–50 for hawker meals and modest market purchases. Keep SGD2, SGD5 and SGD10 notes."
+   ],
+   "qr_wallets": [
+    "Supported Alipay+ home wallets can pay participating merchants, including some hawker stalls. February 2026: coverage included 25 overseas apps.",
+    "Use your existing eligible home wallet and check its logo on SGQR. A PayNow-only code does not guarantee tourist access."
+   ],
+   "transit": [
+    "Tap foreign Visa or Mastercard, including supported phone wallets, on buses and MRT. Foreign cards incur SGD0.60 per day.",
+    "May 2025: foreign Amex cards and supported wallets gained transit access without that administration fee. Use the same card or device throughout.",
+    "Alternatively, buy EZ-Link at station service points and reload with cash. Ticket offices refund eligible remaining value."
+   ],
+   "atm": [
+    "DBS/POSB, UOB and OCBC accept foreign cards. Operator fees vary from zero to about SGD8; issuer fees may apply.",
+    "Check the displayed fee, choose SGD and cover your PIN. Use a bank-attached machine when possible."
+   ],
+   "tipping": "Tipping is not expected; restaurants and hotels often include a service charge.",
+   "sources": [
+    "https://www.lta.gov.sg/content/ltagov/en/newsroom/2025/5/news-releases/public_transport_commuters_can_use_amex_contactless_cards.html",
+    "https://www.ptc.gov.sg/fares/ticket-payment-service-licensing/",
+    "https://www.simplygo.com.sg/terms-and-conditions-simplygo-services/",
+    "https://idocs.alipay.com/intl-website/intl-website/en/singapore-tourism-board-and-ant-international-deepen-partnership-to-accelerate-tourism-growth-through-travel-innovation",
+    "https://wise.com/gb/blog/cash-or-card-in-singapore",
+    "https://www.expatden.com/singapore/atms-in-singapore/"
+   ]
+  }
+ }
+}

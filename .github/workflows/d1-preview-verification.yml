@@ -28,6 +28,7 @@ on:
       - 'components/spots/driver-card.tsx'
       - '__tests__/lib/driver-card.test.ts'
       - '__tests__/lib/help-phrases.test.ts'
+      - '__tests__/lib/help-pay.test.ts'
       - 'app/community/**'
       - 'lib/community/**'
       - 'app/api/community/**'
@@ -538,7 +539,7 @@ jobs:
             npx vitest run __tests__/components/chat-design-tokens.test.ts __tests__/app/chat-history-pair.test.tsx __tests__/components/source-chat-viewport.test.tsx --maxWorkers=1
             npx vitest run __tests__/lib/chat-conditions.test.ts --maxWorkers=1
             npx vitest run __tests__/components/page-header-pattern.test.tsx --maxWorkers=1
-            npx vitest run __tests__/lib/help-phrases.test.ts --maxWorkers=1
+            npx vitest run __tests__/lib/help-phrases.test.ts __tests__/lib/help-pay.test.ts --maxWorkers=1
             npx vitest run __tests__/lib/driver-card.test.ts --maxWorkers=1
             npx vitest run __tests__/lib/community-qa.test.ts --maxWorkers=1
             npx vitest run __tests__/components/page-header-pattern.test.tsx __tests__/components/dashboard-design-tokens.test.ts --maxWorkers=1
