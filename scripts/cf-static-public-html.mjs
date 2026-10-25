@@ -26,6 +26,7 @@ export const STATIC_PUBLIC_PAGES = {
   "/pricing": "pricing.html",
   "/help": "help.html",
   ...Object.fromEntries(HELP_COUNTRY_SLUGS.map((slug) => [`/help/${slug}`, `help/${slug}.html`])),
+  ...Object.fromEntries(HELP_COUNTRY_SLUGS.map((slug) => [`/help/${slug}/pay`, `help/${slug}/pay.html`])),
 };
 
 export function assertStaticPrerender(route, manifest, html) {
