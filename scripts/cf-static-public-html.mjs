@@ -19,9 +19,13 @@ import { fileURLToPath } from "node:url";
 // ("/pricing" resolves to pricing.html under the default html_handling).
 // The planner (/itineraries/new) renders its live city list and revalidates every 5 minutes,
 // so it stays on the Worker with the edge HTML cache (cloudflare/opennext/edge-html-cache.ts).
+// "Help me say this" phrase cards (app/help): force-static, one page per country in lib/help/phrases.ts.
+export const HELP_COUNTRY_SLUGS = ["korea", "japan", "thailand", "vietnam", "taiwan", "singapore"];
 export const STATIC_PUBLIC_PAGES = {
   "/": "index.html",
   "/pricing": "pricing.html",
+  "/help": "help.html",
+  ...Object.fromEntries(HELP_COUNTRY_SLUGS.map((slug) => [`/help/${slug}`, `help/${slug}.html`])),
 };
 
 export function assertStaticPrerender(route, manifest, html) {
