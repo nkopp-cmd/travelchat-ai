@@ -66,9 +66,22 @@ export const apexRedirect = (request: NextRequest) => {
     return NextResponse.redirect(target, 301);
 };
 
+// Supabase exit gate 3 (shared/plans/localley-decisions.md 2026-10-24): during the final import every mutating request
+// (API, Server Actions, webhooks) gets 503 + Retry-After, so nothing is written to either store and Stripe retries.
+// Sign-in stays open: Better Auth lives in AUTH_DB, outside the move.
+export const writeFreeze = (request: NextRequest) => {
+    if (process.env.DATA_WRITE_FREEZE !== 'true' || ['GET', 'HEAD', 'OPTIONS'].includes(request.method)) return null;
+    if (/^\/api\/auth(?:\/|$)/.test(request.nextUrl.pathname)) return null;
+    return NextResponse.json({ error: "Localley is moving to a new database. Please try again in a few minutes.", code: "write_freeze" }, {
+        status: 503, headers: { 'Retry-After': '600', 'Cache-Control': 'no-store' },
+    });
+};
+
 export default async function middleware(request: NextRequest) {
     const redirect = apexRedirect(request);
     if (redirect) return redirect;
+    const frozen = writeFreeze(request);
+    if (frozen) return frozen;
     // The landing page has no Server Actions or mutation contract. Refuse before
     // Next.js can decode an unsolicited action/form body or enter its renderer.
     if (request.nextUrl.pathname === '/' && !['GET', 'HEAD'].includes(request.method)) {

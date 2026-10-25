@@ -22,6 +22,8 @@ type Binding = string | number | null;
 type Action = "select" | "insert" | "update" | "delete";
 
 export interface TableSpec {
+  /** Postgres table name (set from the TABLES key). */
+  name?: string;
   /** D1 table name. */
   table: string;
   /** Postgres column -> kind and optional D1 name (same-table renames only). */
@@ -137,7 +139,14 @@ export const TABLES: Record<string, TableSpec> = {
     userWriteCheck: (row) => row.conversation_id === undefined ? null
       : { sql: "SELECT 1 AS ok FROM conversations WHERE id = ? AND ownerId = ?", params: [row.conversation_id === null ? null : String(row.conversation_id)] },
     // Trigger update_conversation_on_message: AFTER INSERT, conversations.updated_at = now().
-    afterInsert: (row) => [{ sql: "UPDATE conversations SET updatedAt = ? WHERE id = ?", params: [nowTimestamptz(), row.conversation_id == null ? null : String(row.conversation_id)] }],
+    // The trigger changes another row, so that row's key is journaled too (gate 2 replay).
+    afterInsert: (row) => {
+      const conversation = row.conversation_id == null ? null : String(row.conversation_id);
+      return [
+        { sql: "UPDATE conversations SET updatedAt = ? WHERE id = ?", params: [nowTimestamptz(), conversation] },
+        { sql: "INSERT INTO _journal (table_name, op, pk) VALUES ('conversations', 'upsert', json_object('id', ?))", params: [conversation] },
+      ];
+    },
   },
   subscriptions: {
     table: "legacy_subscriptions",
@@ -358,6 +367,7 @@ for (const [table, generated] of Object.entries(GENERATED_SPECS)) {
 function spec(table: string): TableSpec {
   const found = TABLES[table];
   if (!found) throw new Error(`D1 facade: table ${table} is not migrated`);
+  found.name ??= table;
   return found;
 }
 
@@ -489,7 +499,7 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
   private patch: Row = {};
   private conflict: { columns: string[]; ignore: boolean } | null = null;
 
-  constructor(private db: PreviewAppDataReader, private s: TableSpec, private auth: D1Role) {}
+  constructor(private db: PreviewAppDataReader, private s: TableSpec, private auth: D1Role, private triggers = true) {}
 
   select(columns = "*", options?: { count?: "exact"; head?: boolean }) {
     if (options && Object.keys(options).some((k) => k !== "count" && k !== "head")) throw new Error("D1 facade: unsupported select option");
@@ -751,9 +761,11 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
       const written = [...names.flatMap((n) => writeColumns(this.s, n, row[n])), ...extra];
       statements.push(this.db.prepare(`INSERT INTO ${this.s.table} (${written.map(([c]) => c).join(", ")}) VALUES (${written.map(() => "?").join(", ")})${onConflict}`)
         .bind(...written.map(([, v]) => v), ...updateParams));
-      for (const after of this.s.afterInsert?.(row) ?? []) statements.push(this.db.prepare(after.sql).bind(...after.params));
+      if (this.triggers) for (const after of this.s.afterInsert?.(row) ?? []) statements.push(this.db.prepare(after.sql).bind(...after.params));
       const keyColumns = this.conflict ? this.conflict.columns : this.s.primaryKey;
-      keys.push(keyColumns.map((k) => toD1(this.s.columns[k].kind, row[k])));
+      const key = keyColumns.map((k) => toD1(this.s.columns[k].kind, row[k]));
+      if (this.triggers) statements.push(this.journal("upsert", keyColumns, key));
+      keys.push(key);
     }
     await this.db.batch(statements);
     if (this.s.afterWrite) await this.s.afterWrite(this.db, await this.primaryKeysFor(keys));
@@ -778,6 +790,12 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
       if (row) out.push(this.s.primaryKey.map((k) => row[k]));
     }
     return out;
+  }
+
+  /** Gate 2 write journal: one row per changed key, in the same batch as the data change. */
+  private journal(op: "upsert" | "delete", columns: string[], values: Binding[]): PreviewAppDataStatement {
+    return this.db.prepare("INSERT INTO _journal (table_name, op, pk) VALUES (?, ?, ?)")
+      .bind(this.s.name ?? this.s.table, op, JSON.stringify(Object.fromEntries(columns.map((c, i) => [c, values[i]]))));
   }
 
   private async passesWriteCheck(row: Row): Promise<boolean> {
@@ -826,8 +844,11 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
       const overrides = this.s.updateSql?.(patch) ?? {};
       const plain = names.filter((n) => !(n in overrides)).flatMap((n) => writeColumns(this.s, n, patch[n]));
       const sets = [...plain.map(([c]) => `${c} = ?`), ...Object.entries(overrides).map(([n, o]) => `${this.s.columns[n].d1 ?? n} = ${o.sql}`)];
-      await this.db.prepare(`UPDATE ${this.s.table} SET ${sets.join(", ")} WHERE ${match.sql}`)
-        .bind(...plain.map(([, v]) => v), ...Object.values(overrides).flatMap((o) => o.params), ...match.params).run();
+      await this.db.batch([
+        this.db.prepare(`UPDATE ${this.s.table} SET ${sets.join(", ")} WHERE ${match.sql}`)
+          .bind(...plain.map(([, v]) => v), ...Object.values(overrides).flatMap((o) => o.params), ...match.params),
+        ...(this.triggers ? keys.map((key) => this.journal("upsert", this.s.primaryKey, key)) : []),
+      ]);
       if (this.s.afterWrite) await this.s.afterWrite(this.db, keys);
     }
     return this.returnKeys(keys);
@@ -839,7 +860,10 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
     const before = this.selected && keys.length ? await this.rowsFor(keys) : [];
     if (keys.length) {
       const match = this.keyMatch(keys);
-      await this.db.prepare(`DELETE FROM ${this.s.table} WHERE ${match.sql}`).bind(...match.params).run();
+      await this.db.batch([
+        this.db.prepare(`DELETE FROM ${this.s.table} WHERE ${match.sql}`).bind(...match.params),
+        ...(this.triggers ? keys.map((key) => this.journal("delete", this.s.primaryKey, key)) : []),
+      ]);
     }
     return this.shape(before, null);
   }
@@ -859,7 +883,14 @@ class D1Query<T = Row[]> implements PromiseLike<PostgrestResult<T>> {
 }
 
 /** Supabase-client-shaped entry point: `d1Client(db, auth).from("itineraries").select(...)`. */
-export function d1Client(db: PreviewAppDataReader, auth: D1Role) {
+/**
+ * Supabase-client-shaped entry point: `d1Client(db, auth).from("itineraries").select(...)`.
+ * `{ triggers: false }` is for the import only: a copy of source rows must not run Postgres trigger equivalents
+ * (e.g. a loaded message would move its conversation's updated_at) and is not journaled (a rollback replays app
+ * writes after the cutover, not the import). Derived columns (afterWrite) still apply.
+ */
+export function d1Client(db: PreviewAppDataReader, auth: D1Role, options: { triggers?: boolean } = {}) {
   if (auth.role === "user" && (typeof auth.userId !== "string" || !auth.userId)) throw new Error("D1 facade: user role needs a user id");
-  return { from: (table: string) => new D1Query(db, spec(table), auth) };
+  if (options.triggers === false && auth.role !== "service") throw new Error("D1 facade: triggers can only be skipped by the service role");
+  return { from: (table: string) => new D1Query(db, spec(table), auth, options.triggers !== false) };
 }

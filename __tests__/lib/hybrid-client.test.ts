@@ -34,3 +34,21 @@ describe("withMigratedTables", () => {
     expect(() => withMigratedTables(client, { role: "user", userId: "" }).from("itineraries")).toThrow("user id");
   });
 });
+
+describe("withMigratedTables write freeze", () => {
+  it("on Supabase: writes and rpc resolve to the frozen error, reads pass through", async () => {
+    vi.stubEnv("DATA_BACKEND", "");
+    vi.stubEnv("DATA_WRITE_FREEZE", "true");
+    const select = vi.fn(() => "read");
+    const insert = vi.fn();
+    const client = { from: () => ({ select, insert }), rpc: vi.fn() };
+    const frozen = withMigratedTables(client, { role: "service" });
+    const write = await (frozen.from("itineraries").insert as unknown as () => { select: () => { single: () => PromiseLike<{ error: { code: string } }> } })().select().single();
+    expect(write.error.code).toBe("25006");
+    expect(insert).not.toHaveBeenCalled();
+    expect(frozen.from("itineraries").select()).toBe("read");
+    expect((await (frozen.rpc as unknown as () => PromiseLike<{ error: { code: string } }>)()).error.code).toBe("25006");
+    expect(client.rpc).not.toHaveBeenCalled();
+  });
+});
+

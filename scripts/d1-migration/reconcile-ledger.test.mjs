@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
-import { mkdtempSync, mkdirSync, cpSync, appendFileSync, unlinkSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, cpSync, appendFileSync, unlinkSync, rmSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { reconcileLedger, expectedSchema, CANDIDATE } from './reconcile-ledger.mjs';
 const sha = 'a'.repeat(64);
@@ -52,7 +52,7 @@ test('guards a complete large schema as a set and refuses later drift',()=>{
 // execution of the copied 0001-0013 base before the complete canonical chain.
 test('builds the complete canonical schema once and retains the latest capacity/storage', () => {
  const expected = expectedSchema();
- assert.equal(expected.migrations.length, 39);
+ assert.equal(expected.migrations.length, readdirSync('migrations/app-preview').filter(f => f.endsWith('.sql')).length);
  assert(expected.schema.some(r => r.type === 'table' && r.name === 'geo_destinations'));
  assert(expected.schema.some(r => r.type === 'table' && r.name === 'user'));
  assert(expected.schema.some(r => r.type === 'table' && r.name === 'preview_push_subscriptions'));

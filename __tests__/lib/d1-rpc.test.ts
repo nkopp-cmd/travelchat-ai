@@ -114,3 +114,12 @@ describe("D1 social/engagement functions and generated-table triggers", () => {
     expect(row.updated_at).toMatch(/\+00:00$/);
   });
 });
+
+describe("D1 functions write the gate 2 journal", () => {
+  it("usage reservations journal their conflict key", async () => {
+    await d1Rpc(db as never, "check_and_increment_usage_weighted", { p_clerk_user_id: "u9", p_usage_type: "chat_messages", p_period_type: "daily", p_limit: 5, p_amount: 1 });
+    const row = db.sqlite.prepare("SELECT table_name, pk FROM _journal").get() as { table_name: string; pk: string };
+    expect(row.table_name).toBe("usage_tracking");
+    expect(JSON.parse(row.pk)).toMatchObject({ clerk_user_id: "u9", usage_type: "chat_messages", period_type: "daily" });
+  });
+});

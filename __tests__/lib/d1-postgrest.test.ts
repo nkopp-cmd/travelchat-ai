@@ -316,3 +316,27 @@ describe("D1 PostgREST facade: spots (migration 0039, write hook)", () => {
     expect((await as(A).from("spots").insert({ name: { en: "x" }, description: { en: "x" }, address: { en: "x" }, category: "x", location: "POINT(1 1)" })).error?.code).toBe("42501");
   });
 });
+
+describe("D1 PostgREST facade: gate 2 write journal", () => {
+  const entries = () => db.sqlite.prepare("SELECT table_name, op, pk FROM _journal ORDER BY seq").all().map((r) => ({ ...r }));
+
+  it("journals insert, update, upsert and delete keys in order", async () => {
+    await as(A).from("conversations").insert({ id: "10000000-0000-4000-8000-000000000077", clerk_user_id: A, title: "x" });
+    await as(A).from("itineraries").update({ title: "y" }).eq("id", trip(1));
+    await service().from("subscriptions").upsert({ clerk_user_id: B, tier: "pro", status: "active" }, { onConflict: "clerk_user_id" });
+    await as(A).from("itineraries").delete().eq("id", trip(2));
+    expect(entries()).toEqual([
+      { table_name: "conversations", op: "upsert", pk: '{"id":"10000000-0000-4000-8000-000000000077"}' },
+      { table_name: "itineraries", op: "upsert", pk: `{"id":"${trip(1)}"}` },
+      { table_name: "subscriptions", op: "upsert", pk: `{"clerk_user_id":"${B}"}` },
+      { table_name: "itineraries", op: "delete", pk: `{"id":"${trip(2)}"}` },
+    ]);
+  });
+
+  it("writes that change nothing (other owner) journal nothing; the import mode never journals", async () => {
+    await as(A).from("itineraries").update({ title: "z" }).eq("id", trip(3));
+    await d1Client(db, { role: "service" }, { triggers: false }).from("itineraries").insert({ clerk_user_id: A, days: 1, activities: [] });
+    expect(entries()).toEqual([]);
+    expect(() => d1Client(db, { role: "anon" }, { triggers: false })).toThrow("service role");
+  });
+});
