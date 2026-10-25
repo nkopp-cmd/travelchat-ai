@@ -33,6 +33,7 @@ on:
       - '__tests__/lib/help-pay.test.ts'
       - 'app/community/**'
       - 'lib/community/**'
+      - 'scripts/community-moderation*.mjs'
       - 'app/api/community/**'
       - 'app/spots/*/tips/**'
       - 'components/community/**'
@@ -503,6 +504,8 @@ jobs:
         run: node --test scripts/check-route-review.test.mjs
       - name: Check public planner sample projection
         run: node --test scripts/public-catalog-preview.checks.mjs
+      - name: Community moderation job checks
+        run: node --test scripts/community-moderation.checks.mjs
 
       - name: Verify single-table count preflight
         run: node --test scripts/d1-migration/count-preflight.checks.mjs

@@ -14,6 +14,12 @@ export function timeAgo(iso: string, now = Date.now()): string {
   return days < 30 ? `${days} d ago` : new Date(iso).toISOString().slice(0, 10);
 }
 
+/** Admin-only note when the AI pre-filter hid a post (scripts/community-moderation.mjs). */
+export function AiNote({ verdict, reason }: { verdict?: string | null; reason?: string | null }) {
+  if (verdict !== "hide") return null;
+  return <span className="text-sm text-muted-foreground">AI hid this{reason ? `: ${reason}` : ""}</span>;
+}
+
 export function VoteCount({ score, voted, className }: { score: number; voted: boolean; className?: string }) {
   return (
     <span className={cn("inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-xl px-2 text-sm font-semibold",
