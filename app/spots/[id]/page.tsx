@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { DriverCardLink } from "@/components/spots/driver-card";
+import { DriverCardDialog, DriverCardLink } from "@/components/spots/driver-card";
 import { SpotEventLink } from "@/components/spots/spot-event-link";
 import { headers } from "next/headers";
 import { LocalleyScale } from "@/types";
@@ -1166,7 +1166,7 @@ export default async function SpotPage({
           aria-label="Spot planning actions"
         >
           <GetDirectionsButton spot={spot} compact />
-          <DriverCardLink spotId={spot.id} name={spot.name} nameField={spot.nameField} address={spot.location.address} compact />
+          <DriverCardLink spotId={spot.id} compact />
           <NavigationTargetPanel
             spot={spot}
             fallbackQuery={exactMapQuery}
@@ -1518,7 +1518,7 @@ export default async function SpotPage({
 
               <div className="hidden lg:block">
                 <GetDirectionsButton spot={spot} />
-                <DriverCardLink spotId={spot.id} name={spot.name} nameField={spot.nameField} address={spot.location.address} />
+                <DriverCardLink spotId={spot.id} />
               </div>
 
               <div className="overflow-hidden rounded-lg bg-raised">
@@ -1635,6 +1635,7 @@ export default async function SpotPage({
           </section>
         )}
       </div>
+      <DriverCardDialog spotId={spot.id} name={spot.name} nameField={spot.nameField} address={spot.location.address} />
     </VenuePhotoProvider>
   );
 }
