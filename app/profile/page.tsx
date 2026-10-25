@@ -48,8 +48,17 @@ async function getUserProgress() {
         .toISOString()
         .split("T")[0];
 
-    // Round 1 (parallel): everything keyed by the signed-in user id. Sequential reads to the
-    // database region made this page ~2 s TTFB; two parallel rounds keep it near two round trips.
+    // Everything keyed by the signed-in user id starts at once. Progress and completed challenges need the internal
+    // user id, so they chain on the users read instead of waiting for the whole first round (one fewer round trip).
+    // public.challenges has `name` (no `title`); user_challenges is keyed by (user_id, challenge_id).
+    const userRead = supabase.from("users").select("id, xp, level").eq("clerk_id", userId).single();
+    const progressReads = Promise.resolve(userRead).then(async ({ data }) => {
+        if (!data?.id) return [{ data: null }, { data: null }] as const;
+        return Promise.all([
+            supabase.from("user_progress").select("*").eq("user_id", data.id).single(),
+            completedChallengesWithDetails(supabase, data.id),
+        ]);
+    });
     const [
         { data: userData },
         { data: itineraries },
@@ -57,8 +66,9 @@ async function getUserProgress() {
         { data: subscription },
         { data: monthlyUsage },
         { data: dailyUsage },
+        [{ data: progress }, { data: challengesData }],
     ] = await Promise.all([
-        supabase.from("users").select("id, xp, level").eq("clerk_id", userId).single(),
+        userRead,
         supabase
             .from("itineraries")
             .select("id, title, city, days, created_at")
@@ -80,16 +90,9 @@ async function getUserProgress() {
             .eq("clerk_user_id", userId)
             .eq("period_type", "daily")
             .eq("period_start", today),
+        progressReads,
     ]);
 
-    // Round 2 (parallel): progress and completed challenges use the internal user id.
-    // public.challenges has `name` (no `title`); user_challenges is keyed by (user_id, challenge_id).
-    const [{ data: progress }, { data: challengesData }] = userData?.id
-        ? await Promise.all([
-            supabase.from("user_progress").select("*").eq("user_id", userData.id).single(),
-            completedChallengesWithDetails(supabase, userData.id),
-        ])
-        : [{ data: null }, { data: null }];
     const completedChallenges: Array<{ challenge_id: string; challenges: { name: string; description: string; xp_reward: number } | null }> =
         challengesData || [];
 
