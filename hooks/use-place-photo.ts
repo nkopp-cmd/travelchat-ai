@@ -31,6 +31,50 @@ const EMPTY_RESULT: PlacePhotoResult = {
 // Client-side cache to avoid re-fetches within the same session
 const photoCache = new Map<string, PlacePhotoResult>();
 
+type PlacePhotoData = Partial<Omit<PlacePhotoResult, "isLoading">> | null;
+type Pending = { query: string; city: string; waiters: ((data: PlacePhotoData) => void)[] };
+
+// Every card of a screen asks in the same commit: collect the lookups and send ONE request
+// (POST /api/places/photos, max 12 per request) instead of one request per card.
+const BATCH_MAX = 12;
+let pending = new Map<string, Pending>();
+let flushQueued = false;
+
+async function sendBatch(batch: Pending[]) {
+    let results: PlacePhotoData[] = [];
+    try {
+        const res = await fetch("/api/places/photos", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ items: batch.map(({ query, city }) => ({ query, city })) }),
+        });
+        const body = res.ok ? await res.json() : null;
+        results = Array.isArray(body?.results) ? body.results : [];
+    } catch {
+        results = [];
+    }
+    batch.forEach((entry, i) => entry.waiters.forEach((resolve) => resolve(results[i] ?? null)));
+}
+
+function flush() {
+    flushQueued = false;
+    const entries = [...pending.values()];
+    pending = new Map();
+    for (let i = 0; i < entries.length; i += BATCH_MAX) void sendBatch(entries.slice(i, i + BATCH_MAX));
+}
+
+function requestPlacePhoto(key: string, query: string, city: string): Promise<PlacePhotoData> {
+    return new Promise((resolve) => {
+        const entry = pending.get(key) ?? { query, city, waiters: [] };
+        entry.waiters.push(resolve);
+        pending.set(key, entry);
+        if (!flushQueued) {
+            flushQueued = true;
+            queueMicrotask(flush);
+        }
+    });
+}
+
 /**
  * Hook to fetch place photo + metadata from Google Places API.
  * Fetches when an activity has no stored image so itinerary stops can still
@@ -64,8 +108,7 @@ export function usePlacePhoto(
         fetchedKeyRef.current = cacheKey;
         let mounted = true;
 
-        fetch(`/api/places/photos?query=${encodeURIComponent(activityName)}&city=${encodeURIComponent(city)}`)
-            .then((res) => (res.ok ? res.json() : null))
+        requestPlacePhoto(cacheKey, activityName, city)
             .then((data) => {
                 if (!mounted) return;
                 const newResult: PlacePhotoResult = {

@@ -3,7 +3,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({ tier: "free" }));
 vi.mock("@/hooks/use-subscription", () => ({ useSubscription: () => ({ tier: mocks.tier }) }));
 import { usePlacePhoto } from "@/hooks/use-place-photo";
-beforeEach(() => { mocks.tier = "free"; vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({ photoUrl: "https://localley.io/venue.jpg", formattedAddress: "Exact venue address" }))); });
+const venue = { photoUrl: "https://localley.io/venue.jpg", formattedAddress: "Exact venue address" };
+const batchReply = async (_url: string, init?: RequestInit) => Response.json({ results: JSON.parse(String(init?.body)).items.map(() => venue) });
+beforeEach(() => { mocks.tier = "free"; vi.stubGlobal("fetch", vi.fn(batchReply)); });
 afterEach(() => vi.unstubAllGlobals());
 describe("place detail entitlement and venue state", () => {
  it("does not send requests that the server denies to Free users", () => {
@@ -41,11 +43,27 @@ describe("place detail entitlement and venue state", () => {
  it("restarts a cancelled lookup when a paid viewer returns", async () => {
  mocks.tier = "pro"; vi.mocked(fetch).mockImplementationOnce(() => new Promise(() => {}));
  const { result, rerender } = renderHook(({ tier }) => { mocks.tier = tier; return usePlacePhoto("Cancelled lookup venue", "Seoul"); }, { initialProps: { tier: "pro" } });
+ await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1)); // the first batch is sent (and hangs)
  rerender({ tier: "free" }); rerender({ tier: "pro" }); await waitFor(() => expect(result.current.photoUrl).toBeTruthy()); expect(fetch).toHaveBeenCalledTimes(2);
  });
  it("does not poison a later lookup with a failed HTTP response", async () => {
  mocks.tier = "pro"; vi.mocked(fetch).mockResolvedValueOnce(new Response("Forbidden", { status: 403 }));
  const first = renderHook(() => usePlacePhoto("Transient refusal venue", "Seoul")); await waitFor(() => expect(first.result.current.isLoading).toBe(false)); first.unmount();
  const second = renderHook(() => usePlacePhoto("Transient refusal venue", "Seoul")); await waitFor(() => expect(second.result.current.photoUrl).toBeTruthy()); expect(fetch).toHaveBeenCalledTimes(2);
+ });
+ it("sends the lookups of one screen as ONE batched request, results in order", async () => {
+ mocks.tier = "premium";
+ const { result } = renderHook(() => [usePlacePhoto("Batch venue A", "Seoul"), usePlacePhoto("Batch venue B", "Seoul"), usePlacePhoto("Batch venue A", "Seoul")]);
+ await waitFor(() => expect(result.current.every((r) => r.photoUrl)).toBe(true));
+ expect(fetch).toHaveBeenCalledTimes(1);
+ const [url, init] = vi.mocked(fetch).mock.calls[0] as [string, RequestInit];
+ expect(url).toBe("/api/places/photos"); expect(init.method).toBe("POST");
+ expect(JSON.parse(String(init.body))).toEqual({ items: [{ query: "Batch venue A", city: "Seoul" }, { query: "Batch venue B", city: "Seoul" }] });
+ });
+ it("does not cache a failed lookup inside a batch (null result)", async () => {
+ mocks.tier = "pro"; vi.mocked(fetch).mockResolvedValueOnce(Response.json({ results: [null] }));
+ const first = renderHook(() => usePlacePhoto("Null result venue", "Seoul")); await waitFor(() => expect(first.result.current.isLoading).toBe(false));
+ expect(first.result.current.photoUrl).toBeNull(); first.unmount();
+ const second = renderHook(() => usePlacePhoto("Null result venue", "Seoul")); await waitFor(() => expect(second.result.current.photoUrl).toBeTruthy()); expect(fetch).toHaveBeenCalledTimes(2);
  });
 });

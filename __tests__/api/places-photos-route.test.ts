@@ -6,7 +6,7 @@ const mocks = vi.hoisted(() => ({ auth: vi.fn(), tier: vi.fn() }));
 vi.mock("@/lib/auth/server", () => ({ auth: mocks.auth }));
 vi.mock("@/lib/usage-tracking", () => ({ getUserTier: mocks.tier }));
 
-import { GET } from "@/app/api/places/photos/route";
+import { GET, POST } from "@/app/api/places/photos/route";
 
 const call = (query = "Lucyd Brunch", city = "Seoul") =>
   GET(new NextRequest(`https://www.localley.io/api/places/photos?query=${encodeURIComponent(query)}&city=${city}`));
@@ -54,5 +54,39 @@ describe("GET /api/places/photos (Places API New, cheapest tiers)", () => {
       ? Response.json({ places: [{ id: "ChIJabc" }] })
       : Response.json({ id: "ChIJabc", photos: [{ name: "places/OTHER/photos/p1" }] }));
     expect((await (await call()).json()).photoUrl).toBeNull();
+  });
+
+  it("POST resolves a whole screen in one request: one auth + tier check, results in order, a failed lookup is null", async () => {
+    vi.mocked(fetch).mockImplementation(async (url: string, init?: RequestInit) => {
+      if (String(url).includes(":searchText")) {
+        const q = JSON.parse(String(init?.body)).textQuery as string;
+        if (q.startsWith("Broken")) return new Response("x", { status: 500 });
+        return Response.json(q.startsWith("Nowhere") ? {} : { places: [{ id: "ChIJabc" }] });
+      }
+      return Response.json({ id: "ChIJabc", photos: [{ name: "places/ChIJabc/photos/p1" }], formattedAddress: "1 Seoul-ro, Seoul" });
+    });
+    const post = (items: unknown) => POST(new NextRequest("https://www.localley.io/api/places/photos", { method: "POST", body: JSON.stringify({ items }) }));
+    mocks.auth.mockClear(); mocks.tier.mockClear();
+    const response = await post([{ query: "Lucyd Brunch", city: "Seoul" }, { query: "Nowhere", city: "Seoul" }, { query: "Broken", city: "Seoul" }]);
+    expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toBe("private, no-store");
+    const { results } = await response.json();
+    expect(results).toHaveLength(3);
+    expect(results[0]).toMatchObject({ placeId: "ChIJabc", formattedAddress: "1 Seoul-ro, Seoul" });
+    expect(results[1]).toMatchObject({ placeId: null, photoUrl: null });
+    expect(results[2]).toBeNull();
+    expect(mocks.auth).toHaveBeenCalledTimes(1);
+    expect(mocks.tier).toHaveBeenCalledTimes(1);
+    expect((await post([])).status).toBe(400);
+    expect((await post(Array.from({ length: 13 }, () => ({ query: "x" })))).status).toBe(400);
+  });
+
+  it("POST refuses free or signed-out users before any Google call", async () => {
+    const post = () => POST(new NextRequest("https://www.localley.io/api/places/photos", { method: "POST", body: JSON.stringify({ items: [{ query: "x" }] }) }));
+    mocks.tier.mockResolvedValue("free");
+    expect((await post()).status).toBe(403);
+    mocks.auth.mockResolvedValue({ userId: null });
+    expect((await post()).status).toBe(401);
+    expect(fetch).not.toHaveBeenCalled();
   });
 });
