@@ -16,6 +16,7 @@ const PUBLIC_ROUTES = [
     '/api/connect/webhook',  // Stripe Connect webhook — must be public (no cookies on Stripe POST)
     '/guide/apply',  // Allow browsing the guide application page
     '/pricing(.*)',  // Allow anonymous users to see pricing
+    '/help(.*)',  // Static phrase cards for travellers (no account data)
     '/itineraries/preview', // Browser-only generated itinerary; no account data
     '/itineraries/new',  // Allow anonymous itinerary creation (1 free)
     '/api/itineraries/generate',  // Allow anonymous generation API

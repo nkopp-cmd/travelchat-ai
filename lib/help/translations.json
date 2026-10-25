@@ -1,0 +1,662 @@
+{
+ "hello": {
+  "ko": {
+   "text": "안녕하세요.",
+   "roman": "Annyeonghaseyo."
+  },
+  "ja": {
+   "text": "こんにちは。",
+   "roman": "Konnichiwa."
+  },
+  "th": {
+   "text": "สวัสดี",
+   "roman": "Sawatdi."
+  },
+  "vi": {
+   "text": "Xin chào.",
+   "roman": "Xin chao."
+  },
+  "zh-TW": {
+   "text": "您好。",
+   "roman": "Nín hǎo."
+  }
+ },
+ "thank_you": {
+  "ko": {
+   "text": "감사합니다.",
+   "roman": "Gamsahamnida."
+  },
+  "ja": {
+   "text": "ありがとうございます。",
+   "roman": "Arigatō gozaimasu."
+  },
+  "th": {
+   "text": "ขอบคุณ",
+   "roman": "Khop khun."
+  },
+  "vi": {
+   "text": "Cảm ơn.",
+   "roman": "Cam on."
+  },
+  "zh-TW": {
+   "text": "謝謝您。",
+   "roman": "Xièxie nín."
+  }
+ },
+ "excuse_me": {
+  "ko": {
+   "text": "저기요.",
+   "roman": "Jeogiyo."
+  },
+  "ja": {
+   "text": "すみません。",
+   "roman": "Sumimasen."
+  },
+  "th": {
+   "text": "ขอโทษ",
+   "roman": "Kho thot."
+  },
+  "vi": {
+   "text": "Xin lỗi.",
+   "roman": "Xin loi."
+  },
+  "zh-TW": {
+   "text": "不好意思。",
+   "roman": "Bù hǎo yìsi."
+  }
+ },
+ "no_language": {
+  "ko": {
+   "text": "죄송하지만 한국어를 못해요. 이 휴대폰으로 보여 주실 수 있나요?",
+   "roman": "Joesonghajiman hangugeoreul motaeyo. I hyudaeponeuro boyeo jusil su innayo?"
+  },
+  "ja": {
+   "text": "すみません、日本語が話せません。このスマホで見せてもらえますか？",
+   "roman": "Sumimasen, Nihongo ga hanasemasen. Kono sumaho de misete moraemasu ka?"
+  },
+  "th": {
+   "text": "ขอโทษ พูดภาษาไทยไม่ได้ ช่วยแสดงให้ดูในโทรศัพท์เครื่องนี้ได้ไหม",
+   "roman": "Kho thot, phut phasa Thai mai dai. Chuai sadaeng hai du nai thorasap khrueang ni dai mai?"
+  },
+  "vi": {
+   "text": "Xin lỗi, tôi không nói được tiếng Việt. Bạn có thể chỉ cho tôi trên điện thoại này được không?",
+   "roman": "Xin loi, toi khong noi duoc tieng Viet. Ban co the chi cho toi tren dien thoai nay duoc khong?"
+  },
+  "zh-TW": {
+   "text": "不好意思，我不會說中文。可以用這支手機指給我看嗎？",
+   "roman": "Bù hǎo yìsi, wǒ bú huì shuō Zhōngwén. Kěyǐ yòng zhè zhī shǒujī zhǐ gěi wǒ kàn ma?"
+  }
+ },
+ "write_down": {
+  "ko": {
+   "text": "적어 주실 수 있나요?",
+   "roman": "Jeogeo jusil su innayo?"
+  },
+  "ja": {
+   "text": "書いてもらえますか？",
+   "roman": "Kaite moraemasu ka?"
+  },
+  "th": {
+   "text": "ช่วยเขียนให้หน่อยได้ไหม",
+   "roman": "Chuai khian hai noi dai mai?"
+  },
+  "vi": {
+   "text": "Bạn viết ra giúp tôi được không?",
+   "roman": "Ban viet ra giup toi duoc khong?"
+  },
+  "zh-TW": {
+   "text": "可以麻煩您寫下來嗎？",
+   "roman": "Kěyǐ máfan nín xiě xiàlái ma?"
+  }
+ },
+ "where_toilet": {
+  "ko": {
+   "text": "화장실이 어디예요?",
+   "roman": "Hwajangsiri eodiyeyo?"
+  },
+  "ja": {
+   "text": "トイレはどこですか？",
+   "roman": "Toire wa doko desu ka?"
+  },
+  "th": {
+   "text": "ห้องน้ำอยู่ที่ไหน",
+   "roman": "Hong nam yu thi nai?"
+  },
+  "vi": {
+   "text": "Cho tôi hỏi nhà vệ sinh ở đâu?",
+   "roman": "Cho toi hoi nha ve sinh o dau?"
+  },
+  "zh-TW": {
+   "text": "請問洗手間在哪裡？",
+   "roman": "Qǐngwèn xǐshǒujiān zài nǎlǐ?"
+  }
+ },
+ "table_for": {
+  "ko": {
+   "text": "{n}명 자리 부탁드려요.",
+   "roman": "{n}myeong jari butakdeuryeoyo."
+  },
+  "ja": {
+   "text": "{n}人です。席をお願いします。",
+   "roman": "{n}nin desu. Seki o onegai shimasu."
+  },
+  "th": {
+   "text": "ขอโต๊ะสำหรับ {n} คน",
+   "roman": "Kho to samrap {n} khon."
+  },
+  "vi": {
+   "text": "Cho tôi xin bàn cho {n} người.",
+   "roman": "Cho toi xin ban cho {n} nguoi."
+  },
+  "zh-TW": {
+   "text": "我們有 {n} 位，麻煩安排座位。",
+   "roman": "Wǒmen yǒu {n} wèi, máfan ānpái zuòwèi."
+  }
+ },
+ "one_person_ok": {
+  "ko": {
+   "text": "혼자 왔는데 1인분만 주문해도 되나요?",
+   "roman": "Honja wanneunde irinbunman jumunhaedo doenayo?"
+  },
+  "ja": {
+   "text": "一人ですが、一人前だけ注文しても大丈夫ですか？",
+   "roman": "Hitori desu ga, ichininmae dake chūmon shite mo daijōbu desu ka?"
+  },
+  "th": {
+   "text": "มาคนเดียว สั่งแค่หนึ่งที่ได้ไหม",
+   "roman": "Ma khon diao, sang khae nueng thi dai mai?"
+  },
+  "vi": {
+   "text": "Tôi đi một mình, gọi một phần ăn có được không?",
+   "roman": "Toi di mot minh, goi mot phan an co duoc khong?"
+  },
+  "zh-TW": {
+   "text": "我一個人，可以只點一份嗎？",
+   "roman": "Wǒ yí ge rén, kěyǐ zhǐ diǎn yí fèn ma?"
+  }
+ },
+ "recommend": {
+  "ko": {
+   "text": "뭐가 맛있어요? 추천해 주세요.",
+   "roman": "Mwoga masisseoyo? Chucheonhae juseyo."
+  },
+  "ja": {
+   "text": "おすすめは何ですか？",
+   "roman": "Osusume wa nan desu ka?"
+  },
+  "th": {
+   "text": "มีอะไรแนะนำบ้าง",
+   "roman": "Mi arai naenam bang?"
+  },
+  "vi": {
+   "text": "Bạn có thể giới thiệu món nào ngon không?",
+   "roman": "Ban co the gioi thieu mon nao ngon khong?"
+  },
+  "zh-TW": {
+   "text": "請問有什麼推薦的？",
+   "roman": "Qǐngwèn yǒu shénme tuījiàn de?"
+  }
+ },
+ "no_spicy": {
+  "ko": {
+   "text": "맵지 않게 해 주세요.",
+   "roman": "Maepji anke hae juseyo."
+  },
+  "ja": {
+   "text": "辛くしないでください。",
+   "roman": "Karaku shinaide kudasai."
+  },
+  "th": {
+   "text": "ขอไม่เผ็ด",
+   "roman": "Kho mai phet."
+  },
+  "vi": {
+   "text": "Làm không cay giúp tôi nhé.",
+   "roman": "Lam khong cay giup toi nhe."
+  },
+  "zh-TW": {
+   "text": "麻煩不要辣。",
+   "roman": "Máfan bú yào là."
+  }
+ },
+ "allergy_nuts": {
+  "ko": {
+   "text": "땅콩을 포함한 견과류에 심한 알레르기가 있어요. 음식에 견과류나 견과류 기름이 들어가지 않도록 꼭 확인해 주세요.",
+   "roman": "Ttangkong-eul pohamhan gyeongwaryue simhan allereugiga isseoyo. Eumsige gyeongwaryuna gyeongwaryu gireumi deureogaji antorok kkok hwaginhae juseyo."
+  },
+  "ja": {
+   "text": "ピーナッツを含むナッツ類に重いアレルギーがあります。料理にナッツ類やナッツ由来の油が入らないよう、必ず確認してください。",
+   "roman": "Pīnattsu o fukumu nattsurui ni omoi arerugī ga arimasu. Ryōri ni nattsurui ya nattsu yurai no abura ga hairanai yō, kanarazu kakunin shite kudasai."
+  },
+  "th": {
+   "text": "มีอาการแพ้ถั่วและถั่วเปลือกแข็งอย่างรุนแรง รวมถึงถั่วลิสง กรุณาตรวจสอบให้แน่ใจว่าอาหารไม่มีถั่ว ถั่วเปลือกแข็ง หรือน้ำมันจากถั่วเหล่านี้",
+   "roman": "Mi akan phae thua lae thua plueak khaeng yang runraeng, ruam thueng thua lisong. Karuna truat sop hai nae chai wa ahan mai mi thua, thua plueak khaeng, rue namman chak thua lao ni."
+  },
+  "vi": {
+   "text": "Tôi bị dị ứng nặng với các loại hạt, kể cả đậu phộng. Vui lòng kiểm tra kỹ để đảm bảo thức ăn của tôi không có các loại hạt này hoặc dầu làm từ chúng.",
+   "roman": "Toi bi di ung nang voi cac loai hat, ke ca dau phong. Vui long kiem tra ky de dam bao thuc an cua toi khong co cac loai hat nay hoac dau lam tu chung."
+  },
+  "zh-TW": {
+   "text": "我對堅果（包括花生）有嚴重過敏。請務必確認我的餐點不含堅果、花生，以及用這些原料製成的油。",
+   "roman": "Wǒ duì jiānguǒ (bāokuò huāshēng) yǒu yánzhòng guòmǐn. Qǐng wùbì quèrèn wǒ de cāndiǎn bù hán jiānguǒ, huāshēng, yǐjí yòng zhèxiē yuánliào zhìchéng de yóu."
+  }
+ },
+ "allergy_seafood": {
+  "ko": {
+   "text": "생선, 새우, 게, 조개류를 포함한 모든 해산물에 알레르기가 있어요. 액젓과 해산물 육수도 먹을 수 없어요.",
+   "roman": "Saengseon, saeu, ge, jogaeryureul pohamhan modeun haesan mure allereugiga isseoyo. Aekjeotgwa haesanmul yuksudo meogeul su eopseoyo."
+  },
+  "ja": {
+   "text": "魚、エビ、カニ、貝類など、魚介類全般にアレルギーがあります。魚醤や魚介だしも食べられません。",
+   "roman": "Sakana, ebi, kani, kairui nado, gyokairui zenpan ni arerugī ga arimasu. Gyoshō ya gyokai dashi mo taberaremasen."
+  },
+  "th": {
+   "text": "แพ้อาหารทะเลทุกชนิด รวมถึงปลา กุ้ง ปู และหอย กินน้ำปลาและน้ำซุปที่ทำจากอาหารทะเลไม่ได้ด้วย",
+   "roman": "Phae ahan thale thuk chanit, ruam thueng pla, kung, pu, lae hoi. Kin nam pla lae nam sup thi tham chak ahan thale mai dai duai."
+  },
+  "vi": {
+   "text": "Tôi bị dị ứng với cá và mọi loại hải sản, bao gồm tôm, cua, sò, ốc. Tôi cũng không dùng được nước mắm hoặc nước dùng nấu từ cá hay hải sản.",
+   "roman": "Toi bi di ung voi ca va moi loai hai san, bao gom tom, cua, so, oc. Toi cung khong dung duoc nuoc mam hoac nuoc dung nau tu ca hay hai san."
+  },
+  "zh-TW": {
+   "text": "我對所有海鮮過敏，包括魚、蝦、蟹和貝類。魚露和海鮮高湯也不能吃。",
+   "roman": "Wǒ duì suǒyǒu hǎixiān guòmǐn, bāokuò yú, xiā, xiè hé bèilèi. Yúlù hé hǎixiān gāotāng yě bù néng chī."
+  }
+ },
+ "vegetarian": {
+  "ko": {
+   "text": "저는 채식주의자예요. 고기와 생선은 빼 주세요. 고기나 생선으로 만든 육수도 넣지 말아 주세요.",
+   "roman": "Jeoneun chaesikjuuijayeyo. Gogiwa saengseoneun ppae juseyo. Gogina saengseoneuro mandeun yuksudo neochi mara juseyo."
+  },
+  "ja": {
+   "text": "ベジタリアンです。肉と魚は入れないでください。肉や魚のだしも使わないでください。",
+   "roman": "Bejitarian desu. Niku to sakana wa irenaide kudasai. Niku ya sakana no dashi mo tsukawanaide kudasai."
+  },
+  "th": {
+   "text": "กินมังสวิรัติ ขอไม่ใส่เนื้อสัตว์หรือปลา และไม่ใช้น้ำซุปที่ทำจากเนื้อสัตว์หรือปลา",
+   "roman": "Kin mangsawirat. Kho mai sai nuea sat rue pla, lae mai chai nam sup thi tham chak nuea sat rue pla."
+  },
+  "vi": {
+   "text": "Tôi ăn chay. Vui lòng không cho thịt, cá hoặc nước dùng nấu từ thịt hay cá.",
+   "roman": "Toi an chay. Vui long khong cho thit, ca hoac nuoc dung nau tu thit hay ca."
+  },
+  "zh-TW": {
+   "text": "我吃素，麻煩不要放肉、魚，也不要用肉類或魚熬的高湯。",
+   "roman": "Wǒ chī sù, máfan bú yào fàng ròu, yú, yě bú yào yòng ròulèi huò yú áo de gāotāng."
+  }
+ },
+ "check_please": {
+  "ko": {
+   "text": "계산해 주세요.",
+   "roman": "Gyesanhae juseyo."
+  },
+  "ja": {
+   "text": "お会計をお願いします。",
+   "roman": "Okaikei o onegai shimasu."
+  },
+  "th": {
+   "text": "คิดเงินด้วย",
+   "roman": "Khit ngoen duai."
+  },
+  "vi": {
+   "text": "Cho tôi thanh toán.",
+   "roman": "Cho toi thanh toan."
+  },
+  "zh-TW": {
+   "text": "麻煩結帳。",
+   "roman": "Máfan jiézhàng."
+  }
+ },
+ "take_me_here": {
+  "ko": {
+   "text": "이 주소로 가 주세요.",
+   "roman": "I jusoro ga juseyo."
+  },
+  "ja": {
+   "text": "この住所までお願いします。",
+   "roman": "Kono jūsho made onegai shimasu."
+  },
+  "th": {
+   "text": "ช่วยไปส่งตามที่อยู่นี้ด้วย",
+   "roman": "Chuai pai song tam thi yu ni duai."
+  },
+  "vi": {
+   "text": "Làm ơn đưa tôi đến địa chỉ này.",
+   "roman": "Lam on dua toi den dia chi nay."
+  },
+  "zh-TW": {
+   "text": "麻煩載我到這個地址。",
+   "roman": "Máfan zài wǒ dào zhè ge dìzhǐ."
+  }
+ },
+ "which_exit": {
+  "ko": {
+   "text": "여기로 가려면 몇 번 출구로 나가야 하나요?",
+   "roman": "Yeogiro garyeomyeon myeot beon chulguro nagaya hanayo?"
+  },
+  "ja": {
+   "text": "ここに行くには、どの出口から出ればいいですか？",
+   "roman": "Koko ni iku ni wa, dono deguchi kara dereba ii desu ka?"
+  },
+  "th": {
+   "text": "ถ้าจะไปที่นี่ ต้องออกทางออกไหน",
+   "roman": "Tha cha pai thi ni, tong ok thang ok nai?"
+  },
+  "vi": {
+   "text": "Muốn đến chỗ này thì đi lối ra nào?",
+   "roman": "Muon den cho nay thi di loi ra nao?"
+  },
+  "zh-TW": {
+   "text": "請問去這個地方要走哪個出口？",
+   "roman": "Qǐngwèn qù zhè ge dìfāng yào zǒu nǎ ge chūkǒu?"
+  }
+ },
+ "which_platform": {
+  "ko": {
+   "text": "이 역으로 가는 열차는 어느 승강장에서 타나요?",
+   "roman": "I yeogeuro ganeun yeolchaneun eoneu seunggangjangeseo tanayo?"
+  },
+  "ja": {
+   "text": "この駅に行く電車は何番ホームですか？",
+   "roman": "Kono eki ni iku densha wa nanban hōmu desu ka?"
+  },
+  "th": {
+   "text": "รถไฟที่ไปสถานีนี้ขึ้นที่ชานชาลาไหน",
+   "roman": "Rotfai thi pai sathani ni khuen thi chanchala nai?"
+  },
+  "vi": {
+   "text": "Tàu đi đến ga này ở sân ga nào?",
+   "roman": "Tau di den ga nay o san ga nao?"
+  },
+  "zh-TW": {
+   "text": "請問到這一站的車要在哪個月台搭？",
+   "roman": "Qǐngwèn dào zhè yí zhàn de chē yào zài nǎ ge yuètái dā?"
+  }
+ },
+ "stop_here": {
+  "ko": {
+   "text": "여기 세워 주세요.",
+   "roman": "Yeogi sewo juseyo."
+  },
+  "ja": {
+   "text": "ここで止めてください。",
+   "roman": "Koko de tomete kudasai."
+  },
+  "th": {
+   "text": "ช่วยจอดตรงนี้ด้วย",
+   "roman": "Chuai chot trong ni duai."
+  },
+  "vi": {
+   "text": "Làm ơn dừng ở đây.",
+   "roman": "Lam on dung o day."
+  },
+  "zh-TW": {
+   "text": "麻煩在這裡停車。",
+   "roman": "Máfan zài zhèlǐ tíngchē."
+  }
+ },
+ "use_meter": {
+  "ko": {
+   "text": "미터기 요금이나 앱에 표시된 요금으로 해 주세요.",
+   "roman": "Miteogi yogeumina aebe pyosidoen yogeumeuro hae juseyo."
+  },
+  "ja": {
+   "text": "メーター料金か、アプリに表示された料金でお願いします。",
+   "roman": "Mētā ryōkin ka, apuri ni hyōji sareta ryōkin de onegai shimasu."
+  },
+  "th": {
+   "text": "ช่วยคิดราคาตามมิเตอร์หรือตามราคาที่แสดงในแอปด้วย",
+   "roman": "Chuai khit rakha tam mitoe rue tam rakha thi sadaeng nai aep duai."
+  },
+  "vi": {
+   "text": "Vui lòng tính tiền theo đồng hồ hoặc giá hiển thị trên ứng dụng.",
+   "roman": "Vui long tinh tien theo dong ho hoac gia hien thi tren ung dung."
+  },
+  "zh-TW": {
+   "text": "麻煩按計程表或叫車 App 顯示的金額收費。",
+   "roman": "Máfan àn jìchéngbiǎo huò jiàochē App xiǎnshì de jīn'é shōufèi."
+  }
+ },
+ "lost": {
+  "ko": {
+   "text": "길을 잃었어요. 여기를 찾는 데 도움을 주실 수 있나요?",
+   "roman": "Gireul ireosseoyo. Yeogireul channeun de doumeul jusil su innayo?"
+  },
+  "ja": {
+   "text": "道に迷いました。この場所への行き方を教えてもらえますか？",
+   "roman": "Michi ni mayoimashita. Kono basho e no ikikata o oshiete moraemasu ka?"
+  },
+  "th": {
+   "text": "หลงทาง ช่วยบอกทางไปที่นี่หน่อยได้ไหม",
+   "roman": "Long thang. Chuai bok thang pai thi ni noi dai mai?"
+  },
+  "vi": {
+   "text": "Tôi bị lạc đường. Bạn chỉ giúp tôi cách đến chỗ này được không?",
+   "roman": "Toi bi lac duong. Ban chi giup toi cach den cho nay duoc khong?"
+  },
+  "zh-TW": {
+   "text": "我迷路了，可以幫我找這個地方嗎？",
+   "roman": "Wǒ mílù le, kěyǐ bāng wǒ zhǎo zhè ge dìfāng ma?"
+  }
+ },
+ "card_ok": {
+  "ko": {
+   "text": "카드로 결제할 수 있나요?",
+   "roman": "Kadeuro gyeoljehal su innayo?"
+  },
+  "ja": {
+   "text": "カードで払えますか？",
+   "roman": "Kādo de haraemasu ka?"
+  },
+  "th": {
+   "text": "จ่ายด้วยบัตรได้ไหม",
+   "roman": "Chai duai bat dai mai?"
+  },
+  "vi": {
+   "text": "Tôi thanh toán bằng thẻ được không?",
+   "roman": "Toi thanh toan bang the duoc khong?"
+  },
+  "zh-TW": {
+   "text": "請問可以刷卡嗎？",
+   "roman": "Qǐngwèn kěyǐ shuākǎ ma?"
+  }
+ },
+ "foreign_card": {
+  "ko": {
+   "text": "해외에서 발급받은 카드인데 여기서 사용할 수 있나요?",
+   "roman": "Haeoeeseo balgeupbadeun kadeuinde yeogiseo sayonghal su innayo?"
+  },
+  "ja": {
+   "text": "海外で発行されたカードですが、ここで使えますか？",
+   "roman": "Kaigai de hakkō sareta kādo desu ga, koko de tsukaemasu ka?"
+  },
+  "th": {
+   "text": "บัตรนี้ออกโดยธนาคารต่างประเทศ ใช้ที่นี่ได้ไหม",
+   "roman": "Bat ni ok doi thanakhan tang prathet. Chai thi ni dai mai?"
+  },
+  "vi": {
+   "text": "Thẻ của tôi do ngân hàng nước ngoài phát hành. Ở đây có dùng được không?",
+   "roman": "The cua toi do ngan hang nuoc ngoai phat hanh. O day co dung duoc khong?"
+  },
+  "zh-TW": {
+   "text": "我的卡是國外發的，這裡可以刷嗎？",
+   "roman": "Wǒ de kǎ shì guówài fā de, zhèlǐ kěyǐ shuā ma?"
+  }
+ },
+ "cash_only": {
+  "ko": {
+   "text": "현금만 받으시나요?",
+   "roman": "Hyeongeumman badeusinayo?"
+  },
+  "ja": {
+   "text": "現金のみですか？",
+   "roman": "Genkin nomi desu ka?"
+  },
+  "th": {
+   "text": "รับเฉพาะเงินสดใช่ไหม",
+   "roman": "Rap chapho ngoen sot chai mai?"
+  },
+  "vi": {
+   "text": "Ở đây chỉ nhận tiền mặt thôi phải không?",
+   "roman": "O day chi nhan tien mat thoi phai khong?"
+  },
+  "zh-TW": {
+   "text": "請問只收現金嗎？",
+   "roman": "Qǐngwèn zhǐ shōu xiànjīn ma?"
+  }
+ },
+ "atm_where": {
+  "ko": {
+   "text": "가장 가까운 현금인출기가 어디에 있나요?",
+   "roman": "Gajang gakkaun hyeongeuminchulgiga eodie innayo?"
+  },
+  "ja": {
+   "text": "一番近いATMはどこですか？",
+   "roman": "Ichiban chikai ē tī emu wa doko desu ka?"
+  },
+  "th": {
+   "text": "ตู้เอทีเอ็มที่ใกล้ที่สุดอยู่ที่ไหน",
+   "roman": "Tu e thi em thi klai thi sut yu thi nai?"
+  },
+  "vi": {
+   "text": "Cho tôi hỏi máy ATM gần nhất ở đâu?",
+   "roman": "Cho toi hoi may ATM gan nhat o dau?"
+  },
+  "zh-TW": {
+   "text": "請問最近的提款機在哪裡？",
+   "roman": "Qǐngwèn zuì jìn de tíkuǎnjī zài nǎlǐ?"
+  }
+ },
+ "how_much": {
+  "ko": {
+   "text": "얼마예요?",
+   "roman": "Eolmayeyo?"
+  },
+  "ja": {
+   "text": "いくらですか？",
+   "roman": "Ikura desu ka?"
+  },
+  "th": {
+   "text": "เท่าไหร่",
+   "roman": "Thao rai?"
+  },
+  "vi": {
+   "text": "Cái này bao nhiêu tiền?",
+   "roman": "Cai nay bao nhieu tien?"
+  },
+  "zh-TW": {
+   "text": "請問多少錢？",
+   "roman": "Qǐngwèn duōshǎo qián?"
+  }
+ },
+ "help": {
+  "ko": {
+   "text": "도와주세요.",
+   "roman": "Dowajuseyo."
+  },
+  "ja": {
+   "text": "助けてください。",
+   "roman": "Tasukete kudasai."
+  },
+  "th": {
+   "text": "ช่วยด้วย",
+   "roman": "Chuai duai."
+  },
+  "vi": {
+   "text": "Làm ơn giúp tôi.",
+   "roman": "Lam on giup toi."
+  },
+  "zh-TW": {
+   "text": "請幫幫我。",
+   "roman": "Qǐng bāngbang wǒ."
+  }
+ },
+ "need_doctor": {
+  "ko": {
+   "text": "의사의 진료가 필요해요.",
+   "roman": "Uisaui jillyoga piryohaeyo."
+  },
+  "ja": {
+   "text": "医師の診察が必要です。",
+   "roman": "Ishi no shinsatsu ga hitsuyō desu."
+  },
+  "th": {
+   "text": "ต้องการพบหมอ",
+   "roman": "Tongkan phop mo."
+  },
+  "vi": {
+   "text": "Tôi cần gặp bác sĩ.",
+   "roman": "Toi can gap bac si."
+  },
+  "zh-TW": {
+   "text": "我需要看醫生。",
+   "roman": "Wǒ xūyào kàn yīshēng."
+  }
+ },
+ "call_ambulance": {
+  "ko": {
+   "text": "구급차를 불러 주세요.",
+   "roman": "Gugeupchareul bulleo juseyo."
+  },
+  "ja": {
+   "text": "救急車を呼んでください。",
+   "roman": "Kyūkyūsha o yonde kudasai."
+  },
+  "th": {
+   "text": "ช่วยเรียกรถพยาบาลให้ด้วย",
+   "roman": "Chuai riak rot phayaban hai duai."
+  },
+  "vi": {
+   "text": "Làm ơn gọi xe cấp cứu giúp tôi.",
+   "roman": "Lam on goi xe cap cuu giup toi."
+  },
+  "zh-TW": {
+   "text": "請幫我叫救護車。",
+   "roman": "Qǐng bāng wǒ jiào jiùhùchē."
+  }
+ },
+ "pharmacy": {
+  "ko": {
+   "text": "가장 가까운 약국이 어디에 있나요?",
+   "roman": "Gajang gakkaun yakgugi eodie innayo?"
+  },
+  "ja": {
+   "text": "一番近い薬局はどこですか？",
+   "roman": "Ichiban chikai yakkyoku wa doko desu ka?"
+  },
+  "th": {
+   "text": "ร้านขายยาที่ใกล้ที่สุดอยู่ที่ไหน",
+   "roman": "Ran khai ya thi klai thi sut yu thi nai?"
+  },
+  "vi": {
+   "text": "Cho tôi hỏi nhà thuốc gần nhất ở đâu?",
+   "roman": "Cho toi hoi nha thuoc gan nhat o dau?"
+  },
+  "zh-TW": {
+   "text": "請問最近的藥局在哪裡？",
+   "roman": "Qǐngwèn zuì jìn de yàojú zài nǎlǐ?"
+  }
+ },
+ "lost_phone": {
+  "ko": {
+   "text": "휴대폰이나 가방을 잃어버렸어요. 어디에 분실 신고를 하면 되나요?",
+   "roman": "Hyudaeponina gabang-eul ireobeoryeosseoyo. Eodie bunsil singoreul hamyeon doenayo?"
+  },
+  "ja": {
+   "text": "スマホか、かばんをなくしました。どこに届け出ればいいですか？",
+   "roman": "Sumaho ka, kaban o nakushimashita. Doko ni todokedereba ii desu ka?"
+  },
+  "th": {
+   "text": "โทรศัพท์หรือกระเป๋าหาย แจ้งของหายได้ที่ไหน",
+   "roman": "Thorasap rue krapao hai. Chaeng khong hai dai thi nai?"
+  },
+  "vi": {
+   "text": "Tôi bị mất điện thoại hoặc túi xách. Tôi có thể trình báo ở đâu?",
+   "roman": "Toi bi mat dien thoai hoac tui xach. Toi co the trinh bao o dau?"
+  },
+  "zh-TW": {
+   "text": "我的手機或包包不見了，請問可以去哪裡報失？",
+   "roman": "Wǒ de shǒujī huò bāobāo bú jiàn le, qǐngwèn kěyǐ qù nǎlǐ bàoshī?"
+  }
+ }
+}

@@ -106,6 +106,8 @@ const routes = [
   "/forgot-password",
   "/guide/apply",
   "/guide/dashboard",
+  "/help",
+  "/help/[country]",
   "/itineraries",
   "/itineraries/[id]",
   "/itineraries/[id]/edit",
