@@ -25,6 +25,8 @@ on:
       - '__tests__/components/borderless-navigation.test.tsx'
       - 'app/help/**'
       - 'lib/help/**'
+      - 'components/spots/driver-card.tsx'
+      - '__tests__/lib/driver-card.test.ts'
       - '__tests__/lib/help-phrases.test.ts'
       - 'app/community/**'
       - 'lib/community/**'
@@ -536,6 +538,7 @@ jobs:
             npx vitest run __tests__/lib/chat-conditions.test.ts --maxWorkers=1
             npx vitest run __tests__/components/page-header-pattern.test.tsx --maxWorkers=1
             npx vitest run __tests__/lib/help-phrases.test.ts --maxWorkers=1
+            npx vitest run __tests__/lib/driver-card.test.ts --maxWorkers=1
             npx vitest run __tests__/lib/community-qa.test.ts --maxWorkers=1
             npx vitest run __tests__/components/page-header-pattern.test.tsx __tests__/components/dashboard-design-tokens.test.ts --maxWorkers=1
             npx vitest run __tests__/components/viator-suggestions-lazy.test.tsx --maxWorkers=1

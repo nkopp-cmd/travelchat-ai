@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { DriverCardLink } from "@/components/spots/driver-card";
 import { SpotEventLink } from "@/components/spots/spot-event-link";
 import { headers } from "next/headers";
 import { LocalleyScale } from "@/types";
@@ -772,6 +773,8 @@ async function getSpot(id: string, candidate = false) {
   return {
     id: spot.id,
     name: getName(spot.name),
+    // Raw multilingual name for the show-to-driver card (local script).
+    nameField: spot.name as unknown,
     description: getName(spot.description),
     location: { lat, lng, address },
     category: spot.category || "Local spot",
@@ -1163,6 +1166,7 @@ export default async function SpotPage({
           aria-label="Spot planning actions"
         >
           <GetDirectionsButton spot={spot} compact />
+          <DriverCardLink spotId={spot.id} name={spot.name} nameField={spot.nameField} address={spot.location.address} compact />
           <NavigationTargetPanel
             spot={spot}
             fallbackQuery={exactMapQuery}
@@ -1514,6 +1518,7 @@ export default async function SpotPage({
 
               <div className="hidden lg:block">
                 <GetDirectionsButton spot={spot} />
+                <DriverCardLink spotId={spot.id} name={spot.name} nameField={spot.nameField} address={spot.location.address} />
               </div>
 
               <div className="overflow-hidden rounded-lg bg-raised">
