@@ -2,12 +2,13 @@
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
-import { D1Sqlite } from "@/__tests__/helpers/d1-sqlite";
+import { D1Sqlite, createAuthTestDatabase } from "@/__tests__/helpers/d1-sqlite";
 
 vi.mock("server-only", () => ({}));
 const { createAnswer, createQuestion, getQuestion, listQuestions, openReportCounts, report, setStatus, toggleVote } = await import("@/lib/community/qa");
 const { checkAnswer, checkQuestion, checkTip, checkTrip, DAILY_LIMITS, ACTIVE_TRIP_LIMIT, isoWeek, shiftWeek, weekRange } = await import("@/lib/community/rules");
 const { addTrip, hidePerson, listMeetups, listTravellers, myTrips, removeTrip, reportTrip, setTripStatus } = await import("@/lib/community/trips");
+const { notifyAnswer } = await import("@/lib/community/notify");
 const { createTip, listTips, reportTip, setTipStatus } = await import("@/lib/community/tips");
 
 function db() {
@@ -190,5 +191,46 @@ describe("travelling now", () => {
     expect(await listMeetups(d, alice.userId, "tokyo", week)).toEqual([]);
     await hidePerson(d, alice.userId, bob.userId);
     expect(await listMeetups(d, alice.userId, "seoul", week)).toEqual([]);
+describe("answer notifications", () => {
+  function authDb() {
+    const d = createAuthTestDatabase();
+    const now = new Date().toISOString();
+    const add = d.sqlite.prepare(`INSERT INTO "user" (id, name, email, emailVerified, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?)`);
+    add.run("u_alice", "Alice", "alice@example.test", 1, now, now);
+    add.run("u_bob", "Bob", "bob@example.test", 1, now, now);
+    add.run("u_eve", "Eve", "eve@example.test", 0, now, now);
+    return d;
+  }
+  const inbox = (d: ReturnType<typeof authDb>, user: string) =>
+    d.sqlite.prepare("SELECT type, title, message, data FROM auth_notifications WHERE userId = ?").all(user) as { type: string; title: string; message: string; data: string }[];
+
+  it("tells the question author about someone else's answer, with a link back", async () => {
+    const app = db(), auth = authDb();
+    const q = await createQuestion(app, alice, ask);
+    if (!q.ok) throw new Error(q.error);
+    expect(await notifyAnswer(app, auth as unknown as Parameters<typeof notifyAnswer>[1], q.id, bob)).toBe(true);
+    const [row] = inbox(auth, "u_alice");
+    expect(row).toMatchObject({ type: "system", title: "Bob answered your question", message: ask.title });
+    expect(JSON.parse(row.data)).toEqual({ url: `/community/${q.id}`, questionId: q.id });
+    expect(await notifyAnswer(app, auth as unknown as Parameters<typeof notifyAnswer>[1], q.id, alice)).toBe(false);
+    expect(inbox(auth, "u_alice")).toHaveLength(1);
+  });
+
+  it("skips unverified authors, authors who turned social off, hidden questions, and never throws", async () => {
+    const app = db(), auth = authDb();
+    const typedAuth = auth as unknown as Parameters<typeof notifyAnswer>[1];
+    const eve = await createQuestion(app, { userId: "u_eve", name: "Eve" }, ask);
+    if (!eve.ok) throw new Error(eve.error);
+    expect(await notifyAnswer(app, typedAuth, eve.id, bob)).toBe(false);
+    auth.sqlite.prepare("INSERT INTO auth_notification_preferences (userId, social) VALUES ('u_alice', 0)").run();
+    const q = await createQuestion(app, alice, { ...ask, title: `${ask.title} again` });
+    if (!q.ok) throw new Error(q.error);
+    expect(await notifyAnswer(app, typedAuth, q.id, bob)).toBe(false);
+    auth.sqlite.prepare("UPDATE auth_notification_preferences SET social = 1 WHERE userId = 'u_alice'").run();
+    await setStatus(app, "question", q.id, "hidden");
+    expect(await notifyAnswer(app, typedAuth, q.id, bob)).toBe(false);
+    const broken = { prepare() { throw new Error("down"); }, batch: async () => [] } as unknown as Parameters<typeof notifyAnswer>[1];
+    await setStatus(app, "question", q.id, "visible");
+    expect(await notifyAnswer(app, broken, q.id, bob)).toBe(false);
   });
 });
