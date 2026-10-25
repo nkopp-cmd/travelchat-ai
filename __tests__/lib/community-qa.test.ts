@@ -8,7 +8,8 @@ vi.mock("server-only", () => ({}));
 const { createAnswer, createQuestion, getQuestion, listQuestions, openReportCounts, report, setStatus, toggleVote } = await import("@/lib/community/qa");
 const { checkAnswer, checkQuestion, checkTip, checkTrip, DAILY_LIMITS, ACTIVE_TRIP_LIMIT, isoWeek, shiftWeek, weekRange } = await import("@/lib/community/rules");
 const { addTrip, hidePerson, listMeetups, listTravellers, myTrips, removeTrip, reportTrip, setTripStatus } = await import("@/lib/community/trips");
-const { createTip, listTips, reportTip, setTipStatus } = await import("@/lib/community/tips");
+const { createTip, listTips, reportTip, setTipStatus, tipByPhoto } = await import("@/lib/community/tips");
+const { checkPhoto, photoKey, PHOTO_KEY, PHOTO_MAX_BYTES } = await import("@/lib/community/photo-rules");
 
 function db() {
   const d1 = new D1Sqlite();
@@ -190,5 +191,41 @@ describe("travelling now", () => {
     expect(await listMeetups(d, alice.userId, "tokyo", week)).toEqual([]);
     await hidePerson(d, alice.userId, bob.userId);
     expect(await listMeetups(d, alice.userId, "seoul", week)).toEqual([]);
+  });
+});
+
+describe("tip photos", () => {
+  const bytes = (...b: number[]) => new Uint8Array([...b, ...new Array(16).fill(0)]).slice(0, 16);
+  const ascii = (text: string, at = 0, base = new Uint8Array(16)) => { [...text].forEach((c, i) => { base[at + i] = c.charCodeAt(0); }); return base; };
+
+  it("detects formats from the first bytes and limits the size", () => {
+    expect(checkPhoto(10, bytes(0xff, 0xd8, 0xff, 0xe0))).toEqual({ ok: true, kind: "jpeg" });
+    expect(checkPhoto(10, bytes(0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a))).toEqual({ ok: true, kind: "png" });
+    expect(checkPhoto(10, ascii("WEBP", 8, ascii("RIFF")))).toEqual({ ok: true, kind: "webp" });
+    expect(checkPhoto(10, ascii("heic", 8, ascii("ftyp", 4)))).toEqual({ ok: true, kind: "heic" });
+    expect(checkPhoto(10, ascii("<svg onload"))).toMatchObject({ ok: false });
+    expect(checkPhoto(10, ascii("GIF89a"))).toMatchObject({ ok: false });
+    expect(checkPhoto(0, bytes(0xff, 0xd8, 0xff))).toMatchObject({ ok: false });
+    expect(checkPhoto(PHOTO_MAX_BYTES + 1, bytes(0xff, 0xd8, 0xff))).toMatchObject({ ok: false });
+  });
+
+  it("builds keys the media route accepts and nothing else", () => {
+    const key = photoKey("11111111-1111-4111-8111-111111111111", "22222222-2222-4222-8222-222222222222");
+    expect(PHOTO_KEY.test(key)).toBe(true);
+    for (const bad of ["tips/../secrets", "tips/x/y.webp", `${key}?x`, `other/${key}`]) expect(PHOTO_KEY.test(bad)).toBe(false);
+  });
+
+  it("stores the photo key with the tip and finds the owning tip for access checks", async () => {
+    const d = db() as unknown as Parameters<typeof listTips>[0] & { prepare(sql: string): { run(): Promise<unknown> } };
+    const spot = "11111111-1111-4111-8111-111111111111";
+    await d.prepare(`INSERT INTO spots (id, name, description, category, visible) VALUES ('${spot}', '{}', '{}', 'Food', 1)`).run();
+    const tipId = "33333333-3333-4333-8333-333333333333";
+    const key = photoKey(tipId, "44444444-4444-4444-8444-444444444444");
+    expect(await createTip(d, alice, spot, { body: "Menu photo: cash only", visitedOn: null, photoKey: key }, tipId)).toEqual({ ok: true, id: tipId });
+    expect((await listTips(d, spot))[0]).toMatchObject({ id: tipId, photo_key: key });
+    expect(await tipByPhoto(d, key)).toEqual({ status: "visible" });
+    await setTipStatus(d, tipId, "hidden");
+    expect(await tipByPhoto(d, key)).toEqual({ status: "hidden" });
+    expect(await tipByPhoto(d, photoKey(tipId, "55555555-5555-4555-8555-555555555555"))).toBeNull();
   });
 });
