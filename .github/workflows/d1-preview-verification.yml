@@ -23,6 +23,8 @@ on:
       - '__tests__/components/map-text-safety.test.tsx'
       - 'components/layout/**'
       - '__tests__/components/borderless-navigation.test.tsx'
+      - 'app/api/cron/process-social-submissions/**'
+      - '__tests__/api/process-social-submissions-route.test.ts'
       - 'app/help/**'
       - 'lib/help/**'
       - '__tests__/lib/help-phrases.test.ts'
@@ -537,6 +539,7 @@ jobs:
             npx vitest run __tests__/components/page-header-pattern.test.tsx --maxWorkers=1
             npx vitest run __tests__/lib/help-phrases.test.ts --maxWorkers=1
             npx vitest run __tests__/lib/community-qa.test.ts --maxWorkers=1
+            npx vitest run __tests__/api/process-social-submissions-route.test.ts --maxWorkers=1
             npx vitest run __tests__/components/page-header-pattern.test.tsx __tests__/components/dashboard-design-tokens.test.ts --maxWorkers=1
             npx vitest run __tests__/components/viator-suggestions-lazy.test.tsx --maxWorkers=1
             npx vitest run __tests__/lib/itinerary-grounded-generation.test.ts --maxWorkers=1
