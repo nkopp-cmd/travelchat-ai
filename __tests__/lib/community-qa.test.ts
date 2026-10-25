@@ -6,7 +6,8 @@ import { D1Sqlite } from "@/__tests__/helpers/d1-sqlite";
 
 vi.mock("server-only", () => ({}));
 const { createAnswer, createQuestion, getQuestion, listQuestions, openReportCounts, report, setStatus, toggleVote } = await import("@/lib/community/qa");
-const { checkAnswer, checkQuestion, checkTip, DAILY_LIMITS } = await import("@/lib/community/rules");
+const { checkAnswer, checkQuestion, checkTip, checkTrip, DAILY_LIMITS, ACTIVE_TRIP_LIMIT, isoWeek, shiftWeek, weekRange } = await import("@/lib/community/rules");
+const { addTrip, hidePerson, listMeetups, listTravellers, myTrips, removeTrip, reportTrip, setTripStatus } = await import("@/lib/community/trips");
 const { createTip, listTips, reportTip, setTipStatus } = await import("@/lib/community/tips");
 
 function db() {
@@ -121,5 +122,73 @@ describe("spot tips", () => {
     await setTipStatus(d, tip.id, "hidden");
     expect(await listTips(d, "11111111-1111-4111-8111-111111111111")).toEqual([]);
     expect((await listTips(d, "11111111-1111-4111-8111-111111111111", true))[0]).toMatchObject({ status: "hidden", open_reports: 0 });
+  });
+});
+
+describe("travelling now", () => {
+  const today = new Date("2026-10-25T12:00:00Z");
+  const week = weekRange("2026-W44")!;
+
+  it("computes ISO weeks across year ends", () => {
+    expect(isoWeek("2026-10-26")).toBe("2026-W44");
+    expect(isoWeek("2021-01-03")).toBe("2020-W53");
+    expect(isoWeek("2027-01-01")).toBe("2026-W53");
+    expect(weekRange("2025-W53")).toBeNull();
+    expect(shiftWeek("2026-W53", 1)).toBe("2027-W01");
+    expect(week).toEqual({ from: "2026-10-26", to: "2026-11-01" });
+  });
+
+  it("checks trips", () => {
+    expect(checkTrip({ city: "seoul", from: "2026-10-24", to: "2026-10-30", note: " Street food fan " }, today))
+      .toEqual({ ok: true, value: { city: "seoul", from: "2026-10-24", to: "2026-10-30", note: "Street food fan" } });
+    for (const input of [
+      { city: "mars", from: "2026-10-26", to: "2026-10-27" },
+      { city: "seoul", from: "2026-10-27", to: "2026-10-26" },
+      { city: "seoul", from: "2026-10-01", to: "2026-10-24" },
+      { city: "seoul", from: "2027-12-01", to: "2027-12-02" },
+      { city: "seoul", from: "2026-10-26", to: "2027-01-01" },
+      { city: "seoul", from: "2026-10-26", to: "2026-10-27", note: "add me on wa +66 81 234 5678" },
+    ]) expect(checkTrip({ note: "", ...input }, today)).toMatchObject({ ok: false });
+  });
+
+  it("groups by city and week overlap, honours hide-person, limits and leaving", async () => {
+    const d = db();
+    const day = "2026-10-25";
+    const a = await addTrip(d, alice, day, { city: "seoul", from: "2026-10-24", to: "2026-10-27", note: "" });
+    const b = await addTrip(d, bob, day, { city: "seoul", from: "2026-11-01", to: "2026-11-05", note: "night markets" });
+    await addTrip(d, { userId: "u_carol", name: "Carol" }, day, { city: "seoul", from: "2026-11-02", to: "2026-11-04", note: "" });
+    await addTrip(d, { userId: "u_dan", name: "Dan" }, day, { city: "tokyo", from: "2026-10-26", to: "2026-10-28", note: "" });
+    if (!a.ok || !b.ok) throw new Error("add failed");
+    expect((await listTravellers(d, alice.userId, "seoul", week)).map((t) => t.author_name)).toEqual(["Alice", "Bob"]);
+    expect(await addTrip(d, alice, day, { city: "seoul", from: "2026-10-24", to: "2026-10-30", note: "" })).toMatchObject({ ok: false });
+    await hidePerson(d, alice.userId, bob.userId);
+    await hidePerson(d, alice.userId, alice.userId);
+    expect((await listTravellers(d, alice.userId, "seoul", week)).map((t) => t.author_name)).toEqual(["Alice"]);
+    expect((await listTravellers(d, bob.userId, "seoul", week)).map((t) => t.author_name)).toEqual(["Alice", "Bob"]);
+    await removeTrip(d, bob.userId, a.id);
+    expect(await myTrips(d, alice.userId, day)).toHaveLength(1);
+    await removeTrip(d, alice.userId, a.id);
+    expect(await myTrips(d, alice.userId, day)).toEqual([]);
+    for (let i = 0; i < ACTIVE_TRIP_LIMIT; i++) expect((await addTrip(d, alice, day, { city: "seoul", from: `2026-11-1${i}`, to: "2026-11-20", note: "" })).ok).toBe(true);
+    expect(await addTrip(d, alice, day, { city: "busan", from: "2026-11-01", to: "2026-11-02", note: "" })).toMatchObject({ ok: false });
+  });
+
+  it("reports and admin-hides a trip; meetup posts follow city, week and hidden people", async () => {
+    const d = db();
+    const b = await addTrip(d, bob, "2026-10-25", { city: "seoul", from: "2026-10-26", to: "2026-10-28", note: "" });
+    if (!b.ok) throw new Error(b.error);
+    await reportTrip(d, bob.userId, b.id, "spam");
+    await reportTrip(d, alice.userId, b.id, "unsafe");
+    expect((await listTravellers(d, "admin", "seoul", week, true))[0]).toMatchObject({ open_reports: 1 });
+    await setTripStatus(d, b.id, "hidden");
+    expect(await listTravellers(d, alice.userId, "seoul", week)).toEqual([]);
+    const q = await createQuestion(d, bob, { title: "Group dinner at Gwangjang on Friday?", body: "", city: "seoul", topic: "meetup" });
+    if (!q.ok) throw new Error(q.error);
+    await (d as unknown as { prepare(s: string): { bind(...v: string[]): { run(): Promise<unknown> } } })
+      .prepare("UPDATE community_questions SET created_at = '2026-10-27T10:00:00.000Z' WHERE id = ?").bind(q.id).run();
+    expect((await listMeetups(d, alice.userId, "seoul", week)).map((m) => m.id)).toEqual([q.id]);
+    expect(await listMeetups(d, alice.userId, "tokyo", week)).toEqual([]);
+    await hidePerson(d, alice.userId, bob.userId);
+    expect(await listMeetups(d, alice.userId, "seoul", week)).toEqual([]);
   });
 });
