@@ -23,6 +23,10 @@ on:
       - '__tests__/components/map-text-safety.test.tsx'
       - 'components/layout/**'
       - '__tests__/components/borderless-navigation.test.tsx'
+      - 'app/community/**'
+      - 'lib/community/**'
+      - 'components/community/**'
+      - '__tests__/lib/community-qa.test.ts'
       - 'components/ui/toaster.tsx'
       - 'components/ui/radix-toaster.tsx'
       - '__tests__/components/lazy-toaster.test.tsx'
@@ -527,6 +531,7 @@ jobs:
             npx vitest run __tests__/components/chat-design-tokens.test.ts __tests__/app/chat-history-pair.test.tsx __tests__/components/source-chat-viewport.test.tsx --maxWorkers=1
             npx vitest run __tests__/lib/chat-conditions.test.ts --maxWorkers=1
             npx vitest run __tests__/components/page-header-pattern.test.tsx --maxWorkers=1
+            npx vitest run __tests__/lib/community-qa.test.ts --maxWorkers=1
             npx vitest run __tests__/components/page-header-pattern.test.tsx __tests__/components/dashboard-design-tokens.test.ts --maxWorkers=1
             npx vitest run __tests__/components/viator-suggestions-lazy.test.tsx --maxWorkers=1
             npx vitest run __tests__/lib/itinerary-grounded-generation.test.ts --maxWorkers=1
