@@ -25,6 +25,7 @@ on:
       - '__tests__/components/borderless-navigation.test.tsx'
       - 'app/community/**'
       - 'lib/community/**'
+      - 'app/spots/*/tips/**'
       - 'components/community/**'
       - '__tests__/lib/community-qa.test.ts'
       - 'components/ui/toaster.tsx'
