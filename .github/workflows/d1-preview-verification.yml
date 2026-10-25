@@ -31,6 +31,8 @@ on:
       - 'app/help/**'
       - 'lib/help/**'
       - 'components/spots/driver-card.tsx'
+      - 'components/spots/spot-activities.tsx'
+      - '__tests__/components/spot-activities.test.tsx'
       - '__tests__/lib/driver-card.test.ts'
       - '__tests__/lib/help-phrases.test.ts'
       - '__tests__/lib/help-pay.test.ts'
@@ -546,6 +548,7 @@ jobs:
             npx vitest run __tests__/components/page-header-pattern.test.tsx --maxWorkers=1
             npx vitest run __tests__/lib/help-phrases.test.ts __tests__/lib/help-pay.test.ts --maxWorkers=1
             npx vitest run __tests__/lib/driver-card.test.ts --maxWorkers=1
+            npx vitest run __tests__/components/spot-activities.test.tsx --maxWorkers=1
             npx vitest run __tests__/lib/community-qa.test.ts --maxWorkers=1
             npx vitest run __tests__/api/process-social-submissions-route.test.ts --maxWorkers=1
             npx vitest run __tests__/lib/user-challenges-helper.test.ts --maxWorkers=1
