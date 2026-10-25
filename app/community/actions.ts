@@ -5,6 +5,7 @@ import { appDataDb } from "@/lib/app-data/backend";
 import { auth, currentUser } from "@/lib/auth/server";
 import { isAdminUser } from "@/lib/admin-auth";
 import { canUseCommunity } from "@/lib/community/access";
+import { notifyAnswer, inboxDb } from "@/lib/community/notify";
 import { createAnswer, createQuestion, report, setStatus, toggleVote, type CommunityDb } from "@/lib/community/qa";
 import { REPORT_REASONS, authorName, checkAnswer, checkQuestion, type ReportReason } from "@/lib/community/rules";
 
@@ -37,8 +38,11 @@ export async function answerQuestion(form: FormData) {
   const questionId = field(form, "questionId");
   const verdict = checkAnswer(form.get("body"));
   if (!verdict.ok) redirect(back(questionId, `?error=${encodeURIComponent(verdict.error)}#answer`));
-  const result = await createAnswer(db(), { userId, name: authorName(await currentUser()) }, questionId, verdict.value);
+  const author = { userId, name: authorName(await currentUser()) };
+  const result = await createAnswer(db(), author, questionId, verdict.value);
   if (!result.ok) redirect(back(questionId, `?error=${encodeURIComponent(result.error)}#answer`));
+  const inbox = inboxDb();
+  if (inbox) await notifyAnswer(db(), inbox, questionId, author);
   redirect(back(questionId, `#a-${result.id}`));
 }
 
