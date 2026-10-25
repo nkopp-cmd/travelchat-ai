@@ -1072,3 +1072,9 @@
     0%, 100% { opacity: 0.55; transform: translateY(calc(var(--pick-h) * -0.24)) scale(0.84); }
     50% { opacity: 1; transform: none; }
 }
+
+/* Full-screen :target cards (help phrases, show-to-driver) hide the app header and bottom nav while open. A z-index
+   cannot do it: layouts such as AppBackground wrap content in `relative z-10`, which traps the card's stacking. */
+body:has([data-fullscreen-card]:target) [data-app-chrome] {
+    display: none;
+}

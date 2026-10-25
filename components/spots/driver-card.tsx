@@ -22,7 +22,7 @@ export function DriverCardDialog({ spotId, name, nameField, address }: { spotId:
   const card = driverCard({ name, nameField, address });
   const wrap = card.language === "ko" ? "[word-break:keep-all]" : "";
   return (
-      <div id={`driver-${spotId}`} role="dialog" aria-label={`Show ${name} to a driver`}
+      <div id={`driver-${spotId}`} data-fullscreen-card role="dialog" aria-label={`Show ${name} to a driver`}
         className="fixed inset-0 z-[60] hidden flex-col overflow-y-auto bg-foreground p-6 text-background target:flex">
         <a href="#" className="ml-auto inline-flex min-h-11 items-center rounded-full bg-background px-5 text-base font-semibold text-foreground">Close</a>
         <div className="flex flex-1 flex-col justify-center gap-5">

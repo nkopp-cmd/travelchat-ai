@@ -53,7 +53,7 @@ export default async function HelpCountryPage({ params }: { params: Promise<{ co
                   <span className="mt-1 block text-sm text-muted-foreground">{phrase.en.replace("{n}", "…")}</span>
                 </a>
                 {/* Full-screen card: shown while its id is the URL fragment. */}
-                <div id={`card-${phrase.id}`} role="dialog" aria-label={phrase.en.replace("{n}", "…")}
+                <div id={`card-${phrase.id}`} data-fullscreen-card role="dialog" aria-label={phrase.en.replace("{n}", "…")}
                   className="fixed inset-0 z-[60] hidden flex-col overflow-y-auto bg-foreground p-6 text-background target:flex">
                   <a href="#" className="ml-auto inline-flex min-h-11 items-center rounded-full bg-background px-5 text-base font-semibold text-foreground">Close</a>
                   <div className="flex flex-1 flex-col justify-center gap-6">

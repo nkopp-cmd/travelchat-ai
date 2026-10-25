@@ -37,7 +37,7 @@ export function Navbar() {
   // Stays mounted after the first open so Radix can animate the close and restore focus.
   const [drawerMounted, setDrawerMounted] = useState(false);
   const menuButton = useRef<HTMLButtonElement>(null);
-  return <header className={cn("sticky top-0 z-50 w-full bg-background/95 shadow-surface backdrop-blur-xl transition-transform duration-[var(--ll-motion-short)] motion-reduce:transition-none", isHidden && "-translate-y-full md:translate-y-0")}>
+  return <header data-app-chrome className={cn("sticky top-0 z-50 w-full bg-background/95 shadow-surface backdrop-blur-xl transition-transform duration-[var(--ll-motion-short)] motion-reduce:transition-none", isHidden && "-translate-y-full md:translate-y-0")}>
     <div className="container flex h-[var(--ll-topbar-height)] items-center justify-between gap-3 px-4">
       <div className="flex items-center gap-2">
         <Button ref={menuButton} variant="ghost" size="icon" className="md:hidden" aria-label="Open menu" aria-haspopup="dialog" aria-expanded={menuOpen} onPointerEnter={preloadDrawer} onFocus={preloadDrawer} onTouchStart={preloadDrawer} onClick={() => { setDrawerMounted(true); setMenuOpen(true); }}><Menu className="size-5" /></Button>
