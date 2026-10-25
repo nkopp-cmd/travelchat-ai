@@ -28,7 +28,10 @@ export default async function CommunityPage({ searchParams }: { searchParams: Pr
     <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
       <PageHeader eyebrow="Community" eyebrowIcon={Users} title="Ask travellers and locals"
         lede="Questions from people on the road in Asia. Answer what you know, upvote what helped."
-        actions={<Button asChild><Link href="/community/ask">Ask a question</Link></Button>} />
+        actions={<div className="flex gap-2">
+          <Button asChild variant="secondary"><Link href="/community/now">Travelling now</Link></Button>
+          <Button asChild><Link href="/community/ask">Ask a question</Link></Button>
+        </div>} />
       <form method="get" className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-[1fr_1fr_auto]">
         <label className="sr-only" htmlFor="city">City</label>
         <select id="city" name="city" defaultValue={city} className={fieldClass}>

@@ -9,16 +9,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { fieldClass } from "@/components/community/community-ui";
 import { auth } from "@/lib/auth/server";
 import { canUseCommunity } from "@/lib/community/access";
-import { COMMUNITY_TOPICS, LIMITS, communityCities } from "@/lib/community/rules";
+import { COMMUNITY_TOPICS, LIMITS, communityCities, isCommunityTopic } from "@/lib/community/rules";
 import { askQuestion } from "../actions";
 
 export const metadata: Metadata = { title: "Ask a question", robots: { index: false } };
 export const dynamic = "force-dynamic";
 
-export default async function AskPage({ searchParams }: { searchParams: Promise<{ error?: string; city?: string }> }) {
+export default async function AskPage({ searchParams }: { searchParams: Promise<{ error?: string; city?: string; topic?: string }> }) {
   const { userId } = await auth();
   if (!userId || !canUseCommunity(userId)) notFound();
-  const { error, city } = await searchParams;
+  const { error, city, topic } = await searchParams;
   return (
     <main className="mx-auto w-full max-w-2xl px-4 pb-24 pt-6 sm:px-6">
       <Link href="/community" className="mb-4 inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
@@ -36,7 +36,7 @@ export default async function AskPage({ searchParams }: { searchParams: Promise<
             </select>
           </label>
           <label className="flex flex-col gap-1 text-sm font-medium text-foreground">Topic
-            <select name="topic" required defaultValue="" className={fieldClass}>
+            <select name="topic" required defaultValue={topic && isCommunityTopic(topic) ? topic : ""} className={fieldClass}>
               <option value="" disabled>Pick a topic</option>
               {COMMUNITY_TOPICS.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
             </select>

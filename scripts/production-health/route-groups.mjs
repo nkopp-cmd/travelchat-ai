@@ -103,6 +103,7 @@ const routes = [
   "/chat",
   "/community",
   "/community/ask",
+  "/community/now",
   "/community/[id]",
   "/dashboard",
   "/explore",
