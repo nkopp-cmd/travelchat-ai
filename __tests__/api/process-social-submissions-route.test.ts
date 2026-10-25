@@ -130,6 +130,7 @@ describe("social submission media worker", () => {
       })),
     });
     process.env.CRON_SECRET = "worker-secret";
+    process.env.NEXT_PUBLIC_SOCIAL_SPOT_SUBMISSIONS_ENABLED = "true";
     delete process.env.APIFY_API_TOKEN;
     mocks.listSocialMediaWork.mockResolvedValue([submission]);
     mocks.claimSocialMediaJobs.mockImplementation(async ({ mediaKind }) => [
@@ -151,6 +152,22 @@ describe("social submission media worker", () => {
     mocks.loadSocialMediaProgress
       .mockResolvedValueOnce(progress({ image: "queued", video: "queued" }))
       .mockResolvedValueOnce(progress({ image: "succeeded", video: "succeeded" }));
+  });
+
+  it("skips without touching storage while social submissions are disabled", async () => {
+    delete process.env.NEXT_PUBLIC_SOCIAL_SPOT_SUBMISSIONS_ENABLED;
+    const { GET } = await import("@/app/api/cron/process-social-submissions/route");
+    const response = await GET(request());
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ success: true, skipped: "social submissions disabled" });
+    expect(mocks.createSupabaseAdmin).not.toHaveBeenCalled();
+    expect(mocks.listSocialMediaWork).not.toHaveBeenCalled();
+  });
+
+  it("still rejects an unauthorized request while disabled", async () => {
+    delete process.env.NEXT_PUBLIC_SOCIAL_SPOT_SUBMISSIONS_ENABLED;
+    const { GET } = await import("@/app/api/cron/process-social-submissions/route");
+    expect((await GET(request("wrong"))).status).toBe(401);
   });
 
   it("fails closed when the cron bearer secret is wrong", async () => {
