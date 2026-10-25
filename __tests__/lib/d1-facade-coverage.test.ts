@@ -24,7 +24,6 @@ const STILL_ON_SUPABASE = new Set<string>([
 const HAND_PORT_PENDING: Record<string, string> = {
   // D1 branch done (two owner-scoped reads); the embed stays on the Supabase branch until Supabase is removed.
   "app/api/conversations/route.ts#conversations": "embed kept for the Supabase branch",
-  "app/profile/page.tsx#user_challenges": "user_challenges embeds challenges(*)",
   "app/api/admin/payouts/execute/route.ts#guide_earnings": "guide_earnings embeds guide_profiles!inner (admin payouts, 0 rows)",
   "app/spots/[id]/page.tsx#social_spot_submissions": "contains(research); the D1 detail path (PR582) reads it by hand",
 };

@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { savedSpotsWithSpots } from "@/lib/app-data/saved-spots";
+import { completedChallengesWithDetails } from "@/lib/app-data/user-challenges";
 import { previewProfile } from "@/lib/app-data/preview-profile";
 import { PreviewProfile } from "@/components/profile/preview-profile";
 import { Button } from "@/components/ui/button";
@@ -86,11 +87,7 @@ async function getUserProgress() {
     const [{ data: progress }, { data: challengesData }] = userData?.id
         ? await Promise.all([
             supabase.from("user_progress").select("*").eq("user_id", userData.id).single(),
-            supabase
-                .from("user_challenges")
-                .select("*, challenges(*)")
-                .eq("user_id", userData.id)
-                .eq("completed", true),
+            completedChallengesWithDetails(supabase, userData.id),
         ])
         : [{ data: null }, { data: null }];
     const completedChallenges: Array<{ challenge_id: string; challenges: { name: string; description: string; xp_reward: number } | null }> =
