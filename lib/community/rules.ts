@@ -17,9 +17,9 @@ export const REPORT_REASONS = ["spam", "abuse", "unsafe", "wrong", "other"] as c
 export type ReportReason = (typeof REPORT_REASONS)[number];
 
 /** Per-user daily posting limits, checked against the tables (fail closed, no extra binding). */
-export const DAILY_LIMITS = { question: 10, answer: 40 } as const;
+export const DAILY_LIMITS = { question: 10, answer: 40, tip: 20 } as const;
 
-export const LIMITS = { titleMin: 8, titleMax: 140, bodyMax: 2000, answerMin: 2 } as const;
+export const LIMITS = { titleMin: 8, titleMax: 140, bodyMax: 2000, answerMin: 2, tipMin: 3, tipMax: 280 } as const;
 
 export function communityCities() {
   return ALL_CITIES.map((c) => ({ slug: c.slug, name: c.name, country: c.country }));
@@ -81,4 +81,23 @@ export function checkAnswer(body: unknown): TextVerdict {
 export function authorName(user: { firstName: string | null; username: string | null } | null): string {
   const name = (user?.firstName || user?.username || "").trim();
   return name ? name.slice(0, 40) : "Traveller";
+}
+
+/** A spot tip: short text plus an optional visit date between two years ago and today (UTC). */
+export function checkTip(input: { body: unknown; visitedOn: unknown }, today = new Date()):
+  { ok: true; value: { body: string; visitedOn: string | null } } | { ok: false; error: string } {
+  const body = clean(input.body);
+  if (body.length < LIMITS.tipMin) return { ok: false, error: "Write a tip first." };
+  if (body.length > LIMITS.tipMax) return { ok: false, error: `Keep the tip under ${LIMITS.tipMax} characters.` };
+  const contact = checkContact(body);
+  if (contact) return { ok: false, error: contact };
+  const visited = typeof input.visitedOn === "string" ? input.visitedOn.trim() : "";
+  if (!visited) return { ok: true, value: { body, visitedOn: null } };
+  const day = /^\d{4}-\d{2}-\d{2}$/.test(visited) ? new Date(`${visited}T00:00:00Z`) : null;
+  const max = today.toISOString().slice(0, 10);
+  const min = new Date(today.getTime() - 730 * 86400000).toISOString().slice(0, 10);
+  if (!day || Number.isNaN(day.getTime()) || day.toISOString().slice(0, 10) !== visited || visited > max || visited < min) {
+    return { ok: false, error: "Pick the day you visited (within the last two years)." };
+  }
+  return { ok: true, value: { body, visitedOn: visited } };
 }

@@ -6,7 +6,8 @@ import { D1Sqlite } from "@/__tests__/helpers/d1-sqlite";
 
 vi.mock("server-only", () => ({}));
 const { createAnswer, createQuestion, getQuestion, listQuestions, openReportCounts, report, setStatus, toggleVote } = await import("@/lib/community/qa");
-const { checkAnswer, checkQuestion, DAILY_LIMITS } = await import("@/lib/community/rules");
+const { checkAnswer, checkQuestion, checkTip, DAILY_LIMITS } = await import("@/lib/community/rules");
+const { createTip, listTips, reportTip, setTipStatus } = await import("@/lib/community/tips");
 
 function db() {
   const d1 = new D1Sqlite();
@@ -90,5 +91,35 @@ describe("community store", () => {
     for (let i = 0; i < DAILY_LIMITS.question; i++) expect((await createQuestion(d, alice, { ...ask, title: `${ask.title} ${i}` })).ok).toBe(true);
     expect(await createQuestion(d, alice, ask)).toMatchObject({ ok: false });
     expect((await createQuestion(d, bob, ask)).ok).toBe(true);
+  });
+});
+
+describe("spot tips", () => {
+  const today = new Date("2026-10-25T12:00:00Z");
+
+  it("accepts a tip with or without a visit day in the last two years", () => {
+    expect(checkTip({ body: "Closed on Mondays, cash only.", visitedOn: "2026-10-25" }, today))
+      .toEqual({ ok: true, value: { body: "Closed on Mondays, cash only.", visitedOn: "2026-10-25" } });
+    expect(checkTip({ body: "Short queue before 11.", visitedOn: "" }, today)).toMatchObject({ ok: true, value: { visitedOn: null } });
+    for (const visitedOn of ["2026-10-26", "2024-01-01", "2026-02-30", "yesterday"]) {
+      expect(checkTip({ body: "Closed on Mondays.", visitedOn }, today)).toMatchObject({ ok: false });
+    }
+    expect(checkTip({ body: "x".repeat(281), visitedOn: "" }, today)).toMatchObject({ ok: false });
+    expect(checkTip({ body: "book at www.example.com", visitedOn: "" }, today)).toMatchObject({ ok: false });
+  });
+
+  it("adds tips only to visible spots, hides them for everyone but admins, and blocks self-reports", async () => {
+    const d = db() as unknown as Parameters<typeof listTips>[0] & { prepare(sql: string): { run(): Promise<unknown> } };
+    await d.prepare("INSERT INTO spots (id, name, description, category, visible) VALUES ('11111111-1111-4111-8111-111111111111', '{\"en\":\"Cafe\"}', '{}', 'Food', 1), ('22222222-2222-4222-8222-222222222222', '{}', '{}', 'Food', 0)").run();
+    expect(await createTip(d, alice, "22222222-2222-4222-8222-222222222222", { body: "Nice", visitedOn: null })).toMatchObject({ ok: false });
+    const tip = await createTip(d, alice, "11111111-1111-4111-8111-111111111111", { body: "Closed on Mondays.", visitedOn: "2026-10-20" });
+    if (!tip.ok) throw new Error(tip.error);
+    await reportTip(d, alice.userId, tip.id, "spam");
+    expect((await listTips(d, "11111111-1111-4111-8111-111111111111", true))[0]).toMatchObject({ open_reports: 0 });
+    await reportTip(d, bob.userId, tip.id, "wrong");
+    expect((await listTips(d, "11111111-1111-4111-8111-111111111111", true))[0]).toMatchObject({ open_reports: 1 });
+    await setTipStatus(d, tip.id, "hidden");
+    expect(await listTips(d, "11111111-1111-4111-8111-111111111111")).toEqual([]);
+    expect((await listTips(d, "11111111-1111-4111-8111-111111111111", true))[0]).toMatchObject({ status: "hidden", open_reports: 0 });
   });
 });

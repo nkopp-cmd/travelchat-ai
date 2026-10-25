@@ -128,6 +128,7 @@ const routes = [
   "/sign-up",
   "/spots",
   "/spots/[id]",
+  "/spots/[id]/tips",
   "/spots/submissions",
   "/spots/submit",
   "/templates",

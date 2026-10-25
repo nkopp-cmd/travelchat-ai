@@ -28,6 +28,7 @@ on:
       - '__tests__/lib/help-phrases.test.ts'
       - 'app/community/**'
       - 'lib/community/**'
+      - 'app/spots/*/tips/**'
       - 'components/community/**'
       - '__tests__/lib/community-qa.test.ts'
       - 'components/ui/toaster.tsx'
