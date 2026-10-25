@@ -14,6 +14,10 @@
    "type": "secret_text"
   },
   {
+   "name": "APP_DB",
+   "type": "d1"
+  },
+  {
    "name": "ARK_API_KEY",
    "type": "secret_text"
   },
@@ -70,8 +74,16 @@
    "type": "secret_text"
   },
   {
+   "name": "COMMUNITY_MEDIA",
+   "type": "r2_bucket"
+  },
+  {
    "name": "CRON_SECRET",
    "type": "secret_text"
+  },
+  {
+   "name": "DATA_BACKEND",
+   "type": "plain_text"
   },
   {
    "name": "ENABLE_MULTI_LLM",

@@ -22,6 +22,8 @@ const routes = [
   "/api/challenges",
   "/api/chat",
   "/api/cities",
+  "/api/community/media/[...key]",
+  "/api/community/tips",
   "/api/conditions",
   "/api/conditions/[city]",
   "/api/events/spots",

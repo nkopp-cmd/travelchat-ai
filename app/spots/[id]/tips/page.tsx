@@ -16,7 +16,7 @@ import { LIMITS } from "@/lib/community/rules";
 import { listTips } from "@/lib/community/tips";
 import { d1SpotCardsByIds } from "@/lib/spots/d1-queries";
 import { getLocalizedText } from "@/lib/spots/transform";
-import { addTip, moderateTip, reportSpotTip } from "./actions";
+import { moderateTip, reportSpotTip } from "./actions";
 
 export const metadata: Metadata = { title: "Traveller tips", robots: { index: false } };
 export const dynamic = "force-dynamic";
@@ -45,12 +45,15 @@ export default async function SpotTipsPage({ params, searchParams }: { params: P
         lede="What did you find when you went? Opening days, queues, prices, how to pay." />
       {reported && <p role="status" className="mt-4 rounded-xl bg-primary/10 p-3 text-sm text-foreground">Thanks. We will review this report.</p>}
 
-      <form id="tip" action={addTip} className="mt-6 flex scroll-mt-24 flex-col gap-3 rounded-2xl bg-surface p-4 shadow-surface">
+      <form id="tip" action="/api/community/tips" method="post" encType="multipart/form-data" className="mt-6 flex scroll-mt-24 flex-col gap-3 rounded-2xl bg-surface p-4 shadow-surface">
         <input type="hidden" name="spotId" value={id} />
         <label htmlFor="tip-body" className="font-semibold text-foreground">Add a tip</label>
         {error && <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-foreground">{error}</p>}
         <Textarea id="tip-body" name="body" required minLength={LIMITS.tipMin} maxLength={LIMITS.tipMax} rows={3}
           placeholder="Went today: closed on Mondays, cash only, short queue before 11:00." />
+        <label className="flex flex-col gap-1 text-sm text-muted-foreground">Photo (optional, up to 5 MB; location data is removed)
+          <input type="file" name="photo" accept="image/jpeg,image/png,image/webp,image/heic" className="text-sm text-foreground file:mr-3 file:min-h-11 file:rounded-xl file:border-0 file:bg-raised file:px-4 file:text-foreground" />
+        </label>
         <div className="flex flex-wrap items-end gap-3">
           <label className="flex flex-col gap-1 text-sm text-muted-foreground">Day you visited (optional)
             <Input type="date" name="visitedOn" max={today} defaultValue={today} className="w-auto" />
@@ -69,6 +72,11 @@ export default async function SpotTipsPage({ params, searchParams }: { params: P
           {tips.map((tip) => (
             <li key={tip.id} id={`t-${tip.id}`} className={`scroll-mt-24 rounded-2xl bg-surface p-4 shadow-surface ${tip.status === "hidden" ? "opacity-60" : ""}`}>
               <p className="whitespace-pre-line text-base leading-7 text-foreground">{tip.body}</p>
+              {tip.photo_key && (
+                // eslint-disable-next-line @next/next/no-img-element -- private, access-checked route; not for the image optimizer
+                <img src={`/api/community/media/${tip.photo_key}`} alt="" loading="lazy" decoding="async"
+                  className="mt-3 max-h-96 w-full rounded-xl bg-raised object-cover" />
+              )}
               <p className="mt-2 text-sm text-muted-foreground">
                 {[tip.author_name, visitLabel(tip.visited_on), timeAgo(tip.created_at), tip.status === "hidden" ? "hidden" : null].filter(Boolean).join(" · ")}
               </p>

@@ -5,8 +5,13 @@ import { DAILY_LIMITS, type ReportReason } from "./rules";
 /** Spot tips on the application D1 (migrations/app-preview/0042_spot_tips.sql). Same conventions as ./qa.ts. */
 export type TipRow = {
   id: string; spot_id: string; user_id: string; author_name: string; body: string; visited_on: string | null;
-  status: "visible" | "hidden"; created_at: string; open_reports: number;
+  status: "visible" | "hidden"; created_at: string; open_reports: number; photo_key: string | null;
 };
+
+/** The tip that owns a stored photo, for the media route's access check. */
+export async function tipByPhoto(db: CommunityDb, key: string): Promise<{ status: string } | null> {
+  return db.prepare("SELECT status FROM spot_tips WHERE photo_key = ?").bind(key).first<{ status: string }>();
+}
 
 /** Newest first. Hidden tips and report counts only for admins. */
 export async function listTips(db: CommunityDb, spotId: string, admin = false, limit = 50): Promise<TipRow[]> {
@@ -19,15 +24,15 @@ export async function listTips(db: CommunityDb, spotId: string, admin = false, l
 }
 
 export async function createTip(db: CommunityDb, author: { userId: string; name: string }, spotId: string,
-  input: { body: string; visitedOn: string | null }): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+  input: { body: string; visitedOn: string | null; photoKey?: string | null }, id: string = crypto.randomUUID()):
+  Promise<{ ok: true; id: string } | { ok: false; error: string }> {
   const spot = await db.prepare("SELECT id FROM spots WHERE id = ? AND visible = 1").bind(spotId).first();
   if (!spot) return { ok: false, error: "This place is not available." };
   const today = await db.prepare("SELECT count(*) AS n FROM spot_tips WHERE user_id = ? AND created_at >= strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-1 day')")
     .bind(author.userId).first<{ n: number }>();
   if (Number(today?.n ?? 0) >= DAILY_LIMITS.tip) return { ok: false, error: "You reached today's limit for tips. Try again tomorrow." };
-  const id = crypto.randomUUID();
-  await db.prepare("INSERT INTO spot_tips (id, spot_id, user_id, author_name, body, visited_on) VALUES (?, ?, ?, ?, ?, ?)")
-    .bind(id, spotId, author.userId, author.name, input.body, input.visitedOn).run();
+  await db.prepare("INSERT INTO spot_tips (id, spot_id, user_id, author_name, body, visited_on, photo_key) VALUES (?, ?, ?, ?, ?, ?, ?)")
+    .bind(id, spotId, author.userId, author.name, input.body, input.visitedOn, input.photoKey ?? null).run();
   return { ok: true, id };
 }
 

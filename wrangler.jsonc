@@ -109,7 +109,9 @@
         { "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "localley-next-cache" },
         // Story media step 1 (Nils 2026-10-23 "R2 media path"; shared/plans/localley-decisions.md):
         // server-side reads of archived story backgrounds (legacy/<sha256>.<ext>). No public route.
-        { "binding": "STORY_MEDIA_R2", "bucket_name": "localley-legacy-media", "jurisdiction": "eu" }
+        { "binding": "STORY_MEDIA_R2", "bucket_name": "localley-legacy-media", "jurisdiction": "eu" },
+        // Community spot-tip photos (shared/plans/localley-helper-community.md), WebP re-encoded, admin-only for now.
+        { "binding": "COMMUNITY_MEDIA", "bucket_name": "localley-community-media", "jurisdiction": "eu" }
       ],
       "d1_databases": [{
         "binding": "NAVER_REFERENCE_DB",
