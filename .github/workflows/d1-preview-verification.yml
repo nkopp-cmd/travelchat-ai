@@ -25,6 +25,9 @@ on:
       - '__tests__/components/borderless-navigation.test.tsx'
       - 'app/api/cron/process-social-submissions/**'
       - '__tests__/api/process-social-submissions-route.test.ts'
+      - 'app/profile/**'
+      - 'lib/app-data/user-challenges.ts'
+      - '__tests__/lib/user-challenges-helper.test.ts'
       - 'app/help/**'
       - 'lib/help/**'
       - 'components/spots/driver-card.tsx'
@@ -544,6 +547,7 @@ jobs:
             npx vitest run __tests__/lib/driver-card.test.ts --maxWorkers=1
             npx vitest run __tests__/lib/community-qa.test.ts --maxWorkers=1
             npx vitest run __tests__/api/process-social-submissions-route.test.ts --maxWorkers=1
+            npx vitest run __tests__/lib/user-challenges-helper.test.ts --maxWorkers=1
             npx vitest run __tests__/components/page-header-pattern.test.tsx __tests__/components/dashboard-design-tokens.test.ts --maxWorkers=1
             npx vitest run __tests__/components/viator-suggestions-lazy.test.tsx --maxWorkers=1
             npx vitest run __tests__/lib/itinerary-grounded-generation.test.ts --maxWorkers=1
