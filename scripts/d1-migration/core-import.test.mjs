@@ -2,11 +2,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
+import { readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { buildImport, loadProjection, loadRules, loadSnapshot, rehearse, wkbPoint, sql } from './core-import.mjs';
 
 
 import { rehearseCoreD1 } from './core-import-d1.mjs';
+
+// Every migration in migrations/app-preview is applied (count derived, not pinned: a new migration needs no edit here).
+const MIGRATIONS = readdirSync('migrations/app-preview').filter(f => f.endsWith('.sql')).length;
 
 const sha = value => createHash('sha256').update(value).digest('hex');
 const point = (lng, lat) => { const b = Buffer.alloc(25); Buffer.from('0101000020E6100000', 'hex').copy(b); b.writeDoubleLE(lng, 9); b.writeDoubleLE(lat, 17); return b.toString('hex').toUpperCase(); };
@@ -94,13 +98,13 @@ test('legacy import builds exact, idempotent D1 rows with the complete current s
       const result = await rehearse(built.sql, built.expected);
       assert.equal(result.mismatchCount, 0, result.mismatches.join(','));
       assert.equal(result.repeatChanges, 0); assert.equal(result.foreignKeyViolations, 0); assert.equal(result.integrity, 'ok');
-      assert.equal(result.migrations, 40);
+      assert.equal(result.migrations, MIGRATIONS);
       assert.equal(result.counts.legacy_profile_emails, 2);
     });
     await t.test('local workerd D1 matches all imported values with no repeat changes', async () => {
       const result = await rehearseCoreD1(built);
       assert.equal(result.mismatchCount, 0); assert.equal(result.repeatChanges, 0);
-      assert.equal(result.foreignKeyViolations, 0); assert.equal(result.migrations, 40);
+      assert.equal(result.foreignKeyViolations, 0); assert.equal(result.migrations, MIGRATIONS);
       assert.equal(result.localOnly, true); assert.equal(result.noOutboundCode, true);
       assert.equal(result.servingApiVerified, false);
       const sqlite = await rehearse(built.sql, built.expected);
