@@ -35,8 +35,17 @@ function remainingCount(used: number, limit: number) {
     return Math.max(limit - used, 0);
 }
 
-async function getUserProgress() {
-    const { userId } = await auth();
+/**
+ * Per-phase timing for perf-speed-of-light.md (/profile item): each read records when it finished, in ms after the page
+ * started. Rendered only with ?timing=1 as a JSON block of numbers (no user data). Workers' clock advances on I/O.
+ */
+type Marks = Record<string, number>;
+function timed<T>(marks: Marks, start: number, name: string, work: PromiseLike<T>): Promise<T> {
+    return Promise.resolve(work).then((value) => { marks[name] = Date.now() - start; return value; });
+}
+
+async function getUserProgress(marks: Marks = {}, start = Date.now()) {
+    const { userId } = await timed(marks, start, "auth", auth());
 
     if (!userId) {
         redirect("/sign-in");
@@ -51,12 +60,12 @@ async function getUserProgress() {
     // Everything keyed by the signed-in user id starts at once. Progress and completed challenges need the internal
     // user id, so they chain on the users read instead of waiting for the whole first round (one fewer round trip).
     // public.challenges has `name` (no `title`); user_challenges is keyed by (user_id, challenge_id).
-    const userRead = supabase.from("users").select("id, xp, level").eq("clerk_id", userId).single();
+    const userRead = timed(marks, start, "users", supabase.from("users").select("id, xp, level").eq("clerk_id", userId).single());
     const progressReads = Promise.resolve(userRead).then(async ({ data }) => {
         if (!data?.id) return [{ data: null }, { data: null }] as const;
         return Promise.all([
-            supabase.from("user_progress").select("*").eq("user_id", data.id).single(),
-            completedChallengesWithDetails(supabase, data.id),
+            timed(marks, start, "progress", supabase.from("user_progress").select("*").eq("user_id", data.id).single()),
+            timed(marks, start, "challenges", completedChallengesWithDetails(supabase, data.id)),
         ]);
     });
     const [
@@ -69,27 +78,27 @@ async function getUserProgress() {
         [{ data: progress }, { data: challengesData }],
     ] = await Promise.all([
         userRead,
-        supabase
+        timed(marks, start, "itineraries", supabase
             .from("itineraries")
             .select("id, title, city, days, created_at")
             .eq("clerk_user_id", userId)
             .order("created_at", { ascending: false })
-            .limit(12),
-        savedSpotsWithSpots(supabase, userId,
-            ["id", "name", "description", "category", "localley_score", "photos", "address"], 12),
-        supabase.from("subscriptions").select("*").eq("clerk_user_id", userId).single(),
-        supabase
+            .limit(12)),
+        timed(marks, start, "savedSpots", savedSpotsWithSpots(supabase, userId,
+            ["id", "name", "description", "category", "localley_score", "photos", "address"], 12)),
+        timed(marks, start, "subscription", supabase.from("subscriptions").select("*").eq("clerk_user_id", userId).single()),
+        timed(marks, start, "usageMonthly", supabase
             .from("usage_tracking")
             .select("usage_type, count")
             .eq("clerk_user_id", userId)
             .eq("period_type", "monthly")
-            .eq("period_start", monthStart),
-        supabase
+            .eq("period_start", monthStart)),
+        timed(marks, start, "usageDaily", supabase
             .from("usage_tracking")
             .select("usage_type, count")
             .eq("clerk_user_id", userId)
             .eq("period_type", "daily")
-            .eq("period_start", today),
+            .eq("period_start", today)),
         progressReads,
     ]);
 
@@ -132,8 +141,10 @@ async function getUserProgress() {
     };
 }
 
-export default async function ProfilePage({ searchParams }: { searchParams: Promise<{ data_candidate?: string }> }) {
-    const user = await currentUser();
+export default async function ProfilePage({ searchParams }: { searchParams: Promise<{ data_candidate?: string; timing?: string }> }) {
+    const start = Date.now();
+    const marks: Marks = {};
+    const user = await timed(marks, start, "currentUser", currentUser());
 
     if (!user) {
         redirect("/sign-in");
@@ -151,7 +162,8 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
         return <PreviewProfile profile={profile} />;
     }
 
-    const progressData = await getUserProgress();
+    const progressData = await getUserProgress(marks, start);
+    marks.data = Date.now() - start;
     const { progress, completedChallenges, itineraries, savedSpots, usage } = progressData;
     const subscription = withLifetimePremium(progressData.subscription, user.emailAddresses[0]?.emailAddress);
 
@@ -181,6 +193,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
 
     return (
         <AppBackground ambient className="min-h-screen">
+        {params.timing === "1" && <script type="application/json" id="profile-timing" dangerouslySetInnerHTML={{ __html: JSON.stringify(marks) }} />}
         <div className="mx-auto w-full max-w-5xl space-y-5 px-4 pb-28 pt-5 sm:space-y-6 sm:px-6 sm:pb-10 sm:pt-8 animate-in fade-in duration-500">
             {/* Profile Header */}
             <div className={`relative overflow-hidden ${LIQUID_CARD}`}>
