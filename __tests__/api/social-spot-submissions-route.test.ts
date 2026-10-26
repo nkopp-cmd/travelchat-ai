@@ -461,6 +461,7 @@ describe("/api/spots/social-submissions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.NEXT_PUBLIC_SOCIAL_SPOT_SUBMISSIONS_ENABLED = "true";
+    delete process.env.DATA_BACKEND;
     mocks.contributorRows.length = 0;
     mocks.submissionRows.length = 0;
     mocks.spotRows.length = 0;
@@ -499,6 +500,17 @@ describe("/api/spots/social-submissions", () => {
     expect(response.status).toBe(404);
     expect(body.error.code).toBe("social_submissions_disabled");
     expect(mocks.rateLimitStrict).not.toHaveBeenCalled();
+    expect(mocks.createSupabaseAdmin).not.toHaveBeenCalled();
+  });
+
+  it("is disabled on the D1 backend even with the flag on (media-job RPCs are not ported)", async () => {
+    process.env.DATA_BACKEND = "d1";
+    const { POST } = await import("@/app/api/spots/social-submissions/route");
+
+    const response = await POST(createRequest({ url: "https://www.instagram.com/reel/ABC123", email: "spotter@example.com" }));
+
+    expect(response.status).toBe(404);
+    expect((await response.json()).error.code).toBe("social_submissions_disabled");
     expect(mocks.createSupabaseAdmin).not.toHaveBeenCalled();
   });
 
