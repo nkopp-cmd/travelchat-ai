@@ -130,6 +130,7 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
     useEffect(() => {
         if (!container.current || mapRef.current) return;
         const first = spotsRef.current[0];
+        maplibregl.setWorkerUrl(maplibreWorkerUrl());
         const map = new maplibregl.Map({
             container: container.current,
             style: localleyMapStyle(readMapTokens(container.current)),
@@ -282,6 +283,11 @@ function boundsOf(points: LngLatLike[]): maplibregl.LngLatBounds {
 export function fitPadding(height: number, bottomInset: number) {
     const bottom = 48 + Math.max(0, Math.min(bottomInset, height - 48 - 48 - 120));
     return { top: 48, right: 48, bottom, left: 48 };
+}
+
+// Copied to public/ by scripts/copy-maplibre-worker.mjs; the bundled default URL points at a missing chunk.
+export function maplibreWorkerUrl(): string {
+    return `/vendor/maplibre-gl-worker-${maplibregl.getVersion()}.mjs`;
 }
 
 function prefersReducedMotion(): boolean {

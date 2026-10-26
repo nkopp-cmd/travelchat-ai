@@ -7,7 +7,7 @@
     "build": "next build",
     "build:analyze": "ANALYZE=true next build",
     "start": "next start",
-    "cf:build": "opennextjs-cloudflare build && node scripts/cf-static-public-html.mjs",
+    "cf:build": "node scripts/copy-maplibre-worker.mjs && opennextjs-cloudflare build && node scripts/cf-static-public-html.mjs",
     "cf:preview:local": "opennextjs-cloudflare preview",
     "cf:deploy:preview": "CLOUDFLARE_ACCOUNT_ID=664f242340bcec2f32daaeee15f58bde opennextjs-cloudflare deploy",
     "cf:upload:preview": "CLOUDFLARE_ACCOUNT_ID=664f242340bcec2f32daaeee15f58bde opennextjs-cloudflare upload",
@@ -31,7 +31,9 @@
     "geo:backfill:review": "tsx scripts/review-spot-geography-backfill.ts",
     "trip:seed-edges": "tsx scripts/seed-transport-edges.ts",
     "seed:spots": "ts-node --project tsconfig.json scripts/seed-spots.ts",
-    "seed:more": "ts-node --project tsconfig.json scripts/seed-additional-spots.ts"
+    "seed:more": "ts-node --project tsconfig.json scripts/seed-additional-spots.ts",
+    "prebuild": "node scripts/copy-maplibre-worker.mjs",
+    "predev": "node scripts/copy-maplibre-worker.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",

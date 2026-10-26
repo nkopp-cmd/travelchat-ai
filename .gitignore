@@ -76,3 +76,6 @@ nul
 
 # release lane state (scripts/release/production.mjs)
 .release/
+
+# maplibre worker copied at build time (scripts/copy-maplibre-worker.mjs)
+/public/vendor/

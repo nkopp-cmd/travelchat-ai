@@ -30,3 +30,6 @@
 
 /images/picks/singapore-pick-v1-*
   Cache-Control: public, max-age=31536000, immutable
+
+/vendor/maplibre-gl-worker-*
+  Cache-Control: public, max-age=31536000, immutable
