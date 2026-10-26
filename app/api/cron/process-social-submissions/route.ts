@@ -398,7 +398,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   }
 
-  // Off while production reads D1: the media-job RPCs are not ported (lib/social-submissions-availability.ts).
   if (!socialSpotSubmissionsAvailable()) {
     return NextResponse.json({ success: true, skipped: "social submissions disabled" });
   }
