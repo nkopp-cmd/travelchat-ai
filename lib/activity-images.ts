@@ -5,6 +5,23 @@
 import { generateActivityThumbnail as generateAIThumbnail, isImagenAvailable } from './imagen';
 import { createSupabaseAdmin } from './supabase';
 
+interface ActivityThumbnailBucket {
+  put(key: string, body: Uint8Array, options: { httpMetadata: { contentType: string } }): Promise<unknown>;
+  head(key: string): Promise<unknown | null>;
+}
+
+/** Supabase exit 8a: AI activity thumbnails live in R2 (STORY_MEDIA_R2) and are served by /media/activity/<hash>.png. */
+function activityThumbnailBucket(): ActivityThumbnailBucket | null {
+  const bucket = (globalThis as Record<symbol, { env?: Record<string, unknown> } | undefined>)
+    [Symbol.for('__cloudflare-context__')]?.env?.STORY_MEDIA_R2 as Partial<ActivityThumbnailBucket> | undefined;
+  return bucket && typeof bucket.put === 'function' && typeof bucket.head === 'function' ? bucket as ActivityThumbnailBucket : null;
+}
+
+/** activity-thumbnails/<hash>.png -> /media/activity/<hash>.png */
+export function activityThumbnailPath(storageKey: string): string {
+  return `/media/activity/${storageKey.slice('activity-thumbnails/'.length)}`;
+}
+
 /**
  * Curated high-quality images by city and category
  * Using direct Unsplash URLs (the Source API was deprecated in 2022)
@@ -234,11 +251,21 @@ async function uploadImageToStorage(
   imageBase64: string,
   storageKey: string
 ): Promise<string | null> {
+  const buffer = Buffer.from(imageBase64, 'base64');
+  let r2Path: string | null = null;
+  const bucket = activityThumbnailBucket();
+  if (bucket) {
+    try {
+      await bucket.put(storageKey, new Uint8Array(buffer), { httpMetadata: { contentType: 'image/png' } });
+      r2Path = activityThumbnailPath(storageKey);
+    } catch (error) {
+      console.error('[activity-images] R2 write failed:', error instanceof Error ? error.message : error);
+    }
+  }
   try {
     const supabase = createSupabaseAdmin();
-    const buffer = Buffer.from(imageBase64, 'base64');
 
-    // Upload to Supabase Storage
+    // Supabase Storage stays a dual write until 2026-11-02 (Supabase exit 8b removes it).
     const { error: uploadError } = await supabase.storage
       .from('generated-images')
       .upload(storageKey, buffer, {
@@ -248,8 +275,9 @@ async function uploadImageToStorage(
 
     if (uploadError) {
       console.error('[activity-images] Upload error:', uploadError);
-      return null;
+      return r2Path;
     }
+    if (r2Path) return r2Path;
 
     // Get the public URL
     const { data: urlData } = supabase.storage
@@ -259,7 +287,7 @@ async function uploadImageToStorage(
     return urlData?.publicUrl || null;
   } catch (error) {
     console.error('[activity-images] Storage upload failed:', error);
-    return null;
+    return r2Path;
   }
 }
 
@@ -267,6 +295,14 @@ async function uploadImageToStorage(
  * Check if an image already exists in storage
  */
 async function getExistingImageUrl(storageKey: string): Promise<string | null> {
+  const bucket = activityThumbnailBucket();
+  if (bucket) {
+    try {
+      if (await bucket.head(storageKey)) return activityThumbnailPath(storageKey);
+    } catch {
+      // fall through to the Supabase copy
+    }
+  }
   try {
     const supabase = createSupabaseAdmin();
 
