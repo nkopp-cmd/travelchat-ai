@@ -2,9 +2,13 @@ import { readFileSync } from "node:fs";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("maplibre-gl", () => ({ default: {} }));
+vi.mock("maplibre-gl", async () => {
+  const { readFileSync: read } = await import("node:fs");
+  const { version } = JSON.parse(read("node_modules/maplibre-gl/package.json", "utf8")) as { version: string };
+  return { getVersion: () => version };
+});
 vi.mock("maplibre-gl/dist/maplibre-gl.css", () => ({}));
-import { PinCard } from "@/components/spots/spot-pin-map";
+import { PinCard, maplibreWorkerUrl } from "@/components/spots/spot-pin-map";
 import type { Spot } from "@/types";
 
 const spot = {
@@ -13,6 +17,16 @@ const spot = {
   subcategories: [], localleyScore: 5, localPercentage: 80, bestTime: "", tips: [], verified: true, trending: true,
   photos: ["/api/places/photo?name=places%2Fabc%2Fphotos%2Fdef"],
 } as unknown as Spot;
+
+describe("maplibre worker", () => {
+  it("points at the versioned worker copied to public/ by the build", async () => {
+    const { execFileSync } = await import("node:child_process");
+    execFileSync("node", ["scripts/copy-maplibre-worker.mjs"]);
+    const maplibreVersion = (JSON.parse(readFileSync("node_modules/maplibre-gl/package.json", "utf8")) as { version: string }).version;
+    expect(maplibreWorkerUrl()).toBe(`/vendor/maplibre-gl-worker-${maplibreVersion}.mjs`);
+    expect(readFileSync(`public${maplibreWorkerUrl()}`, "utf8")).toContain("MapLibre GL JS");
+  });
+});
 
 describe("map pin card", () => {
   it("is a labelled dialog with Details and Close, and Escape closes it", () => {
