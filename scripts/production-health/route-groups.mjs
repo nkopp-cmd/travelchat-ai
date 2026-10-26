@@ -121,6 +121,7 @@ const routes = [
   "/itineraries/[id]/stories",
   "/itineraries/new",
   "/leaderboard",
+  "/media/activity/[file]",
   "/pricing",
   "/profile",
   "/reset-password",
