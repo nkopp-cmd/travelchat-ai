@@ -310,6 +310,10 @@ on:
       - '__tests__/api/story-render-access.test.tsx'
       - 'app/api/itineraries/[id]/story/persist/route.ts'
       - 'app/api/itineraries/[id]/story/media/**'
+      - '__tests__/api/story-slides-r2.test.ts'
+      - 'lib/story-slides-r2.ts'
+      - 'app/api/itineraries/[[]id[]]/story/**'
+      - 'app/api/cron/cleanup-stories/**'
       - 'app/api/subscription/checkout/route.ts'
       - 'app/api/subscription/portal/route.ts'
       - '__tests__/api/subscription-action-candidate.test.ts'
@@ -610,6 +614,7 @@ jobs:
             npx vitest run __tests__/lib/preview-flux-client.test.ts __tests__/api/story-background-cache-candidate.test.ts __tests__/api/story-background-r2.test.ts --maxWorkers=1
             npx eslint lib/app-data/preview-story-background-cache.ts lib/app-data/preview-story-usage.ts app/api/images/story-background/route.ts "app/api/images/story-background/media/[id]/route.ts" app/api/test-app-data/story-background/route.ts __tests__/api/story-background-cache-candidate.test.ts
             npx vitest run __tests__/api/story-render-access.test.tsx --maxWorkers=1
+            npx vitest run __tests__/api/story-slides-r2.test.ts --maxWorkers=1
             npx eslint "app/api/itineraries/[id]/story/route.tsx" __tests__/api/story-render-access.test.tsx
             npx vitest run __tests__/lib/glm-json-request.test.ts __tests__/api/itinerary-private-diagnostics.test.ts __tests__/api/itinerary-provider-fallback.test.ts __tests__/api/itinerary-sanitize.test.ts --maxWorkers=1
             npx eslint app/api/itineraries/generate/diagnostics.ts app/api/itineraries/generate/provider-fallback.ts app/api/itineraries/generate/shared.ts app/api/itineraries/generate/corridor-generation.ts app/api/itineraries/generate/route.ts __tests__/api/itinerary-private-diagnostics.test.ts __tests__/api/itinerary-provider-fallback.test.ts

@@ -6,6 +6,7 @@ import { trackEngagement } from "@/lib/engagement-tracking";
 import { isPreviewItineraryDetailCandidate, previewItineraryDetail } from "@/lib/app-data/preview-itinerary-detail";
 import { isPreviewEditorIntent, PreviewEditorDeniedError } from "@/lib/app-data/preview-itinerary-editor";
 import { deletePreviewItinerary } from "@/lib/app-data/preview-itinerary-delete";
+import { storySlideKeys, storySlidesBucket } from "@/lib/story-slides-r2";
 
 export async function DELETE(
     request: NextRequest,
@@ -43,7 +44,7 @@ export async function DELETE(
         // Verify ownership before deleting
         const { data: itinerary, error: fetchError } = await supabase
             .from("itineraries")
-            .select("clerk_user_id")
+            .select("clerk_user_id, story_slides")
             .eq("id", id)
             .single();
 
@@ -54,6 +55,11 @@ export async function DELETE(
         if (itinerary.clerk_user_id !== userId) {
             return Errors.forbidden();
         }
+
+        // Story slides in R2 belong to the itinerary: delete them before the row.
+        const slideKeys = storySlideKeys(id, itinerary.story_slides);
+        const slideBucket = slideKeys.length ? storySlidesBucket() : null;
+        for (const key of slideKeys) await slideBucket?.delete(key);
 
         // Delete the itinerary
         const { error: deleteError } = await supabase

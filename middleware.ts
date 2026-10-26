@@ -26,6 +26,7 @@ const PUBLIC_ROUTES = [
     '/api/conditions/:city',  // Planner trip outlook: season table + MET forecast for one reviewed city, cached
     '/api/events/spots',  // Spot-card analytics beacon: same-origin, bounded daily aggregates, no user data
     '/api/version',  // Release proof: the deployed commit sha (Gravity release lane smoke check)
+    '/api/itineraries/:id/story/media/:generation/:slide',  // Story slides: the route enforces owner/shared + unexpired.
     '/api/places/naver-local', // Bounded public KR name/address references; no app writes
     '/api/places/photo',  // Public spot image proxy; API key stays server-side
     '/api/spots/social-submissions(.*)',  // Public intake/status; server routes handle validation and rate limits
