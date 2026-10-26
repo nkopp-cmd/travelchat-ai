@@ -29,6 +29,11 @@ function validateImageSource(data: string): boolean {
         return true;
     }
 
+    // Accept content-addressed story media in R2 (read by the story route through STORY_MEDIA_R2)
+    if (/^\/media\/story\/[0-9a-f]{64}\.(?:png|jpg)$/.test(data)) {
+        return true;
+    }
+
     // Accept HTTPS URLs from known image providers
     if (data.startsWith('https://')) {
         const url = data.toLowerCase();
