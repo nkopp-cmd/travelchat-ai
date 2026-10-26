@@ -9,6 +9,7 @@ import { isPreviewStoryCandidate } from "@/lib/app-data/preview-story-candidate"
 import { previewStoryOwner, savePreviewStoryMedia } from "@/lib/app-data/preview-story-media";
 import { previewStoryTier } from "@/lib/app-data/preview-story-tier";
 import { readPreviewStoryForm, previewStorySlideBytes } from "@/lib/app-data/preview-story-upload";
+import { storySlideKey, storySlideKeys, storySlidePath, storySlidesBucket } from "@/lib/story-slides-r2";
 
 // Uploading multiple slide PNGs can take time
 export const maxDuration = 30;
@@ -57,7 +58,7 @@ export async function POST(
         // Verify itinerary ownership
         const { data: itinerary, error: fetchError } = await supabase
             .from("itineraries")
-            .select("clerk_user_id")
+            .select("clerk_user_id, story_slides")
             .eq("id", id)
             .single();
 
@@ -68,6 +69,13 @@ export async function POST(
         if (itinerary.clerk_user_id !== userId) {
             return Errors.forbidden();
         }
+
+        // R2 is the served copy (random generation per persist); Supabase Storage stays a dual write until 2026-11-02.
+        const bucket = storySlidesBucket();
+        const generation = crypto.randomUUID();
+        const origin = req.nextUrl.origin;
+        const previousKeys = storySlideKeys(id, itinerary.story_slides);
+        const storedKeys: string[] = [];
 
         // Get user tier for retention period
         const tier = await getUserTier(userId);
@@ -113,6 +121,17 @@ export async function POST(
                     continue;
                 }
                 const storageKey = `story-slides/${id}/${key}.png`;
+                const r2Key = bucket ? storySlideKey(id, generation, key) : null;
+                let r2Stored = false;
+                if (bucket && r2Key) {
+                    try {
+                        await bucket.put(r2Key, new Uint8Array(buffer), { httpMetadata: { contentType: "image/png" } });
+                        storedKeys.push(r2Key);
+                        r2Stored = true;
+                    } catch (r2Error) {
+                        console.error(`[STORY_PERSIST] R2 write failed for ${key}:`, r2Error instanceof Error ? r2Error.message : r2Error);
+                    }
+                }
 
                 const { error: uploadError } = await supabase.storage
                     .from("generated-images")
@@ -120,6 +139,12 @@ export async function POST(
                         contentType: "image/png",
                         upsert: true,
                     });
+
+                if (r2Stored) {
+                    if (uploadError) console.error(`[STORY_PERSIST] Supabase dual write failed for ${key}:`, uploadError.message);
+                    slides[key] = `${origin}${storySlidePath(id, generation, key)}`;
+                    continue;
+                }
 
                 if (uploadError) {
                     console.error(`[STORY_PERSIST] Upload failed for ${key}:`, uploadError.message);
@@ -164,8 +189,15 @@ export async function POST(
 
         if (updateError) {
             console.error("[STORY_PERSIST] DB update failed:", updateError);
+            for (const key of storedKeys) await bucket?.delete(key).catch(() => {});
             return Errors.databaseError();
         }
+
+        // The previous story's R2 objects are no longer referenced.
+        for (const key of previousKeys) {
+            if (!storedKeys.includes(key)) await bucket?.delete(key).catch((e: unknown) => console.error("[STORY_PERSIST] Old R2 slide delete failed", e));
+        }
+        console.log(`[STORY_PERSIST] story_media_write=${storedKeys.length ? "r2" : "supabase_only"}`);
 
         console.log("[STORY_PERSIST] Saved", Object.keys(slides).length, "slides for", id, {
             tier,

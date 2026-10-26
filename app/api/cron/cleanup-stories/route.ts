@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { storySlideKeys, storySlidesBucket } from "@/lib/story-slides-r2";
 import { isCronRequestAuthorized } from "@/lib/cron-auth";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { isPreviewStoryCandidate } from "@/lib/app-data/preview-story-candidate";
@@ -60,6 +61,20 @@ export async function GET(req: NextRequest) {
             const storySlides = item.story_slides as {
                 slides: Record<string, string>;
             } | null;
+
+            // R2 slides first: if they cannot be deleted, keep story_slides so the next run retries.
+            const r2Keys = storySlideKeys(item.id, storySlides);
+            if (r2Keys.length > 0) {
+                const bucket = storySlidesBucket();
+                try {
+                    if (!bucket) throw new Error("STORY_MEDIA_R2 is not configured");
+                    for (const key of r2Keys) await bucket.delete(key);
+                    filesDeleted += r2Keys.length;
+                } catch (r2Error) {
+                    console.error(`[CLEANUP_STORIES] R2 delete error for ${item.id}:`, r2Error instanceof Error ? r2Error.message : r2Error);
+                    continue;
+                }
+            }
 
             if (storySlides?.slides) {
                 // Delete slide files from Storage
