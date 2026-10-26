@@ -23,6 +23,7 @@ import {
   enrichSocialLinkMetadataWithProvider,
   fetchSocialLinkMetadata,
 } from "@/lib/social-spot-submissions";
+import { socialSpotSubmissionsAvailable } from "@/lib/social-submissions-availability";
 import { createSupabaseAdmin } from "@/lib/supabase";
 
 export const runtime = "nodejs";
@@ -397,9 +398,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   }
 
-  // Social submissions are off in production: nothing can be queued, and the media-job RPCs are not ported to D1
-  // (shared/plans/localley-supabase-exit.md; d1-facade-coverage DEFERRED_RPCS). Port them before enabling the flag.
-  if (process.env.NEXT_PUBLIC_SOCIAL_SPOT_SUBMISSIONS_ENABLED !== "true") {
+  // Off while production reads D1: the media-job RPCs are not ported (lib/social-submissions-availability.ts).
+  if (!socialSpotSubmissionsAvailable()) {
     return NextResponse.json({ success: true, skipped: "social submissions disabled" });
   }
 

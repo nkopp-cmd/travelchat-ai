@@ -2,6 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import { after, NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { auth } from "@/lib/auth/server";
+import { socialSpotSubmissionsAvailable } from "@/lib/social-submissions-availability";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { isAdminUser } from "@/lib/admin-auth";
 import { Errors, handleApiError } from "@/lib/api-errors";
@@ -58,7 +59,7 @@ function remainingProcessingTimeout(deadlineAt: number | undefined, maximumMs: n
 }
 
 function isSocialSpotSubmissionsEnabled(): boolean {
-  return process.env.NEXT_PUBLIC_SOCIAL_SPOT_SUBMISSIONS_ENABLED === "true";
+  return socialSpotSubmissionsAvailable();
 }
 
 function scheduleSocialMediaWorker(request: NextRequest): void {

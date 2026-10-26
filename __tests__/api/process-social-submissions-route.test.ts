@@ -131,6 +131,7 @@ describe("social submission media worker", () => {
     });
     process.env.CRON_SECRET = "worker-secret";
     process.env.NEXT_PUBLIC_SOCIAL_SPOT_SUBMISSIONS_ENABLED = "true";
+    delete process.env.DATA_BACKEND;
     delete process.env.APIFY_API_TOKEN;
     mocks.listSocialMediaWork.mockResolvedValue([submission]);
     mocks.claimSocialMediaJobs.mockImplementation(async ({ mediaKind }) => [
@@ -161,6 +162,15 @@ describe("social submission media worker", () => {
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ success: true, skipped: "social submissions disabled" });
     expect(mocks.createSupabaseAdmin).not.toHaveBeenCalled();
+    expect(mocks.listSocialMediaWork).not.toHaveBeenCalled();
+  });
+
+  it("skips on the D1 backend even with the flag on (media-job RPCs are not ported)", async () => {
+    process.env.DATA_BACKEND = "d1";
+    const { GET } = await import("@/app/api/cron/process-social-submissions/route");
+    const response = await GET(request());
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ success: true, skipped: "social submissions disabled" });
     expect(mocks.listSocialMediaWork).not.toHaveBeenCalled();
   });
 

@@ -22,6 +22,7 @@ import {
 } from "@/lib/spots";
 import type { Metadata } from "next";
 import { fetchWeeklyTrendingSpots } from "@/lib/spots/weekly-trending";
+import { socialSpotSubmissionsAvailable } from "@/lib/social-submissions-availability";
 
 export const metadata: Metadata = {
     title: "Discover Hidden Gems",
@@ -30,9 +31,6 @@ export const metadata: Metadata = {
 
 // Enable dynamic rendering for URL-based filtering
 export const dynamic = "force-dynamic";
-
-const socialSpotSubmissionsEnabled =
-    process.env.NEXT_PUBLIC_SOCIAL_SPOT_SUBMISSIONS_ENABLED === "true";
 
 interface SpotsPageProps {
     searchParams: Promise<SpotsFilterParams>;
@@ -164,7 +162,7 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
                                 Browse local-first restaurants, alleys, markets, cafes, and night spots across Asia. Pick a city, filter by vibe, then save the places worth building a trip around.
                             </p>
                             <Button asChild className="mt-4"><IntentLink href="/itineraries/new">Start with a city</IntentLink></Button>
-                            {socialSpotSubmissionsEnabled && (
+                            {socialSpotSubmissionsAvailable() && (
                                 <div className="mt-4 flex flex-wrap gap-2">
                                     <Button asChild variant="secondary">
                                         <IntentLink href="/spots/submit">

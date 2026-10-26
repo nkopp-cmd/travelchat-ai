@@ -39,7 +39,7 @@ const KNOWN_SCHEMA_BUGS: Record<string, string> = {
 
 /** Postgres functions not ported yet: name -> why calling them under DATA_BACKEND=d1 cannot happen today. */
 const DEFERRED_RPCS: Record<string, string> = {
-  claim_social_spot_media_jobs_v1: "social submissions are off in production (NEXT_PUBLIC_SOCIAL_SPOT_SUBMISSIONS_ENABLED unset); port before enabling",
+  claim_social_spot_media_jobs_v1: "social submissions are off while production reads D1 (lib/social-submissions-availability.ts); port, then drop that check",
   complete_social_spot_media_job_v1: "same: social submissions off",
   fail_social_spot_media_job_v1: "same: social submissions off",
   sync_social_spot_media_v1: "same: social submissions off",
