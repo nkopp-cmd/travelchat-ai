@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useId, useRef, useState, type ComponentType } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import maplibregl, { type GeoJSONSource, type LngLatLike, type Map as MapLibreMap, type Marker } from "maplibre-gl";
+import * as maplibregl from "maplibre-gl";
+import type { GeoJSONSource, LngLatLike, Map as MapLibreMap, Marker } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Camera, Coffee, MapPin, Moon, ShoppingBag, Store, Ticket, Train, Trees, Utensils, X, type IconProps } from "@/components/ui/icons";
 import { getDirectVenuePhotos } from "@/components/spots/venue-photo-provider";
