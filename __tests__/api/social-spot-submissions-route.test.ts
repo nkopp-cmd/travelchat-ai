@@ -503,15 +503,14 @@ describe("/api/spots/social-submissions", () => {
     expect(mocks.createSupabaseAdmin).not.toHaveBeenCalled();
   });
 
-  it("is disabled on the D1 backend even with the flag on (media-job RPCs are not ported)", async () => {
+  it("is enabled on the D1 backend (the media-job functions are ported)", async () => {
     process.env.DATA_BACKEND = "d1";
     const { POST } = await import("@/app/api/spots/social-submissions/route");
 
-    const response = await POST(createRequest({ url: "https://www.instagram.com/reel/ABC123", email: "spotter@example.com" }));
+    const response = await POST(createRequest({ url: "https://example.com/not-social", email: "spotter@example.com" }));
 
-    expect(response.status).toBe(404);
-    expect((await response.json()).error.code).toBe("social_submissions_disabled");
-    expect(mocks.createSupabaseAdmin).not.toHaveBeenCalled();
+    expect(response.status).not.toBe(404);
+    expect(mocks.rateLimitStrict).toHaveBeenCalled();
   });
 
   it("rejects unsupported social URLs", async () => {

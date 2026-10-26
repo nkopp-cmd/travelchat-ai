@@ -165,13 +165,13 @@ describe("social submission media worker", () => {
     expect(mocks.listSocialMediaWork).not.toHaveBeenCalled();
   });
 
-  it("skips on the D1 backend even with the flag on (media-job RPCs are not ported)", async () => {
+  it("runs on the D1 backend (the media-job functions are ported)", async () => {
     process.env.DATA_BACKEND = "d1";
+    mocks.listSocialMediaWork.mockResolvedValue([]);
     const { GET } = await import("@/app/api/cron/process-social-submissions/route");
     const response = await GET(request());
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ success: true, skipped: "social submissions disabled" });
-    expect(mocks.listSocialMediaWork).not.toHaveBeenCalled();
+    expect(mocks.listSocialMediaWork).toHaveBeenCalled();
   });
 
   it("still rejects an unauthorized request while disabled", async () => {
