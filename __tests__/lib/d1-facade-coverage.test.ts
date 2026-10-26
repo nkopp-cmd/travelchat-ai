@@ -39,17 +39,6 @@ const KNOWN_SCHEMA_BUGS: Record<string, string> = {
 
 /** Postgres functions not ported yet: name -> why calling them under DATA_BACKEND=d1 cannot happen today. */
 const DEFERRED_RPCS: Record<string, string> = {
-  claim_social_spot_media_jobs_v1: "social submissions are off while production reads D1 (lib/social-submissions-availability.ts); port, then drop that check",
-  complete_social_spot_media_job_v1: "same: social submissions off",
-  fail_social_spot_media_job_v1: "same: social submissions off",
-  sync_social_spot_media_v1: "same: social submissions off",
-  sync_social_submission_candidates_v1: "same: social submissions off",
-  defer_social_spot_media_coverage_v1: "same: social submissions off",
-  claim_social_spot_media_coverage_v1: "same: social submissions off",
-  schedule_legacy_social_spot_media_backfill_v1: "same: social submissions off (admin backfill)",
-  list_ready_social_spot_media_work_v1: "same: social submissions off",
-  claim_social_spot_media_finalization_v2: "same: social submissions off",
-  settle_social_spot_media_finalization_v2: "same: social submissions off",
   calculate_monthly_earnings: "guide payouts are not live (guide tables have 0 rows); port before the first payout run",
 };
 
