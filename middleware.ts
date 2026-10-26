@@ -38,6 +38,7 @@ const PUBLIC_ROUTES = [
     '/templates(.*)',  // Allow browsing templates
     '/itineraries/:id/stories',  // Public stories download page
     '/api/itineraries/:id/story',  // The route enforces owner/public access before rendering.
+    '/api/itineraries/:id/story/media/:generation/:slide',  // Story slides: the route enforces owner/shared + unexpired.
 ];
 
 const toRegExp = (pattern: string) =>

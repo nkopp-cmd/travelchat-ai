@@ -48,6 +48,13 @@ describe("Clerk public route allowlist", () => {
     expect(isPublicRoute(new NextRequest(`https://www.localley.io${pathname}`))).toBe(true);
   });
 
+  it("opens story slide media to shared-page visitors (the route enforces owner/shared + unexpired)", () => {
+    const id = "11111111-1111-4111-8111-111111111111", gen = "33333333-3333-4333-8333-333333333333";
+    expect(isPublicRoute(new NextRequest(`https://www.localley.io/api/itineraries/${id}/story/media/${gen}/cover`))).toBe(true);
+    expect(isPublicRoute(new NextRequest(`https://www.localley.io/api/itineraries/${id}/story/media/${gen}`))).toBe(false);
+    expect(isPublicRoute(new NextRequest(`https://www.localley.io/api/itineraries/${id}/story/persist`))).toBe(false);
+  });
+
   it("continues to protect private application routes", () => {
     expect(isPublicRoute(new NextRequest("https://www.localley.io/dashboard"))).toBe(false);
   });
