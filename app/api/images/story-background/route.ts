@@ -18,6 +18,7 @@ import {
 export const maxDuration = 60;
 
 import { createSupabaseAdmin } from "@/lib/supabase";
+import { putStoryMedia } from "@/lib/story-media-r2";
 import { rateLimit } from "@/lib/rate-limit";
 import { getUserTier, checkAndIncrementUsageWeighted } from "@/lib/usage-tracking";
 import { isPreviewStoryCandidate } from "@/lib/app-data/preview-story-candidate";
@@ -279,6 +280,9 @@ async function storyBackgroundPost(req: NextRequest) {
                         if (candidateOwner && candidateHash) {
                             imageUrl = await savePreviewBackground(candidateOwner, candidateHash, buffer);
                         } else if (supabase) {
+                            // Story media step 2: R2 is the stored URL; Supabase Storage stays a dual write for one week.
+                            const r2Path = await putStoryMedia(buffer, ext, detectedType);
+                            console.log(`[STORY_BG] story_media_write=${r2Path ? "r2" : "supabase_only"}`);
                             const { error: uploadError } = await supabase.storage
                                 .from("generated-images")
                                 .upload(actualStorageKey, buffer, {
@@ -305,8 +309,9 @@ async function storyBackgroundPost(req: NextRequest) {
                                 });
                                 // Image generated but upload failed — still count as AI success
                                 // The base64 can't be returned directly (too large), so fall through
-                                failedProviders.push({ provider: currentProvider, error: `Upload failed: ${uploadError.message}` });
+                                if (!r2Path) failedProviders.push({ provider: currentProvider, error: `Upload failed: ${uploadError.message}` });
                             }
+                            if (r2Path) imageUrl = r2Path;
                         }
                         break; // AI succeeded — stop trying providers
                     } else {
