@@ -32,7 +32,19 @@ export class D1Sqlite {
   readonly sqlite: DatabaseSync;
   constructor(file = ":memory:") { this.sqlite = new DatabaseSync(file); }
   prepare(sql: string) { return new Statement(this.sqlite, sql); }
-  async batch(statements: Statement[]) { return Promise.all(statements.map((s) => s.all())); }
+  /** D1 runs a batch as one transaction: any failing statement rolls the whole batch back (a savepoint also nests). */
+  async batch(statements: Statement[]) {
+    this.sqlite.exec("SAVEPOINT d1_batch");
+    try {
+      const results = [];
+      for (const statement of statements) results.push(await statement.all());
+      this.sqlite.exec("RELEASE d1_batch");
+      return results;
+    } catch (error) {
+      this.sqlite.exec("ROLLBACK TO d1_batch; RELEASE d1_batch");
+      throw error;
+    }
+  }
   async exec(sql: string) { this.sqlite.exec(sql); return { count: 1, duration: 0 }; }
 }
 

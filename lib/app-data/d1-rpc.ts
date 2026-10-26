@@ -1,21 +1,13 @@
 import "server-only";
 import type { PreviewAppDataReader } from "./preview-db";
 import { nowTimestamptz, usageCheck, type PostgrestResult } from "./d1-postgrest";
+import { integer, journal, RaiseException, text, type Args } from "./d1-rpc-shared";
+import { SOCIAL_MEDIA_RPCS } from "./d1-rpc-social";
 
 /**
  * D1 versions of Postgres functions called through `supabase.rpc()` (Supabase exit step 3). Each returns what
  * PostgREST returns for the function: a set-returning function -> array of rows, a scalar -> the value.
  */
-
-type Args = Record<string, unknown>;
-
-/** Gate 2 write journal entry (replay syncs the Supabase rows matching `key` to the D1 rows matching it). */
-function journal(db: PreviewAppDataReader, table: string, op: "upsert" | "delete", key: Record<string, string | number | null>) {
-  return db.prepare("INSERT INTO _journal (table_name, op, pk) VALUES (?, ?, ?)").bind(table, op, JSON.stringify(key));
-}
-
-/** plpgsql RAISE EXCEPTION -> PostgREST error P0001 with the message. */
-class RaiseException extends Error {}
 
 /** Postgres CURRENT_DATE (UTC on Supabase) truncated like the functions do: day, ISO week (Monday) or month. */
 export function periodStart(periodType: unknown, now = new Date()): string {
@@ -26,18 +18,6 @@ export function periodStart(periodType: unknown, now = new Date()): string {
     return day.toISOString().slice(0, 10);
   }
   return `${day.toISOString().slice(0, 7)}-01`;
-}
-
-function text(args: Args, name: string): string {
-  const value = args[name];
-  if (typeof value !== "string" || !value) throw new Error(`D1 rpc: ${name} must be text`);
-  return value;
-}
-
-function integer(args: Args, name: string, fallback?: number): number {
-  const value = args[name] ?? fallback;
-  if (typeof value !== "number" || !Number.isSafeInteger(value)) throw new Error(`D1 rpc: ${name} must be an integer`);
-  return value;
 }
 
 /**
@@ -149,6 +129,7 @@ export const D1_RPCS: Record<string, (db: PreviewAppDataReader, args: Args) => P
   track_content_engagement: trackContentEngagement,
   replace_weekly_city_spot_rankings: replaceWeeklyCitySpotRankings,
   award_social_submission_tokens_v1: awardSocialSubmissionTokens,
+  ...SOCIAL_MEDIA_RPCS,
 };
 
 const USAGE_RPCS = { check_and_increment_usage_weighted: true, increment_usage: true };
@@ -165,7 +146,7 @@ export async function d1Rpc(db: PreviewAppDataReader, name: string, args: Args =
     return { data: await fn(db, args), error: null, count: null, status: 200 };
   } catch (cause) {
     const message = cause instanceof Error ? cause.message : String(cause);
-    if (cause instanceof RaiseException) return { data: null, error: { code: "P0001", message, details: null, hint: null }, count: null, status: 400 };
+    if (cause instanceof RaiseException) return { data: null, error: { code: cause.code, message, details: null, hint: null }, count: null, status: 400 };
     if (/CHECK constraint failed/i.test(message)) return { data: null, error: { code: "23514", message, details: null, hint: null }, count: null, status: 400 };
     if (/UNIQUE constraint failed/i.test(message)) return { data: null, error: { code: "23505", message, details: null, hint: null }, count: null, status: 409 };
     throw cause;
