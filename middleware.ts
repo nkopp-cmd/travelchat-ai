@@ -38,6 +38,7 @@ const PUBLIC_ROUTES = [
     '/templates(.*)',  // Allow browsing templates
     '/itineraries/:id/stories',  // Public stories download page
     '/api/itineraries/:id/story',  // The route enforces owner/public access before rendering.
+    '/media/activity/:file',  // Public AI activity thumbnails (R2, hash names only)
 ];
 
 const toRegExp = (pattern: string) =>
