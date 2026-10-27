@@ -315,7 +315,7 @@ on:
       - 'app/api/itineraries/[id]/story/media/**'
       - '__tests__/api/story-slides-r2.test.ts'
       - 'lib/story-slides-r2.ts'
-      - 'app/api/itineraries/[[]id[]]/story/**'
+      - 'app/api/itineraries/*/story/**'
       - 'app/api/cron/cleanup-stories/**'
       - 'app/api/subscription/checkout/route.ts'
       - 'app/api/subscription/portal/route.ts'
