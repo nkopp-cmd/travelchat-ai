@@ -74,7 +74,8 @@ describe("preview story media routes", () => {
     mocks.bucket.mockReturnValue({ get });
     const response = await GET(new NextRequest(mediaUrl), mediaParams);
     expect(isPublicRoute(new NextRequest(mediaUrl))).toBe(true);
-    expect(isPublicRoute(new NextRequest(mediaUrl.replace(preview, "www.localley.io")))).toBe(false);
+    // Production slides are public at the middleware too (#619); the route enforces owner/shared + unexpired.
+    expect(isPublicRoute(new NextRequest(mediaUrl.replace(preview, "www.localley.io")))).toBe(true);
     expect(response.status).toBe(200);
     expect(response.headers.get("Content-Type")).toBe("image/png");
     expect(response.headers.get("Cache-Control")).toBe("private, no-store");
