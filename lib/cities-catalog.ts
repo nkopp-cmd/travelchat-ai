@@ -5,8 +5,9 @@ import { ENABLED_CITIES, CityConfig } from "@/lib/cities";
 import {
   applyPublicSpotVisibilityFilters,
   PUBLIC_SPOT_VISIBILITY_CACHE_VERSION,
-  shouldShowPublicSpot,
+  type PublicSpotQualityInput,
 } from "@/lib/spots/public-quality";
+import { countSpotsByCity } from "@/lib/city-spot-counts";
 import { runCityGeographyShadowComparison } from "@/lib/geography/city-shadow";
 
 // Public city catalog with live spot counts: GET /api/cities and the planner's server render
@@ -29,34 +30,27 @@ export interface CityWithCount extends CityConfig {
 export async function fetchCitiesWithCounts(): Promise<CityWithCount[]> {
   const supabase = createSupabaseClient();
 
-  const cityPromises = ENABLED_CITIES.map(async (city) => {
-    try {
-      let cityQuery = supabase
-        .from("spots")
-        .select("name, address, location, photos, google_place_id");
+  // ONE read of the visible spots for all cities: a '%city%' match cannot use an index, so one query per
+  // city read the whole table 30 times (D1 2026-10-27: 13,382 runs, 44.1M rows read for 1.2M returned).
+  let counts: Map<string, number> | null = null;
+  try {
+    const { data, error } = await applyPublicSpotVisibilityFilters(
+      supabase.from("spots").select("name, address, location, photos, google_place_id"),
+    );
+    if (error) console.error("[api/cities] Supabase error:", error.message);
+    else counts = countSpotsByCity((data || []) as PublicSpotQualityInput[]);
+  } catch (err) {
+    console.error("[api/cities] Failed to fetch city counts:", err);
+  }
 
-      cityQuery = applyPublicSpotVisibilityFilters(cityQuery);
-
-      const { data, error } = await cityQuery.ilike("address->>en", `%${city.name}%`);
-
-      if (error) {
-        console.error(`[api/cities] Supabase error for ${city.name}:`, error.message);
-      }
-
-      const spotCount = (data || []).filter((spot) => shouldShowPublicSpot(spot)).length;
-      const status: CityStatus = spotCount >= THRESHOLDS.recommended ? "recommended"
-                   : spotCount >= THRESHOLDS.available ? "available"
-                   : spotCount >= THRESHOLDS.beta ? "beta"
-                   : "hidden";
-
-      return { ...city, spotCount, status };
-    } catch (err) {
-      console.error(`[api/cities] Failed to fetch count for ${city.name}:`, err);
-      return { ...city, spotCount: 0, status: "hidden" as CityStatus };
-    }
+  const results = ENABLED_CITIES.map((city) => {
+    const spotCount = counts?.get(city.slug) ?? 0;
+    const status: CityStatus = spotCount >= THRESHOLDS.recommended ? "recommended"
+                 : spotCount >= THRESHOLDS.available ? "available"
+                 : spotCount >= THRESHOLDS.beta ? "beta"
+                 : "hidden";
+    return { ...city, spotCount, status };
   });
-
-  const results = await Promise.all(cityPromises);
 
   // Log summary for debugging
   const visibleCount = results.filter(c => c.status !== "hidden").length;
