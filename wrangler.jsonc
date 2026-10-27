@@ -156,6 +156,9 @@
         "NEXTJS_ENV": "production",
         // Supabase exit: D1 serves since 2026-10-25 01:24Z (shared/plans/localley-supabase-exit.md). Rollback = gate 2 runbook.
         "DATA_BACKEND": "d1",
+        // Community Q&A, spot tips and "travelling now" open to all signed-in users (NEEDS 908, APPROVALS.md
+        // 2026-10-27 23:40Z; moderation live). Rollback: remove this line and release.
+        "COMMUNITY_PUBLIC": "true",
         "BETTER_AUTH_URL": "https://www.localley.io",
         "AUTH_ALLOWED_HOSTS": "www.localley.io,localley.io,next.localley.io"
       },

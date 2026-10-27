@@ -46,6 +46,7 @@ on:
       - 'app/spots/*/tips/**'
       - 'components/community/**'
       - '__tests__/lib/community-qa.test.ts'
+      - '__tests__/lib/community-access.test.ts'
       - 'components/ui/toaster.tsx'
       - 'components/ui/radix-toaster.tsx'
       - '__tests__/components/lazy-toaster.test.tsx'
@@ -566,7 +567,7 @@ jobs:
             npx vitest run __tests__/lib/help-phrases.test.ts __tests__/lib/help-pay.test.ts --maxWorkers=1
             npx vitest run __tests__/lib/driver-card.test.ts --maxWorkers=1
             npx vitest run __tests__/components/spot-activities.test.tsx --maxWorkers=1
-            npx vitest run __tests__/lib/community-qa.test.ts --maxWorkers=1
+            npx vitest run __tests__/lib/community-qa.test.ts __tests__/lib/community-access.test.ts --maxWorkers=1
             npx vitest run __tests__/api/process-social-submissions-route.test.ts --maxWorkers=1
             npx vitest run __tests__/lib/d1-rpc.test.ts __tests__/lib/d1-rpc-social.test.ts __tests__/lib/d1-facade-coverage.test.ts __tests__/lib/d1-postgrest.test.ts __tests__/lib/hybrid-client.test.ts --maxWorkers=1
             npx vitest run __tests__/lib/user-challenges-helper.test.ts --maxWorkers=1
