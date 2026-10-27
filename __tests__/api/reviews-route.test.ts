@@ -35,9 +35,11 @@ describe('Review GET schema alignment', () => {
     beforeEach(() => {
         vi.resetAllMocks();
         auth.mockResolvedValue({ userId: null });
+        // Without the service key the route serves the preview reader (source-public-reviews).
+        vi.stubEnv('SUPABASE_SERVICE_ROLE_KEY', 'test-service-key');
         vi.spyOn(console, 'error').mockImplementation(() => {});
     });
-    afterEach(() => vi.restoreAllMocks());
+    afterEach(() => { vi.unstubAllEnvs(); vi.restoreAllMocks(); });
 
     it('reads reviews without a nonexistent FK and maps usernames to public authors', async () => {
         const reviews = query({ data: [review], error: null });
