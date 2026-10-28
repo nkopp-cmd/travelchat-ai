@@ -33,7 +33,6 @@ const HAND_PORT_PENDING: Record<string, string> = {
  * "file#table" -> reason. The guard found them; each entry needs a plan line.
  */
 const KNOWN_SCHEMA_BUGS: Record<string, string> = {
-  "app/api/subscription/webhook/route.ts#users": "users.name / users.email_preferences; NEED subscription emails",
   "app/api/user/email-preferences/route.ts#users": "users.email_preferences has no column; storage decided at the D1 cutover",
 };
 

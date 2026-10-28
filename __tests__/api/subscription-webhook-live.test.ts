@@ -1,8 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
-const m = vi.hoisted(() => ({ verify: vi.fn(), upsert: vi.fn(), update: vi.fn(), write: vi.fn(), retrieve: vi.fn(), tier: vi.fn(), eq: vi.fn(), owner: vi.fn(), source: vi.fn() }));
+const m = vi.hoisted(() => ({ verify: vi.fn(), upsert: vi.fn(), update: vi.fn(), write: vi.fn(), retrieve: vi.fn(), tier: vi.fn(), eq: vi.fn(), owner: vi.fn(), source: vi.fn(), previous: vi.fn(), mail: vi.fn() }));
 vi.mock("@/lib/stripe", () => ({ stripe: { subscriptions: { retrieve: m.retrieve } }, constructWebhookEvent: m.verify, getTierFromPriceId: m.tier }));
-vi.mock("@/lib/resend", () => ({ resend: null, FROM_EMAIL: "Localley <hello@localley.io>" }));
+vi.mock("@/lib/subscription-mail", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/subscription-mail")>()), sendSubscriptionMail: m.mail,
+}));
 vi.mock("@/lib/cache", () => ({ invalidateUserCache: vi.fn() }));
 vi.mock("@/lib/supabase", () => ({ createSupabaseAdmin: m.source }));
 vi.mock("next/headers", () => ({ headers: async () => new Headers({ "stripe-signature": "signature" }) }));
@@ -13,8 +15,10 @@ const request = () => new NextRequest("https://www.localley.io/api/subscription/
 beforeEach(async () => {
   vi.resetAllMocks(); vi.resetModules(); vi.stubEnv("STRIPE_WEBHOOK_SECRET", "whsec_offline");
   const q = { eq: (key: string, value: string) => { m.eq(key, value); return q; }, then: (resolve: (value: unknown) => unknown) => Promise.resolve(m.write()).then(resolve) };
-  m.source.mockReturnValue({ from: () => ({ select: () => ({ eq: (key: string, value: string) => { m.eq(key, value); return { limit: m.owner }; } }), upsert: m.upsert, update: (data: unknown) => { m.update(data); return q; } }) });
+  const selected: Record<string, unknown> = { eq: (key: string, value: string) => { m.eq(key, value); return selected; }, limit: m.owner, maybeSingle: m.previous };
+  m.source.mockReturnValue({ from: () => ({ select: () => selected, upsert: m.upsert, update: (data: unknown) => { m.update(data); return q; } }) });
   m.owner.mockResolvedValue({ data: [{ clerk_user_id: "a" }], error: null }); m.upsert.mockResolvedValue({ error: null }); m.write.mockReturnValue({ error: null }); m.retrieve.mockResolvedValue(sub); m.tier.mockReturnValue("pro");
+  m.previous.mockResolvedValue({ data: null, error: null }); m.mail.mockResolvedValue({ sent: true, emailId: "msg" });
   post = (await import("@/app/api/subscription/webhook/route")).POST;
 });
 afterEach(() => vi.unstubAllEnvs());
@@ -83,5 +87,32 @@ describe("live subscription webhook compatibility", () => {
   it("refuses an unknown price before changing entitlements", async () => {
     m.tier.mockReturnValue("free"); m.verify.mockResolvedValue(event("customer.subscription.updated", sub));
     expect((await post(request())).status).toBe(500); expect(m.upsert).not.toHaveBeenCalled();
+  });
+  it("sends one upgrade confirmation when a plan starts, none on renewals or retries", async () => {
+    m.verify.mockResolvedValue(event("customer.subscription.updated", sub));
+    expect((await post(request())).status).toBe(200);
+    expect(m.mail).toHaveBeenCalledWith("a", "upgrade", "pro");
+    m.mail.mockClear(); m.previous.mockResolvedValue({ data: { tier: "pro", status: "active" }, error: null });
+    expect((await post(request())).status).toBe(200);
+    expect(m.mail).not.toHaveBeenCalled();
+    m.previous.mockResolvedValue({ data: { tier: "pro", status: "active" }, error: null }); m.tier.mockReturnValue("premium");
+    expect((await post(request())).status).toBe(200);
+    expect(m.mail).toHaveBeenCalledWith("a", "upgrade", "premium");
+  });
+  it("sends one cancellation confirmation; a failed mail never fails the webhook", async () => {
+    m.previous.mockResolvedValue({ data: { tier: "pro", status: "active" }, error: null }); m.mail.mockRejectedValue(new Error("E_SEND"));
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    m.verify.mockResolvedValue(event("customer.subscription.deleted", sub));
+    expect((await post(request())).status).toBe(200);
+    expect(m.mail).toHaveBeenCalledWith("a", "cancelled", undefined);
+    m.mail.mockClear(); m.previous.mockResolvedValue({ data: { tier: "free", status: "canceled" }, error: null });
+    expect((await post(request())).status).toBe(200);
+    expect(m.mail).not.toHaveBeenCalled();
+  });
+  it("leaves the failed-payment email to Stripe", async () => {
+    m.retrieve.mockResolvedValue({ ...sub, status: "past_due" });
+    m.verify.mockResolvedValue(event("invoice.payment_failed", { subscription: "sub_owned" }));
+    expect((await post(request())).status).toBe(200);
+    expect(m.mail).not.toHaveBeenCalled();
   });
 });

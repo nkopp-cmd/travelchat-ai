@@ -4,8 +4,7 @@ import { headers } from "next/headers";
 import Stripe from "stripe";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { stripe, getTierFromPriceId, constructWebhookEvent } from "@/lib/stripe";
-import { resend, FROM_EMAIL } from "@/lib/resend";
-import { SubscriptionEmail } from "@/emails/subscription-email";
+import { sendSubscriptionMail, subscriptionMailEvent, type SubscriptionMailEvent } from "@/lib/subscription-mail";
 import { invalidateUserCache } from "@/lib/cache";
 import { isPreviewStripeWebhookCandidate, PreviewStripeEventRejected, PreviewStripeSecretMissing,
     recordPreviewStripeEvent, verifyPreviewStripeEvent, readPreviewStripeBody } from "@/lib/app-data/preview-stripe-events";
@@ -213,6 +212,8 @@ async function handleSubscriptionUpdate(
         current_period_end: legacy.current_period_end ?? item?.current_period_end };
 
     const status = appBillingStatus(subscription.status);
+    const { data: previous } = await supabase.from("subscriptions").select("tier, status")
+        .eq("clerk_user_id", clerkUserId).maybeSingle();
 
     const { error: writeError } = await supabase.from("subscriptions").upsert(
         {
@@ -253,10 +254,8 @@ async function handleSubscriptionUpdate(
     invalidateUserCache(clerkUserId, "user-tier");
     invalidateUserCache(clerkUserId, "subscription");
 
-    // Send upgrade email if moving to a paid tier
-    if (status === "active") {
-        await sendSubscriptionEmail(supabase, clerkUserId, "upgrade", tier);
-    }
+    // Contract confirmation only when the user enters a paid plan (not on renewals or Stripe retries)
+    await sendSubscriptionEmail(clerkUserId, subscriptionMailEvent(previous, { tier, status }), tier);
 }
 
 // Handle subscription deletion
@@ -269,6 +268,9 @@ async function handleSubscriptionDeleted(
         console.error("No clerk_user_id in subscription metadata");
         return;
     }
+
+    const { data: previous } = await supabase.from("subscriptions").select("tier, status")
+        .eq("clerk_user_id", clerkUserId).eq("stripe_subscription_id", subscription.id).maybeSingle();
 
     // Downgrade to free tier
     const { error: writeError } = await supabase.from("subscriptions").update(
@@ -288,8 +290,8 @@ async function handleSubscriptionDeleted(
     invalidateUserCache(clerkUserId, "user-tier");
     invalidateUserCache(clerkUserId, "subscription");
 
-    // Send cancellation email
-    await sendSubscriptionEmail(supabase, clerkUserId, "cancelled");
+    // Cancellation confirmation once (a Stripe retry sees the row already canceled)
+    await sendSubscriptionEmail(clerkUserId, subscriptionMailEvent(previous, { tier: "free", status: "canceled" }));
 }
 
 // Handle successful payment
@@ -353,93 +355,17 @@ async function handlePaymentFailed(
     invalidateUserCache(clerkUserId, "user-tier");
     invalidateUserCache(clerkUserId, "subscription");
 
+    // Stripe sends the failed-payment email (NEEDS 902).
     console.log(`Payment failed for user ${clerkUserId}`);
-
-    // Send payment failed email
-    if (subscription.status === "past_due" || subscription.status === "unpaid")
-        await sendSubscriptionEmail(supabase, clerkUserId, "payment_failed");
 }
 
-// Helper function to send subscription emails
-async function sendSubscriptionEmail(
-    supabase: ReturnType<typeof createSupabaseAdmin>,
-    clerkUserId: string,
-    eventType: "upgrade" | "downgrade" | "cancelled" | "renewed" | "trial_ending" | "payment_failed",
-    tier?: string
-) {
-    if (!resend) {
-        console.log("Resend not configured, skipping email");
-        return;
-    }
-
+// Confirmation mail never fails the webhook: the subscription write is already done.
+async function sendSubscriptionEmail(userId: string, event: SubscriptionMailEvent | null, tier?: string) {
+    if (!event) return;
     try {
-        // Get user email from database
-        const { data: user } = await supabase
-            .from("users")
-            .select("email, name")
-            .eq("clerk_id", clerkUserId)
-            .single();
-
-        if (!user?.email) {
-            console.error("No email found for user:", clerkUserId);
-            return;
-        }
-
-        // Check email preferences
-        const { data: preferences } = await supabase
-            .from("users")
-            .select("email_preferences")
-            .eq("clerk_id", clerkUserId)
-            .single();
-
-        const emailPrefs = preferences?.email_preferences as Record<string, boolean> | null;
-        if (emailPrefs && emailPrefs.product_updates === false) {
-            console.log("User has disabled product update emails");
-            return;
-        }
-
-        const manageUrl = process.env.NEXT_PUBLIC_APP_URL
-            ? `${process.env.NEXT_PUBLIC_APP_URL}/settings`
-            : "https://localley.io/settings";
-
-        const tierName = tier === "pro" ? "Pro" : tier === "premium" ? "Premium" : "Free";
-
-        await resend.emails.send({
-            from: FROM_EMAIL,
-            to: user.email,
-            subject: getSubscriptionEmailSubject(eventType, tierName),
-            react: SubscriptionEmail({
-                userName: user.name || undefined,
-                eventType,
-                newTier: tierName,
-                manageUrl,
-            }),
-        });
-
-        console.log(`Subscription email (${eventType}) sent to ${user.email}`);
+        const result = await sendSubscriptionMail(userId, event, tier);
+        console.log(`[subscription-mail] ${event} ${result.sent ? "sent" : result.reason}`);
     } catch (error) {
-        console.error("Error sending subscription email:", error);
-    }
-}
-
-function getSubscriptionEmailSubject(
-    eventType: string,
-    tier: string
-): string {
-    switch (eventType) {
-        case "upgrade":
-            return `Welcome to ${tier}! 🎉`;
-        case "downgrade":
-            return "Your plan has been changed";
-        case "cancelled":
-            return "We're sad to see you go 😢";
-        case "renewed":
-            return "Your subscription has been renewed ✨";
-        case "trial_ending":
-            return "Your trial ends soon ⏰";
-        case "payment_failed":
-            return "Payment failed - Action required";
-        default:
-            return "Subscription update";
+        console.error(`[subscription-mail] ${event} failed:`, error instanceof Error ? error.message : "unknown");
     }
 }
