@@ -7,6 +7,8 @@ import { isAdminUser } from "@/lib/admin-auth";
 import { canUseCommunity } from "@/lib/community/access";
 import type { CommunityDb } from "@/lib/community/qa";
 import { REPORT_REASONS, type ReportReason } from "@/lib/community/rules";
+import { photoBucket } from "@/lib/community/photos";
+import { promoteTipPhoto } from "@/lib/community/spot-photos";
 import { reportTip, setTipStatus } from "@/lib/community/tips";
 
 const db = () => appDataDb() as unknown as CommunityDb;
@@ -36,4 +38,14 @@ export async function moderateTip(form: FormData) {
   const userId = await member(spotId);
   if (isAdminUser(userId)) await setTipStatus(db(), field(form, "tipId"), field(form, "status") === "visible" ? "visible" : "hidden");
   redirect(page(spotId));
+}
+
+/** Admin: a consented tip photo becomes the spot's own photo (shared/plans/localley-spot-photo-library.md). */
+export async function promoteSpotTipPhoto(form: FormData) {
+  const spotId = field(form, "spotId");
+  const userId = await member(spotId);
+  const bucket = photoBucket();
+  if (!isAdminUser(userId) || !bucket) redirect(page(spotId));
+  const result = await promoteTipPhoto(db(), bucket, field(form, "tipId"), userId);
+  redirect(page(spotId, result.ok ? "?spotPhoto=1" : `?error=${encodeURIComponent(result.error)}`));
 }

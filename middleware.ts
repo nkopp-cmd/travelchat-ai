@@ -40,6 +40,7 @@ const PUBLIC_ROUTES = [
     '/itineraries/:id/stories',  // Public stories download page
     '/api/itineraries/:id/story',  // The route enforces owner/public access before rendering.
     '/media/activity/:file',  // Public AI activity thumbnails (R2, hash names only)
+    '/media/spot/:spotId/:file',  // Public own spot photos (R2, rows in spot_photos only)
 ];
 
 const toRegExp = (pattern: string) =>

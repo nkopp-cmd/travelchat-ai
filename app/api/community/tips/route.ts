@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     photoKey = stored.key;
   }
   const result = await createTip(appDataDb() as unknown as CommunityDb, { userId, name: authorName(await currentUser(request.headers)) },
-    spotId, { ...verdict.value, photoKey }, tipId);
+    spotId, { ...verdict.value, photoKey, photoConsent: form.get("photoConsent") === "on" }, tipId);
   if (!result.ok) {
     if (photoKey) await photoBucket()?.delete(photoKey);
     return back(`?error=${encodeURIComponent(result.error)}#tip`);
