@@ -8,7 +8,7 @@ import { AiNote, VoteCount, fieldClass, timeAgo } from "@/components/community/c
 import { isAdminUser } from "@/lib/admin-auth";
 import { appDataDb } from "@/lib/app-data/backend";
 import { auth } from "@/lib/auth/server";
-import { canUseCommunity } from "@/lib/community/access";
+import { requireCommunityPage } from "@/lib/community/access";
 import { getQuestion, openReportCounts, type CommunityDb } from "@/lib/community/qa";
 import { LIMITS, topicLabel } from "@/lib/community/rules";
 import { ALL_CITIES } from "@/lib/cities";
@@ -58,8 +58,7 @@ function Actions({ target, questionId, viewerId, admin, reports }: { target: Tar
 }
 
 export default async function QuestionPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ error?: string; reported?: string }> }) {
-  const { userId } = await auth();
-  if (!userId || !canUseCommunity(userId)) notFound();
+  const userId = await requireCommunityPage((await auth()).userId, async () => `/community/${(await params).id}`);
   const [{ id }, { error, reported }] = await Promise.all([params, searchParams]);
   const admin = isAdminUser(userId);
   const db = appDataDb() as unknown as CommunityDb;

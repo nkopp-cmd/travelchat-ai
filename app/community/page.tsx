@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Users } from "@/components/ui/icons";
 import { VoteCount, fieldClass, timeAgo } from "@/components/community/community-ui";
 import { appDataDb } from "@/lib/app-data/backend";
 import { auth } from "@/lib/auth/server";
-import { canUseCommunity } from "@/lib/community/access";
+import { requireCommunityPage } from "@/lib/community/access";
 import { listQuestions, type CommunityDb } from "@/lib/community/qa";
 import { COMMUNITY_TOPICS, communityCities, isCommunityCity, isCommunityTopic, topicLabel } from "@/lib/community/rules";
 import { ALL_CITIES } from "@/lib/cities";
@@ -16,8 +15,7 @@ export const metadata: Metadata = { title: "Community", robots: { index: false }
 export const dynamic = "force-dynamic";
 
 export default async function CommunityPage({ searchParams }: { searchParams: Promise<{ city?: string; topic?: string }> }) {
-  const { userId } = await auth();
-  if (!userId || !canUseCommunity(userId)) notFound();
+  const userId = await requireCommunityPage((await auth()).userId, "/community");
   const params = await searchParams;
   const city = params.city && isCommunityCity(params.city) ? params.city : "";
   const topic = params.topic && isCommunityTopic(params.topic) ? params.topic : "";

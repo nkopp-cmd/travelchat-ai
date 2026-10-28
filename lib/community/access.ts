@@ -1,4 +1,5 @@
 import "server-only";
+import { notFound, redirect } from "next/navigation";
 import { isAdminUser } from "@/lib/admin-auth";
 
 /**
@@ -11,4 +12,16 @@ export function communityPublic(): boolean {
 
 export function canUseCommunity(userId: string | null): boolean {
   return Boolean(userId) && (communityPublic() || isAdminUser(userId));
+}
+
+/**
+ * Page gate: when the community is public, a signed-out visitor signs in and comes back to `path`;
+ * every other denied case stays a 404 (the community is invisible while it is admin-only). Returns the user id.
+ */
+export async function requireCommunityPage(userId: string | null, path: string | (() => Promise<string>)): Promise<string> {
+  if (!userId && communityPublic()) {
+    redirect(`/sign-in?redirect_url=${encodeURIComponent(typeof path === "string" ? path : await path())}`);
+  }
+  if (!userId || !canUseCommunity(userId)) notFound();
+  return userId;
 }

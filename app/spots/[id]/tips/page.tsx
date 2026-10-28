@@ -10,7 +10,7 @@ import { AiNote, fieldClass, timeAgo } from "@/components/community/community-ui
 import { isAdminUser } from "@/lib/admin-auth";
 import { appDataDb } from "@/lib/app-data/backend";
 import { auth } from "@/lib/auth/server";
-import { canUseCommunity } from "@/lib/community/access";
+import { requireCommunityPage } from "@/lib/community/access";
 import type { CommunityDb } from "@/lib/community/qa";
 import { LIMITS } from "@/lib/community/rules";
 import { listTips } from "@/lib/community/tips";
@@ -27,8 +27,7 @@ function visitLabel(day: string | null): string | null {
 }
 
 export default async function SpotTipsPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ error?: string; reported?: string }> }) {
-  const { userId } = await auth();
-  if (!userId || !canUseCommunity(userId)) notFound();
+  const userId = await requireCommunityPage((await auth()).userId, async () => `/spots/${(await params).id}/tips`);
   const [{ id }, { error, reported }] = await Promise.all([params, searchParams]);
   const admin = isAdminUser(userId);
   const [[spot], tips] = await Promise.all([d1SpotCardsByIds([id]), listTips(appDataDb() as unknown as CommunityDb, id, admin)]);

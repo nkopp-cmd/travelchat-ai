@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Users } from "@/components/ui/icons";
@@ -9,7 +8,7 @@ import { AiNote, VoteCount, fieldClass, timeAgo } from "@/components/community/c
 import { isAdminUser } from "@/lib/admin-auth";
 import { appDataDb } from "@/lib/app-data/backend";
 import { auth } from "@/lib/auth/server";
-import { canUseCommunity } from "@/lib/community/access";
+import { requireCommunityPage } from "@/lib/community/access";
 import type { CommunityDb } from "@/lib/community/qa";
 import { communityCities, isCommunityCity, isoWeek, shiftWeek, weekRange } from "@/lib/community/rules";
 import { listMeetups, listTravellers, myTrips } from "@/lib/community/trips";
@@ -22,8 +21,7 @@ export const dynamic = "force-dynamic";
 const dayLabel = (day: string) => new Date(`${day}T00:00:00Z`).toLocaleDateString("en", { day: "numeric", month: "short", timeZone: "UTC" });
 
 export default async function TravellingNowPage({ searchParams }: { searchParams: Promise<{ city?: string; week?: string; error?: string; reported?: string }> }) {
-  const { userId } = await auth();
-  if (!userId || !canUseCommunity(userId)) notFound();
+  const userId = await requireCommunityPage((await auth()).userId, "/community/now");
   const params = await searchParams;
   const db = appDataDb() as unknown as CommunityDb;
   const today = new Date().toISOString().slice(0, 10);

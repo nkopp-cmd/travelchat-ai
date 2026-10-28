@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { communityPublic } from "@/lib/community/access";
 import { DriverCardDialog, DriverCardLink } from "@/components/spots/driver-card";
 import { SpotEventLink } from "@/components/spots/spot-event-link";
 import { headers } from "next/headers";
@@ -1490,7 +1491,17 @@ export default async function SpotPage({
 
             {/* Reviews Section */}
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold">Reviews</h2>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h2 className="text-2xl font-bold">Reviews</h2>
+                {!candidate && communityPublic() && (
+                  <Link
+                    href={`/spots/${spot.id}/tips`}
+                    className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary/10 px-3 text-sm font-semibold text-foreground transition-colors hover:bg-primary/15"
+                  >
+                    Traveller tips and photos
+                  </Link>
+                )}
+              </div>
               <ReviewList spotId={spot.id} />
             </div>
           </div>

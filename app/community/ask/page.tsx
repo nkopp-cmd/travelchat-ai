@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Users } from "@/components/ui/icons";
@@ -8,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { fieldClass } from "@/components/community/community-ui";
 import { auth } from "@/lib/auth/server";
-import { canUseCommunity } from "@/lib/community/access";
+import { requireCommunityPage } from "@/lib/community/access";
 import { COMMUNITY_TOPICS, LIMITS, communityCities, isCommunityTopic } from "@/lib/community/rules";
 import { askQuestion } from "../actions";
 
@@ -16,8 +15,7 @@ export const metadata: Metadata = { title: "Ask a question", robots: { index: fa
 export const dynamic = "force-dynamic";
 
 export default async function AskPage({ searchParams }: { searchParams: Promise<{ error?: string; city?: string; topic?: string }> }) {
-  const { userId } = await auth();
-  if (!userId || !canUseCommunity(userId)) notFound();
+  const userId = await requireCommunityPage((await auth()).userId, "/community/ask");
   const { error, city, topic } = await searchParams;
   return (
     <main className="mx-auto w-full max-w-2xl px-4 pb-24 pt-6 sm:px-6">

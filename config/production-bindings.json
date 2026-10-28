@@ -78,6 +78,10 @@
    "type": "r2_bucket"
   },
   {
+   "name": "COMMUNITY_PUBLIC",
+   "type": "plain_text"
+  },
+  {
    "name": "CRON_SECRET",
    "type": "secret_text"
   },
