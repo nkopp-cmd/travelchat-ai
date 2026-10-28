@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { reservePlacesCall } from "@/lib/places-quota";
 import { revalidateTag } from "next/cache";
 import { requireAdmin } from "@/lib/admin-auth";
 import { createSupabaseAdmin } from "@/lib/supabase";
@@ -175,7 +176,7 @@ async function processLocationBackfillSpot({
 
     try {
         const match = await findBestGooglePlaceMatch(name, address, spot.category, apiKey, {
-            timeoutMs: GOOGLE_LOOKUP_TIMEOUT_MS,
+            timeoutMs: GOOGLE_LOOKUP_TIMEOUT_MS, reserveCall: () => reservePlacesCall("admin_location_backfill"),
         });
         const place = match.place;
 

@@ -1,5 +1,6 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+vi.mock("@/lib/places-quota", () => ({ reservePlacesCall: vi.fn(async () => true) })); // the cap has its own test
 import { NextRequest } from "next/server";
 
 const mocks = vi.hoisted(() => ({ auth: vi.fn(), tier: vi.fn() }));

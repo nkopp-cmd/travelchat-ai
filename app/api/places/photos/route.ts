@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { reservePlacesCall } from '@/lib/places-quota';
 import { auth } from "@/lib/auth/server";
 import { handleApiError, Errors } from '@/lib/api-errors';
 import { getUserTier } from '@/lib/usage-tracking';
@@ -35,6 +36,9 @@ const empty = (): PlacePhotoResponse => ({
 type Lookup = { result: PlacePhotoResponse } | { error: NextResponse };
 
 async function lookupPlace(query: string, city: string | undefined, apiKey: string, signal: AbortSignal): Promise<Lookup> {
+    if (!(await reservePlacesCall('search'))) {
+        return { error: NextResponse.json({ error: 'Places lookup is paused for today' }, { status: 503 }) };
+    }
     const search = await fetch('https://places.googleapis.com/v1/places:searchText', {
         method: 'POST',
         signal,
@@ -49,6 +53,9 @@ async function lookupPlace(query: string, city: string | undefined, apiKey: stri
         return { result: empty() };
     }
 
+    if (!(await reservePlacesCall('details'))) {
+        return { result: { ...empty(), placeId } };
+    }
     const details = await fetch(`https://places.googleapis.com/v1/places/${placeId}`, {
         signal,
         headers: { 'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': 'id,photos,formattedAddress,location' },

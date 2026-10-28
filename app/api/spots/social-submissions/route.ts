@@ -1,4 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
+import { reservePlacesCall } from "@/lib/places-quota";
 import { after, NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { auth } from "@/lib/auth/server";
@@ -146,7 +147,7 @@ async function enrichResearchWithGooglePlace(
       research.address,
       research.category,
       apiKey,
-      { timeoutMs, maxResults: 5, deadlineAt },
+      { timeoutMs, maxResults: 5, deadlineAt, reserveCall: () => reservePlacesCall("social_submission") },
     );
     const usedTransliteratedNameFallback =
       !match.place && canUseTransliteratedPlaceMatch(research, match.rejectedPlace);
