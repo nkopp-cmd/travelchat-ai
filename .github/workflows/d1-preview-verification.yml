@@ -88,6 +88,9 @@ on:
       - '__tests__/cloudflare-static-public-html.test.ts'
       - 'app/itineraries/new/**'
       - 'lib/cities-catalog.ts'
+      - 'lib/city-spot-counts.ts'
+      - '__tests__/lib/city-spot-counts.test.ts'
+      - 'lib/spots/d1-queries.ts'
       - 'components/itineraries/wizard/planner-cities-context.tsx'
       - '__tests__/app/planner-ssr-cities.test.tsx'
       - 'lib/trips/planner-cities.ts'
@@ -696,6 +699,8 @@ jobs:
             npx vitest run __tests__/lib/spots-query-public-rows.test.ts __tests__/lib/spots-query-timeout.test.ts __tests__/lib/source-public-reviews.test.ts __tests__/lib/source-public-reviews-workerd.test.ts --maxWorkers=1
             npx eslint lib/source-public-reviews.ts __tests__/lib/source-public-reviews.test.ts __tests__/lib/source-public-reviews-workerd.test.ts
             npx vitest run __tests__/api/reviews-route.test.ts --maxWorkers=1
+            npx vitest run __tests__/lib/city-spot-counts.test.ts __tests__/lib/d1-spot-index-plans.test.ts --maxWorkers=1
+            npx eslint lib/city-spot-counts.ts lib/cities-catalog.ts __tests__/lib/city-spot-counts.test.ts __tests__/lib/d1-spot-index-plans.test.ts
             node --check scripts/d1-migration/anonymous-read-regression.mjs
             node scripts/d1-migration/anonymous-read-postgres-proof.mjs --out "$RUNNER_TEMP/localley-anon-proof-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json" --permissions
             node --test scripts/d1-migration/runtime-inventory.test.mjs

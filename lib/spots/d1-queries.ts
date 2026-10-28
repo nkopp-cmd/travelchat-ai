@@ -178,6 +178,10 @@ export async function d1CommunitySubmission(spotId: string): Promise<D1Community
   return { ...row, research: parseJson(row.research) } as D1CommunitySubmission;
 }
 
+// Same order as the Supabase query (DESC NULLS FIRST; localley_score >= ? excludes NULL scores), written to match the
+// spots_related_order index (migration 0046) so SQLite reads in index order and stops at LIMIT.
+export const RELATED_ORDER = "s.localley_score DESC, (s.local_percentage IS NULL) DESC, s.local_percentage DESC, s.id ASC";
+
 /** Related-spot candidates in one city (the Supabase related query), as source rows. */
 export async function d1RelatedSpotSources(city: string, excludeId: string, minimumScore: number, limit: number): Promise<RawSpot[]> {
   const where = visibilityWhere();
@@ -185,7 +189,7 @@ export async function d1RelatedSpotSources(city: string, excludeId: string, mini
   where.sql[0] = "json_array_length(l.payload, '$.photos') > 0";
   const { results } = await appDataDb().prepare(`SELECT l.payload FROM spots s JOIN legacy_spot_source l ON l.spotId = s.id
     WHERE ${where.sql.join(" AND ")} AND s.address LIKE ? AND s.id != ? AND s.localley_score >= ?
-    ORDER BY s.localley_score DESC NULLS FIRST, s.local_percentage DESC NULLS FIRST, s.id ASC LIMIT ?`)
+    ORDER BY ${RELATED_ORDER} LIMIT ?`)
     .bind(...where.params, `%${city}%`, excludeId.toLowerCase(), minimumScore, limit).all<{ payload: string }>();
   return results.map((row) => JSON.parse(row.payload) as RawSpot);
 }
