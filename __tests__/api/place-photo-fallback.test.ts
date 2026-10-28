@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+vi.mock("@/lib/places-quota", () => ({ reservePlacesCall: vi.fn(async () => true) })); // the cap has its own test
 import { GET } from "@/app/api/places/photo/route";
 
 const mocks = vi.hoisted(() => ({ limit: vi.fn(), productionLimit: vi.fn() }));

@@ -48,6 +48,8 @@ on:
       - '__tests__/lib/community-qa.test.ts'
       - '__tests__/lib/community-access.test.ts'
       - 'components/ui/toaster.tsx'
+      - 'lib/places-quota.ts'
+      - '__tests__/lib/places-quota.test.ts'
       - 'components/ui/radix-toaster.tsx'
       - '__tests__/components/lazy-toaster.test.tsx'
       - 'docs/ui-foundation-preview.*'
@@ -574,6 +576,8 @@ jobs:
             npx vitest run __tests__/lib/driver-card.test.ts --maxWorkers=1
             npx vitest run __tests__/components/spot-activities.test.tsx --maxWorkers=1
             npx vitest run __tests__/lib/community-qa.test.ts __tests__/lib/community-access.test.ts --maxWorkers=1
+            npx vitest run __tests__/lib/places-quota.test.ts --maxWorkers=1
+            npx eslint lib/places-quota.ts __tests__/lib/places-quota.test.ts
             npx vitest run __tests__/api/process-social-submissions-route.test.ts --maxWorkers=1
             npx vitest run __tests__/lib/d1-rpc.test.ts __tests__/lib/d1-rpc-social.test.ts __tests__/lib/d1-facade-coverage.test.ts __tests__/lib/d1-postgrest.test.ts __tests__/lib/hybrid-client.test.ts --maxWorkers=1
             npx vitest run __tests__/lib/user-challenges-helper.test.ts --maxWorkers=1

@@ -1,4 +1,5 @@
 import { parseSpotCoordinates } from "@/lib/spots/coordinates";
+import { reservePlacesCall } from "@/lib/places-quota";
 import { distanceKm } from "@/lib/geocoding";
 import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
@@ -318,7 +319,7 @@ export async function POST(req: NextRequest) {
 
         try {
             const match = await findBestGooglePlacePhotos(name, address, spot.category, apiKey, {
-                timeoutMs: GOOGLE_LOOKUP_TIMEOUT_MS,
+                timeoutMs: GOOGLE_LOOKUP_TIMEOUT_MS, reserveCall: () => reservePlacesCall("admin_photo_backfill"),
             });
             const place = match.place;
             const photoUrls = place ? buildSpotPhotoUrls(place.photos) : [];

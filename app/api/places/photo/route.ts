@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { reservePlacesCall } from "@/lib/places-quota";
 import { getGooglePlacesApiKey, normalizePhotoWidth } from "@/lib/place-images";
 import { rateLimit, strictPlatformLimit } from "@/lib/rate-limit";
 
@@ -105,6 +106,7 @@ export async function GET(req: NextRequest) {
             // The shipped legacy API requires its key in the query string.
             upstream.searchParams.set("key", apiKey);
         }
+        if (!(await reservePlacesCall("photo"))) return unavailable(503);
         const response = await fetch(upstream.toString(), { cache: "no-store", redirect: "manual",
             signal: controller.signal, headers: name ? { "X-Goog-Api-Key": apiKey } : {} });
         let imageUrl: URL;

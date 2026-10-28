@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { reservePlacesCall } from "@/lib/places-quota";
 import { z } from "zod";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { dataBackend } from "@/lib/app-data/backend";
@@ -122,6 +123,7 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
         const apiKey = getGooglePlacesApiKey();
         if (!apiKey) return failureForRequest(503, "provider_key_missing");
         const readDetails = async (mask: string) => {
+            if (!(await reservePlacesCall("details"))) return { failure: failureForRequest(503, "provider_daily_cap") };
             const response = await fetch(`https://places.googleapis.com/v1/places/${placeId}?languageCode=en`, {
                 cache: "no-store", redirect: "manual", signal: controller.signal,
                 headers: { "X-Goog-Api-Key": apiKey, "X-Goog-FieldMask": mask },

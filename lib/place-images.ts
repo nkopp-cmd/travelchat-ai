@@ -32,6 +32,8 @@ export interface FindGooglePlacePhotosOptions {
     timeoutMs?: number;
     maxResults?: number;
     deadlineAt?: number;
+    /** Reserves one Places call against the daily cap (lib/places-quota.ts); false refuses the call. */
+    reserveCall?: () => Promise<boolean>;
 }
 
 export interface BestGooglePlacePhotoResult {
@@ -742,6 +744,9 @@ async function findGooglePlacePhotoCandidatesByQuery(
         MAX_GOOGLE_PLACES_SEARCH_RESULTS,
         Math.max(1, options.maxResults ?? DEFAULT_GOOGLE_PLACES_SEARCH_RESULTS)
     );
+    if (options.reserveCall && !(await options.reserveCall())) {
+        throw new Error("Google Places daily cap reached");
+    }
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
