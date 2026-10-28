@@ -16,7 +16,7 @@ import { LIMITS } from "@/lib/community/rules";
 import { listTips } from "@/lib/community/tips";
 import { d1SpotCardsByIds } from "@/lib/spots/d1-queries";
 import { getLocalizedText } from "@/lib/spots/transform";
-import { moderateTip, reportSpotTip } from "./actions";
+import { moderateTip, reportSpotTip, promoteSpotTipPhoto } from "./actions";
 
 export const metadata: Metadata = { title: "Traveller tips", robots: { index: false } };
 export const dynamic = "force-dynamic";
@@ -26,9 +26,9 @@ function visitLabel(day: string | null): string | null {
   return `Visited ${new Date(`${day}T00:00:00Z`).toLocaleDateString("en", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })}`;
 }
 
-export default async function SpotTipsPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ error?: string; reported?: string }> }) {
+export default async function SpotTipsPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ error?: string; reported?: string; spotPhoto?: string }> }) {
   const userId = await requireCommunityPage((await auth()).userId, async () => `/spots/${(await params).id}/tips`);
-  const [{ id }, { error, reported }] = await Promise.all([params, searchParams]);
+  const [{ id }, { error, reported, spotPhoto }] = await Promise.all([params, searchParams]);
   const admin = isAdminUser(userId);
   const [[spot], tips] = await Promise.all([d1SpotCardsByIds([id]), listTips(appDataDb() as unknown as CommunityDb, id, admin)]);
   if (!spot) notFound();
@@ -43,6 +43,7 @@ export default async function SpotTipsPage({ params, searchParams }: { params: P
       <PageHeader eyebrow="Traveller tips" eyebrowIcon={Users} title={name}
         lede="What did you find when you went? Opening days, queues, prices, how to pay." />
       {reported && <p role="status" className="mt-4 rounded-xl bg-primary/10 p-3 text-sm text-foreground">Thanks. We will review this report.</p>}
+      {spotPhoto && <p role="status" className="mt-4 rounded-xl bg-primary/10 p-3 text-sm text-foreground">The photo is now this place&apos;s main photo.</p>}
 
       <form id="tip" action="/api/community/tips" method="post" encType="multipart/form-data" className="mt-6 flex scroll-mt-24 flex-col gap-3 rounded-2xl bg-surface p-4 shadow-surface">
         <input type="hidden" name="spotId" value={id} />
@@ -52,6 +53,10 @@ export default async function SpotTipsPage({ params, searchParams }: { params: P
           placeholder="Went today: closed on Mondays, cash only, short queue before 11:00." />
         <label className="flex flex-col gap-1 text-sm text-muted-foreground">Photo (optional, up to 5 MB; location data is removed)
           <input type="file" name="photo" accept="image/jpeg,image/png,image/webp,image/heic" className="text-sm text-foreground file:mr-3 file:min-h-11 file:rounded-xl file:border-0 file:bg-raised file:px-4 file:text-foreground" />
+        </label>
+        <label className="flex min-h-11 items-start gap-2 text-sm text-muted-foreground">
+          <input type="checkbox" name="photoConsent" className="mt-1 size-4 accent-primary" />
+          <span>Localley may show my photo as this place&apos;s main photo, credited to my name. I took this photo.</span>
         </label>
         <div className="flex flex-wrap items-end gap-3">
           <label className="flex flex-col gap-1 text-sm text-muted-foreground">Day you visited (optional)
@@ -105,6 +110,13 @@ export default async function SpotTipsPage({ params, searchParams }: { params: P
                     <Button type="submit" variant="ghost" size="sm">{tip.status === "hidden" ? "Unhide" : "Hide"}</Button>
                     {tip.open_reports > 0 && <span className="text-sm font-semibold text-destructive">{tip.open_reports} open {tip.open_reports === 1 ? "report" : "reports"}</span>}
                     <AiNote verdict={tip.ai_verdict} reason={tip.ai_reason} />
+                  </form>
+                )}
+                {admin && tip.status === "visible" && tip.photo_key && tip.photo_spot_consent === 1 && (
+                  <form action={promoteSpotTipPhoto}>
+                    <input type="hidden" name="spotId" value={id} />
+                    <input type="hidden" name="tipId" value={tip.id} />
+                    <Button type="submit" variant="ghost" size="sm">Use as spot photo</Button>
                   </form>
                 )}
               </div>

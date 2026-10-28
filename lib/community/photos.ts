@@ -11,7 +11,7 @@ type Images = {
 };
 type Bucket = {
   put(key: string, value: ReadableStream | ArrayBuffer, options: { httpMetadata: { contentType: string; cacheControl: string } }): Promise<unknown>;
-  get(key: string): Promise<{ body: ReadableStream; size: number } | null>;
+  get(key: string): Promise<{ body: ReadableStream; size: number; arrayBuffer(): Promise<ArrayBuffer> } | null>;
   delete(key: string): Promise<void>;
 };
 
