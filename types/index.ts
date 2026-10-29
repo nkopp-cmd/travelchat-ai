@@ -31,6 +31,8 @@ export interface Spot {
     photos: string[];
     hasRealPhoto?: boolean;
     googlePlaceId?: string | null;
+    /** Our own R2 photo (/media/spot/...), shown first; Google Places is only the fallback. */
+    ownPhoto?: string | null;
     communitySubmitted?: boolean;
     tips: string[];
     verified: boolean;

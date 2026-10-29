@@ -1,8 +1,8 @@
 import "server-only";
+import { SPOT_PHOTO_KEY, spotPhotoPath } from "@/lib/spots/own-photo";
 import type { CommunityDb } from "./qa";
 
-/** R2 object (COMMUNITY_MEDIA bucket) of a spot's own photo: content-addressed, so the public URL is immutable. */
-export const SPOT_PHOTO_KEY = /^spot-photos\/([0-9a-f-]{36})\/([0-9a-f]{64})\.webp$/;
+export { SPOT_PHOTO_KEY, spotPhotoPath };
 export const TIP_PHOTO_LICENCE = "Localley contributor consent";
 
 type Bucket = {
@@ -12,13 +12,6 @@ type Bucket = {
 };
 
 export type SpotPhotoRow = { spot_id: string; r2_key: string; source: string; licence: string; author: string | null };
-
-/** Public path of a stored spot photo. */
-export function spotPhotoPath(key: string): string {
-  const match = SPOT_PHOTO_KEY.exec(key);
-  if (!match) throw new Error("not a spot photo key");
-  return `/media/spot/${match[1]}/${match[2]}.webp`;
-}
 
 export async function spotPhotoByKey(db: CommunityDb, key: string): Promise<SpotPhotoRow | null> {
   return db.prepare("SELECT spot_id, r2_key, source, licence, author FROM spot_photos WHERE r2_key = ?").bind(key).first<SpotPhotoRow>();

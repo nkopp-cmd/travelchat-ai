@@ -51,6 +51,12 @@ on:
       - 'lib/places-quota.ts'
       - '__tests__/lib/places-quota.test.ts'
       - '__tests__/lib/spot-photos.test.ts'
+      - 'lib/spots/own-photo.ts'
+      - '__tests__/lib/own-spot-photo.test.ts'
+      - '__tests__/lib/spots-d1-backend.test.ts'
+      - 'components/spots/spot-card.tsx'
+      - 'components/spots/venue-photo-provider.tsx'
+      - 'lib/spots/transform.ts'
       - 'components/ui/radix-toaster.tsx'
       - '__tests__/components/lazy-toaster.test.tsx'
       - 'docs/ui-foundation-preview.*'
@@ -580,6 +586,8 @@ jobs:
             npx vitest run __tests__/lib/places-quota.test.ts --maxWorkers=1
             npx eslint lib/places-quota.ts __tests__/lib/places-quota.test.ts
             npx vitest run __tests__/lib/spot-photos.test.ts --maxWorkers=1
+            npx vitest run __tests__/lib/own-spot-photo.test.ts __tests__/lib/spots-d1-backend.test.ts --maxWorkers=1
+            npx eslint lib/spots/own-photo.ts __tests__/lib/own-spot-photo.test.ts
             npx vitest run __tests__/api/process-social-submissions-route.test.ts --maxWorkers=1
             npx vitest run __tests__/lib/d1-rpc.test.ts __tests__/lib/d1-rpc-social.test.ts __tests__/lib/d1-facade-coverage.test.ts __tests__/lib/d1-postgrest.test.ts __tests__/lib/hybrid-client.test.ts --maxWorkers=1
             npx vitest run __tests__/lib/user-challenges-helper.test.ts --maxWorkers=1

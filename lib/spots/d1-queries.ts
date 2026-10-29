@@ -1,6 +1,7 @@
 import "server-only";
 import { appDataDb } from "@/lib/app-data/backend";
 import { getCityBySlug } from "@/lib/cities";
+import { ownSpotPhotoPath } from "./own-photo";
 import { PUBLIC_SPOT_NAME_EXCLUSION_PATTERNS } from "./public-quality";
 import type { RawSpot } from "./transform";
 import type { SpotsFilterState } from "./types";
@@ -87,6 +88,7 @@ export async function d1SpotCardsByIds(ids: string[]): Promise<RawSpot[]> {
   if (ids.length === 0) return [];
   const { results } = await appDataDb().prepare(`SELECT s.*,
       (SELECT p.place_id FROM spot_listing_places p WHERE p.spot_id = s.id AND p.provider = 'google' LIMIT 1) AS google_place_id,
+      (SELECT ph.r2_key FROM spot_photos ph WHERE ph.spot_id = s.id) AS own_photo_key,
       d.name AS destination_name, d.slug AS destination_slug, a.name AS local_area_name
     FROM spots s
     LEFT JOIN geo_destinations d ON d.id = s.destination_id
@@ -114,6 +116,7 @@ export function toRawSpot(row: Record<string, unknown>): RawSpot {
     best_times: parseJson(row.best_times) as RawSpot["best_times"],
     photos: Array.isArray(photos) ? photos.map(String) : null,
     google_place_id: typeof row.google_place_id === "string" ? row.google_place_id : null,
+    own_photo: ownSpotPhotoPath(row.own_photo_key),
     tips: parseJson(row.tips),
     verified: row.verified === 1,
     trending_score: typeof row.trending_score === "number" ? row.trending_score : 0,
@@ -150,14 +153,14 @@ export async function d1WeeklyRankings(weekStart: string, citySlug: string | nul
  * public-quality rules to the same fields. Callers still run shouldShowPublicSpot on it.
  */
 export async function d1SpotSource(id: string): Promise<(RawSpot & Record<string, unknown>) | null> {
-  const row = await appDataDb().prepare("SELECT payload FROM legacy_spot_source WHERE spotId = ?")
-    .bind(id.toLowerCase()).first<{ payload: string }>();
+  const row = await appDataDb().prepare(`SELECT l.payload, (SELECT ph.r2_key FROM spot_photos ph WHERE ph.spot_id = l.spotId) AS own_photo_key
+    FROM legacy_spot_source l WHERE l.spotId = ?`).bind(id.toLowerCase()).first<{ payload: string; own_photo_key: string | null }>();
   if (!row) return null;
   const spot: unknown = JSON.parse(row.payload);
   if (!spot || typeof spot !== "object" || Array.isArray(spot) || (spot as { id?: unknown }).id !== id.toLowerCase()) {
     throw new Error("Invalid D1 spot source");
   }
-  return spot as RawSpot & Record<string, unknown>;
+  return { ...(spot as RawSpot & Record<string, unknown>), own_photo: ownSpotPhotoPath(row.own_photo_key) };
 }
 
 export type D1CommunitySubmission = {
@@ -187,9 +190,11 @@ export async function d1RelatedSpotSources(city: string, excludeId: string, mini
   const where = visibilityWhere();
   // Related spots filter on the source photos, not the import verdict, exactly like the Supabase query.
   where.sql[0] = "json_array_length(l.payload, '$.photos') > 0";
-  const { results } = await appDataDb().prepare(`SELECT l.payload FROM spots s JOIN legacy_spot_source l ON l.spotId = s.id
+  const { results } = await appDataDb().prepare(`SELECT l.payload,
+      (SELECT ph.r2_key FROM spot_photos ph WHERE ph.spot_id = s.id) AS own_photo_key
+    FROM spots s JOIN legacy_spot_source l ON l.spotId = s.id
     WHERE ${where.sql.join(" AND ")} AND s.address LIKE ? AND s.id != ? AND s.localley_score >= ?
     ORDER BY ${RELATED_ORDER} LIMIT ?`)
-    .bind(...where.params, `%${city}%`, excludeId.toLowerCase(), minimumScore, limit).all<{ payload: string }>();
-  return results.map((row) => JSON.parse(row.payload) as RawSpot);
+    .bind(...where.params, `%${city}%`, excludeId.toLowerCase(), minimumScore, limit).all<{ payload: string; own_photo_key: string | null }>();
+  return results.map((row) => ({ ...(JSON.parse(row.payload) as RawSpot), own_photo: ownSpotPhotoPath(row.own_photo_key) }));
 }

@@ -5,6 +5,7 @@ import { SpotEventLink } from "./spot-event-link";
 import { trackSpotEvent } from "@/lib/spot-analytics";
 import type { Spot } from "@/types";
 import { VenueCardPhoto } from "./spot-photo-image";
+import { directSpotPhotos } from "@/lib/spots/own-photo";
 import { SaveSpotButton } from "./save-spot-button";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -54,7 +55,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
       className={cn("h-full min-w-0 gap-0 overflow-hidden rounded-2xl bg-surface py-0 text-foreground shadow-none", compact && "lg:grid lg:grid-cols-[20rem_minmax(0,1fr)]")}>
       <div data-testid="spot-card-photo" className="relative w-full min-w-0 self-start bg-raised">
         <VenueCardPhoto key={spot.id} spotId={spot.id} name={spot.name} priority={priority}
-          directPhotos={spot.googlePlaceId ? [] : spot.photos} frameClassName="aspect-[4/3] w-full" />
+          directPhotos={directSpotPhotos(spot)} frameClassName="aspect-[4/3] w-full" />
         <span data-testid="spot-category-chip" className="pointer-events-none absolute left-3 top-3 max-w-[calc(100%_-_5rem)] rounded-full bg-overlay px-3 py-1.5 text-[13px] font-medium text-foreground">
           {spot.category}
         </span>

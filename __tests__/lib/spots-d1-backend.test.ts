@@ -147,5 +147,20 @@ describe("spot detail sources on D1", () => {
     // 2 is hidden by the import verdict but still a candidate (the page re-checks); 3 has an excluded name; 4 has no photos.
     expect(rows.map((r) => r.id)).toEqual([id(1), id(2)]);
   });
+
+  it("own R2 photo: card, detail source and related rows carry its /media/spot path; none without a row", async () => {
+    const sha = "c".repeat(64);
+    for (const n of [1, 2, 6]) source(n);
+    db.sqlite.prepare(`INSERT INTO spot_photos (spot_id, r2_key, source, licence, approved_by, approved_at)
+      VALUES (?, ?, 'tip', 'Localley contributor consent', 'admin', '2026-10-29T00:00:00Z')`).run(id(1), `spot-photos/${id(1)}/${sha}.webp`);
+    const path = `/media/spot/${id(1)}/${sha}.webp`;
+    const { spots } = await fetchFilteredSpots(parseFilterParams({ city: "seoul" }));
+    expect(spots.find((s) => s.id === id(1))!.ownPhoto).toBe(path);
+    expect(spots.find((s) => s.id === id(6))!.ownPhoto).toBeNull();
+    expect((await d1SpotSource(id(1)))!.own_photo).toBe(path);
+    expect((await d1SpotSource(id(2)))!.own_photo).toBeNull();
+    const related = await d1RelatedSpotSources("Seoul", id(6), 4, 24);
+    expect(related.find((r) => r.id === id(1))!.own_photo).toBe(path);
+  });
 });
 

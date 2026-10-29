@@ -21,7 +21,8 @@ export function getDirectVenuePhotos(photos: string[] = []): PhotoGalleryRespons
         !/generated|stock|fallback|placeholder|story|\/api\//i.test(url.pathname) &&
         ![...url.searchParams.keys()].some((key) => /key|token|credential|signature/i.test(key));
     } catch { return false; }
-  }).slice(0, 4).map((url) => ({ id: url, url, sourceLabel: "Direct source photo - unverified", attributions: [] }));
+  }).slice(0, 4).map((url) => ({ id: url, url, attributions: [],
+    sourceLabel: url.startsWith("/media/spot/") ? "Localley traveller photo" : "Direct source photo - unverified" }));
 }
 
 function requestPhotos(spotId: string) {
