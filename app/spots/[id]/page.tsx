@@ -28,6 +28,7 @@ import Link from "next/link";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { dataBackend } from "@/lib/app-data/backend";
 import { d1CommunitySubmission, d1RelatedSpotSources, d1SpotSource } from "@/lib/spots/d1-queries";
+import { directSpotPhotos } from "@/lib/spots/own-photo";
 import { SpotInteractions } from "@/components/spots/spot-interactions";
 import { SpotActivities } from "@/components/spots/spot-activities";
 import { ReviewList } from "@/components/spots/review-list";
@@ -784,6 +785,7 @@ async function getSpot(id: string, candidate = false) {
     localPercentage: normalizeLocalPercentage(spot.local_percentage),
     bestTime: getSpotBestTime(spot.best_times, spot.best_time),
     photos: normalizedPhotos,
+    ownPhoto: typeof spot.own_photo === "string" ? spot.own_photo : null,
     hasRealPhoto: photoSummary.hasRealPhoto,
     realPhotoCount: countRealDisplaySpotPhotos(normalizedPhotos),
     googlePlaceId: getTrustedSpotGooglePlaceId({
@@ -874,7 +876,7 @@ async function getRelatedSpots(
 
       return {
         id: spot.id,
-        directPhotos: spot.google_place_id ? [] : normalizeSpotPhotos(spot.photos, category, 900).filter((photo) => !photo.includes("/api/places/photo")),
+        directPhotos: directSpotPhotos({ ownPhoto: "own_photo" in spot ? spot.own_photo : null, googlePlaceId: spot.google_place_id, photos: normalizeSpotPhotos(spot.photos, category, 900) }),
         name,
         address,
         category,
@@ -1043,7 +1045,7 @@ export default async function SpotPage({
   });
 
   return (
-    <VenuePhotoProvider key={spot.id} spotId={spot.id} allowFetch={!candidate} directPhotos={spot.googlePlaceId ? [] : spot.photos.filter((photo: string) => !photo.includes("/api/places/photo"))}>
+    <VenuePhotoProvider key={spot.id} spotId={spot.id} allowFetch={!candidate} directPhotos={directSpotPhotos(spot)}>
       {/* JSON-LD Structured Data */}
       <SpotJsonLd
         name={spot.name}
