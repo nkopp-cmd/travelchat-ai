@@ -3,7 +3,8 @@
  *
  * "/" and "/pricing" are static prerenders; "/spots" and its enabled-city
  * variants ("/spots?city=seoul") render per request but only from anonymous
- * catalog reads. The auth pages render the same form for every visitor (the
+ * catalog reads. A spot detail page ("/spots/<uuid>") is the same: its server HTML
+ * reads only public spot data, and the save, review and photo controls load on the client. The auth pages render the same form for every visitor (the
  * form reads its query on the client, and middleware never redirects them
  * by session), so they cache like prerenders. The HTML is the same for every visitor
  * (account controls render on the client). Without this, every visit runs the
@@ -28,6 +29,16 @@ export const EDGE_HTML_TTL_SECONDS: Record<string, number> = {
   "/itineraries/new": 300,
   "/api/cities": 300,
 };
+// Spot detail pages: live public data like the catalog. Only the plain UUID path; any query
+// (e.g. the preview-only data_candidate) bypasses the cache.
+const SPOT_DETAIL_PATH = /^\/spots\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const SPOT_DETAIL_TTL_SECONDS = 300;
+
+export function edgeTtlSeconds(pathname: string): number | undefined {
+  if (Object.hasOwn(EDGE_HTML_TTL_SECONDS, pathname)) return EDGE_HTML_TTL_SECONDS[pathname];
+  return SPOT_DETAIL_PATH.test(pathname) ? SPOT_DETAIL_TTL_SECONDS : undefined;
+}
+
 // The only query the edge keys on: one enabled-city slug, so the key set stays bounded.
 const EDGE_SPOTS_CITIES = new Set(ENABLED_CITIES.map((city) => city.slug));
 export const EDGE_CACHE_HEADER = "x-localley-edge-cache";
@@ -43,7 +54,7 @@ interface EdgeCache {
 export function isEdgeCacheable(request: Request): boolean {
   if (request.method !== "GET") return false;
   const url = new URL(request.url);
-  if (!Object.hasOwn(EDGE_HTML_TTL_SECONDS, url.pathname) || !cacheableQuery(url)) return false;
+  if (edgeTtlSeconds(url.pathname) === undefined || !cacheableQuery(url)) return false;
   // RSC and router-prefetch requests return flight data, not HTML (see Next's Vary header).
   for (const name of request.headers.keys()) {
     if (name === "rsc" || name.startsWith("next-router-")) return false;
@@ -97,7 +108,7 @@ export async function serveWithEdgeCache(
   const stored = new Response(fresh.clone().body, fresh);
   // The Cache API honours Cache-Control on put; visitors still get Next's own header.
   stored.headers.set(ORIGIN_CACHE_CONTROL, fresh.headers.get("cache-control") ?? "");
-  stored.headers.set("cache-control", `public, s-maxage=${EDGE_HTML_TTL_SECONDS[new URL(request.url).pathname]}`);
+  stored.headers.set("cache-control", `public, s-maxage=${edgeTtlSeconds(new URL(request.url).pathname)}`);
   waitUntil(cache.put(key, stored).catch(() => undefined));
   const response = new Response(fresh.body, fresh);
   response.headers.set(EDGE_CACHE_HEADER, "MISS");

@@ -67,6 +67,11 @@ describe("public HTML edge cache", () => {
 
   it("bypasses the cache for other routes, queries, methods, RSC requests and missing versions", async () => {
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots/abc"))).toBe(false);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots/15614d97-380f-4e8d-8aa6-aa6f43609bcf"))).toBe(true);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots/15614d97-380f-4e8d-8aa6-aa6f43609bcf?data_candidate=d1"))).toBe(false);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots/15614D97-380F-4E8D-8AA6-AA6F43609BCF"))).toBe(false);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots/15614d97-380f-4e8d-8aa6-aa6f43609bcf/edit"))).toBe(false);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots/submit"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=seoul"))).toBe(true);
     expect(isEdgeCacheable(new Request("https://www.localley.io/itineraries/new"))).toBe(true);
     expect(isEdgeCacheable(new Request("https://www.localley.io/itineraries/new?city=Seoul"))).toBe(false);
@@ -88,6 +93,19 @@ describe("public HTML edge cache", () => {
     const response = await serveWithEdgeCache(new Request("https://www.localley.io/"), undefined, cache, () => undefined, async () => html());
     expect(response.headers.has(EDGE_CACHE_HEADER)).toBe(false);
     expect(cache.match).not.toHaveBeenCalled();
+  });
+
+  it("keeps a spot detail page for five minutes under its own path", async () => {
+    const cache = memoryCache();
+    const path = "https://www.localley.io/spots/15614d97-380f-4e8d-8aa6-aa6f43609bcf";
+    const handler = vi.fn(async () => html({ "cache-control": "private, no-store" }));
+    expect((await serve(new Request(path), cache, handler)).headers.get(EDGE_CACHE_HEADER)).toBe("MISS");
+    const hit = await serve(new Request(path), cache, handler);
+    expect(hit.headers.get(EDGE_CACHE_HEADER)).toBe("HIT");
+    expect(hit.headers.get("cache-control")).toBe("private, no-store");
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect([...cache.store.keys()]).toEqual([`${path}?__edge=v1`]);
+    expect(cache.store.get(`${path}?__edge=v1`)?.headers.get("cache-control")).toBe("public, s-maxage=300");
   });
 
   it("keeps one entry per enabled city on /spots", async () => {
