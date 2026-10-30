@@ -4,6 +4,8 @@ on:
   pull_request:
     branches: [main]
     paths:
+      - 'package.json'
+      - 'package-lock.json'
       - 'lib/trips/generated-preview.ts'
       - 'app/itineraries/preview/**'
       - '__tests__/lib/generated-preview.test.ts'
