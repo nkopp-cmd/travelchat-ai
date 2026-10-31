@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { hasValidVenueCoordinates, SpotDetailMap } from "@/components/spots/spot-detail-map";
 
@@ -20,5 +20,28 @@ describe("spot detail map", () => {
     expect(props.onSelect).toBeUndefined();
     expect(screen.getByText("Approximate venue pin. Entrance not confirmed.")).toBeTruthy();
     expect(hasValidVenueCoordinates(0, 30)).toBe(true);
+  });
+  it("mounts the map chunk only when the map nears the viewport", () => {
+    let fire: ((entries: Array<{ isIntersecting: boolean }>) => void) | undefined;
+    let options: IntersectionObserverInit | undefined;
+    const disconnect = vi.fn();
+    vi.stubGlobal("IntersectionObserver", class {
+      constructor(callback: typeof fire, init?: IntersectionObserverInit) { fire = callback; options = init; }
+      observe() {}
+      disconnect = disconnect;
+    });
+    try {
+      render(<SpotDetailMap lat={37.55} lng={126.98} name="Venue" searchUrl="https://www.google.com/maps" />);
+      expect(screen.queryByTestId("map-props")).toBeNull();
+      expect(screen.getByRole("status").textContent).toBe("Loading map...");
+      expect(options?.rootMargin).toBe("300px");
+      act(() => fire!([{ isIntersecting: false }]));
+      expect(screen.queryByTestId("map-props")).toBeNull();
+      act(() => fire!([{ isIntersecting: true }]));
+      expect(screen.getByTestId("map-props")).toBeTruthy();
+      expect(disconnect).toHaveBeenCalled();
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });
