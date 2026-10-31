@@ -25,16 +25,48 @@ export function getDirectVenuePhotos(photos: string[] = []): PhotoGalleryRespons
     sourceLabel: url.startsWith("/media/spot/") ? "Localley traveller photo" : "Direct source photo - unverified" }));
 }
 
+/** Global set by the detail hero's inline script: the photos request it started during HTML parse. */
+export const EARLY_HERO_KEY = "__localleyHeroPhotos";
+type EarlyHero = { id: string; p: Promise<PhotoGalleryResponse | null> };
+
+// Reuse the request the inline hero script already started (once), so the page makes one Places
+// call. Places data never enters the edge-cached HTML: the browser fetches it at runtime.
+function fetchGallery(spotId: string): Promise<PhotoGalleryResponse | null> {
+  const scope = globalThis as typeof globalThis & { [EARLY_HERO_KEY]?: EarlyHero };
+  const early = scope[EARLY_HERO_KEY];
+  if (early?.id === spotId) {
+    delete scope[EARLY_HERO_KEY];
+    return early.p;
+  }
+  return fetch(`/api/spots/${encodeURIComponent(spotId)}/photos`, { cache: "no-store" })
+    .then((response) => response.ok ? response.json() as Promise<PhotoGalleryResponse> : null);
+}
+
+/**
+ * Inline script for the server-rendered hero placeholder. It runs at HTML parse time, starts the
+ * photos request and shows the first photo (with its credit) before hydration. Its previous
+ * siblings are the hidden early <img> and credit <span>.
+ */
+export function earlyHeroScript(spotId: string) {
+  const id = JSON.stringify(spotId).replace(/</g, "\\u003c");
+  return `(function(){var s=document.currentScript,c=s&&s.previousElementSibling,i=c&&c.previousElementSibling,id=${id};` +
+    `var p=fetch("/api/spots/"+encodeURIComponent(id)+"/photos",{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).catch(function(){return null});` +
+    `window.${EARLY_HERO_KEY}={id:id,p:p};` +
+    `p.then(function(d){var f=d&&d.status==="available"&&Array.isArray(d.photos)&&d.photos[0];` +
+    `if(!f||!f.id||typeof f.url!=="string"||f.url.charAt(0)!=="/"||f.url.charAt(1)==="/"||!i||!i.isConnected)return;` +
+    `var a=(f.attributions||[]).map(function(x){return x&&x.displayName}).filter(Boolean);` +
+    `c.firstChild.nodeValue=(f.sourceLabel==="Google listing photo"?"Google Maps":String(f.sourceLabel||""))+(a.length?" \u00b7 "+a.join(", "):"");` +
+    `i.setAttribute("fetchpriority","high");i.src=f.url;i.hidden=false;c.hidden=false;})})();`;
+}
+
 function requestPhotos(spotId: string) {
   const done = settled.get(spotId);
   if (done) return Promise.resolve(done);
   const existing = pending.get(spotId);
   if (existing) return existing;
-  const request = fetch(`/api/spots/${encodeURIComponent(spotId)}/photos`, { cache: "no-store" })
-    .then(async (response): Promise<PhotoGalleryResponse> => {
-      if (!response.ok) return unavailable;
-      const data: PhotoGalleryResponse = await response.json();
-      if (data.status !== "available" || !Array.isArray(data.photos)) return unavailable;
+  const request = fetchGallery(spotId)
+    .then((data): PhotoGalleryResponse => {
+      if (!data || data.status !== "available" || !Array.isArray(data.photos)) return unavailable;
       const ids = new Set<string>();
       const urls = new Set<string>();
       const photos = data.photos.filter((photo) => {

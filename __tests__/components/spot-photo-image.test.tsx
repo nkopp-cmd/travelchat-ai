@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { SpotPhotoImage, VenueCardPhoto, VenueHeroPhoto, VenuePhotoThumbnails } from "@/components/spots/spot-photo-image";
 import { resetVenuePhotoMemory } from "@/components/spots/venue-photo-provider";
-import { getDirectVenuePhotos, VenuePhotoProvider } from "@/components/spots/venue-photo-provider";
+import { EARLY_HERO_KEY, earlyHeroScript, getDirectVenuePhotos, VenuePhotoProvider } from "@/components/spots/venue-photo-provider";
 import { useState, type ImgHTMLAttributes } from "react";
 
 vi.mock("next/image", () => ({
@@ -141,5 +141,52 @@ describe("venue photos", () => {
       "/api/places/photo?name=old", "https://maps.googleapis.com/photo?key=secret",
       "https://venue.example/front.jpg?api_key=secret", "/images/generated/pool.jpg",
     ])).toEqual([{ id: "/images/venues/front.jpg", url: "/images/venues/front.jpg", sourceLabel: "Direct source photo - unverified", attributions: [] }]);
+  });
+});
+
+describe("early hero photo", () => {
+  const runEarly = (spotId: string) => {
+    const frame = document.createElement("div");
+    frame.innerHTML = `<img alt="" hidden><span hidden> </span><script></script>`;
+    document.body.appendChild(frame);
+    const script = frame.querySelector("script")!;
+    Object.defineProperty(document, "currentScript", { value: script, configurable: true });
+    new Function(earlyHeroScript(spotId))();
+    Object.defineProperty(document, "currentScript", { value: null, configurable: true });
+    return { img: frame.querySelector("img")!, credit: frame.querySelector("span")! };
+  };
+  afterEach(() => { delete (globalThis as Record<string, unknown>)[EARLY_HERO_KEY]; document.body.innerHTML = ""; });
+
+  it("server-renders the early slot and script while the hero photo loads", () => {
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => {})));
+    const { container } = render(<VenuePhotoProvider spotId="spot-1"><VenueHeroPhoto name="Venue" /></VenuePhotoProvider>);
+    expect(container.querySelector("img[hidden]")).toBeTruthy();
+    expect(container.querySelector("script")?.textContent).toContain('"spot-1"');
+  });
+  it("renders no early script when direct photos exist or fetching is off", () => {
+    const { container } = render(<VenuePhotoProvider spotId="spot-2" allowFetch={false}><VenueHeroPhoto name="Venue" /></VenuePhotoProvider>);
+    expect(container.querySelector("script")).toBeNull();
+  });
+  it("shows the first photo with its credit at parse time and hands the request to React", async () => {
+    const fetchMock = vi.fn(async () => response(["first", "second"]));
+    vi.stubGlobal("fetch", fetchMock);
+    const { img, credit } = runEarly("spot-3");
+    await waitFor(() => expect(img.hidden).toBe(false));
+    expect(img.getAttribute("src")).toContain("name=first");
+    expect(img.getAttribute("fetchpriority")).toBe("high");
+    expect(credit.hidden).toBe(false);
+    expect(credit.textContent).toBe("Google Maps");
+    render(<VenuePhotoProvider spotId="spot-3"><VenueHeroPhoto name="Venue" /><VenuePhotoThumbnails name="Venue" /></VenuePhotoProvider>);
+    await waitFor(() => expect(screen.getByAltText("Venue").getAttribute("src")).toContain("name=first"));
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect((globalThis as Record<string, unknown>)[EARLY_HERO_KEY]).toBeUndefined();
+  });
+  it("keeps the early slot hidden for an off-site photo URL", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, json: async () => ({ status: "available", photos: [{ id: "x", url: "//evil.example/a.jpg", attributions: [] }] }) })));
+    const { img } = runEarly("spot-4");
+    await (globalThis as unknown as Record<string, { p: Promise<unknown> }>)[EARLY_HERO_KEY].p;
+    await Promise.resolve();
+    expect(img.hidden).toBe(true);
+    expect(img.getAttribute("src")).toBeNull();
   });
 });
