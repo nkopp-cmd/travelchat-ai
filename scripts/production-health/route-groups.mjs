@@ -124,6 +124,7 @@ const routes = [
   "/media/activity/[file]",
   "/media/spot/[spotId]/[file]",
   "/pricing",
+  "/privacy",
   "/profile",
   "/reset-password",
   "/settings",
@@ -138,6 +139,7 @@ const routes = [
   "/spots/submissions",
   "/spots/submit",
   "/templates",
+  "/terms",
   "/users/[username]"
 ];
 const patterns = routes.map(template => {
