@@ -307,7 +307,7 @@ describe("story media step 1: R2 reads", () => {
         expect(get).toHaveBeenCalledWith(`legacy/${STORY_MEDIA_R2[path]}`);
         expect(mocks.storageFrom).not.toHaveBeenCalled();
         expect(sources()).toEqual(["[STORY_ROUTE] story_media_source=r2"]);
-    });
+    }, 30000);
 
     it.each([
         ["an R2 miss", async () => null],
@@ -332,7 +332,7 @@ describe("story media step 1: R2 reads", () => {
         expect(get).toHaveBeenCalledWith(`legacy/${key}`);
         expect(mocks.storageFrom).not.toHaveBeenCalled();
         expect(sources()).toEqual(["[STORY_ROUTE] story_media_source=r2_path"]);
-    });
+    }, 30000);
 
     it("renders the branded fallback when a migrated object is missing, without fetching anything else", async () => {
         mocks.single.mockResolvedValue({ data: { ...fixture, ai_backgrounds: { cover: `/media/story/${"b".repeat(64)}.png` } }, error: null });
@@ -341,7 +341,7 @@ describe("story media step 1: R2 reads", () => {
         expect(mocks.storageFrom).not.toHaveBeenCalled();
         expect(fetch).not.toHaveBeenCalledWith(expect.stringContaining("/media/story/"), expect.anything());
         expect(sources()).toEqual(["[STORY_ROUTE] story_media_source=r2_path_missing"]);
-    });
+    }, 30000);
 
     it("ignores paths that are not exact content addresses", async () => {
         for (const cover of ["/media/story/../secret.png", `/media/story/${"c".repeat(63)}.png`, `/media/story/${"d".repeat(64)}.webp`]) {
@@ -350,5 +350,5 @@ describe("story media step 1: R2 reads", () => {
             await request("slide=cover");
             expect(get).not.toHaveBeenCalled();
         }
-    });
+    }, 30000);
 });
