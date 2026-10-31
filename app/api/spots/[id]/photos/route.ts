@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { reservePlacesCall } from "@/lib/places-quota";
+import { isAutomatedPlacesRequest } from "@/lib/places-guard";
 import { z } from "zod";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { dataBackend } from "@/lib/app-data/backend";
@@ -60,6 +61,8 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
         withSource(unavailable(status, message));
     const { id } = await context.params;
     if (!z.uuid().safeParse(id).success) return unavailableForRequest(400);
+    // Bots, Lighthouse and prefetches never cost a billed Places call.
+    if (isAutomatedPlacesRequest(req.headers)) return unavailableForRequest();
     // Public source identity and fixed codes only: never log provider bodies,
     // photo references, request headers, account identities or exception text.
     let conflictKey: Request | undefined;
@@ -201,7 +204,9 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
             if (gallery.length === 4) break;
         }
         return gallery.length
-            ? withSource(NextResponse.json({ status: "available", photos: gallery } satisfies PhotoGalleryResponse, { headers }))
+            // Only the visitor's browser may reuse the gallery briefly ("private": never the edge), so a repeat view
+            // asks for the same photo URLs and gets them from the browser cache instead of new Places calls.
+            ? withSource(NextResponse.json({ status: "available", photos: gallery } satisfies PhotoGalleryResponse, { headers: { ...headers, "Cache-Control": "private, max-age=600" } }))
             : unavailableForRequest();
     } catch {
         return failureForRequest(controller.signal.aborted ? 504 : 502, controller.signal.aborted ? "request_timeout" : exceptionReason);

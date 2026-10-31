@@ -8,7 +8,8 @@ vi.mock("@/lib/rate-limit", () => ({ rateLimit: () => mocks.limit, strictPlatfor
 
 const name = "places/ChIJabc/photos/fresh";
 const cdn = "https://lh3.googleusercontent.com/photo";
-const request = (query = `name=${encodeURIComponent(name)}`) => new NextRequest(`https://localley.io/api/places/photo?${query}`);
+const browser = { headers: { "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1" } };
+const request = (query = `name=${encodeURIComponent(name)}`) => new NextRequest(`https://localley.io/api/places/photo?${query}`, browser);
 const jpeg = new Uint8Array([255, 216, 255, 224, 0, 0, 0, 0, 0, 0, 0, 0]);
 
 describe("place photo proxy without substitution", () => {
@@ -43,7 +44,8 @@ describe("place photo proxy without substitution", () => {
         const response = await GET(request(`name=${name}&w=99999&v=venue-photos-2`));
         expect(response.status).toBe(200);
         expect(response.headers.get("content-type")).toBe("image/jpeg");
-        expect(response.headers.get("cache-control")).toBe("no-store");
+        // Browser-only reuse; never an edge or shared cache.
+        expect(response.headers.get("cache-control")).toBe("private, max-age=3600");
         expect(response.headers.get("x-content-type-options")).toBe("nosniff");
         expect(fetch).toHaveBeenNthCalledWith(1,
             `https://places.googleapis.com/v1/${name}/media?maxWidthPx=1600&skipHttpRedirect=true`,

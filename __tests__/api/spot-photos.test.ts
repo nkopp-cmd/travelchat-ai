@@ -23,7 +23,8 @@ const details = () => ({
             { displayName: "Unsafe link", uri: "javascript:alert(1)" }, { displayName: "Name only" }],
     })),
 });
-const call = (spotId = id) => GET(new NextRequest(`https://localley.io/api/spots/${spotId}/photos`), { params: Promise.resolve({ id: spotId }) });
+const browser = { headers: { "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1" } };
+const call = (spotId = id) => GET(new NextRequest(`https://localley.io/api/spots/${spotId}/photos`, browser), { params: Promise.resolve({ id: spotId }) });
 
 describe("public spot photo gallery", () => {
     beforeEach(() => {
@@ -43,7 +44,7 @@ describe("public spot photo gallery", () => {
         const response = await call();
         const data = await response.json();
         expect(response.status).toBe(200);
-        expect(response.headers.get("cache-control")).toBe("no-store");
+        expect(response.headers.get("cache-control")).toBe("private, max-age=600");
         expect(mocks.select).toHaveBeenCalledWith("*");
         expect(fetch).toHaveBeenCalledTimes(1);
         expect(fetch).toHaveBeenCalledWith(`https://places.googleapis.com/v1/places/${placeId}?languageCode=en`, expect.objectContaining({

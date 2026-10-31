@@ -17,8 +17,9 @@ const spot = { id, name: { en: "Gwangjang Market" },
   location: { coordinates: [126.999, 37.57] }, category: "Market",
   photos: ["https://localley.io/uploads/listing.jpg"], google_place_id: null };
 const environment = process.env;
+const browser = { headers: { "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1" } };
 const request = (host: string, candidate = true) => GET(new NextRequest(
-  `https://${host}/api/spots/${id}/photos${candidate ? "?data_candidate=d1" : ""}`),
+  `https://${host}/api/spots/${id}/photos${candidate ? "?data_candidate=d1" : ""}`, browser),
   { params: Promise.resolve({ id }) });
 
 beforeEach(() => {

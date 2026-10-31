@@ -38,7 +38,7 @@ function fetchGallery(spotId: string): Promise<PhotoGalleryResponse | null> {
     delete scope[EARLY_HERO_KEY];
     return early.p;
   }
-  return fetch(`/api/spots/${encodeURIComponent(spotId)}/photos`, { cache: "no-store" })
+  return fetch(`/api/spots/${encodeURIComponent(spotId)}/photos`)
     .then((response) => response.ok ? response.json() as Promise<PhotoGalleryResponse> : null);
 }
 
@@ -50,7 +50,9 @@ function fetchGallery(spotId: string): Promise<PhotoGalleryResponse | null> {
 export function earlyHeroScript(spotId: string) {
   const id = JSON.stringify(spotId).replace(/</g, "\\u003c");
   return `(function(){var s=document.currentScript,c=s&&s.previousElementSibling,i=c&&c.previousElementSibling,id=${id};` +
-    `var p=fetch("/api/spots/"+encodeURIComponent(id)+"/photos",{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).catch(function(){return null});` +
+    // A prerendered page waits until the visitor really opens it, so a speculative load costs no Places call.
+    `var p=new Promise(function(go){var d=document;d.prerendering?d.addEventListener("prerenderingchange",go,{once:true}):go()})` +
+    `.then(function(){return fetch("/api/spots/"+encodeURIComponent(id)+"/photos")}).then(function(r){return r.ok?r.json():null}).catch(function(){return null});` +
     `window.${EARLY_HERO_KEY}={id:id,p:p};` +
     `p.then(function(d){var f=d&&d.status==="available"&&Array.isArray(d.photos)&&d.photos[0];` +
     `if(!f||!f.id||typeof f.url!=="string"||f.url.charAt(0)!=="/"||f.url.charAt(1)==="/"||!i||!i.isConnected)return;` +

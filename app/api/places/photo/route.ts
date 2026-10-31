@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { reservePlacesCall } from "@/lib/places-quota";
+import { isAutomatedPlacesRequest } from "@/lib/places-guard";
 import { getGooglePlacesApiKey, normalizePhotoWidth } from "@/lib/place-images";
 import { rateLimit, strictPlatformLimit } from "@/lib/rate-limit";
 
@@ -79,6 +80,8 @@ export async function GET(req: NextRequest) {
         (name && !/^places\/[A-Za-z0-9_-]{1,256}\/photos\/[A-Za-z0-9_-]{1,4096}$/.test(name)) ||
         (ref && !/^[A-Za-z0-9_-]{1,4096}$/.test(ref))) return unavailable(400);
 
+    // Bots, Lighthouse and prefetches never cost a billed Places call.
+    if (isAutomatedPlacesRequest(req.headers)) return unavailable(404);
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 12_000);
     try {
@@ -133,7 +136,9 @@ export async function GET(req: NextRequest) {
             const bytes = await readBounded(image, 10 * 1024 * 1024);
             const contentType = imageType(bytes);
             if (!contentType) return unavailable();
-            return new NextResponse(bytes, { headers: { ...noStore, "Content-Type": contentType } });
+            // The visitor's own browser may keep the bytes for an hour ("private": never the edge or a shared cache),
+            // so a repeat view or back-navigation does not bill another Places call.
+            return new NextResponse(bytes, { headers: { "Cache-Control": "private, max-age=3600", "X-Content-Type-Options": "nosniff", "Content-Type": contentType } });
         }
         return unavailable();
     } catch {
