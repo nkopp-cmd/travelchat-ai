@@ -24,6 +24,8 @@ export const EDGE_HTML_TTL_SECONDS: Record<string, number> = {
   "/sign-in": 86400,
   "/sign-up": 86400,
   "/forgot-password": 86400,
+  // Spot submission form: static client page (the share-target ?url= query bypasses).
+  "/spots/submit": 86400,
   "/spots": 300,
   // Planner: server-rendered city list, revalidated every 5 minutes (app/itineraries/new).
   "/itineraries/new": 300,

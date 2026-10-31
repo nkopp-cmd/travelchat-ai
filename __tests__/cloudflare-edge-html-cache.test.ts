@@ -71,7 +71,9 @@ describe("public HTML edge cache", () => {
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots/15614d97-380f-4e8d-8aa6-aa6f43609bcf?data_candidate=d1"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots/15614D97-380F-4E8D-8AA6-AA6F43609BCF"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots/15614d97-380f-4e8d-8aa6-aa6f43609bcf/edit"))).toBe(false);
-    expect(isEdgeCacheable(new Request("https://www.localley.io/spots/submit"))).toBe(false);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots/submit"))).toBe(true);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots/submit?url=https%3A%2F%2Fwww.instagram.com%2Fp%2Fx"))).toBe(false);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots/submissions"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=seoul"))).toBe(true);
     expect(isEdgeCacheable(new Request("https://www.localley.io/itineraries/new"))).toBe(true);
     expect(isEdgeCacheable(new Request("https://www.localley.io/itineraries/new?city=Seoul"))).toBe(false);
