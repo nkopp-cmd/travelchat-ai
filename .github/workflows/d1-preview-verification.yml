@@ -59,6 +59,7 @@ on:
       - '__tests__/lib/community-access.test.ts'
       - 'components/ui/toaster.tsx'
       - 'lib/places-quota.ts'
+      - 'lib/places-guard.ts'
       - '__tests__/lib/places-quota.test.ts'
       - '__tests__/lib/spot-photos.test.ts'
       - 'lib/spots/own-photo.ts'
