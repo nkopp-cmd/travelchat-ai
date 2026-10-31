@@ -29,6 +29,8 @@ export const EDGE_HTML_TTL_SECONDS: Record<string, number> = {
   // Spot submission form: static client page (the share-target ?url= query bypasses).
   "/spots/submit": 86400,
   "/spots": 300,
+  // Viral events: the index and one page per event, from the scout's R2 feed (refreshed every 2 hours).
+  "/trending": 300,
   // Planner: server-rendered city list, revalidated every 5 minutes (app/itineraries/new).
   "/itineraries/new": 300,
   "/api/cities": 300,
@@ -37,10 +39,11 @@ export const EDGE_HTML_TTL_SECONDS: Record<string, number> = {
 // (e.g. the preview-only data_candidate) bypasses the cache.
 const SPOT_DETAIL_PATH = /^\/spots\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const SPOT_DETAIL_TTL_SECONDS = 300;
+const VIRAL_EVENT_PATH = /^\/trending\/[a-z0-9][a-z0-9-]{2,95}$/;
 
 export function edgeTtlSeconds(pathname: string): number | undefined {
   if (Object.hasOwn(EDGE_HTML_TTL_SECONDS, pathname)) return EDGE_HTML_TTL_SECONDS[pathname];
-  return SPOT_DETAIL_PATH.test(pathname) ? SPOT_DETAIL_TTL_SECONDS : undefined;
+  return SPOT_DETAIL_PATH.test(pathname) || VIRAL_EVENT_PATH.test(pathname) ? SPOT_DETAIL_TTL_SECONDS : undefined;
 }
 
 // The only query the edge keys on: one enabled-city slug, so the key set stays bounded.
