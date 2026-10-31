@@ -74,6 +74,8 @@ describe("public HTML edge cache", () => {
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots/submit"))).toBe(true);
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots/submit?url=https%3A%2F%2Fwww.instagram.com%2Fp%2Fx"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots/submissions"))).toBe(false);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/privacy"))).toBe(true);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/terms"))).toBe(true);
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=seoul"))).toBe(true);
     expect(isEdgeCacheable(new Request("https://www.localley.io/itineraries/new"))).toBe(true);
     expect(isEdgeCacheable(new Request("https://www.localley.io/itineraries/new?city=Seoul"))).toBe(false);

@@ -55,6 +55,10 @@ describe("Clerk public route allowlist", () => {
     expect(isPublicRoute(new NextRequest(`https://www.localley.io/api/itineraries/${id}/story/persist`))).toBe(false);
   });
 
+  it.each(["/privacy", "/terms"])("serves the legal page %s without a session (Google OAuth branding)", (path) => {
+    expect(isPublicRoute(new NextRequest(`https://www.localley.io${path}`))).toBe(true);
+  });
+
   it("continues to protect private application routes", () => {
     expect(isPublicRoute(new NextRequest("https://www.localley.io/dashboard"))).toBe(false);
   });

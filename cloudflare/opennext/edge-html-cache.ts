@@ -21,6 +21,8 @@ import { ENABLED_CITIES } from "../../lib/cities";
 export const EDGE_HTML_TTL_SECONDS: Record<string, number> = {
   "/": 86400,
   "/pricing": 86400,
+  "/privacy": 86400,
+  "/terms": 86400,
   "/sign-in": 86400,
   "/sign-up": 86400,
   "/forgot-password": 86400,

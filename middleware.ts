@@ -17,6 +17,8 @@ const PUBLIC_ROUTES = [
     '/guide/apply',  // Allow browsing the guide application page
     '/pricing(.*)',  // Allow anonymous users to see pricing
     '/help(.*)',  // Static phrase cards for travellers (no account data)
+    '/privacy',  // Public privacy policy (Google OAuth branding needs it without sign-in)
+    '/terms',  // Public terms of use
     '/itineraries/preview', // Browser-only generated itinerary; no account data
     '/itineraries/new',  // Allow anonymous itinerary creation (1 free)
     '/api/itineraries/generate',  // Allow anonymous generation API
