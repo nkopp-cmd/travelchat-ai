@@ -39,9 +39,9 @@ on:
 jobs:
   borderless:
     runs-on: [ci-1]  # build/test only, no secrets: ci-1 CI server (2026-10-22)
-    timeout-minutes: 30
+    timeout-minutes: 70  # up to 60 min heavy admission + guard time
     env:
-      HEAVY_LOCK_WAIT_SECONDS: '1200'
+      HEAVY_LOCK_WAIT_SECONDS: '3600'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
