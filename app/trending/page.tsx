@@ -20,9 +20,9 @@ export default async function TrendingPage() {
       <PageHeader eyebrow="Viral spots" eyebrowIcon={Flame} title="In the news"
         lede="When a visit goes viral, we find the places and put them on the map. Each event links to its news sources." />
       {events.length ? (
-        <ul className="mt-8 divide-y divide-border rounded-2xl bg-surface shadow-surface">
+        <ul className="mt-8 space-y-3">
           {events.map((event) => (
-            <li key={event.slug}>
+            <li key={event.slug} className="rounded-2xl bg-surface shadow-surface">
               <Link prefetch={false} href={`/trending/${event.slug}`} className="block min-h-11 px-5 py-4">
                 <span className="block font-semibold">{event.label}</span>
                 <span className="mt-1 block text-sm text-muted-foreground">
