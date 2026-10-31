@@ -32,7 +32,7 @@ function PhotoImage({ photo, alt, className, sizes, priority, loading, creditCla
         {loading && earlySpotId && <>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img alt="" hidden suppressHydrationWarning className={cn("absolute inset-0 h-full w-full", className)} />
-          <span hidden suppressHydrationWarning className="absolute bottom-0 left-0 bg-surface/80 px-3 py-1.5 text-[11px] leading-4 text-violet-100/75">{" "}</span>
+          <span hidden suppressHydrationWarning className="absolute bottom-0 left-0 bg-surface/80 px-3 py-1.5 text-xs text-muted-foreground">{" "}</span>
           <script dangerouslySetInnerHTML={{ __html: earlyHeroScript(earlySpotId) }} />
         </>}
       </> : <Image key={photo.url} src={photo.url} alt={alt} fill unoptimized sizes={sizes} priority={priority} className={className}
