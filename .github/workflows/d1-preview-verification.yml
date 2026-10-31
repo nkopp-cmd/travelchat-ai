@@ -19,6 +19,8 @@ on:
 
       - 'scripts/public-cache-proof.py'
       - 'scripts/test_public_cache_proof.py'
+      - 'scripts/ci_archive.py'
+      - 'scripts/test_ci_archive.py'
       - 'app/layout.tsx'
       - 'app/globals.css'
       - 'styles/**'
@@ -535,6 +537,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Verify public cache evidence acceptance
         run: python3 -B scripts/test_public_cache_proof.py
+      - name: Test CI archive provenance and retention
+        run: python3 -B scripts/test_ci_archive.py
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -759,45 +763,16 @@ jobs:
       - name: Clean only this job's quota proof container
         if: always()
         run: node scripts/d1-migration/atomic-usage-proof.mjs --cleanup-only
-      - name: Retain quota proof report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: localley-quota-proof-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/localley-quota-proof-${{ github.run_id }}-${{ github.run_attempt }}.json
-          if-no-files-found: warn
-          retention-days: 7
-
       - name: Clean only this job's affiliate proof container
         if: always()
         run: node scripts/d1-migration/affiliate-policy-proof.mjs --cleanup-only
-      - name: Retain affiliate policy proof report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: localley-affiliate-policy-proof-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/localley-affiliate-policy-proof-${{ github.run_id }}-${{ github.run_attempt }}.json
-          if-no-files-found: warn
-          retention-days: 7
-
       - name: Clean only this job's Source owner proof container
         if: always()
         run: |
           node scripts/d1-migration/source-owner-policy-proof.mjs --cleanup-only
           node scripts/d1-migration/anonymous-read-postgres-proof.mjs --cleanup-only
-      - name: Retain anonymous access proof report
+      - name: Retain proof reports on the CI server
+        # No GitHub artifact storage (Actions budget USD 0, advisor 2026-10-31): ci-1 keeps
+        # codex-work/localley-artifacts/<run>-<attempt>-<commit>/proof.{tgz,json}, max 20 runs.
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: localley-anon-proof-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/localley-anon-proof-${{ github.run_id }}-${{ github.run_attempt }}.json
-          if-no-files-found: ignore
-
-      - name: Retain Source owner proof report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: localley-source-owner-proof-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/localley-source-owner-proof-${{ github.run_id }}-${{ github.run_attempt }}.json
-          if-no-files-found: warn
-          retention-days: 7
+        run: python3 -B scripts/ci_archive.py proof
