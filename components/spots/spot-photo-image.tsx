@@ -4,19 +4,19 @@ import Image from "next/image";
 import { useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import type { PhotoGalleryResponse } from "@/lib/spots/photo-contract";
-import { getDirectVenuePhotos, useDetailVenuePhotos, useVenuePhotos } from "./venue-photo-provider";
+import { earlyHeroScript, getDirectVenuePhotos, useDetailVenuePhotos, useVenuePhotos } from "./venue-photo-provider";
 
 type Photo = PhotoGalleryResponse["photos"][number];
 
-export function SpotPhotoImage({ photo, alt, className = "object-cover", sizes, priority = false, loading = false, creditClassName = "", children, frameClassName, hero = false }: {
-  photo?: Photo; alt: string; className?: string; sizes: string; priority?: boolean; loading?: boolean; creditClassName?: string; children?: ReactNode; frameClassName?: string; hero?: boolean;
+export function SpotPhotoImage({ photo, alt, className = "object-cover", sizes, priority = false, loading = false, creditClassName = "", children, frameClassName, hero = false, earlySpotId }: {
+  photo?: Photo; alt: string; className?: string; sizes: string; priority?: boolean; loading?: boolean; creditClassName?: string; children?: ReactNode; frameClassName?: string; hero?: boolean; earlySpotId?: string;
 }) {
   // Reset only the image state on source changes; keep hero interactions mounted.
-  return <PhotoImage photo={photo} alt={alt} className={className} sizes={sizes} priority={priority} loading={loading} creditClassName={creditClassName} frameClassName={frameClassName} hero={hero}>{children}</PhotoImage>;
+  return <PhotoImage photo={photo} alt={alt} className={className} sizes={sizes} priority={priority} loading={loading} creditClassName={creditClassName} frameClassName={frameClassName} hero={hero} earlySpotId={earlySpotId}>{children}</PhotoImage>;
 }
 
-function PhotoImage({ photo, alt, className, sizes, priority, loading, creditClassName, children, frameClassName, hero }: {
-  photo?: Photo; alt: string; className: string; sizes: string; priority: boolean; loading: boolean; creditClassName: string; children?: ReactNode; frameClassName?: string; hero: boolean;
+function PhotoImage({ photo, alt, className, sizes, priority, loading, creditClassName, children, frameClassName, hero, earlySpotId }: {
+  photo?: Photo; alt: string; className: string; sizes: string; priority: boolean; loading: boolean; creditClassName: string; children?: ReactNode; frameClassName?: string; hero: boolean; earlySpotId?: string;
 }) {
   const [imageState, setImageState] = useState<{ url?: string; status: "loading" | "loaded" | "failed" }>({ url: photo?.url, status: "loading" });
   if (imageState.url !== photo?.url) setImageState({ url: photo?.url, status: "loading" });
@@ -24,9 +24,18 @@ function PhotoImage({ photo, alt, className, sizes, priority, loading, creditCla
   const unavailable = !photo || state === "failed";
   return <figure className="flex h-full w-full flex-col">
     <div data-testid={hero ? "spot-detail-hero" : undefined} className={cn("relative min-h-0 flex-1", frameClassName)}>
-      {unavailable ? <div role="status" className="flex h-full min-h-24 w-full items-center justify-center bg-raised p-2 text-center text-xs text-muted-foreground">
-        {loading ? "Loading venue photos..." : "Photo unavailable"}
-      </div> : <Image key={photo.url} src={photo.url} alt={alt} fill unoptimized sizes={sizes} priority={priority} className={className}
+      {unavailable ? <>
+        <div role="status" className="flex h-full min-h-24 w-full items-center justify-center bg-raised p-2 text-center text-xs text-muted-foreground">
+          {loading ? "Loading venue photos..." : "Photo unavailable"}
+        </div>
+        {/* Server HTML only: the inline script fills these at parse time; React keeps them until its own photo arrives. */}
+        {loading && earlySpotId && <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img alt="" hidden suppressHydrationWarning className={cn("absolute inset-0 h-full w-full", className)} />
+          <span hidden suppressHydrationWarning className="absolute bottom-0 left-0 bg-surface/80 px-3 py-1.5 text-xs text-muted-foreground">{" "}</span>
+          <script dangerouslySetInnerHTML={{ __html: earlyHeroScript(earlySpotId) }} />
+        </>}
+      </> : <Image key={photo.url} src={photo.url} alt={alt} fill unoptimized sizes={sizes} priority={priority} className={className}
         onLoad={() => setImageState({url:photo.url,status:"loaded"})} onError={() => setImageState({url:photo.url,status:"failed"})} />}
       {children}
     </div>
@@ -45,7 +54,7 @@ function PhotoImage({ photo, alt, className, sizes, priority, loading, creditCla
 
 export function VenueHeroPhoto({ name, children }: { name: string; children?: ReactNode }) {
   const { data, loading, spotId } = useDetailVenuePhotos();
-  return <SpotPhotoImage key={spotId} photo={data?.photos[0]} alt={name} sizes="(max-width: 768px) 100vw, 1024px" priority loading={loading} hero frameClassName="relative aspect-[4/3] min-h-60 w-full overflow-hidden rounded-lg shadow-2xl shadow-violet-950/30 sm:aspect-[16/10] sm:min-h-0 md:aspect-[21/9]">{children}</SpotPhotoImage>;
+  return <SpotPhotoImage key={spotId} photo={data?.photos[0]} alt={name} sizes="(max-width: 768px) 100vw, 1024px" priority loading={loading} hero earlySpotId={spotId} frameClassName="relative aspect-[4/3] min-h-60 w-full overflow-hidden rounded-lg shadow-2xl shadow-violet-950/30 sm:aspect-[16/10] sm:min-h-0 md:aspect-[21/9]">{children}</SpotPhotoImage>;
 }
 
 export function VenuePhotoThumbnails({ name }: { name: string }) {
