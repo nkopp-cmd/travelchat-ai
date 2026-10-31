@@ -73,8 +73,8 @@ if (cleanupOnly) {
       '-e', 'POSTGRES_HOST_AUTH_METHOD=trust', '-e', 'TZ=UTC', image,
       '-c', 'shared_buffers=32MB', '-c', 'max_connections=80']);
     let ready = false;
-    for (let i = 0; i < 40 && !interrupted; i++) {
-      try { await docker(['exec', name, 'pg_isready', '-U', 'postgres']); ready = true; break; }
+    for (let i = 0; i < 120 && !interrupted; i++) {
+      try { await docker(['exec', name, 'pg_isready', '-h', '127.0.0.1', '-U', 'postgres']); ready = true; break; }
       catch { await new Promise(r => setTimeout(r, 500)); }
     }
     check(ready, 'postgres_ready');

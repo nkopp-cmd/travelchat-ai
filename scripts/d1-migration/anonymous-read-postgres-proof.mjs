@@ -34,7 +34,7 @@ else {
     check(JSON.parse(await docker(['image','inspect',image]))[0].RepoDigests.includes(image),'pinned_image_cached');
     assert.equal(await owned(),null);admitted=true;
     await docker(['run','--pull=never','--rm','-d','--name',name,'--label',`${label}=${key}`,'--label','app=Localley','--network','none','--memory','512m','--cpus','1','--tmpfs','/var/lib/postgresql:rw,size=256m','-e','POSTGRES_HOST_AUTH_METHOD=trust',image]);
-    let ready=false;for(let i=0;i<40;i++){try{await docker(['exec',name,'pg_isready','-U','postgres']);ready=true;break;}catch{await new Promise(r=>setTimeout(r,500));}}check(ready,'postgres_ready');
+    let ready=false;for(let i=0;i<120;i++){try{await docker(['exec',name,'pg_isready','-h','127.0.0.1','-U','postgres']);ready=true;break;}catch{await new Promise(r=>setTimeout(r,500));}}check(ready,'postgres_ready');
     const item=await owned();check(item.HostConfig.NetworkMode==='none'&&Object.keys(item.HostConfig.PortBindings??{}).length===0&&item.Mounts.every(m=>m.Type!=='volume'),'isolated_no_ports_or_volume');
     await sql(`CREATE ROLE anon;CREATE ROLE authenticated;CREATE ROLE service_role BYPASSRLS;
       GRANT USAGE ON SCHEMA public TO anon,authenticated,service_role;
