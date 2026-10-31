@@ -19,6 +19,8 @@ on:
 
       - 'scripts/public-cache-proof.py'
       - 'scripts/test_public_cache_proof.py'
+      - 'scripts/ci_archive.py'
+      - 'scripts/test_ci_archive.py'
       - 'app/layout.tsx'
       - 'app/globals.css'
       - 'styles/**'
@@ -36,6 +38,10 @@ on:
       - 'lib/app-data/user-challenges.ts'
       - '__tests__/lib/user-challenges-helper.test.ts'
       - 'app/help/**'
+      - 'app/privacy/**'
+      - 'app/terms/**'
+      - 'app/sitemap.ts'
+      - '__tests__/middleware.test.ts'
       - 'lib/help/**'
       - 'components/spots/driver-card.tsx'
       - 'components/spots/spot-activities.tsx'
@@ -535,10 +541,11 @@ jobs:
       - uses: actions/checkout@v4
       - name: Verify public cache evidence acceptance
         run: python3 -B scripts/test_public_cache_proof.py
+      - name: Test CI archive provenance and retention
+        run: python3 -B scripts/test_ci_archive.py
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: npm
       - name: Check route review evidence contract
         run: node --test scripts/check-route-review.test.mjs
       - name: Check public planner sample projection
@@ -630,8 +637,8 @@ jobs:
             npx vitest run __tests__/api/itinerary-export-candidate.test.ts __tests__/lib/app-data-preview-itinerary-export.test.ts __tests__/app/itinerary-detail-candidate-page.test.tsx --maxWorkers=1
             npx eslint "app/api/itineraries/[id]/export/route.ts" lib/app-data/preview-itinerary-export.ts __tests__/api/itinerary-export-candidate.test.ts __tests__/lib/app-data-preview-itinerary-export.test.ts "app/itineraries/[id]/page.tsx" __tests__/app/itinerary-detail-candidate-page.test.tsx
             npx vitest run __tests__/api/generate-v2-stream-route.test.ts __tests__/lib/chat-provider-fallback.test.ts __tests__/lib/chat-readiness.test.ts __tests__/lib/itinerary-provider-meta.test.ts __tests__/lib/llm-orchestrator.test.ts __tests__/lib/current-image-generation.test.ts __tests__/api/itinerary-provider-fallback.test.ts __tests__/api/story-background-cache-candidate.test.ts __tests__/components/story-generation-options.test.tsx __tests__/lib/geocoding.test.ts __tests__/lib/social-spot-submissions.test.ts --maxWorkers=1
-            npx vitest run __tests__/cloudflare-cron-routes.test.ts __tests__/cloudflare-edge-html-cache.test.ts __tests__/cloudflare-static-public-html.test.ts __tests__/app/planner-ssr-cities.test.tsx __tests__/styles/leaflet-borderless.test.ts __tests__/components/itinerary-wizard-template-footer.test.ts __tests__/lib/apify-spot-discovery.test.ts __tests__/lib/apify-discovery-collection.test.ts __tests__/api/discover-spots-with-apify-route.test.ts __tests__/lib/canonical-host.test.ts --maxWorkers=1
-            npx eslint cloudflare/opennext/cron-routes.ts cloudflare/opennext/worker.ts cloudflare/opennext/edge-html-cache.ts __tests__/cloudflare-edge-html-cache.test.ts lib/apify-spot-discovery.ts app/api/cron/discover-spots-with-apify/route.ts __tests__/lib/apify-discovery-collection.test.ts
+            npx vitest run __tests__/cloudflare-cron-routes.test.ts __tests__/cloudflare-edge-html-cache.test.ts __tests__/middleware.test.ts __tests__/cloudflare-static-public-html.test.ts __tests__/app/planner-ssr-cities.test.tsx __tests__/styles/leaflet-borderless.test.ts __tests__/components/itinerary-wizard-template-footer.test.ts __tests__/lib/apify-spot-discovery.test.ts __tests__/lib/apify-discovery-collection.test.ts __tests__/api/discover-spots-with-apify-route.test.ts __tests__/lib/canonical-host.test.ts --maxWorkers=1
+            npx eslint cloudflare/opennext/cron-routes.ts cloudflare/opennext/worker.ts cloudflare/opennext/edge-html-cache.ts __tests__/cloudflare-edge-html-cache.test.ts app/privacy/page.tsx app/terms/page.tsx app/sitemap.ts __tests__/middleware.test.ts lib/apify-spot-discovery.ts app/api/cron/discover-spots-with-apify/route.ts __tests__/lib/apify-discovery-collection.test.ts
             npx vitest run __tests__/api/story-mail-cloudflare.test.ts __tests__/lib/story-mail-cloudflare.test.ts __tests__/lib/itinerary-mail-limit.test.ts __tests__/lib/itinerary-mail.test.ts __tests__/lib/auth-mail.test.ts __tests__/api/itinerary-mail-candidate.test.ts __tests__/api/story-mail-candidate.test.ts --maxWorkers=1
             npx eslint lib/itinerary-mail-limit.ts __tests__/lib/itinerary-mail-limit.test.ts lib/itinerary-mail.ts lib/auth/mail.ts "app/api/itineraries/[id]/email/route.ts" __tests__/lib/itinerary-mail.test.ts __tests__/api/itinerary-mail-candidate.test.ts
             npx vitest run __tests__/api/connect-dashboard-candidate.test.ts __tests__/api/admin-payout-execution-candidate.test.ts __tests__/api/admin-payout-calculation-candidate.test.ts --maxWorkers=1
@@ -759,45 +766,16 @@ jobs:
       - name: Clean only this job's quota proof container
         if: always()
         run: node scripts/d1-migration/atomic-usage-proof.mjs --cleanup-only
-      - name: Retain quota proof report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: localley-quota-proof-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/localley-quota-proof-${{ github.run_id }}-${{ github.run_attempt }}.json
-          if-no-files-found: warn
-          retention-days: 7
-
       - name: Clean only this job's affiliate proof container
         if: always()
         run: node scripts/d1-migration/affiliate-policy-proof.mjs --cleanup-only
-      - name: Retain affiliate policy proof report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: localley-affiliate-policy-proof-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/localley-affiliate-policy-proof-${{ github.run_id }}-${{ github.run_attempt }}.json
-          if-no-files-found: warn
-          retention-days: 7
-
       - name: Clean only this job's Source owner proof container
         if: always()
         run: |
           node scripts/d1-migration/source-owner-policy-proof.mjs --cleanup-only
           node scripts/d1-migration/anonymous-read-postgres-proof.mjs --cleanup-only
-      - name: Retain anonymous access proof report
+      - name: Retain proof reports on the CI server
+        # No GitHub artifact storage (Actions budget USD 0, advisor 2026-10-31): ci-1 keeps
+        # codex-work/localley-artifacts/<run>-<attempt>-<commit>/proof.{tgz,json}, max 20 runs.
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: localley-anon-proof-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/localley-anon-proof-${{ github.run_id }}-${{ github.run_attempt }}.json
-          if-no-files-found: ignore
-
-      - name: Retain Source owner proof report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: localley-source-owner-proof-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/localley-source-owner-proof-${{ github.run_id }}-${{ github.run_attempt }}.json
-          if-no-files-found: warn
-          retention-days: 7
+        run: python3 -B scripts/ci_archive.py proof

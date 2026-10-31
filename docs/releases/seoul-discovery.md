@@ -1,5 +1,15 @@
 # Seoul Discovery Release
 
+## CI artifact retrieval
+
+CI keeps proof reports on the ci-1 server instead of GitHub artifact storage (advisor decision 2026-10-31).
+The path is `/home/dev/projects/CyberLink/codex-work/localley-artifacts/<run-id>-<attempt>-<commit>/`.
+`proof.tgz` holds the quota, affiliate policy, anonymous access and Source owner proof reports.
+`proof.json` records the repository, run ID, attempt, commit, SHA256 and missing reports.
+Verify the archive SHA256 against `proof.json` before you extract it.
+The server keeps at most 20 Localley run directories. Archives have a 32 MiB compressed limit.
+Production releases build in the Gravity release lane and do not read CI archives.
+
 ## Production runtime record
 
 [Root request boundary and current runtime status](../ROOT_METHOD_BOUNDARY.md) records the bounded next release, exact activation status, compatible rollback and hosted proof. Prepared work does not change the verified runtime. The notification-storage release below remains the baseline until that record proves activation.

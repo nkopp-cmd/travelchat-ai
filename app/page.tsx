@@ -228,6 +228,10 @@ export default function LandingPage() {
         <div className="container mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 md:flex-row md:px-6">
           <Logo size="md" isLanding />
           <p className="text-sm text-muted-foreground">Local routes for Asian cities.</p>
+          <nav aria-label="Legal" className="flex gap-4 text-sm text-muted-foreground">
+            <Link href="/privacy" className="hover:text-foreground">Privacy</Link>
+            <Link href="/terms" className="hover:text-foreground">Terms</Link>
+          </nav>
         </div>
       </footer>
       <MobileSignupBar />
