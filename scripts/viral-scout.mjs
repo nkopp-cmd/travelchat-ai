@@ -136,7 +136,7 @@ For each event list the places. A place is "named" only when an article gives it
 it (e.g. "a Michelin samgyetang restaurant in Anguk-dong"), use confidence "described", leave nameKo empty, and put a
 short Korean news search phrase in searchHintKo (e.g. "<person> 안국동 삼계탕"). Never guess a venue name.
 district: the gu or dong the article gives (Korean), else "". kind: restaurant, cafe, bar, shop, popup, hotel, park,
-landmark, museum, market, other. note: what the person did there in at most 6 English words (e.g. "ate samgyetang").
+landmark, museum, market, area, other. Use "area" for a neighbourhood, street, district or river (e.g. 성수동, 한강). note: what the person did there in at most 6 English words (e.g. "ate samgyetang").
 summaryEn: 1-2 sentences in your own words, no quotes. articleIds: only ids from the list that support the claim.
 Skip TV-show filming, ads, rumours, concerts-only news and places outside the listed cities. No event: return [].
 
@@ -218,9 +218,16 @@ const compact = (s) => cleanText(s, 200).normalize("NFKC").replace(/[\s·()\-_.,
  * punctuation ignored), or one name inside the other plus the district from the article. A bare containment
  * ("경복궁" -> "경복궁 방이점", a restaurant) is only "name_only" and goes to review.
  */
+export function isAreaName(nameKo, district = "") {
+  const name = compact(nameKo);
+  return name === compact(district) || AREA_NAMES.has(name) || /^[가-힣]{1,4}(동|구|가|로|길)$/.test(name);
+}
+const AREA_NAMES = new Set(["한강", "청계천", "강남", "홍대", "명동", "이태원", "성수", "을지로", "북촌", "서촌", "익선동"]);
+
 export function pickNaverMatch(items, place, city) {
   const want = compact(place.nameKo);
-  if (want.length < 2) return null;
+  // A neighbourhood or river is not a venue: "성수동" must not become the shop "성수동 수제모찌".
+  if (want.length < 2 || isAreaName(place.nameKo, place.district)) return null;
   for (const item of Array.isArray(items) ? items : []) {
     const title = cleanText(item.title, 200), road = cleanText(item.roadAddress, 300), jibun = cleanText(item.address, 300);
     const have = compact(title);
@@ -435,6 +442,7 @@ async function resolvePlaces(state, events, { dryRun, log }) {
   for (const event of Object.values(events)) {
     for (const [key, place] of Object.entries(event.places)) {
       if (place.status !== "pending") continue;
+      if (place.kind === "area" || isAreaName(place.nameKo, place.district)) { Object.assign(place, { status: "review", reason: "area_not_venue" }); continue; }
       const raw = await naverGet(state, "local", { query: `${CITIES[event.city].ko} ${place.district} ${place.nameKo}`.replace(/\s+/g, " "), display: "5", sort: "random" });
       if (!raw) { log.push(`naver budget used, ${place.nameKo} waits`); return candidates; }
       const naver = pickNaverMatch(raw.items, place, event.city);

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   NAVER_SCOUT_DAILY, NAVER_SHARED_STOP, articleId, buildSpotRows, cleanText, eventLabel, eventSlug, ewkbPoint, insertStatements,
-  isRecentMonth, loadWatchlist, mergeEvents, normalizeNaverNews, parseCopy, parseExtraction, parseGoogleNewsRss, pickNaverMatch, planQueries, publicEvents,
+  isAreaName, isRecentMonth, loadWatchlist, mergeEvents, normalizeNaverNews, parseCopy, parseExtraction, parseGoogleNewsRss, pickNaverMatch, planQueries, publicEvents,
 } from "./viral-scout.mjs";
 
 const naverNews = { items: [
@@ -108,6 +108,17 @@ test("Naver match: name containment + city address; district raises confidence",
   assert.equal(pickNaverMatch(palace, { nameKo: "경복궁", district: "종로구" }, "seoul").confidence, "name_only");
   assert.equal(pickNaverMatch(local, { nameKo: "스타벅스", district: "" }, "seoul"), null);
   assert.equal(pickNaverMatch(local, { nameKo: "도", district: "" }, "seoul"), null);
+  const mochi = [{ title: "성수동 수제모찌", roadAddress: "서울특별시 성동구 왕십리로 98-1", address: "", category: "디저트", mapx: "1270450000", mapy: "375440000" }];
+  assert.equal(pickNaverMatch(mochi, { nameKo: "성수동", district: "성수동" }, "seoul"), null);
+  assert.equal(pickNaverMatch(mochi, { nameKo: "성수동", district: "" }, "seoul"), null);
+  const river = [{ title: "한강", roadAddress: "서울특별시 영등포구 여의동로 300-2", address: "", category: "강", mapx: "1269340000", mapy: "375280000" }];
+  assert.equal(pickNaverMatch(river, { nameKo: "한강", district: "" }, "seoul"), null);
+});
+
+test("area names are not venues", () => {
+  for (const name of ["성수동", "강남구", "한강", "을지로", "익선동"]) assert.equal(isAreaName(name), true, name);
+  for (const name of ["도산회관", "남산", "도산공원", "조선팰리스", "달맞이광장바베큐"]) assert.equal(isAreaName(name), false, name);
+  assert.equal(isAreaName("안국", "안국"), true);
 });
 
 test("EWKB point: little endian, SRID 4326, lng then lat", () => {
