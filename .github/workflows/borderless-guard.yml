@@ -47,7 +47,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: npm
       - name: Reject new decorative borders and legacy colours
         run: |
           /home/dev/projects/CyberLink/shared/scripts/run-heavy.sh bash -lc '

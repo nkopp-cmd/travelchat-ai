@@ -546,7 +546,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: npm
       - name: Check route review evidence contract
         run: node --test scripts/check-route-review.test.mjs
       - name: Check public planner sample projection
