@@ -461,6 +461,7 @@ on:
       - 'app/api/itineraries/generate/**'
       - '__tests__/api/itinerary-private-diagnostics.test.ts'
       - '__tests__/api/itinerary-provider-fallback.test.ts'
+      - '__tests__/api/itinerary-spot-pool.test.ts'
       - '__tests__/lib/glm-json-request.test.ts'
       - 'lib/llm/providers/glm.ts'
       - 'lib/llm/types.ts'

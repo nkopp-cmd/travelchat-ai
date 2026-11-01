@@ -8,10 +8,8 @@ import { validateCityForItinerary } from "@/lib/cities";
 import { Errors } from "@/lib/api-errors";
 import { geocodeItineraryActivities } from "@/lib/geocoding";
 import type { DailyPlan } from "@/lib/llm/types";
-import {
-  applyPublicSpotVisibilityFilters,
-  shouldShowPublicSpot,
-} from "@/lib/spots/public-quality";
+import { shouldShowPublicSpot } from "@/lib/spots/public-quality";
+import { itinerarySpotPoolQuery } from "./spot-pool";
 import { buildItineraryPlanPayload } from "@/lib/itineraries/normalize-daily-plans";
 import { generateItineraryTextWithFallback } from "./provider-fallback";
 import {
@@ -137,16 +135,7 @@ export async function handleCorridorGeneration({
   const supabase = createSupabaseAdmin();
   const groundingByLeg: Array<{ leg: (typeof legs)[number]; spots: ItineraryGroundingSpot[] }> = [];
   for (const leg of legs) {
-    let spotsQuery = supabase
-      .from("spots")
-      .select("*")
-      .ilike("address->>en", `%${leg.cityName}%`)
-      .gte("localley_score", 3);
-
-    spotsQuery = applyPublicSpotVisibilityFilters(spotsQuery)
-      .order("localley_score", { ascending: false })
-      .order("local_percentage", { ascending: false })
-      .limit(80);
+    const spotsQuery = itinerarySpotPoolQuery(supabase, leg.cityName);
 
     const { data: spots, error: spotsError } = await spotsQuery;
     if (spotsError) {
