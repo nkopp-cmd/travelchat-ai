@@ -53,7 +53,7 @@ describe("ItineraryActivityCard", () => {
     galleryMock.result = { ...galleryMock.result, data: null };
     render(<ItineraryActivityCard activity={{ name: "Legacy venue", image: "/api/places/photo?name=places/other/photos/expired" }} city="Seoul" />);
     expect(galleryMock.use).toHaveBeenCalledWith("", false, [], false);
-    expect(screen.getByText("Photo unavailable")).toBeTruthy(); expect(screen.queryByRole("img", { name: "Legacy venue" })).toBeNull();
+    expect(screen.getByTestId("photo-placeholder").dataset.state).toBe("unavailable"); expect(screen.queryByRole("img", { name: "Legacy venue" })).toBeNull();
   });
   it("shows a matched exact address when the stored itinerary address is area-level", () => {
     render(

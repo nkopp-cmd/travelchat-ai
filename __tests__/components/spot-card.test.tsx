@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SpotCard } from "@/components/spots/spot-card";
 import { LocalleyScale, type Spot } from "@/types";
@@ -49,7 +49,7 @@ describe("SpotCard", () => {
   });
   it("does not disguise missing photography or invent missing geography", async () => {
     render(<SpotCard spot={{...baseSpot, id:"missing", verified:false, cityName:undefined, areaName:undefined, citySlug:undefined}} />);
-    expect(await screen.findByText("Photo unavailable")).toBeTruthy();
+    await waitFor(() => expect(screen.getByTestId("photo-placeholder").dataset.state).toBe("unavailable"));
     expect(screen.queryByText("Verified place")).toBeNull();
     expect(screen.queryByText(/Location confirmed|Area photo|Unknown city/)).toBeNull();
     expect(screen.getByText("Cafe", {selector:"p"})).toBeTruthy();

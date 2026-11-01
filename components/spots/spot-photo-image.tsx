@@ -25,9 +25,8 @@ function PhotoImage({ photo, alt, className, sizes, priority, loading, creditCla
   return <figure className="flex h-full w-full flex-col">
     <div data-testid={hero ? "spot-detail-hero" : undefined} className={cn("relative min-h-0 flex-1", frameClassName)}>
       {unavailable ? <>
-        <div role="status" className="flex h-full min-h-24 w-full items-center justify-center bg-raised p-2 text-center text-xs text-muted-foreground">
-          {loading ? "Loading venue photos..." : "Photo unavailable"}
-        </div>
+        {/* Quiet frame, no status text on public pages (content-first rule 2). */}
+        <div data-testid="photo-placeholder" data-state={loading ? "loading" : "unavailable"} aria-hidden="true" className={cn("h-full min-h-24 w-full bg-raised", loading && "animate-pulse")} />
         {/* Server HTML only: the inline script fills these at parse time; React keeps them until its own photo arrives. */}
         {loading && earlySpotId && <>
           {/* eslint-disable-next-line @next/next/no-img-element */}

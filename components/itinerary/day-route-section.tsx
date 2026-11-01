@@ -67,7 +67,6 @@ function getStopPreview(activities: DayRouteActivity[]): DayRouteActivity[] {
 
 function getRouteConfidenceCopy(
   summary: DayRouteAddressSummary,
-  isKakaoRoute: boolean,
 ): {
   label: string;
   helper: string;
@@ -76,9 +75,7 @@ function getRouteConfidenceCopy(
   if (summary.mode === "exact") {
     return {
       label: "Exact route",
-      helper: isKakaoRoute
-        ? "Stops have exact addresses. Kakao opens search from the first stop."
-        : "All route stops include exact addresses.",
+      helper: "All route stops include exact addresses.",
       className: " bg-[rgb(var(--ll-success)/0.12)] text-foreground",
     };
   }
@@ -117,7 +114,7 @@ export function DayRouteSection({
   const routeUrl = buildDayRouteUrl(activities, city);
   const isKakaoRoute = isKoreanCity(city);
   const routeAddressSummary = getDayRouteAddressSummary(activities);
-  const routeConfidence = getRouteConfidenceCopy(routeAddressSummary, isKakaoRoute);
+  const routeConfidence = getRouteConfidenceCopy(routeAddressSummary);
   const stopPreview = getStopPreview(activities);
   const hiddenStopCount = Math.max(activities.length - stopPreview.length, 0);
 

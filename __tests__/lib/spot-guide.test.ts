@@ -39,3 +39,23 @@ describe("spot guide", () => {
     expect(normalizeSourceUrls(null)).toEqual([]);
   });
 });
+
+describe("public UI wording guard (content-first item 5)", () => {
+  it("app/ and components/ hold no internal pipeline wording", async () => {
+    const { readdirSync, readFileSync, statSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const hits: string[] = [];
+    const walk = (dir: string) => {
+      for (const name of readdirSync(dir)) {
+        const path = join(dir, name);
+        if (statSync(path).isDirectory()) { if (name !== "admin" && name !== "api") walk(path); continue; }
+        if (!/\.tsx?$/.test(name)) continue;
+        const text = readFileSync(path, "utf8");
+        for (const phrase of [...bannedPhrases(text), ...(/Photo unavailable/.test(text) ? ["Photo unavailable"] : [])]) hits.push(`${path}: ${phrase}`);
+      }
+    };
+    walk("app");
+    walk("components");
+    expect(hits).toEqual([]);
+  });
+});
