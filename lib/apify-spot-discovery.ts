@@ -2,6 +2,7 @@ import "server-only";
 import { randomUUID } from "node:crypto";
 import { ENABLED_CITIES } from "@/lib/cities";
 import { createSupabaseAdmin } from "@/lib/supabase";
+import { isVaguePlaceHint } from "@/lib/weekly-social-trends";
 
 export type ApifySpotCandidate = {
   runId: string;
@@ -276,7 +277,8 @@ async function loadPendingSocialLeads(citySlug?: string): Promise<SocialSpotLead
     if (["42P01", "PGRST205"].includes(error.code || "")) return [];
     throw new Error(`Could not load social spot leads: ${error.message}`);
   }
-  return (data || []) as SocialSpotLead[];
+  // Leads stored before the intake filter ("Kyoto, Japan") are skipped here and expire on their own.
+  return ((data || []) as SocialSpotLead[]).filter((lead) => !isVaguePlaceHint(lead.place_hint));
 }
 
 async function releaseSocialLeads(runId: string): Promise<void> {

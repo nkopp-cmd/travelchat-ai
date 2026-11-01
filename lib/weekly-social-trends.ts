@@ -1,7 +1,7 @@
 import "server-only";
 import { createHash, randomUUID } from "node:crypto";
 import { createSupabaseAdmin } from "@/lib/supabase";
-import { ENABLED_CITIES, inferCityFromAddress } from "@/lib/cities";
+import { ALL_CITIES, ENABLED_CITIES, inferCityFromAddress } from "@/lib/cities";
 import { shouldShowPublicSpot } from "@/lib/spots/public-quality";
 import { getLocalizedText, normalizeSpotPhotos, type RawSpot } from "@/lib/spots/transform";
 
@@ -270,6 +270,30 @@ function normalizePublishedAt(item: Record<string, unknown>): string | null {
   return Number.isNaN(date.getTime()) ? null : date.toISOString();
 }
 
+// Local-script city/country names the city config does not carry (leads like "京都 Kyoto, Japan", "베트남 다낭").
+const LOCAL_PLACE_NAMES = [
+  "서울", "부산", "제주", "제주도", "경주", "한국", "대한민국", "釜山", "济州", "濟州", "慶州", "韓國", "韩国",
+  "東京", "京都", "大阪", "那覇", "那覇市", "沖縄", "金沢", "札幌", "福岡", "日本", "香港", "台北", "臺北", "台灣", "臺灣",
+  "台湾", "基隆", "高雄", "曼谷", "清迈", "普吉", "新加坡", "กรุงเทพ", "กรุงเทพมหานคร", "เชียงใหม่", "ภูเก็ต", "ไทย",
+  "다낭", "하노이", "호이안", "베트남", "峴港", "岘港", "會安", "河內", "河内", "越南",
+];
+const GENERIC_PLACE_WORDS = ["city", "island", "of", "the", "province", "prefecture", "special", "metropolitan", "市", "島", "도"];
+const COUNTRY_NAMES = ["korea", "japan", "thailand", "vietnam", "viet nam", "taiwan", "malaysia", "philippines", "singapore", "hong kong", "china"];
+// Latin runs are split from CJK/Hangul ("金沢kanazawa" -> "金沢 kanazawa"); accents fold, Hangul stays composed.
+const foldText = (value: string) => normalizeSearchText(value).normalize("NFD").replace(/\p{M}/gu, "").normalize("NFC")
+  .replace(/[\p{Script=Latin}\p{N}]+/gu, " $& ").replace(/\s+/g, " ").trim();
+const VAGUE_PHRASES = [...new Set([
+  ...ALL_CITIES.flatMap((city) => [city.name, city.slug.replace(/-/g, " "), city.country, ...city.neighborhoods]),
+  ...COUNTRY_NAMES, ...LOCAL_PLACE_NAMES, ...GENERIC_PLACE_WORDS,
+].map(foldText).filter(Boolean))].sort((left, right) => right.length - left.length);
+
+/** True when a location label only names a city, country, neighbourhood or district ("Kyoto, Japan", "부산 연산동"). */
+export function isVaguePlaceHint(value: string): boolean {
+  let rest = ` ${foldText(value)} `;
+  for (const phrase of VAGUE_PHRASES) rest = rest.split(` ${phrase} `).join(" ");
+  return rest.split(" ").filter((token) => token && !/^[가-힣]{1,4}(동|구|시|군)$/.test(token)).length === 0;
+}
+
 function normalizePlaceHint(item: Record<string, unknown>, citySlug: string): string | null {
   const value = firstText(item, [
     "locationName",
@@ -281,7 +305,7 @@ function normalizePlaceHint(item: Record<string, unknown>, citySlug: string): st
   if (value.length < 3) return null;
   const city = SOCIAL_SCOUT_CITIES.find((candidate) => candidate.slug === citySlug);
   const normalized = normalizeSearchText(value);
-  if (!city || normalized === normalizeSearchText(city.name) || normalized === normalizeSearchText(city.slug)) {
+  if (!city || normalized === normalizeSearchText(city.name) || normalized === normalizeSearchText(city.slug) || isVaguePlaceHint(value)) {
     return null;
   }
   if (/^(travel|tourism|hidden gems?|food|nightlife|things to do)$/i.test(value)) return null;
