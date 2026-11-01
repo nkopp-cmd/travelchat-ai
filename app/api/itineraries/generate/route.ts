@@ -11,10 +11,8 @@ import { validateCityForItinerary } from '@/lib/cities';
 import { cookies } from 'next/headers';
 import { Errors, apiError, ErrorCodes } from '@/lib/api-errors';
 import { geocodeItineraryActivities } from '@/lib/geocoding';
-import {
-  applyPublicSpotVisibilityFilters,
-  shouldShowPublicSpot,
-} from '@/lib/spots/public-quality';
+import { shouldShowPublicSpot } from '@/lib/spots/public-quality';
+import { itinerarySpotPoolQuery } from './spot-pool';
 import { buildItineraryPlanPayload } from '@/lib/itineraries/normalize-daily-plans';
 import { generateItineraryTextWithFallback } from './provider-fallback';
 import {
@@ -141,16 +139,7 @@ export async function POST(req: NextRequest) {
 
     // Fetch spots from the city to include in recommendations
     const supabase = createSupabaseAdmin();
-    let spotsQuery = supabase
-      .from('spots')
-      .select('*')
-      .ilike('address->>en', `%${normalizedCity}%`)
-      .gte('localley_score', 3);
-
-    spotsQuery = applyPublicSpotVisibilityFilters(spotsQuery)
-      .order('localley_score', { ascending: false })
-      .order('local_percentage', { ascending: false })
-      .limit(80);
+    const spotsQuery = itinerarySpotPoolQuery(supabase, normalizedCity);
 
     const { data: spots, error: spotsError } = await spotsQuery;
     if (spotsError) {
@@ -258,7 +247,10 @@ Respect the pace, keep each day geographically coherent, avoid repeated categori
         !day.activities || day.activities.length < paceStops.min || day.activities.length > paceStops.max
       )
     ) {
-      throw new Error("Not enough verified photographed spots matched this itinerary. Please try another preference mix.");
+      return NextResponse.json({
+        error: "insufficient_verified_spots",
+        message: `Localley could not build a full ${normalizedCity} plan from its verified spots for this mix. Try fewer days, a slower pace, or broader interests.`,
+      }, { status: 422 });
     }
 
     // Geocode activities to store lat/lng for instant map rendering

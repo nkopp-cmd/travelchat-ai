@@ -127,6 +127,7 @@ VITEST_FILES=(
   __tests__/lib/llm-orchestrator.test.ts
   __tests__/lib/current-image-generation.test.ts
   __tests__/api/itinerary-provider-fallback.test.ts
+  __tests__/api/itinerary-spot-pool.test.ts
   __tests__/api/story-background-cache-candidate.test.ts
   __tests__/components/story-generation-options.test.tsx
   __tests__/lib/geocoding.test.ts
@@ -440,8 +441,10 @@ ESLINT_FILES=(
   app/api/itineraries/generate/shared.ts
   app/api/itineraries/generate/corridor-generation.ts
   app/api/itineraries/generate/route.ts
+  app/api/itineraries/generate/spot-pool.ts
   __tests__/api/itinerary-private-diagnostics.test.ts
   __tests__/api/itinerary-provider-fallback.test.ts
+  __tests__/api/itinerary-spot-pool.test.ts
   hooks/use-place-photo.ts
   __tests__/hooks/use-place-photo.test.tsx
   components/chat/chat-interface.tsx
