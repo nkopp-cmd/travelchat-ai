@@ -27,6 +27,13 @@ const props = () => JSON.parse(screen.getByTestId("wizard-inputs").textContent!)
 describe("explicit planner resume", () => {
   beforeEach(() => { state.query = ""; localStorage.clear(); });
   afterEach(() => { vi.restoreAllMocks(); localStorage.clear(); });
+  it("saves a draft when the wizard knows every listed city name (live: 24 cities) and keeps only chosen stops", () => {
+    const names = Object.fromEntries(Array.from({ length: 24 }, (_, i) => [`city-${i}`, `City ${i}`]));
+    savePlannerDraft(localStorage, { ...saved, cityNameBySlug: names });
+    expect(JSON.parse(localStorage.getItem("localley:planner-inputs:v1")!).data.cityNameBySlug).toEqual({});
+    savePlannerDraft(localStorage, { ...saved, tripMode: "multi", citySlugs: ["city-1", "city-2"], cityNameBySlug: names });
+    expect(JSON.parse(localStorage.getItem("localley:planner-inputs:v1")!).data.cityNameBySlug).toEqual({ "city-1": "City 1", "city-2": "City 2" });
+  });
   it("keeps a card's canonical spot reference when starting a new plan", () => {
     state.query = "city=Seoul&spot=0041A575-C6FD-4A7E-B9C3-56CC50E201D6";
     render(<NewItineraryPage />);
