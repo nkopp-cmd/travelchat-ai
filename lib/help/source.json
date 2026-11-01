@@ -26,6 +26,14 @@
     {
      "id": "where_toilet",
      "en": "Where is the toilet?"
+    },
+    {
+     "id": "open_now",
+     "en": "Are you open now?"
+    },
+    {
+     "id": "close_time",
+     "en": "What time do you close?"
     }
    ]
   },

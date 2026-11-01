@@ -198,3 +198,15 @@ export async function d1RelatedSpotSources(city: string, excludeId: string, mini
     .bind(...where.params, `%${city}%`, excludeId.toLowerCase(), minimumScore, limit).all<{ payload: string; own_photo_key: string | null }>();
   return results.map((row) => ({ ...(JSON.parse(row.payload) as RawSpot), own_photo: ownSpotPhotoPath(row.own_photo_key) }));
 }
+
+/** Card rows of visible spots inside a coordinate window (helper 5 "open nearby"); callers sort by exact distance. */
+export async function d1SpotsInBox(box: { minLat: number; maxLat: number; minLng: number; maxLng: number }, limit: number): Promise<RawSpot[]> {
+  const where = visibilityWhere();
+  const { results } = await appDataDb().prepare(`SELECT s.*,
+      (SELECT p.place_id FROM spot_listing_places p WHERE p.spot_id = s.id AND p.provider = 'google' LIMIT 1) AS google_place_id,
+      (SELECT ph.r2_key FROM spot_photos ph WHERE ph.spot_id = s.id) AS own_photo_key
+    FROM spots s
+    WHERE ${where.sql.join(" AND ")} AND s.latitude BETWEEN ? AND ? AND s.longitude BETWEEN ? AND ?
+    LIMIT ?`).bind(...where.params, box.minLat, box.maxLat, box.minLng, box.maxLng, limit).all<Record<string, unknown>>();
+  return results.map(toRawSpot);
+}
