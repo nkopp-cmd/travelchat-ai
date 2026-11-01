@@ -59,6 +59,12 @@ describe("Clerk public route allowlist", () => {
     expect(isPublicRoute(new NextRequest(`https://www.localley.io${path}`))).toBe(true);
   });
 
+  it("opens the helper 5 nearby API to signed-out travellers, but not the signed-in menu scan", () => {
+    expect(isPublicRoute(new NextRequest("https://www.localley.io/api/help/open?lat=37.58&lng=126.98&country=korea"))).toBe(true);
+    expect(isPublicRoute(new NextRequest("https://www.localley.io/api/help/open/extra"))).toBe(false);
+    expect(isPublicRoute(new NextRequest("https://www.localley.io/api/help/menu", { method: "POST" }))).toBe(false);
+  });
+
   it("continues to protect private application routes", () => {
     expect(isPublicRoute(new NextRequest("https://www.localley.io/dashboard"))).toBe(false);
   });
