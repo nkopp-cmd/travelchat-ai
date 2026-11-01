@@ -42,6 +42,7 @@ VITEST_FILES=(
   __tests__/lib/spots-public-quality.test.ts
   __tests__/lib/viral-scout-rows.test.ts
   __tests__/lib/viral-feed.test.ts
+  __tests__/lib/spot-guide.test.ts
   __tests__/lib/viral-events.test.ts
   __tests__/components/viral-spots.test.tsx
   __tests__/lib/pin-clusters.test.ts
@@ -416,6 +417,7 @@ ESLINT_FILES=(
   __tests__/lib/spots-public-quality.test.ts
   __tests__/lib/viral-scout-rows.test.ts
   __tests__/lib/viral-feed.test.ts
+  __tests__/lib/spot-guide.test.ts
   __tests__/lib/viral-events.test.ts
   __tests__/components/viral-spots.test.tsx
   __tests__/middleware.test.ts

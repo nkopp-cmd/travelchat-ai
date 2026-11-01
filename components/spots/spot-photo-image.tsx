@@ -54,6 +54,8 @@ function PhotoImage({ photo, alt, className, sizes, priority, loading, creditCla
 
 export function VenueHeroPhoto({ name, children }: { name: string; children?: ReactNode }) {
   const { data, loading, spotId } = useDetailVenuePhotos();
+  // No photo, no hero block (content-first rule 2): the page starts with the guide instead.
+  if (!loading && !data?.photos[0]) return null;
   return <SpotPhotoImage key={spotId} photo={data?.photos[0]} alt={name} sizes="(max-width: 768px) 100vw, 1024px" priority loading={loading} hero earlySpotId={spotId} frameClassName="relative aspect-[4/3] min-h-60 w-full overflow-hidden rounded-lg shadow-2xl shadow-violet-950/30 sm:aspect-[16/10] sm:min-h-0 md:aspect-[21/9]">{children}</SpotPhotoImage>;
 }
 

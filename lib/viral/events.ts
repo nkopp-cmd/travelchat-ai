@@ -3,7 +3,7 @@ import type { Spot } from "@/types";
 import { dataBackend } from "@/lib/app-data/backend";
 import { d1SpotCardsByIds } from "@/lib/spots/d1-queries";
 import { transformSpot } from "@/lib/spots/transform";
-import { parseViralFeed, viralSpotRefs, VIRAL_EVENTS_KEY, VIRAL_SLUG, type ViralEvent, type ViralFeed } from "./feed";
+import { parseViralFeed, spotViralMentions, viralSpotRefs, VIRAL_EVENTS_KEY, VIRAL_SLUG, type SpotViralMention, type ViralEvent, type ViralFeed } from "./feed";
 
 type Bucket = { get(key: string): Promise<{ json<T>(): Promise<T> } | null> };
 
@@ -30,6 +30,10 @@ export function readViralFeed(): Promise<ViralFeed | null> {
   })();
   cached = { at: Date.now(), value };
   return value;
+}
+
+export async function fetchSpotViralMentions(spotId: string): Promise<SpotViralMention[]> {
+  return spotViralMentions(await readViralFeed(), spotId);
 }
 
 export type ViralSpot = { spot: Spot; note: string | null; event: Pick<ViralEvent, "slug" | "label"> };

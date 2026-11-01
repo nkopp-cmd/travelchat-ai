@@ -248,9 +248,7 @@ test.describe("spots responsive layout", () => {
     await expect(
       page.getByTestId("spot-detail-address").filter({ visible: true }).first(),
     ).toBeVisible();
-    await expect(
-      page.getByTestId("spot-detail-navigation-target").first(),
-    ).toBeVisible();
+    await expect(page.getByTestId("spot-guide")).toBeVisible();
     await expect(page.getByTestId("spot-directions-link").first()).toBeVisible();
     await expectNoHorizontalOverflow(page);
   });

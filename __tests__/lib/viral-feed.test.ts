@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseViralFeed, viralSpotRefs } from "@/lib/viral/feed";
+import { formatViralMonth, parseViralFeed, spotViralMentions, viralSpotRefs } from "@/lib/viral/feed";
 // @ts-expect-error plain ESM script without types
 import { publicEvents } from "../../scripts/viral-scout.mjs";
 
@@ -42,5 +42,14 @@ describe("viral feed", () => {
     expect(viralSpotRefs(feed, "seoul").map((ref) => [ref.event.slug, ref.spotId])).toEqual([["newest", A], ["newest", B], ["older", C]]);
     expect(viralSpotRefs(feed, "seoul", 1)).toHaveLength(1);
     expect(viralSpotRefs(null, null)).toEqual([]);
+  });
+
+  it("lists the events that name one spot, with up to three sources", () => {
+    const feed = parseViralFeed({ version: 1, updatedAt: "2026-10-31T00:00:00Z", events: [event("bieber", "seoul", [A, B]), event("other", "seoul", [C])] });
+    const mentions = spotViralMentions(feed, A);
+    expect(mentions).toEqual([{ slug: "bieber", label: "bieber label", month: "2026-10", note: "ate here", sources: [{ title: "MoneyToday", url: "https://www.mt.co.kr/a/1" }] }]);
+    expect(spotViralMentions(feed, "missing")).toEqual([]);
+    expect(spotViralMentions(null, A)).toEqual([]);
+    expect(formatViralMonth("2026-10")).toBe("Oct 2026");
   });
 });
