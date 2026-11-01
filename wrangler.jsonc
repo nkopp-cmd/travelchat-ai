@@ -28,6 +28,8 @@
     // Normal preview reads only the existing public review projection. No Source secret.
     { "binding": "PUBLIC_REVIEW_SOURCE", "service": "localley-next" }
   ],
+  // Landing referrer/UTM points (lib/referral-point.ts); preview writes to its own dataset.
+  "analytics_engine_datasets": [{ "binding": "REFERRALS", "dataset": "localley_referrals_preview" }],
   "r2_buckets": [
     { "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "localley-next-preview-cache" },
     { "binding": "STORY_PREVIEW_MEDIA", "bucket_name": "localley-story-preview-media", "jurisdiction": "eu" }
@@ -104,6 +106,8 @@
       "version_metadata": { "binding": "CF_VERSION_METADATA" },
       "send_email": [{ "name": "AUTH_EMAIL", "allowed_sender_addresses": ["hello@localley.io"] }],
       "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "localley-next" }],
+      // Launch attribution (lib/referral-point.ts, scripts/referral-report.py).
+      "analytics_engine_datasets": [{ "binding": "REFERRALS", "dataset": "localley_referrals" }],
       // Created 2026-09-23 (step P2, approved by Nils).
       "r2_buckets": [
         { "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "localley-next-cache" },
