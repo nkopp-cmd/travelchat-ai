@@ -13,6 +13,7 @@ import { Compass } from "@/components/ui/icons";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+    alternates: { canonical: "/explore" },
     title: "Explore Itineraries - Community Travel Plans | Localley",
     description: "Discover community-created travel itineraries. Browse hidden gems, local favorites, and insider travel plans from travelers around the world.",
     keywords: "travel itineraries, trip plans, hidden gems, local spots, community travel, travel inspiration",

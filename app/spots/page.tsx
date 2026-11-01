@@ -27,6 +27,7 @@ import { fetchViralSpots } from "@/lib/viral/events";
 import { socialSpotSubmissionsAvailable } from "@/lib/social-submissions-availability";
 
 export const metadata: Metadata = {
+    alternates: { canonical: "/spots" },
     title: "Discover Hidden Gems",
     description: "Find local favorites across Seoul, Tokyo, Bangkok, and Singapore. Curated spots rated by locals.",
 };

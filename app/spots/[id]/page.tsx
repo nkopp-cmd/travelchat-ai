@@ -938,6 +938,7 @@ export async function generateMetadata({
   if (!spot) {
     return {
       title: "Spot Not Found - Localley",
+      robots: { index: false, follow: true },
       description: "The requested spot could not be found.",
     };
   }
@@ -957,6 +958,7 @@ export async function generateMetadata({
   ].join(", ");
 
   return {
+    alternates: { canonical: `/spots/${id}` },
     title,
     description,
     keywords,

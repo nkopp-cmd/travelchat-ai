@@ -11,6 +11,7 @@ import { AppBackground } from "@/components/layout/app-background";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/templates" },
   title: "Itinerary Templates - Curated Travel Plans | Localley",
   description: "Start your trip planning with our AI-powered itinerary templates. Curated plans for every travel style - relaxed, moderate, or active adventures.",
   keywords: "itinerary templates, travel planning, trip templates, vacation planner, AI travel, trip itinerary",

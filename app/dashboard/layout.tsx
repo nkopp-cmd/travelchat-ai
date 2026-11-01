@@ -1,4 +1,8 @@
+import type { Metadata } from "next";
 import { AppBackground } from "@/components/layout/app-background";
+
+// Private app area: keep it out of search indexes.
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 export default function DashboardLayout({
     children,

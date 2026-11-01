@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { savedSpotsWithSpots } from "@/lib/app-data/saved-spots";
 import { appDataDb, dataBackend } from "@/lib/app-data/backend";
@@ -22,6 +23,9 @@ import { SubscriptionTier, TIER_CONFIGS } from "@/lib/subscription";
 import { EditProfileDialog } from "@/components/profile/edit-profile-dialog";
 import { AppBackground } from "@/components/layout/app-background";
 import { CityImageAvatar } from "@/components/ui/city-image";
+
+// Private account page: keep it out of search indexes.
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 const LIQUID_CARD = "rounded-2xl bg-raised backdrop-blur-xl";
 const LIQUID_CARD_SOFT = "rounded-2xl bg-raised backdrop-blur-xl";
