@@ -1,4 +1,4 @@
-// Viral spots news scout (shared/plans/localley-viral-spots.md, steps 1-3 and 5).
+// Viral spots news scout (shared/plans/localley-viral-spots.md, steps 1-5).
 // Back-office job on the agent host (HYBRID RULE: runs by itself -> own server), every 2 hours from cron:
 //   flock -n ~/.local/state/localley/viral-scout.lock node scripts/viral-scout.mjs [--dry-run] [--pages N]
 // 1. Reads Naver News (NAVER API HUB, shared 2,000/day counter in the reference D1) and Google News RSS (ko + en) for
@@ -8,7 +8,10 @@
 // 3. Each place resolves with Naver local search (name + city + district must agree), then a Google Text Search that
 //    returns IDs only (free SKU; storing a place ID is allowed). An existing spot gets the event; a new venue becomes
 //    a spot with our own copy (second codex pass), no photo reference (the listing photo loads at runtime).
-// 4. Publishes R2 viral/events.json (event label, our summary, source links, spot ids) for the app.
+// 4. Social boost (step 4): for one event with unnamed places, an Instagram hashtag run on Apify (<= $0.20 a run, 2 runs a
+//    day, $4 a month, and only when spend-guard + apify-guard pass). Captions go into the same extraction as news; a
+//    place named only by social posts needs 2 different accounts. Posts are evidence only: never published or shown.
+// 5. Publishes R2 viral/events.json (event label, our summary, source links, spot ids) for the app.
 // After 3 failed runs in a row it messages Nils once (shared/scripts/notify.sh).
 import { execFileSync } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
@@ -26,6 +29,7 @@ const STATE_DIR = join(homedir(), ".local/state/localley");
 const STATE = join(STATE_DIR, "viral-scout.json");
 const CREATED_LOG = join(STATE_DIR, "viral-scout-created.jsonl"); // rollback list: one spot id per line
 const NOTIFY = "/home/dev/projects/CyberLink/shared/scripts/notify.sh";
+const SPEND_GUARDS = ["spend-guard.sh", "apify-guard.sh"].map((f) => `/home/dev/projects/CyberLink/shared/scripts/${f}`);
 const NAVER = "https://naverapihub.apigw.ntruss.com/search/v1";
 export const VISIBILITY_VERSION = "public-spot-visibility-v9"; // must equal PUBLIC_SPOT_VISIBILITY_CACHE_VERSION
 /** The shared Naver counter allows 2,000 calls a day; the scout stops at 1,600 so visitors keep 400. */
@@ -138,6 +142,10 @@ short Korean news search phrase in searchHintKo (e.g. "<person> 안국동 삼계
 district: the gu or dong the article gives (Korean), else "". kind: restaurant, cafe, bar, shop, popup, hotel, park,
 landmark, museum, market, area, other. Use "area" for a neighbourhood, street, district or river (e.g. 성수동, 한강). note: what the person did there in at most 6 English words (e.g. "ate samgyetang").
 summaryEn: 1-2 sentences in your own words, no quotes. articleIds: only ids from the list that support the claim.
+Lines whose publisher starts with "Instagram" are social posts (caption in summary, the post's location tag in
+brackets). A post names a place only when its caption says the person went there on this visit (a list post such as
+"10 spots he visited" names each venue it lists). A location tag alone, a fan's own visit, merchandise, memes and
+AI images name nothing. An event needs at least one news article; social posts only add places to it.
 Skip TV-show filming, ads, rumours, concerts-only news and places outside the listed cities. No event: return [].
 
 Articles (${articles.length}), one JSON object per line:
@@ -190,23 +198,105 @@ export function mergeEvents(stored, extracted, articles, now = new Date().toISOS
   for (const e of extracted) {
     if (!isRecentMonth(e.month, new Date(now))) continue;
     const slug = eventSlug(e);
+    // Social posts add places to a news event; they never start one.
+    if (!events[slug] && e.articleIds.every((id) => byId.get(id)?.social)) continue;
     const prev = events[slug] ?? { slug, personEn: e.personEn, personKo: e.personKo, city: e.city, month: e.month, firstSeen: now, sources: {}, places: {} };
     const event = { ...prev, sources: { ...prev.sources }, places: { ...prev.places }, summaryEn: e.summaryEn || prev.summaryEn, lastSeen: now };
-    for (const id of e.articleIds) {
+    for (const id of [...e.articleIds, ...e.places.flatMap((p) => p.articleIds)]) {
       const a = byId.get(id);
-      if (a && !event.sources[id]) event.sources[id] = { title: a.title, url: a.url, publisher: a.publisher, date: a.publishedAt?.slice(0, 10) ?? null };
+      if (a && !event.sources[id]) event.sources[id] = { title: a.title, url: a.url, publisher: a.publisher, date: a.publishedAt?.slice(0, 10) ?? null,
+        ...(a.social ? { social: true, owner: a.social.owner, engagement: a.social.likes + a.social.comments } : {}) };
     }
     for (const p of e.places) {
       const key = placeKey(p);
       if (!key) continue;
       const old = event.places[key];
+      // New evidence re-opens a place that waited for a name or for a second social post.
+      const reopen = old?.status === "review" && p.confidence === "named" && (!old.nameKo || old.reason === "social_single");
       event.places[key] = old
-        ? { ...old, articleIds: [...new Set([...old.articleIds, ...p.articleIds])], ...(old.status === "review" && p.confidence === "named" && !old.nameKo ? { ...p, status: "pending" } : {}) }
+        ? { ...old, articleIds: [...new Set([...old.articleIds, ...p.articleIds])], ...(reopen ? { ...p, articleIds: [...new Set([...old.articleIds, ...p.articleIds])], status: "pending", reason: undefined } : {}) }
         : { ...p, status: p.confidence === "named" ? "pending" : "review", reason: p.confidence === "named" ? undefined : "described_only" };
     }
     events[slug] = event;
   }
   return events;
+}
+
+// ---------- 4. Social boost (Instagram hashtags on Apify) ----------
+// News often hides the venue ("a famous samgyetang place in Anguk"); fan and guide posts name it. One hashtag run per
+// day for the event that most needs it, inside apify-guard + spend-guard and the scout's own monthly ceiling.
+
+export const SOCIAL_ACTOR = "apify~instagram-hashtag-scraper";
+export const SOCIAL_POSTS = 40;
+export const SOCIAL_RUN_USD = 0.2; // maxTotalChargeUsd per run (40 posts cost about $0.10)
+export const SOCIAL_MONTH_USD = 4;
+export const SOCIAL_EVENT_EVERY_H = 24;
+export const SOCIAL_RUNS_PER_DAY = 2;
+
+/** Hashtags for an event: the Korean name as one word and "<englishname><city>", e.g. 저스틴비버, justinbieberseoul. */
+export function socialHashtags(event) {
+  const tags = [String(event.personKo ?? "").replace(/\s+/g, ""), `${String(event.personEn ?? "").replace(/[^A-Za-z0-9]/g, "")}${event.city}`.toLowerCase()];
+  return [...new Set(tags.filter((t) => /^[\p{L}\p{N}_]{2,40}$/u.test(t)))];
+}
+
+/** The event to search next, or null: open places (unnamed or social-only), seen in the last 14 days, not searched in 24 h. */
+export function pickSocialEvent(events, social, now = new Date()) {
+  const due = Object.values(events).filter((e) => {
+    if (!isRecentMonth(e.month, now) || !socialHashtags(e).length) return false;
+    if (now - new Date(e.lastSeen ?? e.firstSeen) > 14 * 86400000) return false;
+    const last = social?.events?.[e.slug];
+    if (last && now - new Date(last) < SOCIAL_EVENT_EVERY_H * 3600000) return false;
+    return Object.values(e.places).some((p) => p.status === "review" && ["described_only", "no_naver_match", "social_single"].includes(p.reason));
+  });
+  return due.sort((a, b) => Object.keys(b.sources).length - Object.keys(a.sources).length)[0] ?? null;
+}
+
+/** Budget state for this month and day; null when a ceiling is reached. */
+export function socialBudget(social, now = new Date()) {
+  const month = now.toISOString().slice(0, 7), day = now.toISOString().slice(0, 10);
+  const s = { events: {}, ...social };
+  if (s.month !== month) Object.assign(s, { month, usd: 0 });
+  if (s.day !== day) Object.assign(s, { day, runs: 0 });
+  return s.usd + SOCIAL_RUN_USD > SOCIAL_MONTH_USD || s.runs >= SOCIAL_RUNS_PER_DAY ? null : s;
+}
+
+/** Instagram items -> article-like sources. Only posts from the visit month on that mention the person; no caption is published. */
+export function normalizeSocialPosts(items, event, now = new Date()) {
+  const from = new Date(`${event.month}-01T00:00:00Z`);
+  const names = [event.personKo, event.personEn].map((n) => String(n ?? "").replace(/\s+/g, "").toLowerCase()).filter((n) => n.length >= 2);
+  const out = [];
+  for (const item of Array.isArray(items) ? items : []) {
+    const url = httpsUrl(item?.url);
+    const at = new Date(item?.timestamp);
+    if (!url || !/^https:\/\/www\.instagram\.com\/(p|reel)\//.test(url) || !(at >= from) || at > now) continue;
+    const caption = cleanText(item.caption, 1200);
+    const flat = `${caption} ${(item.hashtags ?? []).join(" ")}`.replace(/\s+/g, "").toLowerCase();
+    if (!names.some((n) => flat.includes(n))) continue;
+    const owner = cleanText(item.ownerUsername, 40).replace(/[^\w.]/g, "");
+    const location = cleanText(item.locationName, 80);
+    out.push({ id: articleId(url), url, publisher: `Instagram @${owner || "unknown"}`, title: "Instagram post", publishedAt: at.toISOString(),
+      summary: `${caption}${location ? ` [location tag: ${location}]` : ""}`.slice(0, 1300),
+      social: { owner: owner || url, likes: Math.max(0, Number(item.likesCount) || 0), comments: Math.max(0, Number(item.commentsCount) || 0) } });
+  }
+  return out;
+}
+
+/** A place named only by social posts needs 2 different accounts before it resolves (one post can be wrong or fake). */
+export function socialOnlyWeak(event, place) {
+  const sources = place.articleIds.map((id) => event.sources[id]).filter(Boolean);
+  if (!sources.length || sources.some((s) => !s.social)) return false;
+  return new Set(sources.map((s) => s.owner)).size < 2;
+}
+
+/** Virality: news articles, social posts, their likes + comments, and new sources since the previous day. */
+export function virality(event, now = new Date()) {
+  const sources = Object.values(event.sources);
+  const articles = sources.filter((s) => !s.social).length, socialPosts = sources.length - articles;
+  const engagement = sources.reduce((sum, s) => sum + (s.engagement ?? 0), 0);
+  const yesterday = new Date(now - 86400000).toISOString().slice(0, 10);
+  const growth = sources.filter((s) => s.date && s.date >= yesterday).length;
+  const score = Math.round(articles + 2 * socialPosts + 5 * Math.log10(1 + engagement) + 2 * growth);
+  return { articles, socialPosts, engagement, growth, score };
 }
 
 // ---------- 3. Resolution ----------
@@ -347,9 +437,12 @@ export function publicEvents(events, now = new Date().toISOString()) {
   const list = Object.values(events).map((e) => {
     const spots = Object.values(e.places).filter((p) => p.spotId && ["matched", "created"].includes(p.status))
       .map((p) => ({ spotId: p.spotId, note: p.note }));
-    const sources = Object.values(e.sources).sort((a, b) => String(b.date).localeCompare(String(a.date))).slice(0, 8);
+    // The page lists news reports; social posts are evidence for us and count only in the virality figures.
+    const news = Object.values(e.sources).filter((s) => !s.social);
+    const sources = news.sort((a, b) => String(b.date).localeCompare(String(a.date))).slice(0, 8)
+      .map(({ title, url, publisher, date }) => ({ title, url, publisher, date }));
     return { slug: e.slug, label: eventLabel(e), person: e.personEn, city: CITIES[e.city].name, citySlug: e.city, month: e.month,
-      summary: e.summaryEn, firstSeen: e.firstSeen, lastSeen: e.lastSeen, articleCount: Object.keys(e.sources).length, sources,
+      summary: e.summaryEn, firstSeen: e.firstSeen, lastSeen: e.lastSeen, articleCount: news.length, sources, virality: virality(e, new Date(now)),
       spots: [...new Map(spots.map((s) => [s.spotId, s])).values()].slice(0, 24) };
   }).filter((e) => e.spots.length && isRecentMonth(e.month, new Date(now))).sort((a, b) => b.lastSeen.localeCompare(a.lastSeen) || b.articleCount - a.articleCount);
   return { version: 1, updatedAt: now, events: list.slice(0, 40) };
@@ -443,6 +536,7 @@ async function resolvePlaces(state, events, { dryRun, log }) {
     for (const [key, place] of Object.entries(event.places)) {
       if (place.status !== "pending") continue;
       if (place.kind === "area" || isAreaName(place.nameKo, place.district)) { Object.assign(place, { status: "review", reason: "area_not_venue" }); continue; }
+      if (socialOnlyWeak(event, place)) { Object.assign(place, { status: "review", reason: "social_single" }); continue; }
       const raw = await naverGet(state, "local", { query: `${CITIES[event.city].ko} ${place.district} ${place.nameKo}`.replace(/\s+/g, " "), display: "5", sort: "random" });
       if (!raw) { log.push(`naver budget used, ${place.nameKo} waits`); return candidates; }
       const naver = pickNaverMatch(raw.items, place, event.city);
@@ -470,6 +564,31 @@ async function resolvePlaces(state, events, { dryRun, log }) {
     Object.assign(c.place, { status: "created", spotId: rows.spot.id, placeId: c.placeId });
   }
   return candidates;
+}
+
+/** Paid call allowed: the scout's own month/day ceilings and both shared guards (SPEND.md, Apify cap) exit 0. */
+function socialAllowed(state) {
+  if (!process.env.APIFY_API_TOKEN) return null;
+  const budget = socialBudget(state.social);
+  if (!budget) return null;
+  try { for (const guard of SPEND_GUARDS) execFileSync(guard, [], { stdio: "ignore", timeout: 60000 }); } catch { return null; }
+  return budget;
+}
+
+/** One Instagram hashtag run for the event (hard charge cap per run); returns normalized posts and the true cost. */
+async function socialPosts(event) {
+  const token = encodeURIComponent(process.env.APIFY_API_TOKEN);
+  const start = await fetch(`https://api.apify.com/v2/acts/${SOCIAL_ACTOR}/runs?waitForFinish=240&maxTotalChargeUsd=${SOCIAL_RUN_USD}&token=${token}`, {
+    method: "POST", headers: { "content-type": "application/json" }, signal: AbortSignal.timeout(300000),
+    body: JSON.stringify({ hashtags: socialHashtags(event), resultsType: "posts", resultsLimit: SOCIAL_POSTS, keywordSearch: false }) });
+  if (!start.ok) throw new Error(`apify run ${start.status}`);
+  const run = (await start.json()).data;
+  const cost = Number(run?.usageTotalUsd) || SOCIAL_RUN_USD;
+  if (run?.status !== "SUCCEEDED") return { posts: [], cost, status: run?.status ?? "unknown" };
+  const items = await fetch(`https://api.apify.com/v2/datasets/${run.defaultDatasetId}/items?clean=true&limit=${SOCIAL_POSTS}&token=${token}`,
+    { signal: AbortSignal.timeout(60000) });
+  if (!items.ok) throw new Error(`apify dataset ${items.status}`);
+  return { posts: normalizeSocialPosts(await items.json(), event), cost, status: run.status };
 }
 
 function readState() {
@@ -508,6 +627,18 @@ async function run(state, { dryRun, pages }) {
   for (const { q, lang } of plan.google) {
     try { for (const a of await googleNews(q, lang)) articles.set(a.id, a); } catch (error) { log.push(error.message); }
   }
+  // 4. Social boost: one event with open places per run, inside the scout's own Apify ceilings.
+  let social = null;
+  const budget = socialAllowed(state);
+  const target = budget && pickSocialEvent(state.events ?? {}, budget);
+  if (target) {
+    try {
+      const { posts, cost, status } = await socialPosts(target);
+      for (const a of posts) articles.set(a.id, a);
+      social = { event: target.slug, hashtags: socialHashtags(target), posts: posts.length, usd: Math.round(cost * 10000) / 10000, status };
+      if (!dryRun) state.social = { ...budget, usd: budget.usd + cost, runs: budget.runs + 1, events: { ...budget.events, [target.slug]: new Date().toISOString() } };
+    } catch (error) { log.push(`social: ${error.message}`); }
+  }
   state.seen ??= {};
   const fresh = [...articles.values()].filter((a) => !state.seen[a.id]);
   let extracted = [];
@@ -531,7 +662,7 @@ async function run(state, { dryRun, pages }) {
   const places = Object.values(events).flatMap((e) => Object.values(e.places));
   const count = (status) => places.filter((p) => p.status === status).length;
   return { articles: articles.size, fresh: fresh.length, events: Object.keys(events).length, published: file.events.length,
-    created: count("created"), matched: count("matched"), review: count("review"), wouldCreate: count("would_create"), naverCalls: state.naver?.calls ?? 0, log,
+    created: count("created"), matched: count("matched"), review: count("review"), wouldCreate: count("would_create"), naverCalls: state.naver?.calls ?? 0, social, log,
     ...(dryRun ? { detail: events } : {}) };
 }
 
