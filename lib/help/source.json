@@ -53,6 +53,10 @@
      "en": "What do you recommend?"
     },
     {
+     "id": "order_this",
+     "en": "I would like this one, please."
+    },
+    {
      "id": "no_spicy",
      "en": "Not spicy, please."
     },
