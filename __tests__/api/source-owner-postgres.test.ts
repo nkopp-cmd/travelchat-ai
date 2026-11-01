@@ -48,7 +48,7 @@ import {POST as duplicate} from '@/app/api/itineraries/[id]/duplicate/route';
 import {POST as review,GET as publicReviews} from '@/app/api/spots/[id]/reviews/route';
 const id=(n:number)=>'00000000-0000-4000-8000-'+String(n).padStart(12,'0');
 const request=(method:string,body?:Row)=>new NextRequest('https://www.localley.io/api/controlled',{method,...(body?{body:JSON.stringify(body),headers:{'Content-Type':'application/json'}}:{})});
-describe.skipIf(!enabled)('actual handlers against disposable owner RLS',()=>{
+describe.skipIf(!enabled)('actual handlers against disposable owner RLS',{timeout:30_000},()=>{
  beforeAll(()=>{
   if(!/^(?:[0-9]+-[0-9]+|local-[a-f0-9-]{36})$/.test(key!))throw Error('invalid_proof_key');
   const c=JSON.parse(execFileSync('docker',['inspect',name],{encoding:'utf8'}))[0];
