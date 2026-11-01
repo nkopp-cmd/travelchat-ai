@@ -30,7 +30,8 @@ async function buildTree(routes: Record<string, unknown>, html = page) {
 describe("static public HTML assets", () => {
   it("covers only the fully static public pages", () => {
     expect(Object.keys(STATIC_PUBLIC_PAGES)).toEqual(["/", "/pricing", "/help", ...HELP_COUNTRY_SLUGS.map((s: string) => `/help/${s}`),
-      ...HELP_COUNTRY_SLUGS.map((s: string) => `/help/${s}/pay`)]);
+      ...HELP_COUNTRY_SLUGS.map((s: string) => `/help/${s}/pay`), ...HELP_COUNTRY_SLUGS.map((s: string) => `/help/${s}/open`)]);
+    expect(STATIC_PUBLIC_PAGES["/help/korea/open"]).toBe("help/korea/open.html");
     expect(STATIC_PUBLIC_PAGES["/help/japan/pay"]).toBe("help/japan/pay.html");
     expect(STATIC_PUBLIC_PAGES["/help/korea"]).toBe("help/korea.html");
   });

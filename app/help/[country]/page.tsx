@@ -41,6 +41,9 @@ export default async function HelpCountryPage({ params }: { params: Promise<{ co
       <Link href={`/help/${country.slug}/pay`} className="mt-4 flex min-h-11 items-center justify-between gap-2 rounded-2xl bg-surface p-4 font-semibold text-foreground shadow-surface hover:bg-raised">
         How can I pay here? <span className="text-sm font-normal text-muted-foreground">Cards, cash, wallets, transit</span>
       </Link>
+      <Link href={`/help/${country.slug}/open`} className="mt-2 flex min-h-11 items-center justify-between gap-2 rounded-2xl bg-surface p-4 font-semibold text-foreground shadow-surface hover:bg-raised">
+        Find somewhere open nearby <span className="text-sm font-normal text-muted-foreground">Spots within 2 km, hours</span>
+      </Link>
       {groups.map((group) => (
         <section key={group.id} aria-labelledby={`h-${group.id}`} className="mt-8">
           <h2 id={`h-${group.id}`} className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">{group.title}</h2>

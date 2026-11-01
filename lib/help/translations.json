@@ -658,5 +658,49 @@
    "text": "我的手機或包包不見了，請問可以去哪裡報失？",
    "roman": "Wǒ de shǒujī huò bāobāo bú jiàn le, qǐngwèn kěyǐ qù nǎlǐ bàoshī?"
   }
+ },
+ "open_now": {
+  "ko": {
+   "text": "지금 영업하세요?",
+   "roman": "Jigeum yeongeophaseyo?"
+  },
+  "ja": {
+   "text": "今、営業していますか？",
+   "roman": "Ima, eigyō shite imasu ka?"
+  },
+  "th": {
+   "text": "ตอนนี้ร้านเปิดอยู่ไหม",
+   "roman": "Ton-ni ran poet yu mai?"
+  },
+  "vi": {
+   "text": "Bây giờ quán có mở cửa không ạ?",
+   "roman": "Bay gio quan co mo cua khong a?"
+  },
+  "zh-TW": {
+   "text": "現在有營業嗎？",
+   "roman": "Xiànzài yǒu yíngyè ma?"
+  }
+ },
+ "close_time": {
+  "ko": {
+   "text": "몇 시에 문 닫아요?",
+   "roman": "Myeot sie mun dadayo?"
+  },
+  "ja": {
+   "text": "何時に閉まりますか？",
+   "roman": "Nanji ni shimarimasu ka?"
+  },
+  "th": {
+   "text": "ร้านปิดกี่โมง",
+   "roman": "Ran pit ki mong?"
+  },
+  "vi": {
+   "text": "Mấy giờ quán đóng cửa ạ?",
+   "roman": "May gio quan dong cua a?"
+  },
+  "zh-TW": {
+   "text": "請問幾點關門？",
+   "roman": "Qǐngwèn jǐ diǎn guānmén?"
+  }
  }
 }
