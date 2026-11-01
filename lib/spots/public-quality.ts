@@ -103,7 +103,9 @@ export function getPublicSpotQualityIssue(
             // photos at runtime (/api/spots/[id]/photos checks city and coordinates first), so no
             // photo reference is stored for it (Places terms). Before this rule no visible or
             // hidden spot had a place ID without photos, so the visibility version stays v9.
-            if (!hasRuntimeListingPhoto(spot)) return "missing_real_photo";
+            // Stock or placeholder photos still hide the spot: the rule covers only spots with no
+            // stored photo at all.
+            if (photos.length > 0 || !hasRuntimeListingPhoto(spot)) return "missing_real_photo";
             return getPublicSpotLocationIssue(spot);
         }
 

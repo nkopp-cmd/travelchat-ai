@@ -87,6 +87,8 @@ describe("public spot quality", () => {
         expect(getPublicSpotQualityIssue({ ...spot, address: { en: "Gangnam, Seoul" } })).toBe("inexact_location");
         expect(getPublicSpotQualityIssue({ ...spot, google_place_id: "bad id/../x" })).toBe("missing_real_photo");
         expect(getPublicSpotQualityIssue({ ...spot, google_place_id: null })).toBe("missing_real_photo");
+        expect(getPublicSpotQualityIssue({ ...spot, photos: ["/images/placeholders/cafe.svg"] })).toBe("missing_real_photo");
+        expect(getPublicSpotQualityIssue({ ...spot, photos: ["https://images.unsplash.com/stock"] })).toBe("missing_real_photo");
         const { address: _address, ...noAddress } = spot;
         expect(getPublicSpotQualityIssue(noAddress)).toBe("missing_real_photo");
     });
