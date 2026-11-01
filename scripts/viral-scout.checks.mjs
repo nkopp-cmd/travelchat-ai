@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
-  NAVER_SCOUT_DAILY, NAVER_SHARED_STOP, articleId, buildSpotRows, cleanText, eventLabel, eventSlug, ewkbPoint, insertStatements,
+  NAVER_SCOUT_DAILY, NAVER_SHARED_STOP, articleId, buildExtractPrompt, buildSpotRows, cleanText, eventLabel, eventSlug, ewkbPoint, insertStatements,
   isAreaName, isRecentMonth, loadWatchlist, mergeEvents, normalizeNaverNews, parseCopy, parseExtraction, parseGoogleNewsRss, pickNaverMatch, planQueries, publicEvents,
   SOCIAL_RUN_USD, normalizeSocialPosts, pickSocialEvent, socialBudget, socialHashtags, socialOnlyWeak, virality,
 } from "./viral-scout.mjs";
@@ -243,4 +243,11 @@ test("social: social-only events never start, one account is weak, public file h
   assert.equal(pub.articleCount, 2);
   assert.ok(pub.sources.every((s) => !s.url.includes("instagram")));
   assert.equal(pub.virality.socialPosts, 1);
+});
+
+test("social: posts are read with the stored event as context", () => {
+  assert.ok(!buildExtractPrompt(articles).includes("Known event"));
+  const prompt = buildExtractPrompt([], socialEvent);
+  assert.ok(prompt.includes("Known event, already confirmed by earlier news"));
+  assert.ok(prompt.includes("Test Star (테스트 스타) in seoul, 2026-10"));
 });
