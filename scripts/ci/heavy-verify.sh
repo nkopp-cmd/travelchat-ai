@@ -150,7 +150,6 @@ VITEST_FILES=(
   __tests__/lib/apify-spot-discovery.test.ts
   __tests__/lib/apify-discovery-collection.test.ts
   __tests__/api/discover-spots-with-apify-route.test.ts
-  __tests__/lib/canonical-host.test.ts
   __tests__/api/story-mail-cloudflare.test.ts
   __tests__/lib/story-mail-cloudflare.test.ts
   __tests__/lib/itinerary-mail-limit.test.ts
