@@ -1,0 +1,3 @@
+#!/bin/sh
+# Business-loop money probe (one JSON line). See scripts/business-metrics.mjs.
+exec node "$(dirname "$0")/business-metrics.mjs" "$@"
