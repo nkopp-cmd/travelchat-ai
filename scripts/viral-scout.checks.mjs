@@ -4,7 +4,7 @@ import test from "node:test";
 import {
   NAVER_SCOUT_DAILY, NAVER_SHARED_STOP, articleId, buildExtractPrompt, buildSpotRows, cleanText, eventLabel, eventSlug, ewkbPoint, insertStatements,
   isAreaName, isRecentMonth, loadWatchlist, mergeEvents, normalizeNaverNews, parseCopy, parseExtraction, parseGoogleNewsRss, pickNaverMatch, planQueries, publicEvents, weeklyReport,
-  SOCIAL_RUN_USD, normalizeSocialPosts, pickSocialEvent, socialBudget, socialHashtags, socialOnlyWeak, virality,
+  SOCIAL_RUN_USD, normalizeSocialPosts, pickSocialEvent, socialBudget, socialHashtags, socialOnlyWeak, virality, LEADS_PER_RUN, leadKind, leadPlaces, leadVenueKo,
 } from "./viral-scout.mjs";
 
 const naverNews = { items: [
@@ -269,4 +269,41 @@ test("weekly report: counts the last 7 days, live spots from the public file, to
   assert.match(text, /2\. Old Star .*: 1 spot, 5 reports/);
   assert.doesNotMatch(text, /No Spots/);
   assert.equal(weeklyReport({}, [], now).split("\n")[1], "No event page live.");
+});
+
+test("old social leads: only the Hangul venue part of a Korean lead is searched", () => {
+  assert.equal(leadVenueKo("큰엉해안경승지"), "큰엉해안경승지");
+  assert.equal(leadVenueKo("Jeju Island, South Korea 제주도"), "");
+  assert.equal(leadVenueKo("부산 연산동"), "");
+  assert.equal(leadVenueKo("Sejong Center"), "");
+  assert.equal(leadVenueKo("서울 난지캠핑장"), "난지캠핑장");
+  const now = new Date("2026-11-01T03:00:00Z");
+  const row = (id, city, hint, external, url = `https://www.instagram.com/p/${external}/`) =>
+    ({ id, city_slug: city, platform: "instagram", external_id: external, place_hint: hint, canonical_url: url });
+  const groups = leadPlaces([
+    row("a", "jeju", "큰엉해안경승지", "p1"), row("b", "jeju", "큰엉 해안경승지", "p2"), row("c", "jeju", "큰엉해안경승지", "p2"),
+    row("d", "seoul", "난지캠핑장", "p3", "javascript:x"), row("e", "kyoto", "清水寺 기요미즈데라", "p4"), row("f", "busan", "부산 연산동", "p5"),
+  ], {}, now);
+  assert.deepEqual(groups.map((g) => [g.key, g.posts, g.ids.length, g.urls.length]),
+    [["jeju:큰엉해안경승지", 2, 3, 2], ["seoul:난지캠핑장", 1, 1, 0]]);
+  // A hint that failed is not searched again for 7 days.
+  assert.equal(leadPlaces([row("d", "seoul", "난지캠핑장", "p3")], { "seoul:난지캠핑장": "2026-10-29T00:00:00Z" }, now).length, 0);
+  assert.equal(leadPlaces([row("d", "seoul", "난지캠핑장", "p3")], { "seoul:난지캠핑장": "2026-10-20T00:00:00Z" }, now).length, 1);
+  const many = Array.from({ length: 30 }, (_, i) => row(`m${i}`, "seoul", `가게이름${i}호점`, `x${i}`));
+  assert.equal(leadPlaces(many, {}, now).length, LEADS_PER_RUN);
+});
+
+test("old social leads: Naver category sets the kind, hotels never become spots", () => {
+  assert.equal(leadKind("여행,명소>경승지"), "park");
+  assert.equal(leadKind("숙박>호텔"), "hotel");
+  assert.equal(leadKind("쇼핑,유통>시장"), "market");
+  assert.equal(leadKind("음식점>한식"), "venue");
+  assert.equal(leadKind("숙박>캠핑,야영장"), "park");
+  assert.equal(leadKind("여행,명소>유적지,사적지"), "landmark");
+});
+
+test("Naver match: Gyeongju addresses start with the province", () => {
+  const item = { title: "<b>황룡사지</b>", category: "여행,명소>유적지,사적지", roadAddress: "경상북도 경주시", address: "경상북도 경주시 구황동 772", mapx: "1292345678", mapy: "358345678" };
+  assert.equal(pickNaverMatch([item], { nameKo: "황룡사지", district: "" }, "gyeongju")?.confidence, "high");
+  assert.equal(pickNaverMatch([{ ...item, roadAddress: "", address: "서울특별시 종로구" }], { nameKo: "황룡사지", district: "" }, "gyeongju"), null);
 });
