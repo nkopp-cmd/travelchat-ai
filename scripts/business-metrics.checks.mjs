@@ -1,4 +1,4 @@
-// node --test scripts/business-metrics.checks.mjs — pure parts of the business-loop money probe (no network).
+// node --test scripts/business-metrics.checks.mjs — pure parts of the business-loop money + moat probe (no network).
 import assert from "node:assert/strict";
 import test from "node:test";
 import { PAID_PATH_LIVE_SINCE, isInternal, summarize } from "./business-metrics.mjs";
@@ -32,7 +32,8 @@ test("counts paying, active and sign-ups; unknown money stays null", () => {
     funnel: [{ day: "2026-10-25", step: "checkout_paid", count: 1 }, { day: "2026-09-01", step: "checkout_paid", count: 4 }],
   }, now);
   assert.deepEqual(Object.keys(out), ["app", "currency", "paying_30d", "paying_prev_30d", "revenue_30d", "revenue_prev_30d",
-    "repeat_payers_30d", "active_30d", "signups_30d", "paid_path_live_since", "notes"]);
+    "repeat_payers_30d", "active_30d", "signups_30d", "paid_path_live_since", "proprietary_rows_30d", "ugc_30d", "owned_audience",
+    "in_person_30d", "notes"]);
   assert.equal(out.paying_30d, 1);
   assert.equal(out.active_30d, 1);
   assert.equal(out.signups_30d, 1);
@@ -41,4 +42,24 @@ test("counts paying, active and sign-ups; unknown money stays null", () => {
   assert.equal(out.paid_path_live_since, PAID_PATH_LIVE_SINCE);
   assert.match(out.notes, /checkout_paid funnel events 30d: 1;/);
   assert.doesNotMatch(JSON.stringify(out), /@|sub_|u1|house/);
+});
+
+test("moat fields count our own records and outside user content only", () => {
+  const base = { users, sessions: [], subscriptions: [], funnel: [] };
+  const viral = { events: {
+    a: { firstSeen: "2026-10-28T00:00:00Z", places: { x: { status: "created" }, y: { status: "matched" }, z: { status: "review" } } },
+    b: { firstSeen: "2026-08-01T00:00:00Z", places: { x: { status: "created" } } },
+  } };
+  const out = summarize({ ...base,
+    links: [{ authUserId: "house", ownerId: "user_legacy_house" }],
+    ugc: [{ uid: "u1", at: "2026-10-29T00:00:00Z" }, { uid: "u1", at: "2026-09-01T00:00:00Z" },
+      { uid: "house", at: "2026-10-29T00:00:00Z" }, { uid: "user_legacy_house", at: "2026-10-29T00:00:00Z" }, { uid: null, at: "2026-10-29T00:00:00Z" }],
+    rankings: [{ created_at: "2026-10-27T00:00:00Z" }, { created_at: "2026-09-01T00:00:00Z" }],
+    viral }, now);
+  assert.equal(out.proprietary_rows_30d, 1 + 2 + 1);
+  assert.equal(out.ugc_30d, 1);
+  assert.equal(out.owned_audience, null);
+  assert.equal(out.in_person_30d, null);
+  assert.equal(summarize(base, now).proprietary_rows_30d, null); // no scout archive on this host = unknown
+  assert.doesNotMatch(JSON.stringify(out), /@|u1|house|user_legacy/);
 });
