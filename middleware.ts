@@ -29,6 +29,7 @@ const PUBLIC_ROUTES = [
     '/api/conditions',  // Season + weather chips for the landing picks; fixed city list, cached
     '/api/conditions/:city',  // Planner trip outlook: season table + MET forecast for one reviewed city, cached
     '/api/events/spots',  // Spot-card analytics beacon: same-origin, bounded daily aggregates, no user data
+    '/api/help/open',  // Helper 5 nearby spots: public spot rows only, rate-limited in the route, no user data
     '/api/version',  // Release proof: the deployed commit sha (Gravity release lane smoke check)
     '/api/itineraries/:id/story/media/:generation/:slide',  // Story slides: the route enforces owner/shared + unexpired.
     '/api/places/naver-local', // Bounded public KR name/address references; no app writes
