@@ -90,7 +90,7 @@
     "tailwind-merge": "^3.4.0",
     "use-debounce": "^10.1.0",
     "web-push": "^3.6.7",
-    "zod": "^4.1.13"
+    "zod": "^4.6.6"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^16.4.2",
@@ -122,6 +122,8 @@
     "@node-minify/core": {
       "glob": "10.5.0"
     },
-    "eslint-plugin-react-hooks": "7.0.1"
+    "eslint-plugin-react-hooks": "7.0.1",
+    "undici": "^7.30.1",
+    "body-parser": "^2.4.0"
   }
 }
