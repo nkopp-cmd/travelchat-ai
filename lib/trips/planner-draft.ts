@@ -62,7 +62,11 @@ export function parsePlannerDraft(raw: string | null, now = Date.now()): { versi
 }
 
 export function savePlannerDraft(storage: Pick<Storage, "setItem">, data: WizardData, now = Date.now()) {
-  const raw = JSON.stringify({ version: 1, savedAt: now, data });
+  // The wizard keeps a name for every listed city (24+); the draft needs only the chosen stops' names.
+  const cityNameBySlug = Object.fromEntries(
+    data.citySlugs.filter(slug => Object.hasOwn(data.cityNameBySlug, slug)).map(slug => [slug, data.cityNameBySlug[slug]]),
+  );
+  const raw = JSON.stringify({ version: 1, savedAt: now, data: { ...data, cityNameBySlug } });
   if (!parsePlannerDraft(raw, now)) throw new Error("Check your trip inputs before continuing.");
   try { storage.setItem(PLANNER_DRAFT_KEY, raw); }
   catch { throw new Error("Your browser could not keep your trip inputs. Enable site storage and try again."); }
