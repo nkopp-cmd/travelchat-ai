@@ -190,6 +190,10 @@
    "type": "ratelimit"
   },
   {
+   "name": "REFERRALS",
+   "type": "analytics_engine"
+  },
+  {
    "name": "RESEND_API_KEY",
    "type": "secret_text"
   },

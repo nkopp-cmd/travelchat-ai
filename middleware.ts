@@ -28,6 +28,7 @@ const PUBLIC_ROUTES = [
     '/api/cities',  // City listing for destination picker (must work for anonymous users)
     '/api/conditions',  // Season + weather chips for the landing picks; fixed city list, cached
     '/api/conditions/:city',  // Planner trip outlook: season table + MET forecast for one reviewed city, cached
+    '/api/events/referral',  // Landing referrer/UTM beacon: same-origin, rate-limited, no user data
     '/api/events/spots',  // Spot-card analytics beacon: same-origin, bounded daily aggregates, no user data
     '/api/help/open',  // Helper 5 nearby spots: public spot rows only, rate-limited in the route, no user data
     '/api/version',  // Release proof: the deployed commit sha (Gravity release lane smoke check)
