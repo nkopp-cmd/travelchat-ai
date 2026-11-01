@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   NAVER_SCOUT_DAILY, NAVER_SHARED_STOP, articleId, buildExtractPrompt, buildSpotRows, cleanText, eventLabel, eventSlug, ewkbPoint, insertStatements,
-  isAreaName, isRecentMonth, loadWatchlist, mergeEvents, normalizeNaverNews, parseCopy, parseExtraction, parseGoogleNewsRss, pickNaverMatch, planQueries, publicEvents,
+  isAreaName, isRecentMonth, loadWatchlist, mergeEvents, normalizeNaverNews, parseCopy, parseExtraction, parseGoogleNewsRss, pickNaverMatch, planQueries, publicEvents, weeklyReport,
   SOCIAL_RUN_USD, normalizeSocialPosts, pickSocialEvent, socialBudget, socialHashtags, socialOnlyWeak, virality,
 } from "./viral-scout.mjs";
 
@@ -250,4 +250,23 @@ test("social: posts are read with the stored event as context", () => {
   const prompt = buildExtractPrompt([], socialEvent);
   assert.ok(prompt.includes("Known event, already confirmed by earlier news"));
   assert.ok(prompt.includes("Test Star (테스트 스타) in seoul, 2026-10"));
+});
+
+test("weekly report: counts the last 7 days, live spots from the public file, top 3 by reports", () => {
+  const now = new Date("2026-11-02T07:20:00Z");
+  const place = (status, spotId) => ({ status, spotId, note: "ate here", articleIds: [] });
+  const event = (slug, person, firstSeen, n, places) => ({ slug, personEn: person, city: "seoul", month: "2026-10", firstSeen, lastSeen: firstSeen,
+    summaryEn: "", sources: Object.fromEntries(Array.from({ length: n }, (_, i) => [`a${i}`, { url: `https://x.test/${i}`, date: "2026-10-28" }])), places });
+  const events = {
+    a: event("a", "Justin Bieber", "2026-11-01T01:34:00Z", 28, { x: place("created", "s1"), y: place("matched", "s2"), z: place("review") }),
+    b: event("b", "Old Star", "2026-10-01T00:00:00Z", 5, { x: place("matched", "s3") }),
+    c: event("c", "No Spots", "2026-11-01T00:00:00Z", 9, { x: place("review") }),
+  };
+  const created = [JSON.stringify({ spotId: "s1", at: "2026-11-01T01:34:43Z" }), JSON.stringify({ spotId: "s0", at: "2026-10-01T00:00:00Z" }), "{broken"];
+  const text = weeklyReport(events, created, now);
+  assert.match(text, /2 new events, 1 spots created, 3 spots live on 2 event pages, 2 places in review/);
+  assert.match(text, /1\. Justin Bieber .*: 2 spots, 28 reports, https:\/\/www\.localley\.io\/trending\/a/);
+  assert.match(text, /2\. Old Star .*: 1 spot, 5 reports/);
+  assert.doesNotMatch(text, /No Spots/);
+  assert.equal(weeklyReport({}, [], now).split("\n")[1], "No event page live.");
 });

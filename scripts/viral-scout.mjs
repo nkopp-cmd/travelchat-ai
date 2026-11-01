@@ -455,6 +455,22 @@ export function publicEvents(events, now = new Date().toISOString()) {
   return { version: 1, updatedAt: now, events: list.slice(0, 40) };
 }
 
+/** Weekly line for Nils (step 8): events found, spots created, spots live, top 3 by news reports. */
+export function weeklyReport(events, createdLines, now = new Date()) {
+  const since = new Date(now.getTime() - 7 * 86400000).toISOString();
+  const all = Object.values(events);
+  const found = all.filter((e) => (e.firstSeen ?? "") >= since);
+  const created = createdLines.map((line) => { try { return JSON.parse(line); } catch { return null; } })
+    .filter((row) => row?.spotId && (row.at ?? "") >= since);
+  const live = publicEvents(events, now.toISOString()).events;
+  const liveSpots = new Set(live.flatMap((e) => e.spots.map((s) => s.spotId))).size;
+  const review = all.flatMap((e) => Object.values(e.places)).filter((p) => p.status === "review").length;
+  const top = live.slice().sort((a, b) => b.articleCount - a.articleCount).slice(0, 3)
+    .map((e, i) => `${i + 1}. ${e.label}: ${e.spots.length} spot${e.spots.length === 1 ? "" : "s"}, ${e.articleCount} reports, https://www.localley.io/trending/${e.slug}`);
+  return [`Localley viral spots (last 7 days): ${found.length} new events, ${created.length} spots created, ${liveSpots} spots live on ${live.length} event pages, ${review} places in review.`,
+    ...(top.length ? ["Top 3:", ...top] : ["No event page live."])].join("\n");
+}
+
 // ---------- IO ----------
 
 async function d1(database, sql, params = []) {
@@ -679,6 +695,14 @@ async function run(state, { dryRun, pages }) {
 async function main() {
   const args = process.argv.slice(2);
   const dryRun = args.includes("--dry-run");
+  if (args.includes("--report")) {
+    let lines = [];
+    try { lines = readFileSync(CREATED_LOG, "utf8").split("\n").filter(Boolean); } catch { /* no spot created yet */ }
+    const text = weeklyReport(readState().events ?? {}, lines);
+    console.log(text);
+    if (args.includes("--push")) execFileSync(NOTIFY, ["--title", "Localley viral weekly", text], { stdio: "ignore", timeout: 60000 });
+    return;
+  }
   const pages = Math.min(3, Math.max(1, Number(args[args.indexOf("--pages") + 1]) || 1));
   for (const key of ["CLOUDFLARE_API_TOKEN", "NCP_APIHUB_KEY_ID", "NCP_APIHUB_KEY", "GOOGLE_PLACES_API_KEY"]) {
     if (!process.env[key]) throw new Error(`${key} missing`);
