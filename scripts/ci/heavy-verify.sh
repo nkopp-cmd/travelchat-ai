@@ -75,6 +75,7 @@ VITEST_FILES=(
   __tests__/components/page-header-pattern.test.tsx
   __tests__/lib/help-phrases.test.ts
   __tests__/api/help-menu.test.ts
+  __tests__/components/help-menu-page.test.tsx
   __tests__/lib/help-pay.test.ts
   __tests__/api/help-open.test.ts
   __tests__/lib/driver-card.test.ts

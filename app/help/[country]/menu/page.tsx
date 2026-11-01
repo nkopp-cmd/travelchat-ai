@@ -20,10 +20,11 @@ export async function generateMetadata({ params }: { params: Promise<{ country: 
 
 /**
  * Vanilla, no framework: works before hydration and keeps the route's JS tiny. Text only via textContent.
+ * It writes only to nodes the server renders empty, and only after a user action, so hydration sees the server HTML.
  * The photo is shrunk in the browser (<= 1600 px JPEG) so the upload stays small on a travel data plan.
  */
 const SCRIPT = `(()=>{const root=document.getElementById("menu-help");if(!root)return;const input=document.getElementById("menu-file"),list=document.getElementById("menu-list"),status=document.getElementById("menu-status"),notes=document.getElementById("menu-notes"),card=document.getElementById("menu-card");
-const lang=root.dataset.lang,order=root.dataset.order,orderEn=root.dataset.orderEn;
+const lang=root.dataset.lang;
 const TAGS={pork:"Pork",beef:"Beef",chicken:"Chicken",lamb:"Lamb",fish:"Fish",shellfish:"Shellfish",egg:"Egg",dairy:"Dairy",peanut:"Peanut",tree_nut:"Tree nuts",wheat:"Wheat",soy:"Soy",sesame:"Sesame",alcohol:"Alcohol",spicy:"Spicy",vegetarian:"Vegetarian"};
 const say=t=>{status.textContent=t};
 const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text)n.textContent=text;return n};
@@ -31,7 +32,6 @@ function shrink(file){return new Promise((ok,fail)=>{const url=URL.createObjectU
 let q=0.85,d=c.toDataURL("image/jpeg",q);while(d.length>1900000&&q>0.4){q-=0.15;d=c.toDataURL("image/jpeg",q)}ok(d.slice(d.indexOf(",")+1))};img.onerror=()=>{URL.revokeObjectURL(url);fail()};img.src=url})}
 function show(dish){card.querySelector("[data-original]").textContent=dish.original;card.querySelector("[data-english]").textContent=dish.english;card.hidden=false;card.querySelector("button").focus()}
 card.querySelector("button").addEventListener("click",()=>{card.hidden=true});
-card.querySelector("[data-order]").textContent=order;card.querySelector("[data-order-en]").textContent=orderEn;
 input.addEventListener("change",async()=>{const file=input.files&&input.files[0];if(!file)return;list.replaceChildren();notes.replaceChildren();say("Reading the menu… this takes about 5 seconds.");
 let image;try{image=await shrink(file)}catch{say("This photo cannot be opened. Take a new photo.");return}
 try{const r=await fetch("/api/help/menu",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({image})});const d=await r.json();
@@ -63,7 +63,7 @@ export default async function HelpMenuPage({ params }: { params: Promise<{ count
       </Link>
       <PageHeader eyebrow={`${country.flag} ${country.name}`} eyebrowIcon={Utensils} title="Help me order this"
         lede="Take a photo of the menu. Read every dish in English, then show your choice to the staff." />
-      <div id="menu-help" data-lang={country.language} data-order={order?.text ?? ""} data-order-en={order?.en ?? ""} className="mt-6">
+      <div id="menu-help" data-lang={country.language} className="mt-6">
         <label className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center rounded-2xl bg-primary px-5 text-base font-semibold text-primary-foreground sm:w-auto">
           Take a menu photo
           <input id="menu-file" type="file" accept="image/jpeg,image/png,image/webp,image/*" capture="environment" className="sr-only" />
@@ -88,8 +88,8 @@ export default async function HelpMenuPage({ params }: { params: Promise<{ count
         <button type="button" className="ml-auto inline-flex min-h-11 items-center rounded-full bg-background px-5 text-base font-semibold text-foreground">Close</button>
         <div className="flex flex-1 flex-col justify-center gap-6">
           <p data-original lang={country.language} className={`text-[clamp(2.5rem,10vw,5rem)] font-bold leading-tight ${wrap}`} />
-          <p data-order lang={country.language} className={`text-[clamp(1.5rem,6vw,2.5rem)] font-semibold ${wrap}`} />
-          <p className="text-lg text-background/60"><span data-english /> &middot; <span data-order-en /></p>
+          <p lang={country.language} className={`text-[clamp(1.5rem,6vw,2.5rem)] font-semibold ${wrap}`}>{order?.text}</p>
+          <p className="text-lg text-background/60"><span data-english /> &middot; {order?.en}</p>
         </div>
       </div>
       <script dangerouslySetInnerHTML={{ __html: SCRIPT }} />
