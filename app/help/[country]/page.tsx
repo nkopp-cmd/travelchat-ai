@@ -38,6 +38,9 @@ export default async function HelpCountryPage({ params }: { params: Promise<{ co
       </Link>
       <PageHeader eyebrow={`${country.flag} ${country.name}`} eyebrowIcon={Languages} title="Help me say this"
         lede={`Tap a phrase to show it full screen in ${country.languageName}.`} />
+      <Link href={`/help/${country.slug}/menu`} className="mt-4 flex min-h-11 items-center justify-between gap-2 rounded-2xl bg-surface p-4 font-semibold text-foreground shadow-surface hover:bg-raised">
+        Help me order this <span className="text-sm font-normal text-muted-foreground">Menu photo to English</span>
+      </Link>
       <Link href={`/help/${country.slug}/pay`} className="mt-4 flex min-h-11 items-center justify-between gap-2 rounded-2xl bg-surface p-4 font-semibold text-foreground shadow-surface hover:bg-raised">
         How can I pay here? <span className="text-sm font-normal text-muted-foreground">Cards, cash, wallets, transit</span>
       </Link>

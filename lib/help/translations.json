@@ -197,6 +197,28 @@
    "roman": "Qǐngwèn yǒu shénme tuījiàn de?"
   }
  },
+ "order_this": {
+  "ko": {
+   "text": "이거 주세요.",
+   "roman": "Igeo juseyo."
+  },
+  "ja": {
+   "text": "これをください。",
+   "roman": "Kore o kudasai."
+  },
+  "th": {
+   "text": "ขออันนี้",
+   "roman": "Kho an ni."
+  },
+  "vi": {
+   "text": "Cho tôi món này ạ.",
+   "roman": "Cho toi mon nay a."
+  },
+  "zh-TW": {
+   "text": "我要這個，謝謝。",
+   "roman": "Wǒ yào zhège, xièxie."
+  }
+ },
  "no_spicy": {
   "ko": {
    "text": "맵지 않게 해 주세요.",
