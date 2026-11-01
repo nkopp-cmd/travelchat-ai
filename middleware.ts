@@ -19,6 +19,8 @@ const PUBLIC_ROUTES = [
     '/help(.*)',  // Static phrase cards for travellers (no account data)
     '/privacy',  // Public privacy policy (Google OAuth branding needs it without sign-in)
     '/terms',  // Public terms of use
+    '/trending',  // Public viral-event index (R2 feed of public news sources)
+    '/trending/:slug',  // Public viral-event page
     '/itineraries/preview', // Browser-only generated itinerary; no account data
     '/itineraries/new',  // Allow anonymous itinerary creation (1 free)
     '/api/itineraries/generate',  // Allow anonymous generation API

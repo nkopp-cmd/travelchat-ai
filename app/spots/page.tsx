@@ -9,6 +9,7 @@ import { getCityBySlug } from "@/lib/cities";
 import { localMonth, seasonFor } from "@/lib/season/season-table";
 import { getWeather } from "@/lib/weather/met-norway";
 import { WeeklyTrendingSpots } from "@/components/spots/weekly-trending-spots";
+import { ViralSpots } from "@/components/spots/viral-spots";
 import { Images, MapPin, Plus } from "@/components/ui/icons";
 import { AppBackground } from "@/components/layout/app-background";
 import { GradientText } from "@/components/ui/gradient-text";
@@ -22,6 +23,7 @@ import {
 } from "@/lib/spots";
 import type { Metadata } from "next";
 import { fetchWeeklyTrendingSpots } from "@/lib/spots/weekly-trending";
+import { fetchViralSpots } from "@/lib/viral/events";
 import { socialSpotSubmissionsAvailable } from "@/lib/social-submissions-availability";
 
 export const metadata: Metadata = {
@@ -89,10 +91,11 @@ async function SpotsContent({
 
     const city = filters.city ? getCityBySlug(filters.city) : undefined;
     // Weather comes from the edge cache or one capped MET request, in parallel with the spots.
-    const [spotsData, filterOptions, weeklyTrending, weather] = await Promise.all([
+    const [spotsData, filterOptions, weeklyTrending, viral, weather] = await Promise.all([
         fetchFilteredSpots(filters),
         fetchFilterOptions(),
         fetchWeeklyTrendingSpots(filters.city),
+        fetchViralSpots(filters.city ?? null),
         city ? getWeather({ lat: city.center.lat, lng: city.center.lng, timeZone: city.timezone }) : null,
     ]);
 
@@ -102,7 +105,8 @@ async function SpotsContent({
                 <CityConditions cityName={city.name} timeZone={city.timezone} weather={weather}
                     season={seasonFor(city.slug, localMonth(city.timezone))} />
             )}
-            <WeeklyTrendingSpots items={weeklyTrending} citySlug={filters.city} />
+            <ViralSpots items={viral} />
+            <WeeklyTrendingSpots items={weeklyTrending} citySlug={filters.city} priority={viral.length === 0} />
             <SpotsExplorer
                 initialSpots={spotsData.spots}
                 totalCount={spotsData.total}

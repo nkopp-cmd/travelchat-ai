@@ -531,6 +531,18 @@ on:
       - '__tests__/lib/places-readiness.test.ts'
       - '__tests__/lib/spot-display-geography.test.ts'
       - '__tests__/lib/weekly-trending-spots.test.ts'
+      - '__tests__/lib/spots-public-quality.test.ts'
+      - '__tests__/lib/viral-scout-rows.test.ts'
+      - '__tests__/lib/viral-feed.test.ts'
+      - '__tests__/lib/viral-events.test.ts'
+      - '__tests__/components/viral-spots.test.tsx'
+      - 'lib/spots/public-quality.ts'
+      - 'lib/viral/**'
+      - 'components/spots/spot-rail.tsx'
+      - 'components/spots/viral-spots.tsx'
+      - 'app/trending/**'
+      - 'scripts/viral-scout*.mjs'
+      - 'scripts/viral-scout-watchlist.json'
       - '__tests__/lib/mobile-chrome.test.ts'
       - '__tests__/components/preview-chat-composer.test.tsx'
       - '__tests__/lib/chat-provider-fallback.test.ts'
@@ -579,6 +591,8 @@ jobs:
         run: node --test scripts/public-catalog-preview.checks.mjs
       - name: Community moderation job checks
         run: node --test scripts/community-moderation.checks.mjs
+      - name: Viral scout checks
+        run: node --test scripts/viral-scout.checks.mjs
 
       - name: Verify single-table count preflight
         run: node --test scripts/d1-migration/count-preflight.checks.mjs

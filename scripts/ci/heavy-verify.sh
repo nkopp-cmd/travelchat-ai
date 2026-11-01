@@ -38,6 +38,11 @@ VITEST_FILES=(
   __tests__/lib/places-readiness.test.ts
   __tests__/lib/spot-display-geography.test.ts
   __tests__/lib/weekly-trending-spots.test.ts
+  __tests__/lib/spots-public-quality.test.ts
+  __tests__/lib/viral-scout-rows.test.ts
+  __tests__/lib/viral-feed.test.ts
+  __tests__/lib/viral-events.test.ts
+  __tests__/components/viral-spots.test.tsx
   __tests__/lib/pin-clusters.test.ts
   __tests__/components/spot-pin-map.test.tsx
   __tests__/lib/itinerary-pins.test.ts
@@ -395,6 +400,18 @@ ESLINT_FILES=(
   app/privacy/page.tsx
   app/terms/page.tsx
   app/sitemap.ts
+  lib/spots/public-quality.ts
+  lib/viral/feed.ts
+  lib/viral/events.ts
+  components/spots/spot-rail.tsx
+  components/spots/viral-spots.tsx
+  app/trending/page.tsx
+  app/trending/[slug]/page.tsx
+  __tests__/lib/spots-public-quality.test.ts
+  __tests__/lib/viral-scout-rows.test.ts
+  __tests__/lib/viral-feed.test.ts
+  __tests__/lib/viral-events.test.ts
+  __tests__/components/viral-spots.test.tsx
   __tests__/middleware.test.ts
   lib/apify-spot-discovery.ts
   app/api/cron/discover-spots-with-apify/route.ts

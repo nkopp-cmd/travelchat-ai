@@ -76,6 +76,23 @@ describe("public spot quality", () => {
         ).toBe(true);
     });
 
+    it("shows a place-id-only spot with an exact address (listing photos load at runtime)", () => {
+        const spot = {
+            name: { en: "Dosan Hoegwan", ko: "도산회관" },
+            address: { en: "8-7 Dosan-daero 45-gil, Gangnam-gu, Seoul, South Korea" },
+            photos: [],
+            google_place_id: "ChIJKSeave2jfDURRQ0ZYtkO1t4",
+        };
+        expect(getPublicSpotQualityIssue(spot)).toBeNull();
+        expect(getPublicSpotQualityIssue({ ...spot, address: { en: "Gangnam, Seoul" } })).toBe("inexact_location");
+        expect(getPublicSpotQualityIssue({ ...spot, google_place_id: "bad id/../x" })).toBe("missing_real_photo");
+        expect(getPublicSpotQualityIssue({ ...spot, google_place_id: null })).toBe("missing_real_photo");
+        expect(getPublicSpotQualityIssue({ ...spot, photos: ["/images/placeholders/cafe.svg"] })).toBe("missing_real_photo");
+        expect(getPublicSpotQualityIssue({ ...spot, photos: ["https://images.unsplash.com/stock"] })).toBe("missing_real_photo");
+        const { address: _address, ...noAddress } = spot;
+        expect(getPublicSpotQualityIssue(noAddress)).toBe("missing_real_photo");
+    });
+
     it("does not treat arbitrary remote image URLs as real spot photos", () => {
         expect(
             getPublicSpotQualityIssue({

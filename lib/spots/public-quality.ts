@@ -79,6 +79,13 @@ function getPublicSpotLocationIssue(
     return "inexact_location";
 }
 
+const GOOGLE_PLACE_ID_PATTERN = /^[A-Za-z0-9_-]{1,256}$/;
+
+function hasRuntimeListingPhoto(spot: PublicSpotQualityInput): boolean {
+    const placeId = (spot.google_place_id || spot.googlePlaceId || "").trim();
+    return GOOGLE_PLACE_ID_PATTERN.test(placeId) && "address" in spot;
+}
+
 export function getPublicSpotQualityIssue(
     spot: PublicSpotQualityInput
 ): string | null {
@@ -92,7 +99,14 @@ export function getPublicSpotQualityIssue(
         const photos = normalizeStoredSpotPhotoUrls(spot.photos);
         const photoSummary = summarizeSpotPhotos(photos);
         if (!photoSummary.hasRealPhoto) {
-            return "missing_real_photo";
+            // A spot with a valid Google place ID and an exact street address shows its listing
+            // photos at runtime (/api/spots/[id]/photos checks city and coordinates first), so no
+            // photo reference is stored for it (Places terms). Before this rule no visible or
+            // hidden spot had a place ID without photos, so the visibility version stays v9.
+            // Stock or placeholder photos still hide the spot: the rule covers only spots with no
+            // stored photo at all.
+            if (photos.length > 0 || !hasRuntimeListingPhoto(spot)) return "missing_real_photo";
+            return getPublicSpotLocationIssue(spot);
         }
 
         const placeIdentity = getSpotPlacePhotoIdentityStatus(

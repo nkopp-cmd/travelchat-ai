@@ -141,6 +141,8 @@ const routes = [
   "/spots/submissions",
   "/spots/submit",
   "/templates",
+  "/trending",
+  "/trending/[slug]",
   "/terms",
   "/users/[username]"
 ];
