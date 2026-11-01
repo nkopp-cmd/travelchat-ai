@@ -3,7 +3,7 @@
 // Prints ONE JSON line. Read-only SELECTs on production D1 (localley-app + localley-auth) via the D1 HTTP API.
 // Unknown = null, never a guess. No email, id or secret in the output; our own accounts are left out of the counts.
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { readFileSync, realpathSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -88,6 +88,7 @@ async function main() {
   process.stdout.write(`${JSON.stringify(summarize({ users, sessions, subscriptions, funnel }))}\n`);
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+// realpath: the probe also runs through symlinked checkouts, where argv[1] is not the resolved module path.
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(resolve(process.argv[1]))).href) {
   main().catch((error) => { process.stderr.write(`business-metrics: ${error.message}\n`); process.exit(1); });
 }
