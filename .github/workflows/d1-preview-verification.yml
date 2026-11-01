@@ -551,6 +551,7 @@ on:
       - 'components/spots/viral-spots.tsx'
       - 'app/trending/**'
       - 'scripts/viral-scout*.mjs'
+      - 'scripts/spot-guides*.mjs'
       - 'scripts/viral-scout-watchlist.json'
       - 'scripts/business-metrics*'
       - '__tests__/lib/mobile-chrome.test.ts'
@@ -603,6 +604,8 @@ jobs:
         run: node --test scripts/community-moderation.checks.mjs
       - name: Viral scout checks
         run: node --test scripts/viral-scout.checks.mjs
+      - name: Spot guide writer checks
+        run: node --test scripts/spot-guides.checks.mjs
       - name: Business metrics probe checks
         run: node --test scripts/business-metrics.checks.mjs
 
