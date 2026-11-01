@@ -2,8 +2,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
-  NAVER_SCOUT_DAILY, NAVER_SHARED_STOP, articleId, buildSpotRows, cleanText, eventLabel, eventSlug, ewkbPoint, insertStatements,
+  NAVER_SCOUT_DAILY, NAVER_SHARED_STOP, articleId, buildExtractPrompt, buildSpotRows, cleanText, eventLabel, eventSlug, ewkbPoint, insertStatements,
   isAreaName, isRecentMonth, loadWatchlist, mergeEvents, normalizeNaverNews, parseCopy, parseExtraction, parseGoogleNewsRss, pickNaverMatch, planQueries, publicEvents,
+  SOCIAL_RUN_USD, normalizeSocialPosts, pickSocialEvent, socialBudget, socialHashtags, socialOnlyWeak, virality,
 } from "./viral-scout.mjs";
 
 const naverNews = { items: [
@@ -181,4 +182,72 @@ test("recency: visits of the current and the 2 previous months only", () => {
   assert.ok(isRecentMonth("2025-12", new Date("2026-01-15T00:00:00Z")));
   const old = parseExtraction(extraction.replace('"month":"2026-10"', '"month":"2025-10"'), articles);
   assert.equal(Object.keys(mergeEvents({}, old, articles, "2026-10-31T00:00:00.000Z")).length, 0);
+});
+
+// Social boost (step 4). Fixtures are invented; no real caption text.
+const socialEvent = { slug: "test-star-seoul-2026-10", personEn: "Test Star", personKo: "테스트 스타", city: "seoul", month: "2026-10",
+  firstSeen: "2026-10-30T00:00:00.000Z", lastSeen: "2026-10-31T00:00:00.000Z",
+  sources: { n1: { title: "t", url: "https://news.test/1", publisher: "News", date: "2026-10-31" } },
+  places: { x: { nameKo: "", status: "review", reason: "described_only", articleIds: ["n1"] } } };
+
+test("social: hashtags, due event, budget ceilings", () => {
+  assert.deepEqual(socialHashtags(socialEvent), ["테스트스타", "teststarseoul"]);
+  const now = new Date("2026-10-31T12:00:00.000Z");
+  assert.equal(pickSocialEvent({ a: socialEvent }, {}, now)?.slug, socialEvent.slug);
+  assert.equal(pickSocialEvent({ a: socialEvent }, { events: { [socialEvent.slug]: "2026-10-31T06:00:00.000Z" } }, now), null);
+  const done = { ...socialEvent, places: { x: { ...socialEvent.places.x, status: "matched", reason: undefined } } };
+  assert.equal(pickSocialEvent({ a: done }, {}, now), null);
+  assert.equal(pickSocialEvent({ a: socialEvent }, {}, new Date("2026-11-20T00:00:00.000Z")), null);
+  assert.equal(socialBudget({}, now).runs, 0);
+  assert.equal(socialBudget({ month: "2026-10", usd: 4 - SOCIAL_RUN_USD + 0.01, day: "2026-10-31", runs: 0 }, now), null);
+  assert.equal(socialBudget({ month: "2026-10", usd: 0, day: "2026-10-31", runs: 2 }, now), null);
+  assert.equal(socialBudget({ month: "2026-09", usd: 4, day: "2026-10-30", runs: 2 }, now).usd, 0);
+});
+
+test("social: posts must be Instagram, in the visit window and name the person", () => {
+  const now = new Date("2026-10-31T12:00:00.000Z");
+  const posts = normalizeSocialPosts([
+    { url: "https://www.instagram.com/p/AAA/", timestamp: "2026-10-25T10:00:00Z", caption: "met Test Star here", hashtags: [], ownerUsername: "one<x>", locationName: "Cafe Placeholder", likesCount: 10, commentsCount: 2 },
+    { url: "https://www.instagram.com/p/BBB/", timestamp: "2026-09-25T10:00:00Z", caption: "Test Star", ownerUsername: "old" },
+    { url: "https://www.instagram.com/p/CCC/", timestamp: "2026-10-25T10:00:00Z", caption: "nobody", hashtags: ["seoul"], ownerUsername: "other" },
+    { url: "https://evil.test/p/DDD/", timestamp: "2026-10-25T10:00:00Z", caption: "Test Star", ownerUsername: "x" },
+    { url: "https://www.instagram.com/reel/EEE/", timestamp: "2026-10-26T10:00:00Z", caption: "", hashtags: ["테스트스타"], ownerUsername: "two", likesCount: -5 },
+  ], socialEvent, now);
+  assert.deepEqual(posts.map((p) => p.social.owner), ["one", "two"]);
+  assert.ok(posts[0].summary.includes("[location tag: Cafe Placeholder]"));
+  assert.equal(posts[1].social.likes, 0);
+});
+
+test("social: social-only events never start, one account is weak, public file has news only", () => {
+  const social = [{ id: "s1", url: "https://www.instagram.com/p/S1/", title: "Instagram post", publisher: "Instagram @a", publishedAt: "2026-10-30T00:00:00.000Z", social: { owner: "a", likes: 99, comments: 0 } },
+    { id: "s2", url: "https://www.instagram.com/p/S2/", title: "Instagram post", publisher: "Instagram @b", publishedAt: "2026-10-30T00:00:00.000Z", social: { owner: "b", likes: 0, comments: 0 } }];
+  const place = (ids) => ({ nameKo: "테스트식당", nameEn: "", district: "종로구", kind: "restaurant", note: "", confidence: "named", searchHintKo: "", articleIds: ids });
+  const only = [{ personEn: "Social Only", personKo: "", city: "seoul", month: "2026-10", summaryEn: "", articleIds: ["s1"], places: [place(["s1"])] }];
+  assert.deepEqual(mergeEvents({}, only, social, "2026-10-31T00:00:00.000Z"), {});
+
+  const base = mergeEvents({}, parseExtraction(extraction, articles), articles, "2026-10-31T00:00:00.000Z");
+  const bieber = { personEn: "Justin Bieber", personKo: "저스틴 비버", city: "seoul", month: "2026-10", summaryEn: "", articleIds: ["s1"], places: [place(["s1"])] };
+  const merged = mergeEvents(base, [bieber], [...articles, ...social], "2026-10-31T01:00:00.000Z");
+  const event = merged["justin-bieber-seoul-2026-10"];
+  assert.equal(event.sources.s1.social, true);
+  assert.equal(event.sources.s1.engagement, 99);
+  const p = event.places["테스트식당"];
+  assert.equal(socialOnlyWeak(event, p), true);
+  const twice = mergeEvents(merged, [{ ...bieber, articleIds: ["s2"], places: [place(["s2"])] }], [...articles, ...social], "2026-10-31T02:00:00.000Z");
+  assert.equal(socialOnlyWeak(twice["justin-bieber-seoul-2026-10"], twice["justin-bieber-seoul-2026-10"].places["테스트식당"]), false);
+
+  const v = virality(event, new Date("2026-10-31T12:00:00.000Z"));
+  assert.deepEqual([v.articles, v.socialPosts, v.engagement], [2, 1, 99]);
+  Object.assign(Object.values(event.places)[0], { status: "created", spotId: "s1" });
+  const [pub] = publicEvents(merged, "2026-10-31T03:00:00.000Z").events;
+  assert.equal(pub.articleCount, 2);
+  assert.ok(pub.sources.every((s) => !s.url.includes("instagram")));
+  assert.equal(pub.virality.socialPosts, 1);
+});
+
+test("social: posts are read with the stored event as context", () => {
+  assert.ok(!buildExtractPrompt(articles).includes("Known event"));
+  const prompt = buildExtractPrompt([], socialEvent);
+  assert.ok(prompt.includes("Known event, already confirmed by earlier news"));
+  assert.ok(prompt.includes("Test Star (테스트 스타) in seoul, 2026-10"));
 });
