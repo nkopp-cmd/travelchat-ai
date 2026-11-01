@@ -29,6 +29,7 @@ on:
       - '__tests__/components/map-text-safety.test.tsx'
       - 'components/layout/**'
       - '__tests__/components/borderless-navigation.test.tsx'
+      - '__tests__/components/seoul-living-link.test.tsx'
       - 'app/api/cron/process-social-submissions/**'
       - '__tests__/api/process-social-submissions-route.test.ts'
       - '__tests__/lib/d1-*.test.ts'

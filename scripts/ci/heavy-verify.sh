@@ -291,6 +291,7 @@ VITEST_FILES=(
   __tests__/lib/naver-local.test.ts
   __tests__/api/naver-local-route.test.ts
   __tests__/components/spot-photo-image.test.tsx
+  __tests__/components/seoul-living-link.test.tsx
 )
 
 ESLINT_FILES=(
@@ -620,6 +621,8 @@ ESLINT_FILES=(
   __tests__/api/naver-local-route.test.ts
   components/spots/spot-card.tsx
   components/spots/spot-photo-image.tsx
+  components/layout/seoul-living-link.tsx
+  __tests__/components/seoul-living-link.test.tsx
   components/spots/spots-explorer.tsx
   __tests__/components/spot-photo-image.test.tsx
   lib/auth/server.ts
