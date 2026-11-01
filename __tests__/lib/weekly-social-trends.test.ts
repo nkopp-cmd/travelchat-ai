@@ -19,6 +19,7 @@ import {
   getWeekStart,
   linkSignalsToSpots,
   mentionsSpot,
+  isVaguePlaceHint,
   normalizeSocialTrendItem,
   refreshWeeklySocialTrends,
   nextBuildAttempt,
@@ -92,6 +93,19 @@ describe("weekly social trend normalization", () => {
 
     expect(captionOnly?.placeHint).toBeNull();
     expect(cityOnly?.placeHint).toBeNull();
+  });
+
+  it("treats city, country and district labels as vague and keeps real places (live leads 2026-11-01)", () => {
+    for (const hint of ["Busan 釜山, South Korea", "Tokyo, Japan", "京都 Kyoto, Japan", "Shibuya, Tokyo, Japan", "那覇市",
+      "Jeju Island, South Korea 제주도", "제주도", "부산 연산동", "Hong Kong , 香港", "Hội An", "베트남 다낭",
+      "Kuala Lumpur of Malaysia", "Bangkok, Thailand", "金沢kanazawa, Japan", "Gyeongju, Korea"]) {
+      expect(isVaguePlaceHint(hint), hint).toBe(true);
+    }
+    for (const hint of ["Sejong Center", "Merlion Park, Singapore", "Lan Kwai Fong", "嵯峨野 竹林の小径", "큰엉해안경승지",
+      "Wat Pho (the Temple of the Reclining Buddha), Wat Phra Chetuphon", "Central World, Bangkok", "Japanese Covered Bridge, Hoi An",
+      "Osaka Castle", "臺灣新文化運動紀念館", "Tiny Noodle House"]) {
+      expect(isVaguePlaceHint(hint), hint).toBe(false);
+    }
   });
 
   it("normalizes nested TikTok engagement metrics", () => {
