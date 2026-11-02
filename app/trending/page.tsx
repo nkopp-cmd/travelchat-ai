@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/layout/page-header";
+import { SeoulLivingLink } from "@/components/layout/seoul-living-link";
 import { Flame } from "@/components/ui/icons";
 import { fetchViralEvents } from "@/lib/viral/events";
 
@@ -35,6 +36,7 @@ export default async function TrendingPage() {
       ) : (
         <p className="mt-8 text-muted-foreground">No viral events right now. Check back soon.</p>
       )}
+      <SeoulLivingLink className="mt-10" />
     </main>
   );
 }

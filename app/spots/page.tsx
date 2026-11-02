@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { SeoulLivingLink } from "@/components/layout/seoul-living-link";
 import { IntentLink } from "@/components/navigation/intent-link";
 import { PageEyebrow } from "@/components/layout/page-header";
 import { SpotsExplorer } from "@/components/spots/spots-explorer";
@@ -206,6 +207,8 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
                 <Suspense key={JSON.stringify(params)} fallback={<SpotsLoading />}>
                     <SpotsContent searchParams={params} />
                 </Suspense>
+
+                <SeoulLivingLink className="mt-10" />
             </div>
         </AppBackground>
     );
