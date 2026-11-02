@@ -91,6 +91,8 @@ export function helpCandidates(pay, phrases) {
     const bonus = meta.ring1 ? 10 : 0;
     if (pay.countries[country]) {
       out.push({
+        kind: "pay",
+        country,
         slug: `paying-in-${city}`,
         title: `How to pay in ${meta.city} as a visitor: cards, cash, transit cards and ATMs`,
         source: `lib/help/pay.json ${country} (checked ${pay.checkedAt})`,
@@ -103,6 +105,9 @@ export function helpCandidates(pay, phrases) {
       if (cat.id !== "food" && cat.id !== "transport") continue;
       const topic = cat.id === "food" ? "ordering-food" : "getting-around";
       out.push({
+        kind: "phrases",
+        country,
+        category: cat.id,
         slug: `${topic}-in-${city}-phrases`,
         title: `${cat.id === "food" ? "Ordering food" : "Getting around"} in ${meta.city}: ${cat.phrases.length} phrases that work`,
         source: `lib/help/source.json ${cat.id} + translations.json ${meta.lang}`,
@@ -118,7 +123,7 @@ export function seasonCandidates(date) {
   return SEASONS.flatMap((s) => {
     const lead = seasonLead(s, date);
     const score = seasonScore(lead);
-    return score ? [{ slug: s.slug, title: s.title, source: `season calendar (opens in ${lead} days)`, link: s.link, score }] : [];
+    return score ? [{ kind: "season", slug: s.slug, title: s.title, source: `season calendar (opens in ${lead} days)`, link: s.link, score }] : [];
   });
 }
 
