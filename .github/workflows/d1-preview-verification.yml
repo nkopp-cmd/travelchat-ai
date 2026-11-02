@@ -66,6 +66,8 @@ on:
       - '__tests__/lib/weekly-post-topic.test.ts'
       - 'scripts/weekly-post-draft.mjs'
       - '__tests__/lib/weekly-post-draft.test.ts'
+      - 'scripts/weekly-post-gates.mjs'
+      - '__tests__/lib/weekly-post-gates.test.ts'
       - '__tests__/api/help-open.test.ts'
       - 'app/api/help/**'
       - 'app/community/**'
