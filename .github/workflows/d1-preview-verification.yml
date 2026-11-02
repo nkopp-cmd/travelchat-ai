@@ -571,9 +571,10 @@ on:
 permissions:
   contents: read
 
+# ci-1 runs one job at a time: a newer push to a PR cancels that PR's older run.
 concurrency:
   group: localley-d1-candidate-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   verify:

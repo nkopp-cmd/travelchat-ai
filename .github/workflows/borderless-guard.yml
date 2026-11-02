@@ -36,6 +36,12 @@ on:
       - 'scripts/design-token-baseline.json'
       - '.github/workflows/borderless-guard.yml'
 
+# ci-1 runs one job at a time: a newer push to a PR cancels that PR's older run
+# (a stale run held the runner 1.5 h on 2026-11-01). Main runs never cancel.
+concurrency:
+  group: localley-borderless-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   borderless:
     runs-on: [ci-1]  # build/test only, no secrets: ci-1 CI server (2026-10-22)
