@@ -604,8 +604,6 @@ jobs:
         run: node --test scripts/community-moderation.checks.mjs
       - name: Viral scout checks
         run: node --test scripts/viral-scout.checks.mjs
-      - name: Spot guide writer checks
-        run: node --test scripts/spot-guides.checks.mjs
       - name: Business metrics probe checks
         run: node --test scripts/business-metrics.checks.mjs
 

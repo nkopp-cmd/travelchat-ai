@@ -713,6 +713,8 @@ lane_tsc() { npx tsc --noEmit; }
 lane_node() {
   set -e
   node --test scripts/check-embedded-borders.checks.mjs
+  # Needs node_modules (zod via lib/spots/guide.ts), so it runs here after the install.
+  NODE_NO_WARNINGS=1 node --test scripts/spot-guides.checks.mjs
   node scripts/check-borderless.mjs
   node --check scripts/verify-spot-card-routes.mjs
   node scripts/generate-icons.mjs --check
