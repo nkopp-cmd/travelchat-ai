@@ -733,7 +733,7 @@ export default async function SpotPage({
           <ReviewList spotId={spot.id} />
         </section>
 
-        <footer data-testid="spot-sources" className="space-y-1 border-t border-border pt-4 text-xs leading-5 text-muted-foreground">
+        <footer data-testid="spot-sources" className="mt-2 space-y-1 pt-6 text-xs leading-5 text-muted-foreground">
           {spot.communitySubmission && (
             <p className="flex items-center gap-1.5">
               <UserRound className="h-3.5 w-3.5" aria-hidden="true" />
