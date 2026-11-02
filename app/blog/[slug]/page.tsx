@@ -1,0 +1,51 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { ArrowLeft } from "@/components/ui/icons";
+import { BlogMarkdown } from "@/lib/blog/markdown";
+import { BLOG_POSTS, blogPost, formatPostDate } from "@/lib/blog/posts";
+import { blogPostingJsonLd, DEFAULT_BLOG_IMAGE, jsonLdHtml, postUrl } from "@/lib/blog/seo";
+
+export const dynamic = "force-static";
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return BLOG_POSTS.map((post) => ({ slug: post.slug }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const post = blogPost((await params).slug);
+  if (!post) return {};
+  const image = post.image ?? DEFAULT_BLOG_IMAGE;
+  return {
+    title: post.title,
+    description: post.description,
+    alternates: { canonical: postUrl(post), types: { "application/rss+xml": "https://www.localley.io/blog/rss.xml" } },
+    openGraph: {
+      title: post.title, description: post.description, url: postUrl(post), type: "article",
+      publishedTime: post.published, modifiedTime: post.updated, images: [{ url: image, width: 1200, height: 630 }],
+    },
+    twitter: { card: "summary_large_image", title: post.title, description: post.description, images: [image] },
+  };
+}
+
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const post = blogPost((await params).slug);
+  if (!post) notFound();
+  return (
+    <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(blogPostingJsonLd(post)) }} />
+      <Link href="/blog" className="mb-4 inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="size-4" aria-hidden="true" /> Journal
+      </Link>
+      <article>
+        <h1 className="text-3xl font-bold leading-tight text-foreground sm:text-4xl">{post.title}</h1>
+        <p className="mt-3 text-lg leading-7 text-muted-foreground">{post.description}</p>
+        <BlogMarkdown source={post.body} />
+        <p className="mt-10 text-sm text-muted-foreground">
+          Last updated <time dateTime={post.updated}>{formatPostDate(post.updated)}</time>
+        </p>
+      </article>
+    </main>
+  );
+}

@@ -14,6 +14,7 @@ import assert from "node:assert/strict";
 import { copyFile, mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { blogSlugs } from "./blog-index.mjs";
 
 // route -> file in .next/server/app and in the asset directory
 // ("/pricing" resolves to pricing.html under the default html_handling).
@@ -29,6 +30,9 @@ export const STATIC_PUBLIC_PAGES = {
   ...Object.fromEntries(HELP_COUNTRY_SLUGS.map((slug) => [`/help/${slug}/pay`, `help/${slug}/pay.html`])),
   ...Object.fromEntries(HELP_COUNTRY_SLUGS.map((slug) => [`/help/${slug}/open`, `help/${slug}/open.html`])),
   ...Object.fromEntries(HELP_COUNTRY_SLUGS.map((slug) => [`/help/${slug}/menu`, `help/${slug}/menu.html`])),
+  // Journal (app/blog): force-static, one page per content/blog post. The RSS route stays on the Worker.
+  "/blog": "blog.html",
+  ...Object.fromEntries(blogSlugs().map((slug) => [`/blog/${slug}`, `blog/${slug}.html`])),
 };
 
 export function assertStaticPrerender(route, manifest, html) {

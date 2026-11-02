@@ -17,6 +17,7 @@ const PUBLIC_ROUTES = [
     '/guide/apply',  // Allow browsing the guide application page
     '/pricing(.*)',  // Allow anonymous users to see pricing
     '/help(.*)',  // Static phrase cards for travellers (no account data)
+    '/blog(.*)',  // Static journal posts and RSS (content/blog, no account data)
     '/privacy',  // Public privacy policy (Google OAuth branding needs it without sign-in)
     '/terms',  // Public terms of use
     '/trending',  // Public viral-event index (R2 feed of public news sources)
