@@ -83,13 +83,13 @@ export default function LandingPage() {
           <div className="max-w-xl space-y-4 md:space-y-5">
             <HeroHelperLinks />
             <div className="flex gap-3">
-              <Button asChild size="lg" className="h-12 flex-1 rounded-lg bg-primary px-6 text-base sm:flex-none font-bold text-primary-foreground hover:bg-primary/90">
+              <Button asChild size="lg" className="h-12 flex-1 whitespace-nowrap rounded-lg bg-primary px-4 sm:px-6 text-base sm:flex-none font-bold text-primary-foreground hover:bg-primary/90">
                 <Link prefetch={false} href="/help">
                   Get help now
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
-              <Button asChild size="lg" className="h-12 flex-1 rounded-lg bg-raised/90 px-6 text-base sm:flex-none font-semibold text-foreground backdrop-blur-sm hover:bg-overlay">
+              <Button asChild size="lg" className="h-12 flex-1 whitespace-nowrap rounded-lg bg-raised/90 px-4 sm:px-6 text-base sm:flex-none font-semibold text-foreground backdrop-blur-sm hover:bg-overlay">
                 <Link prefetch={false} href="/spots?city=seoul&view=map">
                   Open the map
                 </Link>
@@ -247,7 +247,7 @@ function MobileSignupBar() {
       <div className="mx-auto flex max-w-md items-center gap-3">
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-bold text-foreground">Your local friend in Asia</p>
-          <p className="truncate text-xs text-foreground">Phrases, menus, paying, taxis, open now</p>
+          <p className="truncate text-xs text-foreground">Menus, paying, taxis, open now</p>
         </div>
         <Button asChild size="sm" className="h-11 shrink-0 rounded-lg bg-primary px-4 font-bold text-primary-foreground hover:bg-primary/90">
           <Link prefetch={false} href="/help">
