@@ -1,0 +1,3 @@
+#!/bin/sh
+# Weekly blog topic picker (JSON). See scripts/weekly-post-topic.mjs.
+exec node "$(dirname "$0")/weekly-post-topic.mjs" "$@"

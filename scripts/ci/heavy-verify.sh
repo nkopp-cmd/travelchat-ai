@@ -81,6 +81,8 @@ VITEST_FILES=(
   __tests__/lib/help-pay.test.ts
   __tests__/lib/blog.test.ts
   __tests__/app/site-url-fallback.test.ts
+  __tests__/lib/weekly-post-topic.test.ts
+  __tests__/lib/weekly-post-draft.test.ts
   __tests__/api/help-open.test.ts
   __tests__/lib/driver-card.test.ts
   __tests__/components/spot-activities.test.tsx
@@ -307,7 +309,11 @@ ESLINT_FILES=(
   app/blog/[slug]/page.tsx
   app/blog/rss.xml/route.ts
   scripts/blog-index.mjs
+  scripts/weekly-post-topic.mjs
+  scripts/weekly-post-draft.mjs
   __tests__/lib/blog.test.ts
+  __tests__/lib/weekly-post-topic.test.ts
+  __tests__/lib/weekly-post-draft.test.ts
   lib/referral-point.ts
   app/api/events/referral/route.ts
   __tests__/lib/referral-point.test.ts

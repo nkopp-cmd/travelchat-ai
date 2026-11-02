@@ -1,0 +1,3 @@
+#!/bin/sh
+# Weekly blog draft on the ChatGPT subscription. See scripts/weekly-post-draft.mjs.
+exec node "$(dirname "$0")/weekly-post-draft.mjs" "$@"
