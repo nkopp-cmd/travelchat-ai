@@ -110,6 +110,14 @@
    "type": "secret_text"
   },
   {
+   "name": "GOOGLE_CLIENT_ID",
+   "type": "secret_text"
+  },
+  {
+   "name": "GOOGLE_CLIENT_SECRET",
+   "type": "secret_text"
+  },
+  {
    "name": "GOOGLE_PLACES_API_KEY",
    "type": "secret_text"
   },
@@ -146,16 +154,16 @@
    "type": "secret_text"
   },
   {
-   "name": "NEXTJS_ENV",
-   "type": "plain_text"
-  },
-  {
    "name": "NEXT_INC_CACHE_R2_BUCKET",
    "type": "r2_bucket"
   },
   {
    "name": "NEXT_TAG_CACHE_D1",
    "type": "d1"
+  },
+  {
+   "name": "NEXTJS_ENV",
+   "type": "plain_text"
   },
   {
    "name": "OPENAI_API_KEY",
