@@ -11,7 +11,7 @@ import { BLOG_POSTS } from '@/lib/blog/posts';
 export const dynamic = 'force-dynamic';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://localley.com';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.localley.io';
 
   // Static routes - always available
   const staticRoutes: MetadataRoute.Sitemap = [

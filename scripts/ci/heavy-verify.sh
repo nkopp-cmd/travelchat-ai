@@ -80,6 +80,7 @@ VITEST_FILES=(
   __tests__/components/help-menu-page.test.tsx
   __tests__/lib/help-pay.test.ts
   __tests__/lib/blog.test.ts
+  __tests__/app/site-url-fallback.test.ts
   __tests__/api/help-open.test.ts
   __tests__/lib/driver-card.test.ts
   __tests__/components/spot-activities.test.tsx
