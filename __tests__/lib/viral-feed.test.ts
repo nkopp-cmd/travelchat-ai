@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatViralMonth, parseViralFeed, spotViralMentions, viralSpotRefs } from "@/lib/viral/feed";
+import { formatViralMonth, parseViralFeed, viralMentionMonth, spotViralMentions, viralSpotRefs } from "@/lib/viral/feed";
 // @ts-expect-error plain ESM script without types
 import { publicEvents } from "../../scripts/viral-scout.mjs";
 
@@ -51,5 +51,7 @@ describe("viral feed", () => {
     expect(spotViralMentions(feed, "missing")).toEqual([]);
     expect(spotViralMentions(null, A)).toEqual([]);
     expect(formatViralMonth("2026-10")).toBe("Oct 2026");
+    expect(viralMentionMonth("Justin Bieber in Seoul, Oct 2026", "2026-10")).toBeNull();
+    expect(viralMentionMonth("Justin Bieber in Seoul", "2026-10")).toBe("Oct 2026");
   });
 });

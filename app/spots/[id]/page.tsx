@@ -51,7 +51,7 @@ import {
 import { mergeSpotSources, normalizeSourceUrls, publicTips, splitDescriptionLinks } from "@/lib/spots/guide";
 import { readSpotGuide } from "@/lib/spots/guide-store";
 import { fetchSpotViralMentions } from "@/lib/viral/events";
-import { formatViralMonth } from "@/lib/viral/feed";
+import { viralMentionMonth } from "@/lib/viral/feed";
 import type { Metadata } from "next";
 import { PreviewSaveSpotButton } from "@/components/spots/preview-save-spot-button";
 import { previewSavedSpotActor } from "@/lib/app-data/preview-saved-spot-actor";
@@ -619,18 +619,21 @@ export default async function SpotPage({
 
         {viralMentions.length > 0 && (
           <section data-testid="spot-trending" className={`${LIQUID_CARD} space-y-2 p-4`} aria-label="Why it is trending">
-            {viralMentions.map((mention) => (
+            {viralMentions.map((mention) => {
+              const month = viralMentionMonth(mention.label, mention.month);
+              return (
               <div key={mention.slug} className="flex items-start gap-3">
                 <Flame className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
                 <p className="text-sm leading-6 text-foreground">
                   <Link href={`/trending/${mention.slug}`} className="font-semibold underline-offset-2 hover:underline">
                     {mention.label}
                   </Link>{" "}
-                  <span className="text-muted-foreground">· {formatViralMonth(mention.month)}</span>
+                  {month ? <span className="text-muted-foreground">· {month}</span> : null}
                   {mention.note ? <span className="block">{mention.note}</span> : null}
                 </p>
               </div>
-            ))}
+              );
+            })}
           </section>
         )}
 

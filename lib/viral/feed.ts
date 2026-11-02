@@ -78,3 +78,9 @@ export function formatViralMonth(month: string): string {
   if (!year || !value) return month;
   return new Date(Date.UTC(year, value - 1, 1)).toLocaleString("en-US", { month: "short", year: "numeric", timeZone: "UTC" });
 }
+
+/** Month shown after a mention label, or null when the label already names it ("... Seoul, Oct 2026"). */
+export function viralMentionMonth(label: string, month: string): string | null {
+  const formatted = formatViralMonth(month);
+  return formatted && !label.includes(formatted) ? formatted : null;
+}
