@@ -9,7 +9,9 @@ import {
   LandingSearch,
   LandingTripBuilder,
 } from "@/components/landing/planner";
-import { HERO_CATEGORIES, HERO_PINS, HeroCategoryChips, LandingHero } from "@/components/landing/hero";
+import { HERO_PINS, LandingHero } from "@/components/landing/hero";
+import { HeroHelperLinks, LANDING_HELPERS } from "@/components/landing/helpers";
+import { existsSync } from "node:fs";
 import { LandingPresetPhoto } from "@/components/landing/preset-photo";
 import { readFile } from "node:fs/promises";
 import { readFileSync, statSync } from "node:fs";
@@ -38,13 +40,33 @@ const cities = [
   { name: "Bangkok", slug: "bangkok", vibe: "Markets" },
 ];
 
-describe("plan-first landing entry", () => {
-  it("sends every Start planning link on the real landing page directly to the planner", () => {
+describe("helper-first landing entry", () => {
+  it("leads with the helper promise and keeps planning second", () => {
     const html = renderToStaticMarkup(<LandingPage />);
     const doc = new DOMParser().parseFromString(html, "text/html");
+    expect(doc.querySelector("h1")?.textContent).toBe("Your local friend in Asia.");
+    const text = doc.body.textContent ?? "";
+    for (const helper of LANDING_HELPERS) expect(text).toContain(helper.title);
+    // The helper section comes before the planner section.
+    expect(html.indexOf('id="landing-helpers"')).toBeGreaterThan(0);
+    expect(html.indexOf('id="landing-helpers"')).toBeLessThan(html.indexOf(">Then plan the day<"));
+    // Planning stays one tap away and still opens the planner directly.
     const links = Array.from(doc.querySelectorAll("a")).filter(link => link.textContent?.trim() === "Start planning");
-    expect(links.length).toBeGreaterThanOrEqual(2);
+    expect(links.length).toBeGreaterThanOrEqual(1);
     for (const link of links) expect(new URL(link.getAttribute("href")!, "https://localley.io").pathname).toBe("/itineraries/new");
+  });
+
+  it("points every helper at a live route", () => {
+    const routes: Record<string, string> = {
+      "/help": "app/help/page.tsx", "/help/korea/menu": "app/help/[country]/menu/page.tsx",
+      "/help/korea/pay": "app/help/[country]/pay/page.tsx", "/help/korea/open": "app/help/[country]/open/page.tsx",
+      "/spots": "app/spots/page.tsx",
+    };
+    for (const helper of LANDING_HELPERS) {
+      const file = routes[new URL(helper.href, "https://localley.io").pathname];
+      expect(file, helper.href).toBeDefined();
+      expect(existsSync(file), file).toBe(true);
+    }
   });
 });
 
@@ -224,11 +246,10 @@ describe("landing map hero", () => {
     expect(doc.querySelectorAll(".ll-hero-pin:not([data-mobile])").length).toBeGreaterThanOrEqual(5);
   });
 
-  it("links each category chip to the matching /spots quick filter", () => {
-    const chips = new DOMParser().parseFromString(renderToStaticMarkup(<HeroCategoryChips />), "text/html");
+  it("links each hero shortcut to its helper", () => {
+    const chips = new DOMParser().parseFromString(renderToStaticMarkup(<HeroHelperLinks />), "text/html");
     const hrefs = [...chips.querySelectorAll("a")].map((link) => link.getAttribute("href"));
-    expect(hrefs).toEqual(HERO_CATEGORIES.map(({ id }) => `/spots?city=seoul&category=${id}`));
-    expect(hrefs).toContain("/spots?city=seoul&category=Cafe");
+    expect(hrefs).toEqual(LANDING_HELPERS.map(({ href }) => href));
   });
 
   it("respects reduced motion for the pins and the card loop", () => {
