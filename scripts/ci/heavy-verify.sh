@@ -84,6 +84,7 @@ VITEST_FILES=(
   __tests__/lib/weekly-post-topic.test.ts
   __tests__/lib/weekly-post-draft.test.ts
   __tests__/lib/weekly-post-gates.test.ts
+  __tests__/lib/weekly-post-publish.test.ts
   __tests__/api/help-open.test.ts
   __tests__/lib/driver-card.test.ts
   __tests__/components/spot-activities.test.tsx
@@ -313,10 +314,12 @@ ESLINT_FILES=(
   scripts/weekly-post-topic.mjs
   scripts/weekly-post-draft.mjs
   scripts/weekly-post-gates.mjs
+  scripts/weekly-post-publish.mjs
   __tests__/lib/blog.test.ts
   __tests__/lib/weekly-post-topic.test.ts
   __tests__/lib/weekly-post-draft.test.ts
   __tests__/lib/weekly-post-gates.test.ts
+  __tests__/lib/weekly-post-publish.test.ts
   lib/referral-point.ts
   app/api/events/referral/route.ts
   __tests__/lib/referral-point.test.ts
