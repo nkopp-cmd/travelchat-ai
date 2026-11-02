@@ -56,7 +56,10 @@ if (stage === "build") {
   const missing = PUBLIC_BUILD_ENV.filter((name) => !process.env[name]);
   if (missing.length) fail(`public build values missing: ${missing.join(", ")}`);
   // Only the public values and the basics reach the build; never the Cloudflare token.
+  // run-heavy.sh starts a systemd user scope, which needs the user bus.
   const env = { PATH: process.env.PATH, HOME: process.env.HOME, LANG: process.env.LANG ?? "C.UTF-8", CI: "1",
+    XDG_RUNTIME_DIR: process.env.XDG_RUNTIME_DIR ?? `/run/user/${process.getuid()}`,
+    DBUS_SESSION_BUS_ADDRESS: process.env.DBUS_SESSION_BUS_ADDRESS ?? `unix:path=/run/user/${process.getuid()}/bus`,
     ...Object.fromEntries(PUBLIC_BUILD_ENV.map((name) => [name, process.env[name]])), BUILD_SHA: sha, NEXT_TELEMETRY_DISABLED: "1" };
   for (let attempt = 1; attempt <= 30; attempt++) {
     const result = run(existsSync(RUN_HEAVY) ? [RUN_HEAVY, "npm", "run", "cf:build"] : ["npm", "run", "cf:build"], { env });
@@ -76,7 +79,8 @@ if (stage === "deploy") {
 
   const env = { ...process.env, CLOUDFLARE_ACCOUNT_ID: ACCOUNT };
   const upload = run(["node", "node_modules/@opennextjs/cloudflare/dist/cli/index.js", "upload", "--env", "production", "--keep-vars",
-    "--var", `BUILD_SHA:${sha}`, "--message", `release ${sha.slice(0, 7)}`], { env, capture: true });
+    // OpenNext runs wrangler through a shell: a space in an argument splits it ("release e2759d8" -> entry point "e2759d8").
+    "--var", `BUILD_SHA:${sha}`, "--message", `release-${sha.slice(0, 7)}`], { env, capture: true });
   if (upload.status !== 0) fail(`upload failed (exit ${upload.status}): ${(upload.stderr ?? "").slice(-400)}`);
   const id = /Worker Version ID:\s*([0-9a-f-]{36})/.exec(upload.stdout ?? "")?.[1];
   if (!id) fail("upload did not report a version id");
