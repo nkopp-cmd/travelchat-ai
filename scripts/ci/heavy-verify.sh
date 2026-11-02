@@ -91,6 +91,7 @@ VITEST_FILES=(
   __tests__/api/process-social-submissions-route.test.ts
   __tests__/lib/d1-rpc.test.ts
   __tests__/lib/d1-rpc-social.test.ts
+  __tests__/lib/supabase-exit-client.test.ts
   __tests__/lib/d1-facade-coverage.test.ts
   __tests__/lib/d1-postgrest.test.ts
   __tests__/lib/hybrid-client.test.ts

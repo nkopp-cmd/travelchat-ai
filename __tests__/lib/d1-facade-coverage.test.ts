@@ -37,9 +37,7 @@ const KNOWN_SCHEMA_BUGS: Record<string, string> = {
 };
 
 /** Postgres functions not ported yet: name -> why calling them under DATA_BACKEND=d1 cannot happen today. */
-const DEFERRED_RPCS: Record<string, string> = {
-  calculate_monthly_earnings: "guide payouts are not live (guide tables have 0 rows); port before the first payout run",
-};
+const DEFERRED_RPCS: Record<string, string> = {};
 
 const SUPPORTED = new Set(["select", "insert", "upsert", "update", "delete", "ilike", "match", "eq", "neq", "gt", "gte", "lt", "lte", "in", "is", "not",
   "order", "limit", "range", "single", "maybeSingle", "abortSignal"]);

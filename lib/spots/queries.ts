@@ -5,6 +5,7 @@
 
 import { unstable_cache } from "next/cache";
 import { createSupabaseAdmin, createSupabaseClient } from "@/lib/supabase";
+import { appDataConfigured } from "@/lib/app-data/configured";
 import { getCityBySlug, ENABLED_CITIES } from "@/lib/cities";
 import { transformSpot, RawSpot } from "./transform";
 import {
@@ -288,7 +289,7 @@ export function getScoreThresholdCount(
 
 async function fetchCommunitySpotIds(spotIds: string[]): Promise<Set<string>> {
   if (spotIds.length === 0) return new Set();
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return new Set();
+  if (!appDataConfigured()) return new Set();
   const targetIds = new Set(spotIds);
   const communityIds = new Set<string>();
   const supabase = createSupabaseAdmin();

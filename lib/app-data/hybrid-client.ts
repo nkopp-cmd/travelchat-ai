@@ -30,6 +30,18 @@ function freezeWrites<B extends object>(builder: B): B {
   });
 }
 
+const NOT_MIGRATED_ERROR = { code: "PGRST205", message: "Table is not on D1 (Supabase exit)", details: null, hint: null };
+
+/**
+ * Supabase exit 8b: the base client under DATA_BACKEND=d1. It never opens a connection to Supabase; withMigratedTables
+ * sends migrated tables and functions to D1, and any other table resolves to an error result instead of a request.
+ */
+export function d1OnlyBaseClient(): { from: (table: string) => unknown; rpc: (name: string) => unknown } {
+  const result = Promise.resolve({ data: null, error: NOT_MIGRATED_ERROR, count: null, status: 404 });
+  const chain: object = new Proxy(() => chain, { get: (_target, prop) => prop === "then" ? result.then.bind(result) : () => chain });
+  return { from: () => chain, rpc: () => chain };
+}
+
 export function withMigratedTables<T extends object>(client: T, auth: D1Role): T {
   // DATA_WRITE_FREEZE (gate 3): middleware already refuses mutating requests; this catches writes made while serving
   // reads (counters, crons) on either backend.

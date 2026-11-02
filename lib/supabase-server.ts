@@ -4,7 +4,8 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { SignJWT } from 'jose';
 import { currentUser } from '@/lib/auth/server';
 import { withReadOnlyGuard } from '@/lib/supabase-read-only';
-import { withMigratedTables } from '@/lib/app-data/hybrid-client';
+import { d1OnlyBaseClient, withMigratedTables } from '@/lib/app-data/hybrid-client';
+import { dataBackend } from '@/lib/app-data/backend';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
@@ -43,6 +44,11 @@ export async function mintSupabaseAccessToken(
  * anon client, which is the same fallback the Clerk version had.
  */
 export async function createSupabaseServerClient(): Promise<SupabaseClient> {
+  if (dataBackend() === 'd1') {
+    // Supabase exit 8b: D1 applies the row rules itself from the user id; no Supabase token, no Supabase request.
+    const user = await currentUser().catch(() => null);
+    return withMigratedTables(d1OnlyBaseClient() as unknown as SupabaseClient, user ? { role: 'user', userId: user.id } : { role: 'anon' });
+  }
   if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error('Supabase environment variables are not configured');
   }

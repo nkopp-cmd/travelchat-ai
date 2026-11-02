@@ -23,15 +23,19 @@ beforeEach(() => {
  mocks.source.mockReturnValue({ from: vi.fn().mockReturnValue(query), storage: { from: vi.fn().mockReturnValue({ upload, createSignedUrl: async () => ({ data: { signedUrl: "https://storage.example/cover.png" }, error: null }) }) } });
 });
 describe("bounded normal story persistence", () => {
- it("persists a PNG-signature payload above the former2MiB cap with retention metadata", async () => {
-  const bytes = png(3 * 1024 * 1024 + 17); const response = await post(request(bytes));
-  expect(response.status).toBe(200); expect(await response.json()).toMatchObject({ success: true, retentionDays: 7, tier: "free" });
-  expect(upload).toHaveBeenCalledOnce();
-  const [key, stored, options] = upload.mock.calls[0];
-  expect(key).toBe(`story-slides/${id}/cover.png`); expect(options).toEqual({ contentType: "image/png", upsert: true });
-  expect(stored.length).toBe(bytes.length);
-  expect(createHash("sha256").update(stored).digest("hex")).toBe(createHash("sha256").update(bytes).digest("hex"));
-  expect(update).toHaveBeenCalledWith({ story_slides: expect.objectContaining({ slides: { cover: "https://storage.example/cover.png" } }) });
+ it("persists a PNG-signature payload above the former2MiB cap to R2 with retention metadata", async () => {
+  const ctx = Symbol.for("__cloudflare-context__"), put = vi.fn().mockResolvedValue({});
+  (globalThis as Record<symbol, unknown>)[ctx] = { env: { STORY_MEDIA_R2: { put, get: vi.fn(), delete: vi.fn() } } };
+  try {
+   const bytes = png(3 * 1024 * 1024 + 17); const response = await post(request(bytes));
+   expect(response.status).toBe(200); expect(await response.json()).toMatchObject({ success: true, retentionDays: 7, tier: "free" });
+   expect(upload).not.toHaveBeenCalled(); expect(put).toHaveBeenCalledOnce();
+   const [key, stored, options] = put.mock.calls[0];
+   expect(key).toMatch(new RegExp(`^story-slides/${id}/[0-9a-f-]{36}/cover\\.png$`)); expect(options).toEqual({ httpMetadata: { contentType: "image/png" } });
+   expect(stored.length).toBe(bytes.length);
+   expect(createHash("sha256").update(stored).digest("hex")).toBe(createHash("sha256").update(bytes).digest("hex"));
+   expect(update).toHaveBeenCalledWith({ story_slides: expect.objectContaining({ slides: { cover: expect.stringContaining("/story/media/") } }) });
+  } finally { delete (globalThis as Record<symbol, unknown>)[ctx]; }
  });
  it.each([png(8 * 1024 * 1024 + 1), new Uint8Array([82,73,70,70,0,0,0,0,87,69,66,80]), new Uint8Array([1,2,3])])("refuses oversized, WebP or short data without storage or metadata writes", async bytes => {
   expect((await post(request(bytes))).status).toBe(400); expect(upload).not.toHaveBeenCalled(); expect(update).not.toHaveBeenCalled();

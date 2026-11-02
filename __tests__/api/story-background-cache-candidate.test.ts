@@ -144,16 +144,17 @@ describe("preview R2 background cache and atomic weighted usage",()=>{
   user();const deleted=await DELETE(new NextRequest(`https://${host}/api/test-app-data/story-background?data_candidate=d1&image=${encodeURIComponent(result.image)}`,{method:"DELETE"}));expect(await deleted.json()).toEqual({deleted:true});expect(objects.size).toBe(0);
   expect(mocks.generate).not.toHaveBeenCalled();expect(mocks.source).not.toHaveBeenCalled();
  });
- it("preserves normal www provider upload, byte detection and source quota",async()=>{
-  const upload=vi.fn(async()=>({error:null}));
-  const getPublicUrl=vi.fn(()=>({data:{publicUrl:"https://source.supabase.co/storage/v1/object/public/generated-images/normal.jpg"}}));
-  const from=vi.fn(()=>({upload,getPublicUrl}));mocks.source.mockReturnValue({storage:{from}});
+ it("keeps normal www generation on the R2 media store, with byte detection and source quota",async()=>{
+  const upload=vi.fn(async()=>({error:null}));mocks.source.mockReturnValue({storage:{from:vi.fn(()=>({upload}))}});
+  const media=vi.fn(async()=>({}));(globalThis as Record<symbol,{env:Record<string,unknown>}>)[symbol].env.STORY_MEDIA_R2={put:media,get:async()=>null};
   mocks.weighted.mockResolvedValue({allowed:true,usage:{}});
   const jpeg=Buffer.concat([Buffer.from([255,216,255]),Buffer.alloc(600)]);
   mocks.generate.mockResolvedValue(`data:image/png;base64,${jpeg.toString("base64")}`);
   const response=await POST(req({...input,cacheKey:undefined,provider:"gemini"},"www.localley.io",true));
-  expect(response.status).toBe(200);expect(await response.json()).toMatchObject({success:true,source:"ai",provider:"gemini"});
-  expect(upload).toHaveBeenCalledWith(expect.stringMatching(/\.jpg$/),jpeg,{contentType:"image/jpeg",upsert:true});
+  expect(response.status).toBe(200);const body=await response.json();expect(body).toMatchObject({success:true,source:"ai",provider:"gemini"});
+  expect(body.image).toMatch(/^\/media\/story\/[0-9a-f]{64}\.jpg$/);
+  expect(media).toHaveBeenCalledWith(expect.stringMatching(/^legacy\/[0-9a-f]{64}\.jpg$/),expect.anything(),expect.anything());
+  expect(upload).not.toHaveBeenCalled();
   expect(mocks.weighted).toHaveBeenCalledWith("one","ai_images_generated",3);
   expect(mocks.generate).toHaveBeenCalledTimes(1);expect(mocks.generate.mock.calls[0]?.at(-1)).toBeUndefined();expect(put).not.toHaveBeenCalled();expect(usage()).toEqual([]);
  });

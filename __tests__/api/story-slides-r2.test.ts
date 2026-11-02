@@ -74,7 +74,7 @@ describe("story slide URLs", () => {
   });
 });
 
-describe("persist writes R2 (Supabase dual write)", () => {
+describe("persist writes R2 only (Supabase exit 8b)", () => {
   it("stores the slide under a fresh generation, links the access-checked route and deletes the previous story", async () => {
     const oldKey = `story-slides/${ID}/${GEN}/cover.png`;
     objects.set(oldKey, png());
@@ -86,15 +86,17 @@ describe("persist writes R2 (Supabase dual write)", () => {
     expect(key).not.toBe(oldKey);
     expect(objects.has(key!)).toBe(true);
     expect(objects.has(oldKey)).toBe(false);
-    expect(upload).toHaveBeenCalledWith(`story-slides/${ID}/cover.png`, expect.anything(), { contentType: "image/png", upsert: true });
+    expect(upload).not.toHaveBeenCalled();
     expect(update).toHaveBeenCalledWith({ story_slides: expect.objectContaining({ slides: { cover: url } }) });
   });
 
-  it("falls back to the Supabase signed URL when R2 fails, and keeps R2 when only the Supabase dual write fails", async () => {
+  it("rejects the upload when R2 fails and never returns a Supabase URL", async () => {
     bucket.put.mockRejectedValueOnce(new Error("r2 down"));
-    expect((await (await persistRequest()).json()).slides.cover).toBe("https://x.supabase.co/signed/cover.png");
-    upload.mockResolvedValueOnce({ error: { message: "storage down" } });
-    expect((await (await persistRequest()).json()).slides.cover).toContain("/story/media/");
+    const response = await persistRequest();
+    expect(response.status).toBe(400);
+    expect(JSON.stringify(await response.json())).not.toContain("supabase.co");
+    expect(upload).not.toHaveBeenCalled();
+    expect(update).not.toHaveBeenCalled();
   });
 });
 

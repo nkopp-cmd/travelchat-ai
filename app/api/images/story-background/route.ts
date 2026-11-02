@@ -17,8 +17,7 @@ import {
 // AI image generation can take 10-20s per image
 export const maxDuration = 60;
 
-import { createSupabaseAdmin } from "@/lib/supabase";
-import { putStoryMedia } from "@/lib/story-media-r2";
+import { getStoryCachePath, putStoryCachePath, putStoryMedia } from "@/lib/story-media-r2";
 import { rateLimit } from "@/lib/rate-limit";
 import { getUserTier, checkAndIncrementUsageWeighted } from "@/lib/usage-tracking";
 import { isPreviewStoryCandidate } from "@/lib/app-data/preview-story-candidate";
@@ -178,32 +177,17 @@ async function storyBackgroundPost(req: NextRequest) {
             tier,
         });
 
-        // Generate a storage key for this background
-        const storageKey = cacheKey
-            ? `story-backgrounds/${cacheKey}.png`
-            : `story-backgrounds/${userId}/${type}${dayNumber ? `-day${dayNumber}` : ''}-${Date.now()}.png`;
-
-        // Check cache first if cacheKey provided
+        // Check the per-user R2 slide cache first if cacheKey provided
         if (cacheKey && !candidate) {
-            const supabase = createSupabaseAdmin();
-            const { data: cached } = await supabase.storage
-                .from("generated-images")
-                .list("story-backgrounds", { search: `${cacheKey}.png` });
-
-            if (cached && cached.length > 0) {
-                const { data: urlData } = supabase.storage
-                    .from("generated-images")
-                    .getPublicUrl(`story-backgrounds/${cacheKey}.png`);
-
-                if (urlData?.publicUrl) {
-                    console.log("[STORY_BG] Returning cached image URL");
-                    return NextResponse.json({
-                        success: true,
-                        image: urlData.publicUrl,
-                        source: "cache",
-                        cached: true,
-                    });
-                }
+            const cachedPath = await getStoryCachePath(userId, cacheKey);
+            if (cachedPath) {
+                console.log("[STORY_BG] Returning cached image URL");
+                return NextResponse.json({
+                    success: true,
+                    image: cachedPath,
+                    source: "cache",
+                    cached: true,
+                });
             }
         }
 
@@ -255,8 +239,7 @@ async function storyBackgroundPost(req: NextRequest) {
                         imageProvider = currentProvider;
                         console.log(`[STORY_BG] ${currentProvider} succeeded! Image length: ${aiImage.length}`);
 
-                        // Store candidate bytes privately in R2; keep the normal Supabase path.
-                        const supabase = candidate ? null : createSupabaseAdmin();
+                        // Candidate bytes stay in the private preview bucket; normal backgrounds go to R2 story media.
                         const cleanBase64 = aiImage.replace(/^data:image\/\w+;base64,/, "");
                         const buffer = Buffer.from(cleanBase64, "base64");
 
@@ -273,45 +256,20 @@ async function storyBackgroundPost(req: NextRequest) {
                         }
 
                         const ext = detectedType === "image/jpeg" ? "jpg" : "png";
-                        // Update storage key extension to match actual format
-                        const actualStorageKey = storageKey.replace(/\.png$/, `.${ext}`);
-                        console.log(`[STORY_BG] Upload: detected ${detectedType}, size ${buffer.length} bytes, key: ${actualStorageKey}`);
+                        console.log(`[STORY_BG] Upload: detected ${detectedType}, size ${buffer.length} bytes`);
 
                         if (candidateOwner && candidateHash) {
                             imageUrl = await savePreviewBackground(candidateOwner, candidateHash, buffer);
-                        } else if (supabase) {
-                            // Story media step 2: R2 is the stored URL; Supabase Storage stays a dual write for one week.
+                        } else {
                             const r2Path = await putStoryMedia(buffer, ext, detectedType);
-                            console.log(`[STORY_BG] story_media_write=${r2Path ? "r2" : "supabase_only"}`);
-                            const { error: uploadError } = await supabase.storage
-                                .from("generated-images")
-                                .upload(actualStorageKey, buffer, {
-                                    contentType: detectedType,
-                                    upsert: true,
-                                });
-
-                            if (!uploadError) {
-                                const { data: urlData } = supabase.storage
-                                    .from("generated-images")
-                                    .getPublicUrl(actualStorageKey);
-
-                                if (urlData?.publicUrl) {
-                                    imageUrl = urlData.publicUrl;
-                                    console.log("[STORY_BG] AI image stored, URL:", imageUrl);
-                                }
+                            console.log(`[STORY_BG] story_media_write=${r2Path ? "r2" : "failed"}`);
+                            if (!r2Path) {
+                                // Image generated but not stored — the base64 is too large to return directly.
+                                failedProviders.push({ provider: currentProvider, error: "Upload failed: R2 story media unavailable" });
                             } else {
-                                console.error("[STORY_BG] Storage upload failed:", {
-                                    message: uploadError.message,
-                                    name: uploadError.name,
-                                    storageKey: actualStorageKey,
-                                    bufferSize: buffer.length,
-                                    detectedType,
-                                });
-                                // Image generated but upload failed — still count as AI success
-                                // The base64 can't be returned directly (too large), so fall through
-                                if (!r2Path) failedProviders.push({ provider: currentProvider, error: `Upload failed: ${uploadError.message}` });
+                                imageUrl = r2Path;
+                                if (cacheKey) await putStoryCachePath(userId, cacheKey, r2Path);
                             }
-                            if (r2Path) imageUrl = r2Path;
                         }
                         break; // AI succeeded — stop trying providers
                     } else {

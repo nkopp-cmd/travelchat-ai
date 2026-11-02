@@ -30,58 +30,6 @@ function detectMimeFromBytes(buf: ArrayBuffer): string {
     return "image/png";
 }
 
-/**
- * Download an image from Supabase Storage using the admin SDK.
- * Bypasses public bucket access restrictions — more reliable than raw HTTP fetch.
- * Uses magic byte detection for MIME type (not Supabase's stored content type).
- */
-async function prefetchFromSupabase(
-    url: string,
-    supabase: ReturnType<typeof createSupabaseAdmin>
-): Promise<string | undefined> {
-    const marker = "/storage/v1/object/public/generated-images/";
-    const idx = url.indexOf(marker);
-    if (idx === -1) return undefined;
-
-    const storagePath = url.substring(idx + marker.length);
-    console.log("[STORY_ROUTE] Downloading via Supabase SDK:", storagePath);
-
-    try {
-        const { data, error } = await supabase.storage
-            .from("generated-images")
-            .download(storagePath);
-
-        if (error || !data) {
-            console.error("[STORY_ROUTE] Supabase SDK download failed:", error?.message);
-            return undefined;
-        }
-
-        const buf = await data.arrayBuffer();
-        if (buf.byteLength < 500) {
-            console.error("[STORY_ROUTE] Downloaded image too small:", buf.byteLength);
-            return undefined;
-        }
-
-        // Detect actual format from magic bytes — don't trust blob.type or stored content type
-        const detectedMime = detectMimeFromBytes(buf);
-        const storedType = data.type || "unknown";
-        if (detectedMime === "image/webp") {
-            console.error("[STORY_ROUTE] Rejected WebP from storage (detected from bytes)");
-            return undefined;
-        }
-        if (storedType !== detectedMime) {
-            console.log(`[STORY_ROUTE] MIME mismatch: stored=${storedType} actual=${detectedMime} — using detected`);
-        }
-
-        console.log(`[STORY_ROUTE] SDK download success: ${buf.byteLength} bytes, detected: ${detectedMime}, stored: ${storedType}`);
-        return `data:${detectedMime};base64,${Buffer.from(buf).toString("base64")}`;
-    } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        console.error("[STORY_ROUTE] Supabase SDK download error:", msg);
-        return undefined;
-    }
-}
-
 interface StoryMediaBucket { get(key: string): Promise<{ arrayBuffer(): Promise<ArrayBuffer> } | null> }
 
 /**
@@ -948,8 +896,7 @@ export async function GET(
         }
 
         // Pre-fetch the image as base64 for Satori (Node.js fetch is unreliable in Satori)
-        // Try Supabase SDK download first (bypasses bucket access restrictions),
-        // then fall back to HTTP fetch for non-Supabase URLs.
+        // R2 first for stored backgrounds, then HTTP fetch for stock (non-Supabase) URLs.
         let backgroundDataUri: string | undefined;
         if (candidate && aiBackground && previewBackgroundId(aiBackground)) {
             const background = await previewBackgroundData(aiBackground, String(itinerary.clerk_user_id));
@@ -966,18 +913,11 @@ export async function GET(
                 console.log(`[STORY_ROUTE] story_media_source=${backgroundDataUri ? "r2_path" : "r2_path_missing"}`);
             } else if (isSupabaseUrl) {
                 backgroundDataUri = await prefetchFromR2(aiBackground);
-                // Step 1 proof: count Supabase fallbacks until they stay at zero.
-                console.log(`[STORY_ROUTE] story_media_source=${backgroundDataUri ? "r2" : "supabase_fallback"}`);
+                // An R2 miss renders the branded gradient; Supabase is never read (exit 8b).
+                console.log(`[STORY_ROUTE] story_media_source=${backgroundDataUri ? "r2" : "r2_missing"}`);
             }
-            if (!backgroundDataUri && isSupabaseUrl && supabase) {
-                backgroundDataUri = await prefetchFromSupabase(aiBackground, supabase);
-                if (backgroundDataUri) {
-                    console.log("[STORY_ROUTE] Supabase SDK download succeeded, dataUri length:", backgroundDataUri.length);
-                } else {
-                    console.log("[STORY_ROUTE] Supabase SDK download failed, trying HTTP fetch...");
-                }
-            }
-            if (!backgroundDataUri && !STORY_MEDIA_PATH.test(aiBackground)) {
+            // Supabase exit 8b: archived Supabase URLs are served from R2 only, never fetched from supabase.co.
+            if (!backgroundDataUri && !STORY_MEDIA_PATH.test(aiBackground) && !isSupabaseUrl) {
                 backgroundDataUri = await prefetchImage(aiBackground);
                 if (backgroundDataUri) {
                     console.log("[STORY_ROUTE] HTTP fetch succeeded, dataUri length:", backgroundDataUri.length);

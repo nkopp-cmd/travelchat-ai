@@ -2,10 +2,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
-const mocks = vi.hoisted(() => ({ generate: vi.fn(), upload: vi.fn(), list: vi.fn() }));
+const mocks = vi.hoisted(() => ({ generate: vi.fn() }));
 vi.mock("@/lib/imagen", () => ({ isImagenAvailable: () => true, generateActivityThumbnail: mocks.generate }));
-vi.mock("@/lib/supabase", () => ({ createSupabaseAdmin: () => ({ storage: { from: () => ({
-  upload: mocks.upload, list: mocks.list, getPublicUrl: (key: string) => ({ data: { publicUrl: `https://x.supabase.co/${key}` } }) }) } }) }));
+vi.mock("@/lib/supabase", () => { throw new Error("activity thumbnails must not touch Supabase (exit 8b)"); });
 import { getAIActivityThumbnail } from "@/lib/activity-images";
 import { GET } from "@/app/media/activity/[file]/route";
 
@@ -25,8 +24,6 @@ beforeEach(() => {
   };
   (globalThis as Record<symbol, unknown>)[context] = { env: { STORY_MEDIA_R2: bucket } };
   mocks.generate.mockResolvedValue(png.toString("base64"));
-  mocks.upload.mockResolvedValue({ error: null });
-  mocks.list.mockResolvedValue({ data: [] });
 });
 afterEach(() => { delete (globalThis as Record<symbol, unknown>)[context]; vi.restoreAllMocks(); });
 
@@ -34,11 +31,10 @@ const file = (url: string) => url.split("/").pop()!;
 const serve = (name: string) => GET(new NextRequest(`https://www.localley.io/media/activity/${name}`), { params: Promise.resolve({ file: name }) });
 
 describe("AI activity thumbnails in R2 (Supabase exit 8a)", () => {
-  it("stores a new thumbnail in R2, dual-writes Supabase and links the public /media/activity path", async () => {
+  it("stores a new thumbnail in R2 only (exit 8b) and links the public /media/activity path", async () => {
     const url = await getAIActivityThumbnail("Tea House", "cafe", "Seoul");
     expect(url).toMatch(/^\/media\/activity\/[0-9a-f]{1,8}\.png$/);
     expect(objects.has(`activity-thumbnails/${file(url!)}`)).toBe(true);
-    expect(mocks.upload).toHaveBeenCalledOnce();
     const served = await serve(file(url!));
     expect(served.status).toBe(200);
     expect(served.headers.get("cache-control")).toBe("public, max-age=86400");
@@ -52,9 +48,9 @@ describe("AI activity thumbnails in R2 (Supabase exit 8a)", () => {
     expect(mocks.generate).not.toHaveBeenCalled();
   });
 
-  it("keeps the Supabase URL when R2 is unavailable", async () => {
+  it("returns no thumbnail when R2 is unavailable (no Supabase fallback)", async () => {
     bucket.put.mockRejectedValueOnce(new Error("r2 down"));
-    expect(await getAIActivityThumbnail("Night Market", "food", "Taipei")).toMatch(/^https:\/\/x\.supabase\.co\/activity-thumbnails\//);
+    expect(await getAIActivityThumbnail("Night Market", "food", "Taipei")).toBeNull();
   });
 
   it("serves only hash-named thumbnails that exist", async () => {
