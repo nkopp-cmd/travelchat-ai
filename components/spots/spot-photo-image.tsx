@@ -25,9 +25,8 @@ function PhotoImage({ photo, alt, className, sizes, priority, loading, creditCla
   return <figure className="flex h-full w-full flex-col">
     <div data-testid={hero ? "spot-detail-hero" : undefined} className={cn("relative min-h-0 flex-1", frameClassName)}>
       {unavailable ? <>
-        <div role="status" className="flex h-full min-h-24 w-full items-center justify-center bg-raised p-2 text-center text-xs text-muted-foreground">
-          {loading ? "Loading venue photos..." : "Photo unavailable"}
-        </div>
+        {/* Quiet frame, no status text on public pages (content-first rule 2). */}
+        <div data-testid="photo-placeholder" data-state={loading ? "loading" : "unavailable"} aria-hidden="true" className={cn("h-full min-h-24 w-full bg-raised", loading && "animate-pulse")} />
         {/* Server HTML only: the inline script fills these at parse time; React keeps them until its own photo arrives. */}
         {loading && earlySpotId && <>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -54,6 +53,8 @@ function PhotoImage({ photo, alt, className, sizes, priority, loading, creditCla
 
 export function VenueHeroPhoto({ name, children }: { name: string; children?: ReactNode }) {
   const { data, loading, spotId } = useDetailVenuePhotos();
+  // No photo, no hero block (content-first rule 2): the page starts with the guide instead.
+  if (!loading && !data?.photos[0]) return null;
   return <SpotPhotoImage key={spotId} photo={data?.photos[0]} alt={name} sizes="(max-width: 768px) 100vw, 1024px" priority loading={loading} hero earlySpotId={spotId} frameClassName="relative aspect-[4/3] min-h-60 w-full overflow-hidden rounded-lg shadow-2xl shadow-violet-950/30 sm:aspect-[16/10] sm:min-h-0 md:aspect-[21/9]">{children}</SpotPhotoImage>;
 }
 

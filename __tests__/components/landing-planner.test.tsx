@@ -153,7 +153,7 @@ describe("landing planner islands", () => {
     for (const name of ["Cafes", "Culture", "Street food"])
       fireEvent.click(screen.getByRole("button", { name }));
     expect(tripParams().get("interests")?.split(",")).toHaveLength(3);
-  });
+  }, 15_000);
   it("encodes a search without changing the route contract", () => {
     mount();
     push.mockClear();

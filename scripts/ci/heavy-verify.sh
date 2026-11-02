@@ -42,6 +42,7 @@ VITEST_FILES=(
   __tests__/lib/spots-public-quality.test.ts
   __tests__/lib/viral-scout-rows.test.ts
   __tests__/lib/viral-feed.test.ts
+  __tests__/lib/spot-guide.test.ts
   __tests__/lib/viral-events.test.ts
   __tests__/components/viral-spots.test.tsx
   __tests__/lib/pin-clusters.test.ts
@@ -417,6 +418,7 @@ ESLINT_FILES=(
   __tests__/lib/spots-public-quality.test.ts
   __tests__/lib/viral-scout-rows.test.ts
   __tests__/lib/viral-feed.test.ts
+  __tests__/lib/spot-guide.test.ts
   __tests__/lib/viral-events.test.ts
   __tests__/components/viral-spots.test.tsx
   __tests__/middleware.test.ts
@@ -714,6 +716,8 @@ lane_tsc() { npx tsc --noEmit; }
 lane_node() {
   set -e
   node --test scripts/check-embedded-borders.checks.mjs
+  # Needs node_modules (zod via lib/spots/guide.ts), so it runs here after the install.
+  NODE_NO_WARNINGS=1 node --test scripts/spot-guides.checks.mjs
   node scripts/check-borderless.mjs
   node --check scripts/verify-spot-card-routes.mjs
   node scripts/generate-icons.mjs --check

@@ -37,7 +37,7 @@ describe("venue photos", () => {
     expect(caption.textContent).toContain("Bob");
     fireEvent.error(screen.getByAltText("Hero"));
     expect(screen.getByRole("heading", {name:"Owned venue title"})).toBeTruthy();
-    expect(screen.getByText("Photo unavailable")).toBeTruthy();
+    expect(screen.getByTestId("photo-placeholder").dataset.state).toBe("unavailable");
     expect(screen.queryByLabelText("Photo source and author credits")).toBeNull();
   });
   it("shows failure without a stock substitute and resets on source change", () => {
@@ -48,7 +48,7 @@ describe("venue photos", () => {
     expect(screen.getByText("Google Maps")).toBeTruthy();
     expect(screen.getByText("Google Maps").closest("figcaption")).toBeTruthy();
     fireEvent.error(image);
-    expect(screen.getByText("Photo unavailable")).toBeTruthy();
+    expect(screen.getByTestId("photo-placeholder").dataset.state).toBe("unavailable");
     expect(screen.queryByText("Google Maps")).toBeNull();
     rerender(<SpotPhotoImage photo={photo("b")} alt="Venue" sizes="320px" />);
     expect(screen.getByAltText("Venue").getAttribute("src")).toContain("name=b");
@@ -89,7 +89,7 @@ describe("venue photos", () => {
     vi.stubGlobal("fetch", kind === "network" ? vi.fn().mockRejectedValue(new Error("offline")) :
       vi.fn().mockResolvedValue(kind === "empty" ? response([]) : { ok: false }));
     render(<VenueCardPhoto spotId={kind} name="Venue" priority />);
-    await screen.findByText("Photo unavailable");
+    await waitFor(() => expect(screen.getByTestId("photo-placeholder").dataset.state).toBe("unavailable"));
     expect(screen.queryByRole("img")).toBeNull();
   });
 

@@ -57,3 +57,24 @@ export function viralSpotRefs(data: ViralFeed | null, citySlug: string | null, l
   }
   return refs;
 }
+
+export type SpotViralMention = { slug: string; label: string; month: string; note: string | null; sources: { title: string; url: string }[] };
+
+/** Events that name this spot, newest first, for the "why it is trending" card on the spot page. */
+export function spotViralMentions(data: ViralFeed | null, spotId: string, limit = 2): SpotViralMention[] {
+  const out: SpotViralMention[] = [];
+  for (const item of data?.events ?? []) {
+    const spot = item.spots.find((entry) => entry.spotId === spotId);
+    if (!spot) continue;
+    out.push({ slug: item.slug, label: item.label, month: item.month, note: spot.note ?? null, sources: item.sources.slice(0, 3).map((source) => ({ title: source.publisher || source.title, url: source.url })) });
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
+/** "2026-10" -> "Oct 2026". */
+export function formatViralMonth(month: string): string {
+  const [year, value] = month.split("-").map(Number);
+  if (!year || !value) return month;
+  return new Date(Date.UTC(year, value - 1, 1)).toLocaleString("en-US", { month: "short", year: "numeric", timeZone: "UTC" });
+}

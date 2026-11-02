@@ -4,26 +4,9 @@ import { DriverCardDialog, DriverCardLink } from "@/components/spots/driver-card
 import { SpotEventLink } from "@/components/spots/spot-event-link";
 import { headers } from "next/headers";
 import { LocalleyScale } from "@/types";
-import { LocalleyScaleIndicator } from "@/components/spots/localley-scale";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  AlertTriangle,
-  ImageIcon,
-  MapPin,
-  Clock,
-  Users,
-  Navigation,
-  ArrowLeft,
-  Camera,
-  Compass,
-  Route,
-  ShieldCheck,
-  Sparkles,
-  UserRound,
-  ExternalLink,
-} from "@/components/ui/icons";
-import type { LucideIcon } from "@/components/ui/icons";
+import { MapPin, Clock, Clock3, Navigation, ArrowLeft, Flame, DollarSign, Utensils, UserRound } from "@/components/ui/icons";
 import Link from "next/link";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { dataBackend } from "@/lib/app-data/backend";
@@ -42,7 +25,6 @@ import {
   inferSpotContextCity,
   inferSpotContextCitySlug,
 } from "@/lib/spots/city-context";
-import { getSpotLocationConfidence } from "@/lib/spots/location-confidence";
 import { getSpotCoordinateValues } from "@/lib/spots/coordinates";
 import {
   buildSpotDirectionsUrl,
@@ -61,20 +43,15 @@ import {
 } from "@/lib/spots/public-quality";
 import {
   getSpotBestTime,
-  getSpotCoordinateEvidenceLabel,
-  getSpotDirectionsButtonLabel,
-  getSpotNavigationMode,
-  getSpotNavigationSignalTone,
-  getSpotNavigationTargetValue,
-  getSpotPhotoEvidenceHelper,
-  getSpotPhotoEvidenceLabel,
-  getSpotRecordConfidence,
-  getSpotVisitPlan,
   getTrustedSpotGooglePlaceId,
   normalizeLocalleyScore,
   normalizeLocalPercentage,
   normalizeSpotTips,
 } from "@/lib/spots/detail-normalization";
+import { mergeSpotSources, normalizeSourceUrls, publicTips, splitDescriptionLinks } from "@/lib/spots/guide";
+import { readSpotGuide } from "@/lib/spots/guide-store";
+import { fetchSpotViralMentions } from "@/lib/viral/events";
+import { formatViralMonth } from "@/lib/viral/feed";
 import type { Metadata } from "next";
 import { PreviewSaveSpotButton } from "@/components/spots/preview-save-spot-button";
 import { previewSavedSpotActor } from "@/lib/app-data/preview-saved-spot-actor";
@@ -105,88 +82,6 @@ function getName(
   return field || "";
 }
 
-function getDirectionsHelperText(
-  spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>,
-): string {
-  const isKorea = isKoreanLocation(spot.location.address);
-  const locationConfidence = getLocationConfidence(spot);
-
-  if (!isKorea && spot.googlePlaceId) {
-    return "Maps opens with the matched Google Place ID from the spot photo source for a more precise destination.";
-  }
-
-  if (!isKorea && locationConfidence.tone === "exact") {
-    return locationConfidence.usableCoordinates
-      ? "Maps routes to the saved exact coordinate, with the spot name and address kept visible for context."
-      : "Maps searches the exact spot name and address because no verified coordinate is stored yet.";
-  }
-
-  if (locationConfidence.tone === "area") {
-    return isKorea
-      ? "Kakao opens a name and area search because this source record does not have an exact address yet."
-      : "Maps opens a name and area search because this source record does not have an exact address yet.";
-  }
-
-  if (isKorea && locationConfidence.tone === "pinned") {
-    return "Kakao opens a name and area search because the saved pin still needs exact address confirmation.";
-  }
-
-  if (isKorea && locationConfidence.tone === "exact") {
-    return locationConfidence.usableCoordinates
-      ? "Kakao opens a route to the saved exact coordinate, with the spot name and address kept visible for context."
-      : "Kakao searches the exact spot name and address because no verified coordinate is stored yet.";
-  }
-
-  return isKorea
-    ? "Kakao searches the spot name and stored address because this record does not have a usable saved pin yet."
-    : "Maps searches the spot name and stored address first, so the imported pin is only supporting context.";
-}
-
-function getLocationPlanningCopy(
-  spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>,
-) {
-  const confidence = getLocationConfidence(spot);
-
-  if (spot.googlePlaceId && !isKoreanLocation(spot.location.address)) {
-    return {
-      heading: "Plan this exact stop",
-      description:
-        "Matched place data gives this spot a reliable navigation target.",
-      routeTitle: "Navigate with place match",
-      locationHeading: "Exact location",
-    };
-  }
-
-  if (confidence.tone === "exact") {
-    return {
-      heading: "Plan this exact stop",
-      description:
-        "The stored address and map evidence are specific enough for direct planning.",
-      routeTitle: confidence.usableCoordinates
-        ? "Navigate to exact coordinate"
-        : "Navigate by name and address",
-      locationHeading: "Exact location",
-    };
-  }
-
-  if (confidence.tone === "pinned") {
-    return {
-      heading: "Confirm this pinned area",
-      description:
-        "This is area-level source data with a saved map pin. Maps search the name and area first until exact address enrichment confirms the route target.",
-      routeTitle: "Search before routing",
-      locationHeading: "Pinned area",
-    };
-  }
-
-  return {
-    heading: "Plan this area carefully",
-    description:
-      "This record still needs exact address enrichment. Use the map result as a search starting point.",
-    routeTitle: "Search by name and area",
-    locationHeading: "Area-level location",
-  };
-}
 
 function getSpotContextCity(
   spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>,
@@ -202,9 +97,6 @@ function getSpotContextCity(
   return addressParts.at(-1) || spot.location.address;
 }
 
-function formatCoordinate(value: number) {
-  return value ? value.toFixed(5) : null;
-}
 
 function inferSpotCity(
   spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>,
@@ -228,77 +120,6 @@ function inferSpotCitySlug(
   });
 }
 
-function getLocationConfidence(
-  spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>,
-) {
-  return getSpotLocationConfidence({
-    address: spot.location.address,
-    lat: spot.location.lat,
-    lng: spot.location.lng,
-  });
-}
-
-function getScoreNarrative(score: LocalleyScale): string {
-  if (score >= LocalleyScale.LEGENDARY_ALLEY)
-    return "Almost entirely local energy with a strong reason to build a day around it.";
-  if (score >= LocalleyScale.HIDDEN_GEM)
-    return "A rare local-first find that still feels tucked away from the obvious routes.";
-  if (score >= LocalleyScale.LOCAL_FAVORITE)
-    return "A dependable neighborhood favorite with enough local signal to be worth a detour.";
-  return "A useful stop with a mixed crowd and clear practical value for a nearby route.";
-}
-
-function getSpotPrimaryUse(category: string): { value: string; helper: string } {
-  const normalized = category.toLowerCase();
-
-  if (normalized.includes("cafe")) {
-    return {
-      value: "Slow reset",
-      helper: "Use it as a coffee stop, work break, or soft landing between denser walking pockets.",
-    };
-  }
-
-  if (
-    normalized.includes("food") ||
-    normalized.includes("restaurant") ||
-    normalized.includes("market")
-  ) {
-    return {
-      value: "Meal anchor",
-      helper: "Build the route around eating here, then keep nearby stops light and walkable.",
-    };
-  }
-
-  if (normalized.includes("night") || normalized.includes("bar")) {
-    return {
-      value: "Evening anchor",
-      helper: "Save it for later in the day when the local crowd signal matters most.",
-    };
-  }
-
-  if (normalized.includes("shopping") || normalized.includes("store")) {
-    return {
-      value: "Browse pocket",
-      helper: "Treat it as a wander-and-discover stop rather than a rushed errand.",
-    };
-  }
-
-  if (
-    normalized.includes("outdoor") ||
-    normalized.includes("park") ||
-    normalized.includes("beach")
-  ) {
-    return {
-      value: "Breathing room",
-      helper: "Give it enough time in the route so the stop does not feel squeezed.",
-    };
-  }
-
-  return {
-    value: "Route anchor",
-    helper: "Use it as a flexible local stop around nearby food, coffee, markets, or evening plans.",
-  };
-}
 
 function getPrimaryArea(address: string, city: string): string {
   const parts = address
@@ -322,205 +143,12 @@ function getPrimaryArea(address: string, city: string): string {
   return namedArea || city;
 }
 
-function getLocationToneClasses(
-  tone: ReturnType<typeof getLocationConfidence>["tone"],
-) {
-  if (tone === "exact")
-    return " bg-[rgb(var(--ll-success)/0.12)] text-foreground";
-  if (tone === "pinned") return " bg-primary/10 text-foreground";
-  return " bg-[rgb(var(--ll-warning)/0.14)] text-foreground";
-}
 
-function getSignalToneClasses(tone: "emerald" | "sky" | "amber" | "violet") {
-  if (tone === "emerald")
-    return " bg-[rgb(var(--ll-success)/0.12)] text-foreground";
-  if (tone === "sky") return " bg-primary/10 text-foreground";
-  if (tone === "violet")
-    return " bg-primary/10 text-foreground";
-  return " bg-[rgb(var(--ll-warning)/0.14)] text-foreground";
-}
-
-function DetailSignal({
-  icon: Icon,
-  label,
-  value,
-  helper,
-  tone = "violet",
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string;
-  helper?: string;
-  tone?: "violet" | "emerald" | "sky" | "amber";
-}) {
-  const toneClasses = {
-    violet: " bg-primary/10 text-foreground",
-    emerald: " bg-[rgb(var(--ll-success)/0.12)] text-foreground",
-    sky: " bg-primary/10 text-foreground",
-    amber: " bg-[rgb(var(--ll-warning)/0.14)] text-foreground",
-  }[tone];
-
-  return (
-    <div className="rounded-lg bg-raised p-3">
-      <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-foreground">
-        <span
-          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${toneClasses}`}
-        >
-          <Icon className="h-3.5 w-3.5" aria-hidden="true" />
-        </span>
-        {label}
-      </div>
-      <p className="text-sm font-semibold leading-snug text-foreground">{value}</p>
-      {helper && (
-        <p className="mt-1 text-xs leading-5 text-foreground">{helper}</p>
-      )}
-    </div>
-  );
-}
-
-function PlanningSnapshot({
-  primaryUse,
-  bestTime,
-  routeTitle,
-  routeHelper,
-  photoLabel,
-  photoHelper,
-  locationTone,
-  hasRealPhoto,
-}: {
-  primaryUse: { value: string; helper: string };
-  bestTime: string;
-  routeTitle: string;
-  routeHelper: string;
-  photoLabel: string;
-  photoHelper: string;
-  locationTone: ReturnType<typeof getLocationConfidence>["tone"];
-  hasRealPhoto: boolean;
-}) {
-  const routeTone =
-    locationTone === "exact" ? "emerald" : locationTone === "pinned" ? "sky" : "amber";
-
-  return (
-    <section className={`${LIQUID_CARD} overflow-hidden`} aria-label="Plan-ready snapshot">
-      <div className="bg-raised p-3 sm:p-4">
-        <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-foreground">
-              Plan-ready snapshot
-            </p>
-            <h2 className="text-lg font-bold leading-tight text-foreground sm:text-2xl">
-              What this spot is good for
-            </h2>
-          </div>
-        </div>
-      </div>
-      <div className="grid gap-2 p-3 sm:grid-cols-2 sm:p-4 lg:grid-cols-4">
-        <DetailSignal
-          icon={Compass}
-          label="Use it as"
-          value={primaryUse.value}
-          helper={primaryUse.helper}
-        />
-        <DetailSignal
-          icon={Clock}
-          label="Best window"
-          value={bestTime}
-          helper="Visit advice, not opening hours. Confirm hours with the venue."
-          tone="sky"
-        />
-        <DetailSignal
-          icon={Route}
-          label="Map behavior"
-          value={routeTitle}
-          helper={routeHelper}
-          tone={routeTone}
-        />
-        <DetailSignal
-          icon={Camera}
-          label="Stored photo references"
-          value={photoLabel}
-          helper={photoHelper}
-          tone={hasRealPhoto ? "violet" : "amber"}
-        />
-      </div>
-    </section>
-  );
-}
-
-function RecordConfidencePanel({
-  confidence,
-}: {
-  confidence: ReturnType<typeof getSpotRecordConfidence>;
-}) {
-  const toneClasses = {
-    emerald: " bg-[rgb(var(--ll-success)/0.12)] text-foreground",
-    sky: " bg-primary/10 text-foreground",
-    amber: " bg-[rgb(var(--ll-warning)/0.14)] text-foreground",
-  }[confidence.tone];
-
-  return (
-    <section
-      className={`${LIQUID_CARD} grid gap-3 p-3 sm:grid-cols-[minmax(0,0.95fr)_minmax(0,1.6fr)] sm:p-4`}
-      aria-label="Spot record confidence"
-    >
-      <div className="min-w-0">
-        <span
-          className={`inline-flex rounded-md px-2 py-1 text-xs font-semibold ${toneClasses}`}
-        >
-          {confidence.label}
-        </span>
-        <p className="mt-2 text-sm leading-6 text-foreground">
-          {confidence.helper}
-        </p>
-        <div className="mt-3 rounded-lg bg-raised p-3">
-          <p className="text-xs font-semibold uppercase tracking-wide text-foreground">
-            Next best action
-          </p>
-          <p className="mt-1 text-sm font-semibold leading-5 text-foreground">
-            {confidence.actionLabel}
-          </p>
-          <p className="mt-1 text-xs leading-5 text-foreground">
-            {confidence.actionHelper}
-          </p>
-        </div>
-      </div>
-      <div className="grid min-w-0 grid-cols-3 gap-2">
-        {confidence.checks.map((check) => (
-          <div
-            key={check.label}
-            className="min-w-0 rounded-lg bg-raised p-2.5"
-          >
-            <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-foreground">
-              {check.ready ? (
-                <ShieldCheck
-                  className="h-3.5 w-3.5 shrink-0 text-[rgb(var(--ll-success))]"
-                  aria-hidden="true"
-                />
-              ) : (
-                <AlertTriangle
-                  className="h-3.5 w-3.5 shrink-0 text-[rgb(var(--ll-warning))]"
-                  aria-hidden="true"
-                />
-              )}
-              <span className="truncate">{check.label}</span>
-            </div>
-            <p className="truncate text-xs font-semibold text-foreground sm:text-sm">
-              {check.value}
-            </p>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-// Get Directions button component
+/** The one directions button on the page (content-first item 1): Kakao Map in Korea, Google Maps elsewhere. */
 function GetDirectionsButton({
   spot,
-  compact = false,
 }: {
   spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>;
-  compact?: boolean;
 }) {
   const directionsUrl = buildSpotDirectionsUrl({
     name: spot.name,
@@ -530,21 +158,9 @@ function GetDirectionsButton({
     googlePlaceId: spot.googlePlaceId,
   });
   const isKorea = isKoreanLocation(spot.location.address);
-  const locationConfidence = getLocationConfidence(spot);
-  const hasMatchedGooglePlace =
-    Boolean(spot.googlePlaceId) &&
-    !isKorea;
-  const directionToneClass =
-    locationConfidence.tone === "area"
-      ? "bg-[rgb(var(--ll-warning))] text-[rgb(var(--ll-control-ink))] hover:bg-[rgb(var(--ll-warning)/0.9)]"
-      : "";
 
   return (
-    <Button
-      asChild
-      className={`w-full shadow-lg ${directionToneClass} ${compact ? "h-11 rounded-lg text-sm" : "h-12 rounded-xl text-lg"}`}
-      size="lg"
-    >
+    <Button asChild className="h-12 w-full rounded-xl text-base shadow-lg" size="lg">
       <SpotEventLink
         spotId={spot.id}
         event="directions"
@@ -554,105 +170,27 @@ function GetDirectionsButton({
         rel="noopener noreferrer"
         aria-label={`Open directions to ${spot.name}`}
       >
-        <Navigation className={compact ? "mr-2 h-4 w-4" : "mr-2 h-5 w-5"} />
-        {getSpotDirectionsButtonLabel(
-          locationConfidence.tone,
-          isKorea,
-          hasMatchedGooglePlace,
-          locationConfidence.usableCoordinates,
-        )}
+        <Navigation className="mr-2 h-5 w-5" />
+        {isKorea ? "Directions in Kakao Map" : "Directions in Google Maps"}
       </SpotEventLink>
     </Button>
   );
 }
 
-function NavigationTargetPanel({
-  spot,
-  fallbackQuery,
-  compact = false,
-}: {
-  spot: NonNullable<Awaited<ReturnType<typeof getSpot>>>;
-  fallbackQuery: string;
-  compact?: boolean;
-}) {
-  const locationConfidence = getLocationConfidence(spot);
-  const city = getSpotContextCity(spot);
-  const fallbackTarget = fallbackQuery || `${spot.name}, ${city}`;
-  const lat = formatCoordinate(spot.location.lat);
-  const lng = formatCoordinate(spot.location.lng);
-  const hasMatchedGooglePlace =
-    Boolean(spot.googlePlaceId) &&
-    !isKoreanLocation(spot.location.address);
-  const navigationMode = getSpotNavigationMode({
-    tone: locationConfidence.tone,
-    isKorea: isKoreanLocation(spot.location.address),
-    hasMatchedGooglePlace,
-    usableCoordinates: locationConfidence.usableCoordinates,
-  });
-  const isSearchFirst =
-    navigationMode.status === "search_first_pin" ||
-    navigationMode.status === "search_first_area";
-  const targetValue = getSpotNavigationTargetValue({
-    status: navigationMode.status,
-    fallbackQuery: fallbackTarget,
-    lat: spot.location.lat,
-    lng: spot.location.lng,
-  });
+function formatUpdated(value: string | null): string | null {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date.toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+}
 
+function FactRow({ icon: Icon, label, value }: { icon: typeof Clock; label: string; value: string }) {
   return (
-    <div
-      data-testid="spot-detail-navigation-target"
-      className={`rounded-lg bg-raised ${
-        compact ? "p-3" : "p-4"
-      }`}
-    >
-      <div className="mb-2 flex flex-wrap items-center gap-2">
-        <span className="text-xs font-semibold uppercase tracking-wide text-foreground">
-          {navigationMode.targetLabel}
-        </span>
-        <span
-          className={`inline-flex rounded-md px-2 py-1 text-xs font-semibold ${getSignalToneClasses(
-            getSpotNavigationSignalTone({
-              status: navigationMode.status,
-              locationTone: locationConfidence.tone,
-            }),
-          )}`}
-        >
-          {navigationMode.label}
-        </span>
+    <div className="flex items-start gap-3 rounded-lg bg-raised p-3">
+      <Icon className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
+        <p className="text-sm leading-6 text-foreground">{value}</p>
       </div>
-      <p className="break-words text-sm font-semibold leading-6 text-foreground">
-        {targetValue}
-      </p>
-      <p className="mt-2 break-words text-xs leading-5 text-foreground">
-        Address on record:{" "}
-        <span data-testid="spot-detail-address">{spot.location.address}</span>
-      </p>
-      {isSearchFirst && (
-        <p className="mt-2 rounded-md bg-[rgb(var(--ll-warning)/0.14)] p-2 text-xs leading-5 text-foreground">
-          {navigationMode.helper}
-        </p>
-      )}
-      {hasMatchedGooglePlace && (
-        <p className="mt-2 rounded-md bg-[rgb(var(--ll-success)/0.12)] p-2 text-xs leading-5 text-foreground">
-          {navigationMode.helper}
-        </p>
-      )}
-      {!isSearchFirst && !hasMatchedGooglePlace && (
-        <p className="mt-2 rounded-md bg-[rgb(var(--ll-success)/0.12)] p-2 text-xs leading-5 text-foreground">
-          {navigationMode.helper}
-        </p>
-      )}
-      {lat && lng && (
-        <p className="mt-2 text-xs text-foreground">
-          {getSpotCoordinateEvidenceLabel({
-            address: spot.location.address,
-            tone: locationConfidence.tone,
-            usableCoordinates: locationConfidence.usableCoordinates,
-          })}
-          : {lat}, {lng}
-        </p>
-      )}
     </div>
   );
 }
@@ -734,6 +272,7 @@ async function getSpot(id: string, candidate = false) {
       bestTime: "Not verified", photos, hasRealPhoto: photoSummary.hasRealPhoto,
       realPhotoCount: countRealDisplaySpotPhotos(photos), googlePlaceId: null,
       tips: [] as string[], verified: false, trending: false, communitySubmission: null,
+      sourceUrls: [] as { title: string; url: string }[], updatedAt: null as string | null,
     };
   }
   const { spot, communitySubmission } = dataBackend() === "d1"
@@ -793,6 +332,8 @@ async function getSpot(id: string, candidate = false) {
       storedGooglePlaceId: spot.google_place_id,
     }),
     tips: normalizeSpotTips(spot.tips),
+    sourceUrls: normalizeSourceUrls(spot.source_urls),
+    updatedAt: typeof spot.updated_at === "string" ? spot.updated_at : typeof spot.created_at === "string" ? spot.created_at : null,
     verified: Boolean(spot.verified),
     trending: spot.trending_score > 0.8,
     communitySubmission: communitySubmission
@@ -944,7 +485,7 @@ export async function generateMetadata({
 
   const scoreLabel = getScoreLabel(spot.localleyScore);
   const title = `${spot.name} - ${scoreLabel} | Localley`;
-  const description = `${spot.description.slice(0, 160)}... Localley Score: ${spot.localleyScore}/6 • ${spot.location.address}`;
+  const description = `${splitDescriptionLinks(spot.description).text.slice(0, 160)}... Localley Score: ${spot.localleyScore}/6 • ${spot.location.address}`;
 
   const keywords = [
     spot.name,
@@ -977,6 +518,7 @@ export async function generateMetadata({
   };
 }
 
+
 export default async function SpotPage({
   params,
   searchParams,
@@ -995,61 +537,46 @@ export default async function SpotPage({
   // Use city-level context for related activities; the first address segment is often a district.
   const city = getSpotContextCity(spot);
   const citySlug = inferSpotCitySlug(spot);
-  const locationConfidence = getLocationConfidence(spot);
-  const isKorea = isKoreanLocation(spot.location.address);
-  const hasMatchedGooglePlace = Boolean(spot.googlePlaceId) && !isKorea;
-  const navigationMode = getSpotNavigationMode({
-    tone: locationConfidence.tone,
-    isKorea,
-    hasMatchedGooglePlace,
-    usableCoordinates: locationConfidence.usableCoordinates,
-  });
   const primaryArea = getPrimaryArea(spot.location.address, city);
-  const scoreNarrative = getScoreNarrative(spot.localleyScore);
-  const locationPlanningCopy = getLocationPlanningCopy(spot);
-  const spotPrimaryUse = getSpotPrimaryUse(spot.category);
-  const locationSignalTone = getSpotNavigationSignalTone({
-    status: navigationMode.status,
-    locationTone: locationConfidence.tone,
-  });
-  const relatedSpots = candidate ? [] : await getRelatedSpots(spot, city);
+  const [relatedSpots, guide, viralMentions] = await Promise.all([
+    candidate ? Promise.resolve([] as RelatedSpot[]) : getRelatedSpots(spot, city),
+    candidate ? Promise.resolve(null) : readSpotGuide(spot.id),
+    candidate ? Promise.resolve([]) : fetchSpotViralMentions(spot.id).catch(() => []),
+  ]);
   let saveActor: string | null = null;
   if (candidate) {
     try { saveActor = await previewSavedSpotActor(); }
     catch { /* Candidate owner lookup failures never fall back to source writes. */ }
   }
-  const hasDistanceRankedRelatedSpots = relatedSpots.some(
-    (related) => related.distanceKm !== null,
-  );
   const exactMapQuery = getSpotDirectionsSearchText({
     name: spot.name,
     address: spot.location.address,
   });
-  const visitPlan = getSpotVisitPlan({
-    category: spot.category,
-    city,
-    primaryArea,
-    localleyScore: spot.localleyScore,
-    localPercentage: spot.localPercentage,
-    bestTime: spot.bestTime,
-    locationTone: locationConfidence.tone,
-    hasRealPhoto: spot.hasRealPhoto,
-    realPhotoCount: spot.realPhotoCount,
-  });
-  const recordConfidence = getSpotRecordConfidence({
-    hasRealPhoto: spot.hasRealPhoto,
-    realPhotoCount: spot.realPhotoCount,
-    locationTone: locationConfidence.tone,
-    hasTrustedGooglePlaceId: Boolean(spot.googlePlaceId),
-    verified: spot.verified,
-  });
+
+  // Guidance first (content-first rules 1-2): the stored guide, else the description without its links.
+  const description = splitDescriptionLinks(spot.description);
+  const bestTime = guide?.bestTime ?? (spot.bestTime && spot.bestTime !== "Not verified" ? spot.bestTime : null);
+  const tips = guide?.tips.length ? guide.tips : publicTips(spot.tips).slice(0, 4);
+  const sources = mergeSpotSources(
+    guide?.sources ?? [],
+    description.links,
+    viralMentions.flatMap((mention) => mention.sources),
+    spot.sourceUrls,
+    spot.communitySubmission?.sourceUrl ? [{ title: `${spot.communitySubmission.platform} post`, url: spot.communitySubmission.sourceUrl }] : [],
+  );
+  const updated = formatUpdated(guide?.updatedAt ?? spot.updatedAt);
+  const facts = [
+    bestTime ? { icon: Clock, label: "Best time", value: bestTime } : null,
+    guide?.price ? { icon: DollarSign, label: "Price", value: guide.price } : null,
+    guide?.duration ? { icon: Clock3, label: "How long", value: guide.duration } : null,
+  ].filter((fact): fact is { icon: typeof Clock; label: string; value: string } => Boolean(fact));
 
   return (
     <VenuePhotoProvider key={spot.id} spotId={spot.id} allowFetch={!candidate} directPhotos={directSpotPhotos(spot)}>
       {/* JSON-LD Structured Data */}
       <SpotJsonLd
         name={spot.name}
-        description={spot.description}
+        description={description.text}
         category={spot.category}
         address={spot.location.address}
         lat={spot.location.lat}
@@ -1065,7 +592,7 @@ export default async function SpotPage({
         ]}
       />
 
-      <div className="mx-auto max-w-6xl space-y-5 pb-4 animate-in fade-in duration-500 md:space-y-8">
+      <div className="mx-auto max-w-5xl space-y-5 pb-4 animate-in fade-in duration-500 md:space-y-6">
         <Link
           href="/spots"
           className="inline-flex min-h-10 items-center rounded-full bg-raised px-3 text-sm text-foreground transition-colors hover:bg-overlay"
@@ -1074,579 +601,158 @@ export default async function SpotPage({
           Back to spots
         </Link>
 
-        <VenueHeroPhoto name={spot.name}>
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/10" />
-          <div className="absolute right-3 top-3 z-20 sm:right-4 sm:top-4">
+        <VenueHeroPhoto name={spot.name} />
+
+        <header className="flex items-start justify-between gap-3">
+          <div className="min-w-0 space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="secondary">{spot.category}</Badge>
+              <span className="text-sm text-muted-foreground">{primaryArea}</span>
+            </div>
+            <h1 className="text-2xl font-bold leading-tight text-foreground sm:text-4xl">{spot.name}</h1>
+          </div>
+          <div className="shrink-0">
             {!candidate && <SpotInteractions spotId={spot.id} spotName={spot.name} />}
             {candidate && saveActor && <PreviewSaveSpotButton spotId={spot.id} spotName={spot.name} actorId={saveActor} />}
           </div>
+        </header>
 
-          <div className="absolute inset-x-0 bottom-0 w-full p-4 sm:p-6 md:p-8">
-            <div className="max-w-3xl">
-              <div className="flex flex-wrap items-center gap-2 sm:mb-3">
-                <Badge variant="secondary">
-                  {spot.category}
-                </Badge>
-                {spot.verified && (
-                  <Badge
-                    variant="outline"
-                    className="bg-[rgb(var(--ll-success)/0.12)] text-foreground backdrop-blur-sm"
-                  >
-                    Curated record
-                  </Badge>
-                )}
-                {spot.communitySubmission && (
-                  <Badge
-                    variant="outline"
-                    className="bg-primary/10 text-foreground backdrop-blur-sm"
-                  >
-                    <UserRound className="mr-1 h-3.5 w-3.5" />
-                    {spot.communitySubmission.status === "spot_reused"
-                      ? "Community matched"
-                      : "Community submitted"}
-                  </Badge>
-                )}
-                <Badge
-                  variant="outline"
-                  className={
-                    spot.hasRealPhoto
-                      ? " bg-primary/10 text-foreground backdrop-blur-sm"
-                      : " bg-[rgb(var(--ll-warning)/0.14)] text-foreground backdrop-blur-sm"
-                  }
-                >
-                  <ImageIcon className="mr-1 h-3.5 w-3.5" />
-                  {getSpotPhotoEvidenceLabel(spot)}
-                </Badge>
-                <Badge
-                  variant="outline"
-                  className={
-                    locationConfidence.tone === "exact"
-                      ? " bg-[rgb(var(--ll-success)/0.12)] text-foreground backdrop-blur-sm"
-                      : locationConfidence.tone === "pinned"
-                        ? " bg-primary/10 text-foreground backdrop-blur-sm"
-                        : " bg-[rgb(var(--ll-warning)/0.14)] text-foreground backdrop-blur-sm"
-                  }
-                >
-                  {locationConfidence.tone === "area" ? (
-                    <AlertTriangle className="mr-1 h-3.5 w-3.5" />
-                  ) : (
-                    <MapPin className="mr-1 h-3.5 w-3.5" />
-                  )}
-                  {locationConfidence.label}
-                </Badge>
-              </div>
-              <h1 className="hidden text-4xl font-bold leading-tight text-foreground sm:block">
-                {spot.name}
-              </h1>
-              <div className="mt-3 hidden items-start gap-2 text-sm leading-6 text-foreground sm:flex">
-                <MapPin className="mt-1 h-4 w-4 shrink-0" />
-                <span data-testid="spot-detail-address">
-                  {spot.location.address}
-                </span>
-              </div>
-            </div>
-          </div>
-        </VenueHeroPhoto>
-
-        <section
-          className={`${LIQUID_CARD} space-y-2 p-3 sm:hidden`}
-          aria-label="Spot summary"
-        >
-          <h1 className="text-2xl font-bold leading-tight text-foreground">
-            {spot.name}
-          </h1>
-          <div className="flex items-start gap-2 text-sm leading-6 text-foreground">
-            <MapPin className="mt-1 h-4 w-4 shrink-0 text-primary" />
-            <span data-testid="spot-detail-address">
-              {spot.location.address}
-            </span>
-          </div>
-        </section>
-
-        <section
-          data-testid="spot-detail-mobile-actions"
-          className={`${LIQUID_CARD} space-y-3 p-3 lg:hidden`}
-          aria-label="Spot planning actions"
-        >
-          <GetDirectionsButton spot={spot} compact />
-          <DriverCardLink spotId={spot.id} compact />
-          <NavigationTargetPanel
-            spot={spot}
-            fallbackQuery={exactMapQuery}
-            compact
-          />
-          <p className="text-xs leading-5 text-foreground">
-            {getDirectionsHelperText(spot)}
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            <div className="rounded-lg bg-raised p-2.5">
-              <span className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
-                <MapPin className="h-3.5 w-3.5 text-primary" />
-                {navigationMode.label}
-              </span>
-              <span className="mt-1 block truncate text-xs text-foreground">
-                {primaryArea}
-              </span>
-            </div>
-            <div className="rounded-lg bg-raised p-2.5">
-              <span className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
-                <Clock className="h-3.5 w-3.5 text-primary" />
-                Best time
-              </span>
-              <span className="mt-1 block truncate text-xs text-foreground">
-                {spot.bestTime}
-              </span>
-              <p className="mt-1 text-xs text-foreground">Visit advice, not opening hours.</p>
-            </div>
-          </div>
-        </section>
-
-        <PlanningSnapshot
-          primaryUse={spotPrimaryUse}
-          bestTime={spot.bestTime}
-          routeTitle={locationPlanningCopy.routeTitle}
-          routeHelper={getDirectionsHelperText(spot)}
-          photoLabel={getSpotPhotoEvidenceLabel(spot)}
-          photoHelper={getSpotPhotoEvidenceHelper(spot)}
-          locationTone={locationConfidence.tone}
-          hasRealPhoto={spot.hasRealPhoto}
-        />
-
-        <RecordConfidencePanel confidence={recordConfidence} />
-
-        {spot.communitySubmission && (
-          <section className={`${LIQUID_CARD} p-4 sm:p-5`} aria-label="Community submission credit">
-            <div className="flex items-start gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-foreground">
-                <UserRound className="h-5 w-5" />
-              </span>
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                  {spot.communitySubmission.status === "spot_reused"
-                    ? "Found through the community"
-                    : "Made by the community"}
+        {viralMentions.length > 0 && (
+          <section data-testid="spot-trending" className={`${LIQUID_CARD} space-y-2 p-4`} aria-label="Why it is trending">
+            {viralMentions.map((mention) => (
+              <div key={mention.slug} className="flex items-start gap-3">
+                <Flame className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+                <p className="text-sm leading-6 text-foreground">
+                  <Link href={`/trending/${mention.slug}`} className="font-semibold underline-offset-2 hover:underline">
+                    {mention.label}
+                  </Link>{" "}
+                  <span className="text-muted-foreground">· {formatViralMonth(mention.month)}</span>
+                  {mention.note ? <span className="block">{mention.note}</span> : null}
                 </p>
-                <h2 className="mt-1 text-xl font-bold leading-tight text-foreground">
-                  {spot.communitySubmission.status === "spot_reused"
-                    ? `Matched by ${spot.communitySubmission.contributorCredit}`
-                    : `Submitted by ${spot.communitySubmission.contributorCredit}`}
-                </h2>
-                <p className="mt-2 text-sm leading-6 text-foreground">
-                  Shared from {spot.communitySubmission.platform}.{" "}
-                  {spot.communitySubmission.researchSummary ||
-                    "Localley research converted the shared link into this spot record."}
-                </p>
-                <a
-                  href={spot.communitySubmission.sourceUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary/10 px-3 text-sm font-semibold text-foreground transition-colors hover:bg-primary/15"
-                >
-                  View source post
-                  <ExternalLink className="h-4 w-4" />
-                </a>
               </div>
-            </div>
+            ))}
           </section>
         )}
 
-        <VenuePhotoThumbnails name={spot.name} />
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3 lg:gap-6">
+          <div className="space-y-5 lg:col-span-2">
+            {(guide?.guide || description.text) && (
+              <section data-testid="spot-guide" className={`${LIQUID_CARD} space-y-3 p-4 sm:p-6`}>
+                {(guide?.guide || description.text).split(/\n{2,}/).map((paragraph, index) => (
+                  <p key={index} className="text-base leading-7 text-foreground">{paragraph}</p>
+                ))}
+              </section>
+            )}
 
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3 lg:gap-8">
-          <div className="space-y-5 lg:col-span-2 lg:space-y-8">
-            <div className="flex flex-wrap gap-2">
-              {spot.subcategories.map((sub: string) => (
-                <Badge
-                  key={sub}
-                  variant="secondary"
-                  className="bg-primary/10 px-3 py-1 text-sm text-foreground"
-                >
-                  {sub}
-                </Badge>
-              ))}
-            </div>
+            {guide && guide.orderOrDo.length > 0 && (
+              <section className={`${LIQUID_CARD} space-y-3 p-4 sm:p-6`}>
+                <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+                  <Utensils className="h-5 w-5 text-primary" aria-hidden="true" />
+                  What to get
+                </h2>
+                <ul className="list-disc space-y-1 pl-5 text-sm leading-6 text-foreground">
+                  {guide.orderOrDo.map((item) => <li key={item}>{item}</li>)}
+                </ul>
+              </section>
+            )}
 
-            <div className={`${LIQUID_CARD} space-y-4 p-4 sm:p-5`}>
-              <p className="text-base leading-7 text-foreground sm:text-lg">
-                {spot.description}
-              </p>
-            </div>
-
-            <section className={`${LIQUID_CARD} space-y-4 p-4 sm:p-6`}>
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <p className="text-sm font-semibold uppercase tracking-wide text-foreground">
-                    Quick read
-                  </p>
-                  <h2 className="text-2xl font-bold leading-tight text-foreground">
-                    Know before you route it
-                  </h2>
-                </div>
-                <span className="w-fit rounded-md bg-primary/10 px-2 py-1 text-xs font-semibold text-foreground">
-                  {primaryArea}
-                </span>
-              </div>
-
-              <div className="grid gap-2 sm:grid-cols-2">
-                <DetailSignal
-                  icon={Compass}
-                  label="Best for"
-                  value={spotPrimaryUse.value}
-                  helper={spotPrimaryUse.helper}
-                />
-                <DetailSignal
-                  icon={Users}
-                  label="Editorial estimate"
-                  value={`${spot.localPercentage}% local`}
-                  helper="Editorial estimate, not visitor count."
-                  tone="emerald"
-                />
-                <DetailSignal
-                  icon={Route}
-                  label="Route precision"
-                  value={navigationMode.label}
-                  helper={navigationMode.helper}
-                  tone={locationSignalTone}
-                />
-                <DetailSignal
-                  icon={Camera}
-                  label="Stored photo references"
-                  value={getSpotPhotoEvidenceLabel(spot)}
-                  helper={getSpotPhotoEvidenceHelper(spot)}
-                  tone={spot.hasRealPhoto ? "violet" : "amber"}
-                />
-              </div>
-            </section>
-
-            <section className={`${LIQUID_CARD} space-y-4 p-4 sm:p-6`}>
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <p className="text-sm font-semibold uppercase tracking-wide text-foreground">
-                    Visit plan
-                  </p>
-                  <h2 className="text-2xl font-bold leading-tight text-foreground">
-                    How to use {spot.name}
-                  </h2>
-                </div>
-                <span
-                  className={`w-fit rounded-md px-2 py-1 text-xs font-semibold ${getSignalToneClasses(locationSignalTone)}`}
-                >
-                  {navigationMode.label}
-                </span>
-              </div>
-
-              <div className="grid gap-2 sm:grid-cols-2">
-                <DetailSignal
-                  icon={Sparkles}
-                  label="Why it matters"
-                  value="Local route anchor"
-                  helper={visitPlan.localReason}
-                />
-                <DetailSignal
-                  icon={Clock}
-                  label="Best use"
-                  value={spot.bestTime}
-                  helper={visitPlan.bestUse}
-                  tone="sky"
-                />
-                <DetailSignal
-                  icon={Route}
-                  label="Pair nearby"
-                  value={primaryArea}
-                  helper={visitPlan.routePairing}
-                  tone="emerald"
-                />
-                <DetailSignal
-                  icon={Camera}
-                  label="Evidence"
-                  value={getSpotPhotoEvidenceLabel(spot)}
-                  helper={visitPlan.evidence}
-                  tone={spot.hasRealPhoto ? "violet" : "amber"}
-                />
-              </div>
-            </section>
-
-            <div className={`${LIQUID_CARD} overflow-hidden`}>
-              <div className="grid gap-0 md:grid-cols-[1.1fr_0.9fr]">
-                <div className="space-y-4 p-4 sm:p-6">
-                  <div>
-                    <div className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-foreground">
-                      <Sparkles className="h-4 w-4 text-primary" />
-                      Why locals go
-                    </div>
-                    <h2 className="text-2xl font-bold leading-tight text-foreground">
-                      A curated stop{" "}
-                      in {primaryArea}
-                    </h2>
-                    <p className="mt-2 text-sm leading-6 text-foreground">
-                      {scoreNarrative}
-                    </p>
-                  </div>
-
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    <DetailSignal
-                      icon={Sparkles}
-                      label="Localley score"
-                      value={`${spot.localleyScore}/6`}
-                      helper="Higher means stronger local signal and lower tourist-default energy."
-                    />
-                    <DetailSignal
-                      icon={Users}
-                      label="Crowd signal"
-                      value={`${spot.localPercentage}% local`}
-                      helper="Editorial estimate, not visitor count."
-                      tone="emerald"
-                    />
-                    <DetailSignal
-                      icon={Clock}
-                      label="Best window"
-                      value={spot.bestTime}
-                      helper="Visit advice, not opening hours. Confirm hours with the venue."
-                      tone="sky"
-                    />
-                    <DetailSignal
-                      icon={Camera}
-                      label="Stored photo references"
-                      value={getSpotPhotoEvidenceLabel(spot)}
-                      helper={getSpotPhotoEvidenceHelper(spot)}
-                      tone={spot.hasRealPhoto ? "violet" : "amber"}
-                    />
-                  </div>
-                </div>
-
-                <div className="bg-raised p-4 sm:p-6 md:border-t-0">
-                  <div className="mb-4 flex items-center justify-between gap-3">
-                    <div>
-                      <h3 className="font-semibold text-foreground">
-                        {locationPlanningCopy.heading}
-                      </h3>
-                      <p className="text-xs leading-5 text-foreground">
-                        {locationPlanningCopy.description}
-                      </p>
-                    </div>
-                    {locationConfidence.tone === "area" ? (
-                      <AlertTriangle className="h-5 w-5 shrink-0 text-[rgb(var(--ll-warning))]" />
-                    ) : (
-                      <ShieldCheck className="h-5 w-5 shrink-0 text-[rgb(var(--ll-success))]" />
-                    )}
-                  </div>
-                  <div className="space-y-3">
-                    <div className="flex gap-3 rounded-lg bg-black/10 p-3">
-                      <Route className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                      <div>
-                        <p className="text-sm font-medium text-foreground">
-                          {locationPlanningCopy.routeTitle}
-                        </p>
-                        <p className="mt-1 text-xs leading-5 text-foreground">
-                          {spot.name}, {spot.location.address}
-                        </p>
-                        <p
-                          className={`mt-2 inline-flex rounded-md px-2 py-1 text-xs font-semibold ${getLocationToneClasses(locationConfidence.tone)}`}
-                        >
-                          {locationConfidence.label}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-3 rounded-lg bg-black/10 p-3">
-                      <Compass className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                      <div>
-                        <p className="text-sm font-medium text-foreground">
-                          Build nearby time around {primaryArea}
-                        </p>
-                        <p className="mt-1 text-xs leading-5 text-foreground">
-                          Save it first, then add cafes, food, markets, or
-                          evening stops around the same pocket.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {spot.tips.length > 0 && (
-              <div className={`${LIQUID_CARD} space-y-4 p-4 sm:p-6`}>
-                <div>
-                  <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-foreground">
-                    <Users className="h-5 w-5 text-primary" />
-                    Before you go
-                  </h3>
-                  <ul className="grid gap-2 sm:grid-cols-2">
-                    {spot.tips.map((tip: string, i: number) => (
-                      <li
-                        key={i}
-                        className="flex items-start gap-3 rounded-lg bg-raised p-3 text-sm leading-6 text-foreground"
-                      >
-                        <div className="mt-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-foreground">
-                          {i + 1}
-                        </div>
-                        <span>{tip}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+            {facts.length > 0 && (
+              <div className="grid gap-2 sm:grid-cols-3">
+                {facts.map((fact) => <FactRow key={fact.label} {...fact} />)}
               </div>
             )}
 
-            {/* Viator Activities Section */}
-            {!candidate && <SpotActivities spotId={spot.id} city={city} spotName={spot.name} />}
-
-            {/* Reviews Section */}
-            <div className="space-y-6">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 className="text-2xl font-bold">Reviews</h2>
-                {!candidate && communityPublic() && (
-                  <Link
-                    href={`/spots/${spot.id}/tips`}
-                    className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary/10 px-3 text-sm font-semibold text-foreground transition-colors hover:bg-primary/15"
-                  >
-                    Traveller tips and photos
-                  </Link>
-                )}
-              </div>
-              <ReviewList spotId={spot.id} />
-            </div>
+            {tips.length > 0 && (
+              <section className={`${LIQUID_CARD} space-y-3 p-4 sm:p-6`}>
+                <h2 className="text-lg font-semibold text-foreground">Tips</h2>
+                <ul className="list-disc space-y-1 pl-5 text-sm leading-6 text-foreground">
+                  {tips.map((tip) => <li key={tip}>{tip}</li>)}
+                </ul>
+              </section>
+            )}
           </div>
 
-          <div className="space-y-5">
-            <div
-              className={`space-y-5 p-4 sm:p-6 lg:sticky lg:top-24 ${LIQUID_CARD}`}
-            >
-              <div>
-                <h3 className="mb-4 font-semibold text-foreground">
-                  Localley Score
-                </h3>
-                <div className="flex justify-center py-4">
-                  <LocalleyScaleIndicator
-                    score={spot.localleyScore}
-                    className="scale-125"
-                  />
-                </div>
-                <p className="mt-2 px-2 text-center text-sm text-foreground">
-                  {spot.localleyScore === LocalleyScale.HIDDEN_GEM
-                    ? "A rare find! Mostly locals and very few tourists know about this spot."
-                    : "A great spot with a mix of people."}
-                </p>
-              </div>
-
-              <div className="hidden lg:block">
-                <GetDirectionsButton spot={spot} />
-                <DriverCardLink spotId={spot.id} />
-              </div>
-
-              <div className="overflow-hidden rounded-lg bg-raised">
-                <SpotDetailMap lat={spot.location.lat} lng={spot.location.lng} name={spot.name} category={spot.category} photos={spot.photos}
-                  searchUrl={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(exactMapQuery)}`} />
-                <div className="p-4">
-                  <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
-                    {locationConfidence.tone === "area" ? (
-                      <AlertTriangle className="h-4 w-4 text-[rgb(var(--ll-warning))]" />
-                    ) : (
-                      <MapPin className="h-4 w-4 text-primary" />
-                    )}
-                    {locationPlanningCopy.locationHeading}
-                  </h3>
-                  <p
-                    data-testid="spot-detail-sidebar-address"
-                    className="text-sm leading-6 text-foreground"
-                  >
-                    {spot.location.address}
-                  </p>
-                  <div className="mt-3">
-                    <NavigationTargetPanel
-                      spot={spot}
-                      fallbackQuery={exactMapQuery}
-                    />
-                  </div>
-                  <div className="mt-3 grid gap-2">
-                    <DetailSignal
-                      icon={MapPin}
-                      label="Area"
-                      value={primaryArea}
-                      helper={`Shown inside ${city} context.`}
-                      tone={locationSignalTone}
-                    />
-                    <DetailSignal
-                      icon={Route}
-                      label="Route precision"
-                      value={locationConfidence.label}
-                      helper={
-                        spot.googlePlaceId &&
-                        !isKoreanLocation(spot.location.address) &&
-                        locationConfidence.tone === "exact"
-                          ? "Uses a Google Place match where supported."
-                          : locationConfidence.description
-                      }
-                      tone={locationSignalTone}
-                    />
-                  </div>
-                  <p className="mt-2 rounded-md bg-primary/10 p-2 text-xs leading-5 text-foreground">
-                    {locationConfidence.description}{" "}
-                    {getDirectionsHelperText(spot)}
-                  </p>
-                </div>
-              </div>
+          <aside className="space-y-3 lg:sticky lg:top-24 lg:self-start">
+            <GetDirectionsButton spot={spot} />
+            <DriverCardLink spotId={spot.id} />
+            <div className={`${LIQUID_CARD} overflow-hidden`}>
+              <SpotDetailMap lat={spot.location.lat} lng={spot.location.lng} name={spot.name} category={spot.category} photos={spot.photos}
+                searchUrl={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(exactMapQuery)}`} />
+              <p className="flex items-start gap-2 p-3 text-sm leading-6 text-foreground">
+                <MapPin className="mt-1 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                <span data-testid="spot-detail-address">{spot.location.address}</span>
+              </p>
             </div>
-          </div>
+          </aside>
         </div>
 
+        <VenuePhotoThumbnails name={spot.name} />
+
+        {!candidate && <SpotActivities spotId={spot.id} city={city} spotName={spot.name} />}
+
         {relatedSpots.length > 0 && (
-          <section className={`${LIQUID_CARD} p-4 sm:p-6`}>
-            <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-wide text-foreground">
-                  {hasDistanceRankedRelatedSpots ? "Closest picks" : "Same-city picks"}
-                </p>
-                <h2 className="text-2xl font-bold leading-tight text-foreground">
-                  {hasDistanceRankedRelatedSpots
-                    ? "Build nearby stops into the route"
-                    : "Build the same city into a route"}
-                </h2>
-              </div>
+          <section className="space-y-3" aria-label="Nearby">
+            <div className="flex items-end justify-between gap-3">
+              <h2 className="text-xl font-bold text-foreground">Nearby</h2>
               {citySlug ? (
-                <Link
-                  href={`/spots?city=${encodeURIComponent(citySlug)}`}
-                  className="text-sm font-semibold text-foreground transition-colors hover:text-foreground"
-                >
+                <Link href={`/spots?city=${encodeURIComponent(citySlug)}`} className="text-sm font-semibold text-foreground hover:underline">
                   More in {city}
                 </Link>
               ) : null}
             </div>
             <div className="grid gap-3 sm:grid-cols-3">
               {relatedSpots.map((related) => (
-                <div
-                  key={related.id}
-                  className="group relative overflow-hidden rounded-lg bg-raised transition-all duration-300 hover:-translate-y-0.5 hover:bg-raised"
-                >
-                  <div className="relative overflow-hidden bg-raised">
-                    <VenueCardPhoto spotId={related.id} name={related.name} directPhotos={related.directPhotos} frameClassName="aspect-[4/3] w-full" />
-                    <span className="absolute left-2 top-2 rounded-full bg-black/80 px-2 py-1 text-xs font-semibold text-foreground">
-                      {related.category}
-                    </span>
-                    <span className="absolute top-2 right-2 rounded-full bg-primary px-2 py-1 text-xs font-bold text-primary-foreground backdrop-blur">
-                      {related.localleyScore}/6
-                    </span>
-                  </div>
-                  <div className="space-y-2 p-3">
-                    <div>
-                      <h3 className="line-clamp-1 font-semibold text-foreground group-hover:text-foreground">
-                        <Link href={`/spots/${related.id}`} className="after:absolute after:inset-0 after:z-[1] focus-visible:outline focus-visible:outline-2">{related.name}</Link>
-                      </h3>
-                      <p className="mt-1 line-clamp-1 text-xs text-foreground">
-                        {related.address}
-                      </p>
-                    </div>
-                    <div className="flex flex-wrap gap-1.5 text-xs font-medium">
-                      <span className="rounded-md bg-primary/10 px-2 py-1 text-foreground">
-                        {related.distanceLabel}
-                      </span>
-                    </div>
+                <div key={related.id} className="group relative overflow-hidden rounded-lg bg-raised transition-all duration-300 hover:-translate-y-0.5">
+                  <VenueCardPhoto spotId={related.id} name={related.name} directPhotos={related.directPhotos} frameClassName="aspect-[4/3] w-full" />
+                  <div className="space-y-1 p-3">
+                    <h3 className="line-clamp-1 font-semibold text-foreground">
+                      <Link href={`/spots/${related.id}`} className="after:absolute after:inset-0 after:z-[1] focus-visible:outline focus-visible:outline-2">{related.name}</Link>
+                    </h3>
+                    <p className="line-clamp-1 text-xs text-muted-foreground">
+                      {related.category} · {related.distanceLabel}
+                    </p>
                   </div>
                 </div>
               ))}
             </div>
           </section>
         )}
+
+        <section className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-xl font-bold">Reviews</h2>
+            {!candidate && communityPublic() && (
+              <Link
+                href={`/spots/${spot.id}/tips`}
+                className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary/10 px-3 text-sm font-semibold text-foreground transition-colors hover:bg-primary/15"
+              >
+                Traveller tips and photos
+              </Link>
+            )}
+          </div>
+          <ReviewList spotId={spot.id} />
+        </section>
+
+        <footer data-testid="spot-sources" className="mt-2 space-y-1 pt-6 text-xs leading-5 text-muted-foreground">
+          {spot.communitySubmission && (
+            <p className="flex items-center gap-1.5">
+              <UserRound className="h-3.5 w-3.5" aria-hidden="true" />
+              {spot.communitySubmission.status === "spot_reused" ? "Matched" : "Shared"} by {spot.communitySubmission.contributorCredit}
+            </p>
+          )}
+          {sources.length > 0 && (
+            <p>
+              Sources:{" "}
+              {sources.map((source, index) => (
+                <span key={source.url}>
+                  {index > 0 ? " · " : null}
+                  <a href={source.url} target="_blank" rel="noopener noreferrer" className="underline-offset-2 hover:underline">{source.title}</a>
+                </span>
+              ))}
+            </p>
+          )}
+          {updated && <p>Last updated {updated}</p>}
+        </footer>
       </div>
       <DriverCardDialog spotId={spot.id} name={spot.name} nameField={spot.nameField} address={spot.location.address} />
     </VenuePhotoProvider>
