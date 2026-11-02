@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSupabaseAdmin } from "@/lib/supabase";
+import { appDataConfigured } from "@/lib/app-data/configured";
 import { readProductionReviewsForPreview } from "@/lib/source-public-reviews";
 import { Errors, handleApiError, apiError, ErrorCodes } from "@/lib/api-errors";
 import { assertPreviewReviewUser, createPreviewSpotReview, isPreviewSpotReviewCandidate,
@@ -50,7 +51,7 @@ export async function GET(
                 return NextResponse.json({ error: "Reviews unavailable" }, { status: 503, headers: candidateHeaders });
             }
         }
-        if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return readProductionReviewsForPreview(request, spotId);
+        if (!appDataConfigured()) return readProductionReviewsForPreview(request, spotId);
         // Public review output is projected here; raw review tables deny anonymous SELECT.
         const supabase = createSupabaseAdmin();
 

@@ -22,12 +22,17 @@ beforeEach(() => {
 });
 const upload = () => { const body=new FormData(); body.append("cover",new Blob([new Uint8Array([137,80,78,71,13,10,26,10,1])]),"cover.png");return POST(new NextRequest(path,{method:"POST",body}),params); };
 describe("Source private story links and read access", () => {
- it("returns private-bucket signed links with the tier retention period", async () => {
-  const response = await upload();expect(response.status).toBe(200);expect((await response.json()).slides.cover).toBe(signedUrl);
-  expect(sign).toHaveBeenCalledWith(`story-slides/${id}/cover.png`,7*86400);
+ it("returns the access-checked R2 media link with the tier retention period (exit 8b)", async () => {
+  const ctx = Symbol.for("__cloudflare-context__"), put = vi.fn().mockResolvedValue({});
+  (globalThis as Record<symbol, unknown>)[ctx] = { env: { STORY_MEDIA_R2: { put, get: vi.fn(), delete: vi.fn() } } };
+  try {
+   const response = await upload();expect(response.status).toBe(200);const body = await response.json();
+   expect(body.slides.cover).toContain(`/api/itineraries/${id}/story/media/`);expect(body.retentionDays).toBe(7);
+   expect(sign).not.toHaveBeenCalled();expect(put).toHaveBeenCalledTimes(1);
+  } finally { delete (globalThis as Record<symbol, unknown>)[ctx]; }
  });
- it("does not save an unusable link when signing fails", async () => {
-  sign.mockResolvedValue({ data: null, error: new Error("signing failed") });expect((await upload()).status).toBe(400);expect(update).not.toHaveBeenCalled();
+ it("does not save a link when no R2 bucket stores the slide", async () => {
+ expect((await upload()).status).toBe(400);expect(update).not.toHaveBeenCalled();
  });
  it.each([null,"other-owner"])("hides private media links from unauthorised readers",async userId=>{
   mocks.auth.mockResolvedValue({userId});const response=await GET(new NextRequest(path),params);expect(response.status).toBe(404);expect(await response.text()).not.toContain(signedUrl);

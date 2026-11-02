@@ -123,12 +123,53 @@ async function awardSocialSubmissionTokens(db: PreviewAppDataReader, args: Args)
   return [{ awarded: awarded ? delta : 0, total_tokens: total?.total_tokens ?? 0 }];
 }
 
+/**
+ * calculate_monthly_earnings: split the month's revenue pool over approved, onboarded guides by engagement points.
+ * A guide's last below_minimum row of an EARLIER month (rollover + net) rolls in, so a rerun does not compound; the result is the number of guides upserted.
+ */
+async function calculateMonthlyEarnings(db: PreviewAppDataReader, args: Args) {
+  const month = text(args, "p_month"), revenue = Number(args.p_subscription_revenue ?? 0);
+  const share = args.p_revenue_share_percent === undefined || args.p_revenue_share_percent === null ? 20 : Number(args.p_revenue_share_percent);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(month) || !Number.isFinite(revenue) || !Number.isFinite(share)) throw new RaiseException("Invalid payout input");
+  const pool = revenue * (share / 100);
+  const total = (await db.prepare("SELECT COALESCE(SUM(engagement_points), 0) AS points FROM content_engagement WHERE engagement_month = ?")
+    .bind(month).first<{ points: number }>())?.points ?? 0;
+  if (total === 0) return 0;
+  const guides = (await db.prepare(`SELECT ce.creator_clerk_user_id AS guide, SUM(ce.engagement_points) AS points,
+      COALESCE(MAX(gp.minimum_payout), 10.0) AS minimum,
+      (SELECT COALESCE(ge.rollover_amount, 0) + COALESCE(ge.net_amount, 0) FROM guide_earnings ge
+        WHERE ge.guide_clerk_user_id = ce.creator_clerk_user_id AND ge.status = 'below_minimum' AND ge.earning_month < ?
+        ORDER BY ge.earning_month DESC LIMIT 1) AS rollover
+    FROM content_engagement ce JOIN guide_profiles gp ON gp.clerk_user_id = ce.creator_clerk_user_id
+    WHERE ce.engagement_month = ? AND gp.status = 'approved' AND gp.stripe_onboarding_complete = 1
+    GROUP BY ce.creator_clerk_user_id`).bind(month, month).all<{ guide: string; points: number; minimum: number; rollover: number | null }>()).results ?? [];
+  if (!guides.length) return 0;
+  const now = nowTimestamptz();
+  await db.batch(guides.flatMap((g) => {
+    const rollover = g.rollover ?? 0, gross = (g.points / total) * pool + rollover;
+    return [
+      db.prepare(`INSERT INTO guide_earnings (id, guide_clerk_user_id, earning_month, total_engagement_points, platform_engagement_points,
+          subscription_revenue, revenue_pool, share_percent, gross_amount, net_amount, rollover_amount, status, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT (guide_clerk_user_id, earning_month) DO UPDATE SET total_engagement_points = excluded.total_engagement_points,
+          platform_engagement_points = excluded.platform_engagement_points, subscription_revenue = excluded.subscription_revenue,
+          revenue_pool = excluded.revenue_pool, share_percent = excluded.share_percent, gross_amount = excluded.gross_amount,
+          net_amount = excluded.net_amount, rollover_amount = excluded.rollover_amount, status = excluded.status, updated_at = excluded.updated_at`)
+        .bind(crypto.randomUUID(), g.guide, month, g.points, total, revenue, pool, g.points / total, gross, gross, rollover,
+          gross < g.minimum ? "below_minimum" : "calculated", now, now),
+      journal(db, "guide_earnings", "upsert", { guide_clerk_user_id: g.guide, earning_month: month }),
+    ];
+  }));
+  return guides.length;
+}
+
 export const D1_RPCS: Record<string, (db: PreviewAppDataReader, args: Args) => Promise<unknown>> = {
   check_and_increment_usage_weighted: checkAndIncrementUsageWeighted,
   increment_usage: incrementUsage,
   track_content_engagement: trackContentEngagement,
   replace_weekly_city_spot_rankings: replaceWeeklyCitySpotRankings,
   award_social_submission_tokens_v1: awardSocialSubmissionTokens,
+  calculate_monthly_earnings: calculateMonthlyEarnings,
   ...SOCIAL_MEDIA_RPCS,
 };
 

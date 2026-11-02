@@ -1,6 +1,7 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import { createSupabaseAdmin, createSupabaseClient } from "@/lib/supabase";
+import { appDataConfigured } from "@/lib/app-data/configured";
 import type { Spot } from "@/types";
 import { shouldShowPublicSpot } from "@/lib/spots/public-quality";
 import { transformSpot, type RawSpot } from "@/lib/spots/transform";
@@ -47,7 +48,7 @@ async function fetchWeeklyTrendingSpotsInternal(
   citySlug: string | null,
 ): Promise<WeeklyTrendingSpot[]> {
   if (dataBackend() === "d1") return fetchWeeklyTrendingSpotsD1(citySlug);
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return [];
+  if (!appDataConfigured()) return [];
   const supabase = createSupabaseAdmin();
   let rankingQuery = supabase
     .from("weekly_city_spot_rankings")

@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { createSupabaseAdmin } from '@/lib/supabase';
+import { appDataConfigured } from '@/lib/app-data/configured';
 import {
   applyPublicSpotVisibilityFilters,
   shouldShowPublicSpot,
@@ -82,10 +83,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   // Try to fetch dynamic routes from Supabase, but gracefully handle missing env vars
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!supabaseUrl || !supabaseKey) {
+  if (!appDataConfigured()) {
     // Return only static routes if Supabase is not configured
     return staticRoutes;
   }

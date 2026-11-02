@@ -76,26 +76,6 @@ export async function GET(req: NextRequest) {
                 }
             }
 
-            if (storySlides?.slides) {
-                // Delete slide files from Storage
-                const filePaths: string[] = [];
-                for (const key of Object.keys(storySlides.slides)) {
-                    filePaths.push(`story-slides/${item.id}/${key}.png`);
-                }
-
-                if (filePaths.length > 0) {
-                    const { error: deleteError } = await supabase.storage
-                        .from("generated-images")
-                        .remove(filePaths);
-
-                    if (deleteError) {
-                        console.error(`[CLEANUP_STORIES] Storage delete error for ${item.id}:`, deleteError);
-                    } else {
-                        filesDeleted += filePaths.length;
-                    }
-                }
-            }
-
             // Clear story_slides metadata
             const { error: updateError } = await supabase
                 .from("itineraries")

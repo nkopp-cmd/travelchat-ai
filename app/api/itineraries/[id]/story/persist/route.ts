@@ -70,7 +70,7 @@ export async function POST(
             return Errors.forbidden();
         }
 
-        // R2 is the served copy (random generation per persist); Supabase Storage stays a dual write until 2026-11-02.
+        // R2 is the only copy (random generation per persist; Supabase exit 8b ended the Storage dual write).
         const bucket = storySlidesBucket();
         const generation = crypto.randomUUID();
         const origin = req.nextUrl.origin;
@@ -120,7 +120,6 @@ export async function POST(
                     errors.push(`${key}: invalid PNG slide`);
                     continue;
                 }
-                const storageKey = `story-slides/${id}/${key}.png`;
                 const r2Key = bucket ? storySlideKey(id, generation, key) : null;
                 let r2Stored = false;
                 if (bucket && r2Key) {
@@ -133,34 +132,11 @@ export async function POST(
                     }
                 }
 
-                const { error: uploadError } = await supabase.storage
-                    .from("generated-images")
-                    .upload(storageKey, buffer, {
-                        contentType: "image/png",
-                        upsert: true,
-                    });
-
-                if (r2Stored) {
-                    if (uploadError) console.error(`[STORY_PERSIST] Supabase dual write failed for ${key}:`, uploadError.message);
-                    slides[key] = `${origin}${storySlidePath(id, generation, key)}`;
-                    continue;
-                }
-
-                if (uploadError) {
-                    console.error(`[STORY_PERSIST] Upload failed for ${key}:`, uploadError.message);
+                if (!r2Stored) {
                     errors.push(`${key}: upload failed`);
                     continue;
                 }
-
-                const { data: urlData, error: urlError } = await supabase.storage
-                    .from("generated-images")
-                    .createSignedUrl(storageKey, retentionDays * 24 * 60 * 60);
-
-                if (urlError || !urlData?.signedUrl) {
-                    errors.push(`${key}: media link unavailable`);
-                    continue;
-                }
-                slides[key] = urlData.signedUrl;
+                slides[key] = `${origin}${storySlidePath(id, generation, key)}`;
             } catch (err) {
                 console.error(`[STORY_PERSIST] Error processing ${key}:`, err);
                 errors.push(`${key}: processing error`);
@@ -197,7 +173,7 @@ export async function POST(
         for (const key of previousKeys) {
             if (!storedKeys.includes(key)) await bucket?.delete(key).catch((e: unknown) => console.error("[STORY_PERSIST] Old R2 slide delete failed", e));
         }
-        console.log(`[STORY_PERSIST] story_media_write=${storedKeys.length ? "r2" : "supabase_only"}`);
+        console.log(`[STORY_PERSIST] story_media_write=${storedKeys.length ? "r2" : "none"}`);
 
         console.log("[STORY_PERSIST] Saved", Object.keys(slides).length, "slides for", id, {
             tier,

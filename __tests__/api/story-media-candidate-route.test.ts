@@ -102,7 +102,7 @@ describe("preview story media routes", () => {
     expect(mocks.save).not.toHaveBeenCalled();
   });
 
-  it("keeps the existing Supabase POST on www and normal preview", async () => {
+  it("keeps the normal R2 persist path on www and normal preview", async () => {
     process.env = { ...originalEnvironment, SUPABASE_READ_ONLY: "true", AUTH_MAIL_MODE: "outbox" };
     mocks.auth.mockResolvedValue({ userId: "owner-id" });
     mocks.tier.mockResolvedValue("free");
@@ -112,12 +112,16 @@ describe("preview story media routes", () => {
     const storage = { upload: vi.fn().mockResolvedValue({ error: null }),
       createSignedUrl: vi.fn().mockResolvedValue({ data: { signedUrl: "https://example.com/cover.png" }, error: null }) };
     mocks.supabase.mockReturnValue({ from: vi.fn().mockReturnValue(query), storage: { from: vi.fn().mockReturnValue(storage) } });
-    for (const host of ["www.localley.io", preview]) {
+    const ctx = Symbol.for("__cloudflare-context__"), put = vi.fn().mockResolvedValue({});
+    (globalThis as Record<symbol, unknown>)[ctx] = { env: { STORY_MEDIA_R2: { put, get: vi.fn(), delete: vi.fn() } } };
+    try { for (const host of ["www.localley.io", preview]) {
       const form = new FormData(); form.append("cover", new Blob([new Uint8Array([137,80,78,71,13,10,26,10,1])]));
       const suffix = host === preview ? "" : "?data_candidate=d1";
       const request = new NextRequest(`https://${host}/api/itineraries/${id}/story/persist${suffix}`, { method: "POST", body: form });
       expect((await POST(request, persistParams)).status).toBe(200);
-    }
+    } } finally { delete (globalThis as Record<symbol, unknown>)[ctx]; }
+    expect(put).toHaveBeenCalledTimes(2);
+    expect(storage.upload).not.toHaveBeenCalled();
     expect(mocks.supabase).toHaveBeenCalledTimes(2);
     expect(mocks.tier).toHaveBeenCalledTimes(2);
     expect(mocks.candidateTier).not.toHaveBeenCalled();

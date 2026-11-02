@@ -123,3 +123,31 @@ describe("D1 functions write the gate 2 journal", () => {
     expect(JSON.parse(row.pk)).toMatchObject({ clerk_user_id: "u9", usage_type: "chat_messages", period_type: "daily" });
   });
 });
+
+describe("D1 calculate_monthly_earnings", () => {
+  const guide = (id: string, status = "approved", onboarded = 1, min: number | null = 10) => db.sqlite.prepare(
+    "INSERT INTO guide_profiles (id, clerk_user_id, status, stripe_onboarding_complete, minimum_payout) VALUES (?, ?, ?, ?, ?)").run(`gp-${id}`, id, status, onboarded, min);
+  const points = (creator: string, n: number, month = "2026-10-01") => db.sqlite.prepare(
+    "INSERT INTO content_engagement (id, creator_clerk_user_id, engagement_points, engagement_month, viewer_clerk_user_id, viewer_tier, content_type, content_id) VALUES (?, ?, ?, ?, 'v', 'pro', 'itinerary_view', ?)")
+    .run(crypto.randomUUID(), creator, n, month, crypto.randomUUID());
+  const run = () => d1Rpc(db as never, "calculate_monthly_earnings", { p_month: "2026-10-01", p_subscription_revenue: 100, p_revenue_share_percent: 20 });
+
+  it("splits the pool by points, adds rollover, marks below minimum and is idempotent", async () => {
+    guide("a", "approved", 1, 5); guide("b"); guide("c", "pending"); guide("d", "approved", 0);
+    points("a", 30); points("b", 10); points("c", 50); points("d", 10);
+    db.sqlite.prepare("INSERT INTO guide_earnings (guide_clerk_user_id, earning_month, net_amount, rollover_amount, status) VALUES ('b', '2026-09-01', 1.5, 0.5, 'below_minimum')").run();
+    expect((await run()).data).toBe(2);
+    expect((await run()).data).toBe(2);
+    const rows = db.sqlite.prepare("SELECT guide_clerk_user_id AS g, gross_amount AS gross, rollover_amount AS r, status, platform_engagement_points AS t FROM guide_earnings WHERE earning_month = '2026-10-01' ORDER BY g").all();
+    expect(rows).toEqual([
+      { g: "a", gross: 6, r: 0, status: "calculated", t: 100 },
+      { g: "b", gross: 4, r: 2, status: "below_minimum", t: 100 },
+    ]);
+    expect(db.sqlite.prepare("SELECT count(*) AS n FROM _journal WHERE table_name = 'guide_earnings'").get()).toEqual({ n: 4 });
+  });
+
+  it("returns 0 without points and rejects a bad month", async () => {
+    expect((await run()).data).toBe(0);
+    expect((await d1Rpc(db as never, "calculate_monthly_earnings", { p_month: "2026-10", p_subscription_revenue: 1 })).error).toBeTruthy();
+  });
+});

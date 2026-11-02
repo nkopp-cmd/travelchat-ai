@@ -6,6 +6,7 @@ on:
     paths:
       - 'package.json'
       - '__tests__/lib/auth-schema-check.test.ts'
+      - '__tests__/lib/supabase-exit-client.test.ts'
       - 'lib/auth/config.ts'
       - 'package-lock.json'
       - 'lib/trips/generated-preview.ts'

@@ -3,7 +3,6 @@
 // - Pro/Premium: AI-generated images via Gemini, stored in Supabase Storage
 
 import { generateActivityThumbnail as generateAIThumbnail, isImagenAvailable } from './imagen';
-import { createSupabaseAdmin } from './supabase';
 
 interface ActivityThumbnailBucket {
   put(key: string, body: Uint8Array, options: { httpMetadata: { contentType: string } }): Promise<unknown>;
@@ -262,33 +261,7 @@ async function uploadImageToStorage(
       console.error('[activity-images] R2 write failed:', error instanceof Error ? error.message : error);
     }
   }
-  try {
-    const supabase = createSupabaseAdmin();
-
-    // Supabase Storage stays a dual write until 2026-11-02 (Supabase exit 8b removes it).
-    const { error: uploadError } = await supabase.storage
-      .from('generated-images')
-      .upload(storageKey, buffer, {
-        contentType: 'image/png',
-        upsert: true, // Overwrite if exists
-      });
-
-    if (uploadError) {
-      console.error('[activity-images] Upload error:', uploadError);
-      return r2Path;
-    }
-    if (r2Path) return r2Path;
-
-    // Get the public URL
-    const { data: urlData } = supabase.storage
-      .from('generated-images')
-      .getPublicUrl(storageKey);
-
-    return urlData?.publicUrl || null;
-  } catch (error) {
-    console.error('[activity-images] Storage upload failed:', error);
-    return r2Path;
-  }
+  return r2Path;
 }
 
 /**
@@ -300,35 +273,15 @@ async function getExistingImageUrl(storageKey: string): Promise<string | null> {
     try {
       if (await bucket.head(storageKey)) return activityThumbnailPath(storageKey);
     } catch {
-      // fall through to the Supabase copy
+      return null;
     }
   }
-  try {
-    const supabase = createSupabaseAdmin();
-
-    // Try to get the file info
-    const { data } = await supabase.storage
-      .from('generated-images')
-      .list(storageKey.split('/')[0], {
-        search: storageKey.split('/')[1],
-      });
-
-    if (data && data.length > 0) {
-      const { data: urlData } = supabase.storage
-        .from('generated-images')
-        .getPublicUrl(storageKey);
-      return urlData?.publicUrl || null;
-    }
-
-    return null;
-  } catch {
-    return null;
-  }
+  return null;
 }
 
 /**
  * Generate an AI thumbnail for an activity (Pro/Premium feature)
- * Returns a public URL from Supabase Storage, or null if generation fails
+ * Returns the R2 media path, or null if generation fails
  */
 export async function getAIActivityThumbnail(
   activityName: string,

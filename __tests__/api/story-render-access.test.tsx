@@ -248,11 +248,11 @@ describe("candidate story renderer with real ImageResponse", () => {
             ? await sharp({ create: { width: 64, height: 64, channels: 3, background: "red" } }).png({ compressionLevel: 0 }).toBuffer()
             : Buffer.concat([Buffer.from("RIFFxxxxWEBP"), Buffer.alloc(600)]);
         const previousFetch = fetch;
-        vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => String(input).includes("fixture.supabase.co")
+        vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => String(input).includes("images.pexels.com")
             ? new Response(bytes, { headers: { "Content-Type": format === "png" ? "image/webp" : "image/png" } })
             : previousFetch(input)));
         mocks.first.mockResolvedValue({ ...candidateRow, ai_backgrounds: JSON.stringify({
-            cover: "https://fixture.supabase.co/storage/v1/object/public/generated-images/background.png" }) });
+            cover: "https://images.pexels.com/photos/1/background.png" }) });
         const response = await candidateRequest();
         expect(await response.json()).toMatchObject({ step: "render_success", background: { prefetchSuccess: format === "png" } });
         expect(mocks.admin).not.toHaveBeenCalled(); expect(mocks.storageFrom).not.toHaveBeenCalled();
@@ -313,15 +313,15 @@ describe("story media step 1: R2 reads", () => {
         ["an R2 miss", async () => null],
         ["a WebP object", async () => ({ arrayBuffer: async () => new Uint8Array([0x52, 0x49, 0x46, 0x46, 0, 0, 0, 0, 0x57, 0x45, 0x42, 0x50, ...new Array(600).fill(0)]).buffer })],
         ["an R2 error", async () => { throw new Error("R2 down"); }],
-    ])("falls back to the unchanged Supabase download on %s", async (_case, result) => {
+    ])("renders the branded gradient on %s and never reads Supabase (exit 8b)", async (_case, result) => {
         get.mockImplementation(result);
-        const bytes = await png();
-        mocks.download.mockResolvedValue({ data: new Blob([bytes], { type: "image/png" }), error: null });
         const response = await request("slide=cover");
         expect(response.status).toBe(200);
-        expect(mocks.download).toHaveBeenCalledWith(path);
-        expect(sources()).toEqual(["[STORY_ROUTE] story_media_source=supabase_fallback"]);
-    });
+        expect(mocks.storageFrom).not.toHaveBeenCalled();
+        expect(mocks.download).not.toHaveBeenCalled();
+        expect(fetch).not.toHaveBeenCalledWith(expect.stringContaining("supabase.co"), expect.anything());
+        expect(sources()).toEqual(["[STORY_ROUTE] story_media_source=r2_missing"]);
+    }, 30000);
 
     it("reads a migrated /media/story/<sha> background only from R2, with no other fallback", async () => {
         const key = `${"a".repeat(64)}.png`;

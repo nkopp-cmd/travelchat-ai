@@ -11,10 +11,11 @@
  */
 import type { AuthUserRecord } from "./config";
 import { createSupabaseAdmin } from "@/lib/supabase";
+import { appDataConfigured } from "@/lib/app-data/configured";
 import { isSupabaseReadOnly } from "@/lib/supabase-read-only";
 
 function syncEnabled(): boolean {
-  return !isSupabaseReadOnly() && Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY);
+  return !isSupabaseReadOnly() && appDataConfigured();
 }
 
 export async function syncAppUserCreated(user: AuthUserRecord): Promise<void> {
