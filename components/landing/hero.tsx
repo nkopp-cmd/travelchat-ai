@@ -39,8 +39,10 @@ export const HERO_PINS: HeroPin[] = [
 ];
 /** The pin whose card opens on a loop. */
 export const HERO_FEATURED_ID = HERO_PINS[0].id;
-// On phones a pin near the side would be cut by the crop, and one below 70 % sits under the chips.
+// On phones a pin near the side would be cut by the crop, one above 48 % touches the subtitle,
+// and one below 70 % sits under the chips.
 const MOBILE_SAFE_X: [number, number] = [6, 94];
+const MOBILE_MIN_Y = 48;
 const MOBILE_MAX_Y = 70;
 
 const PIN_ICONS: Record<string, ComponentType<IconProps>> = { Food: Utensils, Market: Store, Nightlife: Moon, Culture: Camera };
@@ -70,7 +72,7 @@ export function LandingHero() {
 function HeroPinMark({ pin, index }: { pin: HeroPin; index: number }) {
     const Icon = PIN_ICONS[pin.category] ?? Store;
     const featured = pin.id === HERO_FEATURED_ID;
-    const mobile = pin.m[0] >= MOBILE_SAFE_X[0] && pin.m[0] <= MOBILE_SAFE_X[1] && pin.m[1] <= MOBILE_MAX_Y;
+    const mobile = pin.m[0] >= MOBILE_SAFE_X[0] && pin.m[0] <= MOBILE_SAFE_X[1] && pin.m[1] >= MOBILE_MIN_Y && pin.m[1] <= MOBILE_MAX_Y;
     const style = {
         "--mx": `${pin.m[0]}%`, "--my": `${pin.m[1]}%`, "--dx": `${pin.d[0]}%`, "--dy": `${pin.d[1]}%`,
         "--delay": `${260 + index * 90}ms`,
