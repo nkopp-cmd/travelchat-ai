@@ -8,6 +8,8 @@ import { previewItineraryDetail } from "@/lib/app-data/preview-itinerary-detail"
 import { parsePreviewStoryPatch } from "@/lib/app-data/preview-story-metadata";
 import { normalizeDailyPlansForDisplay } from "@/lib/itineraries/normalize-daily-plans";
 import { STORY_MEDIA_R2 } from "@/lib/story-media-manifest";
+import { getActivityEmoji, getHighlightEmoji } from "@/lib/story-emoji";
+import { STORY_EMOJI_SVG } from "@/lib/story-emoji-svg";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -114,6 +116,12 @@ const SAFE_ZONE = {
     RIGHT: 140,      // Like, comment, share, bookmark buttons
 };
 
+// Slide cards use the full width (TikTok's side buttons sit below the card rows); text must stay
+// readable on a phone, so the card is ~940 px wide and the brand pill / footer sit just inside the
+// top and bottom safe zones.
+const CARD_SIDE = 70;
+const CARD_WIDTH = STORY_WIDTH - CARD_SIDE * 2;
+
 interface Activity {
     name: string | Record<string, string>;
     description?: string;
@@ -143,27 +151,6 @@ function safeString(value: unknown, fallback = ''): string {
 }
 
 /**
- * Pick an emoji for an activity based on its category, with localleyScore override.
- */
-function getActivityEmoji(activity: Activity): string {
-    if (Number(activity.localleyScore) >= 5) return "💎";
-    const category = (typeof activity.category === 'string' ? activity.category : '').toLowerCase();
-    switch (category) {
-        case "restaurant": return "🍽️";
-        case "cafe": return "☕";
-        case "bar": return "🍸";
-        case "market": return "🛒";
-        case "temple": case "shrine": return "⛩️";
-        case "park": return "🌳";
-        case "museum": return "🏛️";
-        case "shopping": return "🛍️";
-        case "attraction": return "🎯";
-        case "neighborhood": return "🏘️";
-        default: return Number(activity.localleyScore) >= 4 ? "⭐" : "📍";
-    }
-}
-
-/**
  * Compute a font size that fits `text` within `maxWidth` pixels,
  * starting from `basePx` and scaling down to at least `minPx`.
  */
@@ -176,25 +163,14 @@ function dynamicFontSize(text: string, maxWidth: number, basePx: number, minPx: 
 }
 
 /**
- * Pick a contextual emoji for a summary highlight based on keywords.
+ * Draw an emoji from the bundled Twemoji set, so a slide never waits on (or loses) a CDN fetch.
+ * Unknown characters fall back to text rendering.
  */
-function getHighlightEmoji(text: string): string {
-    const lower = text.toLowerCase();
-    if (lower.includes("food") || lower.includes("cuisine") || lower.includes("eat")) return "🍜";
-    if (lower.includes("culture") || lower.includes("history") || lower.includes("heritage")) return "🏛️";
-    if (lower.includes("nature") || lower.includes("park") || lower.includes("garden")) return "🌿";
-    if (lower.includes("shop") || lower.includes("market")) return "🛍️";
-    if (lower.includes("night") || lower.includes("bar") || lower.includes("club")) return "🌙";
-    if (lower.includes("temple") || lower.includes("shrine")) return "⛩️";
-    if (lower.includes("beach") || lower.includes("coast") || lower.includes("sea")) return "🏖️";
-    if (lower.includes("art") || lower.includes("gallery")) return "🎨";
-    if (lower.includes("music") || lower.includes("concert")) return "🎵";
-    if (lower.includes("coffee") || lower.includes("cafe")) return "☕";
-    if (lower.includes("local") || lower.includes("hidden") || lower.includes("gem")) return "💎";
-    if (lower.includes("explore") || lower.includes("discover") || lower.includes("adventure")) return "🗺️";
-    if (lower.includes("view") || lower.includes("scenic") || lower.includes("sunset")) return "🌅";
-    if (lower.includes("memor") || lower.includes("experience")) return "✨";
-    return "✦";
+function StoryEmoji({ char, size }: { char: string; size: number }) {
+    const src = STORY_EMOJI_SVG[char];
+    if (!src) return <span style={{ fontSize: size }}>{char}</span>;
+    // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
+    return <img src={src} width={size} height={size} style={{ width: size, height: size, flexShrink: 0 }} />;
 }
 
 // Cover slide template
@@ -262,21 +238,18 @@ function CoverSlide({ title, city, days, backgroundImage }: { title: string; cit
                 style={{
                     display: "flex",
                     flexDirection: "column",
-                    justifyContent: "center",
                     alignItems: "center",
                     position: "relative",
-                    paddingTop: SAFE_ZONE.TOP,
-                    paddingBottom: SAFE_ZONE.BOTTOM,
-                    paddingLeft: SAFE_ZONE.LEFT,
-                    paddingRight: SAFE_ZONE.RIGHT,
+                    paddingTop: SAFE_ZONE.TOP + 20,
+                    paddingBottom: SAFE_ZONE.BOTTOM + 20,
+                    paddingLeft: CARD_SIDE,
+                    paddingRight: CARD_SIDE,
                     flex: 1,
                 }}
             >
                 {/* Logo - Glassmorphism style - positioned at top of safe zone */}
                 <div
                     style={{
-                        position: "absolute",
-                        top: SAFE_ZONE.TOP + 20,
                         display: "flex",
                         alignItems: "center",
                         gap: 12,
@@ -286,11 +259,12 @@ function CoverSlide({ title, city, days, backgroundImage }: { title: string; cit
                         border: "1px solid rgba(255,255,255,0.2)",
                     }}
                 >
-                    <span style={{ fontSize: 32, color: "white", fontWeight: "bold" }}>
+                    <span style={{ fontSize: 36, color: "white", fontWeight: "bold" }}>
                         Localley
                     </span>
                 </div>
 
+                <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center", width: "100%" }}>
                 {/* Main content card - Glassmorphism */}
                 <div
                     style={{
@@ -298,10 +272,10 @@ function CoverSlide({ title, city, days, backgroundImage }: { title: string; cit
                         flexDirection: "column",
                         alignItems: "center",
                         backgroundColor: "rgba(0,0,0,0.35)",
-                        padding: "44px 52px",
+                        padding: "56px 56px",
                         borderRadius: 32,
                         border: "1px solid rgba(255,255,255,0.15)",
-                        maxWidth: STORY_WIDTH - SAFE_ZONE.LEFT - SAFE_ZONE.RIGHT - 60,
+                        width: CARD_WIDTH,
                     }}
                 >
                     {/* City Badge */}
@@ -317,13 +291,14 @@ function CoverSlide({ title, city, days, backgroundImage }: { title: string; cit
                             border: "1px solid rgba(255,255,255,0.2)",
                         }}
                     >
-                        <span style={{ fontSize: 32, color: "white" }}>📍 {city}</span>
+                        <StoryEmoji char="📍" size={40} />
+                        <span style={{ fontSize: 40, color: "white" }}>{city}</span>
                     </div>
 
                     {/* Title */}
                     <h1
                         style={{
-                            fontSize: dynamicFontSize(title, 640, 64, 40),
+                            fontSize: dynamicFontSize(title, 820, 80, 52),
                             fontWeight: "bold",
                             color: "white",
                             textAlign: "center",
@@ -347,24 +322,24 @@ function CoverSlide({ title, city, days, backgroundImage }: { title: string; cit
                             border: "1px solid rgba(255,255,255,0.15)",
                         }}
                     >
-                        <span style={{ fontSize: 30, color: "white" }}>
-                            🗓️ {days} {days === 1 ? "Day" : "Days"} of Adventure
+                        <StoryEmoji char="🗓️" size={38} />
+                        <span style={{ fontSize: 38, color: "white" }}>
+                            {days} {days === 1 ? "Day" : "Days"} of Adventure
                         </span>
                     </div>
                 </div>
+                </div>
 
-                {/* Swipe indicator - positioned above bottom safe zone */}
+                {/* Swipe indicator - just above the bottom safe zone */}
                 <div
                     style={{
-                        position: "absolute",
-                        bottom: 40,
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
                         gap: 8,
                     }}
                 >
-                    <span style={{ fontSize: 22, color: "rgba(255,255,255,0.8)" }}>
+                    <span style={{ fontSize: 30, color: "rgba(255,255,255,0.85)" }}>
                         Swipe to explore →
                     </span>
                 </div>
@@ -384,7 +359,7 @@ const DAY_GRADIENTS = [
 
 // Day slide template
 function DaySlide({ dayPlan, dayNumber, backgroundImage, isPaidUser }: { dayPlan: DayPlan; dayNumber: number; backgroundImage?: string; isPaidUser?: boolean }) {
-    const activities = dayPlan.activities?.slice(0, 3) || [];
+    const activities = dayPlan.activities?.slice(0, 4) || [];
     const dayGradient = DAY_GRADIENTS[(dayNumber - 1) % DAY_GRADIENTS.length];
 
     return (
@@ -449,21 +424,18 @@ function DaySlide({ dayPlan, dayNumber, backgroundImage, isPaidUser }: { dayPlan
                 style={{
                     display: "flex",
                     flexDirection: "column",
-                    justifyContent: "center",
                     alignItems: "center",
                     position: "relative",
-                    paddingTop: SAFE_ZONE.TOP,
-                    paddingBottom: SAFE_ZONE.BOTTOM,
-                    paddingLeft: SAFE_ZONE.LEFT,
-                    paddingRight: SAFE_ZONE.RIGHT,
+                    paddingTop: SAFE_ZONE.TOP + 20,
+                    paddingBottom: SAFE_ZONE.BOTTOM + 20,
+                    paddingLeft: CARD_SIDE,
+                    paddingRight: CARD_SIDE,
                     flex: 1,
                 }}
             >
                 {/* Logo — centered at top of safe zone */}
                 <div
                     style={{
-                        position: "absolute",
-                        top: SAFE_ZONE.TOP + 20,
                         display: "flex",
                         alignItems: "center",
                         backgroundColor: "rgba(0,0,0,0.3)",
@@ -472,11 +444,12 @@ function DaySlide({ dayPlan, dayNumber, backgroundImage, isPaidUser }: { dayPlan
                         border: "1px solid rgba(255,255,255,0.2)",
                     }}
                 >
-                    <span style={{ fontSize: 28, color: "white", fontWeight: "bold" }}>
+                    <span style={{ fontSize: 36, color: "white", fontWeight: "bold" }}>
                         Localley
                     </span>
                 </div>
 
+                <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center", width: "100%" }}>
                 {/* Main content card — centered glass card with Day title + activities */}
                 <div
                     style={{
@@ -484,11 +457,10 @@ function DaySlide({ dayPlan, dayNumber, backgroundImage, isPaidUser }: { dayPlan
                         flexDirection: "column",
                         alignItems: "center",
                         backgroundColor: "rgba(0,0,0,0.35)",
-                        padding: "36px 44px",
+                        padding: "48px 48px",
                         borderRadius: 28,
                         border: "1px solid rgba(255,255,255,0.15)",
-                        maxWidth: STORY_WIDTH - SAFE_ZONE.LEFT - SAFE_ZONE.RIGHT - 60,
-                        width: "100%",
+                        width: CARD_WIDTH,
                     }}
                 >
                     {/* Day number badge */}
@@ -497,13 +469,13 @@ function DaySlide({ dayPlan, dayNumber, backgroundImage, isPaidUser }: { dayPlan
                             display: "flex",
                             alignItems: "center",
                             backgroundColor: "rgba(124,58,237,0.5)",
-                            padding: "10px 28px",
+                            padding: "12px 40px",
                             borderRadius: 100,
                             border: "1px solid rgba(255,255,255,0.25)",
-                            marginBottom: 20,
+                            marginBottom: 24,
                         }}
                     >
-                        <span style={{ fontSize: 30, color: "white", fontWeight: "bold" }}>
+                        <span style={{ fontSize: 40, color: "white", fontWeight: "bold" }}>
                             Day {dayPlan.day || dayNumber}
                         </span>
                     </div>
@@ -512,7 +484,8 @@ function DaySlide({ dayPlan, dayNumber, backgroundImage, isPaidUser }: { dayPlan
                     {dayPlan.theme && (
                         <span
                             style={{
-                                fontSize: dynamicFontSize(safeString(dayPlan.theme), 570, 42, 28),
+                                fontSize: dynamicFontSize(safeString(dayPlan.theme), 840, 52, 38),
+                                lineHeight: 1.2,
                                 fontWeight: "bold",
                                 color: "white",
                                 textAlign: "center",
@@ -530,7 +503,7 @@ function DaySlide({ dayPlan, dayNumber, backgroundImage, isPaidUser }: { dayPlan
                             style={{
                                 display: "flex",
                                 flexDirection: "column",
-                                gap: 12,
+                                gap: 16,
                                 width: "100%",
                             }}
                         >
@@ -540,28 +513,27 @@ function DaySlide({ dayPlan, dayNumber, backgroundImage, isPaidUser }: { dayPlan
                                     style={{
                                         display: "flex",
                                         alignItems: "center",
-                                        gap: 14,
+                                        gap: 22,
                                         backgroundColor: "rgba(0,0,0,0.3)",
-                                        padding: "16px 24px",
-                                        borderRadius: 16,
+                                        padding: "22px 28px",
+                                        borderRadius: 20,
                                         border: "1px solid rgba(255,255,255,0.12)",
                                     }}
                                 >
-                                    <span style={{ fontSize: 28 }}>
-                                        {getActivityEmoji(activity)}
-                                    </span>
+                                    <StoryEmoji char={getActivityEmoji(activity)} size={48} />
                                     <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
                                         <span
                                             style={{
-                                                fontSize: 26,
+                                                fontSize: 40,
                                                 fontWeight: "bold",
+                                                lineHeight: 1.15,
                                                 color: "white",
                                             }}
                                         >
                                             {safeString(activity.name, "Activity")}
                                         </span>
                                         {activity.time && (
-                                            <span style={{ fontSize: 18, color: "rgba(255,255,255,0.7)", marginTop: 4 }}>
+                                            <span style={{ fontSize: 28, color: "rgba(255,255,255,0.75)", marginTop: 6 }}>
                                                 {safeString(activity.time)}
                                             </span>
                                         )}
@@ -571,18 +543,17 @@ function DaySlide({ dayPlan, dayNumber, backgroundImage, isPaidUser }: { dayPlan
                         </div>
                     )}
                 </div>
+                </div>
 
                 {/* Footer — only show for free users */}
                 {!isPaidUser && (
                     <div
                         style={{
-                            position: "absolute",
-                            bottom: 40,
                             display: "flex",
                             alignItems: "center",
                         }}
                     >
-                        <span style={{ fontSize: 20, color: "rgba(255,255,255,0.6)" }}>
+                        <span style={{ fontSize: 30, color: "rgba(255,255,255,0.7)" }}>
                             localley.io
                         </span>
                     </div>
@@ -661,21 +632,18 @@ function SummarySlide({ title, city, highlights, backgroundImage, isPaidUser }: 
                 style={{
                     display: "flex",
                     flexDirection: "column",
-                    justifyContent: "center",
                     alignItems: "center",
                     position: "relative",
-                    paddingTop: SAFE_ZONE.TOP,
-                    paddingBottom: SAFE_ZONE.BOTTOM,
-                    paddingLeft: SAFE_ZONE.LEFT,
-                    paddingRight: SAFE_ZONE.RIGHT,
+                    paddingTop: SAFE_ZONE.TOP + 20,
+                    paddingBottom: SAFE_ZONE.BOTTOM + 20,
+                    paddingLeft: CARD_SIDE,
+                    paddingRight: CARD_SIDE,
                     flex: 1,
                 }}
             >
                 {/* Logo - Glassmorphism style - positioned at top of safe zone */}
                 <div
                     style={{
-                        position: "absolute",
-                        top: SAFE_ZONE.TOP + 20,
                         display: "flex",
                         alignItems: "center",
                         gap: 12,
@@ -685,11 +653,12 @@ function SummarySlide({ title, city, highlights, backgroundImage, isPaidUser }: 
                         border: "1px solid rgba(255,255,255,0.2)",
                     }}
                 >
-                    <span style={{ fontSize: 28, color: "white", fontWeight: "bold" }}>
+                    <span style={{ fontSize: 36, color: "white", fontWeight: "bold" }}>
                         Localley
                     </span>
                 </div>
 
+                <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center", width: "100%" }}>
                 {/* Main content card - Glassmorphism */}
                 <div
                     style={{
@@ -697,27 +666,22 @@ function SummarySlide({ title, city, highlights, backgroundImage, isPaidUser }: 
                         flexDirection: "column",
                         alignItems: "center",
                         backgroundColor: "rgba(0,0,0,0.35)",
-                        padding: "32px 40px",
+                        padding: "48px 48px",
                         borderRadius: 28,
                         border: "1px solid rgba(255,255,255,0.15)",
-                        maxWidth: STORY_WIDTH - SAFE_ZONE.LEFT - SAFE_ZONE.RIGHT - 40,
-                        width: "100%",
+                        width: CARD_WIDTH,
                     }}
                 >
                     {/* Title */}
-                    <span
-                        style={{
-                            fontSize: 40,
-                            color: "rgba(255,255,255,0.9)",
-                            marginBottom: 16,
-                        }}
-                    >
-                        ✨ Trip Highlights
-                    </span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
+                        <StoryEmoji char="✨" size={48} />
+                        <span style={{ fontSize: 48, color: "rgba(255,255,255,0.9)" }}>Trip Highlights</span>
+                    </div>
 
                     <h2
                         style={{
-                            fontSize: dynamicFontSize(title, 600, 48, 32),
+                            fontSize: dynamicFontSize(title, 840, 60, 40),
+                            lineHeight: 1.2,
                             fontWeight: "bold",
                             color: "white",
                             textAlign: "center",
@@ -743,26 +707,25 @@ function SummarySlide({ title, city, highlights, backgroundImage, isPaidUser }: 
                                 style={{
                                     display: "flex",
                                     alignItems: "center",
-                                    gap: 14,
+                                    gap: 22,
                                     backgroundColor: "rgba(0,0,0,0.3)",
-                                    padding: "16px 24px",
-                                    borderRadius: 14,
+                                    padding: "22px 28px",
+                                    borderRadius: 20,
                                     border: "1px solid rgba(255,255,255,0.15)",
                                 }}
                             >
-                                <span style={{ fontSize: 26 }}>{getHighlightEmoji(highlight)}</span>
-                                <span style={{ fontSize: 26, color: "white" }}>{highlight}</span>
+                                <StoryEmoji char={getHighlightEmoji(highlight)} size={44} />
+                                <span style={{ fontSize: 36, color: "white", flex: 1, lineHeight: 1.2 }}>{highlight}</span>
                             </div>
                         ))}
                     </div>
+                </div>
                 </div>
 
                 {/* CTA - only show for free users */}
                 {!isPaidUser && (
                     <div
                         style={{
-                            position: "absolute",
-                            bottom: 40,
                             display: "flex",
                             flexDirection: "column",
                             alignItems: "center",
@@ -773,12 +736,12 @@ function SummarySlide({ title, city, highlights, backgroundImage, isPaidUser }: 
                             style={{
                                 display: "flex",
                                 backgroundColor: "rgba(255,255,255,0.95)",
-                                padding: "14px 36px",
+                                padding: "18px 44px",
                                 borderRadius: 100,
                                 boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
                             }}
                         >
-                            <span style={{ fontSize: 22, fontWeight: "bold", color: "#7c3aed" }}>
+                            <span style={{ fontSize: 32, fontWeight: "bold", color: "#7c3aed" }}>
                                 Plan yours at localley.io
                             </span>
                         </div>
@@ -788,14 +751,13 @@ function SummarySlide({ title, city, highlights, backgroundImage, isPaidUser }: 
                                 alignItems: "center",
                                 gap: 8,
                                 backgroundColor: "rgba(0,0,0,0.3)",
-                                padding: "8px 20px",
+                                padding: "10px 26px",
                                 borderRadius: 100,
                                 border: "1px solid rgba(255,255,255,0.2)",
                             }}
                         >
-                            <span style={{ fontSize: 18, color: "rgba(255,255,255,0.9)" }}>
-                                📍 {city}
-                            </span>
+                            <StoryEmoji char="📍" size={28} />
+                            <span style={{ fontSize: 28, color: "rgba(255,255,255,0.9)" }}>{city}</span>
                         </div>
                     </div>
                 )}

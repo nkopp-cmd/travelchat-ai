@@ -93,6 +93,25 @@ describe("story rendering with real ImageResponse", () => {
     }, 30000);
 });
 
+describe("story slide emoji", () => {
+    it("draws every row emoji from the bundled set, without a CDN fetch", async () => {
+        mocks.single.mockResolvedValue({ data: { ...fixture, days: 1, highlights: ["Grilled chicken", "Something else"], activities: [{
+            day: 1, theme: "Kita-ku locals", activities: [
+                { name: "Kissa Hinoki", time: "9:00 AM", localleyScore: 6 },
+                { name: "Jujo Ginza Shopping Street", time: "11:00 AM", localleyScore: 6 },
+                { name: "Akabane Drinking Strip", time: "7:00 PM", localleyScore: 5 },
+                { name: "Arakawa Park", time: "4:00 PM" },
+            ],
+        }] }, error: null });
+        for (const slide of ["day", "summary"]) {
+            const response = await request(`slide=${slide}&debug=true`);
+            expect(await response.json()).toMatchObject({ step: "render_success" });
+        }
+        const cdn = vi.mocked(fetch).mock.calls.map(([input]) => String(input)).filter((url) => url.includes("twemoji"));
+        expect(cdn).toEqual([]);
+    }, 30000);
+});
+
 describe("story access", () => {
     it.each([null, "other-user"])("hides private stories from %s before downloads or rendering", async (userId) => {
         mocks.auth.mockResolvedValue({ userId });

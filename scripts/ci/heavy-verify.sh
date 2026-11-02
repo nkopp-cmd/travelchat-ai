@@ -171,6 +171,7 @@ VITEST_FILES=(
   __tests__/api/story-background-r2.test.ts
   __tests__/api/activity-thumbnails-r2.test.ts
   __tests__/api/story-render-access.test.tsx
+  __tests__/lib/story-emoji.test.ts
   __tests__/api/story-slides-r2.test.ts
   __tests__/lib/glm-json-request.test.ts
   __tests__/api/itinerary-private-diagnostics.test.ts
@@ -462,6 +463,7 @@ ESLINT_FILES=(
   __tests__/api/story-background-cache-candidate.test.ts
   "app/api/itineraries/[id]/story/route.tsx"
   __tests__/api/story-render-access.test.tsx
+  __tests__/lib/story-emoji.test.ts
   app/api/itineraries/generate/diagnostics.ts
   app/api/itineraries/generate/provider-fallback.ts
   app/api/itineraries/generate/shared.ts
