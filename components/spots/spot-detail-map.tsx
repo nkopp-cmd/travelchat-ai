@@ -22,15 +22,20 @@ export function useNearViewport<T extends Element>(margin = "300px") {
   const [near, setNear] = useState(false);
   useEffect(() => {
     const node = ref.current;
-    if (near || !node || typeof IntersectionObserver === "undefined") return;
+    if (near || !node) return;
+    // Without IntersectionObserver mount at once, but after hydration: the first client render must
+    // match the server HTML (placeholder), or React throws #418 and re-renders the whole page.
+    if (typeof IntersectionObserver === "undefined") {
+      const timer = setTimeout(() => setNear(true));
+      return () => clearTimeout(timer);
+    }
     const observer = new IntersectionObserver((entries) => {
       if (entries.some((entry) => entry.isIntersecting)) { observer.disconnect(); setNear(true); }
     }, { rootMargin: margin });
     observer.observe(node);
     return () => observer.disconnect();
   }, [near, margin]);
-  // Without IntersectionObserver (and on the server, where ssr:false renders the same placeholder) mount at once.
-  return { ref, near: near || typeof IntersectionObserver === "undefined" };
+  return { ref, near };
 }
 
 export function SpotDetailMap({ lat, lng, name, searchUrl, category = "Local spot", photos = [] }: {

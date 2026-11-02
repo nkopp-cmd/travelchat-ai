@@ -1,4 +1,5 @@
 import { act, render, screen } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import { hasValidVenueCoordinates, SpotDetailMap } from "@/components/spots/spot-detail-map";
 
@@ -13,9 +14,9 @@ describe("spot detail map", () => {
     expect(screen.getByText("No map pin available.")).toBeTruthy();
     expect(screen.getByRole("link")).toBeTruthy();
   });
-  it("renders one static pin for the current record only (no card, no paid photo)", () => {
+  it("renders one static pin for the current record only (no card, no paid photo)", async () => {
     render(<SpotDetailMap lat={37.55} lng={126.98} name="Venue" category="Market" searchUrl="https://www.google.com/maps" />);
-    const props = JSON.parse(screen.getByTestId("map-props").textContent!);
+    const props = JSON.parse((await screen.findByTestId("map-props")).textContent!);
     expect(props.spots).toEqual([{ id: "venue", name: "Venue", category: "Market", photos: [], location: { lat: 37.55, lng: 126.98, address: "" } }]);
     expect(props.onSelect).toBeUndefined();
     expect(screen.getByText("Approximate venue pin. Entrance not confirmed.")).toBeTruthy();
@@ -40,6 +41,20 @@ describe("spot detail map", () => {
       act(() => fire!([{ isIntersecting: true }]));
       expect(screen.getByTestId("map-props")).toBeTruthy();
       expect(disconnect).toHaveBeenCalled();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+  it("server HTML and the first client render are the same placeholder (no hydration mismatch)", async () => {
+    // No IntersectionObserver on the server: the map must still wait for an effect, not render in the HTML.
+    vi.stubGlobal("IntersectionObserver", undefined);
+    try {
+      const html = renderToString(<SpotDetailMap lat={37.55} lng={126.98} name="Venue" searchUrl="https://www.google.com/maps" />);
+      expect(html).toContain("Loading map...");
+      expect(html).not.toContain("map-props");
+      render(<SpotDetailMap lat={37.55} lng={126.98} name="Venue" searchUrl="https://www.google.com/maps" />);
+      expect(screen.getByRole("status").textContent).toBe("Loading map...");
+      expect(await screen.findByTestId("map-props")).toBeTruthy();
     } finally {
       vi.unstubAllGlobals();
     }
