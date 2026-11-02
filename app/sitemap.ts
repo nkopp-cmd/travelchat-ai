@@ -5,6 +5,7 @@ import {
   applyPublicSpotVisibilityFilters,
   shouldShowPublicSpot,
 } from '@/lib/spots/public-quality';
+import { BLOG_POSTS } from '@/lib/blog/posts';
 
 // Force dynamic generation to ensure env vars are available at runtime
 export const dynamic = 'force-dynamic';
@@ -80,6 +81,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly',
       priority: 0.5,
     },
+    {
+      url: `${baseUrl}/blog`,
+      lastModified: BLOG_POSTS[0] ? new Date(`${BLOG_POSTS[0].updated}T00:00:00Z`) : new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    ...BLOG_POSTS.map((post) => ({
+      url: `${baseUrl}/blog/${post.slug}`,
+      lastModified: new Date(`${post.updated}T00:00:00Z`),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    })),
   ];
 
   // Try to fetch dynamic routes from Supabase, but gracefully handle missing env vars

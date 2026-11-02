@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from "vitest";
 // @ts-expect-error -- plain ESM build script without type declarations
 import { assertStaticPrerender, HELP_COUNTRY_SLUGS, packageStaticPublicHtml, STATIC_PUBLIC_PAGES } from "../scripts/cf-static-public-html.mjs";
 import { HELP_COUNTRIES } from "../lib/help/phrases";
+import { BLOG_POSTS } from "../lib/blog/posts";
 
 const page = '<!DOCTYPE html><html lang="en"><head><script src="/_next/static/chunks/a.js" async=""></script></head><body>Localley</body></html>';
 const route = (initialRevalidateSeconds: number | false) => ({ initialRevalidateSeconds, srcRoute: "/" });
@@ -30,7 +31,9 @@ async function buildTree(routes: Record<string, unknown>, html = page) {
 describe("static public HTML assets", () => {
   it("covers only the fully static public pages", () => {
     expect(Object.keys(STATIC_PUBLIC_PAGES)).toEqual(["/", "/pricing", "/help", ...HELP_COUNTRY_SLUGS.map((s: string) => `/help/${s}`),
-      ...HELP_COUNTRY_SLUGS.map((s: string) => `/help/${s}/pay`), ...HELP_COUNTRY_SLUGS.map((s: string) => `/help/${s}/open`), ...HELP_COUNTRY_SLUGS.map((s: string) => `/help/${s}/menu`)]);
+      ...HELP_COUNTRY_SLUGS.map((s: string) => `/help/${s}/pay`), ...HELP_COUNTRY_SLUGS.map((s: string) => `/help/${s}/open`), ...HELP_COUNTRY_SLUGS.map((s: string) => `/help/${s}/menu`),
+      "/blog", ...BLOG_POSTS.map((p) => `/blog/${p.slug}`)]);
+    expect(STATIC_PUBLIC_PAGES["/blog/paying-in-seoul"]).toBe("blog/paying-in-seoul.html");
     expect(STATIC_PUBLIC_PAGES["/help/korea/open"]).toBe("help/korea/open.html");
     expect(STATIC_PUBLIC_PAGES["/help/korea/menu"]).toBe("help/korea/menu.html");
     expect(STATIC_PUBLIC_PAGES["/help/japan/pay"]).toBe("help/japan/pay.html");
