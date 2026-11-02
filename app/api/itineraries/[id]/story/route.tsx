@@ -449,7 +449,8 @@ function DaySlide({ dayPlan, dayNumber, backgroundImage, isPaidUser }: { dayPlan
                     </span>
                 </div>
 
-                <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center", width: "100%" }}>
+                {/* Card sits low, above the footer: the photo shows on top, the card uses the lower space */}
+                <div style={{ display: "flex", flex: 1, alignItems: "flex-end", justifyContent: "center", width: "100%", paddingBottom: 28 }}>
                 {/* Main content card — centered glass card with Day title + activities */}
                 <div
                     style={{
@@ -658,7 +659,8 @@ function SummarySlide({ title, city, highlights, backgroundImage, isPaidUser }: 
                     </span>
                 </div>
 
-                <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center", width: "100%" }}>
+                {/* Card sits low, above the footer: the photo shows on top, the card uses the lower space */}
+                <div style={{ display: "flex", flex: 1, alignItems: "flex-end", justifyContent: "center", width: "100%", paddingBottom: 28 }}>
                 {/* Main content card - Glassmorphism */}
                 <div
                     style={{
