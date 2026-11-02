@@ -62,6 +62,8 @@ on:
       - 'lib/blog/**'
       - 'content/blog/**'
       - 'scripts/blog-index.mjs'
+      - 'scripts/weekly-post-topic.mjs'
+      - '__tests__/lib/weekly-post-topic.test.ts'
       - '__tests__/api/help-open.test.ts'
       - 'app/api/help/**'
       - 'app/community/**'
