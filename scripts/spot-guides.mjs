@@ -4,7 +4,8 @@
 // events and sources the model opened. Unknown stays null. Each guide passes parseSpotGuide (lib/spots/guide.ts: length,
 // banned internal wording) before it goes to R2 as guides/spots/<id>.json; the spot page reads it at render time.
 //
-//   node scripts/spot-guides.mjs [--limit 8] [--batch 4] [--ids a,b] [--dry-run] [--force]
+//   node scripts/spot-guides.mjs [--limit 8] [--batch 4] [--ids a,b] [--dry-run] [--force] [--count]
+//   --dry-run still writes guides with codex (prints them, no upload); --count only lists what is still to do.
 //
 // Order: spots of live viral events first, then visible ring-1 spots by trending score. Resumable: done ids live in
 // ~/.local/state/localley/spot-guides.json; a spot that failed 2 times is skipped until --force.
@@ -189,6 +190,7 @@ async function main() {
   const limit = Number(value("--limit", "8"));
   const batch = Math.max(1, Math.min(6, Number(value("--batch", "4"))));
   const dryRun = flag("--dry-run");
+  const countOnly = flag("--count"); // list what is still to do; no codex call, no upload
   if (!process.env.CLOUDFLARE_API_TOKEN) throw new Error("CLOUDFLARE_API_TOKEN missing (source ~/secrets/keys.env)");
 
   const state = readState();
@@ -204,6 +206,7 @@ async function main() {
     ORDER BY trending_score DESC, localley_score DESC, id LIMIT 200`, RING1)).map((r) => r.id);
   const picked = ids.length ? ids : pickSpots([...mentionsById.keys()], ranked, state, { limit, force: flag("--force") });
   console.log(`picked ${picked.length} spot(s)${dryRun ? " (dry run)" : ""}`);
+  if (countOnly) { console.log(`to do ${picked.length}, done ${Object.keys(state.done).length}, failed ${Object.keys(state.failed).length}`); return; }
 
   let written = 0;
   for (let i = 0; i < picked.length; i += batch) {
