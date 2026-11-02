@@ -2,8 +2,9 @@
 // Money probe for shared/scripts/business-review.py (contract: shared/plans/business-loop.md).
 // Prints ONE JSON line. Read-only SELECTs on production D1 (localley-app + localley-auth) via the D1 HTTP API.
 // Unknown = null, never a guess. No email, id or secret in the output; our own accounts are left out of the counts.
+// Moat fields (shared/plans/moats.md): counts only; the archives they count stay private.
 import { createHash } from "node:crypto";
-import { readFileSync, realpathSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -19,6 +20,14 @@ const INTERNAL_DOMAINS = new Set(["brenkogroup.com", "localley.io", "my-goodlife
 const INTERNAL_EMAIL_SHA256 = new Set(["97e25833e1476659d6dba1fa5cb00c02f846a2673dfd60d8b9785506be0027df"]);
 const PAID_TIERS = new Set(["pro", "premium"]);
 const PAYING_STATUS = new Set(["active", "past_due"]); // trialing has not paid yet
+const VIRAL_STATE = join(homedir(), ".local/state/localley/viral-scout.json"); // private scout archive (host only)
+const RESOLVED = new Set(["matched", "created"]);
+// User content rows: [table, user column, time column]. private_notes has no timestamp, so it is not counted.
+const UGC_TABLES = [
+  ["community_questions", "user_id", "created_at"], ["community_answers", "user_id", "created_at"],
+  ["spot_reviews", "clerk_user_id", "created_at"], ["spot_tips", "user_id", "created_at"],
+  ["social_spot_submissions", "clerk_user_id", "created_at"],
+];
 
 export function isInternal(email) {
   const value = String(email || "").trim().toLowerCase();
@@ -33,14 +42,20 @@ const at = (value) => {
 const within = (value, from, to) => { const ms = at(value); return ms !== null && ms >= from && ms < to; };
 
 /** Pure: rows from the two databases -> the probe line. */
-export function summarize({ users, sessions, subscriptions, funnel }, now = Date.now()) {
+export function summarize({ users, sessions, subscriptions, funnel, links = [], ugc = [], rankings = [], viral = null }, now = Date.now()) {
   const from30 = now - 30 * DAY;
   const internal = new Set(users.filter((u) => isInternal(u.email)).map((u) => u.id));
+  for (const l of links) if (internal.has(l.authUserId)) internal.add(l.ownerId); // legacy rows carry the owner id
   const customers = users.filter((u) => !internal.has(u.id));
   const active = new Set(sessions.filter((s) => !internal.has(s.userId) && within(s.updatedAt, from30, now + DAY)).map((s) => s.userId));
   // Subscription rows hold the CURRENT state only, so only the current window is known.
   const paying = subscriptions.filter((s) => s.authUserId && !internal.has(s.authUserId) && PAID_TIERS.has(s.tier)
     && PAYING_STATUS.has(s.status) && s.stripeSubscriptionId);
+  const recent = (rows, key) => rows.filter((r) => within(r[key], from30, now + DAY));
+  // Our own records: viral events (first seen) + their resolved places, and weekly spot rankings.
+  const events = viral ? recent(Object.values(viral.events ?? {}), "firstSeen") : null;
+  const places = events ? events.reduce((n, e) => n + Object.values(e.places ?? {}).filter((p) => RESOLVED.has(p.status)).length, 0) : null;
+  const ranked = recent(rankings, "created_at").length;
   const paid30 = funnel.filter((f) => f.step === "checkout_paid" && within(`${f.day}T00:00:00Z`, from30, now + DAY))
     .reduce((sum, f) => sum + Number(f.count || 0), 0);
   return {
@@ -54,8 +69,14 @@ export function summarize({ users, sessions, subscriptions, funnel }, now = Date
     active_30d: active.size,
     signups_30d: customers.filter((u) => within(u.createdAt, from30, now + DAY)).length,
     paid_path_live_since: PAID_PATH_LIVE_SINCE,
+    proprietary_rows_30d: events ? events.length + places + ranked : null,
+    ugc_30d: recent(ugc.filter((r) => r.uid && !internal.has(r.uid)), "at").length,
+    owned_audience: null,
+    in_person_30d: null,
     notes: `paying = active/past_due Pro/Premium Stripe subscriptions now (D1 legacy_subscriptions, own accounts excluded); `
-      + `checkout_paid funnel events 30d: ${paid30}; revenue/prev/repeat null: Stripe key is a Worker secret only and D1 keeps no invoice history`,
+      + `checkout_paid funnel events 30d: ${paid30}; revenue/prev/repeat null: Stripe key is a Worker secret only and D1 keeps no invoice history; `
+      + `proprietary = ${events ? `${events.length} viral events + ${places} resolved places` : "viral archive missing"} + ${ranked} weekly rankings; `
+      + `ugc = questions/answers/reviews/tips/social submissions; owned_audience null: no confirmed newsletter list yet; in_person null: no in-person service`,
   };
 }
 
@@ -78,14 +99,18 @@ async function select(database, sql, auth) {
 
 async function main() {
   const auth = token();
-  const [users, sessions, funnel, subscriptions] = await Promise.all([
+  const [users, sessions, funnel, subscriptions, links, ugc, rankings] = await Promise.all([
     select(AUTH_DB, "SELECT id, email, createdAt FROM user", auth),
     select(AUTH_DB, "SELECT userId, updatedAt FROM session WHERE updatedAt >= strftime('%Y-%m-%dT%H:%M:%fZ','now','-31 days')", auth),
     select(AUTH_DB, "SELECT day, step, count FROM funnel_events_daily WHERE step = 'checkout_paid'", auth),
     select(APP_DB, `SELECT l.authUserId, s.tier, s.status, s.stripeSubscriptionId FROM legacy_subscriptions s
       LEFT JOIN identity_links l ON l.ownerId = s.ownerId`, auth),
+    select(APP_DB, "SELECT authUserId, ownerId FROM identity_links", auth),
+    select(APP_DB, UGC_TABLES.map(([t, u, c]) => `SELECT ${u} AS uid, ${c} AS at FROM ${t}`).join(" UNION ALL "), auth),
+    select(APP_DB, "SELECT created_at FROM weekly_city_spot_rankings", auth),
   ]);
-  process.stdout.write(`${JSON.stringify(summarize({ users, sessions, subscriptions, funnel }))}\n`);
+  const viral = existsSync(VIRAL_STATE) ? JSON.parse(readFileSync(VIRAL_STATE, "utf8")) : null;
+  process.stdout.write(`${JSON.stringify(summarize({ users, sessions, subscriptions, funnel, links, ugc, rankings, viral }))}\n`);
 }
 
 // realpath: the probe also runs through symlinked checkouts, where argv[1] is not the resolved module path.
