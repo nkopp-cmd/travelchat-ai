@@ -23,8 +23,8 @@ export function OrganizationJsonLd() {
         "@type": "Organization",
         name: "Localley",
         description: "AI-powered travel companion that helps you discover hidden gems and create authentic local experiences.",
-        url: process.env.NEXT_PUBLIC_BASE_URL || "https://localley.com",
-        logo: `${process.env.NEXT_PUBLIC_BASE_URL || "https://localley.com"}/logo.png`,
+        url: process.env.NEXT_PUBLIC_BASE_URL || "https://www.localley.io",
+        logo: `${process.env.NEXT_PUBLIC_BASE_URL || "https://www.localley.io"}/logo.png`,
         sameAs: [
             "https://twitter.com/localley",
             "https://instagram.com/localley",
@@ -41,7 +41,7 @@ export function OrganizationJsonLd() {
 
 // Website schema
 export function WebsiteJsonLd() {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://localley.com";
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://www.localley.io";
 
     const data = {
         "@context": "https://schema.org",
@@ -88,7 +88,7 @@ export function ItineraryJsonLd({
     localScore,
     creatorName,
 }: ItineraryJsonLdProps) {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://localley.com";
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://www.localley.io";
 
     const data = {
         "@context": "https://schema.org",
@@ -163,7 +163,7 @@ export function SpotJsonLd({
     reviewCount,
     averageRating,
 }: SpotJsonLdProps) {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://localley.com";
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://www.localley.io";
 
     // Map category to schema.org type
     const schemaType = getSchemaType(category);
@@ -239,7 +239,7 @@ interface BreadcrumbJsonLdProps {
 }
 
 export function BreadcrumbJsonLd({ items }: BreadcrumbJsonLdProps) {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://localley.com";
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://www.localley.io";
 
     const data = {
         "@context": "https://schema.org",

@@ -43,6 +43,8 @@ on:
       - 'app/privacy/**'
       - 'app/terms/**'
       - 'app/sitemap.ts'
+      - 'app/robots.ts'
+      - '__tests__/app/site-url-fallback.test.ts'
       - '__tests__/middleware.test.ts'
       - 'lib/help/**'
       - 'app/api/help/**'
