@@ -1,7 +1,7 @@
 // node --test scripts/business-metrics.checks.mjs — pure parts of the business-loop money + moat probe (no network).
 import assert from "node:assert/strict";
 import test from "node:test";
-import { PAID_PATH_LIVE_SINCE, isInternal, summarize } from "./business-metrics.mjs";
+import { PAID_PATH_LIVE_SINCE, isInternal, newsletterCounts, summarize } from "./business-metrics.mjs";
 
 const now = Date.parse("2026-11-01T12:00:00Z");
 const users = [
@@ -62,4 +62,14 @@ test("moat fields count our own records and outside user content only", () => {
   assert.equal(out.in_person_30d, null);
   assert.equal(summarize(base, now).proprietary_rows_30d, null); // no scout archive on this host = unknown
   assert.doesNotMatch(JSON.stringify(out), /@|u1|house|user_legacy/);
+});
+
+test("owned audience = confirmed Seoul Living subscribers from our link; a missing probe stays null", async () => {
+  const base = { users, sessions: [], subscriptions: [], funnel: [] };
+  const out = summarize({ ...base, newsletter: { source: "localley", signups_30d: 3, confirmed: 2 } }, now);
+  assert.equal(out.owned_audience, 2);
+  assert.match(out.notes, /3 signups 30d/);
+  assert.equal(summarize({ ...base, newsletter: { source: "localley", confirmed: "2" } }, now).owned_audience, null);
+  assert.equal(await newsletterCounts("/nonexistent/probe"), null);
+  assert.equal(await newsletterCounts("/bin/false"), null); // probe fails = unknown, not zero
 });
