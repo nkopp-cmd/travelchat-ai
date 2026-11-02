@@ -244,6 +244,10 @@ describe("landing map hero", () => {
     // Pins cut off by the phone crop are hidden there instead of half-drawn.
     expect(doc.querySelectorAll('.ll-hero-pin[data-mobile="hidden"]').length).toBeGreaterThan(0);
     expect(doc.querySelectorAll(".ll-hero-pin:not([data-mobile])").length).toBeGreaterThanOrEqual(5);
+    // A pin high on the phone poster would sit on the subtitle (2026-11-02 390 px shot).
+    HERO_PINS.forEach((pin, index) => {
+      if (pin.m[1] < 48) expect(doc.querySelectorAll(".ll-hero-pin")[index].getAttribute("data-mobile")).toBe("hidden");
+    });
   });
 
   it("links each hero shortcut to its helper", () => {

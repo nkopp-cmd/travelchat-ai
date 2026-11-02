@@ -74,8 +74,11 @@ export default function LandingPage() {
             <h1 className="text-[2.5rem] font-black leading-[0.98] tracking-normal text-foreground min-[380px]:text-5xl min-[380px]:leading-[0.96] sm:text-6xl lg:text-7xl">
               Your local friend in Asia.
             </h1>
-            {/* Short phones drop the subtitle so the headline never reaches the pins. */}
-            <p className="mt-5 max-w-lg text-lg leading-7 text-foreground/90 md:text-xl md:leading-8 [@media(max-height:780px)_and_(max-width:767px)]:hidden">
+            {/* Phones get a two-line subtitle so the copy never reaches the pins; short phones drop it. */}
+            <p className="mt-5 max-w-lg text-lg leading-7 text-foreground/90 md:hidden [@media(max-height:780px)]:hidden">
+              Phrases, menus, paying, taxis and what is open nearby.
+            </p>
+            <p className="mt-5 hidden max-w-lg text-xl leading-8 text-foreground/90 md:block">
               Say it in the local language, order from any menu, pay, get a taxi to the door and find what is open nearby. Then plan the day around the spots locals rate.
             </p>
           </div>
