@@ -84,7 +84,7 @@ No Google Places photos appear in any asset (Places terms). Mobile (390x844 at 3
 
 | File | Shows |
 |---|---|
-| mobile-1-hero.png | Home hero: H1, vibe chips, Seoul map |
+| mobile-1-hero.png | Home hero: "Your local friend in Asia.", helper shortcuts, Seoul map |
 | mobile-2-spots.png | /spots: Discover Hidden Gems, cities with spot counts |
 | mobile-3-plan.png | Planner, trip details step (Seoul) |
 | mobile-4-help.png | "Help me say this" country cards |
@@ -94,7 +94,7 @@ Desktop (1280x800), in `screenshots/`:
 
 | File | Shows |
 |---|---|
-| desktop-1-home.png | Home hero with the map |
+| desktop-1-home.png | Home hero: "Your local friend in Asia.", helper shortcuts, Seoul map |
 | desktop-2-spots.png | /spots city list and trending rail |
 | desktop-3-plan.png | Planner, trip details step |
 | desktop-4-pricing.png | Pro and Premium cards |
