@@ -88,7 +88,7 @@ export function BlogMarkdown({ source }: { source: string }) {
             <div key={k} className="mt-4 overflow-x-auto rounded-2xl bg-surface shadow-surface">
               <table className="w-full text-left text-sm leading-6">
                 <thead><tr>{block.head.map((h, j) => <th key={j} scope="col" className="px-3 py-2 font-semibold text-foreground">{renderInline(h, `${k}-h${j}`)}</th>)}</tr></thead>
-                <tbody>{block.rows.map((row, r) => <tr key={r} className="border-t border-border/60">{row.map((c, j) => <td key={j} className="px-3 py-2 align-top text-foreground">{renderInline(c, `${k}-${r}-${j}`)}</td>)}</tr>)}</tbody>
+                <tbody>{block.rows.map((row, r) => <tr key={r} className="even:bg-muted/30">{row.map((c, j) => <td key={j} className="px-3 py-2 align-top text-foreground">{renderInline(c, `${k}-${r}-${j}`)}</td>)}</tr>)}</tbody>
               </table>
             </div>
           );
