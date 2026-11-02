@@ -68,6 +68,8 @@ on:
       - '__tests__/lib/weekly-post-draft.test.ts'
       - 'scripts/weekly-post-gates.mjs'
       - '__tests__/lib/weekly-post-gates.test.ts'
+      - 'scripts/weekly-post-publish.mjs'
+      - '__tests__/lib/weekly-post-publish.test.ts'
       - '__tests__/api/help-open.test.ts'
       - 'app/api/help/**'
       - 'app/community/**'
