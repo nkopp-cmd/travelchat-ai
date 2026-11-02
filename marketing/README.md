@@ -9,13 +9,13 @@ Listing fields per directory: directories.md. Post drafts: posts.md.
 
 ## One-line pitch
 
-Travel Asia like a local friend planned it: the spots locals rate, on one map, turned into a day-by-day route.
+Your local friend in Asia: say it in the local language, order from any menu, pay, show the taxi driver where to go and find what is open nearby. Then plan the day around the spots locals rate.
 
 ## 50 words
 
-Localley is a travel planner for Asia built on 2,574 curated, local-first spots in Seoul, Tokyo,
-Bangkok, Singapore and more. Pick a city and a vibe, browse the places locals actually rate, and
-leave with a day-by-day route, exact directions and phrase cards for the driver. Plans from $9 a month.
+Localley is your local friend in Asia. Show staff a phrase card, read a menu in English from a
+photo, learn how to pay, hand the driver a card in the local script and find what is open within
+2 km. Then plan the day from 2,574 curated spots locals rate. Helpers are free; plans from $9 a month.
 
 ## 160 words
 
@@ -34,7 +34,7 @@ $19 a month or $159 a year and adds collaborative trips and richer maps. Refunds
 
 ## 500 words
 
-**Travel like a local friend planned it.**
+**Your local friend in Asia.**
 
 Planning a trip to an Asian city usually means 47 browser tabs: lists, reels, maps, forum threads
 and reviews written for tourists. The result is a route through the same crowded places everyone

@@ -1,5 +1,4 @@
 import type { ComponentType, CSSProperties } from "react";
-import Link from "next/link";
 import { Camera, Moon, Store, Utensils, type IconProps } from "@/components/ui/icons";
 import { pinTone } from "@/lib/spots/pin-clusters";
 
@@ -88,27 +87,5 @@ function HeroPinMark({ pin, index }: { pin: HeroPin; index: number }) {
                 </span>
             )}
         </span>
-    );
-}
-
-/** Category shortcuts under the headline: the /spots quick-filter ids (spots-filter-bar.tsx). */
-export const HERO_CATEGORIES = [
-    { id: "Food", label: "Food" },
-    { id: "Cafe", label: "Cafes" },
-    { id: "Nightlife", label: "Nightlife" },
-    { id: "Market", label: "Markets" },
-    { id: "Outdoor", label: "Outdoor" },
-] as const;
-
-export function HeroCategoryChips() {
-    return (
-        <nav aria-label="Browse Seoul by category" className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
-            {HERO_CATEGORIES.map(({ id, label }) => (
-                <Link key={id} prefetch={false} href={`/spots?city=seoul&category=${id}`}
-                    className="inline-flex min-h-11 shrink-0 items-center rounded-full bg-raised/85 px-4 text-sm font-semibold text-foreground backdrop-blur-sm transition hover:bg-overlay">
-                    {label}
-                </Link>
-            ))}
-        </nav>
     );
 }

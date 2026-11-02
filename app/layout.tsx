@@ -32,10 +32,10 @@ export const metadata: Metadata = {
   // a root value is inherited by every page and declared each one a copy of the home page.
   metadataBase: new URL("https://www.localley.io"),
   title: {
-    default: "Localley - Local-First Asia Trip Planner",
+    default: "Localley - Your Local Friend in Asia",
     template: "%s | Localley",
   },
-  description: "Plan local-first routes through Seoul, Tokyo, Bangkok, Singapore, and more Asian cities with restaurants, cafes, neighborhoods, and spots locals actually rate.",
+  description: "Phrase cards, menu help, how to pay, taxi cards and spots open near you in Korea, Japan, Thailand, Vietnam, Taiwan and Singapore. Then a day-by-day route through the spots locals rate.",
   keywords: "Asia trip planner, local travel guide, hidden gems, local spots, travel itinerary, Seoul travel, Tokyo guide, Bangkok tips, Singapore trip planner",
   manifest: "/manifest.json",
   appleWebApp: {
@@ -58,8 +58,8 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Localley - Local-First Asia Trip Planner",
-    description: "Plan routes through restaurants, cafes, neighborhoods, and local spots across Asia.",
+    title: "Localley - Your Local Friend in Asia",
+    description: "Phrase cards, menu help, how to pay, taxi cards and spots open near you across Asia.",
     siteName: "Localley",
     images: [
       {
@@ -74,8 +74,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Localley - Local-First Asia Trip Planner",
-    description: "Plan routes through restaurants, cafes, neighborhoods, and local spots across Asia.",
+    title: "Localley - Your Local Friend in Asia",
+    description: "Phrase cards, menu help, how to pay, taxi cards and spots open near you across Asia.",
     images: ["https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1200&h=630&auto=format&fit=crop"],
     creator: "@localleyapp",
   },

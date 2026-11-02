@@ -12,7 +12,8 @@ import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { ENABLED_CITIES } from "@/lib/cities";
 import { LandingPlanner, LandingExploreLink, LandingSearch, LandingTripBuilder, LandingPresets } from "@/components/landing/planner";
-import { HeroCategoryChips, LandingHero } from "@/components/landing/hero";
+import { LandingHero } from "@/components/landing/hero";
+import { HeroHelperLinks, LandingHelpers } from "@/components/landing/helpers";
 import { WeekendPicks } from "@/components/landing/weekend-picks";
 
 const CITY_OPTIONS = ENABLED_CITIES.slice(0, 8);
@@ -68,24 +69,23 @@ export default function LandingPage() {
           <div className="max-w-xl">
             <p className="mb-4 inline-flex items-center gap-2 rounded-full bg-raised/85 px-3 py-1.5 text-sm font-semibold text-foreground backdrop-blur-sm">
               <MapPin className="h-4 w-4 text-primary" />
-              Seoul, Tokyo, Bangkok, Singapore and more
+              Korea, Japan, Thailand, Vietnam, Taiwan, Singapore
             </p>
             <h1 className="text-[2.5rem] font-black leading-[0.98] tracking-normal text-foreground min-[380px]:text-5xl min-[380px]:leading-[0.96] sm:text-6xl lg:text-7xl">
-              Travel like a local friend planned it.
+              Your local friend in Asia.
             </h1>
             {/* Short phones drop the subtitle so the headline never reaches the pins. */}
             <p className="mt-5 max-w-lg text-lg leading-7 text-foreground/90 md:text-xl md:leading-8 [@media(max-height:780px)_and_(max-width:767px)]:hidden">
-              The spots locals rate, on one map. Pick a vibe and leave with a day-by-day route.
+              Say it in the local language, order from any menu, pay, get a taxi to the door and find what is open nearby. Then plan the day around the spots locals rate.
             </p>
           </div>
 
           <div className="max-w-xl space-y-4 md:space-y-5">
-            <HeroCategoryChips />
+            <HeroHelperLinks />
             <div className="flex gap-3">
-              {/* Phones get Start planning from the fixed MobileSignupBar below. */}
-              <Button asChild size="lg" className="hidden h-12 rounded-lg bg-primary px-6 text-base sm:inline-flex font-bold text-primary-foreground hover:bg-primary/90">
-                <Link prefetch={false} href="/itineraries/new">
-                  Start planning
+              <Button asChild size="lg" className="h-12 flex-1 rounded-lg bg-primary px-6 text-base sm:flex-none font-bold text-primary-foreground hover:bg-primary/90">
+                <Link prefetch={false} href="/help">
+                  Get help now
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
@@ -99,10 +99,12 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="bg-background py-12">
+      <LandingHelpers />
+
+      <section className="bg-surface py-12">
         <div className="container mx-auto grid max-w-7xl items-start gap-8 px-4 md:grid-cols-[1fr_420px] md:px-6">
           <div className="max-w-xl">
-            <p className="text-sm font-bold uppercase tracking-[0.16em] text-primary">Plan in a minute</p>
+            <p className="text-sm font-bold uppercase tracking-[0.16em] text-primary">Then plan the day</p>
             <h2 className="mt-3 text-3xl font-black leading-tight text-foreground md:text-4xl">Pick a city and a vibe.</h2>
             <p className="mt-4 text-lg leading-8 text-muted-foreground">
               Localley finds the restaurants, cafes, alleys, markets and neighborhoods you would normally only hear about after you land.
@@ -227,7 +229,7 @@ export default function LandingPage() {
       <footer className="bg-surface py-8">
         <div className="container mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 md:flex-row md:px-6">
           <Logo size="md" isLanding />
-          <p className="text-sm text-muted-foreground">Local routes for Asian cities.</p>
+          <p className="text-sm text-muted-foreground">Your local friend in Asia.</p>
           <nav aria-label="Legal" className="flex gap-4 text-sm text-muted-foreground">
             <Link href="/privacy" className="hover:text-foreground">Privacy</Link>
             <Link href="/terms" className="hover:text-foreground">Terms</Link>
@@ -244,12 +246,12 @@ function MobileSignupBar() {
     <div className="fixed inset-x-0 bottom-0 z-50 bg-surface px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] pt-3 shadow-2xl shadow-black/40 backdrop-blur-xl md:hidden">
       <div className="mx-auto flex max-w-md items-center gap-3">
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-bold text-foreground">Plan a local-first trip</p>
-          <p className="truncate text-xs text-foreground">Choose your city and travel style</p>
+          <p className="truncate text-sm font-bold text-foreground">Your local friend in Asia</p>
+          <p className="truncate text-xs text-foreground">Phrases, menus, paying, taxis, open now</p>
         </div>
         <Button asChild size="sm" className="h-11 shrink-0 rounded-lg bg-primary px-4 font-bold text-primary-foreground hover:bg-primary/90">
-          <Link prefetch={false} href="/itineraries/new">
-            Start planning
+          <Link prefetch={false} href="/help">
+            Get help
             <ArrowRight className="h-4 w-4" />
           </Link>
         </Button>
