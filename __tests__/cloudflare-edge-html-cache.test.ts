@@ -91,6 +91,14 @@ describe("public HTML edge cache", () => {
     expect(isEdgeCacheable(new Request("https://www.localley.io/reset-password"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=atlantis"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=seoul&category=Food"))).toBe(false);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=seoul&view=map"))).toBe(true);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots?view=list&city=tokyo"))).toBe(true);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots?view=map"))).toBe(true);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=seoul&view=grid"))).toBe(false);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=seoul&view=map&view=list"))).toBe(false);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=seoul&city=tokyo"))).toBe(false);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=seoul&view=map&category=Food"))).toBe(false);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=atlantis&view=map"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=Seoul"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/pricing?city=seoul"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/?utm=x"))).toBe(false);
@@ -117,7 +125,7 @@ describe("public HTML edge cache", () => {
     expect(cache.store.get(`${path}?__edge=v1`)?.headers.get("cache-control")).toBe("public, s-maxage=300");
   });
 
-  it("keeps one entry per enabled city on /spots", async () => {
+  it("keeps one entry per enabled city and view on /spots", async () => {
     const cache = memoryCache();
     const handler = vi.fn(async (request: Request) => new Response(`<html>${new URL(request.url).search}</html>`, {
       status: 200,
@@ -125,13 +133,18 @@ describe("public HTML edge cache", () => {
     }));
     await serve(new Request("https://www.localley.io/spots?city=seoul"), cache, handler);
     await serve(new Request("https://www.localley.io/spots?city=tokyo"), cache, handler);
+    await serve(new Request("https://www.localley.io/spots?city=seoul&view=map"), cache, handler);
+    const map = await serve(new Request("https://www.localley.io/spots?view=map&city=seoul"), cache, handler);
+    expect(map.headers.get(EDGE_CACHE_HEADER)).toBe("HIT");
+    expect(await map.text()).toBe("<html>?city=seoul&view=map</html>");
     const seoul = await serve(new Request("https://www.localley.io/spots?city=seoul"), cache, handler);
     expect(seoul.headers.get(EDGE_CACHE_HEADER)).toBe("HIT");
     expect(await seoul.text()).toBe("<html>?city=seoul</html>");
-    expect(handler).toHaveBeenCalledTimes(2);
+    expect(handler).toHaveBeenCalledTimes(3);
     expect([...cache.store.keys()]).toEqual([
       "https://www.localley.io/spots?__edge=v1&city=seoul",
       "https://www.localley.io/spots?__edge=v1&city=tokyo",
+      "https://www.localley.io/spots?__edge=v1&city=seoul&view=map",
     ]);
   });
 

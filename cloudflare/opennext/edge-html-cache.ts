@@ -48,6 +48,7 @@ export function edgeTtlSeconds(pathname: string): number | undefined {
 
 // The only query the edge keys on: one enabled-city slug, so the key set stays bounded.
 const EDGE_SPOTS_CITIES = new Set(ENABLED_CITIES.map((city) => city.slug));
+const EDGE_SPOTS_VIEWS = new Set(["map", "list"]);
 export const EDGE_CACHE_HEADER = "x-localley-edge-cache";
 const ORIGIN_CACHE_CONTROL = "x-localley-origin-cache-control";
 
@@ -73,14 +74,20 @@ function cacheableQuery(url: URL): boolean {
   if (url.pathname === "/api/cities") return url.search === "?minSpots=1";
   if (!url.search) return true;
   if (url.pathname !== "/spots") return false;
+  // An enabled city and/or the map or list view, each at most once (the view is a shared public page too).
   const keys = [...url.searchParams.keys()];
-  return keys.length === 1 && keys[0] === "city" && EDGE_SPOTS_CITIES.has(url.searchParams.get("city") ?? "");
+  if (new Set(keys).size !== keys.length || keys.some((key) => key !== "city" && key !== "view")) return false;
+  const city = url.searchParams.get("city");
+  const view = url.searchParams.get("view");
+  return (city === null || EDGE_SPOTS_CITIES.has(city)) && (view === null || EDGE_SPOTS_VIEWS.has(view));
 }
 
 export function edgeCacheKey(request: Request, version: string): Request {
   const url = new URL(request.url);
   const city = url.searchParams.get("city");
-  const variant = city ? `&city=${encodeURIComponent(city)}` : url.pathname === "/api/cities" ? "&minSpots=1" : "";
+  const view = url.searchParams.get("view");
+  const variant = url.pathname === "/api/cities" ? "&minSpots=1"
+    : `${city ? `&city=${encodeURIComponent(city)}` : ""}${view ? `&view=${encodeURIComponent(view)}` : ""}`;
   return new Request(`${url.origin}${url.pathname}?__edge=${encodeURIComponent(version)}${variant}`);
 }
 
