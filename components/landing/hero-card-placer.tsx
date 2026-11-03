@@ -12,6 +12,19 @@ function box(rect: DOMRect): Box {
     return { left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom };
 }
 
+/** The real text lines and controls of the hero copy, not its full-width blocks (768 px case). */
+function copyBoxes(zone: HTMLElement): Box[] {
+    const boxes = [...zone.querySelectorAll<HTMLElement>("a, button")].map((el) => box(el.getBoundingClientRect()));
+    const walker = document.createTreeWalker(zone, NodeFilter.SHOW_TEXT);
+    const range = document.createRange();
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        if (!node.textContent?.trim()) continue;
+        range.selectNodeContents(node);
+        for (const rect of range.getClientRects()) if (rect.width && rect.height) boxes.push(box(rect));
+    }
+    return boxes;
+}
+
 /**
  * Moves the looping hero card to a side where it covers no pin and no copy (plan localley-map-photos-edge-pins
  * item 5). Layout boxes only (anchors and offset sizes), so the pop and card animations do not change the result.
@@ -40,7 +53,7 @@ export function HeroCardPlacer() {
                 card: { width: card.offsetWidth, height: card.offsetHeight },
                 pin: { width: pinWidth, height: pinHeight },
                 pins: others.map(pinBox),
-                avoid: [...document.querySelectorAll<HTMLElement>("[data-hero-copy]")].map((zone) => box(zone.getBoundingClientRect())),
+                avoid: [...document.querySelectorAll<HTMLElement>("[data-hero-copy]")].flatMap(copyBoxes),
                 bounds: box(scene.getBoundingClientRect()),
                 order: window.matchMedia("(max-width: 767px)").matches ? PHONE_ORDER : WIDE_ORDER,
             });

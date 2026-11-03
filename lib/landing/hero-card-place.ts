@@ -46,6 +46,14 @@ function offset(side: HeroCardSide, card: HeroCardInput["card"], pin: HeroCardIn
     }
 }
 
+function slideInside(x: number, cardWidth: number, bounds: Box) {
+    const pastLeft = bounds.left + GAP - (x - cardWidth / 2);
+    const pastRight = x + cardWidth / 2 - (bounds.right - GAP);
+    if (pastLeft > 0) return pastLeft;
+    if (pastRight > 0) return -pastRight;
+    return 0;
+}
+
 /**
  * The side where the looping hero card covers no pin and no copy and stays on screen. When every side covers a pin,
  * the side with the fewest covered pins wins and those pins are returned to be hidden: a label never sits on a pin.
@@ -54,7 +62,11 @@ export function heroCardPlace(input: HeroCardInput): HeroCardPlace {
     const { anchor, card, pin, pins, avoid, bounds, order } = input;
     let best: (HeroCardPlace & { score: number }) | null = null;
     for (const side of order) {
-        const { dx, dy } = offset(side, card, pin);
+        const base = offset(side, card, pin);
+        // Above and below may slide sideways to stay on screen (a pin at the screen edge, 768 px case).
+        const slide = side === "above" || side === "below" ? slideInside(anchor.x, card.width, bounds) : 0;
+        const dx = base.dx + slide;
+        const dy = base.dy;
         const left = anchor.x + dx - card.width / 2;
         const top = anchor.y + dy;
         const box = { left: left - GAP / 2, top: top - GAP / 2, right: left + card.width + GAP / 2, bottom: top + card.height + GAP / 2 };
