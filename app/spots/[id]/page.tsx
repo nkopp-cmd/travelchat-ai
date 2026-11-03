@@ -706,7 +706,7 @@ export default async function SpotPage({
             <div className="grid gap-3 sm:grid-cols-3">
               {relatedSpots.map((related) => (
                 <div key={related.id} className="group relative overflow-hidden rounded-lg bg-raised transition-all duration-300 hover:-translate-y-0.5">
-                  <VenueCardPhoto spotId={related.id} name={related.name} directPhotos={related.directPhotos} frameClassName="aspect-[4/3] w-full" />
+                  <VenueCardPhoto spotId={related.id} name={related.name} directPhotos={related.directPhotos} frameClassName="aspect-[4/3] w-full" category={related.category} />
                   <div className="space-y-1 p-3">
                     <h3 className="line-clamp-1 font-semibold text-foreground">
                       <Link href={`/spots/${related.id}`} className="after:absolute after:inset-0 after:z-[1] focus-visible:outline focus-visible:outline-2">{related.name}</Link>

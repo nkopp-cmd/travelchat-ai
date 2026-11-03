@@ -515,16 +515,33 @@
     background: rgb(var(--ll-surface));
 }
 
-.ll-pin-map [data-tone="food"], .ll-pin-card[data-tone="food"] { --ll-pin-tone: 244 200 130; }
-.ll-pin-map [data-tone="cafe"], .ll-pin-card[data-tone="cafe"] { --ll-pin-tone: 230 190 150; }
-.ll-pin-map [data-tone="nightlife"], .ll-pin-card[data-tone="nightlife"] { --ll-pin-tone: 185 161 255; }
-.ll-pin-map [data-tone="shopping"], .ll-pin-card[data-tone="shopping"] { --ll-pin-tone: 255 180 188; }
-.ll-pin-map [data-tone="market"], .ll-pin-card[data-tone="market"] { --ll-pin-tone: 250 176 128; }
-.ll-pin-map [data-tone="outdoor"], .ll-pin-card[data-tone="outdoor"] { --ll-pin-tone: 156 228 194; }
-.ll-pin-map [data-tone="culture"], .ll-pin-card[data-tone="culture"] { --ll-pin-tone: 160 205 255; }
-.ll-pin-map [data-tone="entertainment"], .ll-pin-card[data-tone="entertainment"] { --ll-pin-tone: 250 170 225; }
-.ll-pin-map [data-tone="transport"], .ll-pin-card[data-tone="transport"] { --ll-pin-tone: 175 182 204; }
-.ll-pin-map [data-tone="other"], .ll-pin-card[data-tone="other"] { --ll-pin-tone: 210 195 255; }
+.ll-pin-map [data-tone="food"], .ll-pin-card[data-tone="food"], .ll-photo-tile[data-tone="food"] { --ll-pin-tone: 244 200 130; }
+.ll-pin-map [data-tone="cafe"], .ll-pin-card[data-tone="cafe"], .ll-photo-tile[data-tone="cafe"] { --ll-pin-tone: 230 190 150; }
+.ll-pin-map [data-tone="nightlife"], .ll-pin-card[data-tone="nightlife"], .ll-photo-tile[data-tone="nightlife"] { --ll-pin-tone: 185 161 255; }
+.ll-pin-map [data-tone="shopping"], .ll-pin-card[data-tone="shopping"], .ll-photo-tile[data-tone="shopping"] { --ll-pin-tone: 255 180 188; }
+.ll-pin-map [data-tone="market"], .ll-pin-card[data-tone="market"], .ll-photo-tile[data-tone="market"] { --ll-pin-tone: 250 176 128; }
+.ll-pin-map [data-tone="outdoor"], .ll-pin-card[data-tone="outdoor"], .ll-photo-tile[data-tone="outdoor"] { --ll-pin-tone: 156 228 194; }
+.ll-pin-map [data-tone="culture"], .ll-pin-card[data-tone="culture"], .ll-photo-tile[data-tone="culture"] { --ll-pin-tone: 160 205 255; }
+.ll-pin-map [data-tone="entertainment"], .ll-pin-card[data-tone="entertainment"], .ll-photo-tile[data-tone="entertainment"] { --ll-pin-tone: 250 170 225; }
+.ll-pin-map [data-tone="transport"], .ll-pin-card[data-tone="transport"], .ll-photo-tile[data-tone="transport"] { --ll-pin-tone: 175 182 204; }
+.ll-pin-map [data-tone="other"], .ll-pin-card[data-tone="other"], .ll-photo-tile[data-tone="other"] { --ll-pin-tone: 210 195 255; }
+
+/* Photo-less spots: a category tile in the pin tone, never a blank grey box. */
+.ll-photo-tile {
+    display: grid;
+    place-items: center;
+    background:
+        radial-gradient(120% 90% at 28% 18%, rgb(var(--ll-pin-tone) / 0.38), transparent 62%),
+        linear-gradient(155deg, rgb(var(--ll-pin-tone) / 0.2), rgb(var(--ll-surface)) 78%);
+    color: rgb(var(--ll-pin-tone));
+}
+
+.ll-photo-tile-icon {
+    width: clamp(20px, 26%, 56px);
+    height: auto;
+    aspect-ratio: 1;
+    opacity: 0.9;
+}
 
 /* Zero-size marker host at the spot's point; the pin inside sits its tip on it. */
 .maplibregl-marker.ll-pin-icon {

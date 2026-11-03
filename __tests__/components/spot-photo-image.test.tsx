@@ -40,6 +40,17 @@ describe("venue photos", () => {
     expect(screen.getByTestId("photo-placeholder").dataset.state).toBe("unavailable");
     expect(screen.queryByLabelText("Photo source and author credits")).toBeNull();
   });
+  it("never renders a blank box: a missing photo shows a category tile with its icon", () => {
+    const { rerender } = render(<SpotPhotoImage alt="Market" sizes="320px" category="Market" />);
+    const tile = screen.getByTestId("photo-placeholder");
+    expect(tile.dataset.tone).toBe("market");
+    expect(tile.className).toContain("ll-photo-tile");
+    expect(tile.querySelector("svg")).toBeTruthy();
+    expect(tile.textContent).toBe("");
+    rerender(<SpotPhotoImage alt="Unknown" sizes="320px" />);
+    expect(screen.getByTestId("photo-placeholder").dataset.tone).toBe("other");
+    expect(screen.getByTestId("photo-placeholder").querySelector("svg")).toBeTruthy();
+  });
   it("shows failure without a stock substitute and resets on source change", () => {
     const { rerender } = render(<SpotPhotoImage photo={photo("a")} alt="Venue" sizes="320px" />);
     const image = screen.getByAltText("Venue");
