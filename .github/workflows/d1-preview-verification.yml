@@ -105,6 +105,8 @@ on:
       - 'app/dashboard/page.tsx'
       - 'app/page.tsx'
       - 'components/landing/**'
+      - 'lib/landing/**'
+      - '__tests__/lib/hero-card-place.test.ts'
       - 'public/images/landing/**'
       - 'public/_headers'
       - 'public/_headers'

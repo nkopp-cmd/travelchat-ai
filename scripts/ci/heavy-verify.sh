@@ -91,6 +91,7 @@ VITEST_FILES=(
   __tests__/lib/community-qa.test.ts
   __tests__/lib/community-access.test.ts
   __tests__/lib/places-quota.test.ts
+  __tests__/lib/hero-card-place.test.ts
   __tests__/lib/spot-photos.test.ts
   __tests__/lib/own-spot-photo.test.ts
   __tests__/lib/spots-d1-backend.test.ts
@@ -348,6 +349,8 @@ ESLINT_FILES=(
   __tests__/components/spots-scroll-layout.test.tsx
   app/page.tsx
   components/landing/
+  lib/landing/
+  __tests__/lib/hero-card-place.test.ts
   components/layout/navbar.tsx
   components/layout/navbar-drawer.tsx
   components/layout/navbar-routes.ts

@@ -66,7 +66,7 @@ export default function LandingPage() {
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent" />
 
         <div className="container relative z-10 mx-auto flex min-h-[calc(100svh-4rem)] max-w-7xl flex-col justify-between gap-8 px-4 pb-28 pt-8 md:pb-10 md:justify-center md:px-6 lg:pb-16">
-          <div className="max-w-xl">
+          <div data-hero-copy className="max-w-xl">
             <p className="mb-4 inline-flex items-center gap-2 rounded-full bg-raised/85 px-3 py-1.5 text-sm font-semibold text-foreground backdrop-blur-sm">
               <MapPin className="h-4 w-4 text-primary" />
               Korea, Japan, Thailand, Vietnam, Taiwan, Singapore
@@ -83,7 +83,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="max-w-xl space-y-4 md:space-y-5">
+          <div data-hero-copy className="max-w-xl space-y-4 md:space-y-5">
             <HeroHelperLinks />
             <div className="flex gap-3">
               <Button asChild size="lg" className="h-12 flex-1 whitespace-nowrap rounded-lg bg-primary px-4 sm:px-6 text-base sm:flex-none font-bold text-primary-foreground hover:bg-primary/90">
