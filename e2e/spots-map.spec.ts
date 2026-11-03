@@ -89,7 +89,10 @@ for (const viewport of viewports) {
 
       for (const view of ["Grid", "List", "Map"] as const) {
         const toggle = page.getByRole("button", { name: `${view} view`, exact: true });
-        await toggle.click();
+        // The phone map covers the page; its own close button returns to the grid.
+        const closeMap = page.getByRole("button", { name: "Close map", exact: true });
+        if (view === "Grid" && await closeMap.isVisible()) await closeMap.click();
+        else await toggle.click();
         await expect(toggle).toHaveAttribute("aria-pressed", "true");
         await expect(page).toHaveURL((url) =>
           url.searchParams.get("city") === "seoul" &&

@@ -109,7 +109,7 @@ export default function SpotsMap({ spots, footer, onClose }: SpotsMapProps) {
     return (
         <section ref={section} aria-label="Discovery map"
             className={cn(
-                "fixed inset-x-0 bottom-[var(--ll-nav-clearance)] top-[var(--ll-topbar-height)] z-40 overflow-hidden",
+                "fixed inset-x-0 bottom-[var(--ll-nav-clearance)] top-[calc(var(--ll-topbar-height)+var(--ll-map-filters-height,0px))] z-40 overflow-hidden",
                 "lg:relative lg:inset-auto lg:z-auto lg:grid lg:h-[calc(100dvh-var(--ll-topbar-height)-2rem)] lg:scroll-mt-[calc(var(--ll-topbar-height)+1rem)]",
                 "lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)] lg:gap-5 lg:overflow-visible",
             )}>
