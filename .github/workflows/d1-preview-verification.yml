@@ -327,6 +327,7 @@ on:
       - '__tests__/api/story-mail-candidate.test.ts'
       - '__tests__/lib/auth-mail.test.ts'
       - '__tests__/lib/app-data-preview-*.test.ts'
+      - '__tests__/lib/app-data-email-preferences.test.ts'
       - 'app/api/test-app-data/**'
       - 'app/api/itineraries/[id]/export/route.ts'
       - '__tests__/api/itinerary-export-candidate.test.ts'

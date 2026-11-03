@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
-const mocks = vi.hoisted(() => ({ auth: vi.fn(), currentUser: vi.fn(), read: vi.fn(), write: vi.fn(), supabase: vi.fn() }));
+const mocks = vi.hoisted(() => ({ auth: vi.fn(), currentUser: vi.fn(), read: vi.fn(), write: vi.fn(), supabase: vi.fn(),
+  d1Read: vi.fn(), d1Write: vi.fn() }));
 vi.mock("@/lib/auth/server", () => ({ auth: mocks.auth, currentUser: mocks.currentUser }));
 vi.mock("@/lib/supabase-server", () => ({ createSupabaseServerClient: mocks.supabase }));
 vi.mock("@/lib/app-data/preview-email-preferences", async original => ({
@@ -9,6 +10,11 @@ vi.mock("@/lib/app-data/preview-email-preferences", async original => ({
   previewEmailPreferences: mocks.read,
   updatePreviewEmailPreferences: mocks.write,
 }));
+vi.mock("@/lib/app-data/backend", async original => ({
+  ...await original<typeof import("@/lib/app-data/backend")>(),
+  appDataDb: () => ({ binding: "APP_DB" }),
+}));
+vi.mock("@/lib/app-data/email-preferences", () => ({ readEmailPreferences: mocks.d1Read, writeEmailPreferences: mocks.d1Write }));
 import { GET, PUT } from "@/app/api/user/email-preferences/route";
 
 const environment = process.env;
@@ -91,5 +97,23 @@ describe("email preference candidate route", () => {
     expect(mocks.supabase).toHaveBeenCalledTimes(2);
     expect(mocks.read).not.toHaveBeenCalled();
     expect(mocks.write).not.toHaveBeenCalled();
+  });
+
+  it("serves production D1 without Supabase when DATA_BACKEND=d1", async () => {
+    process.env = { ...environment, DATA_BACKEND: "d1" };
+    mocks.auth.mockResolvedValue({ userId: "user-a" });
+    mocks.d1Read.mockResolvedValue(defaults);
+    mocks.d1Write.mockResolvedValue({ ...defaults, marketing: false });
+    const read = await GET(request("www.localley.io", "GET", false));
+    const write = await PUT(request("www.localley.io", "PUT", false));
+    expect(read.status).toBe(200);
+    expect(await read.json()).toEqual({ preferences: defaults });
+    expect(await write.json()).toEqual({ success: true, preferences: { ...defaults, marketing: false } });
+    expect(read.headers.get("Cache-Control")).toContain("no-store");
+    expect(mocks.d1Read).toHaveBeenCalledWith({ binding: "APP_DB" }, "user-a");
+    expect(mocks.d1Write).toHaveBeenCalledWith({ binding: "APP_DB" }, "user-a", { marketing: false });
+    expect((await PUT(request("www.localley.io", "PUT", false, { marketing: "no" }))).status).toBe(400);
+    expect(mocks.d1Write).toHaveBeenCalledTimes(1);
+    expect(mocks.supabase).not.toHaveBeenCalled();
   });
 });
