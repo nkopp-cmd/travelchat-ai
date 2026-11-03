@@ -3,6 +3,14 @@
 export interface PinPoint { id: string; x: number; y: number }
 export interface PinCluster { ids: string[]; x: number; y: number }
 
+/** Clusters every pin except the selected one, which always stays a single pin under its card. */
+export function clusterKeepingSelected(points: PinPoint[], selectedId: string | null, cellPx = 56, minGapPx = 44): PinCluster[] {
+  const selected = selectedId ? points.find((point) => point.id === selectedId) : undefined;
+  if (!selected) return clusterPins(points, cellPx, minGapPx);
+  const rest = clusterPins(points.filter((point) => point.id !== selectedId), cellPx, minGapPx);
+  return [...rest, { ids: [selected.id], x: selected.x, y: selected.y }];
+}
+
 /** Pins closer than one grid cell (in screen px) merge into one cluster at their centroid. */
 export function clusterPins(points: PinPoint[], cellPx = 56, minGapPx = 44): PinCluster[] {
   const cells = new Map<string, PinPoint[]>();

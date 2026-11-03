@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { capMarkers, clusterPins, pinTone } from "@/lib/spots/pin-clusters";
+import { capMarkers, clusterKeepingSelected, clusterPins, pinTone } from "@/lib/spots/pin-clusters";
 
 describe("spot pin clustering", () => {
   it("merges pins in the same screen cell and keeps distant pins single", () => {
@@ -34,5 +34,15 @@ describe("spot pin clustering", () => {
     expect(pinTone("Historic")).toBe("culture");
     expect(pinTone("Transportation")).toBe("transport");
     expect(pinTone("<script>")).toBe("other");
+  });
+
+  it("never merges the selected pin into a group", () => {
+    const points = [{ id: "a", x: 10, y: 10 }, { id: "b", x: 12, y: 12 }, { id: "c", x: 14, y: 11 }];
+    expect(clusterPins(points, 56, 44)).toHaveLength(1);
+    const kept = clusterKeepingSelected(points, "b", 56, 44);
+    expect(kept).toContainEqual({ ids: ["b"], x: 12, y: 12 });
+    expect(kept.flatMap((cluster) => cluster.ids).sort()).toEqual(["a", "b", "c"]);
+    expect(clusterKeepingSelected(points, null, 56, 44)).toEqual(clusterPins(points, 56, 44));
+    expect(clusterKeepingSelected(points, "gone", 56, 44)).toEqual(clusterPins(points, 56, 44));
   });
 });

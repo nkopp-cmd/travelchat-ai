@@ -8,7 +8,7 @@ import type { GeoJSONSource, LngLatLike, Map as MapLibreMap, Marker } from "mapl
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Camera, Coffee, MapPin, Moon, ShoppingBag, Store, Ticket, Train, Trees, Utensils, X, type IconProps } from "@/components/ui/icons";
 import { getDirectVenuePhotos } from "@/components/spots/venue-photo-provider";
-import { capMarkers, clusterPins, pinTone, type PinTone } from "@/lib/spots/pin-clusters";
+import { capMarkers, clusterKeepingSelected, pinTone, type PinTone } from "@/lib/spots/pin-clusters";
 import { localleyMapStyle, readMapTokens } from "@/lib/maps/localley-map-style";
 import type { Spot } from "@/types";
 
@@ -67,6 +67,7 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
     const [cardPoint, setCardPoint] = useState<{ x: number; y: number } | null>(null);
     // Closing pans the map and redraws the pins, so focus returns after the redraw.
     const returnFocus = useRef<string | null>(null);
+    const selectedRef = useRef(selectedId);
     const titleId = useId();
     const byId = new Map(spots.map((spot) => [spot.id, spot]));
     const selected = selectedId ? byId.get(selectedId) ?? null : null;
@@ -90,7 +91,7 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
             return { id: spot.id, x: point.x, y: point.y };
         }).filter((point) => point.x > -60 && point.y > -60 && point.x < size.x + 60 && point.y < size.y + 60);
         // Pins may overlap a little (as in the reference) before they merge into a count bubble.
-        const clusters = capMarkers(clusterPins(points, zoom >= NO_MERGE_ZOOM ? 1 : 40, 34), { x: size.x / 2, y: size.y / 2 });
+        const clusters = capMarkers(clusterKeepingSelected(points, selectedRef.current ?? null, zoom >= NO_MERGE_ZOOM ? 1 : 40, 34), { x: size.x / 2, y: size.y / 2 });
         const markers: Marker[] = [];
         const next: MarkerSlot[] = clusters.map((cluster) => {
             const host = document.createElement("div");
@@ -104,6 +105,12 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
         setSlots(next);
         setNear(zoom >= NEAR_ZOOM);
     }, []);
+
+    // A new selection splits its spot out of any group at once, before the pan finishes.
+    useEffect(() => {
+        selectedRef.current = selectedId;
+        drawMarkers();
+    }, [selectedId, drawMarkers]);
 
     const fitToSpots = useCallback(() => {
         const map = mapRef.current;
@@ -224,7 +231,10 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
     useEffect(() => {
         const id = returnFocus.current;
         if (!id) return;
-        const pin = container.current?.parentElement?.querySelector<HTMLButtonElement>(`[data-pin-id="${CSS.escape(id)}"]`);
+        // After the pan back the spot can sit inside a group pin; focus that group, never the page body.
+        const root = container.current?.parentElement;
+        const pin = root?.querySelector<HTMLButtonElement>(`[data-pin-id="${CSS.escape(id)}"]`)
+            ?? root?.querySelector<HTMLButtonElement>(`[data-pin-ids~="${CSS.escape(id)}"]`);
         if (pin) {
             pin.focus();
             returnFocus.current = null;
@@ -251,7 +261,7 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
                     // A group looks like a pin (its first place) with a count badge, as in the reference.
                     const lead = byId.get(slot.ids[0]);
                     return createPortal(
-                        <button type="button" className="ll-pin ll-pin-group" data-tone={lead ? pinTone(lead.category) : "other"}
+                        <button type="button" className="ll-pin ll-pin-group" data-pin-ids={slot.ids.join(" ")} data-tone={lead ? pinTone(lead.category) : "other"}
                             aria-label={`${slot.ids.length} spots here. Zoom in`} onClick={() => zoomInto(slot.ids)}>
                             {lead && <PinFace spot={lead} />}
                             <span className="ll-pin-count" aria-hidden="true">{slot.ids.length}</span>
