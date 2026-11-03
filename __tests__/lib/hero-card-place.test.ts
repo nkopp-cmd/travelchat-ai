@@ -42,4 +42,27 @@ describe("hero card placement", () => {
     });
     expect(place.covered.length).toBe(1);
   });
+
+  it("slides inside the screen instead of covering the copy when the pin sits at the edge (768 px case)", () => {
+    const lines: Box[] = [
+      { left: 24, top: 282, right: 470, bottom: 314 },
+      { left: 24, top: 332, right: 578, bottom: 388 },
+      { left: 24, top: 392, right: 273, bottom: 448 },
+      { left: 24, top: 472, right: 525, bottom: 500 },
+    ];
+    const bounds = { left: 0, top: 64, right: 758, bottom: 1024 };
+    const place = heroCardPlace({
+      ...base,
+      anchor: { x: 751, y: 393 },
+      bounds,
+      pins: [pinAt(521, 500)],
+      avoid: lines,
+      order: ["above", "right", "left", "below"],
+    });
+    const left = 751 + place.dx - 104;
+    expect(place.side).toBe("below");
+    expect(left + 208).toBeLessThanOrEqual(bounds.right - 8);
+    expect(lines.some((line) => left < line.right && left + 208 > line.left && 393 + place.dy < line.bottom && 393 + place.dy + 56 > line.top)).toBe(false);
+  });
 });
+
