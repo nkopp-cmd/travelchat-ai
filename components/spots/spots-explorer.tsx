@@ -164,6 +164,7 @@ export function SpotsExplorer({
             <div ref={filtersRef} data-map-overlay={mapOverlay ? "" : undefined}
                 className={cn(mapOverlay && "max-lg:fixed max-lg:inset-x-0 max-lg:top-[var(--ll-topbar-height)] max-lg:z-[41] max-lg:bg-background max-lg:px-3 max-lg:pt-2 max-lg:[&>*]:mb-2")}>
                 <SpotsFilterBar
+                    overMap={mapOverlay}
                     filterOptions={filterOptions}
                     currentFilters={currentFilters}
                     onFilterChange={handleFilterChange}

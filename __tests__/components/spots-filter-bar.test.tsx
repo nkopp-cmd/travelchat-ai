@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { SpotsFilterBar } from "@/components/spots/spots-filter-bar";
 import type { FilterOptions, SpotsFilterState } from "@/lib/spots/types";
@@ -88,5 +88,30 @@ describe("SpotsFilterBar", () => {
     expect(mobileRow.className).toContain("grid-cols-1");
     expect(screen.queryByTestId("spots-mobile-clear-filters")).toBeNull();
     expect(screen.getByText("Filters")).toBeTruthy();
+  });
+
+  it("starts collapsed over the phone and tablet map even with active filters", () => {
+    render(
+      <SpotsFilterBar
+        filterOptions={filterOptions}
+        currentFilters={activeFilters}
+        onFilterChange={vi.fn()}
+        onClearFilters={vi.fn()}
+        isPending={false}
+        overMap
+      />,
+    );
+
+    const toggle = screen.getByTestId("spots-mobile-filter-toggle");
+    const advanced = document.getElementById("spots-advanced-filters")!;
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    expect(screen.getByTestId("spots-mobile-filter-row").className).toContain("lg:hidden");
+    expect(advanced.className).toContain("hidden");
+    expect(advanced.className).toContain("lg:grid");
+    expect(advanced.className).not.toContain("md:grid");
+
+    fireEvent.click(toggle);
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    expect(advanced.className).not.toMatch(/(^| )hidden( |$)/);
   });
 });

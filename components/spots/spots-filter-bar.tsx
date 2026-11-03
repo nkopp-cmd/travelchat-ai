@@ -93,6 +93,8 @@ interface SpotsFilterBarProps {
   ) => void;
   onClearFilters: () => void;
   isPending: boolean;
+  /** The bar floats over the phone/tablet map: start collapsed and keep the toggle up to lg, so the map stays visible. */
+  overMap?: boolean;
 }
 
 export function SpotsFilterBar({
@@ -101,10 +103,11 @@ export function SpotsFilterBar({
   onFilterChange,
   onClearFilters,
   isPending,
+  overMap = false,
 }: SpotsFilterBarProps) {
   const [searchValue, setSearchValue] = useState(currentFilters.search || "");
   const [showMobileFilters, setShowMobileFilters] = useState(
-    Boolean(
+    !overMap && Boolean(
       currentFilters.city ||
         currentFilters.category ||
         currentFilters.score ||
@@ -238,7 +241,8 @@ export function SpotsFilterBar({
 
       <div
         className={cn(
-          "grid min-w-0 items-center gap-2 md:hidden",
+          "grid min-w-0 items-center gap-2",
+          overMap ? "lg:hidden" : "md:hidden",
           hasActiveFilters
             ? "grid-cols-[minmax(0,1fr)_2.25rem]"
             : "grid-cols-1",
@@ -285,8 +289,8 @@ export function SpotsFilterBar({
       <div
         id="spots-advanced-filters"
         className={cn(
-          "grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-2 md:grid md:items-center xl:grid-cols-4",
-          !showMobileFilters && "hidden md:grid",
+          "grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-2 md:items-center xl:grid-cols-4",
+          !showMobileFilters && (overMap ? "hidden lg:grid" : "hidden md:grid"),
         )}
         role="group"
         aria-label="Filter options"

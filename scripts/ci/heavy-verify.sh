@@ -55,6 +55,7 @@ VITEST_FILES=(
   __tests__/components/source-chat-viewport.test.tsx
   __tests__/components/main-content-shell.test.tsx
   __tests__/components/spots-scroll-layout.test.tsx
+  __tests__/components/spots-filter-bar.test.tsx
   __tests__/lib/mobile-chrome.test.ts
   __tests__/components/landing-planner.test.tsx
   __tests__/components/conditional-navbar.test.tsx
@@ -349,6 +350,7 @@ ESLINT_FILES=(
   components/layout/main-content-shell.tsx
   __tests__/components/main-content-shell.test.tsx
   __tests__/components/spots-scroll-layout.test.tsx
+  __tests__/components/spots-filter-bar.test.tsx
   app/page.tsx
   components/landing/
   lib/landing/
