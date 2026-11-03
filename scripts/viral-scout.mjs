@@ -467,6 +467,9 @@ export function insertStatements({ spot, payload, listing }) {
         spot.trending_score, json(spot.address_json), spot.google_place_id, spot.created_at, spot.name_en_normalized, spot.address_en_normalized, spot.visibility_version] },
     { sql: "INSERT INTO legacy_spot_source (spotId, payload, publicIssue) VALUES (?, ?, NULL)", params: [spot.id, json(payload)] },
     { sql: "INSERT INTO spot_listing_places (spot_id, provider, place_id, source) VALUES (?, 'google', ?, ?)", params: [listing.spot_id, listing.place_id, listing.source] },
+    // Supabase exit gate 2: the scout writes outside the facade, so it journals the key itself (rollback-replay reads _journal).
+    // spot_listing_places is D1-only derived data; the facade spots row covers it.
+    { sql: "INSERT INTO _journal (table_name, op, pk) VALUES ('spots', 'upsert', json_object('id', ?))", params: [spot.id] },
   ];
 }
 
