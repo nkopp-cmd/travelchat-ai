@@ -18,7 +18,7 @@ import type { Spot } from "@/types";
 // localley-landing-map-weather.md step 1). Pins show the spot's own first-party photo; without
 // one they show a category tile. Pins never call a paid photo API.
 // MapLibre zoom levels use 512 px tiles: one level below Leaflet's for the same scale.
-const NEAR_ZOOM = 14;
+const NEAR_ZOOM = 15;
 const SINGLE_PIN_ZOOM = 14;
 const FIT_MAX_ZOOM = 14;
 const NO_MERGE_ZOOM = 16;
@@ -265,11 +265,17 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
                 data-card-open={selected ? "" : undefined} style={{ minHeight: "300px" }} />
             {slots.map((slot) => {
                 if (slot.ids.length > 1) {
-                    // A group looks like a pin (its first place) with a count badge, as in the reference.
+                    // A group is a stack of photo dots (its first places) with a count badge, as in the reference.
                     const lead = byId.get(slot.ids[0]);
+                    const behind = slot.ids.slice(1, 3).flatMap((id) => byId.get(id) ?? []);
                     return createPortal(
                         <button type="button" className="ll-pin ll-pin-group" data-pin-ids={slot.ids.join(" ")} data-tone={lead ? pinTone(lead.category) : "other"}
                             aria-label={`${slot.ids.length} spots here. Zoom in`} onClick={() => zoomInto(slot.ids)}>
+                            {behind.map((spot, index) => (
+                                <span key={spot.id} className="ll-pin-stack" data-depth={index + 1} data-tone={pinTone(spot.category)}>
+                                    <PinFace spot={spot} />
+                                </span>
+                            ))}
                             {lead && <PinFace spot={lead} />}
                             <span className="ll-pin-count" aria-hidden="true">{slot.ids.length}</span>
                         </button>, slot.host, slot.key);
