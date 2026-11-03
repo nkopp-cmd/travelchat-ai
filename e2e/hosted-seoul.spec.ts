@@ -228,7 +228,7 @@ for (const width of [390, 900, 1440]) {
         await expect(save).toBeEnabled();
         await save.click();
         await expect(page).toHaveURL(url => url.origin === origin && url.pathname.startsWith("/sign-in"));
-        await expect(page.locator(".cl-card").first()).toBeVisible({ timeout: 20_000 });
+        await expect(page.locator("form input[type=email]").filter({ visible: true }).first()).toBeVisible({ timeout: 20_000 });
         await expect(page.locator("input").filter({ visible: true }).first()).toBeVisible();
         return { path: safe(page.url()), ...await shot("save-rejected") };
       });
@@ -240,7 +240,7 @@ for (const width of [390, 900, 1440]) {
           if (path !== "/dashboard") {
             await page.waitForTimeout(2500);
             await shot(path.slice(1));
-            await expect(page.locator(".cl-card").first()).toBeVisible({ timeout: 20_000 });
+            await expect(page.locator("form input[type=email]").filter({ visible: true }).first()).toBeVisible({ timeout: 20_000 });
             await expect(page.locator("input").filter({ visible: true }).first()).toBeVisible();
           }
           if (path === "/dashboard") {
@@ -248,7 +248,7 @@ for (const width of [390, 900, 1440]) {
             if (publicMode) {
               expect(new URL(page.url()).origin).toBe(origin);
               expect(new URL(page.url()).pathname).toMatch(/^\/sign-in/);
-              await expect(page.locator(".cl-card").first()).toBeVisible({ timeout: 20_000 });
+              await expect(page.locator("form input[type=email]").filter({ visible: true }).first()).toBeVisible({ timeout: 20_000 });
             }
           }
           return { ...response, ...await shot(path.slice(1)) };
