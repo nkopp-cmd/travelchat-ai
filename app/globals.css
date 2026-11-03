@@ -646,6 +646,24 @@
     pointer-events: none;
 }
 
+/* Group stack: up to two more photo dots behind the lead face (the reference's stacked clusters). */
+.ll-pin-stack {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    pointer-events: none;
+}
+.ll-pin-stack .ll-pin-face {
+    width: 24px;
+    height: 24px;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 4px 10px rgb(0 0 0 / 0.6);
+}
+.ll-pin-stack .ll-pin-face::after { display: none; }
+.ll-pin-stack .ll-pin-face svg { width: 13px; height: 13px; }
+.ll-pin-stack[data-depth="1"] { margin: -9px 0 0 -12px; }
+.ll-pin-stack[data-depth="2"] { margin: -12px 0 0 0; }
+
 .ll-pin[data-selected] {
     transform: translate(-50%, -100%) scale(1.15);
     z-index: 2;

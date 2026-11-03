@@ -65,6 +65,16 @@ describe("map pin card", () => {
     expect(source).toMatch(/data-card-open=\{selected \? "" : undefined\}/);
   });
 
+  it("draws a group as stacked photo dots and shows category chips from zoom 15", () => {
+    const source = readFileSync("components/spots/spot-pin-map.tsx", "utf8");
+    expect(source).toMatch(/const NEAR_ZOOM = 15;/);
+    expect(source).toMatch(/slot\.ids\.slice\(1, 3\)/);
+    expect(source).toMatch(/className="ll-pin-stack" data-depth=\{index \+ 1\}/);
+    const css = readFileSync("app/globals.css", "utf8");
+    expect(css).toMatch(/\.ll-pin-stack \.ll-pin-face::after \{ display: none; \}/);
+    expect(css).toMatch(/\.ll-pin-stack\[data-depth="2"\]/);
+  });
+
   it("expands to the detail in place and Escape steps back detail -> card -> closed", () => {
     const onClose = vi.fn();
     const rich = { ...spot, description: "Saturday flea market with vinyl and vintage.", bestTime: "Saturday morning",
