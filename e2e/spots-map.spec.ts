@@ -86,6 +86,7 @@ for (const viewport of viewports) {
       await expect(page).toHaveURL((url) => url.searchParams.get("category") === "Food" && url.searchParams.get("view") === "map" && url.searchParams.get("city") === "seoul");
       await quickFilters.getByRole("button", { name: "Trending", exact: true }).click();
       await expect(page).toHaveURL((url) => url.searchParams.get("sort") === "trending");
+      await expect(discovery.or(empty)).toBeVisible();
 
       for (const view of ["Grid", "List", "Map"] as const) {
         const toggle = page.getByRole("button", { name: `${view} view`, exact: true });
