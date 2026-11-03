@@ -355,6 +355,7 @@ ESLINT_FILES=(
   __tests__/components/landing-planner.test.tsx
   __tests__/components/conditional-navbar.test.tsx
   lib/places-quota.ts
+  lib/places-guard.ts
   __tests__/lib/places-quota.test.ts
   lib/spots/own-photo.ts
   __tests__/lib/own-spot-photo.test.ts

@@ -94,6 +94,18 @@ describe("automated requests never cost a Places call", () => {
     expect(isAutomatedPlacesRequest(h({ "user-agent": browser.headers["user-agent"] }))).toBe(false);
   });
 
+  it("catches own checks with an emulated user agent (2026-11-03 Worker logs) and keeps real visitors", () => {
+    const headlessHint = '"Not:A-Brand";v="8", "Chromium";v="156", "HeadlessChrome";v="156"';
+    const realHint = '"Not:A-Brand";v="8", "Chromium";v="156", "Google Chrome";v="156"';
+    const iphone = "Mozilla/5.0 (iPhone; CPU iPhone OS 19_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/19.1 Mobile/15E148 Safari/604.1";
+    expect(isAutomatedPlacesRequest(h({ "user-agent": chrome, "sec-ch-ua": headlessHint }))).toBe(true);
+    expect(isAutomatedPlacesRequest(h({ "user-agent": iphone, "cf-connecting-ip": "2a01:4f9:c010:b843::1" }))).toBe(true);
+    expect(isAutomatedPlacesRequest(h({ "user-agent": chrome, "cf-connecting-ip": "2a01:4f8:c016:783::1" }))).toBe(true);
+    expect(isAutomatedPlacesRequest(h({ "user-agent": chrome, "cf-connecting-ip": "2a03:2880:f80e:2c::" }))).toBe(true);
+    expect(isAutomatedPlacesRequest(h({ "user-agent": chrome, "sec-ch-ua": realHint, "cf-connecting-ip": "2001:e60:1234::1" }))).toBe(false);
+    expect(isAutomatedPlacesRequest(h({ "user-agent": iphone, "cf-connecting-ip": "116.122.170.131" }))).toBe(false);
+  });
+
   it("the photo proxy and the gallery refuse automated requests before reserving or fetching", async () => {
     vi.stubEnv("GOOGLE_PLACES_API_KEY", "test-key");
     const fetchMock = vi.fn();
