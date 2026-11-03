@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { readFile, writeFile } from "node:fs/promises";
+import { expectPinCard, expectTilesRendered, firstClickablePin, openListSheet, pinById, pinOrGroupOf, pinMap, pinName, pinnedTotal, selectedListTitle, singlePins } from "./pin-map";
 
 test.use({ trace: "off", screenshot: "off", video: "off", serviceWorkers: "allow" });
 
@@ -112,80 +113,76 @@ for (const width of [390, 900, 1440]) {
         const response = await navigate("/spots?city=seoul&view=map");
         expect(response.status).toBe(200);
         await expect(page.getByRole("button", { name: "Map view", exact: true })).toHaveAttribute("aria-pressed", "true");
-        const discovery = page.getByRole("region", { name: "Discovery map", exact: true });
-        await expect(discovery.getByRole("button", { name: /^Pin \d+:/ })).toHaveCount(24);
-        await expect(discovery.locator(".leaflet-marker-icon")).toHaveCount(24);
-        await expect(discovery.locator(".leaflet-tile-loaded").first()).toBeVisible();
-        await discovery.getByRole("region", { name: "Map of this page's spots" }).evaluate(el => el.scrollIntoView({ block: "center", behavior: "instant" }));
-        return { ...response, pins: 24, ...await shot("map") };
+        const map = pinMap(page.getByRole("region", { name: "Discovery map", exact: true }));
+        await expect(singlePins(map).first()).toBeVisible();
+        await expect.poll(() => pinnedTotal(map)).toBe(24);
+        await expectTilesRendered(map);
+        return { ...response, pins: 24, singles: await singlePins(map).count(), ...await shot("map") };
       });
       await check("keyboard selection matches real mapped card", async () => {
         const discovery = page.getByRole("region", { name: "Discovery map", exact: true });
-        const choices = discovery.getByRole("button", { name: /^Pin \d+:/ });
-        await choices.first().focus();
-        await page.keyboard.press("Tab");
-        // The list can include a directions link between spot buttons.
-        for (let step = 0; step < 4 && !await choices.nth(1).evaluate(el => el === document.activeElement); step++) await page.keyboard.press("Tab");
-        await expect(choices.nth(1)).toBeFocused();
+        const map = pinMap(discovery);
+        const pin = pinById(map, (await singlePins(map).nth(1).getAttribute("data-pin-id")) || "");
+        selectedName = await pinName(pin);
+        await pin.focus();
+        await expect(pin).toBeFocused();
         await page.keyboard.press("Enter");
-        await expect(choices.nth(1)).toHaveAttribute("aria-pressed", "true");
-        selectedName = (await choices.nth(1).locator("span").first().innerText()).replace(/^Pin \d+: /, "");
-        await expect(discovery.getByTestId("spot-card-title")).toHaveText(selectedName);
-        selectedPath = await discovery.getByTestId("spot-card-title").locator("..").getAttribute("href") || "";
-        expect(selectedPath).toMatch(/^\/spots\/[0-9a-f-]{36}$/i);
-        await discovery.getByTestId("spot-card").evaluate(el => el.scrollIntoView({ block: "center", behavior: "instant" }));
-        return { selectedName, selectedPath, ...await shot("selected-card") };
+        await expect(pin).toHaveAttribute("aria-pressed", "true");
+        selectedPath = await expectPinCard(page, selectedName);
+        await expect(page.getByRole("dialog", { name: selectedName, exact: true })).toBeFocused();
+        await expect(selectedListTitle(discovery)).toHaveText(selectedName);
+        const shotResult = await shot("selected-card");
+        await page.keyboard.press("Escape");
+        await expect(pinOrGroupOf(map, (await pin.getAttribute("data-pin-id")) || "")).toBeFocused();
+        return { selectedName, selectedPath, ...shotResult };
       });
       await check("mouse map selection matches card", async () => {
         const discovery = page.getByRole("region", { name: "Discovery map", exact: true });
-        const map = discovery.getByRole("region", { name: "Map of this page's spots" });
-        await map.evaluate(el => el.scrollIntoView({ block: "center", behavior: "instant" }));
-        const markers = map.locator(".leaflet-marker-icon");
-        const visible = await markers.evaluateAll(elements => elements.flatMap(el => {
-          const label = el.querySelector("span");
-          if (!label) return [];
-          const box = label.getBoundingClientRect();
-          const hit = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2);
-          return hit && el.contains(hit) ? [Number(label.textContent)] : [];
-        }));
-        const number = visible.find(value => value !== 2);
-        expect(number).toBeDefined();
-        await markers.locator("span").filter({ hasText: new RegExp(`^${number}$`) }).click();
-        const choice = discovery.getByRole("button", { name: new RegExp(`^Pin ${number}:`) });
-        await expect(choice).toHaveAttribute("aria-pressed", "true");
-        const name = (await choice.locator("span").first().innerText()).replace(/^Pin \d+: /, "");
-        await expect(discovery.getByTestId("spot-card-title")).toHaveText(name);
-        return { number, name, ...await shot("mouse-selection") };
+        const map = pinMap(discovery);
+        const pin = await firstClickablePin(map, selectedPath.split("/").pop());
+        const id = await pin.getAttribute("data-pin-id");
+        const name = await pinName(pin);
+        await pin.click();
+        await expect(pin).toHaveAttribute("aria-pressed", "true");
+        const path = await expectPinCard(page, name);
+        await expect(selectedListTitle(discovery)).toHaveText(name);
+        const shotResult = await shot("mouse-selection");
+        await page.keyboard.press("Escape");
+        return { id, name, path, ...shotResult };
       });
       await check("real backend Food filter and search", async () => {
+        await openListSheet(page);
         await page.getByRole("group", { name: "Quick filters" }).getByRole("button", { name: "Food", exact: true }).click();
         await expect(page).toHaveURL(url => url.searchParams.get("category") === "Food");
         const discovery = page.getByRole("region", { name: "Discovery map", exact: true });
-        await expect(discovery.getByTestId("spot-category-chip").filter({ visible: true }).first()).toHaveText("Food");
-        const count = await discovery.getByRole("button", { name: /^Pin \d+:/ }).count();
-        const name = await discovery.getByTestId("spot-card-title").innerText();
+        const map = pinMap(discovery);
+        const titles = discovery.getByTestId("spot-card-title");
+        await expect(discovery.getByTestId("spot-category-chip").first()).toHaveText("Food");
+        await expect(singlePins(map).first()).toBeVisible();
+        const count = await pinnedTotal(map);
+        const name = (await titles.first().textContent())?.trim() || "";
         await page.getByRole("textbox", { name: "Search spots", exact: true }).fill(name);
         await expect(page).toHaveURL(url => url.searchParams.get("search") === name);
-        await expect(discovery.getByTestId("spot-card-title")).toHaveText(name);
-        const pins = discovery.getByRole("button", { name: /^Pin \d+:/ });
-        await expect.poll(() => pins.count()).toBeLessThan(count);
-        const searchedPins = await pins.count();
+        await expect(titles.first()).toHaveText(name);
+        await expect.poll(() => pinnedTotal(map)).toBeLessThan(count);
+        const searchedPins = await pinnedTotal(map);
         expect(searchedPins).toBeGreaterThan(0);
-        const names = await pins.locator("span:first-child").allTextContents();
+        const pins = singlePins(map);
+        const names = await Promise.all([...Array(await pins.count()).keys()].map(at => pinName(pins.nth(at))));
         expect(names.every(label => label.includes(name))).toBe(true);
-        await discovery.getByRole("region", { name: "Map of this page's spots" }).evaluate(el => el.scrollIntoView({ block: "center", behavior: "instant" }));
         return { filteredPins: count, searchedPins, names, search: name, ...await shot("filtered-search") };
       });
       await check("service worker scope and second map load", async () => {
         await navigate("/spots?city=seoul&view=map");
-        await expect(page.locator(".leaflet-marker-icon")).toHaveCount(24);
+        const map = pinMap(page.getByRole("region", { name: "Discovery map", exact: true }));
+        await expect.poll(() => pinnedTotal(map)).toBe(24);
         const registrations = await page.evaluate(async () => (await navigator.serviceWorker.getRegistrations()).map(r => ({ scope: r.scope, script: r.active?.scriptURL })));
         await page.reload({ waitUntil: "domcontentloaded" });
-        await expect(page.locator(".leaflet-marker-icon")).toHaveCount(24);
-        await expect(page.locator(".leaflet-tile-loaded").first()).toBeVisible();
+        await expect(singlePins(map).first()).toBeVisible();
+        await expect.poll(() => pinnedTotal(map)).toBe(24);
+        await expectTilesRendered(map);
         expect(registrations.length).toBeGreaterThan(0);
         expect(registrations.every(r => r.scope === origin + "/")).toBe(true);
-        await page.getByRole("region", { name: "Map of this page's spots" }).evaluate(el => el.scrollIntoView({ block: "center", behavior: "instant" }));
         return { registrations, ...await shot("second-load") };
       });
       await check("selected real spot detail", async () => {
@@ -259,6 +256,6 @@ for (const width of [390, 900, 1440]) {
       await writeFile(info.outputPath("evidence.json"), JSON.stringify({ origin, publicMode, accessHeaderCount: Object.keys(headers).length, freshContext: true, width, results, errors, clerkErrors, upstream, network, blocked: [...blocked] }, null, 2));
       await context.close();
     }
-    expect(results.filter(result => !result.passed).map(result => result.check)).toEqual([]);
+    expect(results.filter(result => !result.passed).map(result => ({ check: result.check, detail: result.detail }))).toEqual([]);
   });
 }

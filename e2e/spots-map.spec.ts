@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { expectPinCard, expectTilesRendered, firstClickablePin, openListSheet, pinMap, pinOrGroupOf, selectedListTitle, pinName, pinnedTotal, singlePins } from "./pin-map";
 
 const requireSeoulPins = process.env.PLAYWRIGHT_REQUIRE_SEOUL_PINS === "1";
 
@@ -32,76 +33,45 @@ for (const viewport of viewports) {
       await expect(discovery.or(empty)).toBeVisible();
       if (requireSeoulPins) {
         await expect(discovery, "Strict real-map check requires Seoul results").toBeVisible();
-        await expect(discovery.getByRole("button", { name: /^Pin \d+:/ }).first(), "Strict real-map check requires a usable Seoul pin").toBeVisible();
+        await expect(singlePins(pinMap(discovery)).first(), "Strict real-map check requires a usable Seoul pin").toBeVisible();
       }
       await mapToggle.scrollIntoViewIfNeeded();
       await page.screenshot({ path: testInfo.outputPath("initial-map.png") });
 
       if (await discovery.isVisible()) {
-        const choices = discovery.getByRole("list", { name: "Spots on this page" });
-        const pins = choices.getByRole("button", { name: /^Pin \d+:/ });
-        const pinCount = await pins.count();
-        if (pinCount > 0) {
-          const map = discovery.getByRole("region", { name: "Map of this page's spots" });
-          const markers = map.locator(".leaflet-marker-icon");
-          await expect(markers).toHaveCount(pinCount);
-          await expect(map.locator(".leaflet-tile-loaded").first()).toBeVisible();
-          // Center the whole map, rather than letting marker auto-scroll place it behind fixed navigation.
-          await map.evaluate((element) => element.scrollIntoView({ block: "center", behavior: "instant" }));
-          await expect.poll(async () => {
-            const box = await map.boundingBox();
-            return Boolean(box && box.y >= 80 && box.y + box.height <= viewport.height - 100);
-          }).toBe(true);
+        const map = pinMap(discovery);
+        const pins = singlePins(map);
+        if (await map.isVisible() && await pins.count() > 0) {
+          await expectTilesRendered(map);
+          expect(await pinnedTotal(map)).toBeGreaterThanOrEqual(await pins.count());
 
-          // Inspect the visible number's hit target. Overlapping overview pins need not all be clickable.
-          let visibleNumbers: number[] = [];
-          await expect.poll(async () => {
-            visibleNumbers = await markers.evaluateAll((elements) => elements.flatMap((element) => {
-              const label = element.querySelector("span");
-              if (!label) return [];
-              const box = label.getBoundingClientRect();
-              const hit = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2);
-              return hit && element.contains(hit) ? [Number(label.textContent)] : [];
-            }));
-            return visibleNumbers.some((number) => pinCount === 1 || number !== 1);
-          }).toBe(true);
-          const number = visibleNumbers.includes(2) ? 2 : visibleNumbers.find((value) => value !== 1) ?? 1;
-          if (pinCount > 1 && !visibleNumbers.includes(2)) {
-            testInfo.annotations.push({ type: "map-overlap", description: `Pin 2 is obscured at overview zoom. Mouse selection uses visible pin ${number}; keyboard selection covers pin 2. This does not establish identical coordinates.` });
-          }
-          const choice = pins.filter({ hasText: new RegExp(`^Pin ${number}:`) });
-          const name = (await choice.locator("span").first().innerText()).replace(/^Pin \d+: /, "");
-          await expect(choice).toHaveAttribute("aria-pressed", pinCount > 1 ? "false" : "true");
-          const markerLabel = markers.locator("span").filter({ hasText: new RegExp(`^${number}$`) });
-          await markerLabel.click();
-          await expect(choice).toHaveAttribute("aria-pressed", "true");
-          await expect(discovery.getByRole("heading", { name: `Selected spot: ${name}`, exact: true })).toBeVisible();
-          await expect(discovery.getByTestId("spot-card-title")).toHaveText(name);
-          await testInfo.attach("mouse-selection", { body: JSON.stringify({ number, name, visibleNumbers }), contentType: "application/json" });
-          console.info(`${viewport.name}: mouse selected pin ${number} (${name}); pin 2 ${visibleNumbers.includes(2) ? "visible" : "obscured"} at overview zoom.`);
+          // Mouse: click a pin whose centre is not covered by another pin or the list sheet.
+          const pin = await firstClickablePin(map);
+          const id = (await pin.getAttribute("data-pin-id")) || "";
+          const name = await pinName(pin);
+          await expect(pin).toHaveAttribute("aria-pressed", "false");
+          await pin.click();
+          await expect(pin).toHaveAttribute("aria-pressed", "true");
+          const path = await expectPinCard(page, name);
+          await expect(selectedListTitle(discovery)).toHaveText(name);
+          await testInfo.attach("mouse-selection", { body: JSON.stringify({ id, name, path }), contentType: "application/json" });
           await page.screenshot({ path: testInfo.outputPath("selected-pin.png") });
 
-          // Establish focus on the first list button, then use real Tab and Enter keyboard input.
-          const first = choices.getByRole("button").first();
-          await first.focus();
-          await expect(first).toBeFocused();
+          // Keyboard: Escape closes the card and returns focus to the pin; Enter on another pin opens its card.
+          await page.keyboard.press("Escape");
+          await expect(page.getByRole("dialog", { name, exact: true })).toHaveCount(0);
+          await expect(pinOrGroupOf(map, id)).toBeFocused();
+          const other = await firstClickablePin(map, id);
+          const keyboardName = await pinName(other);
+          await other.focus();
+          await expect(other).toBeFocused();
           await page.keyboard.press("Enter");
-          await expect(first).toHaveAttribute("aria-pressed", "true");
-          const keyboardChoice = pins.nth(pinCount > 1 ? 1 : 0);
-          for (let step = 0; step < await choices.getByRole("button").count(); step += 1) {
-            if (await keyboardChoice.evaluate((element) => element === document.activeElement)) break;
-            await page.keyboard.press("Tab");
-          }
-          await expect(keyboardChoice).toBeFocused();
-          await keyboardChoice.evaluate((element) => element.scrollIntoView({ block: "center", behavior: "instant" }));
-          const keyboardName = (await keyboardChoice.locator("span").first().innerText()).replace(/^Pin \d+: /, "");
-          await page.keyboard.press("Enter");
-          await expect(keyboardChoice).toHaveAttribute("aria-pressed", "true");
-          await expect(discovery.getByRole("heading", { name: `Selected spot: ${keyboardName}`, exact: true })).toBeVisible();
-          await expect(discovery.getByTestId("spot-card-title")).toHaveText(keyboardName);
+          await expect(other).toHaveAttribute("aria-pressed", "true");
+          await expectPinCard(page, keyboardName);
+          await expect(page.getByRole("dialog", { name: keyboardName, exact: true })).toBeFocused();
+          await expect(selectedListTitle(discovery)).toHaveText(keyboardName);
           await page.screenshot({ path: testInfo.outputPath("keyboard-selection.png") });
-          await discovery.getByTestId("spot-card").scrollIntoViewIfNeeded();
-          await page.screenshot({ path: testInfo.outputPath("selected-card.png") });
+          await page.keyboard.press("Escape");
         } else {
           testInfo.annotations.push({ type: "coverage-gap", description: "Real Seoul results have no usable coordinates; pin selection was not tested." });
           await expect(discovery.getByRole("status")).toContainText("No map pins are available");
@@ -110,6 +80,7 @@ for (const viewport of viewports) {
         testInfo.annotations.push({ type: "coverage-gap", description: "The real route returned no Seoul spots; map rendering and pin selection were not tested." });
       }
 
+      await openListSheet(page);
       const quickFilters = page.getByRole("group", { name: "Quick filters" });
       await quickFilters.getByRole("button", { name: "Food", exact: true }).click();
       await expect(page).toHaveURL((url) => url.searchParams.get("category") === "Food" && url.searchParams.get("view") === "map" && url.searchParams.get("city") === "seoul");

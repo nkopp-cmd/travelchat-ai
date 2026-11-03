@@ -131,7 +131,7 @@ test.describe("spots responsive layout", () => {
       skipIfLocalSupabaseEnvMissing(baseURL);
       await page.setViewportSize(viewport);
       await page.goto("/spots?city=seoul&score=5&sort=trending", {
-        waitUntil: "networkidle",
+        waitUntil: "load",
       });
       await skipIfVercelProtectionPage(page);
 
@@ -236,7 +236,7 @@ test.describe("spots responsive layout", () => {
 
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/spots?city=seoul&score=5&sort=trending", {
-      waitUntil: "networkidle",
+      waitUntil: "load",
     });
     await skipIfVercelProtectionPage(page);
 
@@ -244,7 +244,8 @@ test.describe("spots responsive layout", () => {
     await expect(firstSpot).toBeVisible();
     await firstSpot.getByTestId("spot-card-title").click();
 
-    await expect(page.getByTestId("spot-detail-hero")).toBeVisible();
+    await expect(page).toHaveURL(/\/spots\/[0-9a-f-]{36}$/i, { timeout: 15_000 });
+    await expect(page.getByTestId("spot-detail-hero")).toBeVisible({ timeout: 15_000 });
     await expect(
       page.getByTestId("spot-detail-address").filter({ visible: true }).first(),
     ).toBeVisible();
