@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useCallback, useTransition } from "react";
+import { useRef, useCallback, useEffect, useTransition } from "react";
 import dynamic from "next/dynamic";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { SpotCard } from "@/components/spots/spot-card";
@@ -56,6 +56,7 @@ export function SpotsExplorer({
         });
     };
     const resultsTopRef = useRef<HTMLDivElement | null>(null);
+    const filtersRef = useRef<HTMLDivElement | null>(null);
 
     const scrollResultsIntoView = useCallback(() => {
         const target = resultsTopRef.current;
@@ -154,16 +155,22 @@ export function SpotsExplorer({
         currentFilters.search;
 
 
+    const mapOverlay = viewMode === "map" && initialSpots.length > 0;
+    useMapFiltersHeight(filtersRef, mapOverlay);
+
     return (
         <>
-            {/* Filter Bar */}
-            <SpotsFilterBar
-                filterOptions={filterOptions}
-                currentFilters={currentFilters}
-                onFilterChange={handleFilterChange}
-                onClearFilters={clearFilters}
-                isPending={isPending}
-            />
+            {/* Filter Bar: floats over the full-screen phone map, so search and filters stay in reach. */}
+            <div ref={filtersRef} data-map-overlay={mapOverlay ? "" : undefined}
+                className={cn(mapOverlay && "max-lg:fixed max-lg:inset-x-0 max-lg:top-[var(--ll-topbar-height)] max-lg:z-[41] max-lg:bg-background max-lg:px-3 max-lg:pt-2 max-lg:[&>*]:mb-2")}>
+                <SpotsFilterBar
+                    filterOptions={filterOptions}
+                    currentFilters={currentFilters}
+                    onFilterChange={handleFilterChange}
+                    onClearFilters={clearFilters}
+                    isPending={isPending}
+                />
+            </div>
 
             {/* Results Header */}
             <div id="spot-results" ref={resultsTopRef} className="mb-4 flex min-w-0 flex-wrap justify-between items-center gap-2 scroll-mt-4 sm:gap-3">
@@ -313,4 +320,26 @@ export function SpotsExplorer({
             </ErrorBoundary>
         </>
     );
+}
+
+/** Publishes the floating filter bar height, so the phone map starts below it (0 when not floating). */
+function useMapFiltersHeight(ref: { current: HTMLElement | null }, active: boolean) {
+    useEffect(() => {
+        const root = document.documentElement;
+        const element = ref.current;
+        if (!active || !element) return;
+        const measure = () => {
+            const floating = getComputedStyle(element).position === "fixed";
+            root.style.setProperty("--ll-map-filters-height", floating ? `${element.offsetHeight}px` : "0px");
+        };
+        measure();
+        const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
+        observer?.observe(element);
+        window.addEventListener("resize", measure);
+        return () => {
+            observer?.disconnect();
+            window.removeEventListener("resize", measure);
+            root.style.removeProperty("--ll-map-filters-height");
+        };
+    }, [ref, active]);
 }

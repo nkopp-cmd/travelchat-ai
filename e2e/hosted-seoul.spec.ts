@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { readFile, writeFile } from "node:fs/promises";
+import { expectHeroOrNone } from "./spot-detail";
 import { expectPinCard, expectTilesRendered, firstClickablePin, openListSheet, pinById, pinOrGroupOf, pinMap, pinName, pinnedTotal, selectedListTitle, singlePins } from "./pin-map";
 
 test.use({ trace: "off", screenshot: "off", video: "off", serviceWorkers: "allow" });
@@ -189,10 +190,8 @@ for (const width of [390, 900, 1440]) {
         expect(selectedPath).not.toBe("");
         const response = await navigate(selectedPath);
         expect(response.status).toBe(200);
-        const hero = page.getByTestId("spot-detail-hero").filter({ visible: true });
-        await expect(hero).toHaveCount(1);
-        await expect(hero).toBeVisible();
         await expect(page.getByTestId("spot-detail-address").filter({ visible: true }).first()).toBeVisible();
+        await expectHeroOrNone(page);
         return { ...response, ...await shot("detail") };
       });
       await check("anonymous save API rejection", async () => {

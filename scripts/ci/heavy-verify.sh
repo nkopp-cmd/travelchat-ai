@@ -341,6 +341,7 @@ ESLINT_FILES=(
   components/spots/city-quick-filters.tsx
   __tests__/components/city-quick-filters.test.tsx
   e2e/spots-layout.spec.ts
+  e2e/spot-detail.ts
   components/chat/source-chat-page.tsx
   __tests__/components/source-chat-viewport.test.tsx
   components/layout/main-content-shell.tsx

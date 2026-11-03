@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { expectHeroOrNone } from "./spot-detail";
 
 const VIEWPORTS = [
   { name: "mobile-360", width: 360, height: 800 },
@@ -245,10 +246,11 @@ test.describe("spots responsive layout", () => {
     await firstSpot.getByTestId("spot-card-title").click();
 
     await expect(page).toHaveURL(/\/spots\/[0-9a-f-]{36}$/i, { timeout: 15_000 });
-    await expect(page.getByTestId("spot-detail-hero")).toBeVisible({ timeout: 15_000 });
+    // No photo -> no hero (content first: hide the block, never a blank box).
     await expect(
       page.getByTestId("spot-detail-address").filter({ visible: true }).first(),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 15_000 });
+    await expectHeroOrNone(page);
     await expect(page.getByTestId("spot-guide")).toBeVisible();
     await expect(page.getByTestId("spot-directions-link").first()).toBeVisible();
     await expectNoHorizontalOverflow(page);

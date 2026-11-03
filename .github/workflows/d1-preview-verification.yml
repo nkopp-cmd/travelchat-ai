@@ -234,6 +234,7 @@ on:
       - 'components/spots/city-quick-filters.tsx'
       - '__tests__/components/city-quick-filters.test.tsx'
       - 'e2e/spots-layout.spec.ts'
+      - 'e2e/spot-detail.ts'
       - '__tests__/components/weekly-shared-cards.test.tsx'
       - 'components/spots/spot-photo-image.tsx'
       - 'components/spots/spots-explorer.tsx'
