@@ -203,8 +203,8 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
                     </Suspense>
                 </div>
 
-                {/* Main Content - Re-mount on filter change via key */}
-                <Suspense key={JSON.stringify(params)} fallback={<SpotsLoading />}>
+                {/* Main Content: no key, so a filter change keeps the current view (and the mounted map) until new results arrive. */}
+                <Suspense fallback={<SpotsLoading />}>
                     <SpotsContent searchParams={params} />
                 </Suspense>
 

@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { SpotsFilterBar } from "@/components/spots/spots-filter-bar";
@@ -113,5 +114,11 @@ describe("SpotsFilterBar", () => {
     fireEvent.click(toggle);
     expect(toggle.getAttribute("aria-expanded")).toBe("true");
     expect(advanced.className).not.toMatch(/(^| )hidden( |$)/);
+  });
+
+  it("keeps the explorer mounted across filter changes, so the phone map does not reload", () => {
+    const page = readFileSync("app/spots/page.tsx", "utf8");
+    expect(page).toMatch(/<Suspense fallback={<SpotsLoading \/>}>\s*<SpotsContent/);
+    expect(page).not.toMatch(/<Suspense key=/);
   });
 });
