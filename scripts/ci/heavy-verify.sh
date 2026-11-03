@@ -46,6 +46,7 @@ VITEST_FILES=(
   __tests__/lib/viral-events.test.ts
   __tests__/components/viral-spots.test.tsx
   __tests__/lib/pin-clusters.test.ts
+  __tests__/lib/edge-dock.test.ts
   __tests__/components/spot-pin-map.test.tsx
   __tests__/lib/itinerary-pins.test.ts
   __tests__/app/itinerary-action-bar.test.ts
