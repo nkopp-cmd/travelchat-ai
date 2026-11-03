@@ -515,16 +515,16 @@
     background: rgb(var(--ll-surface));
 }
 
-.ll-pin-map [data-tone="food"], .ll-pin-card[data-tone="food"], .ll-photo-tile[data-tone="food"] { --ll-pin-tone: 244 200 130; }
-.ll-pin-map [data-tone="cafe"], .ll-pin-card[data-tone="cafe"], .ll-photo-tile[data-tone="cafe"] { --ll-pin-tone: 230 190 150; }
-.ll-pin-map [data-tone="nightlife"], .ll-pin-card[data-tone="nightlife"], .ll-photo-tile[data-tone="nightlife"] { --ll-pin-tone: 185 161 255; }
-.ll-pin-map [data-tone="shopping"], .ll-pin-card[data-tone="shopping"], .ll-photo-tile[data-tone="shopping"] { --ll-pin-tone: 255 180 188; }
-.ll-pin-map [data-tone="market"], .ll-pin-card[data-tone="market"], .ll-photo-tile[data-tone="market"] { --ll-pin-tone: 250 176 128; }
-.ll-pin-map [data-tone="outdoor"], .ll-pin-card[data-tone="outdoor"], .ll-photo-tile[data-tone="outdoor"] { --ll-pin-tone: 156 228 194; }
-.ll-pin-map [data-tone="culture"], .ll-pin-card[data-tone="culture"], .ll-photo-tile[data-tone="culture"] { --ll-pin-tone: 160 205 255; }
-.ll-pin-map [data-tone="entertainment"], .ll-pin-card[data-tone="entertainment"], .ll-photo-tile[data-tone="entertainment"] { --ll-pin-tone: 250 170 225; }
-.ll-pin-map [data-tone="transport"], .ll-pin-card[data-tone="transport"], .ll-photo-tile[data-tone="transport"] { --ll-pin-tone: 175 182 204; }
-.ll-pin-map [data-tone="other"], .ll-pin-card[data-tone="other"], .ll-photo-tile[data-tone="other"] { --ll-pin-tone: 210 195 255; }
+.ll-pin-map [data-tone="food"], .ll-pin-card[data-tone="food"], .ll-photo-tile[data-tone="food"], .ll-pin-dock[data-tone="food"] { --ll-pin-tone: 244 200 130; }
+.ll-pin-map [data-tone="cafe"], .ll-pin-card[data-tone="cafe"], .ll-photo-tile[data-tone="cafe"], .ll-pin-dock[data-tone="cafe"] { --ll-pin-tone: 230 190 150; }
+.ll-pin-map [data-tone="nightlife"], .ll-pin-card[data-tone="nightlife"], .ll-photo-tile[data-tone="nightlife"], .ll-pin-dock[data-tone="nightlife"] { --ll-pin-tone: 185 161 255; }
+.ll-pin-map [data-tone="shopping"], .ll-pin-card[data-tone="shopping"], .ll-photo-tile[data-tone="shopping"], .ll-pin-dock[data-tone="shopping"] { --ll-pin-tone: 255 180 188; }
+.ll-pin-map [data-tone="market"], .ll-pin-card[data-tone="market"], .ll-photo-tile[data-tone="market"], .ll-pin-dock[data-tone="market"] { --ll-pin-tone: 250 176 128; }
+.ll-pin-map [data-tone="outdoor"], .ll-pin-card[data-tone="outdoor"], .ll-photo-tile[data-tone="outdoor"], .ll-pin-dock[data-tone="outdoor"] { --ll-pin-tone: 156 228 194; }
+.ll-pin-map [data-tone="culture"], .ll-pin-card[data-tone="culture"], .ll-photo-tile[data-tone="culture"], .ll-pin-dock[data-tone="culture"] { --ll-pin-tone: 160 205 255; }
+.ll-pin-map [data-tone="entertainment"], .ll-pin-card[data-tone="entertainment"], .ll-photo-tile[data-tone="entertainment"], .ll-pin-dock[data-tone="entertainment"] { --ll-pin-tone: 250 170 225; }
+.ll-pin-map [data-tone="transport"], .ll-pin-card[data-tone="transport"], .ll-photo-tile[data-tone="transport"], .ll-pin-dock[data-tone="transport"] { --ll-pin-tone: 175 182 204; }
+.ll-pin-map [data-tone="other"], .ll-pin-card[data-tone="other"], .ll-photo-tile[data-tone="other"], .ll-pin-dock[data-tone="other"] { --ll-pin-tone: 210 195 255; }
 
 /* Photo-less spots: a category tile in the pin tone, never a blank grey box. */
 .ll-photo-tile {
@@ -809,8 +809,57 @@
     }
 }
 
+/* Edge dock (localley-map-photos-edge-pins.md item 4): places off the map stay as small
+   photo dots on the edge, ~55 % of a pin; 32px hit area. Position comes from inline transform. */
+.ll-pin-dock-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.ll-pin-dock {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    background: transparent;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: opacity var(--ll-motion-short) var(--ll-motion-ease);
+}
+
+.ll-pin-dock .ll-pin-face {
+    width: 18px;
+    height: 18px;
+    box-shadow: 0 4px 10px rgb(0 0 0 / 0.5), 0 0 10px 1px rgb(var(--ll-pin-tone) / 0.35);
+    animation: ll-dock-in var(--ll-motion-short) var(--ll-motion-ease);
+}
+
+.ll-pin-dock .ll-pin-face::after { display: none; }
+
+.ll-pin-dock .ll-pin-face svg {
+    width: 11px;
+    height: 11px;
+}
+
+.ll-pin-dock:focus-visible {
+    outline: 2px solid rgb(var(--ll-action));
+    outline-offset: 0;
+}
+
+@keyframes ll-dock-in {
+    from { transform: scale(1.8); opacity: 0.4; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-    .ll-pin, .ll-pin-face { transition: none; }
+    .ll-pin, .ll-pin-face, .ll-pin-dock { transition: none; }
+    .ll-pin-dock .ll-pin-face { animation: none; }
     .ll-pin-card, .ll-pin-card[data-expanded] { animation: none; }
 }
 

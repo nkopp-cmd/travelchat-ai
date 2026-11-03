@@ -8,6 +8,7 @@ import type { GeoJSONSource, LngLatLike, Map as MapLibreMap, Marker } from "mapl
 import "maplibre-gl/dist/maplibre-gl.css";
 import { X } from "@/components/ui/icons";
 import { TONE_ICONS } from "@/components/spots/category-tone";
+import { EdgeDockLayer } from "@/components/spots/edge-dock-layer";
 import { getDirectVenuePhotos } from "@/components/spots/venue-photo-provider";
 import { capMarkers, clusterKeepingSelected, pinTone } from "@/lib/spots/pin-clusters";
 import { localleyMapStyle, readMapTokens } from "@/lib/maps/localley-map-style";
@@ -56,6 +57,7 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
     const mapRef = useRef<MapLibreMap | null>(null);
     const markersRef = useRef<Marker[]>([]);
     const [styleReady, setStyleReady] = useState(false);
+    const [loadedMap, setLoadedMap] = useState<MapLibreMap | null>(null);
     const spotsRef = useRef(spots);
     const bottomInsetRef = useRef(bottomInset);
     const fitPendingRef = useRef(false);
@@ -159,6 +161,7 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
                 paint: { "line-color": ["get", "color"], "line-width": 3, "line-opacity": 0.85, "line-dasharray": [2, 2.6] },
             });
             setStyleReady(true);
+            setLoadedMap(map);
         });
         mapRef.current = map;
         const resize = new ResizeObserver(() => {
@@ -173,6 +176,7 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
             markersRef.current = [];
             map.remove();
             mapRef.current = null;
+            setLoadedMap(null);
         };
     }, []);
 
@@ -249,6 +253,12 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
         map.fitBounds(bounds, { padding: 64, maxZoom: Math.min(map.getZoom() + 3, 17), animate: !prefersReducedMotion() });
     };
 
+    // A docked dot opens its place like a pin; the selection pan brings it into view.
+    const pickDocked = (spot: PinSpot) => {
+        if (onSelect) return onSelect(spot.id);
+        mapRef.current?.easeTo({ center: lngLat(spot), animate: !prefersReducedMotion() });
+    };
+
     return (
         <div className="relative h-full w-full">
             <div ref={container} className="ll-pin-map h-full w-full" data-zoom-band={near ? "near" : "far"}
@@ -269,6 +279,8 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
                     <PinButton spot={spot} selected={spot.id === selectedId} onSelect={onSelect ? () => onSelect(spot.id) : undefined} />,
                     slot.host, slot.key) : null;
             })}
+            <EdgeDockLayer map={loadedMap} spots={spots} bottomInset={bottomInset}
+                renderFace={(spot) => <PinFace spot={spot} />} onPick={pickDocked} />
             {selected && cardPoint && (
                 <PinCard key={selected.id} spot={selected} point={cardPoint} titleId={titleId} onClose={close} />
             )}
