@@ -6,7 +6,7 @@ import { getPublicSpotQualityIssue, PUBLIC_SPOT_VISIBILITY_CACHE_VERSION } from 
 // The scout writes over the D1 REST API, outside the facade write hook, so it computes the derived columns itself.
 // This test runs the app's real rules on the rows it builds: drift fails here, not in production.
 // @ts-expect-error plain ESM script without types
-import { buildSpotRows, ewkbPoint as scoutEwkb, VISIBILITY_VERSION } from "../../scripts/viral-scout.mjs";
+import { buildSpotRows, ewkbPoint as scoutEwkb, insertStatements, VISIBILITY_VERSION } from "../../scripts/viral-scout.mjs";
 
 const candidate = {
     key: "justin-bieber-seoul-2026-10:도산회관", city: "seoul", personEn: "Justin Bieber", note: "ate samgyetang", kind: "restaurant",
@@ -34,6 +34,15 @@ describe("viral scout spot rows", () => {
         expect(listingPlaceFor(spot)).toEqual({ placeId: rows.listing.place_id, source: rows.listing.source });
         expect(scoutEwkb(127.0371, 37.5226)).toBe(ewkbPoint(127.0371, 37.5226));
         expect(rows.payload.location).toBe(spot.location);
+    });
+
+    it("journals the spot key for the Supabase rollback replay", () => {
+        const statements = insertStatements(rows) as { sql: string; params: unknown[] }[];
+        const journal = statements.filter((s) => s.sql.includes("_journal"));
+        expect(journal).toHaveLength(1);
+        expect(journal[0].sql).toContain("'spots', 'upsert', json_object('id', ?)");
+        expect(journal[0].params).toEqual([rows.spot.id]);
+        expect(statements.at(-1)).toBe(journal[0]);
     });
 
     it("is hidden by the app rule when the address is not exact", () => {
