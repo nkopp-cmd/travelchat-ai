@@ -1,11 +1,13 @@
 import type { ComponentType, CSSProperties } from "react";
 import { Camera, Moon, Store, Utensils, type IconProps } from "@/components/ui/icons";
 import { pinTone } from "@/lib/spots/pin-clusters";
+import { HeroCardPlacer } from "@/components/landing/hero-card-placer";
 
 // The landing hero is a poster of the Localley map (shared/plans/localley-landing-map-weather.md
 // step 2): Seoul rendered offline in the Localley MapLibre style, with real catalog spots as
 // pins at their projected positions. Pins and the looping card are CSS only; the interactive
-// map is one tap away on /spots. No map library, no client JS.
+// map is one tap away on /spots. No map library; one small client effect (HeroCardPlacer) moves the card to a side
+// where it covers no pin and no copy.
 //
 // Posters: claude-work/tmp/poster render (MapLibre 5.24, lib/maps/localley-map-style.ts);
 // mobile 414x736 @2x centre 126.9855,37.570 z11.1; desktop 1920x1080 centre 126.951,37.551 z12.55.
@@ -65,6 +67,7 @@ export function LandingHero() {
                     {HERO_PINS.map((pin, index) => <HeroPinMark key={pin.id} pin={pin} index={index} />)}
                 </div>
             </div>
+            <HeroCardPlacer />
         </>
     );
 }
