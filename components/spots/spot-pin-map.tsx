@@ -1,24 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef, useState, type ComponentType } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import * as maplibregl from "maplibre-gl";
 import type { GeoJSONSource, LngLatLike, Map as MapLibreMap, Marker } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { Camera, Coffee, MapPin, Moon, ShoppingBag, Store, Ticket, Train, Trees, Utensils, X, type IconProps } from "@/components/ui/icons";
+import { X } from "@/components/ui/icons";
+import { TONE_ICONS } from "@/components/spots/category-tone";
 import { getDirectVenuePhotos } from "@/components/spots/venue-photo-provider";
-import { capMarkers, clusterKeepingSelected, pinTone, type PinTone } from "@/lib/spots/pin-clusters";
+import { capMarkers, clusterKeepingSelected, pinTone } from "@/lib/spots/pin-clusters";
 import { localleyMapStyle, readMapTokens } from "@/lib/maps/localley-map-style";
 import type { Spot } from "@/types";
 
 // Photo pins on the Localley vector map (shared/plans/map-photo-pins.md, MapLibre since
 // localley-landing-map-weather.md step 1). Pins show the spot's own first-party photo; without
 // one they show a category tile. Pins never call a paid photo API.
-const TONE_ICONS: Record<PinTone, ComponentType<IconProps>> = {
-    food: Utensils, cafe: Coffee, nightlife: Moon, shopping: ShoppingBag, market: Store,
-    outdoor: Trees, culture: Camera, entertainment: Ticket, transport: Train, other: MapPin,
-};
 // MapLibre zoom levels use 512 px tiles: one level below Leaflet's for the same scale.
 const NEAR_ZOOM = 14;
 const SINGLE_PIN_ZOOM = 14;

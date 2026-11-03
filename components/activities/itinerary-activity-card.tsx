@@ -228,7 +228,7 @@ export function ItineraryActivityCard({
             <div ref={photoRef} className={cn("relative overflow-hidden rounded-lg bg-primary/15 sm:rounded-xl", storedProxy ? "w-24 sm:w-28" : "h-16 w-16 min-[420px]:h-[76px] min-[420px]:w-[76px] sm:h-24 sm:w-28")}>
               {storedProxy ? (
                 <SpotPhotoImage photo={venuePhotoData?.photos[0]} alt={activity.name}
-                  sizes="(max-width: 640px) 96px, 112px" frameClassName="aspect-square w-full"
+                  sizes="(max-width: 640px) 96px, 112px" frameClassName="aspect-square w-full" category={activity.category}
                   loading={Boolean(sourceSpotId) && venuePhotosLoading} />
               ) : displayImage ? (
                 isStoredActivityImage ? (

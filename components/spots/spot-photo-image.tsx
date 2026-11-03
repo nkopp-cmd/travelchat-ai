@@ -3,30 +3,36 @@
 import Image from "next/image";
 import { useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { pinTone } from "@/lib/spots/pin-clusters";
+import { TONE_ICONS } from "./category-tone";
 import type { PhotoGalleryResponse } from "@/lib/spots/photo-contract";
 import { earlyHeroScript, getDirectVenuePhotos, useDetailVenuePhotos, useVenuePhotos } from "./venue-photo-provider";
 
 type Photo = PhotoGalleryResponse["photos"][number];
 
-export function SpotPhotoImage({ photo, alt, className = "object-cover", sizes, priority = false, loading = false, creditClassName = "", children, frameClassName, hero = false, earlySpotId }: {
-  photo?: Photo; alt: string; className?: string; sizes: string; priority?: boolean; loading?: boolean; creditClassName?: string; children?: ReactNode; frameClassName?: string; hero?: boolean; earlySpotId?: string;
+export function SpotPhotoImage({ photo, alt, className = "object-cover", sizes, priority = false, loading = false, creditClassName = "", children, frameClassName, hero = false, earlySpotId, category }: {
+  photo?: Photo; alt: string; className?: string; sizes: string; priority?: boolean; loading?: boolean; creditClassName?: string; children?: ReactNode; frameClassName?: string; hero?: boolean; earlySpotId?: string; category?: string;
 }) {
   // Reset only the image state on source changes; keep hero interactions mounted.
-  return <PhotoImage photo={photo} alt={alt} className={className} sizes={sizes} priority={priority} loading={loading} creditClassName={creditClassName} frameClassName={frameClassName} hero={hero} earlySpotId={earlySpotId}>{children}</PhotoImage>;
+  return <PhotoImage photo={photo} alt={alt} className={className} sizes={sizes} priority={priority} loading={loading} creditClassName={creditClassName} frameClassName={frameClassName} hero={hero} earlySpotId={earlySpotId} category={category}>{children}</PhotoImage>;
 }
 
-function PhotoImage({ photo, alt, className, sizes, priority, loading, creditClassName, children, frameClassName, hero, earlySpotId }: {
-  photo?: Photo; alt: string; className: string; sizes: string; priority: boolean; loading: boolean; creditClassName: string; children?: ReactNode; frameClassName?: string; hero: boolean; earlySpotId?: string;
+function PhotoImage({ photo, alt, className, sizes, priority, loading, creditClassName, children, frameClassName, hero, earlySpotId, category = "" }: {
+  photo?: Photo; alt: string; className: string; sizes: string; priority: boolean; loading: boolean; creditClassName: string; children?: ReactNode; frameClassName?: string; hero: boolean; earlySpotId?: string; category?: string;
 }) {
   const [imageState, setImageState] = useState<{ url?: string; status: "loading" | "loaded" | "failed" }>({ url: photo?.url, status: "loading" });
   if (imageState.url !== photo?.url) setImageState({ url: photo?.url, status: "loading" });
   const state = imageState.url === photo?.url ? imageState.status : "loading";
   const unavailable = !photo || state === "failed";
+  const tone = pinTone(category);
+  const ToneIcon = TONE_ICONS[tone];
   return <figure className="flex h-full w-full flex-col">
     <div data-testid={hero ? "spot-detail-hero" : undefined} className={cn("relative min-h-0 flex-1", frameClassName)}>
       {unavailable ? <>
-        {/* Quiet frame, no status text on public pages (content-first rule 2). */}
-        <div data-testid="photo-placeholder" data-state={loading ? "loading" : "unavailable"} aria-hidden="true" className={cn("h-full min-h-24 w-full bg-raised", loading && "animate-pulse")} />
+        {/* Category tile, never a blank box and no status text (content-first rule 2). */}
+        <div data-testid="photo-placeholder" data-state={loading ? "loading" : "unavailable"} data-tone={tone} aria-hidden="true" className={cn("ll-photo-tile h-full min-h-24 w-full", loading && "animate-pulse")}>
+          <ToneIcon className="ll-photo-tile-icon" />
+        </div>
         {/* Server HTML only: the inline script fills these at parse time; React keeps them until its own photo arrives. */}
         {loading && earlySpotId && <>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -69,9 +75,9 @@ export function VenuePhotoThumbnails({ name }: { name: string }) {
   </div>;
 }
 
-export function VenueCardPhoto({ spotId, name, priority = false, directPhotos = [], frameClassName }: { spotId: string; name: string; priority?: boolean; directPhotos?: string[]; frameClassName?: string }) {
+export function VenueCardPhoto({ spotId, name, priority = false, directPhotos = [], frameClassName, category }: { spotId: string; name: string; priority?: boolean; directPhotos?: string[]; frameClassName?: string; category?: string }) {
   const { ref, data, loading } = useVenuePhotos(spotId, priority, getDirectVenuePhotos(directPhotos));
   return <div ref={ref} className="relative h-full w-full">
-    <SpotPhotoImage key={spotId} photo={data?.photos[0]} alt={name} sizes="(max-width: 768px) 100vw, 400px" priority={priority} loading={loading} frameClassName={frameClassName} />
+    <SpotPhotoImage key={spotId} photo={data?.photos[0]} alt={name} sizes="(max-width: 768px) 100vw, 400px" priority={priority} loading={loading} frameClassName={frameClassName} category={category} />
   </div>;
 }
