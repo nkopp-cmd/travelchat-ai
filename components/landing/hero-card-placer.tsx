@@ -70,8 +70,14 @@ export function HeroCardPlacer() {
         schedule();
         void document.fonts?.ready.then(schedule);
         window.addEventListener("resize", schedule);
+        // The first pass can run before the card has its final size (it measured 20 of 56 px on a 390 px phone and
+        // sat on its own pin), so place again whenever the card or the scene changes size.
+        const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(schedule);
+        observer?.observe(card);
+        observer?.observe(scene);
         return () => {
             if (frame) cancelAnimationFrame(frame);
+            observer?.disconnect();
             window.removeEventListener("resize", schedule);
         };
     }, []);

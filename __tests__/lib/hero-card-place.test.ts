@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { heroCardPlace, type Box, type HeroCardInput } from "@/lib/landing/hero-card-place";
 
@@ -64,5 +65,12 @@ describe("hero card placement", () => {
     expect(left + 208).toBeLessThanOrEqual(bounds.right - 8);
     expect(lines.some((line) => left < line.right && left + 208 > line.left && 393 + place.dy < line.bottom && 393 + place.dy + 56 > line.top)).toBe(false);
   });
-});
 
+  it("places the card again when the card or the scene changes size (first pass can see a 20 px card)", () => {
+    const placer = readFileSync("components/landing/hero-card-placer.tsx", "utf8");
+    expect(placer).toMatch(/new ResizeObserver\(schedule\)/);
+    expect(placer).toMatch(/observe\(card\)/);
+    expect(placer).toMatch(/observe\(scene\)/);
+    expect(placer).toMatch(/observer\?\.disconnect\(\)/);
+  });
+});
