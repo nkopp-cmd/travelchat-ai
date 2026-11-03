@@ -4,6 +4,10 @@ import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { Errors, handleApiError } from "@/lib/api-errors";
 import { isPreviewEmailPreferencesCandidate, parsePreviewEmailPreferencePatch,
     previewEmailPreferences, updatePreviewEmailPreferences } from "@/lib/app-data/preview-email-preferences";
+import { appDataDb, dataBackend } from "@/lib/app-data/backend";
+import { readEmailPreferences, writeEmailPreferences } from "@/lib/app-data/email-preferences";
+
+const privateHeaders = { "Cache-Control": "private, no-store" };
 
 export interface EmailPreferences {
     marketing: boolean;
@@ -41,6 +45,10 @@ export async function GET(req: NextRequest) {
                 console.error("[PREVIEW_EMAIL_PREFERENCES] Read unavailable", error);
                 return NextResponse.json({ error: "Email preferences unavailable" }, { status: 503, headers });
             }
+        }
+
+        if (dataBackend() === "d1") {
+            return NextResponse.json({ preferences: await readEmailPreferences(appDataDb(), userId) }, { headers: privateHeaders });
         }
 
         const supabase = await createSupabaseServerClient();
@@ -96,6 +104,13 @@ export async function PUT(req: NextRequest) {
                 console.error("[PREVIEW_EMAIL_PREFERENCES] Write unavailable", error);
                 return NextResponse.json({ error: "Email preferences unavailable" }, { status: 503, headers });
             }
+        }
+
+        if (dataBackend() === "d1") {
+            const patch = parsePreviewEmailPreferencePatch(preferences);
+            if (!patch) return Errors.validationError("Invalid email preferences");
+            const updated = await writeEmailPreferences(appDataDb(), userId, patch);
+            return NextResponse.json({ success: true, preferences: updated }, { headers: privateHeaders });
         }
 
         const supabase = await createSupabaseServerClient();

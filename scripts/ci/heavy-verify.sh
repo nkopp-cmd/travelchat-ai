@@ -266,6 +266,7 @@ VITEST_FILES=(
   __tests__/lib/app-data-preview-leaderboard.test.ts
   __tests__/api/email-preferences-candidate-route.test.ts
   __tests__/lib/app-data-preview-email-preferences.test.ts
+  __tests__/lib/app-data-email-preferences.test.ts
   __tests__/api/notifications-candidate-route.test.ts
   __tests__/hooks/notification-inbox-candidate.test.tsx
   __tests__/hooks/notifications-prefetch.test.tsx
@@ -594,8 +595,10 @@ ESLINT_FILES=(
   __tests__/lib/app-data-preview-leaderboard.test.ts
   app/api/user/email-preferences/route.ts
   lib/app-data/preview-email-preferences.ts
+  lib/app-data/email-preferences.ts
   __tests__/api/email-preferences-candidate-route.test.ts
   __tests__/lib/app-data-preview-email-preferences.test.ts
+  __tests__/lib/app-data-email-preferences.test.ts
   app/api/notifications/route.ts
   "app/api/notifications/[id]/route.ts"
   lib/app-data/preview-notifications.ts
