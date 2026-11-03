@@ -1,8 +1,9 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { appDataDb } from "@/lib/app-data/backend";
 import { getCityBySlug } from "@/lib/cities";
 import { ownSpotPhotoPath } from "./own-photo";
-import { PUBLIC_SPOT_NAME_EXCLUSION_PATTERNS } from "./public-quality";
+import { PUBLIC_SPOT_NAME_EXCLUSION_PATTERNS, PUBLIC_SPOT_VISIBILITY_CACHE_VERSION } from "./public-quality";
 import type { RawSpot } from "./transform";
 import type { SpotsFilterState } from "./types";
 
@@ -187,15 +188,27 @@ export const RELATED_ORDER = "s.localley_score DESC, (s.local_percentage IS NULL
 
 /** Related-spot candidates in one city (the Supabase related query), as source rows. */
 export async function d1RelatedSpotSources(city: string, excludeId: string, minimumScore: number, limit: number): Promise<RawSpot[]> {
+  // The candidate list depends on the city and score only, so every spot page of a city shares one cached read
+  // (D1 2026-11-03: 943 reads/day, one per spot page render). One extra row keeps `limit` rows after the exclude.
+  const exclude = excludeId.toLowerCase();
+  const rows = await cityRelatedCandidates(city, minimumScore, limit + 1);
+  return rows.filter((row) => String(row.id).toLowerCase() !== exclude).slice(0, limit);
+}
+
+const cityRelatedCandidates = unstable_cache(d1CityRelatedCandidates, ["d1-related-candidates", PUBLIC_SPOT_VISIBILITY_CACHE_VERSION],
+  { revalidate: 3600, tags: ["spots"] });
+
+/** Top related candidates in one city, in RELATED_ORDER; the caller removes the current spot. */
+export async function d1CityRelatedCandidates(city: string, minimumScore: number, limit: number): Promise<RawSpot[]> {
   const where = visibilityWhere();
   // Related spots filter on the source photos, not the import verdict, exactly like the Supabase query.
   where.sql[0] = "json_array_length(l.payload, '$.photos') > 0";
   const { results } = await appDataDb().prepare(`SELECT l.payload,
       (SELECT ph.r2_key FROM spot_photos ph WHERE ph.spot_id = s.id) AS own_photo_key
     FROM spots s JOIN legacy_spot_source l ON l.spotId = s.id
-    WHERE ${where.sql.join(" AND ")} AND s.address LIKE ? AND s.id != ? AND s.localley_score >= ?
+    WHERE ${where.sql.join(" AND ")} AND s.address LIKE ? AND s.localley_score >= ?
     ORDER BY ${RELATED_ORDER} LIMIT ?`)
-    .bind(...where.params, `%${city}%`, excludeId.toLowerCase(), minimumScore, limit).all<{ payload: string; own_photo_key: string | null }>();
+    .bind(...where.params, `%${city}%`, minimumScore, limit).all<{ payload: string; own_photo_key: string | null }>();
   return results.map((row) => ({ ...(JSON.parse(row.payload) as RawSpot), own_photo: ownSpotPhotoPath(row.own_photo_key) }));
 }
 

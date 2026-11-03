@@ -17,7 +17,7 @@ import { dataBackend } from "@/lib/app-data/backend";
 import { fetchFilterOptions, fetchFilteredSpots, getTotalSpotCount, parseFilterParams } from "@/lib/spots/queries";
 import { fetchWeeklyTrendingSpots } from "@/lib/spots/weekly-trending";
 import { getWeekStart } from "@/lib/weekly-social-trends";
-import { d1CommunitySubmission, d1RelatedSpotSources, d1SpotSource } from "@/lib/spots/d1-queries";
+import { d1CityRelatedCandidates, d1CommunitySubmission, d1RelatedSpotSources, d1SpotSource } from "@/lib/spots/d1-queries";
 
 const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 let db: D1Sqlite;
@@ -146,6 +146,15 @@ describe("spot detail sources on D1", () => {
     const rows = await d1RelatedSpotSources("Seoul", id(6), 4, 24);
     // 2 is hidden by the import verdict but still a candidate (the page re-checks); 3 has an excluded name; 4 has no photos.
     expect(rows.map((r) => r.id)).toEqual([id(1), id(2)]);
+  });
+
+  it("related candidates: one city read serves every spot page, the current spot is dropped and the limit kept", async () => {
+    for (const n of [1, 2, 3, 6]) source(n);
+    // Order is id(1), id(2) (see above); excluding the top row must still return `limit` rows.
+    expect((await d1RelatedSpotSources("Seoul", id(1).toUpperCase(), 4, 1)).map((r) => r.id)).toEqual([id(2)]);
+    expect((await d1RelatedSpotSources("Seoul", id(2), 4, 1)).map((r) => r.id)).toEqual([id(1)]);
+    // The cached read takes no spot id, so its cache key is the city and score only; it still holds the current spot.
+    expect((await d1CityRelatedCandidates("Seoul", 4, 5)).map((r) => r.id)).toEqual([id(1), id(2), id(6)]);
   });
 
   it("own R2 photo: card, detail source and related rows carry its /media/spot path; none without a row", async () => {

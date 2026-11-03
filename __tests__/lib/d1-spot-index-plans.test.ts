@@ -4,6 +4,8 @@ import path from "node:path";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { D1Sqlite } from "../helpers/d1-sqlite";
 
+vi.mock("next/cache", () => ({ unstable_cache: (fn: unknown) => fn }));
+
 // Index rule (shared/plans/perf-speed-of-light.md "Database index check"): no "SCAN spots" without an index on the
 // hot spot queries. The plan is read from the SQL the code really sends, on the real migrations.
 const db = new D1Sqlite();

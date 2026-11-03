@@ -68,10 +68,13 @@ export async function fetchCitiesWithCounts(): Promise<CityWithCount[]> {
   return results;
 }
 
+// One hour: the read scans every visible spot (~90 ms, 3,300 rows; D1 2026-11-03: 194 runs/day at 300 s) and the
+// counts move slowly; spot writes through the API still clear it at once with the "spots" tag.
+export const CITY_COUNTS_REVALIDATE_SECONDS = 3600;
 export const getCachedCities = unstable_cache(
   fetchCitiesWithCounts,
   ["cities-with-counts", PUBLIC_SPOT_VISIBILITY_CACHE_VERSION],
-  { revalidate: 300, tags: ["spots", "cities"] }
+  { revalidate: CITY_COUNTS_REVALIDATE_SECONDS, tags: ["spots", "cities"] }
 );
 
 
