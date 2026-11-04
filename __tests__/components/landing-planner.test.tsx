@@ -10,6 +10,7 @@ import {
   LandingTripBuilder,
 } from "@/components/landing/planner";
 import { HERO_PINS, LandingHero } from "@/components/landing/hero";
+import { spotPhotoPinPath } from "@/lib/spots/own-photo";
 import { HeroHelperLinks, LANDING_HELPERS } from "@/components/landing/helpers";
 import { existsSync } from "node:fs";
 import { LandingPresetPhoto } from "@/components/landing/preset-photo";
@@ -242,7 +243,7 @@ describe("landing map hero", () => {
       expect(pin.d[0]).toBeLessThanOrEqual(100);
     }
     const featured = doc.querySelector(".ll-hero-pin[data-featured]")!;
-    expect(featured.querySelector(".ll-hero-card-title")?.textContent).toBe("Euljiro Nogari Alley");
+    expect(featured.querySelector(".ll-hero-card-title")?.textContent).toBe("Sindang-dong Tteokbokki Town");
     // Pins cut off by the phone crop are hidden there instead of half-drawn.
     expect(doc.querySelectorAll('.ll-hero-pin[data-mobile="hidden"]').length).toBeGreaterThan(0);
     expect(doc.querySelectorAll(".ll-hero-pin:not([data-mobile])").length).toBeGreaterThanOrEqual(5);
@@ -252,14 +253,15 @@ describe("landing map hero", () => {
     });
   });
 
-  it("gives every hero pin its Google photo over the category icon (Nils: Google photos everywhere)", () => {
+  it("gives every hero pin our own photo of the place over the category icon (no Places call per visitor)", () => {
     const pins = doc.querySelectorAll(".ll-hero-pin");
     HERO_PINS.forEach((pin, index) => {
       const face = pins[index].querySelector(".ll-pin-face")!;
       const photo = face.querySelector("span.ll-hero-pin-photo") as HTMLElement;
       // A background (not an <img>), so a failed photo shows no broken-image mark over the icon.
       expect(photo.style.getPropertyValue("--ll-pin-photo"))
-        .toBe(`url(/api/places/photo?name=places%2F${pin.placeId}%2Fphotos%2Fcurrent&w=400)`);
+        .toBe(`url(${spotPhotoPinPath(pin.photo)})`);
+      expect(pin.photo).toMatch(new RegExp(`^/media/spot/${pin.id}/[0-9a-f]{64}\\.webp$`));
       // The icon stays under the photo as the fallback tile.
       expect(face.querySelector("svg")).not.toBeNull();
     });
