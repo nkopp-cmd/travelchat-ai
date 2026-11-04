@@ -8,7 +8,7 @@ const pages: Record<string, string> = {
   "/blog/paying-in-seoul": `<h1>${escapeHtml(title)}</h1>`,
   "/blog": '<a href="/blog/paying-in-seoul">',
   "/blog/rss.xml": "<link>https://www.localley.io/blog/paying-in-seoul</link>",
-  "/sitemap.xml": "<loc>https://www.localley.io/blog/paying-in-seoul</loc>",
+  "/sitemaps/guides.xml": "<loc>https://www.localley.io/blog/paying-in-seoul</loc>",
   [`/${INDEXNOW_KEY}.txt`]: INDEXNOW_KEY,
 };
 const site = (override: Record<string, [number, string]> = {}) => async (url: string) => {
@@ -32,8 +32,8 @@ describe("weekly-post-publish", () => {
   it("checks every page the post touches before the ping", async () => {
     expect(await liveCheck("paying-in-seoul", title, site())).toEqual([]);
     expect(escapeHtml(title)).toBe("Paying in Seoul: cards &amp; T-money");
-    const fail = await liveCheck("paying-in-seoul", title, site({ "/sitemap.xml": [200, "<urlset/>"], "/blog": [503, ""] }));
-    expect(fail).toEqual(["/blog: 503", '/sitemap.xml: 200 without "/blog/paying-in-seoul"']);
+    const fail = await liveCheck("paying-in-seoul", title, site({ "/sitemaps/guides.xml": [200, "<urlset/>"], "/blog": [503, ""] }));
+    expect(fail).toEqual(["/blog: 503", '/sitemaps/guides.xml: 200 without "/blog/paying-in-seoul"']);
   });
 
   it("finds the post in the live commit only by its own slug", () => {

@@ -83,6 +83,7 @@ VITEST_FILES=(
   __tests__/lib/help-pay.test.ts
   __tests__/lib/blog.test.ts
   __tests__/app/site-url-fallback.test.ts
+  __tests__/lib/seo-sitemap.test.ts
   __tests__/lib/weekly-post-topic.test.ts
   __tests__/lib/weekly-post-draft.test.ts
   __tests__/lib/weekly-post-gates.test.ts
@@ -320,6 +321,11 @@ ESLINT_FILES=(
   scripts/weekly-post-draft.mjs
   scripts/weekly-post-gates.mjs
   scripts/weekly-post-publish.mjs
+  lib/seo/sitemap.ts
+  lib/seo/sitemap-spots.ts
+  app/sitemap.xml/route.ts
+  app/sitemaps/[file]/route.ts
+  __tests__/lib/seo-sitemap.test.ts
   __tests__/lib/blog.test.ts
   __tests__/lib/weekly-post-topic.test.ts
   __tests__/lib/weekly-post-draft.test.ts
@@ -443,7 +449,6 @@ ESLINT_FILES=(
   __tests__/cloudflare-edge-html-cache.test.ts
   app/privacy/page.tsx
   app/terms/page.tsx
-  app/sitemap.ts
   lib/spots/public-quality.ts
   lib/viral/feed.ts
   lib/viral/events.ts

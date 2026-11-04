@@ -33,7 +33,7 @@ export const holdsPost = (listing, slug) => listing.split("\n").some((f) => isPo
 export async function liveCheck(slug, title, get = (url) => fetch(url, { headers: { "cache-control": "no-cache" } })) {
   const fail = [];
   const pages = [[`/blog/${slug}`, escapeHtml(title)], ["/blog", `/blog/${slug}`], ["/blog/rss.xml", `/blog/${slug}`],
-    ["/sitemap.xml", `/blog/${slug}`], [`/${INDEXNOW_KEY}.txt`, INDEXNOW_KEY]];
+    ["/sitemaps/guides.xml", `/blog/${slug}`], [`/${INDEXNOW_KEY}.txt`, INDEXNOW_KEY]];
   for (const [p, needle] of pages) {
     const response = await get(`https://${HOST}${p}`);
     const body = response.status === 200 ? await response.text() : "";
