@@ -191,6 +191,44 @@ export function rankFiles(spot, files, limit = 3) {
         .slice(0, limit);
 }
 
+/** Depicts fallback: only a near-exact item name (>= 0.9) may lend its "depicts" files, so an area never stands in for a venue. */
+export const DEPICTS_MIN_SCORE = 0.9;
+
+/** Wikidata items around a point WITHOUT the image requirement (their photos are found by "depicts" on Commons). */
+export function aroundItemsQuery(lat, lng, radiusKm = EXACT_RADIUS_KM) {
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) throw new Error("bad coordinates");
+    return `SELECT ?item ?dist (GROUP_CONCAT(DISTINCT ?l; separator="|") AS ?labels) WHERE {
+  SERVICE wikibase:around { ?item wdt:P625 ?loc . bd:serviceParam wikibase:center "Point(${lng} ${lat})"^^geo:wktLiteral .
+    bd:serviceParam wikibase:radius "${radiusKm}" . bd:serviceParam wikibase:distance ?dist . }
+  ?item rdfs:label|skos:altLabel ?l . FILTER(LANG(?l) IN ("en","ja","zh","zh-hant","zh-tw","zh-hk","ko","th","ms"))
+} GROUP BY ?item ?dist ORDER BY ?dist LIMIT 150`;
+}
+
+/** SPARQL JSON bindings -> { item, file: item id, distanceKm, labels } (file only keys the one-per-item ranking). */
+export function parseAroundItems(body) {
+    return (body?.results?.bindings || []).map((row) => {
+        const item = String(row.item?.value || "").split("/").pop();
+        return { item, file: item, distanceKm: Number(row.dist?.value), labels: String(row.labels?.value || "").split("|").filter(Boolean) };
+    }).filter((row) => /^Q\d+$/.test(row.item) && Number.isFinite(row.distanceKm));
+}
+
+/** Commons bitmap files whose structured data says they depict (P180) the item. */
+export function depictsUrl(item, limit = 10) {
+    if (!/^Q\d+$/.test(String(item))) throw new Error("bad item");
+    const url = new URL("https://commons.wikimedia.org/w/api.php");
+    for (const [key, value] of Object.entries({ action: "query", format: "json", formatversion: "2", list: "search", srnamespace: "6",
+        srlimit: String(limit), srsearch: `haswbstatement:P180=${item} filetype:bitmap` })) url.searchParams.set(key, value);
+    return url.toString();
+}
+
+/** Search JSON -> matches that carry the item's score and distance. */
+export function parseDepicts(body, match) {
+    return (body?.query?.search || [])
+        .map((row) => String(row.title || "").replace(/^File:/, ""))
+        .filter(Boolean)
+        .map((file) => ({ item: match.item, file, distanceKm: match.distanceKm, score: match.score }));
+}
+
 /** City name + center pairs from the source of lib/cities.ts: each numeric `center` takes the last `name: "..."` above it. */
 export function parseCityCenters(source) {
     const centers = [];

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { allowedLicence, aroundQuery, cleanArtist, fileTitleScore, geosearchUrl, insertSql, matchScore, nearestCity, normName, parseAround, parseCityCenters, parseGeosearch, rankFiles, rankItems, reviewPrompt } from "./commons-harvest-lib.mjs";
+import { DEPICTS_MIN_SCORE, allowedLicence, aroundItemsQuery, aroundQuery, depictsUrl, parseAroundItems, parseDepicts, cleanArtist, fileTitleScore, geosearchUrl, insertSql, matchScore, nearestCity, normName, parseAround, parseCityCenters, parseGeosearch, rankFiles, rankItems, reviewPrompt } from "./commons-harvest-lib.mjs";
 
 const nakano = { names: { en: "Nakano Broadway", ja: "中野ブロードウェイ" }, category: "Shopping", city: "Tokyo" };
 const item = (over) => ({ item: "Q1", file: "a.jpg", distanceKm: 0.05, labels: [], ...over });
@@ -116,4 +116,24 @@ test("a spot without a city takes the nearest configured city within 80 km, else
     assert.equal(nearestCity(22.28, 114.16, centers), "Hong Kong");
     assert.equal(nearestCity(21.0, 105.8, centers), "Hanoi");
     assert.equal(nearestCity(10.77, 106.7, centers), "");
+});
+
+test("depicts fallback: items without an image, a strict name gate, and bitmap files that depict the item", () => {
+    assert.throws(() => aroundItemsQuery(1, Number.NaN));
+    assert.doesNotMatch(aroundItemsQuery(35.7, 139.66), /P18/);
+    const items = parseAroundItems({ results: { bindings: [
+        { item: { value: "http://www.wikidata.org/entity/Q42" }, dist: { value: "0.05" }, labels: { value: "Nakano Broadway|中野ブロードウェイ" } },
+        { item: { value: "http://www.wikidata.org/entity/Q7" }, dist: { value: "0.02" }, labels: { value: "Nakano" } },
+        { item: { value: "http://www.wikidata.org/entity/bad" }, dist: { value: "0.01" }, labels: { value: "Nakano Broadway" } },
+    ] } });
+    assert.deepEqual(items.map((row) => row.item), ["Q42", "Q7"]);
+    // The area item ("Nakano") scores below the depicts gate; only the exact item may lend its files.
+    const strict = rankItems(nakano, items).filter((row) => row.score >= DEPICTS_MIN_SCORE);
+    assert.deepEqual(strict.map((row) => row.item), ["Q42"]);
+    const bukchon = { names: { en: "Osulloc Tea House Bukchon" } };
+    assert.ok(rankItems(bukchon, [item({ labels: ["Bukchon Hanok Village", "Bukchon"] })]).every((row) => row.score < DEPICTS_MIN_SCORE));
+    assert.throws(() => depictsUrl("Q1 OR 1"));
+    assert.match(depictsUrl("Q42"), /srsearch=haswbstatement%3AP180%3DQ42\+filetype%3Abitmap/);
+    assert.deepEqual(parseDepicts({ query: { search: [{ title: "File:Nakano Broadway 2.jpg" }] } }, strict[0]),
+        [{ item: "Q42", file: "Nakano Broadway 2.jpg", distanceKm: 0.05, score: 1 }]);
 });

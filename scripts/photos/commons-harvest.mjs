@@ -13,7 +13,7 @@ import fs from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
 import { dHash, isDuplicate, qualityProblems, reviewSaysYes, spotPhotoKey } from "./kto-harvest-lib.mjs";
-import { USER_AGENT, allowedLicence, aroundQuery, cleanArtist, geosearchUrl, parseAround, parseGeosearch, nearestCity, parseCityCenters, rankFiles, rankItems, reviewPrompt } from "./commons-harvest-lib.mjs";
+import { DEPICTS_MIN_SCORE, USER_AGENT, allowedLicence, aroundItemsQuery, aroundQuery, depictsUrl, parseAroundItems, parseDepicts, cleanArtist, geosearchUrl, parseAround, parseGeosearch, nearestCity, parseCityCenters, rankFiles, rankItems, reviewPrompt } from "./commons-harvest-lib.mjs";
 
 const BUCKET = "localley-community-media";
 const CODEX = "/home/dev/.local/bin/codex";
@@ -97,6 +97,10 @@ const nearbyItems = async (spot) => parseAround(await getJson(
     `https://query.wikidata.org/sparql?format=json&query=${encodeURIComponent(aroundQuery(spot.lat, spot.lng))}`,
     { Accept: "application/sparql-results+json" }));
 
+const nearbyPlainItems = async (spot) => parseAroundItems(await getJson(
+    `https://query.wikidata.org/sparql?format=json&query=${encodeURIComponent(aroundItemsQuery(spot.lat, spot.lng))}`,
+    { Accept: "application/sparql-results+json" }));
+
 async function fileInfo(file) {
     const url = new URL("https://commons.wikimedia.org/w/api.php");
     for (const [key, value] of Object.entries({ action: "query", format: "json", formatversion: "2", prop: "imageinfo",
@@ -171,6 +175,12 @@ for (const spot of spots) {
             const known = new Set(matches.map((match) => match.file));
             const files = rankFiles(spot, parseGeosearch(await getJson(geosearchUrl(spot.lat, spot.lng))), perSpot + 2);
             matches.push(...files.filter((row) => !known.has(row.file)));
+        }
+        // Fallback: a near-exact Wikidata item without an image lends the Commons files that "depict" it.
+        if (matches.length < perSpot) {
+            const known = new Set(matches.map((match) => match.file));
+            const item = rankItems(spot, await nearbyPlainItems(spot), 1).find((row) => row.score >= DEPICTS_MIN_SCORE);
+            if (item) matches.push(...parseDepicts(await getJson(depictsUrl(item.item, perSpot + 2)), item).filter((row) => !known.has(row.file)));
         }
     } catch (error) {
         entry.status = `search-error: ${error.message}`;
