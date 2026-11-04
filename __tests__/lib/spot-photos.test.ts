@@ -66,6 +66,15 @@ describe("own spot photos from tips", () => {
     expect(response.status).toBe(200);
     expect(response.headers.get("Cache-Control")).toBe("public, max-age=31536000, immutable");
     expect(response.headers.get("Content-Type")).toBe("image/webp");
+
+    // The small card copy: served when it exists, else the full photo; only for a key a row names.
+    const full = sha(webp(1));
+    const before = await get(SPOT, `${full}-480.webp`);
+    expect(before.headers.get("Cache-Control")).toBe("public, max-age=3600");
+    expect(new Uint8Array(await before.arrayBuffer())).toEqual(new Uint8Array(webp(1)));
+    objects.set(`spot-photos/${SPOT}/${full}-480.webp`, webp(7));
+    expect(new Uint8Array(await (await get(SPOT, `${full}-480.webp`)).arrayBuffer())).toEqual(new Uint8Array(webp(7)));
+    for (const file of [`${full}-481.webp`, `${"a".repeat(64)}-480.webp`]) expect((await get(SPOT, file)).status).toBe(404);
   });
 
   it("a new choice leads and keeps the earlier photos; unknown, malformed or unlisted keys are 404 no-store", async () => {

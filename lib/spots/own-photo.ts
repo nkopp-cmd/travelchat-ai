@@ -8,6 +8,14 @@ export function spotPhotoPath(key: string): string {
   return `/media/spot/${match[1]}/${match[2]}.webp`;
 }
 
+/** Width of the small copy (`<sha>-480.webp` next to the full photo) that cards, pins and Nearby rows show. */
+export const SPOT_THUMB_WIDTH = 480;
+
+/** The small-copy path of a stored spot photo; other URLs stay as they are. The route serves the full photo until the copy exists. */
+export function spotPhotoThumbPath(src: string): string {
+  return /^\/media\/spot\/[0-9a-f-]{36}\/[0-9a-f]{64}\.webp$/.test(src) ? src.replace(/\.webp$/, `-${SPOT_THUMB_WIDTH}.webp`) : src;
+}
+
 /** Public path for a spot_photos.r2_key read from D1, or null when there is none (or it is not a spot photo key). */
 export function ownSpotPhotoPath(key: unknown): string | null {
   return typeof key === "string" && SPOT_PHOTO_KEY.test(key) ? spotPhotoPath(key) : null;
@@ -63,7 +71,8 @@ export function cardGooglePhotoUrl(name: string): string {
  */
 export function cardSpotPhotos(spot: { ownPhoto?: string | null; googlePlaceId?: string | null; photos?: string[] | null }): string[] {
   const name = storedGooglePhotoName(spot.photos) ?? placeIdPhotoName(spot.googlePlaceId);
-  return [...directSpotPhotos(spot), ...(name ? [cardGooglePhotoUrl(name)] : [])];
+  // A 1600 px photo is 300-700 KB; the 480 px copy keeps a list of pins light.
+  return [...directSpotPhotos(spot).map(spotPhotoThumbPath), ...(name ? [cardGooglePhotoUrl(name)] : [])];
 }
 
 /** True for the canonical small Google proxy URL built by cardGooglePhotoUrl. */
