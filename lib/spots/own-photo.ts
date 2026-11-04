@@ -108,11 +108,15 @@ export type StoredSpotPhoto = {
 };
 
 /** Display name of each spot_photos source; tip/own/cc0 photos need no credit line. */
-const CREDIT_SOURCES: Record<string, string> = { commons: "Wikimedia Commons", kto: "Korea Tourism Organization", pexels: "Pexels" };
+const CREDIT_SOURCES: Record<string, string> = {
+  commons: "Wikimedia Commons", kto: "Korea Tourism Organization", pexels: "Pexels",
+  // Government tourism open data; the only provider so far is Taiwan (Open Government Data License v1.0).
+  opendata: "Taiwan Tourism Administration",
+};
 
 const text = (value: unknown) => typeof value === "string" && value.trim() ? value.trim() : null;
 
-/** KTO authors read "Korea Tourism Organization / <photographer>": drop the source name the label already shows. */
+/** KTO / open-data authors read "<source> / <photographer>": drop the source name the label already shows. */
 function withoutSource(author: string | null, source: string): string | null {
   if (!author) return null;
   const rest = author.startsWith(source) ? author.slice(source.length).replace(/^[\s/·,:-]+/, "").trim() : author;
