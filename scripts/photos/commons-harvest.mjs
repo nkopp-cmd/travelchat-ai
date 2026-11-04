@@ -5,7 +5,7 @@
 // -> Commons licence + author (CC0 / PD / CC BY / CC BY-SA only) -> download 1600 px -> quality gate (size,
 // sharpness, dHash dedupe) -> subscription vision check (codex exec, $0, "yes" only) -> webp -> R2 (--upload)
 // -> manifest.json. scripts/photos/insert-photos.mjs writes the spot_photos rows from the manifest.
-// Usage: node scripts/photos/commons-harvest.mjs --out <dir> [--city Tokyo|all] [--limit 100] [--per-spot 2] [--review] [--upload] [--cities <app>/lib/cities.ts]
+// Usage: node scripts/photos/commons-harvest.mjs --out <dir> [--city Tokyo|all] [--limit 100] [--per-spot 2] [--review] [--upload] [--cities <app>/lib/cities.ts] [--skip-done]
 // Env: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID (D1 read + R2 upload). No other key.
 import { createHash } from "node:crypto";
 import { execFileSync, spawnSync } from "node:child_process";
@@ -60,7 +60,12 @@ function topSpots() {
     }).filter((spot) => city === "all" || spot.city === city);
     spots.sort((a, b) => a.city.localeCompare(b.city) || b.order[0] - a.order[0] || b.order[1] - a.order[1]);
     const taken = {};
-    return spots.filter((spot) => (taken[spot.city] = (taken[spot.city] || 0) + 1) <= limit).map(({ order, ...spot }) => spot);
+    const top = spots.filter((spot) => (taken[spot.city] = (taken[spot.city] || 0) + 1) <= limit).map(({ order, ...spot }) => spot);
+    if (!flag("skip-done")) return top;
+    // A rerun keeps each city's top list but asks nothing for spots that already have a photo row.
+    const done = new Set(JSON.parse(wrangler("d1", "execute", "localley-app", "--remote", "--json", "--command",
+        "SELECT DISTINCT spot_id FROM spot_photos"))[0].results.map((row) => row.spot_id));
+    return top.filter((spot) => !done.has(spot.id));
 }
 
 // Responses are public data; they are kept on disk so a second run asks Wikimedia nothing again.
