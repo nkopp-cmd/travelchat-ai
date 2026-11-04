@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Wikidata/Commons photo harvester for every city (plan localley-map-photos-edge-pins item 2b GLOBAL). Host script.
 // Stages: top spots per city from D1 -> Wikidata items with an image (P18) near the pin whose name matches the spot
+// (fallback: geotagged Commons files within 300 m whose file name names the spot)
 // -> Commons licence + author (CC0 / PD / CC BY / CC BY-SA only) -> download 1600 px -> quality gate (size,
 // sharpness, dHash dedupe) -> subscription vision check (codex exec, $0, "yes" only) -> webp -> R2 (--upload)
 // -> manifest.json. scripts/photos/insert-photos.mjs writes the spot_photos rows from the manifest.
@@ -12,7 +13,7 @@ import fs from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
 import { dHash, isDuplicate, qualityProblems, reviewSaysYes, spotPhotoKey } from "./kto-harvest-lib.mjs";
-import { USER_AGENT, allowedLicence, aroundQuery, cleanArtist, parseAround, rankItems, reviewPrompt } from "./commons-harvest-lib.mjs";
+import { USER_AGENT, allowedLicence, aroundQuery, cleanArtist, geosearchUrl, parseAround, parseGeosearch, rankFiles, rankItems, reviewPrompt } from "./commons-harvest-lib.mjs";
 
 const BUCKET = "localley-community-media";
 const CODEX = "/home/dev/.local/bin/codex";
@@ -150,6 +151,12 @@ for (const spot of spots) {
     let matches = [];
     try {
         matches = rankItems(spot, await nearbyItems(spot), perSpot + 2);
+        // Fallback: geotagged Commons files near the pin whose file name names the place (no Wikidata image needed).
+        if (matches.length < perSpot) {
+            const known = new Set(matches.map((match) => match.file));
+            const files = rankFiles(spot, parseGeosearch(await getJson(geosearchUrl(spot.lat, spot.lng))), perSpot + 2);
+            matches.push(...files.filter((row) => !known.has(row.file)));
+        }
     } catch (error) {
         entry.status = `search-error: ${error.message}`;
         continue;

@@ -147,3 +147,46 @@ export function insertSql(photos, approvedBy) {
                 + `WHERE NOT EXISTS (SELECT 1 FROM spot_photos WHERE r2_key = ${key});`;
         });
 }
+
+/** Commons geosearch radius (m): a geotagged file must be near our pin AND name the place in its file name. */
+export const GEO_RADIUS_M = 300;
+
+/** Geotagged Commons files (namespace 6) around a point; used when Wikidata has no matching item with an image. */
+export function geosearchUrl(lat, lng, radiusM = GEO_RADIUS_M) {
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) throw new Error("bad coordinates");
+    const url = new URL("https://commons.wikimedia.org/w/api.php");
+    for (const [key, value] of Object.entries({ action: "query", format: "json", formatversion: "2", list: "geosearch",
+        gsnamespace: "6", gscoord: `${lat}|${lng}`, gsradius: String(radiusM), gslimit: "100" })) url.searchParams.set(key, value);
+    return url.toString();
+}
+
+/** Geosearch JSON -> { file, distanceKm } (file without the "File:" prefix). */
+export function parseGeosearch(body) {
+    return (body?.query?.geosearch || []).map((row) => ({
+        file: String(row.title || "").replace(/^File:/, ""),
+        distanceKm: Number(row.dist) / 1000,
+    })).filter((row) => row.file && Number.isFinite(row.distanceKm));
+}
+
+/**
+ * 0.9 when the file name contains one of the spot's names, else 0. The name must be long enough to be specific
+ * (>= 6 latin or >= 3 other chars), so "Park" or "Cafe" never matches; a station file never stands in for a place.
+ */
+export function fileTitleScore(spot, file) {
+    const title = normName(String(file || "").replace(/\.[a-z0-9]{3,4}$/i, ""));
+    const names = spotNames(spot);
+    if (!title || (STATION.test(title) && !names.some((name) => STATION.test(name)))) return 0;
+    const specific = (name) => (LATIN.test(name) ? name.length >= 6 : [...name].length >= 3);
+    return names.some((name) => specific(name) && title.includes(name)) ? 0.9 : 0;
+}
+
+/** Geosearch files whose name names the spot, nearest first, one per file. */
+export function rankFiles(spot, files, limit = 3) {
+    const seen = new Set();
+    return files
+        .map((row) => ({ item: "commons-geo", file: row.file, distanceKm: row.distanceKm, score: fileTitleScore(spot, row.file) }))
+        .filter((row) => row.score >= MIN_SCORE && row.distanceKm <= GEO_RADIUS_M / 1000)
+        .sort((a, b) => a.distanceKm - b.distanceKm)
+        .filter((row) => !seen.has(row.file) && seen.add(row.file))
+        .slice(0, limit);
+}
