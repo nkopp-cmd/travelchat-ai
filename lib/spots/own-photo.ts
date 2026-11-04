@@ -42,6 +42,15 @@ export function storedGooglePhotoName(photos: readonly string[] | null | undefin
   return null;
 }
 
+/**
+ * A listing with a place id but no stored photo name (e.g. added from a news event) still gets its Google photo:
+ * the proxy reads only the place id from the name and asks Details for the current first photo.
+ */
+function placeIdPhotoName(placeId: string | null | undefined): string | null {
+  const name = placeId ? `places/${placeId}/photos/current` : null;
+  return name && PLACE_PHOTO_NAME.test(name) ? name : null;
+}
+
 /** The canonical small proxy URL for a stored Google photo name (one URL per spot, shared by every small surface). */
 export function cardGooglePhotoUrl(name: string): string {
   return `/api/places/photo?name=${encodeURIComponent(name)}&w=${CARD_PHOTO_WIDTH}`;
@@ -52,7 +61,7 @@ export function cardGooglePhotoUrl(name: string): string {
  * source photos, then the spot's first stored Google photo (one Photo call, lazy, browser-cached for a day).
  */
 export function cardSpotPhotos(spot: { ownPhoto?: string | null; googlePlaceId?: string | null; photos?: string[] | null }): string[] {
-  const name = storedGooglePhotoName(spot.photos);
+  const name = storedGooglePhotoName(spot.photos) ?? placeIdPhotoName(spot.googlePlaceId);
   return [...directSpotPhotos(spot), ...(name ? [cardGooglePhotoUrl(name)] : [])];
 }
 

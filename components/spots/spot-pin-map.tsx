@@ -34,7 +34,7 @@ interface MarkerSlot { key: string; ids: string[]; host: HTMLElement }
 
 /** The fields a pin and its card read, so non-catalog places (itinerary stops) can use the same pins. */
 export type PinSpot = Pick<Spot, "id" | "name" | "category" | "location" | "photos"> &
-    Partial<Pick<Spot, "description" | "areaName" | "cityName" | "localleyScore" | "bestTime" | "tips">> & {
+    Partial<Pick<Spot, "description" | "areaName" | "cityName" | "localleyScore" | "bestTime" | "tips" | "googlePlaceId">> & {
         /** Numbered stop badge, e.g. the visit order on an itinerary day. */
         stop?: { label: string; color: string; ariaPrefix: string };
         /** Card subtitle in place of the area name, e.g. "Day 1 · 9:00 AM". */
@@ -322,7 +322,7 @@ function prefersReducedMotion(): boolean {
 }
 
 function pinPhotos(spot: PinSpot) {
-    return getDirectVenuePhotos(cardSpotPhotos({ photos: spot.photos }));
+    return getDirectVenuePhotos(cardSpotPhotos({ photos: spot.photos, googlePlaceId: spot.googlePlaceId }));
 }
 
 function pinPhoto(spot: PinSpot): string | undefined {
