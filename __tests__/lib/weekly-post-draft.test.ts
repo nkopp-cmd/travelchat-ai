@@ -6,9 +6,13 @@ import {
   draftPost,
   factsFor,
   MAX_ATTEMPTS,
+  pickPhoto,
+  usedPhotos,
   // @ts-expect-error -- plain ESM script without type declarations
 } from "../../scripts/weekly-post-draft.mjs";
 import { parsePost } from "@/lib/blog/posts";
+// @ts-expect-error -- plain ESM build script without type declarations
+import { BLOG_DIR, blogFiles } from "../../scripts/blog-index.mjs";
 
 const read = (p: string) => JSON.parse(readFileSync(p, "utf8"));
 const data = { pay: read("lib/help/pay.json"), phrases: read("lib/help/source.json"), translations: read("lib/help/translations.json") };
@@ -71,5 +75,33 @@ describe("weekly-post-draft", () => {
 
     const none = draftPost({ date: "2026-11-02", data, files: [], slug: "seoul-winter-day-plan", generate: () => { throw new Error("must not call"); } });
     expect(none.ok).toBe(false);
+  });
+
+  it("adds an own country photo, the least used one first, that the blog parser accepts", () => {
+    const photos = read("content/blog/photos.json");
+    for (const country of ["korea", "japan", "thailand", "singapore"]) expect(photos[country]?.length).toBeGreaterThan(0);
+    // Every listed photo is a valid own photo with alt, size and credit.
+    for (const list of Object.values(photos) as { photo: string }[][]) {
+      for (const p of list) {
+        const post = parsePost("2026-11-02-x.md", `---\ntitle: T\ndescription: D\npublished: 2026-11-02\nupdated: 2026-11-02\nphoto: ${p.photo}\nphotoAlt: ${(p as Record<string, string>).photoAlt}\nphotoSize: ${(p as Record<string, string>).photoSize}\nphotoCredit: ${(p as Record<string, string>).photoCredit}\n---\nBody.\n`);
+        expect(post.photo?.src).toBe(p.photo);
+      }
+    }
+    const [first, second] = photos.korea;
+    expect(pickPhoto("korea", photos, [])).toBe(first);
+    expect(pickPhoto("korea", photos, [first.photo])).toBe(second);
+    expect(pickPhoto("korea", photos, [first.photo, second.photo])).toBe(first);
+    expect(pickPhoto("vietnam", photos, [])).toBeUndefined();
+
+    // The live Seoul post already uses the first Korea photo, so the next Korea post gets another one.
+    const used = usedPhotos(blogFiles(BLOG_DIR).map((f: string) => readFileSync(`${BLOG_DIR}/${f}`, "utf8")));
+    expect(used).toContain(first.photo);
+    expect(pickPhoto("korea", photos, used)).not.toBe(first);
+
+    const ok = draftPost({ date: "2026-11-09", data, files: [], slug: "paying-in-bangkok", photos, used, generate: () => ({ description, body: goodBody() }) });
+    const post = parsePost(ok.file, ok.source);
+    expect(post.photo?.src).toBe(photos.thailand[0].photo);
+    expect(post.photo?.credit).toBe(photos.thailand[0].photoCredit);
+    expect(parsePost(ok.file, draftPost({ date: "2026-11-09", data, files: [], slug: "paying-in-bangkok", generate: () => ({ description, body: goodBody() }) }).source).photo).toBeUndefined();
   });
 });

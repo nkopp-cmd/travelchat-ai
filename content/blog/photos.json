@@ -1,0 +1,46 @@
+{
+  "korea": [
+    {
+      "photo": "/media/spot/0d120515-c856-48cf-8621-7efad0e59568/8344c77eee82a6b933b39c70075c9bb9ca0f6784f27f6cdd95317d396ebdf64d.webp",
+      "photoAlt": "Shoppers between the stalls of Namdaemun Market in Seoul, where many vendors still prefer cash",
+      "photoSize": "1280x853",
+      "photoCredit": "Korea Tourism Organization / 니오타니 스튜디오 (KOGL Type 1)"
+    },
+    {
+      "photo": "/media/spot/14a28d47-0ba2-4857-95fa-06bcb051bc2c/3fa6821dd4be412ba9ca7f373b74a71956e956a5f99dcb53fa5cd92968c2bddc.webp",
+      "photoAlt": "Rows of fish stalls under hanging lamps in Noryangjin Fish Market, Seoul",
+      "photoSize": "1600x1200",
+      "photoCredit": "Gaël Chardon · CC BY-SA 2.0 · Wikimedia Commons"
+    }
+  ],
+  "japan": [
+    {
+      "photo": "/media/spot/65063bf2-32ad-44e8-8de4-8918fe074755/c1b428f4b8f8574fee6b1d90f0e228901528c1bdfd7e073de74d9aeafbc0ef2c.webp",
+      "photoAlt": "Shoppers in a narrow lane of food stalls at Tsukiji Outer Market, Tokyo",
+      "photoSize": "1600x1200",
+      "photoCredit": "Aimaimyi · CC BY-SA 3.0 · Wikimedia Commons"
+    },
+    {
+      "photo": "/media/spot/e2c4f479-886e-4feb-95bb-060e624af3da/c548ab16216354a39d63d9fd44a1cb6757435d91c698379a3143da73702e9cf8.webp",
+      "photoAlt": "A street corner in Shimokitazawa, Tokyo, at night with small shops and street lights",
+      "photoSize": "1600x1070",
+      "photoCredit": "Guwashi · CC BY 2.0 · Wikimedia Commons"
+    }
+  ],
+  "thailand": [
+    {
+      "photo": "/media/spot/c9f18f80-3b4d-4bb7-84b6-6972508be155/967676813ca12b0e4995808cdf605cbe9c164356ab8da0a854bbde9c33041401.webp",
+      "photoAlt": "Flower and vegetable stalls along the street at Pak Khlong Talat, Bangkok",
+      "photoSize": "1600x1200",
+      "photoCredit": "Sry85 · CC BY-SA 4.0 · Wikimedia Commons"
+    }
+  ],
+  "singapore": [
+    {
+      "photo": "/media/spot/d402183b-98b8-4eca-af50-823eeabad221/538c6a69504502d9d057a22b75f0645cc84e45732eec2f3df88bf4319f0f4d89.webp",
+      "photoAlt": "Clothing and gift stalls with price signs in Singapore dollars at Geylang Serai Market",
+      "photoSize": "1600x1200",
+      "photoCredit": "Chainwit. · CC BY 4.0 · Wikimedia Commons"
+    }
+  ]
+}
