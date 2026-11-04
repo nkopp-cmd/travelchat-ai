@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
-import { directSpotPhotos, ownSpotPhotoPath } from "@/lib/spots/own-photo";
+import { CARD_PHOTO_WIDTH, cardGooglePhotoUrl, cardSpotPhotos, directSpotPhotos, isCardGooglePhotoUrl, ownSpotPhotoPath, storedGooglePhotoName } from "@/lib/spots/own-photo";
 import { getDirectVenuePhotos } from "@/components/spots/venue-photo-provider";
 
 const spotId = "00000000-0000-4000-8000-000000000001";
@@ -28,5 +28,27 @@ describe("own spot photo first, Google Places only as fallback", () => {
   it("the gallery accepts the own photo first and labels it", () => {
     const [first] = getDirectVenuePhotos(directSpotPhotos({ ownPhoto: own, googlePlaceId: "ChIJ1", photos: [] }));
     expect(first).toMatchObject({ url: own, sourceLabel: "Localley traveller photo" });
+  });
+
+  it("reads the stored Google photo name from D1 photo URLs and rejects anything else", () => {
+    const name = "places/ChIJ1/photos/AbC-_9";
+    expect(storedGooglePhotoName([`/api/places/photo?name=${encodeURIComponent(name)}&w=1200`])).toBe(name);
+    expect(storedGooglePhotoName(["https://x/a.jpg", `/api/places/photo?name=${encodeURIComponent(name)}`])).toBe(name);
+    for (const bad of [null, undefined, [], ["/api/places/photo?name=old"], ["/api/places/photo?name=places%2F..%2Fphotos%2Fx"], ["/api/places/photo"]]) {
+      expect(storedGooglePhotoName(bad as string[] | null | undefined)).toBeNull();
+    }
+  });
+
+  it("cards, pins and Nearby share ONE small Google URL per spot (one billed Photo call, then browser cache)", () => {
+    const name = "places/ChIJ1/photos/ref1";
+    const url = cardGooglePhotoUrl(name);
+    expect(url).toBe(`/api/places/photo?name=places%2FChIJ1%2Fphotos%2Fref1&w=${CARD_PHOTO_WIDTH}`);
+    expect(isCardGooglePhotoUrl(url)).toBe(true);
+    expect(isCardGooglePhotoUrl(`${url}&x=1`)).toBe(false);
+    expect(isCardGooglePhotoUrl("/api/places/photo?name=old&w=400")).toBe(false);
+    const photos = [`/api/places/photo?name=${encodeURIComponent(name)}&w=1200`];
+    expect(cardSpotPhotos({ ownPhoto: own, photos })).toEqual([own, url]);
+    expect(cardSpotPhotos({ photos: [] })).toEqual([]);
+    expect(getDirectVenuePhotos(cardSpotPhotos({ photos }))[0]).toMatchObject({ url, sourceLabel: "Google listing photo" });
   });
 });

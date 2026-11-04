@@ -11,7 +11,7 @@ import Link from "next/link";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { dataBackend } from "@/lib/app-data/backend";
 import { d1CommunitySubmission, d1RelatedSpotSources, d1SpotSource } from "@/lib/spots/d1-queries";
-import { directSpotPhotos } from "@/lib/spots/own-photo";
+import { cardSpotPhotos, directSpotPhotos } from "@/lib/spots/own-photo";
 import { SpotInteractions } from "@/components/spots/spot-interactions";
 import { SpotActivities } from "@/components/spots/spot-activities";
 import { ReviewList } from "@/components/spots/review-list";
@@ -417,7 +417,7 @@ async function getRelatedSpots(
 
       return {
         id: spot.id,
-        directPhotos: directSpotPhotos({ ownPhoto: "own_photo" in spot ? spot.own_photo : null, googlePlaceId: spot.google_place_id, photos: normalizeSpotPhotos(spot.photos, category, 900) }),
+        directPhotos: cardSpotPhotos({ ownPhoto: "own_photo" in spot ? spot.own_photo : null, googlePlaceId: spot.google_place_id, photos: normalizeSpotPhotos(spot.photos, category, 900) }),
         name,
         address,
         category,

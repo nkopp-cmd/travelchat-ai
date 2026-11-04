@@ -8,7 +8,7 @@ import { D1Sqlite } from "@/__tests__/helpers/d1-sqlite";
 const mocks = vi.hoisted(() => ({ db: null as unknown }));
 vi.mock("@/lib/app-data/backend", () => ({ appDataDb: () => mocks.db }));
 vi.mock("@/lib/rate-limit", () => ({ rateLimit: () => async () => null, strictPlatformLimit: async () => "allowed" }));
-import { PLACES_DAILY_CAP_DEFAULT, placesDailyCap, reservePlacesCall } from "@/lib/places-quota";
+import { PLACES_DAILY_CAP_DEFAULT, PLACES_MONTHLY_CAP_DEFAULT, placesDailyCap, placesMonthlyCap, reservePlacesCall } from "@/lib/places-quota";
 import { isAutomatedPlacesRequest } from "@/lib/places-guard";
 import { GET as galleryGET } from "@/app/api/spots/[id]/photos/route";
 import { GET } from "@/app/api/places/photo/route";
@@ -37,6 +37,31 @@ describe("Places daily cap (hard stop)", () => {
     expect(results).toEqual([true, true, true, false, false]);
     expect(d1.sqlite.prepare("SELECT day, calls, cap FROM places_api_usage").all()).toEqual([{ day: "2026-10-28", calls: 3, cap: 3 }]);
     expect(await reservePlacesCall("photo", d1 as unknown as Db, day2)).toBe(true);
+  });
+
+  it("stops at the monthly cap across days and starts again on the 1st (UTC)", async () => {
+    vi.stubEnv("PLACES_DAILY_CAP", "3");
+    vi.stubEnv("PLACES_MONTHLY_CAP", "5");
+    const at = (iso: string) => reservePlacesCall("photo", d1 as unknown as Db, new Date(iso));
+    d1.sqlite.prepare("INSERT INTO places_api_usage (day, calls, cap) VALUES ('2026-10-31', 3, 3)").run();
+    const results = [];
+    for (const day of ["2026-11-01", "2026-11-01", "2026-11-01", "2026-11-02", "2026-11-02", "2026-11-03"]) results.push(await at(`${day}T12:00:00Z`));
+    // October's 3 calls do not count for November; 3 + 2 = 5 then the month is full, also on a fresh day.
+    expect(results).toEqual([true, true, true, true, true, false]);
+    expect(d1.sqlite.prepare("SELECT COALESCE(SUM(calls),0) AS n FROM places_api_usage WHERE day >= '2026-11-01'").get()).toEqual({ n: 5 });
+    expect(await at("2026-12-01T00:00:01Z")).toBe(true);
+  });
+
+  it("the default caps keep Places photos under USD 25 a month after Google's 1,000 free calls", () => {
+    expect(placesMonthlyCap()).toBe(PLACES_MONTHLY_CAP_DEFAULT);
+    expect(((PLACES_MONTHLY_CAP_DEFAULT - 1000) * 7) / 1000).toBeLessThanOrEqual(25);
+    expect(PLACES_DAILY_CAP_DEFAULT).toBeLessThan(PLACES_MONTHLY_CAP_DEFAULT);
+  });
+
+  it("parallel requests never pass the monthly cap", async () => {
+    vi.stubEnv("PLACES_MONTHLY_CAP", "7");
+    const results = await Promise.all(Array.from({ length: 20 }, () => reservePlacesCall("photo", d1 as unknown as Db, day1)));
+    expect(results.filter(Boolean)).toHaveLength(7);
   });
 
   it("parallel requests never pass the cap", async () => {
