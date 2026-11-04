@@ -9,6 +9,11 @@ const publisher = {
   logo: { "@type": "ImageObject", url: "https://www.localley.io/android-chrome-512x512.png" },
 };
 
+/** Share image: the front matter image, else the post's own photo, else the default. */
+export function postImage(post: BlogPost): string {
+  return post.image ?? (post.photo ? `https://www.localley.io${post.photo.src}` : DEFAULT_BLOG_IMAGE);
+}
+
 export function postUrl(post: BlogPost): string {
   return `${BLOG_URL}/${post.slug}`;
 }
@@ -21,7 +26,7 @@ export function blogPostingJsonLd(post: BlogPost) {
     description: post.description,
     datePublished: post.published,
     dateModified: post.updated,
-    image: post.image ?? DEFAULT_BLOG_IMAGE,
+    image: postImage(post),
     url: postUrl(post),
     mainEntityOfPage: { "@type": "WebPage", "@id": postUrl(post) },
     author: { "@type": "Organization", name: "Localley", url: "https://www.localley.io" },

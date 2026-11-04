@@ -9,8 +9,23 @@ export type BlogPost = {
   published: string;
   updated: string;
   image?: string;
+  photo?: BlogPhoto;
   body: string;
 };
+
+/** One own place photo (R2, /media/spot) at the top of a post, with its credit line. */
+export type BlogPhoto = { src: string; alt: string; credit: string; width: number; height: number };
+
+const OWN_PHOTO = /^\/media\/spot\/[0-9a-f-]{36}\/[0-9a-f]{64}\.webp$/;
+const SIZE = /^(\d{2,5})x(\d{2,5})$/;
+
+function parsePhoto(file: string, meta: Record<string, string>): BlogPhoto | undefined {
+  if (!meta.photo) return undefined;
+  if (!OWN_PHOTO.test(meta.photo)) throw new Error(`${file}: photo must be an own /media/spot/<id>/<sha>.webp path`);
+  const size = SIZE.exec(meta.photoSize ?? "");
+  if (!meta.photoAlt || !meta.photoCredit || !size) throw new Error(`${file}: photo needs photoAlt, photoCredit and photoSize (<w>x<h>)`);
+  return { src: meta.photo, alt: meta.photoAlt, credit: meta.photoCredit, width: Number(size[1]), height: Number(size[2]) };
+}
 
 const FILE = /^(\d{4}-\d{2}-\d{2})-([a-z0-9]+(?:-[a-z0-9]+)*)\.md$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -34,7 +49,7 @@ export function parsePost(file: string, source: string): BlogPost {
   if (meta.updated < meta.published) throw new Error(`${file}: updated is before published`);
   return {
     slug: name[2], file, title: meta.title, description: meta.description,
-    published: meta.published, updated: meta.updated, image: meta.image || undefined, body: match[2].trim(),
+    published: meta.published, updated: meta.updated, image: meta.image || undefined, photo: parsePhoto(file, meta), body: match[2].trim(),
   };
 }
 
