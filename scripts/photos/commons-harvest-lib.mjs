@@ -172,12 +172,13 @@ export function parseGeosearch(body) {
 
 /**
  * 0.9 when the file name contains one of the spot's names, else 0. The name must be long enough to be specific
- * (>= 6 latin or >= 3 other chars), so "Park" or "Cafe" never matches; a station file never stands in for a place.
+ * (>= 6 latin or >= 3 other chars), so "Park" or "Cafe" never matches; a station or ward-office file never stands
+ * in for a place.
  */
 export function fileTitleScore(spot, file) {
     const title = normName(String(file || "").replace(/\.[a-z0-9]{3,4}$/i, ""));
     const names = spotNames(spot);
-    if (!title || (STATION.test(title) && !names.some((name) => STATION.test(name)))) return 0;
+    if (!title || [STATION, CIVIC].some((pattern) => pattern.test(title) && !names.some((name) => pattern.test(name)))) return 0;
     const specific = (name) => (LATIN.test(name) ? name.length >= 6 : [...name].length >= 3);
     return names.some((name) => specific(name) && title.includes(name)) ? 0.9 : 0;
 }

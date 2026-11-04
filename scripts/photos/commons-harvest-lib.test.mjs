@@ -99,6 +99,9 @@ test("geosearch fallback: a nearby file that names the place matches; generic, f
     assert.equal(fileTitleScore({ names: { en: "Park" } }, "Ueno Park.jpg"), 0);
     assert.equal(fileTitleScore({ names: { en: "Toneri Park" } }, "Toneri Park Station platform.jpg"), 0);
     assert.equal(fileTitleScore({ names: { en: "Toneri Park" } }, "Toneri park cherry blossoms.JPG"), 0.9);
+    assert.equal(fileTitleScore({ names: { en: "Seongbuk-dong Art Village", ko: "성북동 예술마을" } }, "Seongbuk Seongbuk-dong Community Service Center.jpg"), 0);
+    assert.equal(fileTitleScore({ names: { en: "Pildong Namsan Village", ko: "필동" } }, "P00250518 113018406 필동주민센터.JPG"), 0);
+    assert.equal(fileTitleScore({ names: { en: "Seongbuk-dong Art Village" } }, "Seongbuk-dong Art Village mural 2019.jpg"), 0.9);
 });
 
 test("a spot without a city takes the nearest configured city within 80 km, else none", () => {
