@@ -72,12 +72,27 @@ function imageType(bytes: Uint8Array): string | null {
     return null;
 }
 
+const PHOTO_NAME = /^places\/[A-Za-z0-9_-]{1,256}\/photos\/[A-Za-z0-9_-]{1,4096}$/;
+
+async function currentPhotoName(placeId: string, apiKey: string, signal: AbortSignal): Promise<string | null> {
+    const response = await fetch(`https://places.googleapis.com/v1/places/${placeId}`, { cache: "no-store", redirect: "manual",
+        signal, headers: { "X-Goog-Api-Key": apiKey, "X-Goog-FieldMask": "photos.name" } });
+    if (!response.ok) {
+        await response.body?.cancel();
+        if (response.status === 404) return null;
+        throw new Error("Place details unavailable");
+    }
+    const data = JSON.parse(new TextDecoder().decode(await readBounded(response, 64 * 1024)));
+    const fresh = data?.photos?.[0]?.name;
+    return typeof fresh === "string" && fresh.startsWith(`places/${placeId}/photos/`) && PHOTO_NAME.test(fresh) ? fresh : null;
+}
+
 export async function GET(req: NextRequest) {
     const params = req.nextUrl.searchParams;
     const name = params.get("name");
     const ref = params.get("ref");
     if ((!!name === !!ref) || params.getAll("name").length > 1 || params.getAll("ref").length > 1 ||
-        (name && !/^places\/[A-Za-z0-9_-]{1,256}\/photos\/[A-Za-z0-9_-]{1,4096}$/.test(name)) ||
+        (name && !PHOTO_NAME.test(name)) ||
         (ref && !/^[A-Za-z0-9_-]{1,4096}$/.test(ref))) return unavailable(400);
 
     // Bots, Lighthouse and prefetches never cost a billed Places call.
@@ -97,8 +112,12 @@ export async function GET(req: NextRequest) {
         const apiKey = getGooglePlacesApiKey();
         if (!apiKey) return unavailable(503);
         const width = normalizePhotoWidth(params.get("w"));
+        // Photo names expire (Google: "retrieve it from Places API endpoints"), so the stored name only gives the
+        // place id; the current first photo comes from a Details call with photos only (IDs Only SKU, no charge).
+        const photoName = name ? await currentPhotoName(name.split("/")[1], apiKey, controller.signal) : null;
+        if (name && !photoName) return unavailable(404);
         const upstream = name
-            ? new URL(`https://places.googleapis.com/v1/${name}/media`)
+            ? new URL(`https://places.googleapis.com/v1/${photoName}/media`)
             : new URL("https://maps.googleapis.com/maps/api/place/photo");
         if (name) {
             upstream.searchParams.set("maxWidthPx", String(width));
