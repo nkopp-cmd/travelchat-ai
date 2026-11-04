@@ -76,6 +76,7 @@ describe("public HTML edge cache", () => {
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots/submissions"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/privacy"))).toBe(true);
     expect(isEdgeCacheable(new Request("https://www.localley.io/terms"))).toBe(true);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/credits"))).toBe(true);
     expect(isEdgeCacheable(new Request("https://www.localley.io/trending"))).toBe(true);
     expect(isEdgeCacheable(new Request("https://www.localley.io/trending/justin-bieber-seoul-2026-10"))).toBe(true);
     expect(isEdgeCacheable(new Request("https://www.localley.io/trending/justin-bieber-seoul-2026-10?x=1"))).toBe(false);

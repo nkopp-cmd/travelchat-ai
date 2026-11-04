@@ -17,7 +17,7 @@ import { dataBackend } from "@/lib/app-data/backend";
 import { fetchFilterOptions, fetchFilteredSpots, getTotalSpotCount, parseFilterParams } from "@/lib/spots/queries";
 import { fetchWeeklyTrendingSpots } from "@/lib/spots/weekly-trending";
 import { getWeekStart } from "@/lib/weekly-social-trends";
-import { d1CityRelatedCandidates, d1CommunitySubmission, d1RelatedSpotSources, d1SpotSource } from "@/lib/spots/d1-queries";
+import { d1CityRelatedCandidates, d1CommunitySubmission, d1PhotoCredits, d1RelatedSpotSources, d1SpotSource } from "@/lib/spots/d1-queries";
 
 const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 let db: D1Sqlite;
@@ -174,6 +174,22 @@ describe("spot detail sources on D1", () => {
     expect((await d1SpotSource(id(2)))!.own_photo).toBeNull();
     const related = await d1RelatedSpotSources("Seoul", id(6), 4, 24);
     expect(related.find((r) => r.id === id(1))!.own_photo).toBe(path);
+  });
+
+  it("stored photos: detail source lists them in position order with credits; /credits lists credited ones only", async () => {
+    for (const n of [1, 2]) source(n);
+    const insert = db.sqlite.prepare(`INSERT INTO spot_photos (spot_id, r2_key, position, source, licence, author, source_url, approved_by)
+      VALUES (?, ?, ?, ?, ?, ?, ?, 'harvester-commons')`);
+    insert.run(id(1), `spot-photos/${id(1)}/${"b".repeat(64)}.webp`, 1, "commons", "CC BY-SA 4.0", "Kakidai", "https://commons.wikimedia.org/wiki/File:X.jpg");
+    insert.run(id(1), `spot-photos/${id(1)}/${"a".repeat(64)}.webp`, 0, "tip", "Localley contributor licence", null, null);
+    const stored = (await d1SpotSource(id(1)))!.stored_photos as { src: string; label: string | null; author: string | null; sourceUrl: string | null }[];
+    expect(stored.map((photo) => photo.src)).toEqual([`/media/spot/${id(1)}/${"a".repeat(64)}.webp`, `/media/spot/${id(1)}/${"b".repeat(64)}.webp`]);
+    expect(stored[0]).toMatchObject({ label: null, author: null, sourceUrl: null });
+    expect(stored[1]).toMatchObject({ label: "Wikimedia Commons · CC BY-SA 4.0", author: "Kakidai", sourceUrl: "https://commons.wikimedia.org/wiki/File:X.jpg" });
+    expect((await d1SpotSource(id(2)))!.stored_photos).toEqual([]);
+    const credits = await d1PhotoCredits();
+    expect(credits).toHaveLength(1);
+    expect(credits[0]).toMatchObject({ spotId: id(1), credit: "Kakidai · CC BY-SA 4.0 · Wikimedia Commons" });
   });
 });
 

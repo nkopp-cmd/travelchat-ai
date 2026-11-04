@@ -11,7 +11,7 @@ import Link from "next/link";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { dataBackend } from "@/lib/app-data/backend";
 import { d1CommunitySubmission, d1RelatedSpotSources, d1SpotSource } from "@/lib/spots/d1-queries";
-import { cardSpotPhotos, directSpotPhotos } from "@/lib/spots/own-photo";
+import { cardSpotPhotos, directSpotPhotos, type StoredSpotPhoto } from "@/lib/spots/own-photo";
 import { SpotInteractions } from "@/components/spots/spot-interactions";
 import { SpotActivities } from "@/components/spots/spot-activities";
 import { ReviewList } from "@/components/spots/review-list";
@@ -303,6 +303,7 @@ async function getSpot(id: string, candidate = false) {
     1600,
   );
   const photoSummary = summarizeSpotPhotos(normalizedPhotos);
+  const storedPhotos: StoredSpotPhoto[] = Array.isArray(spot.stored_photos) ? spot.stored_photos as StoredSpotPhoto[] : [];
   const communityCandidate = communitySubmission && Array.isArray(
     communitySubmission.research?.createdCandidates,
   )
@@ -325,6 +326,8 @@ async function getSpot(id: string, candidate = false) {
     bestTime: getSpotBestTime(spot.best_times, spot.best_time),
     photos: normalizedPhotos,
     ownPhoto: typeof spot.own_photo === "string" ? spot.own_photo : null,
+    ownPhotos: storedPhotos.map((photo) => photo.src),
+    photoCredits: storedPhotos.filter((photo) => photo.label),
     hasRealPhoto: photoSummary.hasRealPhoto,
     realPhotoCount: countRealDisplaySpotPhotos(normalizedPhotos),
     googlePlaceId: getTrustedSpotGooglePlaceId({
@@ -572,7 +575,8 @@ export default async function SpotPage({
   ].filter((fact): fact is { icon: typeof Clock; label: string; value: string } => Boolean(fact));
 
   return (
-    <VenuePhotoProvider key={spot.id} spotId={spot.id} allowFetch={!candidate} directPhotos={directSpotPhotos(spot)}>
+    <VenuePhotoProvider key={spot.id} spotId={spot.id} allowFetch={!candidate} directPhotos={directSpotPhotos(spot)}
+      photoCredits={"photoCredits" in spot ? spot.photoCredits ?? [] : []}>
       {/* JSON-LD Structured Data */}
       <SpotJsonLd
         name={spot.name}
@@ -753,6 +757,9 @@ export default async function SpotPage({
                 </span>
               ))}
             </p>
+          )}
+          {"photoCredits" in spot && (spot.photoCredits?.length ?? 0) > 0 && (
+            <p data-testid="spot-photo-credits"><a href="/credits" className="underline-offset-2 hover:underline">Photo credits</a></p>
           )}
           {updated && <p>Last updated {updated}</p>}
         </footer>

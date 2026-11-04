@@ -17,9 +17,10 @@ export function ownSpotPhotoPath(key: unknown): string | null {
  * Photos a card or hero shows without a Places call. Our own R2 photo comes first; a Google listing without one
  * gets [] so the client asks Places (the fallback, never stored); other spots keep their direct source photos.
  */
-export function directSpotPhotos(spot: { ownPhoto?: string | null; googlePlaceId?: string | null; photos?: string[] | null }): string[] {
+export function directSpotPhotos(spot: { ownPhoto?: string | null; ownPhotos?: string[] | null; googlePlaceId?: string | null; photos?: string[] | null }): string[] {
   const direct = spot.googlePlaceId ? [] : (spot.photos ?? []).filter((photo) => !photo.includes("/api/places/photo"));
-  return spot.ownPhoto ? [spot.ownPhoto, ...direct.filter((photo) => photo !== spot.ownPhoto)] : direct;
+  const own = spot.ownPhotos?.length ? spot.ownPhotos : spot.ownPhoto ? [spot.ownPhoto] : [];
+  return [...own, ...direct.filter((photo) => !own.includes(photo))];
 }
 
 /**
@@ -69,4 +70,45 @@ export function cardSpotPhotos(spot: { ownPhoto?: string | null; googlePlaceId?:
 export function isCardGooglePhotoUrl(src: string): boolean {
   const name = storedGooglePhotoName([src]);
   return name !== null && src === cardGooglePhotoUrl(name);
+}
+
+/** A stored spot photo with what its licence asks us to show (author, licence, source page). */
+export type StoredSpotPhoto = {
+  src: string;
+  /** "Wikimedia Commons · CC BY-SA 4.0"; null for tip/own/cc0 photos, which need no credit. */
+  label: string | null;
+  author: string | null;
+  sourceUrl: string | null;
+  /** One-line credit for lists: "Kakidai · CC BY-SA 4.0 · Wikimedia Commons". */
+  credit: string | null;
+};
+
+/** Display name of each spot_photos source; tip/own/cc0 photos need no credit line. */
+const CREDIT_SOURCES: Record<string, string> = { commons: "Wikimedia Commons", kto: "Korea Tourism Organization", pexels: "Pexels" };
+
+const text = (value: unknown) => typeof value === "string" && value.trim() ? value.trim() : null;
+
+function httpsUrl(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  try { return new URL(value).protocol === "https:" ? value : null; } catch { return null; }
+}
+
+/** D1 json_group_array of {k, s, l, a, u} (spot_photos rows in position order) -> stored photos with credits. */
+export function parseStoredSpotPhotos(json: unknown): StoredSpotPhoto[] {
+  let rows: unknown;
+  try { rows = typeof json === "string" ? JSON.parse(json) : null; } catch { return []; }
+  if (!Array.isArray(rows)) return [];
+  return rows.flatMap((row) => {
+    const src = row && typeof row === "object" ? ownSpotPhotoPath((row as { k?: unknown }).k) : null;
+    if (!src) return [];
+    const { s, l, a, u } = row as Record<string, unknown>;
+    const source = typeof s === "string" ? CREDIT_SOURCES[s] : undefined;
+    const licence = text(l);
+    const author = source ? text(a) : null;
+    return [{
+      src, author, sourceUrl: source ? httpsUrl(u) : null,
+      label: source ? [source, licence].filter(Boolean).join(" · ") : null,
+      credit: source ? [author, licence, source].filter(Boolean).join(" · ") : null,
+    }];
+  });
 }

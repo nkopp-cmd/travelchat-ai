@@ -2,7 +2,7 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { appDataDb } from "@/lib/app-data/backend";
 import { getCityBySlug } from "@/lib/cities";
-import { ownSpotPhotoPath } from "./own-photo";
+import { ownSpotPhotoPath, parseStoredSpotPhotos } from "./own-photo";
 import { PUBLIC_SPOT_NAME_EXCLUSION_PATTERNS, PUBLIC_SPOT_VISIBILITY_CACHE_VERSION } from "./public-quality";
 import type { RawSpot } from "./transform";
 import type { SpotsFilterState } from "./types";
@@ -154,14 +154,17 @@ export async function d1WeeklyRankings(weekStart: string, citySlug: string | nul
  * public-quality rules to the same fields. Callers still run shouldShowPublicSpot on it.
  */
 export async function d1SpotSource(id: string): Promise<(RawSpot & Record<string, unknown>) | null> {
-  const row = await appDataDb().prepare(`SELECT l.payload, (SELECT ph.r2_key FROM spot_photos ph WHERE ph.spot_id = l.spotId ORDER BY ph.position LIMIT 1) AS own_photo_key
-    FROM legacy_spot_source l WHERE l.spotId = ?`).bind(id.toLowerCase()).first<{ payload: string; own_photo_key: string | null }>();
+  // Up to 8 stored photos in position order, with the credit fields their licence needs, in the same single read.
+  const row = await appDataDb().prepare(`SELECT l.payload, (SELECT json_group_array(json_object('k', ph.r2_key, 's', ph.source,
+        'l', ph.licence, 'a', ph.author, 'u', ph.source_url)) FROM (SELECT * FROM spot_photos WHERE spot_id = l.spotId ORDER BY position LIMIT 8) ph) AS stored_photos
+    FROM legacy_spot_source l WHERE l.spotId = ?`).bind(id.toLowerCase()).first<{ payload: string; stored_photos: string | null }>();
   if (!row) return null;
   const spot: unknown = JSON.parse(row.payload);
   if (!spot || typeof spot !== "object" || Array.isArray(spot) || (spot as { id?: unknown }).id !== id.toLowerCase()) {
     throw new Error("Invalid D1 spot source");
   }
-  return { ...(spot as RawSpot & Record<string, unknown>), own_photo: ownSpotPhotoPath(row.own_photo_key) };
+  const storedPhotos = parseStoredSpotPhotos(row.stored_photos);
+  return { ...(spot as RawSpot & Record<string, unknown>), own_photo: storedPhotos[0]?.src ?? null, stored_photos: storedPhotos };
 }
 
 export type D1CommunitySubmission = {
@@ -222,4 +225,18 @@ export async function d1SpotsInBox(box: { minLat: number; maxLat: number; minLng
     WHERE ${where.sql.join(" AND ")} AND s.latitude BETWEEN ? AND ? AND s.longitude BETWEEN ? AND ?
     LIMIT ?`).bind(...where.params, box.minLat, box.maxLat, box.minLng, box.maxLng, limit).all<Record<string, unknown>>();
   return results.map(toRawSpot);
+}
+
+export type D1PhotoCredit = { spotId: string; spotName: RawSpot["name"]; city: string | null; src: string; credit: string; sourceUrl: string | null };
+
+/** Every credited stored photo of a visible spot (the /credits page), grouped by city then spot. */
+export async function d1PhotoCredits(): Promise<D1PhotoCredit[]> {
+  const { results } = await appDataDb().prepare(`SELECT s.id, s.name, s.city, json_group_array(json_object('k', ph.r2_key, 's', ph.source,
+        'l', ph.licence, 'a', ph.author, 'u', ph.source_url)) AS stored_photos
+    FROM spots s JOIN (SELECT * FROM spot_photos WHERE source IN ('commons', 'kto', 'pexels') ORDER BY spot_id, position) ph ON ph.spot_id = s.id
+    WHERE s.visible = 1 GROUP BY s.id ORDER BY s.city IS NULL, s.city, s.id LIMIT 5000`).all<Record<string, unknown>>();
+  return results.flatMap((row) => parseStoredSpotPhotos(row.stored_photos).flatMap((photo) => photo.credit ? [{
+    spotId: String(row.id), spotName: parseJson(row.name) as RawSpot["name"], city: typeof row.city === "string" ? row.city : null,
+    src: photo.src, credit: photo.credit, sourceUrl: photo.sourceUrl,
+  }] : []));
 }

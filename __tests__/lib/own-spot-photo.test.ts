@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
-import { CARD_PHOTO_WIDTH, cardGooglePhotoUrl, cardSpotPhotos, directSpotPhotos, isCardGooglePhotoUrl, ownSpotPhotoPath, storedGooglePhotoName } from "@/lib/spots/own-photo";
+import { CARD_PHOTO_WIDTH, cardGooglePhotoUrl, cardSpotPhotos, directSpotPhotos, isCardGooglePhotoUrl, ownSpotPhotoPath, parseStoredSpotPhotos, storedGooglePhotoName } from "@/lib/spots/own-photo";
 import { getDirectVenuePhotos } from "@/components/spots/venue-photo-provider";
 
 const spotId = "00000000-0000-4000-8000-000000000001";
@@ -54,5 +54,27 @@ describe("own spot photo first, Google Places only as fallback", () => {
     expect(cardSpotPhotos({ googlePlaceId: "bad id/../x", photos: [] })).toEqual([]);
     expect(cardSpotPhotos({ googlePlaceId: "ChIJother", photos })).toEqual([url]);
     expect(getDirectVenuePhotos(cardSpotPhotos({ photos }))[0]).toMatchObject({ url, sourceLabel: "Google listing photo" });
+  });
+
+  it("stored photos: several own photos lead in order; licensed ones carry their credit into the caption", () => {
+    const second = `/media/spot/${spotId}/${"b".repeat(64)}.webp`;
+    const stored = parseStoredSpotPhotos(JSON.stringify([
+      { k: `spot-photos/${spotId}/${"a".repeat(64)}.webp`, s: "tip", l: "x" },
+      { k: `spot-photos/${spotId}/${"b".repeat(64)}.webp`, s: "commons", l: "CC BY 2.0", a: "Jane", u: "https://commons.wikimedia.org/wiki/File:Y.jpg" },
+      { k: "spot-photos/bad", s: "commons" },
+      { k: `spot-photos/${spotId}/${"c".repeat(64)}.webp`, s: "kto", l: "KOGL Type 1", u: "javascript:alert(1)" },
+    ]));
+    expect(stored.map((photo) => photo.label)).toEqual([null, "Wikimedia Commons · CC BY 2.0", "Korea Tourism Organization · KOGL Type 1"]);
+    expect(stored[1].credit).toBe("Jane · CC BY 2.0 · Wikimedia Commons");
+    expect(stored[2].sourceUrl).toBeNull();
+    expect(parseStoredSpotPhotos("not json")).toEqual([]);
+    expect(parseStoredSpotPhotos(null)).toEqual([]);
+    const direct = directSpotPhotos({ ownPhoto: own, ownPhotos: stored.map((photo) => photo.src), googlePlaceId: "ChIJ1", photos: [] });
+    expect(direct.slice(0, 2)).toEqual([own, second]);
+    const venue = getDirectVenuePhotos(direct, stored);
+    expect(venue[0]).toMatchObject({ sourceLabel: "Localley traveller photo", attributions: [] });
+    expect(venue[1]).toMatchObject({ sourceLabel: "Wikimedia Commons · CC BY 2.0",
+      attributions: [{ displayName: "Jane", uri: "https://commons.wikimedia.org/wiki/File:Y.jpg" }] });
+    expect(venue[2]).toMatchObject({ sourceLabel: "Korea Tourism Organization · KOGL Type 1", attributions: [] });
   });
 });
