@@ -69,6 +69,27 @@ describe("blog markdown", () => {
   });
 });
 
+describe("blog photo", () => {
+  const SRC = `/media/spot/0d120515-c856-48cf-8621-7efad0e59568/${"a".repeat(64)}.webp`;
+  const withPhoto = (extra: string) => parsePost("2026-11-02-a-b.md", post(`${META}\n${extra}`));
+
+  it("reads an own photo with alt, credit and size, and shares it as the post image", () => {
+    const p = withPhoto(`photo: ${SRC}\nphotoAlt: Market stalls\nphotoCredit: KTO (KOGL Type 1)\nphotoSize: 1280x853`);
+    expect(p.photo).toEqual({ src: SRC, alt: "Market stalls", credit: "KTO (KOGL Type 1)", width: 1280, height: 853 });
+    expect(blogPostingJsonLd(p).image).toBe(`https://www.localley.io${SRC}`);
+  });
+
+  it("refuses outside photos and photos without alt, credit or size", () => {
+    expect(() => withPhoto("photo: https://images.example.com/a.jpg\nphotoAlt: a\nphotoCredit: b\nphotoSize: 10x10")).toThrow(/own \/media\/spot/);
+    expect(() => withPhoto(`photo: ${SRC}\nphotoAlt: a\nphotoSize: 10x10`)).toThrow(/photoCredit/);
+    expect(() => withPhoto(`photo: ${SRC}\nphotoAlt: a\nphotoCredit: b`)).toThrow(/photoSize/);
+  });
+
+  it("the Seoul payment post shows a real place photo", () => {
+    expect(blogPost("paying-in-seoul")?.photo?.src).toMatch(/^\/media\/spot\//);
+  });
+});
+
 describe("blog SEO", () => {
   const p = parsePost("2026-11-02-a-b.md", post(META.replace("Paying: a guide", "Cards & <cash>")));
 
