@@ -75,6 +75,14 @@ describe("own spot photos from tips", () => {
     objects.set(`spot-photos/${SPOT}/${full}-480.webp`, webp(7));
     expect(new Uint8Array(await (await get(SPOT, `${full}-480.webp`)).arrayBuffer())).toEqual(new Uint8Array(webp(7)));
     for (const file of [`${full}-481.webp`, `${"a".repeat(64)}-480.webp`]) expect((await get(SPOT, file)).status).toBe(404);
+    // The pin copy: until it exists the card copy stands in, cached for an hour only.
+    const pinBefore = await get(SPOT, `${full}-144.webp`);
+    expect(pinBefore.headers.get("Cache-Control")).toBe("public, max-age=3600");
+    expect(new Uint8Array(await pinBefore.arrayBuffer())).toEqual(new Uint8Array(webp(7)));
+    objects.set(`spot-photos/${SPOT}/${full}-144.webp`, webp(8));
+    const pin = await get(SPOT, `${full}-144.webp`);
+    expect(pin.headers.get("Cache-Control")).toBe("public, max-age=31536000, immutable");
+    expect(new Uint8Array(await pin.arrayBuffer())).toEqual(new Uint8Array(webp(8)));
   });
 
   it("a new choice leads and keeps the earlier photos; unknown, malformed or unlisted keys are 404 no-store", async () => {

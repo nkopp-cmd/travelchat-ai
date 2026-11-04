@@ -8,7 +8,7 @@ vi.mock("maplibre-gl", async () => {
   return { getVersion: () => version };
 });
 vi.mock("maplibre-gl/dist/maplibre-gl.css", () => ({}));
-import { PinCard, maplibreWorkerUrl } from "@/components/spots/spot-pin-map";
+import { PinCard, PinFace, maplibreWorkerUrl } from "@/components/spots/spot-pin-map";
 import type { Spot } from "@/types";
 import { CARD_PHOTO_WIDTH } from "@/lib/spots/own-photo";
 
@@ -67,6 +67,12 @@ describe("map pin card", () => {
     const own = `/media/spot/${"1".repeat(8)}-0000-4000-8000-${"0".repeat(12)}/${"a".repeat(64)}.webp`;
     const { container } = render(<PinCard spot={{ ...spot, ownPhoto: own } as Spot} point={{ x: 0, y: 0 }} titleId="t" onClose={() => {}} />);
     expect(container.querySelector("img")?.getAttribute("src")).toBe(own.replace(/\.webp$/, "-480.webp"));
+  });
+
+  it("a pin face loads the 144 px pin copy of the own photo, the card keeps the 480 px copy", () => {
+    const own = `/media/spot/${"1".repeat(8)}-0000-4000-8000-${"0".repeat(12)}/${"a".repeat(64)}.webp`;
+    const { container } = render(<PinFace spot={{ ...spot, ownPhoto: own } as Spot} />);
+    expect(container.querySelector("img")?.getAttribute("src")).toBe(own.replace(/\.webp$/, "-144.webp"));
   });
 
   it("keeps the pin layer off Place Details calls and borders", () => {
