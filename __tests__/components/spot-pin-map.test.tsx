@@ -66,7 +66,7 @@ describe("map pin card", () => {
   it("leads with the spot's own R2 photo (harvested or tip) before the Google photo", () => {
     const own = `/media/spot/${"1".repeat(8)}-0000-4000-8000-${"0".repeat(12)}/${"a".repeat(64)}.webp`;
     const { container } = render(<PinCard spot={{ ...spot, ownPhoto: own } as Spot} point={{ x: 0, y: 0 }} titleId="t" onClose={() => {}} />);
-    expect(container.querySelector("img")?.getAttribute("src")).toBe(own);
+    expect(container.querySelector("img")?.getAttribute("src")).toBe(own.replace(/\.webp$/, "-480.webp"));
   });
 
   it("keeps the pin layer off Place Details calls and borders", () => {

@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
-import { CARD_PHOTO_WIDTH, cardGooglePhotoUrl, cardSpotPhotos, directSpotPhotos, isCardGooglePhotoUrl, ownSpotPhotoPath, parseStoredSpotPhotos, storedGooglePhotoName } from "@/lib/spots/own-photo";
+import { CARD_PHOTO_WIDTH, cardGooglePhotoUrl, cardSpotPhotos, directSpotPhotos, isCardGooglePhotoUrl, ownSpotPhotoPath, parseStoredSpotPhotos, spotPhotoThumbPath, storedGooglePhotoName } from "@/lib/spots/own-photo";
 import { getDirectVenuePhotos } from "@/components/spots/venue-photo-provider";
 
 const spotId = "00000000-0000-4000-8000-000000000001";
@@ -47,7 +47,8 @@ describe("own spot photo first, Google Places only as fallback", () => {
     expect(isCardGooglePhotoUrl(`${url}&x=1`)).toBe(false);
     expect(isCardGooglePhotoUrl("/api/places/photo?name=old&w=400")).toBe(false);
     const photos = [`/api/places/photo?name=${encodeURIComponent(name)}&w=1200`];
-    expect(cardSpotPhotos({ ownPhoto: own, photos })).toEqual([own, url]);
+    expect(cardSpotPhotos({ ownPhoto: own, photos })).toEqual([own.replace(/\.webp$/, "-480.webp"), url]);
+    expect(spotPhotoThumbPath("https://cdn.example.com/a.webp")).toBe("https://cdn.example.com/a.webp");
     expect(cardSpotPhotos({ photos: [] })).toEqual([]);
     expect(cardSpotPhotos({ googlePlaceId: "ChIJYVXJTcWYfDURM4kdvYV_flY", photos: [] }))
       .toEqual([cardGooglePhotoUrl("places/ChIJYVXJTcWYfDURM4kdvYV_flY/photos/current")]);
