@@ -48,7 +48,7 @@ describe("SpotCard", () => {
     expect(screen.getByRole("link", { name: `Details: ${baseSpot.name}` }).getAttribute("href")).toBe(`/spots/${baseSpot.id}`);
   });
   it("does not disguise missing photography or invent missing geography", async () => {
-    render(<SpotCard spot={{...baseSpot, id:"missing", verified:false, cityName:undefined, areaName:undefined, citySlug:undefined}} />);
+    render(<SpotCard spot={{...baseSpot, id:"missing", googlePlaceId:null, verified:false, cityName:undefined, areaName:undefined, citySlug:undefined}} />);
     await waitFor(() => expect(screen.getByTestId("photo-placeholder").dataset.state).toBe("unavailable"));
     expect(screen.queryByText("Verified place")).toBeNull();
     expect(screen.queryByText(/Location confirmed|Area photo|Unknown city/)).toBeNull();
