@@ -190,3 +190,27 @@ export function rankFiles(spot, files, limit = 3) {
         .filter((row) => !seen.has(row.file) && seen.add(row.file))
         .slice(0, limit);
 }
+
+/** City name + center pairs from the source of lib/cities.ts: each numeric `center` takes the last `name: "..."` above it. */
+export function parseCityCenters(source) {
+    const centers = [];
+    let name = "";
+    for (const match of String(source).matchAll(/^\s*name:\s*"([^"]+)"|center:\s*\{\s*lat:\s*(-?[\d.]+),\s*lng:\s*(-?[\d.]+)/gm)) {
+        if (match[1]) name = match[1];
+        else if (name) centers.push({ name, lat: Number(match[2]), lng: Number(match[3]) });
+    }
+    return centers;
+}
+
+/** Spots without a city get the nearest configured city within `maxKm` of its center, else "". */
+export function nearestCity(lat, lng, centers, maxKm = 80) {
+    let best = { name: "", km: maxKm };
+    for (const center of centers) {
+        const dLat = (center.lat - lat) * Math.PI / 180;
+        const dLng = (center.lng - lng) * Math.PI / 180;
+        const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat * Math.PI / 180) * Math.cos(center.lat * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+        const km = 12742 * Math.asin(Math.sqrt(h));
+        if (km <= best.km) best = { name: center.name, km };
+    }
+    return best.name;
+}

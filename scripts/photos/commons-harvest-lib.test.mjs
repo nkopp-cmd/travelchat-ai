@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { allowedLicence, aroundQuery, cleanArtist, fileTitleScore, geosearchUrl, insertSql, matchScore, normName, parseAround, parseGeosearch, rankFiles, rankItems, reviewPrompt } from "./commons-harvest-lib.mjs";
+import { allowedLicence, aroundQuery, cleanArtist, fileTitleScore, geosearchUrl, insertSql, matchScore, nearestCity, normName, parseAround, parseCityCenters, parseGeosearch, rankFiles, rankItems, reviewPrompt } from "./commons-harvest-lib.mjs";
 
 const nakano = { names: { en: "Nakano Broadway", ja: "中野ブロードウェイ" }, category: "Shopping", city: "Tokyo" };
 const item = (over) => ({ item: "Q1", file: "a.jpg", distanceKm: 0.05, labels: [], ...over });
@@ -99,4 +99,21 @@ test("geosearch fallback: a nearby file that names the place matches; generic, f
     assert.equal(fileTitleScore({ names: { en: "Park" } }, "Ueno Park.jpg"), 0);
     assert.equal(fileTitleScore({ names: { en: "Toneri Park" } }, "Toneri Park Station platform.jpg"), 0);
     assert.equal(fileTitleScore({ names: { en: "Toneri Park" } }, "Toneri park cherry blossoms.JPG"), 0.9);
+});
+
+test("a spot without a city takes the nearest configured city within 80 km, else none", () => {
+    const centers = parseCityCenters(`
+    // Hong Kong
+    { slug: "hong-kong",
+        name: "Hong Kong",
+        neighborhoods: ["Central"],
+        center: { lat: 22.3193, lng: 114.1694 }, },
+    { slug: "hanoi",
+        name: "Hanoi",
+        stats: { spots: { min: 1, ideal: 2 } },
+        center: { lat: 21.0285, lng: 105.8542 }, }`);
+    assert.deepEqual(centers.map((row) => row.name), ["Hong Kong", "Hanoi"]);
+    assert.equal(nearestCity(22.28, 114.16, centers), "Hong Kong");
+    assert.equal(nearestCity(21.0, 105.8, centers), "Hanoi");
+    assert.equal(nearestCity(10.77, 106.7, centers), "");
 });
