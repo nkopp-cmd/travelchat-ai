@@ -136,9 +136,9 @@ export async function GET(req: NextRequest) {
             const bytes = await readBounded(image, 10 * 1024 * 1024);
             const contentType = imageType(bytes);
             if (!contentType) return unavailable();
-            // The visitor's own browser may keep the bytes for an hour ("private": never the edge or a shared cache),
+            // The visitor's own browser may keep the bytes for a day ("private": never the edge or a shared cache),
             // so a repeat view or back-navigation does not bill another Places call.
-            return new NextResponse(bytes, { headers: { "Cache-Control": "private, max-age=3600", "X-Content-Type-Options": "nosniff", "Content-Type": contentType } });
+            return new NextResponse(bytes, { headers: { "Cache-Control": "private, max-age=86400", "X-Content-Type-Options": "nosniff", "Content-Type": contentType } });
         }
         return unavailable();
     } catch {

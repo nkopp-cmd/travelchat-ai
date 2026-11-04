@@ -45,7 +45,7 @@ describe("place photo proxy without substitution", () => {
         expect(response.status).toBe(200);
         expect(response.headers.get("content-type")).toBe("image/jpeg");
         // Browser-only reuse; never an edge or shared cache.
-        expect(response.headers.get("cache-control")).toBe("private, max-age=3600");
+        expect(response.headers.get("cache-control")).toBe("private, max-age=86400");
         expect(response.headers.get("x-content-type-options")).toBe("nosniff");
         expect(fetch).toHaveBeenNthCalledWith(1,
             `https://places.googleapis.com/v1/${name}/media?maxWidthPx=1600&skipHttpRedirect=true`,

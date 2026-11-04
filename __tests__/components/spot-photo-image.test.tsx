@@ -4,6 +4,7 @@ import { SpotPhotoImage, VenueCardPhoto, VenueHeroPhoto, VenuePhotoThumbnails } 
 import { resetVenuePhotoMemory } from "@/components/spots/venue-photo-provider";
 import { EARLY_HERO_KEY, earlyHeroScript, getDirectVenuePhotos, VenuePhotoProvider } from "@/components/spots/venue-photo-provider";
 import { useState, type ImgHTMLAttributes } from "react";
+import { CARD_PHOTO_WIDTH, cardSpotPhotos } from "@/lib/spots/own-photo";
 
 vi.mock("next/image", () => ({
   default: ({ src, alt, onLoad, onError }: ImgHTMLAttributes<HTMLImageElement>) =>
@@ -109,41 +110,42 @@ describe("venue photos", () => {
     const fetcher = vi.fn().mockImplementationOnce(() => new Promise((resolve) => { resolveOld = resolve; }))
       .mockResolvedValueOnce(response(["new"]));
     vi.stubGlobal("fetch", fetcher);
-    const { rerender } = render(<VenueCardPhoto spotId="old" name="Old" priority />);
-    rerender(<VenueCardPhoto spotId="new" name="New" priority />);
+    const { rerender } = render(<VenuePhotoProvider spotId="old"><VenueHeroPhoto name="Old" /></VenuePhotoProvider>);
+    rerender(<VenuePhotoProvider spotId="new"><VenueHeroPhoto name="New" /></VenuePhotoProvider>);
     await screen.findByAltText("New");
     await act(async () => { resolveOld(response(["old"])); });
     expect(screen.getByAltText("New").getAttribute("src")).toContain("name=new");
   });
 
-  it("deduplicates in-flight requests and reuses this page's result for later mounts (no second Places call)", async () => {
+  it("deduplicates in-flight gallery requests and reuses this page's result for later mounts (no second Places call)", async () => {
     let resolve!: (value: ReturnType<typeof response>) => void;
     const fetcher = vi.fn().mockImplementationOnce(() => new Promise((done) => { resolve = done; }))
       .mockResolvedValue(response(["fresh"]));
     vi.stubGlobal("fetch", fetcher);
-    const first = render(<><VenueCardPhoto spotId="shared" name="One" priority /><VenueCardPhoto spotId="shared" name="Two" priority /></>);
+    const first = render(<>
+      <VenuePhotoProvider spotId="shared"><VenueHeroPhoto name="One" /></VenuePhotoProvider>
+      <VenuePhotoProvider spotId="shared"><VenueHeroPhoto name="Two" /></VenuePhotoProvider>
+    </>);
     expect(fetcher).toHaveBeenCalledTimes(1);
     await act(async () => { resolve(response(["first"])); });
     first.unmount();
-    render(<VenueCardPhoto spotId="shared" name="Later" priority />);
+    render(<VenuePhotoProvider spotId="shared"><VenueHeroPhoto name="Later" /></VenuePhotoProvider>);
     await screen.findByAltText("Later");
     expect(fetcher).toHaveBeenCalledTimes(1);
     expect(screen.getByAltText("Later").getAttribute("src")).toContain("name=first");
   });
 
-  it("waits until a card is visible", async () => {
-    let visible!: IntersectionObserverCallback;
-    vi.stubGlobal("IntersectionObserver", class {
-      constructor(callback: IntersectionObserverCallback) { visible = callback; }
-      observe() {} disconnect() {}
-    });
-    const fetcher = vi.fn().mockResolvedValue(response(["visible"]));
+  it("cards and Nearby rows never ask Place Details: the stored Google photo renders directly, else the tile", () => {
+    const fetcher = vi.fn();
     vi.stubGlobal("fetch", fetcher);
-    render(<VenueCardPhoto spotId="lazy" name="Lazy" />);
+    const stored = ["/api/places/photo?name=places%2FChIJabc%2Fphotos%2Fp1&w=1200&v=2"];
+    render(<>
+      <VenueCardPhoto spotId="google" name="Google spot" directPhotos={cardSpotPhotos({ googlePlaceId: "ChIJabc", photos: stored })} />
+      <VenueCardPhoto spotId="none" name="No photo" directPhotos={cardSpotPhotos({ googlePlaceId: "ChIJdef", photos: [] })} category="Market" />
+    </>);
+    expect(screen.getByAltText("Google spot").getAttribute("src")).toBe(`/api/places/photo?name=places%2FChIJabc%2Fphotos%2Fp1&w=${CARD_PHOTO_WIDTH}`);
+    expect(screen.getByTestId("photo-placeholder").dataset.tone).toBe("market");
     expect(fetcher).not.toHaveBeenCalled();
-    act(() => visible([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver));
-    await screen.findByAltText("Lazy");
-    expect(fetcher).toHaveBeenCalledTimes(1);
   });
 
   it("preserves direct sources but rejects stock, Google, generated pools and credentials", () => {

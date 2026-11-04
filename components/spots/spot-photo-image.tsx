@@ -76,7 +76,9 @@ export function VenuePhotoThumbnails({ name }: { name: string }) {
 }
 
 export function VenueCardPhoto({ spotId, name, priority = false, directPhotos = [], frameClassName, category }: { spotId: string; name: string; priority?: boolean; directPhotos?: string[]; frameClassName?: string; category?: string }) {
-  const { ref, data, loading } = useVenuePhotos(spotId, priority, getDirectVenuePhotos(directPhotos));
+  // Cards and Nearby rows show only server-rendered photos (own, direct, or the stored Google photo via one Photo
+  // call); they never ask Place Details. Without a photo the category tile shows.
+  const { ref, data, loading } = useVenuePhotos(spotId, priority, getDirectVenuePhotos(directPhotos), false);
   return <div ref={ref} className="relative h-full w-full">
     <SpotPhotoImage key={spotId} photo={data?.photos[0]} alt={name} sizes="(max-width: 768px) 100vw, 400px" priority={priority} loading={loading} frameClassName={frameClassName} category={category} />
   </div>;

@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import type { PhotoGalleryResponse } from "@/lib/spots/photo-contract";
 import { classifySpotPhoto } from "@/lib/place-images";
+import { isCardGooglePhotoUrl } from "@/lib/spots/own-photo";
 
 const pending = new Map<string, Promise<PhotoGalleryResponse>>();
 // Results kept for this page session only (memory, never storage), so a card that remounts after
@@ -13,6 +14,8 @@ const unavailable: PhotoGalleryResponse = { status: "unavailable", photos: [] };
 
 export function getDirectVenuePhotos(photos: string[] = []): PhotoGalleryResponse["photos"] {
   return [...new Set(photos)].filter((src) => {
+    // The stored Google photo of a card, Nearby row or pin (cardSpotPhotos): one Photo call, no Details call.
+    if (isCardGooglePhotoUrl(src)) return true;
     if (!["remote_https", "local_asset"].includes(classifySpotPhoto(src))) return false;
     try {
       const url = new URL(src, "https://localley.io");
@@ -22,7 +25,8 @@ export function getDirectVenuePhotos(photos: string[] = []): PhotoGalleryRespons
         ![...url.searchParams.keys()].some((key) => /key|token|credential|signature/i.test(key));
     } catch { return false; }
   }).slice(0, 4).map((url) => ({ id: url, url, attributions: [],
-    sourceLabel: url.startsWith("/media/spot/") ? "Localley traveller photo" : "Direct source photo - unverified" }));
+    sourceLabel: url.startsWith("/media/spot/") ? "Localley traveller photo"
+      : isCardGooglePhotoUrl(url) ? "Google listing photo" : "Direct source photo - unverified" }));
 }
 
 /** Global set by the detail hero's inline script: the photos request it started during HTML parse. */

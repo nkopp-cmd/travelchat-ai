@@ -10,6 +10,7 @@ vi.mock("maplibre-gl", async () => {
 vi.mock("maplibre-gl/dist/maplibre-gl.css", () => ({}));
 import { PinCard, maplibreWorkerUrl } from "@/components/spots/spot-pin-map";
 import type { Spot } from "@/types";
+import { CARD_PHOTO_WIDTH } from "@/lib/spots/own-photo";
 
 const spot = {
   id: "550e8400-e29b-41d4-a716-446655440000", name: "Dongmyo Flea Market", description: "",
@@ -41,8 +42,17 @@ describe("map pin card", () => {
     expect(onClose).toHaveBeenCalledTimes(2);
   });
 
-  it("never renders a paid Google photo proxy URL; it falls back to the category tile", () => {
+  it("shows the stored Google photo at the card width (one shared URL), and the tile when it fails", () => {
     const { container } = render(<PinCard spot={spot} point={{ x: 0, y: 0 }} titleId="t" onClose={() => {}} />);
+    const img = container.querySelector("img")!;
+    expect(img.getAttribute("src")).toBe(`/api/places/photo?name=places%2Fabc%2Fphotos%2Fdef&w=${CARD_PHOTO_WIDTH}`);
+    fireEvent.error(img);
+    expect(container.querySelector("img")).toBeNull();
+    expect(container.querySelector('[data-tone="market"]')).not.toBeNull();
+  });
+
+  it("falls back to the category tile when the spot has no stored photo", () => {
+    const { container } = render(<PinCard spot={{ ...spot, photos: [] } as Spot} point={{ x: 0, y: 0 }} titleId="t" onClose={() => {}} />);
     expect(container.querySelector("img")).toBeNull();
     expect(container.querySelector('[data-tone="market"]')).not.toBeNull();
   });
@@ -53,7 +63,7 @@ describe("map pin card", () => {
     expect(container.querySelector("img")?.getAttribute("src")).toBe("https://media.localley.io/spots/dongmyo-128.webp");
   });
 
-  it("keeps the pin layer off paid photo APIs and borders", () => {
+  it("keeps the pin layer off Place Details calls and borders", () => {
     const source = readFileSync("components/spots/spot-pin-map.tsx", "utf8");
     expect(source).not.toMatch(/\/api\/(spots\/[^"']*\/photos|places\/photo)/);
     expect(source).not.toMatch(/useVenuePhotos|fetch\(/);

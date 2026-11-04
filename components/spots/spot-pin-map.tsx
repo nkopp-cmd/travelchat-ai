@@ -10,13 +10,15 @@ import { X } from "@/components/ui/icons";
 import { TONE_ICONS } from "@/components/spots/category-tone";
 import { EdgeDockLayer } from "@/components/spots/edge-dock-layer";
 import { getDirectVenuePhotos } from "@/components/spots/venue-photo-provider";
+import { cardSpotPhotos } from "@/lib/spots/own-photo";
 import { capMarkers, clusterKeepingSelected, pinTone } from "@/lib/spots/pin-clusters";
 import { localleyMapStyle, readMapTokens } from "@/lib/maps/localley-map-style";
 import type { Spot } from "@/types";
 
 // Photo pins on the Localley vector map (shared/plans/map-photo-pins.md, MapLibre since
-// localley-landing-map-weather.md step 1). Pins show the spot's own first-party photo; without
-// one they show a category tile. Pins never call a paid photo API.
+// localley-landing-map-weather.md step 1). Pins show the spot's own photo, else its stored Google photo
+// (the same small URL as its card, so the browser cache serves both with one Photo call); without one, or
+// when the photo fails, they show a category tile. Pins never call Place Details.
 // MapLibre zoom levels use 512 px tiles: one level below Leaflet's for the same scale.
 const NEAR_ZOOM = 15;
 const SINGLE_PIN_ZOOM = 14;
@@ -319,18 +321,23 @@ function prefersReducedMotion(): boolean {
     return typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
 }
 
+function pinPhotos(spot: PinSpot) {
+    return getDirectVenuePhotos(cardSpotPhotos({ photos: spot.photos }));
+}
+
 function pinPhoto(spot: PinSpot): string | undefined {
-    return getDirectVenuePhotos(spot.photos)[0]?.url;
+    return pinPhotos(spot)[0]?.url;
 }
 
 function PinFace({ spot }: { spot: PinSpot }) {
     const Icon = TONE_ICONS[pinTone(spot.category)];
     const photo = pinPhoto(spot);
+    const [failed, setFailed] = useState<string | null>(null);
     return (
         <span className="ll-pin-face" aria-hidden="true">
-            {photo
-                // eslint-disable-next-line @next/next/no-img-element -- map marker portal; first-party thumbnail, lazy.
-                ? <img src={photo} alt="" loading="lazy" decoding="async" width={44} height={44} />
+            {photo && failed !== photo
+                // eslint-disable-next-line @next/next/no-img-element -- map marker portal; small thumbnail, lazy.
+                ? <img src={photo} alt="" loading="lazy" decoding="async" width={44} height={44} onError={() => setFailed(photo)} />
                 : <Icon className="h-[18px] w-[18px]" />}
         </span>
     );
@@ -369,11 +376,12 @@ export function PinCard({ spot, point, titleId, onClose }: {
     const tone = pinTone(spot.category);
     const Icon = TONE_ICONS[tone];
     const photo = pinPhoto(spot);
+    const [failedPhoto, setFailedPhoto] = useState<string | null>(null);
     const area = spot.meta || spot.areaName || spot.cityName;
     const href = spot.href === undefined ? `/spots/${spot.id}` : spot.href;
     const tips = (spot.tips || []).filter((tip) => typeof tip === "string" && tip.trim()).slice(0, 3);
     // Photo strip for the expanded card: the venue's other first-party photos.
-    const strip = getDirectVenuePhotos(spot.photos).slice(1, 4).map((item) => item.url);
+    const strip = pinPhotos(spot).slice(1, 4).map((item) => item.url);
     useEffect(() => { card.current?.focus(); }, [spot.id]);
     return (
         <div ref={card} role="dialog" aria-modal="false" aria-labelledby={titleId} tabIndex={-1}
@@ -386,10 +394,10 @@ export function PinCard({ spot, point, titleId, onClose }: {
                 if (expanded) setExpanded(false);
                 else onClose();
             }}>
-            {photo && (
+            {photo && failedPhoto !== photo && (
                 <div className="ll-pin-card-media">
-                    {/* eslint-disable-next-line @next/next/no-img-element -- first-party photo already allowed on cards. */}
-                    <img src={photo} alt="" loading="lazy" decoding="async" />
+                    {/* eslint-disable-next-line @next/next/no-img-element -- the same photo its card shows. */}
+                    <img src={photo} alt="" loading="lazy" decoding="async" onError={() => setFailedPhoto(photo)} />
                 </div>
             )}
             <div className="space-y-1.5 p-4">
