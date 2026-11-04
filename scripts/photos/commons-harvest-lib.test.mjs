@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { allowedLicence, aroundQuery, cleanArtist, insertSql, matchScore, normName, parseAround, rankItems, reviewPrompt } from "./commons-harvest-lib.mjs";
+import { allowedLicence, aroundQuery, cleanArtist, fileTitleScore, geosearchUrl, insertSql, matchScore, normName, parseAround, parseGeosearch, rankFiles, rankItems, reviewPrompt } from "./commons-harvest-lib.mjs";
 
 const nakano = { names: { en: "Nakano Broadway", ja: "中野ブロードウェイ" }, category: "Shopping", city: "Tokyo" };
 const item = (over) => ({ item: "Q1", file: "a.jpg", distanceKm: 0.05, labels: [], ...over });
@@ -83,4 +83,20 @@ test("insert SQL: approved + uploaded only, after existing photos, quotes escape
     assert.throws(() => insertSql([{ ...base, r2Key: "x/../y" }], "harvester-commons"));
     assert.throws(() => insertSql([{ ...base, licence: "" }], "harvester-commons"));
     assert.throws(() => insertSql([base], "nils"));
+});
+
+test("geosearch fallback: a nearby file that names the place matches; generic, far and station files do not", () => {
+    assert.throws(() => geosearchUrl(Number.NaN, 1));
+    assert.match(geosearchUrl(35.7, 139.66), /gscoord=35\.7%7C139\.66.*gsradius=300/);
+    const files = parseGeosearch({ query: { geosearch: [
+        { title: "File:Nakano Broadway 2019-05.jpg", dist: 40.2 },
+        { title: "File:中野ブロードウェイ入口.jpg", dist: 12 },
+        { title: "File:Nakano Broadway far.jpg", dist: 450 },
+        { title: "File:Shop sign.jpg", dist: 5 },
+    ] } });
+    assert.deepEqual(files[0], { file: "Nakano Broadway 2019-05.jpg", distanceKm: 0.0402 });
+    assert.deepEqual(rankFiles(nakano, files).map((row) => row.file), ["中野ブロードウェイ入口.jpg", "Nakano Broadway 2019-05.jpg"]);
+    assert.equal(fileTitleScore({ names: { en: "Park" } }, "Ueno Park.jpg"), 0);
+    assert.equal(fileTitleScore({ names: { en: "Toneri Park" } }, "Toneri Park Station platform.jpg"), 0);
+    assert.equal(fileTitleScore({ names: { en: "Toneri Park" } }, "Toneri park cherry blossoms.JPG"), 0.9);
 });
