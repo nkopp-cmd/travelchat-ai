@@ -1,0 +1,86 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import { allowedLicence, aroundQuery, cleanArtist, insertSql, matchScore, normName, parseAround, rankItems, reviewPrompt } from "./commons-harvest-lib.mjs";
+
+const nakano = { names: { en: "Nakano Broadway", ja: "中野ブロードウェイ" }, category: "Shopping", city: "Tokyo" };
+const item = (over) => ({ item: "Q1", file: "a.jpg", distanceKm: 0.05, labels: [], ...over });
+
+test("names normalize across scripts, accents and punctuation", () => {
+  assert.equal(normName("Toneri-kōen  Park!"), "tonerikoenpark");
+  assert.equal(normName("中野 ブロードウェイ"), "中野ブロードウェイ");
+  assert.equal(normName("ＴＯＫＹＯ"), "tokyo");
+});
+
+test("an exact name in any language matches up to 1 km; a same-name place farther away does not", () => {
+  assert.equal(matchScore(nakano, item({ labels: ["中野ブロードウェイ"] })), 1);
+  assert.equal(matchScore(nakano, item({ labels: ["Nakano Broadway"], distanceKm: 0.9 })), 1);
+  assert.equal(matchScore(nakano, item({ labels: ["Nakano Broadway"], distanceKm: 1.2 })), 0);
+});
+
+test("area spots take the real area item; partial matches need to be near and distinctive", () => {
+  const shimo = { names: { en: "Shimokitazawa Theater District", ja: "下北沢シアター街" }, category: "Culture", city: "Tokyo" };
+  assert.ok(matchScore(shimo, item({ labels: ["Shimokitazawa", "下北沢"], distanceKm: 0.03 })) >= 0.7);
+  assert.equal(matchScore(shimo, item({ labels: ["Shimokitazawa"], distanceKm: 0.6 })), 0);
+  // A short or unrelated label never matches by containment.
+  const vinyl = { names: { en: "The Vinyl Archive" }, category: "Nightlife", city: "Tokyo" };
+  assert.equal(matchScore(vinyl, item({ labels: ["Shibuya Cross Tower", "渋谷"], distanceKm: 0.1 })), 0);
+  assert.equal(matchScore(vinyl, item({ labels: ["The"], distanceKm: 0.01 })), 0);
+  assert.equal(matchScore({ names: { en: "Ueno Park" } }, item({ labels: ["Uen"] })), 0);
+  // A station named after the place shows a platform, not the place.
+  assert.equal(matchScore({ names: { en: "Toneri Park", ja: "舎人公園" } }, item({ labels: ["Toneri-kōen Station", "舎人公園駅"] })), 0);
+  assert.equal(matchScore({ names: { en: "Tokyo Station" } }, item({ labels: ["Tokyo Station"] })), 1);
+});
+
+test("ranking: best score first, then nearest, one per image, never below the minimum", () => {
+  const ranked = rankItems(nakano, [
+    item({ item: "Q3", file: "far.jpg", labels: ["Nakano"], distanceKm: 0.3 }),
+    item({ item: "Q2", file: "entrance.jpg", labels: ["ジラフ"], distanceKm: 0.01 }),
+    item({ item: "Q1", file: "entrance.jpg", labels: ["Nakano Broadway"], distanceKm: 0.01 }),
+    item({ item: "Q4", file: "entrance.jpg", labels: ["中野ブロードウェイ"], distanceKm: 0.02 }),
+  ]);
+  assert.deepEqual(ranked.map((row) => row.item), ["Q1", "Q3"]);
+});
+
+test("licences: CC0, public domain, CC BY and CC BY-SA only; never NC, ND or unknown", () => {
+  assert.equal(allowedLicence("CC BY-SA 4.0"), "CC BY-SA 4.0");
+  assert.equal(allowedLicence("CC BY 2.0"), "CC BY 2.0");
+  assert.equal(allowedLicence("CC0"), "CC0");
+  assert.equal(allowedLicence("Public domain"), "Public domain");
+  assert.equal(allowedLicence("CC BY-NC-SA 2.0"), null);
+  assert.equal(allowedLicence("CC BY-ND 4.0"), null);
+  assert.equal(allowedLicence("GFDL"), null);
+  assert.equal(allowedLicence(""), null);
+});
+
+test("author text drops HTML and entities", () => {
+  assert.equal(cleanArtist('<a href="//commons.wikimedia.org/wiki/User:Kakidai">Kakidai</a> &amp; friend'), "Kakidai & friend");
+  assert.equal(cleanArtist(""), null);
+});
+
+test("the SPARQL query takes numbers only and parses into items", () => {
+  assert.throws(() => aroundQuery(Number.NaN, 1));
+  assert.match(aroundQuery(35.7, 139.66), /Point\(139\.66 35\.7\)/);
+  const rows = parseAround({ results: { bindings: [{ item: { value: "http://www.wikidata.org/entity/Q11" },
+    img: { value: "http://commons.wikimedia.org/wiki/Special:FilePath/Nakano%20broadway%20entrance.JPG" }, dist: { value: "0.012" }, labels: { value: "Nakano Broadway|中野ブロードウェイ" } }] } });
+  assert.deepEqual(rows, [{ item: "Q11", file: "Nakano broadway entrance.JPG", distanceKm: 0.012, labels: ["Nakano Broadway", "中野ブロードウェイ"] }]);
+});
+
+test("the vision prompt names the place in every language and accepts real areas", () => {
+  const prompt = reviewPrompt(nakano);
+  assert.match(prompt, /"Nakano Broadway" \(中野ブロードウェイ\), a Shopping place in Tokyo/);
+  assert.match(prompt, /real area counts/);
+});
+
+test("insert SQL: approved + uploaded only, after existing photos, quotes escaped, idempotent", () => {
+    const sha = "a".repeat(64);
+    const base = { spotId: "s'1", r2Key: `spot-photos/s1/${sha}.webp`, source: "commons", licence: "CC BY-SA 4.0",
+        author: "O'Brien", sourceUrl: "https://commons.wikimedia.org/wiki/File:X.jpg", width: 1600, height: 1067, review: "yes", uploaded: true };
+    const rows = insertSql([base, { ...base, review: "no" }, { ...base, uploaded: false }], "harvester-commons");
+    assert.equal(rows.length, 1);
+    assert.match(rows[0], /'O''Brien'/);
+    assert.match(rows[0], /COALESCE\(\(SELECT MAX\(position\) FROM spot_photos WHERE spot_id = 's''1'\), -1\) \+ 1/);
+    assert.match(rows[0], /WHERE NOT EXISTS \(SELECT 1 FROM spot_photos WHERE r2_key = /);
+    assert.throws(() => insertSql([{ ...base, r2Key: "x/../y" }], "harvester-commons"));
+    assert.throws(() => insertSql([{ ...base, licence: "" }], "harvester-commons"));
+    assert.throws(() => insertSql([base], "nils"));
+});

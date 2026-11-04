@@ -20,6 +20,7 @@ const PUBLIC_ROUTES = [
     '/blog(.*)',  // Static journal posts and RSS (content/blog, no account data)
     '/privacy',  // Public privacy policy (Google OAuth branding needs it without sign-in)
     '/terms',  // Public terms of use
+    '/credits',  // Public photo credits (licence attribution)
     '/trending',  // Public viral-event index (R2 feed of public news sources)
     '/trending/:slug',  // Public viral-event page
     '/itineraries/preview', // Browser-only generated itinerary; no account data

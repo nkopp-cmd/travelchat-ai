@@ -765,6 +765,7 @@ lane_node() {
   node scripts/d1-migration/atomic-usage-proof.mjs --out "$RUNNER_TEMP/localley-quota-proof-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"
   node --test scripts/photos/quarantine-source.test.mjs
   node --test scripts/photos/kto-harvest-lib.test.mjs
+  node --test scripts/photos/commons-harvest-lib.test.mjs
   node --check scripts/check-production-health.mjs
   node --test scripts/production-health/*.test.mjs
   systemd-analyze --user verify ops/localley-user-health.service ops/localley-user-health.timer

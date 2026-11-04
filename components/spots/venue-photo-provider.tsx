@@ -12,7 +12,11 @@ const settled = new Map<string, PhotoGalleryResponse>();
 const SETTLED_LIMIT = 200;
 const unavailable: PhotoGalleryResponse = { status: "unavailable", photos: [] };
 
-export function getDirectVenuePhotos(photos: string[] = []): PhotoGalleryResponse["photos"] {
+/** Credit of a stored licensed photo (Commons, KTO, Pexels), shown in the photo's caption. */
+export type DirectPhotoCredit = { src: string; label: string | null; author: string | null; sourceUrl: string | null };
+
+export function getDirectVenuePhotos(photos: string[] = [], credits: DirectPhotoCredit[] = []): PhotoGalleryResponse["photos"] {
+  const creditBySrc = new Map(credits.filter((credit) => credit.label).map((credit) => [credit.src, credit]));
   return [...new Set(photos)].filter((src) => {
     // The stored Google photo of a card, Nearby row or pin (cardSpotPhotos): one Photo call, no Details call.
     if (isCardGooglePhotoUrl(src)) return true;
@@ -24,9 +28,16 @@ export function getDirectVenuePhotos(photos: string[] = []): PhotoGalleryRespons
         !/generated|stock|fallback|placeholder|story|\/api\//i.test(url.pathname) &&
         ![...url.searchParams.keys()].some((key) => /key|token|credential|signature/i.test(key));
     } catch { return false; }
-  }).slice(0, 4).map((url) => ({ id: url, url, attributions: [],
-    sourceLabel: url.startsWith("/media/spot/") ? "Localley traveller photo"
-      : isCardGooglePhotoUrl(url) ? "Google listing photo" : "Direct source photo - unverified" }));
+  }).slice(0, 4).map((url) => {
+    const credit = creditBySrc.get(url);
+    if (credit) {
+      return { id: url, url, sourceLabel: credit.label!,
+        attributions: credit.author ? [{ displayName: credit.author, ...(credit.sourceUrl ? { uri: credit.sourceUrl } : {}) }] : [] };
+    }
+    return { id: url, url, attributions: [],
+      sourceLabel: url.startsWith("/media/spot/") ? "Localley traveller photo"
+        : isCardGooglePhotoUrl(url) ? "Google listing photo" : "Direct source photo - unverified" };
+  });
 }
 
 /** Global set by the detail hero's inline script: the photos request it started during HTML parse. */
@@ -131,8 +142,8 @@ export function useVenuePhotos(spotId: string, priority = false, directPhotos: P
 
 const VenuePhotoContext = createContext<ReturnType<typeof useVenuePhotos> | null>(null);
 
-export function VenuePhotoProvider({ spotId, children, directPhotos = [], allowFetch = true }: { spotId: string; children: ReactNode; directPhotos?: string[]; allowFetch?: boolean }) {
-  const state = useVenuePhotos(spotId, true, getDirectVenuePhotos(directPhotos), allowFetch);
+export function VenuePhotoProvider({ spotId, children, directPhotos = [], photoCredits = [], allowFetch = true }: { spotId: string; children: ReactNode; directPhotos?: string[]; photoCredits?: DirectPhotoCredit[]; allowFetch?: boolean }) {
+  const state = useVenuePhotos(spotId, true, getDirectVenuePhotos(directPhotos, photoCredits), allowFetch);
   return <VenuePhotoContext.Provider value={state}>{children}</VenuePhotoContext.Provider>;
 }
 

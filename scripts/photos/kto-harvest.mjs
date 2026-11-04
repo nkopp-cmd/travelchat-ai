@@ -161,7 +161,7 @@ for (const spot of spots) {
             source: "kto", licence: candidate.licence || KTO_LICENCE, author: ktoCredit(candidate.photographer),
             sourceUrl: candidate.tour
                 ? `https://english.visitkorea.or.kr/svc/contents/contentsView.do?vcontsId=${candidate.contentId}`
-                : `https://api.visitkorea.or.kr/#/useKoreaGallery (galContentId ${candidate.contentId})`,
+                : "https://api.visitkorea.or.kr/#/useKoreaGallery", galContentId: candidate.contentId,
             via: candidate.tour ? "tourapi" : "gallery",
             imageUrl: candidate.url, title: candidate.title, score: candidate.score,
         });

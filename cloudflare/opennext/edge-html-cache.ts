@@ -23,6 +23,8 @@ export const EDGE_HTML_TTL_SECONDS: Record<string, number> = {
   "/pricing": 86400,
   "/privacy": 86400,
   "/terms": 86400,
+  // Photo credits: live list of stored photos, changes when a harvest run lands.
+  "/credits": 3600,
   "/sign-in": 86400,
   "/sign-up": 86400,
   "/forgot-password": 86400,
