@@ -160,8 +160,12 @@ describe("spot detail sources on D1", () => {
   it("own R2 photo: card, detail source and related rows carry its /media/spot path; none without a row", async () => {
     const sha = "c".repeat(64);
     for (const n of [1, 2, 6]) source(n);
-    db.sqlite.prepare(`INSERT INTO spot_photos (spot_id, r2_key, source, licence, approved_by, approved_at)
-      VALUES (?, ?, 'tip', 'Localley contributor consent', 'admin', '2026-10-29T00:00:00Z')`).run(id(1), `spot-photos/${id(1)}/${sha}.webp`);
+    // Several photos per spot (0049): the lowest position is the one cards and the detail source carry.
+    const insert = db.sqlite.prepare(`INSERT INTO spot_photos (spot_id, r2_key, position, source, licence, approved_by, approved_at)
+      VALUES (?, ?, ?, ?, 'test licence', 'admin', '2026-10-29T00:00:00Z')`);
+    insert.run(id(1), `spot-photos/${id(1)}/${"d".repeat(64)}.webp`, 2, "commons");
+    insert.run(id(1), `spot-photos/${id(1)}/${sha}.webp`, 0, "tip");
+    insert.run(id(1), `spot-photos/${id(1)}/${"e".repeat(64)}.webp`, 1, "kto");
     const path = `/media/spot/${id(1)}/${sha}.webp`;
     const { spots } = await fetchFilteredSpots(parseFilterParams({ city: "seoul" }));
     expect(spots.find((s) => s.id === id(1))!.ownPhoto).toBe(path);
