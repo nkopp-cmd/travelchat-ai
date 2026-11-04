@@ -4,7 +4,7 @@
  */
 
 import { addressDisplayGeography } from "./display-geography";
-import { Spot, MultiLanguageField } from "@/types";
+import { Spot, MultiLanguageField, OwnPhotoCredit } from "@/types";
 import {
     normalizeStoredSpotPhotoUrls,
     summarizeSpotPhotos,
@@ -92,6 +92,8 @@ export interface RawSpot {
     google_place_id?: string | null;
     /** /media/spot/... path of the spot's own R2 photo (D1 spot_photos), shown before any Places photo. */
     own_photo?: string | null;
+    /** Licence credit of own_photo (source label, author, source page); null when none is needed. */
+    own_photo_credit?: OwnPhotoCredit | null;
     tips: unknown;
     verified: boolean | null;
     trending_score: number;
@@ -147,6 +149,7 @@ export function transformSpot(spot: RawSpot): Spot {
         hasRealPhoto: photoSummary.hasRealPhoto,
         googlePlaceId: trustedGooglePlaceId,
         ownPhoto: spot.own_photo ?? null,
+        ownPhotoCredit: spot.own_photo_credit ?? null,
         tips: normalizeSpotTips(spot.tips),
         verified: spot.verified || false,
         trending: spot.trending_score > 0.7,

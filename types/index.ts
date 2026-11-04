@@ -1,3 +1,6 @@
+/** What a licensed own photo must show: "Wikimedia Commons · CC BY-SA 4.0", the author and the source page. */
+export type OwnPhotoCredit = { label: string; author: string | null; sourceUrl: string | null };
+
 export enum LocalleyScale {
     TOURIST_TRAP = 1,        // "Everyone goes here"
     TOURIST_FRIENDLY = 2,    // "Popular but decent"
@@ -33,6 +36,8 @@ export interface Spot {
     googlePlaceId?: string | null;
     /** Our own R2 photo (/media/spot/...), shown first; Google Places is only the fallback. */
     ownPhoto?: string | null;
+    /** Licence credit of ownPhoto (Commons, KTO, Pexels); cards show it as the photo caption. */
+    ownPhotoCredit?: OwnPhotoCredit | null;
     communitySubmitted?: boolean;
     tips: string[];
     verified: boolean;
