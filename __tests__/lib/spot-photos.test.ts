@@ -69,18 +69,20 @@ describe("own spot photos from tips", () => {
 
     // The small card copy: served when it exists, else the full photo; only for a key a row names.
     const full = sha(webp(1));
-    const before = await get(SPOT, `${full}-480.webp`);
+    const before = await get(SPOT, `${full}-w480.webp`);
     expect(before.headers.get("Cache-Control")).toBe("public, max-age=3600");
     expect(new Uint8Array(await before.arrayBuffer())).toEqual(new Uint8Array(webp(1)));
-    objects.set(`spot-photos/${SPOT}/${full}-480.webp`, webp(7));
-    expect(new Uint8Array(await (await get(SPOT, `${full}-480.webp`)).arrayBuffer())).toEqual(new Uint8Array(webp(7)));
-    for (const file of [`${full}-481.webp`, `${"a".repeat(64)}-480.webp`]) expect((await get(SPOT, file)).status).toBe(404);
+    objects.set(`spot-photos/${SPOT}/${full}-w480.webp`, webp(7));
+    expect(new Uint8Array(await (await get(SPOT, `${full}-w480.webp`)).arrayBuffer())).toEqual(new Uint8Array(webp(7)));
+    // The old -480/-144 copies hold wrong photos (stale sharp cache): never served, even when the object exists.
+    objects.set(`spot-photos/${SPOT}/${full}-480.webp`, webp(9));
+    for (const file of [`${full}-w481.webp`, `${"a".repeat(64)}-w480.webp`, `${full}-480.webp`, `${full}-144.webp`]) expect((await get(SPOT, file)).status).toBe(404);
     // The pin copy: until it exists the card copy stands in, cached for an hour only.
-    const pinBefore = await get(SPOT, `${full}-144.webp`);
+    const pinBefore = await get(SPOT, `${full}-w144.webp`);
     expect(pinBefore.headers.get("Cache-Control")).toBe("public, max-age=3600");
     expect(new Uint8Array(await pinBefore.arrayBuffer())).toEqual(new Uint8Array(webp(7)));
-    objects.set(`spot-photos/${SPOT}/${full}-144.webp`, webp(8));
-    const pin = await get(SPOT, `${full}-144.webp`);
+    objects.set(`spot-photos/${SPOT}/${full}-w144.webp`, webp(8));
+    const pin = await get(SPOT, `${full}-w144.webp`);
     expect(pin.headers.get("Cache-Control")).toBe("public, max-age=31536000, immutable");
     expect(new Uint8Array(await pin.arrayBuffer())).toEqual(new Uint8Array(webp(8)));
   });

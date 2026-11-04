@@ -5,8 +5,9 @@ import type { CommunityDb } from "@/lib/community/qa";
 import { spotPhotoByKey } from "@/lib/community/spot-photos";
 
 const SPOT = /^[0-9a-f-]{36}$/;
-// `<sha>.webp` is the full photo; `<sha>-480.webp` its card copy, `<sha>-144.webp` its pin copy (scripts/photos/make-thumbs.mjs).
-const FILE = /^([0-9a-f]{64})(-480|-144)?\.webp$/;
+// `<sha>.webp` is the full photo; `<sha>-w480.webp` its card copy, `<sha>-w144.webp` its pin copy (scripts/photos/make-thumbs.mjs).
+// The old `-480`/`-144` copies show wrong photos (stale sharp cache) and stay unserved.
+const FILE = /^([0-9a-f]{64})(-w480|-w144)?\.webp$/;
 const missing = () => new Response(null, { status: 404, headers: { "Cache-Control": "no-store" } });
 
 /** Public spot photos (lib/community/spot-photos.ts): only keys a spot_photos row names. Content-addressed, so immutable. */
@@ -21,7 +22,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ spo
     const exact = name[2] ? await bucket?.get(`spot-photos/${spotId}/${file}`).catch(() => null) : null;
     // No pin copy yet: the card copy is the next smallest. Any stand-in is cached for an hour only, until the copy exists.
     const object = exact
-        ?? (name[2] === "-144" ? await bucket?.get(`spot-photos/${spotId}/${name[1]}-480.webp`).catch(() => null) : null)
+        ?? (name[2] === "-w144" ? await bucket?.get(`spot-photos/${spotId}/${name[1]}-w480.webp`).catch(() => null) : null)
         ?? await bucket?.get(key).catch(() => null);
     if (!object) return missing();
     const cache = name[2] && !exact ? "public, max-age=3600" : "public, max-age=31536000, immutable";

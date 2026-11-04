@@ -47,12 +47,12 @@ describe("own spot photo first, Google Places only as fallback", () => {
     expect(isCardGooglePhotoUrl(`${url}&x=1`)).toBe(false);
     expect(isCardGooglePhotoUrl("/api/places/photo?name=old&w=400")).toBe(false);
     const photos = [`/api/places/photo?name=${encodeURIComponent(name)}&w=1200`];
-    expect(cardSpotPhotos({ ownPhoto: own, photos })).toEqual([own.replace(/\.webp$/, "-480.webp"), url]);
+    expect(cardSpotPhotos({ ownPhoto: own, photos })).toEqual([own.replace(/\.webp$/, "-w480.webp"), url]);
     expect(spotPhotoThumbPath("https://cdn.example.com/a.webp")).toBe("https://cdn.example.com/a.webp");
-    expect(spotPhotoPinPath(own)).toBe(own.replace(/\.webp$/, "-144.webp"));
-    expect(spotPhotoPinPath(spotPhotoThumbPath(own))).toBe(own.replace(/\.webp$/, "-144.webp"));
+    expect(spotPhotoPinPath(own)).toBe(own.replace(/\.webp$/, "-w144.webp"));
+    expect(spotPhotoPinPath(spotPhotoThumbPath(own))).toBe(own.replace(/\.webp$/, "-w144.webp"));
     expect(spotPhotoPinPath(url)).toBe(url);
-    expect(spotPhotoPinPath("https://cdn.example.com/a-480.webp")).toBe("https://cdn.example.com/a-480.webp");
+    expect(spotPhotoPinPath("https://cdn.example.com/a-w480.webp")).toBe("https://cdn.example.com/a-w480.webp");
     expect(cardSpotPhotos({ photos: [] })).toEqual([]);
     expect(cardSpotPhotos({ googlePlaceId: "ChIJYVXJTcWYfDURM4kdvYV_flY", photos: [] }))
       .toEqual([cardGooglePhotoUrl("places/ChIJYVXJTcWYfDURM4kdvYV_flY/photos/current")]);
