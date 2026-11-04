@@ -240,3 +240,19 @@ export async function d1PhotoCredits(): Promise<D1PhotoCredit[]> {
     src: photo.src, credit: photo.credit, sourceUrl: photo.sourceUrl,
   }] : []));
 }
+
+/**
+ * Every public spot id with its real last change (sitemap lastmod): the newest of the row's created_at,
+ * an approved stored photo and a visible tip. spots has no updated_at column; never "now".
+ */
+export async function d1SitemapSpots(): Promise<{ id: string; lastmod: string | null }[]> {
+  const where = visibilityWhere();
+  const { results } = await appDataDb().prepare(`SELECT s.id, NULLIF(MAX(COALESCE(substr(s.created_at, 1, 19), ''),
+      COALESCE((SELECT MAX(substr(ph.approved_at, 1, 19)) FROM spot_photos ph WHERE ph.spot_id = s.id), ''),
+      COALESCE((SELECT MAX(substr(t.created_at, 1, 19)) FROM spot_tips t WHERE t.spot_id = s.id AND t.status = 'visible'), '')), '') AS lastmod
+    FROM spots s WHERE ${where.sql.join(" AND ")} ORDER BY s.id ASC`).bind(...where.params).all<Record<string, unknown>>();
+  return results.map((row) => ({
+    id: String(row.id),
+    lastmod: typeof row.lastmod === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(row.lastmod) ? `${row.lastmod}+00:00` : null,
+  }));
+}
