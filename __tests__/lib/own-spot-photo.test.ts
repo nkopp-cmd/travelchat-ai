@@ -76,7 +76,7 @@ describe("own spot photo first, Google Places only as fallback", () => {
     expect(stored[3].credit).toBe("니오타니 스튜디오 · KOGL Type 1 · Korea Tourism Organization");
     expect(stored[4].author).toBeNull();
     stored.splice(3);
-    expect(stored.map((photo) => photo.label)).toEqual([null, "Wikimedia Commons · CC BY 2.0", "Korea Tourism Organization · KOGL Type 1"]);
+    expect(stored.map((photo) => photo.label)).toEqual([null, "CC BY 2.0", "Korea Tourism Organization · KOGL Type 1"]);
     expect(stored[1].credit).toBe("Jane · CC BY 2.0 · Wikimedia Commons");
     expect(stored[2].sourceUrl).toBeNull();
     expect(parseStoredSpotPhotos("not json")).toEqual([]);
@@ -85,7 +85,7 @@ describe("own spot photo first, Google Places only as fallback", () => {
     expect(direct.slice(0, 2)).toEqual([own, second]);
     const venue = getDirectVenuePhotos(direct, stored);
     expect(venue[0]).toMatchObject({ sourceLabel: "Localley traveller photo", attributions: [] });
-    expect(venue[1]).toMatchObject({ sourceLabel: "Wikimedia Commons · CC BY 2.0",
+    expect(venue[1]).toMatchObject({ sourceLabel: "CC BY 2.0",
       attributions: [{ displayName: "Jane", uri: "https://commons.wikimedia.org/wiki/File:Y.jpg" }] });
     expect(venue[2]).toMatchObject({ sourceLabel: "Korea Tourism Organization · KOGL Type 1", attributions: [] });
   });
