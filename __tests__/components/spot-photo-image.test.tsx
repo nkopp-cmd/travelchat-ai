@@ -141,8 +141,10 @@ describe("venue photos", () => {
     const stored = ["/api/places/photo?name=places%2FChIJabc%2Fphotos%2Fp1&w=1200&v=2"];
     render(<>
       <VenueCardPhoto spotId="google" name="Google spot" directPhotos={cardSpotPhotos({ googlePlaceId: "ChIJabc", photos: stored })} />
-      <VenueCardPhoto spotId="none" name="No photo" directPhotos={cardSpotPhotos({ googlePlaceId: "ChIJdef", photos: [] })} category="Market" />
+      <VenueCardPhoto spotId="id-only" name="Place id only" directPhotos={cardSpotPhotos({ googlePlaceId: "ChIJdef", photos: [] })} />
+      <VenueCardPhoto spotId="none" name="No photo" directPhotos={cardSpotPhotos({ photos: [] })} category="Market" />
     </>);
+    expect(screen.getByAltText("Place id only").getAttribute("src")).toBe(`/api/places/photo?name=places%2FChIJdef%2Fphotos%2Fcurrent&w=${CARD_PHOTO_WIDTH}`);
     expect(screen.getByAltText("Google spot").getAttribute("src")).toBe(`/api/places/photo?name=places%2FChIJabc%2Fphotos%2Fp1&w=${CARD_PHOTO_WIDTH}`);
     expect(screen.getByTestId("photo-placeholder").dataset.tone).toBe("market");
     expect(fetcher).not.toHaveBeenCalled();

@@ -49,6 +49,10 @@ describe("own spot photo first, Google Places only as fallback", () => {
     const photos = [`/api/places/photo?name=${encodeURIComponent(name)}&w=1200`];
     expect(cardSpotPhotos({ ownPhoto: own, photos })).toEqual([own, url]);
     expect(cardSpotPhotos({ photos: [] })).toEqual([]);
+    expect(cardSpotPhotos({ googlePlaceId: "ChIJYVXJTcWYfDURM4kdvYV_flY", photos: [] }))
+      .toEqual([cardGooglePhotoUrl("places/ChIJYVXJTcWYfDURM4kdvYV_flY/photos/current")]);
+    expect(cardSpotPhotos({ googlePlaceId: "bad id/../x", photos: [] })).toEqual([]);
+    expect(cardSpotPhotos({ googlePlaceId: "ChIJother", photos })).toEqual([url]);
     expect(getDirectVenuePhotos(cardSpotPhotos({ photos }))[0]).toMatchObject({ url, sourceLabel: "Google listing photo" });
   });
 });
