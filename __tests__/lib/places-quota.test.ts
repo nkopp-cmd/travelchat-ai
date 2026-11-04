@@ -90,13 +90,15 @@ describe("Places daily cap (hard stop)", () => {
   it("the photo proxy stops before Google once the cap is reached", async () => {
     vi.stubEnv("PLACES_DAILY_CAP", "1");
     vi.stubEnv("GOOGLE_PLACES_API_KEY", "test-key");
-    const fetchSpy = vi.fn(async (url: string) => String(url).includes("places.googleapis.com")
-      ? Response.json({ photoUri: "https://lh3.googleusercontent.com/p" })
-      : new Response(new Uint8Array([255, 216, 255, 224, 0, 0, 0, 0, 0, 0, 0, 0]), { headers: { "content-type": "image/jpeg" } }));
+    // Details (photos.name, IDs Only SKU, free) gives the current name; only the /media call is billed.
+    const fetchSpy = vi.fn(async (url: string) => !String(url).includes("places.googleapis.com")
+      ? new Response(new Uint8Array([255, 216, 255, 224, 0, 0, 0, 0, 0, 0, 0, 0]), { headers: { "content-type": "image/jpeg" } })
+      : String(url).includes("/media") ? Response.json({ photoUri: "https://lh3.googleusercontent.com/p" })
+      : Response.json({ photos: [{ name: "places/ChIJabc/photos/fresh" }] }));
     vi.stubGlobal("fetch", fetchSpy);
     const request = () => new NextRequest(`https://www.localley.io/api/places/photo?name=${encodeURIComponent("places/ChIJabc/photos/p1")}`, browser);
     expect((await GET(request())).status).toBe(200);
-    const googleCalls = () => fetchSpy.mock.calls.filter(([url]) => String(url).includes("places.googleapis.com")).length;
+    const googleCalls = () => fetchSpy.mock.calls.filter(([url]) => /places\.googleapis\.com.*\/media/.test(String(url))).length;
     expect(googleCalls()).toBe(1);
     expect((await GET(request())).status).toBe(503);
     expect(googleCalls()).toBe(1);

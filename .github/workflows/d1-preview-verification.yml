@@ -84,6 +84,8 @@ on:
       - 'lib/places-quota.ts'
       - 'lib/places-guard.ts'
       - '__tests__/lib/places-quota.test.ts'
+      - 'app/api/places/photo/route.ts'
+      - '__tests__/api/place-photo-fallback.test.ts'
       - '__tests__/lib/spot-photos.test.ts'
       - 'lib/spots/own-photo.ts'
       - '__tests__/lib/own-spot-photo.test.ts'

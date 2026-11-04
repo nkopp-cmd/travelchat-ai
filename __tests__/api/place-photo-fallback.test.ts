@@ -6,7 +6,9 @@ import { GET } from "@/app/api/places/photo/route";
 const mocks = vi.hoisted(() => ({ limit: vi.fn(), productionLimit: vi.fn() }));
 vi.mock("@/lib/rate-limit", () => ({ rateLimit: () => mocks.limit, strictPlatformLimit: mocks.productionLimit }));
 
-const name = "places/ChIJabc/photos/fresh";
+const name = "places/ChIJabc/photos/stored";
+const fresh = "places/ChIJabc/photos/fresh";
+const details = () => Response.json({ photos: [{ name: fresh }] });
 const cdn = "https://lh3.googleusercontent.com/photo";
 const browser = { headers: { "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1" } };
 const request = (query = `name=${encodeURIComponent(name)}`) => new NextRequest(`https://localley.io/api/places/photo?${query}`, browser);
@@ -39,7 +41,7 @@ describe("place photo proxy without substitution", () => {
     );
 
     it("returns magic-byte JPEG with clamped width and header authentication", async () => {
-        vi.mocked(fetch).mockResolvedValueOnce(Response.json({ photoUri: cdn }))
+        vi.mocked(fetch).mockResolvedValueOnce(details()).mockResolvedValueOnce(Response.json({ photoUri: cdn }))
             .mockResolvedValueOnce(new Response(jpeg, { headers: { "Content-Type": "text/html;charset=UTF-8" } }));
         const response = await GET(request(`name=${name}&w=99999&v=venue-photos-2`));
         expect(response.status).toBe(200);
@@ -47,42 +49,55 @@ describe("place photo proxy without substitution", () => {
         // Browser-only reuse; never an edge or shared cache.
         expect(response.headers.get("cache-control")).toBe("private, max-age=86400");
         expect(response.headers.get("x-content-type-options")).toBe("nosniff");
-        expect(fetch).toHaveBeenNthCalledWith(1,
-            `https://places.googleapis.com/v1/${name}/media?maxWidthPx=1600&skipHttpRedirect=true`,
+        expect(fetch).toHaveBeenNthCalledWith(1, "https://places.googleapis.com/v1/places/ChIJabc",
+            expect.objectContaining({ headers: { "X-Goog-Api-Key": "test-key", "X-Goog-FieldMask": "photos.name" } }));
+        expect(fetch).toHaveBeenNthCalledWith(2,
+            `https://places.googleapis.com/v1/${fresh}/media?maxWidthPx=1600&skipHttpRedirect=true`,
             expect.objectContaining({ cache: "no-store", redirect: "manual", headers: { "X-Goog-Api-Key": "test-key" } }));
-        expect(fetch).toHaveBeenNthCalledWith(2, cdn, expect.objectContaining({ cache: "no-store", redirect: "manual" }));
+        expect(fetch).toHaveBeenNthCalledWith(3, cdn, expect.objectContaining({ cache: "no-store", redirect: "manual" }));
     });
 
     it.each([400, 403, 404, 429, 500])("never replaces a denied or expired photo (%s)", async status => {
-        vi.mocked(fetch).mockResolvedValueOnce(new Response("secret upstream body", { status }));
+        vi.mocked(fetch).mockResolvedValueOnce(details()).mockResolvedValueOnce(new Response("secret upstream body", { status }));
         const response = await GET(request(`name=${name}&fallback=https://images.pexels.com/stock.jpg`));
         expect(response.status).toBe(status === 404 ? 404 : 502);
         expect(await response.text()).toBe("Place photo unavailable");
         expect(response.headers.get("cache-control")).toBe("no-store");
+        expect(fetch).toHaveBeenCalledTimes(2);
+    });
+
+    it.each([
+        ["no photos", Response.json({}), 404],
+        ["another place's photo", Response.json({ photos: [{ name: "places/ChIJother/photos/x" }] }), 404],
+        ["unknown place", new Response("gone", { status: 404 }), 404],
+        ["details error", new Response("secret upstream body", { status: 500 }), 502],
+    ] as const)("never bills a photo call when details give no current photo (%s)", async (_case, response, status) => {
+        vi.mocked(fetch).mockResolvedValueOnce(response);
+        expect((await GET(request())).status).toBe(status);
         expect(fetch).toHaveBeenCalledTimes(1);
     });
 
     it.each(["https://evil.test/image", "http://lh3.googleusercontent.com/image", "https://lh3.googleusercontent.com.evil.test/image",
         "https://user:password@lh3.googleusercontent.com/image", "https://lh3.googleusercontent.com:8443/image", "http://127.0.0.1/image"])(
         "rejects untrusted media URL %s", async photoUri => {
-            vi.mocked(fetch).mockResolvedValueOnce(Response.json({ photoUri }));
+            vi.mocked(fetch).mockResolvedValueOnce(details()).mockResolvedValueOnce(Response.json({ photoUri }));
             expect((await GET(request())).status).toBe(502);
-            expect(fetch).toHaveBeenCalledTimes(1);
+            expect(fetch).toHaveBeenCalledTimes(2);
         },
     );
 
     it("checks every redirect before fetching", async () => {
-        vi.mocked(fetch).mockResolvedValueOnce(Response.json({ photoUri: cdn }))
+        vi.mocked(fetch).mockResolvedValueOnce(details()).mockResolvedValueOnce(Response.json({ photoUri: cdn }))
             .mockResolvedValueOnce(new Response(null, { status: 302, headers: { location: "https://evil.test/image" } }));
         expect((await GET(request())).status).toBe(502);
-        expect(fetch).toHaveBeenCalledTimes(2);
+        expect(fetch).toHaveBeenCalledTimes(3);
     });
 
     it("allows two verified CDN redirects, then stops", async () => {
-        vi.mocked(fetch).mockResolvedValueOnce(Response.json({ photoUri: cdn }))
+        vi.mocked(fetch).mockResolvedValueOnce(details()).mockResolvedValueOnce(Response.json({ photoUri: cdn }))
             .mockImplementation(async () => new Response(null, { status: 302, headers: { location: "https://lh3.ggpht.com/next" } }));
         expect((await GET(request())).status).toBe(502);
-        expect(fetch).toHaveBeenCalledTimes(4);
+        expect(fetch).toHaveBeenCalledTimes(5);
     });
 
     it("still serves a valid legacy ref without forwarding credentials to the CDN", async () => {
@@ -107,7 +122,7 @@ describe("place photo proxy without substitution", () => {
     });
 
     it.each(["<svg xmlns='http://www.w3.org/2000/svg'></svg>", "<html>not a photo</html>"])("rejects non-image bytes", async body => {
-        vi.mocked(fetch).mockResolvedValueOnce(Response.json({ photoUri: cdn }))
+        vi.mocked(fetch).mockResolvedValueOnce(details()).mockResolvedValueOnce(Response.json({ photoUri: cdn }))
             .mockResolvedValueOnce(new Response(body, { headers: { "content-type": "image/jpeg" } }));
         expect((await GET(request())).status).toBe(502);
     });
@@ -118,22 +133,22 @@ describe("place photo proxy without substitution", () => {
         ["image/gif", Array.from(new TextEncoder().encode("GIF89a000000"))],
         ["image/avif", [0, 0, 0, 16, 102, 116, 121, 112, 97, 118, 105, 102, 0, 0, 0, 0]],
     ] as const)("allows browser format %s", async (type, bytes) => {
-        vi.mocked(fetch).mockResolvedValueOnce(Response.json({ photoUri: cdn }))
+        vi.mocked(fetch).mockResolvedValueOnce(details()).mockResolvedValueOnce(Response.json({ photoUri: cdn }))
             .mockResolvedValueOnce(new Response(new Uint8Array(bytes)));
         expect((await GET(request())).headers.get("content-type")).toBe(type);
     });
 
     it.each([true, false])("rejects oversized images (declared: %s)", async declared => {
-        vi.mocked(fetch).mockResolvedValueOnce(Response.json({ photoUri: cdn }))
+        vi.mocked(fetch).mockResolvedValueOnce(details()).mockResolvedValueOnce(Response.json({ photoUri: cdn }))
             .mockResolvedValueOnce(new Response(declared ? jpeg : new Uint8Array(10 * 1024 * 1024 + 1),
                 { headers: declared ? { "content-length": String(10 * 1024 * 1024 + 1) } : {} }));
         expect((await GET(request())).status).toBe(502);
     });
 
     it.each(["not json", "null", JSON.stringify({ photoUri: "x".repeat(256 * 1024) })])("rejects malformed or oversized metadata", async body => {
-        vi.mocked(fetch).mockResolvedValueOnce(new Response(body));
+        vi.mocked(fetch).mockResolvedValueOnce(details()).mockResolvedValueOnce(new Response(body));
         expect((await GET(request())).status).toBe(502);
-        expect(fetch).toHaveBeenCalledTimes(1);
+        expect(fetch).toHaveBeenCalledTimes(2);
     });
 
     it("aborts a provider timeout", async () => {
