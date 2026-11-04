@@ -137,3 +137,11 @@ test("depicts fallback: items without an image, a strict name gate, and bitmap f
     assert.deepEqual(parseDepicts({ query: { search: [{ title: "File:Nakano Broadway 2.jpg" }] } }, strict[0]),
         [{ item: "Q42", file: "Nakano Broadway 2.jpg", distanceKm: 0.05, score: 1 }]);
 });
+
+test("depicts files: a ward office or a station never stands in for the place", () => {
+    const body = { query: { search: [{ title: "File:Seongbuk Seongbuk-dong Community Service Center.jpg" }, { title: "File:P00250518 필동주민센터.JPG" },
+        { title: "File:Entrance and exit A of South Horizons Station.jpg" }, { title: "File:Seongbuk-dong street 2020.jpg" }] } };
+    const match = { item: "Q1", distanceKm: 0.1, score: 1 };
+    assert.deepEqual(parseDepicts(body, match, { names: { en: "Seongbuk-dong Art Village" } }).map((row) => row.file), ["Seongbuk-dong street 2020.jpg"]);
+    assert.equal(parseDepicts({ query: { search: [{ title: "File:Tokyo Station 2019.jpg" }] } }, match, { names: { en: "Tokyo Station" } }).length, 1);
+});

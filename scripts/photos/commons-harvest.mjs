@@ -180,7 +180,7 @@ for (const spot of spots) {
         if (matches.length < perSpot) {
             const known = new Set(matches.map((match) => match.file));
             const item = rankItems(spot, await nearbyPlainItems(spot), 1).find((row) => row.score >= DEPICTS_MIN_SCORE);
-            if (item) matches.push(...parseDepicts(await getJson(depictsUrl(item.item, perSpot + 2)), item).filter((row) => !known.has(row.file)));
+            if (item) matches.push(...parseDepicts(await getJson(depictsUrl(item.item, perSpot + 2)), item, spot).filter((row) => !known.has(row.file)));
         }
     } catch (error) {
         entry.status = `search-error: ${error.message}`;
