@@ -89,6 +89,15 @@ describe("own spot photo first, Google Places only as fallback", () => {
       attributions: [{ displayName: "Jane", uri: "https://commons.wikimedia.org/wiki/File:Y.jpg" }] });
     expect(venue[2]).toMatchObject({ sourceLabel: "Korea Tourism Organization · KOGL Type 1", attributions: [] });
   });
+  it("stored photos: Taiwan open-data photos credit the Tourism Administration once, then the photographer", () => {
+    const [photo] = parseStoredSpotPhotos(JSON.stringify([
+      { k: `spot-photos/${spotId}/${"f".repeat(64)}.webp`, s: "opendata", l: "Open Government Data License v1.0 (Taiwan)",
+        a: "Taiwan Tourism Administration / Taipei Travel", u: "https://www.travel.taipei/image/1.jpg" },
+    ]));
+    expect(photo.label).toBe("Taiwan Tourism Administration · Open Government Data License v1.0 (Taiwan)");
+    expect(photo.author).toBe("Taipei Travel");
+    expect(photo.sourceUrl).toBe("https://www.travel.taipei/image/1.jpg");
+  });
   it("a card credits its licensed own photo on the small copy it shows, never as a traveller photo", () => {
     const ownPhotoCredit = { label: "Wikimedia Commons · CC BY 3.0", author: "WiNG", sourceUrl: "https://commons.wikimedia.org/wiki/File:X.jpg" };
     const spot = { ownPhoto: own, ownPhotoCredit, googlePlaceId: "ChIJ1", photos: [] };

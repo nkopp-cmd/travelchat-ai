@@ -242,7 +242,7 @@ export type D1PhotoCredit = { spotId: string; spotName: RawSpot["name"]; city: s
 export async function d1PhotoCredits(): Promise<D1PhotoCredit[]> {
   const { results } = await appDataDb().prepare(`SELECT s.id, s.name, s.city, json_group_array(json_object('k', ph.r2_key, 's', ph.source,
         'l', ph.licence, 'a', ph.author, 'u', ph.source_url)) AS stored_photos
-    FROM spots s JOIN (SELECT * FROM spot_photos WHERE source IN ('commons', 'kto', 'pexels') ORDER BY spot_id, position) ph ON ph.spot_id = s.id
+    FROM spots s JOIN (SELECT * FROM spot_photos WHERE source IN ('commons', 'kto', 'pexels', 'opendata') ORDER BY spot_id, position) ph ON ph.spot_id = s.id
     WHERE s.visible = 1 GROUP BY s.id ORDER BY s.city IS NULL, s.city, s.id LIMIT 5000`).all<Record<string, unknown>>();
   return results.flatMap((row) => parseStoredSpotPhotos(row.stored_photos).flatMap((photo) => photo.credit ? [{
     spotId: String(row.id), spotName: parseJson(row.name) as RawSpot["name"], city: typeof row.city === "string" ? row.city : null,
