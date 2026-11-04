@@ -167,63 +167,66 @@ for (const spot of spots) {
     if (done.has(spot.id)) { spotStatus.push({ spotId: spot.id, city: spot.city, status: "earlier-run" }); continue; }
     const entry = { spotId: spot.id, city: spot.city, nameEn: spot.names.en || "", status: "no-match" };
     spotStatus.push(entry);
-    let matches = [];
-    try {
-        matches = rankItems(spot, await nearbyItems(spot), perSpot + 2);
-        // Fallback: geotagged Commons files near the pin whose file name names the place (no Wikidata image needed).
-        if (matches.length < perSpot) {
-            const known = new Set(matches.map((match) => match.file));
-            const files = rankFiles(spot, parseGeosearch(await getJson(geosearchUrl(spot.lat, spot.lng))), perSpot + 2);
-            matches.push(...files.filter((row) => !known.has(row.file)));
-        }
-        // Fallback: a near-exact Wikidata item without an image lends the Commons files that "depict" it.
-        if (matches.length < perSpot) {
-            const known = new Set(matches.map((match) => match.file));
+    // Sources in order; the next one runs only while the spot still lacks photos AFTER the quality checks, so a
+    // Wikidata image that is too small or unlicensed no longer hides the geotagged or "depicts" files.
+    const sources = [
+        async () => rankItems(spot, await nearbyItems(spot), perSpot + 2),
+        // Geotagged Commons files near the pin whose file name names the place (no Wikidata image needed).
+        async () => rankFiles(spot, parseGeosearch(await getJson(geosearchUrl(spot.lat, spot.lng))), perSpot + 2),
+        // A near-exact Wikidata item without an image lends the Commons files that "depict" it.
+        async () => {
             const item = rankItems(spot, await nearbyPlainItems(spot), 1).find((row) => row.score >= DEPICTS_MIN_SCORE);
-            if (item) {
-                let files = parseDepicts(await getJson(depictsUrl(item.item, perSpot + 2)), item, spot);
-                // No "depicts" statements yet: the item's own Commons category holds photos of the place.
-                if (!files.length && item.category) files = parseDepicts(categoryAsSearch(await getJson(categoryUrl(item.category, perSpot + 4))), item, spot);
-                matches.push(...files.filter((row) => !known.has(row.file)));
-            }
-        }
-    } catch (error) {
-        entry.status = `search-error: ${error.message}`;
-        continue;
-    }
+            if (!item) return [];
+            const files = parseDepicts(await getJson(depictsUrl(item.item, perSpot + 2)), item, spot);
+            // No "depicts" statements yet: the item's own Commons category holds photos of the place.
+            if (files.length || !item.category) return files;
+            return parseDepicts(categoryAsSearch(await getJson(categoryUrl(item.category, perSpot + 4))), item, spot);
+        },
+    ];
+    const known = new Set();
     let kept = 0;
-    for (const match of matches) {
+    for (const source of sources) {
         if (kept >= perSpot) break;
-        const info = await fileInfo(match.file).catch(() => null);
-        if (!info) { entry.status = "no-file-info"; continue; }
-        if (!info.licence) { entry.status = "licence"; continue; }
-        if (info.restrictions) { entry.status = `restricted: ${info.restrictions.slice(0, 40)}`; continue; }
-        if (!/^image\/(jpeg|png|webp|tiff)$/.test(info.mime || "")) { entry.status = "not-a-photo"; continue; }
-        await pause(250);
-        const response = await fetch(info.thumbUrl, { headers: { "User-Agent": USER_AGENT }, signal: AbortSignal.timeout(60_000) }).catch(() => null);
-        if (!response?.ok) { await response?.body?.cancel(); entry.status = "download-failed"; continue; }
-        const original = Buffer.from(await response.arrayBuffer());
-        const meta = await sharp(original).metadata().catch(() => null);
-        if (!meta) { entry.status = "not-an-image"; continue; }
-        // The original size counts for the 1000 px rule; the 1600 px thumbnail is what we store.
-        const problems = qualityProblems({ width: info.width, height: info.height, sharpness: await sharpness(original) });
-        if (problems.length) { entry.status = `quality: ${problems.join("; ")}`; continue; }
-        const hash = await hashOf(original);
-        if (isDuplicate(hash, usedHashes)) { entry.status = "duplicate"; continue; }
-        const webp = await sharp(original).rotate().resize({ width: WIDTH, withoutEnlargement: true }).webp({ quality: 80 }).toBuffer();
-        const outMeta = await sharp(webp).metadata();
-        const sha = createHash("sha256").update(webp).digest("hex");
-        const file = path.join(outDir, "img", `${spot.id}-${sha.slice(0, 12)}.webp`);
-        fs.writeFileSync(file, webp);
-        usedHashes.push(hash);
-        kept += 1;
-        entry.status = "candidate";
-        photos.push({
-            spotId: spot.id, city: spot.city, names: spot.names, category: spot.category, status: "candidate", file,
-            r2Key: spotPhotoKey(spot.id, sha), width: outMeta.width, height: outMeta.height, dhash: hash,
-            source: "commons", licence: info.licence, author: info.author, sourceUrl: info.descriptionUrl,
-            wikidata: match.item, commonsFile: match.file, score: Number(match.score.toFixed(2)), distanceKm: Number(match.distanceKm.toFixed(3)),
-        });
+        let matches;
+        try {
+            matches = (await source()).filter((match) => !known.has(match.file) && known.add(match.file));
+        } catch (error) {
+            entry.status = `search-error: ${error.message}`;
+            break;
+        }
+        for (const match of matches) {
+            if (kept >= perSpot) break;
+            const info = await fileInfo(match.file).catch(() => null);
+            if (!info) { entry.status = "no-file-info"; continue; }
+            if (!info.licence) { entry.status = "licence"; continue; }
+            if (info.restrictions) { entry.status = `restricted: ${info.restrictions.slice(0, 40)}`; continue; }
+            if (!/^image\/(jpeg|png|webp|tiff)$/.test(info.mime || "")) { entry.status = "not-a-photo"; continue; }
+            await pause(250);
+            const response = await fetch(info.thumbUrl, { headers: { "User-Agent": USER_AGENT }, signal: AbortSignal.timeout(60_000) }).catch(() => null);
+            if (!response?.ok) { await response?.body?.cancel(); entry.status = "download-failed"; continue; }
+            const original = Buffer.from(await response.arrayBuffer());
+            const meta = await sharp(original).metadata().catch(() => null);
+            if (!meta) { entry.status = "not-an-image"; continue; }
+            // The original size counts for the 1000 px rule; the 1600 px thumbnail is what we store.
+            const problems = qualityProblems({ width: info.width, height: info.height, sharpness: await sharpness(original) });
+            if (problems.length) { entry.status = `quality: ${problems.join("; ")}`; continue; }
+            const hash = await hashOf(original);
+            if (isDuplicate(hash, usedHashes)) { entry.status = "duplicate"; continue; }
+            const webp = await sharp(original).rotate().resize({ width: WIDTH, withoutEnlargement: true }).webp({ quality: 80 }).toBuffer();
+            const outMeta = await sharp(webp).metadata();
+            const sha = createHash("sha256").update(webp).digest("hex");
+            const file = path.join(outDir, "img", `${spot.id}-${sha.slice(0, 12)}.webp`);
+            fs.writeFileSync(file, webp);
+            usedHashes.push(hash);
+            kept += 1;
+            entry.status = "candidate";
+            photos.push({
+                spotId: spot.id, city: spot.city, names: spot.names, category: spot.category, status: "candidate", file,
+                r2Key: spotPhotoKey(spot.id, sha), width: outMeta.width, height: outMeta.height, dhash: hash,
+                source: "commons", licence: info.licence, author: info.author, sourceUrl: info.descriptionUrl,
+                wikidata: match.item, commonsFile: match.file, score: Number(match.score.toFixed(2)), distanceKm: Number(match.distanceKm.toFixed(3)),
+            });
+        }
     }
 }
 
