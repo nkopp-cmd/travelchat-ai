@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { pinTone } from "@/lib/spots/pin-clusters";
 import { TONE_ICONS } from "./category-tone";
 import type { PhotoGalleryResponse } from "@/lib/spots/photo-contract";
-import { earlyHeroScript, getDirectVenuePhotos, useDetailVenuePhotos, useVenuePhotos } from "./venue-photo-provider";
+import { earlyHeroScript, getDirectVenuePhotos, type DirectPhotoCredit, useDetailVenuePhotos, useVenuePhotos } from "./venue-photo-provider";
 
 type Photo = PhotoGalleryResponse["photos"][number];
 
@@ -75,10 +75,10 @@ export function VenuePhotoThumbnails({ name }: { name: string }) {
   </div>;
 }
 
-export function VenueCardPhoto({ spotId, name, priority = false, directPhotos = [], frameClassName, category }: { spotId: string; name: string; priority?: boolean; directPhotos?: string[]; frameClassName?: string; category?: string }) {
+export function VenueCardPhoto({ spotId, name, priority = false, directPhotos = [], photoCredits = [], frameClassName, category }: { spotId: string; name: string; priority?: boolean; directPhotos?: string[]; photoCredits?: DirectPhotoCredit[]; frameClassName?: string; category?: string }) {
   // Cards and Nearby rows show only server-rendered photos (own, direct, or the stored Google photo via one Photo
   // call); they never ask Place Details. Without a photo the category tile shows.
-  const { ref, data, loading } = useVenuePhotos(spotId, priority, getDirectVenuePhotos(directPhotos), false);
+  const { ref, data, loading } = useVenuePhotos(spotId, priority, getDirectVenuePhotos(directPhotos, photoCredits), false);
   return <div ref={ref} className="relative h-full w-full">
     <SpotPhotoImage key={spotId} photo={data?.photos[0]} alt={name} sizes="(max-width: 768px) 100vw, 400px" priority={priority} loading={loading} frameClassName={frameClassName} category={category} />
   </div>;

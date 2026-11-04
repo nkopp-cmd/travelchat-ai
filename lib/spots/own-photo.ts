@@ -1,3 +1,5 @@
+import type { OwnPhotoCredit } from "@/types";
+
 /** R2 object (COMMUNITY_MEDIA bucket) of a spot's own photo: content-addressed, so the public URL is immutable. */
 export const SPOT_PHOTO_KEY = /^spot-photos\/([0-9a-f-]{36})\/([0-9a-f]{64})\.webp$/;
 
@@ -73,6 +75,11 @@ export function cardSpotPhotos(spot: { ownPhoto?: string | null; googlePlaceId?:
   const name = storedGooglePhotoName(spot.photos) ?? placeIdPhotoName(spot.googlePlaceId);
   // A 1600 px photo is 300-700 KB; the 480 px copy keeps a list of pins light.
   return [...directSpotPhotos(spot).map(spotPhotoThumbPath), ...(name ? [cardGooglePhotoUrl(name)] : [])];
+}
+
+/** The credit of a card's own photo, keyed by the small-copy path cardSpotPhotos shows. */
+export function cardPhotoCredits(spot: { ownPhoto?: string | null; ownPhotoCredit?: OwnPhotoCredit | null }): Array<OwnPhotoCredit & { src: string }> {
+  return spot.ownPhoto && spot.ownPhotoCredit ? [{ src: spotPhotoThumbPath(spot.ownPhoto), ...spot.ownPhotoCredit }] : [];
 }
 
 /** True for the canonical small Google proxy URL built by cardGooglePhotoUrl. */

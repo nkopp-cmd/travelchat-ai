@@ -11,12 +11,12 @@ import Link from "next/link";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { dataBackend } from "@/lib/app-data/backend";
 import { d1CommunitySubmission, d1RelatedSpotSources, d1SpotSource } from "@/lib/spots/d1-queries";
-import { cardSpotPhotos, directSpotPhotos, type StoredSpotPhoto } from "@/lib/spots/own-photo";
+import { cardPhotoCredits, cardSpotPhotos, directSpotPhotos, type StoredSpotPhoto } from "@/lib/spots/own-photo";
 import { SpotInteractions } from "@/components/spots/spot-interactions";
 import { SpotActivities } from "@/components/spots/spot-activities";
 import { ReviewList } from "@/components/spots/review-list";
 import { VenueHeroPhoto, VenuePhotoThumbnails, VenueCardPhoto } from "@/components/spots/spot-photo-image";
-import { VenuePhotoProvider } from "@/components/spots/venue-photo-provider";
+import { VenuePhotoProvider, type DirectPhotoCredit } from "@/components/spots/venue-photo-provider";
 import { SpotDetailMap } from "@/components/spots/spot-detail-map";
 import { SpotJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { normalizeSpotPhotos } from "@/lib/spots/transform";
@@ -70,6 +70,7 @@ interface RelatedSpot {
   distanceKm: number | null;
   distanceLabel: string;
   directPhotos: string[];
+  photoCredits: DirectPhotoCredit[];
 }
 
 // Helper to parse multi-language fields
@@ -421,6 +422,7 @@ async function getRelatedSpots(
       return {
         id: spot.id,
         directPhotos: cardSpotPhotos({ ownPhoto: "own_photo" in spot ? spot.own_photo : null, googlePlaceId: spot.google_place_id, photos: normalizeSpotPhotos(spot.photos, category, 900) }),
+        photoCredits: cardPhotoCredits({ ownPhoto: "own_photo" in spot ? spot.own_photo : null, ownPhotoCredit: "own_photo_credit" in spot ? spot.own_photo_credit : null }),
         name,
         address,
         category,
@@ -456,6 +458,7 @@ async function getRelatedSpots(
       distanceKm: spot.distanceKm,
       distanceLabel: spot.distanceLabel,
       directPhotos: spot.directPhotos,
+      photoCredits: spot.photoCredits,
     }));
 }
 
@@ -710,7 +713,7 @@ export default async function SpotPage({
             <div className="grid gap-3 sm:grid-cols-3">
               {relatedSpots.map((related) => (
                 <div key={related.id} className="group relative overflow-hidden rounded-lg bg-raised transition-all duration-300 hover:-translate-y-0.5">
-                  <VenueCardPhoto spotId={related.id} name={related.name} directPhotos={related.directPhotos} frameClassName="aspect-[4/3] w-full" category={related.category} />
+                  <VenueCardPhoto spotId={related.id} name={related.name} directPhotos={related.directPhotos} photoCredits={related.photoCredits} frameClassName="aspect-[4/3] w-full" category={related.category} />
                   <div className="space-y-1 p-3">
                     <h3 className="line-clamp-1 font-semibold text-foreground">
                       <Link href={`/spots/${related.id}`} className="after:absolute after:inset-0 after:z-[1] focus-visible:outline focus-visible:outline-2">{related.name}</Link>

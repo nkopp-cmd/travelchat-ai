@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
-import { CARD_PHOTO_WIDTH, cardGooglePhotoUrl, cardSpotPhotos, directSpotPhotos, isCardGooglePhotoUrl, ownSpotPhotoPath, parseStoredSpotPhotos, spotPhotoThumbPath, storedGooglePhotoName } from "@/lib/spots/own-photo";
+import { CARD_PHOTO_WIDTH, cardGooglePhotoUrl, cardPhotoCredits, cardSpotPhotos, directSpotPhotos, isCardGooglePhotoUrl, ownSpotPhotoPath, parseStoredSpotPhotos, spotPhotoThumbPath, storedGooglePhotoName } from "@/lib/spots/own-photo";
 import { getDirectVenuePhotos } from "@/components/spots/venue-photo-provider";
 
 const spotId = "00000000-0000-4000-8000-000000000001";
@@ -84,5 +84,14 @@ describe("own spot photo first, Google Places only as fallback", () => {
     expect(venue[1]).toMatchObject({ sourceLabel: "Wikimedia Commons · CC BY 2.0",
       attributions: [{ displayName: "Jane", uri: "https://commons.wikimedia.org/wiki/File:Y.jpg" }] });
     expect(venue[2]).toMatchObject({ sourceLabel: "Korea Tourism Organization · KOGL Type 1", attributions: [] });
+  });
+  it("a card credits its licensed own photo on the small copy it shows, never as a traveller photo", () => {
+    const ownPhotoCredit = { label: "Wikimedia Commons · CC BY 3.0", author: "WiNG", sourceUrl: "https://commons.wikimedia.org/wiki/File:X.jpg" };
+    const spot = { ownPhoto: own, ownPhotoCredit, googlePlaceId: "ChIJ1", photos: [] };
+    const [photo] = getDirectVenuePhotos(cardSpotPhotos(spot), cardPhotoCredits(spot));
+    expect(photo).toMatchObject({ url: spotPhotoThumbPath(own), sourceLabel: "Wikimedia Commons · CC BY 3.0",
+      attributions: [{ displayName: "WiNG", uri: "https://commons.wikimedia.org/wiki/File:X.jpg" }] });
+    expect(cardPhotoCredits({ ownPhoto: own, ownPhotoCredit: null })).toEqual([]);
+    expect(cardPhotoCredits({ ownPhoto: null, ownPhotoCredit })).toEqual([]);
   });
 });

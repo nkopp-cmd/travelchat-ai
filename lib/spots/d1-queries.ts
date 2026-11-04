@@ -2,7 +2,7 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { appDataDb } from "@/lib/app-data/backend";
 import { getCityBySlug } from "@/lib/cities";
-import { ownSpotPhotoPath, parseStoredSpotPhotos } from "./own-photo";
+import { parseStoredSpotPhotos } from "./own-photo";
 import { PUBLIC_SPOT_NAME_EXCLUSION_PATTERNS, PUBLIC_SPOT_VISIBILITY_CACHE_VERSION } from "./public-quality";
 import type { RawSpot } from "./transform";
 import type { SpotsFilterState } from "./types";
@@ -89,7 +89,7 @@ export async function d1SpotCardsByIds(ids: string[]): Promise<RawSpot[]> {
   if (ids.length === 0) return [];
   const { results } = await appDataDb().prepare(`SELECT s.*,
       (SELECT p.place_id FROM spot_listing_places p WHERE p.spot_id = s.id AND p.provider = 'google' LIMIT 1) AS google_place_id,
-      (SELECT ph.r2_key FROM spot_photos ph WHERE ph.spot_id = s.id ORDER BY ph.position LIMIT 1) AS own_photo_key,
+      (SELECT json_array(json_object('k', ph.r2_key, 's', ph.source, 'l', ph.licence, 'a', ph.author, 'u', ph.source_url)) FROM spot_photos ph WHERE ph.spot_id = s.id ORDER BY ph.position LIMIT 1) AS own_photo_json,
       d.name AS destination_name, d.slug AS destination_slug, a.name AS local_area_name
     FROM spots s
     LEFT JOIN geo_destinations d ON d.id = s.destination_id
@@ -97,6 +97,15 @@ export async function d1SpotCardsByIds(ids: string[]): Promise<RawSpot[]> {
     WHERE s.visible = 1 AND s.id IN (SELECT value FROM json_each(?))`).bind(JSON.stringify(ids)).all<Record<string, unknown>>();
   const byId = new Map(results.map((row) => [String(row.id), toRawSpot(row)]));
   return ids.flatMap((id) => byId.get(id) ?? []);
+}
+
+/** The first stored photo of a card row and the credit its licence asks for (null for tip/own photos). */
+function ownPhotoFields(json: unknown): Pick<RawSpot, "own_photo" | "own_photo_credit"> {
+  const photo = parseStoredSpotPhotos(json)[0];
+  return {
+    own_photo: photo?.src ?? null,
+    own_photo_credit: photo?.label ? { label: photo.label, author: photo.author, sourceUrl: photo.sourceUrl } : null,
+  };
 }
 
 export function toRawSpot(row: Record<string, unknown>): RawSpot {
@@ -117,7 +126,7 @@ export function toRawSpot(row: Record<string, unknown>): RawSpot {
     best_times: parseJson(row.best_times) as RawSpot["best_times"],
     photos: Array.isArray(photos) ? photos.map(String) : null,
     google_place_id: typeof row.google_place_id === "string" ? row.google_place_id : null,
-    own_photo: ownSpotPhotoPath(row.own_photo_key),
+    ...ownPhotoFields(row.own_photo_json),
     tips: parseJson(row.tips),
     verified: row.verified === 1,
     trending_score: typeof row.trending_score === "number" ? row.trending_score : 0,
@@ -207,12 +216,12 @@ export async function d1CityRelatedCandidates(city: string, minimumScore: number
   // Related spots filter on the source photos, not the import verdict, exactly like the Supabase query.
   where.sql[0] = "json_array_length(l.payload, '$.photos') > 0";
   const { results } = await appDataDb().prepare(`SELECT l.payload,
-      (SELECT ph.r2_key FROM spot_photos ph WHERE ph.spot_id = s.id ORDER BY ph.position LIMIT 1) AS own_photo_key
+      (SELECT json_array(json_object('k', ph.r2_key, 's', ph.source, 'l', ph.licence, 'a', ph.author, 'u', ph.source_url)) FROM spot_photos ph WHERE ph.spot_id = s.id ORDER BY ph.position LIMIT 1) AS own_photo_json
     FROM spots s JOIN legacy_spot_source l ON l.spotId = s.id
     WHERE ${where.sql.join(" AND ")} AND s.address LIKE ? AND s.localley_score >= ?
     ORDER BY ${RELATED_ORDER} LIMIT ?`)
-    .bind(...where.params, `%${city}%`, minimumScore, limit).all<{ payload: string; own_photo_key: string | null }>();
-  return results.map((row) => ({ ...(JSON.parse(row.payload) as RawSpot), own_photo: ownSpotPhotoPath(row.own_photo_key) }));
+    .bind(...where.params, `%${city}%`, minimumScore, limit).all<{ payload: string; own_photo_json: string | null }>();
+  return results.map((row) => ({ ...(JSON.parse(row.payload) as RawSpot), ...ownPhotoFields(row.own_photo_json) }));
 }
 
 /** Card rows of visible spots inside a coordinate window (helper 5 "open nearby"); callers sort by exact distance. */
@@ -220,7 +229,7 @@ export async function d1SpotsInBox(box: { minLat: number; maxLat: number; minLng
   const where = visibilityWhere();
   const { results } = await appDataDb().prepare(`SELECT s.*,
       (SELECT p.place_id FROM spot_listing_places p WHERE p.spot_id = s.id AND p.provider = 'google' LIMIT 1) AS google_place_id,
-      (SELECT ph.r2_key FROM spot_photos ph WHERE ph.spot_id = s.id ORDER BY ph.position LIMIT 1) AS own_photo_key
+      (SELECT json_array(json_object('k', ph.r2_key, 's', ph.source, 'l', ph.licence, 'a', ph.author, 'u', ph.source_url)) FROM spot_photos ph WHERE ph.spot_id = s.id ORDER BY ph.position LIMIT 1) AS own_photo_json
     FROM spots s
     WHERE ${where.sql.join(" AND ")} AND s.latitude BETWEEN ? AND ? AND s.longitude BETWEEN ? AND ?
     LIMIT ?`).bind(...where.params, box.minLat, box.maxLat, box.minLng, box.maxLng, limit).all<Record<string, unknown>>();
