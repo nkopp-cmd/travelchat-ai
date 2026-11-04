@@ -224,8 +224,10 @@ describe("landing map hero", () => {
       expect(preload.getAttribute("imagesrcset")).toBe(source.getAttribute("srcset"));
       expect(preload.getAttribute("imagesizes")).toBe(source.getAttribute("sizes"));
     }
-    const image = doc.querySelector("img")!;
-    expect(doc.querySelectorAll("img")).toHaveLength(1);
+    const image = doc.querySelector("picture > img")!;
+    // One poster image; every other image is a lazy pin photo, never a second high-priority fetch.
+    expect(doc.querySelectorAll("img:not(.ll-hero-pin-photo)")).toHaveLength(1);
+    expect(doc.querySelectorAll('img[fetchpriority="high"]')).toHaveLength(1);
     expect(image.getAttribute("fetchpriority")).toBe("high");
     expect(image.getAttribute("alt")).toBe("");
     expect(html).not.toMatch(/unsplash\.com|background-image|<script/);
@@ -248,6 +250,20 @@ describe("landing map hero", () => {
     HERO_PINS.forEach((pin, index) => {
       if (pin.m[1] < 48) expect(doc.querySelectorAll(".ll-hero-pin")[index].getAttribute("data-mobile")).toBe("hidden");
     });
+  });
+
+  it("gives every hero pin its Google photo over the category icon (Nils: Google photos everywhere)", () => {
+    const pins = doc.querySelectorAll(".ll-hero-pin");
+    HERO_PINS.forEach((pin, index) => {
+      const face = pins[index].querySelector(".ll-pin-face")!;
+      const photo = face.querySelector("img.ll-hero-pin-photo")!;
+      expect(photo.getAttribute("src")).toBe(`/api/places/photo?name=places%2F${pin.placeId}%2Fphotos%2Fcurrent&w=400`);
+      expect(photo.getAttribute("alt")).toBe("");
+      expect(photo.getAttribute("loading")).toBe("lazy");
+      // The icon stays under the photo as the fallback tile.
+      expect(face.querySelector("svg")).not.toBeNull();
+    });
+    expect(readFileSync("app/globals.css", "utf8")).toMatch(/\.ll-pin-face img\.ll-hero-pin-photo \{\s*position: absolute;\s*inset: 0;/);
   });
 
   it("links each hero shortcut to its helper", () => {
