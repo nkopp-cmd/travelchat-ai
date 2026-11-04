@@ -5,7 +5,7 @@
 // -> Commons licence + author (CC0 / PD / CC BY / CC BY-SA only) -> download 1600 px -> quality gate (size,
 // sharpness, dHash dedupe) -> subscription vision check (codex exec, $0, "yes" only) -> webp -> R2 (--upload)
 // -> manifest.json. scripts/photos/insert-photos.mjs writes the spot_photos rows from the manifest.
-// Usage: node scripts/photos/commons-harvest.mjs --out <dir> [--city Tokyo|all] [--limit 100] [--per-spot 2] [--review] [--upload]
+// Usage: node scripts/photos/commons-harvest.mjs --out <dir> [--city Tokyo|all] [--limit 100] [--per-spot 2] [--review] [--upload] [--cities <app>/lib/cities.ts]
 // Env: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID (D1 read + R2 upload). No other key.
 import { createHash } from "node:crypto";
 import { execFileSync, spawnSync } from "node:child_process";
@@ -13,7 +13,7 @@ import fs from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
 import { dHash, isDuplicate, qualityProblems, reviewSaysYes, spotPhotoKey } from "./kto-harvest-lib.mjs";
-import { USER_AGENT, allowedLicence, aroundQuery, cleanArtist, geosearchUrl, parseAround, parseGeosearch, rankFiles, rankItems, reviewPrompt } from "./commons-harvest-lib.mjs";
+import { USER_AGENT, allowedLicence, aroundQuery, cleanArtist, geosearchUrl, parseAround, parseGeosearch, nearestCity, parseCityCenters, rankFiles, rankItems, reviewPrompt } from "./commons-harvest-lib.mjs";
 
 const BUCKET = "localley-community-media";
 const CODEX = "/home/dev/.local/bin/codex";
@@ -26,6 +26,8 @@ const option = (name, fallback) => {
     return index >= 0 ? args[index + 1] : fallback;
 };
 const city = option("city", "all");
+// lib/cities.ts of the app checkout (the harvester often runs from a copy next to its sharp install).
+const citiesFile = option("cities", new URL("../../lib/cities.ts", import.meta.url).pathname);
 const limit = Number(option("limit", "100"));
 const perSpot = Number(option("per-spot", "2"));
 const outDir = option("out");
@@ -40,17 +42,25 @@ function wrangler(...rest) {
 }
 
 function topSpots() {
-    // Per city, the same order the site uses (trending, then Localley score). Spots without a city count as one group.
-    const where = city === "all" ? "" : `AND city = '${city.replace(/'/g, "''")}'`;
-    const sql = `SELECT id, name, category, city, latitude, longitude FROM (
+    // Per city, the same order the site uses (trending, then Localley score). A spot without a city takes the nearest
+    // configured city (lib/cities.ts center within 80 km), so Hong Kong, Hanoi or Bali spots join their city's top list.
+    const where = city === "all" ? "" : `AND (city = '${city.replace(/'/g, "''")}' OR city IS NULL)`;
+    const sql = `SELECT id, name, category, city, latitude, longitude, trending_score, localley_score FROM (
         SELECT *, ROW_NUMBER() OVER (PARTITION BY COALESCE(city, '') ORDER BY trending_score DESC, localley_score DESC) AS rank
-        FROM spots WHERE visible = 1 ${where}) WHERE rank <= ${limit} ORDER BY COALESCE(city, ''), rank`;
+        FROM spots WHERE visible = 1 ${where}) WHERE rank <= ${limit} OR city IS NULL`;
     const rows = JSON.parse(wrangler("d1", "execute", "localley-app", "--remote", "--json", "--command", sql))[0].results;
-    return rows.map((row) => {
+    const centers = parseCityCenters(fs.readFileSync(citiesFile, "utf8"));
+    const spots = rows.map((row) => {
         let names = {};
         try { names = JSON.parse(row.name); } catch { names = { en: row.name }; }
-        return { id: row.id, names, category: row.category || "place", city: row.city || "", lat: Number(row.latitude), lng: Number(row.longitude) };
-    });
+        const lat = Number(row.latitude);
+        const lng = Number(row.longitude);
+        return { id: row.id, names, category: row.category || "place", city: row.city || nearestCity(lat, lng, centers), lat, lng,
+            order: [Number(row.trending_score) || 0, Number(row.localley_score) || 0] };
+    }).filter((spot) => city === "all" || spot.city === city);
+    spots.sort((a, b) => a.city.localeCompare(b.city) || b.order[0] - a.order[0] || b.order[1] - a.order[1]);
+    const taken = {};
+    return spots.filter((spot) => (taken[spot.city] = (taken[spot.city] || 0) + 1) <= limit).map(({ order, ...spot }) => spot);
 }
 
 // Responses are public data; they are kept on disk so a second run asks Wikimedia nothing again.
