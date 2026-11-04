@@ -13,7 +13,7 @@ import fs from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
 import { dHash, isDuplicate, qualityProblems, reviewSaysYes, spotPhotoKey } from "./kto-harvest-lib.mjs";
-import { DEPICTS_MIN_SCORE, USER_AGENT, allowedLicence, aroundItemsQuery, aroundQuery, depictsUrl, parseAroundItems, parseDepicts, cleanArtist, geosearchUrl, parseAround, parseGeosearch, nearestCity, parseCityCenters, rankFiles, rankItems, reviewPrompt } from "./commons-harvest-lib.mjs";
+import { DEPICTS_MIN_SCORE, USER_AGENT, allowedLicence, aroundItemsQuery, categoryAsSearch, categoryUrl, aroundQuery, depictsUrl, parseAroundItems, parseDepicts, cleanArtist, geosearchUrl, parseAround, parseGeosearch, nearestCity, parseCityCenters, rankFiles, rankItems, reviewPrompt } from "./commons-harvest-lib.mjs";
 
 const BUCKET = "localley-community-media";
 const CODEX = "/home/dev/.local/bin/codex";
@@ -180,7 +180,12 @@ for (const spot of spots) {
         if (matches.length < perSpot) {
             const known = new Set(matches.map((match) => match.file));
             const item = rankItems(spot, await nearbyPlainItems(spot), 1).find((row) => row.score >= DEPICTS_MIN_SCORE);
-            if (item) matches.push(...parseDepicts(await getJson(depictsUrl(item.item, perSpot + 2)), item).filter((row) => !known.has(row.file)));
+            if (item) {
+                let files = parseDepicts(await getJson(depictsUrl(item.item, perSpot + 2)), item, spot);
+                // No "depicts" statements yet: the item's own Commons category holds photos of the place.
+                if (!files.length && item.category) files = parseDepicts(categoryAsSearch(await getJson(categoryUrl(item.category, perSpot + 4))), item, spot);
+                matches.push(...files.filter((row) => !known.has(row.file)));
+            }
         }
     } catch (error) {
         entry.status = `search-error: ${error.message}`;
