@@ -8,7 +8,6 @@ export const TIP_PHOTO_LICENCE = "Localley contributor consent";
 type Bucket = {
   get(key: string): Promise<{ arrayBuffer(): Promise<ArrayBuffer> } | null>;
   put(key: string, value: ArrayBuffer, options: { httpMetadata: { contentType: string; cacheControl: string } }): Promise<unknown>;
-  delete(key: string): Promise<void>;
 };
 
 export type SpotPhotoRow = { spot_id: string; r2_key: string; source: string; licence: string; author: string | null };
@@ -18,8 +17,9 @@ export async function spotPhotoByKey(db: CommunityDb, key: string): Promise<Spot
 }
 
 /**
- * Admin choice: the photo of a visible tip whose author consented becomes the spot's photo. The bytes are copied
- * (hiding the tip later does not break the spot page); a replaced spot photo object is deleted after the row moves.
+ * Admin choice: the photo of a visible tip whose author consented becomes the spot's lead photo (lowest position).
+ * The bytes are copied (hiding the tip later does not break the spot page). Other photos of the spot stay: a spot
+ * keeps several real-place photos from mixed sources (migration 0049). The same bytes again move to the front.
  */
 export async function promoteTipPhoto(db: CommunityDb, bucket: Bucket, tipId: string, adminId: string):
   Promise<{ ok: true; key: string } | { ok: false; error: string }> {
@@ -31,12 +31,13 @@ export async function promoteTipPhoto(db: CommunityDb, bucket: Bucket, tipId: st
   const bytes = await object.arrayBuffer();
   const sha = [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))].map((b) => b.toString(16).padStart(2, "0")).join("");
   const key = `spot-photos/${tip.spot_id}/${sha}.webp`;
-  const previous = await db.prepare("SELECT r2_key FROM spot_photos WHERE spot_id = ?").bind(tip.spot_id).first<{ r2_key: string }>();
   await bucket.put(key, bytes, { httpMetadata: { contentType: "image/webp", cacheControl: "public, max-age=31536000, immutable" } });
-  await db.prepare(`INSERT INTO spot_photos (spot_id, r2_key, source, licence, author, tip_id, approved_by) VALUES (?, ?, 'tip', ?, ?, ?, ?)
-    ON CONFLICT(spot_id) DO UPDATE SET r2_key = excluded.r2_key, source = excluded.source, licence = excluded.licence, author = excluded.author,
-      source_url = NULL, tip_id = excluded.tip_id, approved_by = excluded.approved_by, approved_at = strftime('%Y-%m-%dT%H:%M:%fZ','now')`)
-    .bind(tip.spot_id, key, TIP_PHOTO_LICENCE, tip.author_name, tipId, adminId).run();
-  if (previous && previous.r2_key !== key) await bucket.delete(previous.r2_key);
+  // One statement: the new position is computed inside the INSERT, so two promotions cannot take the same slot.
+  await db.prepare(`INSERT INTO spot_photos (r2_key, spot_id, position, source, licence, author, tip_id, approved_by)
+    VALUES (?, ?, (SELECT COALESCE(MIN(position), 1) - 1 FROM spot_photos WHERE spot_id = ?), 'tip', ?, ?, ?, ?)
+    ON CONFLICT(r2_key) DO UPDATE SET position = (SELECT COALESCE(MIN(position), 1) - 1 FROM spot_photos WHERE spot_id = excluded.spot_id),
+      licence = excluded.licence, author = excluded.author, tip_id = excluded.tip_id, approved_by = excluded.approved_by,
+      approved_at = strftime('%Y-%m-%dT%H:%M:%fZ','now')`)
+    .bind(key, tip.spot_id, tip.spot_id, TIP_PHOTO_LICENCE, tip.author_name, tipId, adminId).run();
   return { ok: true, key };
 }

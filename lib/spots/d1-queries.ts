@@ -89,7 +89,7 @@ export async function d1SpotCardsByIds(ids: string[]): Promise<RawSpot[]> {
   if (ids.length === 0) return [];
   const { results } = await appDataDb().prepare(`SELECT s.*,
       (SELECT p.place_id FROM spot_listing_places p WHERE p.spot_id = s.id AND p.provider = 'google' LIMIT 1) AS google_place_id,
-      (SELECT ph.r2_key FROM spot_photos ph WHERE ph.spot_id = s.id) AS own_photo_key,
+      (SELECT ph.r2_key FROM spot_photos ph WHERE ph.spot_id = s.id ORDER BY ph.position LIMIT 1) AS own_photo_key,
       d.name AS destination_name, d.slug AS destination_slug, a.name AS local_area_name
     FROM spots s
     LEFT JOIN geo_destinations d ON d.id = s.destination_id
@@ -154,7 +154,7 @@ export async function d1WeeklyRankings(weekStart: string, citySlug: string | nul
  * public-quality rules to the same fields. Callers still run shouldShowPublicSpot on it.
  */
 export async function d1SpotSource(id: string): Promise<(RawSpot & Record<string, unknown>) | null> {
-  const row = await appDataDb().prepare(`SELECT l.payload, (SELECT ph.r2_key FROM spot_photos ph WHERE ph.spot_id = l.spotId) AS own_photo_key
+  const row = await appDataDb().prepare(`SELECT l.payload, (SELECT ph.r2_key FROM spot_photos ph WHERE ph.spot_id = l.spotId ORDER BY ph.position LIMIT 1) AS own_photo_key
     FROM legacy_spot_source l WHERE l.spotId = ?`).bind(id.toLowerCase()).first<{ payload: string; own_photo_key: string | null }>();
   if (!row) return null;
   const spot: unknown = JSON.parse(row.payload);
@@ -204,7 +204,7 @@ export async function d1CityRelatedCandidates(city: string, minimumScore: number
   // Related spots filter on the source photos, not the import verdict, exactly like the Supabase query.
   where.sql[0] = "json_array_length(l.payload, '$.photos') > 0";
   const { results } = await appDataDb().prepare(`SELECT l.payload,
-      (SELECT ph.r2_key FROM spot_photos ph WHERE ph.spot_id = s.id) AS own_photo_key
+      (SELECT ph.r2_key FROM spot_photos ph WHERE ph.spot_id = s.id ORDER BY ph.position LIMIT 1) AS own_photo_key
     FROM spots s JOIN legacy_spot_source l ON l.spotId = s.id
     WHERE ${where.sql.join(" AND ")} AND s.address LIKE ? AND s.localley_score >= ?
     ORDER BY ${RELATED_ORDER} LIMIT ?`)
@@ -217,7 +217,7 @@ export async function d1SpotsInBox(box: { minLat: number; maxLat: number; minLng
   const where = visibilityWhere();
   const { results } = await appDataDb().prepare(`SELECT s.*,
       (SELECT p.place_id FROM spot_listing_places p WHERE p.spot_id = s.id AND p.provider = 'google' LIMIT 1) AS google_place_id,
-      (SELECT ph.r2_key FROM spot_photos ph WHERE ph.spot_id = s.id) AS own_photo_key
+      (SELECT ph.r2_key FROM spot_photos ph WHERE ph.spot_id = s.id ORDER BY ph.position LIMIT 1) AS own_photo_key
     FROM spots s
     WHERE ${where.sql.join(" AND ")} AND s.latitude BETWEEN ? AND ? AND s.longitude BETWEEN ? AND ?
     LIMIT ?`).bind(...where.params, box.minLat, box.maxLat, box.minLng, box.maxLng, limit).all<Record<string, unknown>>();

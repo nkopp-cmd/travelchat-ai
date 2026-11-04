@@ -68,12 +68,17 @@ describe("own spot photos from tips", () => {
     expect(response.headers.get("Content-Type")).toBe("image/webp");
   });
 
-  it("a new choice replaces the old object; unknown, malformed or unlisted keys are 404 no-store", async () => {
+  it("a new choice leads and keeps the earlier photos; unknown, malformed or unlisted keys are 404 no-store", async () => {
     await promoteTipPhoto(db, bucket(), "t1", "admin-1");
     await db.prepare("UPDATE spot_tips SET status = 'visible' WHERE id = 't3'").bind().run();
     expect(await promoteTipPhoto(db, bucket(), "t3", "admin-2")).toMatchObject({ ok: true });
-    expect(objects.has(`spot-photos/${SPOT}/${sha(webp(1))}.webp`)).toBe(false);
-    expect((await get(SPOT, `${sha(webp(1))}.webp`)).status).toBe(404);
+    const order = async () => (db as unknown as D1Sqlite).sqlite
+      .prepare("SELECT r2_key FROM spot_photos WHERE spot_id = ? ORDER BY position").all(SPOT).map((r) => (r as { r2_key: string }).r2_key);
+    expect(await order()).toEqual([`spot-photos/${SPOT}/${sha(webp(3))}.webp`, `spot-photos/${SPOT}/${sha(webp(1))}.webp`]);
+    // Choosing the same bytes again moves that photo to the front instead of a duplicate row.
+    expect(await promoteTipPhoto(db, bucket(), "t1", "admin-1")).toMatchObject({ ok: true });
+    expect(await order()).toEqual([`spot-photos/${SPOT}/${sha(webp(1))}.webp`, `spot-photos/${SPOT}/${sha(webp(3))}.webp`]);
+    expect((await get(SPOT, `${sha(webp(1))}.webp`)).status).toBe(200);
     expect((await get(SPOT, `${sha(webp(3))}.webp`)).status).toBe(200);
     objects.set(`spot-photos/${SPOT}/${"a".repeat(64)}.webp`, webp(9)); // object without a row
     for (const [spotId, file] of [[SPOT, `${"a".repeat(64)}.webp`], [SPOT, "../x.webp"], ["not-a-spot", `${sha(webp(3))}.webp`], [SPOT, `${sha(webp(3))}.png`]]) {
