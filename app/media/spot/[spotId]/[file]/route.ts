@@ -5,8 +5,8 @@ import type { CommunityDb } from "@/lib/community/qa";
 import { spotPhotoByKey } from "@/lib/community/spot-photos";
 
 const SPOT = /^[0-9a-f-]{36}$/;
-// `<sha>.webp` is the full photo; `<sha>-480.webp` its small copy for cards (scripts/photos/make-thumbs.mjs).
-const FILE = /^([0-9a-f]{64})(-480)?\.webp$/;
+// `<sha>.webp` is the full photo; `<sha>-480.webp` its card copy, `<sha>-144.webp` its pin copy (scripts/photos/make-thumbs.mjs).
+const FILE = /^([0-9a-f]{64})(-480|-144)?\.webp$/;
 const missing = () => new Response(null, { status: 404, headers: { "Cache-Control": "no-store" } });
 
 /** Public spot photos (lib/community/spot-photos.ts): only keys a spot_photos row names. Content-addressed, so immutable. */
@@ -18,11 +18,13 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ spo
     const row = await spotPhotoByKey(appDataDb() as unknown as CommunityDb, key).catch(() => null);
     if (!row || row.spot_id !== spotId) return missing();
     const bucket = photoBucket();
-    const small = name[2] ? await bucket?.get(`spot-photos/${spotId}/${file}`).catch(() => null) : null;
-    // No small copy yet (a new row): serve the full photo, cached for an hour only, until the copy exists.
-    const object = small ?? await bucket?.get(key).catch(() => null);
+    const exact = name[2] ? await bucket?.get(`spot-photos/${spotId}/${file}`).catch(() => null) : null;
+    // No pin copy yet: the card copy is the next smallest. Any stand-in is cached for an hour only, until the copy exists.
+    const object = exact
+        ?? (name[2] === "-144" ? await bucket?.get(`spot-photos/${spotId}/${name[1]}-480.webp`).catch(() => null) : null)
+        ?? await bucket?.get(key).catch(() => null);
     if (!object) return missing();
-    const cache = name[2] && !small ? "public, max-age=3600" : "public, max-age=31536000, immutable";
+    const cache = name[2] && !exact ? "public, max-age=3600" : "public, max-age=31536000, immutable";
     return new Response(object.body, {
         headers: { "Content-Type": "image/webp", "Cache-Control": cache,
             "X-Content-Type-Options": "nosniff", "Content-Security-Policy": "default-src 'none'" },

@@ -10,7 +10,7 @@ import { X } from "@/components/ui/icons";
 import { TONE_ICONS } from "@/components/spots/category-tone";
 import { EdgeDockLayer } from "@/components/spots/edge-dock-layer";
 import { getDirectVenuePhotos } from "@/components/spots/venue-photo-provider";
-import { cardSpotPhotos } from "@/lib/spots/own-photo";
+import { cardSpotPhotos, spotPhotoPinPath } from "@/lib/spots/own-photo";
 import { capMarkers, clusterKeepingSelected, pinTone } from "@/lib/spots/pin-clusters";
 import { localleyMapStyle, readMapTokens } from "@/lib/maps/localley-map-style";
 import type { Spot } from "@/types";
@@ -329,9 +329,10 @@ function pinPhoto(spot: PinSpot): string | undefined {
     return pinPhotos(spot)[0]?.url;
 }
 
-function PinFace({ spot }: { spot: PinSpot }) {
+export function PinFace({ spot }: { spot: PinSpot }) {
     const Icon = TONE_ICONS[pinTone(spot.category)];
-    const photo = pinPhoto(spot);
+    const card = pinPhoto(spot);
+    const photo = card ? spotPhotoPinPath(card) : undefined;
     const [failed, setFailed] = useState<string | null>(null);
     return (
         <span className="ll-pin-face" aria-hidden="true">
