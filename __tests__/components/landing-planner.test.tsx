@@ -225,8 +225,8 @@ describe("landing map hero", () => {
       expect(preload.getAttribute("imagesizes")).toBe(source.getAttribute("sizes"));
     }
     const image = doc.querySelector("picture > img")!;
-    // One poster image; every other image is a lazy pin photo, never a second high-priority fetch.
-    expect(doc.querySelectorAll("img:not(.ll-hero-pin-photo)")).toHaveLength(1);
+    // One poster image; pin photos are CSS backgrounds, never a second image element or high-priority fetch.
+    expect(doc.querySelectorAll("img")).toHaveLength(1);
     expect(doc.querySelectorAll('img[fetchpriority="high"]')).toHaveLength(1);
     expect(image.getAttribute("fetchpriority")).toBe("high");
     expect(image.getAttribute("alt")).toBe("");
@@ -256,14 +256,14 @@ describe("landing map hero", () => {
     const pins = doc.querySelectorAll(".ll-hero-pin");
     HERO_PINS.forEach((pin, index) => {
       const face = pins[index].querySelector(".ll-pin-face")!;
-      const photo = face.querySelector("img.ll-hero-pin-photo")!;
-      expect(photo.getAttribute("src")).toBe(`/api/places/photo?name=places%2F${pin.placeId}%2Fphotos%2Fcurrent&w=400`);
-      expect(photo.getAttribute("alt")).toBe("");
-      expect(photo.getAttribute("loading")).toBe("lazy");
+      const photo = face.querySelector("span.ll-hero-pin-photo") as HTMLElement;
+      // A background (not an <img>), so a failed photo shows no broken-image mark over the icon.
+      expect(photo.style.getPropertyValue("--ll-pin-photo"))
+        .toBe(`url(/api/places/photo?name=places%2F${pin.placeId}%2Fphotos%2Fcurrent&w=400)`);
       // The icon stays under the photo as the fallback tile.
       expect(face.querySelector("svg")).not.toBeNull();
     });
-    expect(readFileSync("app/globals.css", "utf8")).toMatch(/\.ll-pin-face img\.ll-hero-pin-photo \{\s*position: absolute;\s*inset: 0;/);
+    expect(readFileSync("app/globals.css", "utf8")).toMatch(/\.ll-pin-face \.ll-hero-pin-photo \{\s*position: absolute;\s*inset: 0;[^}]*background: var\(--ll-pin-photo\)/);
   });
 
   it("links each hero shortcut to its helper", () => {

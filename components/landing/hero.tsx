@@ -88,11 +88,10 @@ function HeroPinMark({ pin, index }: { pin: HeroPin; index: number }) {
             <span className="ll-pin" data-tone={pinTone(pin.category)}>
                 <span className="ll-pin-face">
                     <Icon className="h-[18px] w-[18px]" />
-                    {/* Same small proxy URL as the cards (private browser cache, bots get no Places call). The icon
-                        stays under the photo, so a failed or capped photo shows the category tile. */}
-                    {/* eslint-disable-next-line @next/next/no-img-element -- 30 px pin thumbnail, lazy, never the LCP. */}
-                    <img className="ll-hero-pin-photo" src={cardGooglePhotoUrl(`places/${pin.placeId}/photos/current`)} alt=""
-                        loading="lazy" decoding="async" fetchPriority="low" width={30} height={30} />
+                    {/* Same small proxy URL as the cards (private browser cache, bots get no Places call). A CSS
+                        background, not an <img>: a failed or capped photo draws nothing, so the category tile below
+                        shows clean instead of a broken-image mark (2026-11-04 390 px shot). */}
+                    <span className="ll-hero-pin-photo" style={{ "--ll-pin-photo": `url(${cardGooglePhotoUrl(`places/${pin.placeId}/photos/current`)})` } as CSSProperties} />
                 </span>
             </span>
             {featured && (
