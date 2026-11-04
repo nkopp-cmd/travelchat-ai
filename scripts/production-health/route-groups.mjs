@@ -139,6 +139,8 @@ const routes = [
   "/sign-up/[[...sign-up]]",
   "/sign-in",
   "/sign-up",
+  "/sitemap.xml",
+  "/sitemaps/[file]",
   "/spots",
   "/spots/[id]",
   "/spots/[id]/tips",
