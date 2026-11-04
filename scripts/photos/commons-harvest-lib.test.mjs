@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { DEPICTS_MIN_SCORE, allowedLicence, aroundItemsQuery, aroundQuery, depictsUrl, parseAroundItems, parseDepicts, cleanArtist, fileTitleScore, geosearchUrl, insertSql, matchScore, nearestCity, normName, parseAround, parseCityCenters, parseGeosearch, rankFiles, rankItems, reviewPrompt } from "./commons-harvest-lib.mjs";
+import { DEPICTS_MIN_SCORE, allowedLicence, aroundItemsQuery, categoryAsSearch, categoryUrl, aroundQuery, depictsUrl, parseAroundItems, parseDepicts, cleanArtist, fileTitleScore, geosearchUrl, insertSql, matchScore, nearestCity, normName, parseAround, parseCityCenters, parseGeosearch, rankFiles, rankItems, reviewPrompt } from "./commons-harvest-lib.mjs";
 
 const nakano = { names: { en: "Nakano Broadway", ja: "中野ブロードウェイ" }, category: "Shopping", city: "Tokyo" };
 const item = (over) => ({ item: "Q1", file: "a.jpg", distanceKm: 0.05, labels: [], ...over });
@@ -144,4 +144,16 @@ test("depicts files: a ward office or a station never stands in for the place", 
     const match = { item: "Q1", distanceKm: 0.1, score: 1 };
     assert.deepEqual(parseDepicts(body, match, { names: { en: "Seongbuk-dong Art Village" } }).map((row) => row.file), ["Seongbuk-dong street 2020.jpg"]);
     assert.equal(parseDepicts({ query: { search: [{ title: "File:Tokyo Station 2019.jpg" }] } }, match, { names: { en: "Tokyo Station" } }).length, 1);
+});
+
+test("category fallback: the item's P373 category lists files through the same guards", () => {
+    assert.match(aroundItemsQuery(1.3, 103.8), /wdt:P373/);
+    const [row] = parseAroundItems({ results: { bindings: [{ item: { value: "http://www.wikidata.org/entity/Q6698001" }, dist: { value: "0.02" },
+        cat: { value: "Lucky Plaza, Singapore" }, labels: { value: "Lucky Plaza" } }] } });
+    assert.equal(row.category, "Lucky Plaza, Singapore");
+    assert.match(categoryUrl(row.category), /cmtitle=Category%3ALucky\+Plaza%2C\+Singapore/);
+    assert.throws(() => categoryUrl("a|b"));
+    assert.throws(() => categoryUrl(""));
+    const body = categoryAsSearch({ query: { categorymembers: [{ title: "File:Lucky Plaza 2019.jpg" }, { title: "File:Orchard MRT Station exit.jpg" }] } });
+    assert.deepEqual(parseDepicts(body, { item: "Q6698001", distanceKm: 0.02, score: 1 }, { names: { en: "Lucky Plaza" } }).map((r) => r.file), ["Lucky Plaza 2019.jpg"]);
 });

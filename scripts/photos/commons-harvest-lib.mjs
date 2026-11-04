@@ -199,9 +199,10 @@ export const DEPICTS_MIN_SCORE = 0.9;
 /** Wikidata items around a point WITHOUT the image requirement (their photos are found by "depicts" on Commons). */
 export function aroundItemsQuery(lat, lng, radiusKm = EXACT_RADIUS_KM) {
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) throw new Error("bad coordinates");
-    return `SELECT ?item ?dist (GROUP_CONCAT(DISTINCT ?l; separator="|") AS ?labels) WHERE {
+    return `SELECT ?item ?dist (SAMPLE(?c) AS ?cat) (GROUP_CONCAT(DISTINCT ?l; separator="|") AS ?labels) WHERE {
   SERVICE wikibase:around { ?item wdt:P625 ?loc . bd:serviceParam wikibase:center "Point(${lng} ${lat})"^^geo:wktLiteral .
     bd:serviceParam wikibase:radius "${radiusKm}" . bd:serviceParam wikibase:distance ?dist . }
+  OPTIONAL { ?item wdt:P373 ?c }
   ?item rdfs:label|skos:altLabel ?l . FILTER(LANG(?l) IN ("en","ja","zh","zh-hant","zh-tw","zh-hk","ko","th","ms"))
 } GROUP BY ?item ?dist ORDER BY ?dist LIMIT 150`;
 }
@@ -210,7 +211,8 @@ export function aroundItemsQuery(lat, lng, radiusKm = EXACT_RADIUS_KM) {
 export function parseAroundItems(body) {
     return (body?.results?.bindings || []).map((row) => {
         const item = String(row.item?.value || "").split("/").pop();
-        return { item, file: item, distanceKm: Number(row.dist?.value), labels: String(row.labels?.value || "").split("|").filter(Boolean) };
+        return { item, file: item, distanceKm: Number(row.dist?.value), labels: String(row.labels?.value || "").split("|").filter(Boolean),
+            category: row.cat?.value ? String(row.cat.value) : null };
     }).filter((row) => /^Q\d+$/.test(row.item) && Number.isFinite(row.distanceKm));
 }
 
@@ -221,6 +223,21 @@ export function depictsUrl(item, limit = 10) {
     for (const [key, value] of Object.entries({ action: "query", format: "json", formatversion: "2", list: "search", srnamespace: "6",
         srlimit: String(limit), srsearch: `haswbstatement:P180=${item} filetype:bitmap` })) url.searchParams.set(key, value);
     return url.toString();
+}
+
+/** Files in the item's own Commons category (P373); used when no file states that it depicts the item. */
+export function categoryUrl(category, limit = 10) {
+    const name = String(category || "").trim();
+    if (!name || /[|#<>[\]{}]/.test(name)) throw new Error("bad category");
+    const url = new URL("https://commons.wikimedia.org/w/api.php");
+    for (const [key, value] of Object.entries({ action: "query", format: "json", formatversion: "2", list: "categorymembers", cmtype: "file",
+        cmlimit: String(limit), cmtitle: `Category:${name}` })) url.searchParams.set(key, value);
+    return url.toString();
+}
+
+/** Category JSON -> the same shape as search JSON, so parseDepicts applies the same guards. */
+export function categoryAsSearch(body) {
+    return { query: { search: (body?.query?.categorymembers || []).map((row) => ({ title: row.title })) } };
 }
 
 /** Search JSON -> matches that carry the item's score and distance; station and ward-office files never stand in. */
