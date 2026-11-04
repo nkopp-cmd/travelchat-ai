@@ -36,7 +36,7 @@ export default async function CreditsPage() {
           <h2>Where the photos come from</h2>
           <p>
             Wikimedia Commons (CC0, public domain, CC BY and CC BY-SA licences), the Korea Tourism Organization (KOGL Type 1),
-            Pexels, and photos that travellers share with us. Google listing photos appear with Google&apos;s own attribution.
+            the Taiwan Tourism Administration (Open Government Data License v1.0, OGDL-Taiwan-1.0), Pexels, and photos that travellers share with us. Google listing photos appear with Google&apos;s own attribution.
             Each photo below links to its source page with the full licence.
           </p>
         </section>

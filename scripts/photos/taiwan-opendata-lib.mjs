@@ -4,7 +4,8 @@
 import { MIN_SCORE, matchScore } from "./commons-harvest-lib.mjs";
 
 export const DATA_URL = "https://media.taiwan.net.tw/XMLReleaseAll_public/v2.0/Zh_tw/Attraction-json.zip";
-export const OPENDATA_LICENCE = "Open Government Data License v1.0 (Taiwan)";
+// SPDX id of the Open Government Data License v1.0 (Taiwan); the short id keeps photo captions short. /credits names it in full.
+export const OPENDATA_LICENCE = "OGDL-Taiwan-1.0";
 export const OPENDATA_PROVIDER = "Taiwan Tourism Administration";
 
 /** Great-circle distance in km (equirectangular; exact enough below 5 km). */
