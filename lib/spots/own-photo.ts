@@ -10,20 +10,20 @@ export function spotPhotoPath(key: string): string {
   return `/media/spot/${match[1]}/${match[2]}.webp`;
 }
 
-/** Width of the small copy (`<sha>-480.webp` next to the full photo) that cards, pins and Nearby rows show. */
+/** Width of the small copy (`<sha>-w480.webp` next to the full photo) that cards, pins and Nearby rows show. */
 export const SPOT_THUMB_WIDTH = 480;
 
 /** The small-copy path of a stored spot photo; other URLs stay as they are. The route serves the full photo until the copy exists. */
 export function spotPhotoThumbPath(src: string): string {
-  return /^\/media\/spot\/[0-9a-f-]{36}\/[0-9a-f]{64}\.webp$/.test(src) ? src.replace(/\.webp$/, `-${SPOT_THUMB_WIDTH}.webp`) : src;
+  return /^\/media\/spot\/[0-9a-f-]{36}\/[0-9a-f]{64}\.webp$/.test(src) ? src.replace(/\.webp$/, `-w${SPOT_THUMB_WIDTH}.webp`) : src;
 }
 
-/** Width of the pin copy (`<sha>-144.webp`): a pin face is 44 px, so 144 px stays sharp at 3x density. */
+/** Width of the pin copy (`<sha>-w144.webp`): a pin face is 44 px, so 144 px stays sharp at 3x density. */
 export const SPOT_PIN_WIDTH = 144;
 
 /** The pin-copy path of a stored spot photo (full or 480 px path); other URLs stay as they are. */
 export function spotPhotoPinPath(src: string): string {
-  return /^\/media\/spot\/[0-9a-f-]{36}\/[0-9a-f]{64}(-480)?\.webp$/.test(src) ? src.replace(/(-480)?\.webp$/, `-${SPOT_PIN_WIDTH}.webp`) : src;
+  return /^\/media\/spot\/[0-9a-f-]{36}\/[0-9a-f]{64}(-w480)?\.webp$/.test(src) ? src.replace(/(-w480)?\.webp$/, `-w${SPOT_PIN_WIDTH}.webp`) : src;
 }
 
 /** Public path for a spot_photos.r2_key read from D1, or null when there is none (or it is not a spot photo key). */
