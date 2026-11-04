@@ -1,8 +1,8 @@
-import type { ComponentType, CSSProperties } from "react";
-import { Camera, Moon, Store, Utensils, type IconProps } from "@/components/ui/icons";
+import type { CSSProperties } from "react";
+import { TONE_ICONS } from "@/components/spots/category-tone";
 import { pinTone } from "@/lib/spots/pin-clusters";
 import { HeroCardPlacer } from "@/components/landing/hero-card-placer";
-import { cardGooglePhotoUrl } from "@/lib/spots/own-photo";
+import { spotPhotoPinPath } from "@/lib/spots/own-photo";
 
 // The landing hero is a poster of the Localley map (shared/plans/localley-landing-map-weather.md
 // step 2): Seoul rendered offline in the Localley MapLibre style, with real catalog spots as
@@ -25,22 +25,22 @@ export interface HeroPin {
     name: string;
     category: string;
     area: string;
-    /** Google place id (D1 spots.photos name); the pin shows its current first photo. */
-    placeId: string;
+    /** Our own stored photo of the real place (spot_photos, /media/spot); the pin loads its 144 px copy. */
+    photo: string;
     m: [number, number];
     d: [number, number];
 }
 
 export const HERO_PINS: HeroPin[] = [
-    { id: "15614d97-380f-4e8d-8aa6-aa6f43609bcf", name: "Euljiro Nogari Alley", category: "Nightlife", area: "Euljiro", placeId: "ChIJA17wJIajfDURORb_dfN8bkU", m: [60.93, 51.71], d: [71.77, 34.26] },
-    { id: "f6b6d93a-4993-4ce7-8691-afe8b2ce3d09", name: "Dongmyo Flea Market", category: "Market", area: "Jongno", placeId: "ChIJE_OSzJKjfDURqPqIzTBFnuI", m: [72.09, 49.14], d: [78.34, 29.48] },
-    { id: "809aca12-dea3-4020-806a-e5883699c5e0", name: "Namyeong-dong Craft Village", category: "Culture", area: "Yongsan", placeId: "ChIJP6v5WGqifDURqzEHpjw0aSA", m: [38.16, 58.88], d: [58.35, 47.61] },
-    { id: "067bacc4-825e-4e60-bab8-2720785c15bf", name: "Haengdang-dong Local Market", category: "Market", area: "Seongdong", placeId: "ChIJ09QwdWijfDURcBudzP3kNGE", m: [87.85, 56.53], d: [87.62, 43.23] },
-    { id: "4e3c557d-6d10-4981-8796-dd44346df183", name: "Miir Lounge", category: "Nightlife", area: "Itaewon", placeId: "ChIJHxW2nH-jfDURKibKs9z1aOk", m: [55.88, 71.95], d: [68.79, 71.95] },
-    { id: "8b77ad00-78db-4350-a2ff-83baff2fb7c9", name: "Sungin-dong Hills", category: "Culture", area: "Jongno", placeId: "ChIJm6x0HTujfDURbf9iX8DtJ2A", m: [74.88, 46.52], d: [79.98, 24.6] },
-    { id: "90992f56-9ff0-4c6a-a5fc-5c67730ba12d", name: "Yonggang-dong Local Eats", category: "Food", area: "Mapo", placeId: "ChIJDwy2KrCYfDURK4ghAucLbSY", m: [17.65, 65.19], d: [46.27, 59.36] },
-    { id: "30d2b679-8a12-4344-9273-a941195fd912", name: "Noryangjin Fish Market", category: "Food", area: "Dongjak", placeId: "ChIJOTEaKmiffDURNTst1Jzcm_c", m: [17.12, 81.23], d: [45.96, 89.22] },
-    { id: "48d93835-ca17-49d3-8308-0f59871e4618", name: "Ahyeon-dong Traditional Market", category: "Market", area: "Mapo", placeId: "ChIJURi8bYujfDURu6Nv8QWhdcc", m: [25.12, 60.38], d: [50.67, 50.4] },
+    { id: "a855020b-e87e-4b9c-8477-cfe37b546e11", name: "Sindang-dong Tteokbokki Town", category: "Food", area: "Jung-gu", photo: "/media/spot/a855020b-e87e-4b9c-8477-cfe37b546e11/4a1b10860443b383fb15a99f8749057396a3ecb600364fe3e04257d241cd7906.webp", m: [67.42, 52.73], d: [75.59, 36.15] },
+    { id: "0d120515-c856-48cf-8621-7efad0e59568", name: "Namdaemun Market Night Shopping", category: "Market", area: "Jung-gu", photo: "/media/spot/0d120515-c856-48cf-8621-7efad0e59568/8344c77eee82a6b933b39c70075c9bb9ca0f6784f27f6cdd95317d396ebdf64d.webp", m: [43.82, 55.73], d: [61.68, 41.73] },
+    { id: "11107241-dfb3-4cfc-a0c5-d243630f07b8", name: "Cheonggyecheon Stream Night Walk", category: "Outdoor", area: "Jung-gu", photo: "/media/spot/11107241-dfb3-4cfc-a0c5-d243630f07b8/7f7eadd844dc6713090c6757a5d45e2b2a3d0fb0ea37d18a471ab323d192653c.webp", m: [88.61, 48.77], d: [88.07, 28.78] },
+    { id: "c4fb47be-d4d8-45ee-b8a3-c49ccdb12cad", name: "Gyeonghuigung Palace", category: "Culture", area: "Jongno", photo: "/media/spot/c4fb47be-d4d8-45ee-b8a3-c49ccdb12cad/9fc235bfdca770fc91fe1426d15d448ea1c33ba4bfeda09b825c085ed5899d61.webp", m: [36.93, 49.34], d: [57.63, 29.84] },
+    { id: "ecf11071-055b-4ec4-aa87-78281e494ca2", name: "Hyochang Park", category: "Culture", area: "Yongsan", photo: "/media/spot/ecf11071-055b-4ec4-aa87-78281e494ca2/5fed6713cc9b007496a85ddd40fc9a181793c0f445bd1720f9cb76bf883acd16.webp", m: [31.75, 66.43], d: [54.58, 61.65] },
+    { id: "221d7ff2-b199-469f-81f5-d7e965ebf182", name: "Ikseon-dong Hanok Village", category: "Nightlife", area: "Jongno", photo: "/media/spot/221d7ff2-b199-469f-81f5-d7e965ebf182/93937bc5408ceafe2440148f25d5f99fcfe59a81244d3dd36773e579c01a7ebd.webp", m: [53.17, 47.67], d: [67.19, 26.74] },
+    { id: "a6f27a12-f460-4cc3-936e-9c4d0808e8c2", name: "Nodeulseom Island", category: "Culture", area: "Yongsan", photo: "/media/spot/a6f27a12-f460-4cc3-936e-9c4d0808e8c2/8bde1950d0f4ac334c557600c4d779e6ad9559aa9041aba9f17e1575b82fd9b3.webp", m: [29.72, 78.03], d: [53.38, 83.26] },
+    { id: "c704c853-04a8-432b-879b-446968cc7ca0", name: "Jamwon Hangang Park", category: "Outdoor", area: "Seocho", photo: "/media/spot/c704c853-04a8-432b-879b-446968cc7ca0/b6931821f4094ef0f738abba84a08d38a8a0c8d9aa68d51c6a5ff3f43571d78c.webp", m: [73.0, 74.02], d: [78.87, 75.79] },
+    { id: "b50160e9-3c20-49c6-8d8f-7700b0b8ccc3", name: "Naksan Park Sunset", category: "Outdoor", area: "Jongno", photo: "/media/spot/b50160e9-3c20-49c6-8d8f-7700b0b8ccc3/383f48bb6b0d06fb3998945bdb022a6dd43d5bbb56a7745417b75943639c0f80.webp", m: [66.66, 44.38], d: [75.14, 20.61] },
 ];
 /** The pin whose card opens on a loop. */
 export const HERO_FEATURED_ID = HERO_PINS[0].id;
@@ -49,8 +49,6 @@ export const HERO_FEATURED_ID = HERO_PINS[0].id;
 const MOBILE_SAFE_X: [number, number] = [6, 94];
 const MOBILE_MIN_Y = 48;
 const MOBILE_MAX_Y = 70;
-
-const PIN_ICONS: Record<string, ComponentType<IconProps>> = { Food: Utensils, Market: Store, Nightlife: Moon, Culture: Camera };
 
 export function LandingHero() {
     return (
@@ -76,7 +74,7 @@ export function LandingHero() {
 }
 
 function HeroPinMark({ pin, index }: { pin: HeroPin; index: number }) {
-    const Icon = PIN_ICONS[pin.category] ?? Store;
+    const Icon = TONE_ICONS[pinTone(pin.category)];
     const featured = pin.id === HERO_FEATURED_ID;
     const mobile = pin.m[0] >= MOBILE_SAFE_X[0] && pin.m[0] <= MOBILE_SAFE_X[1] && pin.m[1] >= MOBILE_MIN_Y && pin.m[1] <= MOBILE_MAX_Y;
     const style = {
@@ -88,10 +86,10 @@ function HeroPinMark({ pin, index }: { pin: HeroPin; index: number }) {
             <span className="ll-pin" data-tone={pinTone(pin.category)}>
                 <span className="ll-pin-face">
                     <Icon className="h-[18px] w-[18px]" />
-                    {/* Same small proxy URL as the cards (private browser cache, bots get no Places call). A CSS
-                        background, not an <img>: a failed or capped photo draws nothing, so the category tile below
-                        shows clean instead of a broken-image mark (2026-11-04 390 px shot). */}
-                    <span className="ll-hero-pin-photo" style={{ "--ll-pin-photo": `url(${cardGooglePhotoUrl(`places/${pin.placeId}/photos/current`)})` } as CSSProperties} />
+                    {/* Our own photo of the place, 144 px immutable copy from R2: no Places call per visitor. A CSS
+                        background, not an <img>: a failed photo draws nothing, so the category tile below shows
+                        clean instead of a broken-image mark (2026-11-04 390 px shot). */}
+                    <span className="ll-hero-pin-photo" style={{ "--ll-pin-photo": `url(${spotPhotoPinPath(pin.photo)})` } as CSSProperties} />
                 </span>
             </span>
             {featured && (
