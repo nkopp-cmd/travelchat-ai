@@ -63,7 +63,14 @@ describe("own spot photo first, Google Places only as fallback", () => {
       { k: `spot-photos/${spotId}/${"b".repeat(64)}.webp`, s: "commons", l: "CC BY 2.0", a: "Jane", u: "https://commons.wikimedia.org/wiki/File:Y.jpg" },
       { k: "spot-photos/bad", s: "commons" },
       { k: `spot-photos/${spotId}/${"c".repeat(64)}.webp`, s: "kto", l: "KOGL Type 1", u: "javascript:alert(1)" },
+      { k: `spot-photos/${spotId}/${"d".repeat(64)}.webp`, s: "kto", l: "KOGL Type 1", a: "Korea Tourism Organization / 니오타니 스튜디오" },
+      { k: `spot-photos/${spotId}/${"e".repeat(64)}.webp`, s: "kto", l: "KOGL Type 1", a: "Korea Tourism Organization" },
     ]));
+    // The source name is in the label already; the author line keeps only the photographer.
+    expect(stored[3].author).toBe("니오타니 스튜디오");
+    expect(stored[3].credit).toBe("니오타니 스튜디오 · KOGL Type 1 · Korea Tourism Organization");
+    expect(stored[4].author).toBeNull();
+    stored.splice(3);
     expect(stored.map((photo) => photo.label)).toEqual([null, "Wikimedia Commons · CC BY 2.0", "Korea Tourism Organization · KOGL Type 1"]);
     expect(stored[1].credit).toBe("Jane · CC BY 2.0 · Wikimedia Commons");
     expect(stored[2].sourceUrl).toBeNull();

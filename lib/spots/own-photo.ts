@@ -88,6 +88,13 @@ const CREDIT_SOURCES: Record<string, string> = { commons: "Wikimedia Commons", k
 
 const text = (value: unknown) => typeof value === "string" && value.trim() ? value.trim() : null;
 
+/** KTO authors read "Korea Tourism Organization / <photographer>": drop the source name the label already shows. */
+function withoutSource(author: string | null, source: string): string | null {
+  if (!author) return null;
+  const rest = author.startsWith(source) ? author.slice(source.length).replace(/^[\s/·,:-]+/, "").trim() : author;
+  return rest || null;
+}
+
 function httpsUrl(value: unknown): string | null {
   if (typeof value !== "string") return null;
   try { return new URL(value).protocol === "https:" ? value : null; } catch { return null; }
@@ -104,7 +111,7 @@ export function parseStoredSpotPhotos(json: unknown): StoredSpotPhoto[] {
     const { s, l, a, u } = row as Record<string, unknown>;
     const source = typeof s === "string" ? CREDIT_SOURCES[s] : undefined;
     const licence = text(l);
-    const author = source ? text(a) : null;
+    const author = source ? withoutSource(text(a), source) : null;
     return [{
       src, author, sourceUrl: source ? httpsUrl(u) : null,
       label: source ? [source, licence].filter(Boolean).join(" · ") : null,
