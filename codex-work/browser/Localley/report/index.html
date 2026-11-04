@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Localley: Google photos live (390 px)</title>
+<style>
+body{margin:0;background:#0f1117;color:#e6e6ef;font:16px/1.5 system-ui,sans-serif}
+main{max-width:900px;margin:0 auto;padding:24px 16px}
+h1{font-size:22px;margin:0 0 4px} p{color:#b9b9c9;margin:4px 0 16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+figure{margin:0;background:#1a1c25;border-radius:14px;padding:10px}
+img{width:100%;border-radius:10px;display:block} figcaption{font-size:14px;color:#b9b9c9;margin-top:8px}
+ul{color:#b9b9c9;padding-left:20px}
+</style></head><body><main>
+<h1>Google photos are live on localley.io</h1>
+<p>Phone width 390 px, live site, 2026-11-04. Release 9f5fd75 (PR #697).</p>
+<ul>
+<li>Map pins, spot cards and Nearby rows show the Google photo of each spot.</li>
+<li>44 of 44 photo requests in this run returned an image. 0 failed.</li>
+<li>3,197 of 3,304 spots have a Google photo. PR #698 adds 9 more spots that had only a place id.</li>
+<li>Cost guard: one billed photo call per spot and visitor a day, monthly cap stays at USD 24.50.</li>
+</ul>
+<div class="grid">
+<figure><img src="photos-live-spots-map-390.png" alt="Seoul map with photo pins and a spot card"><figcaption>Seoul map: photo pins and the card in the list sheet.</figcaption></figure>
+<figure><img src="photos-live-detail-nearby-390.png" alt="Spot detail with a Nearby row photo"><figcaption>Spot detail: the Nearby row shows its Google photo.</figcaption></figure>
+</div>
+</main></body></html>
