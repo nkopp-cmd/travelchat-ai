@@ -104,8 +104,21 @@ export function checkDraft({ description, body }, facts) {
 // Models sometimes pad link targets with spaces: "[x]( /help )".
 export const tidy = (d) => (typeof d?.body === "string" ? { ...d, body: d.body.replace(/\]\(\s*([^)\s]+)\s*\)/g, "]($1)") } : d);
 
-export function postFile({ topic, date, description, body }) {
+/** The country photo used least often by the posts we already have (first in the list on a tie); undefined when none. */
+export function pickPhoto(country, photos, used) {
+  const list = photos?.[country] ?? [];
+  const uses = (p) => used.filter((src) => src === p.photo).length;
+  return list.reduce((best, p) => (best && uses(best) <= uses(p) ? best : p), undefined);
+}
+
+/** `photo:` front-matter values of the post files (content/blog/photos.json entries in use). */
+export function usedPhotos(sources) {
+  return sources.flatMap((src) => /^photo: (\S+)$/m.exec(src.split("\n---\n")[0])?.[1] ?? []);
+}
+
+export function postFile({ topic, date, description, body, photo }) {
   const meta = [`title: ${topic.title}`, `description: ${description.replace(/\s+/g, " ").trim()}`, `published: ${date}`, `updated: ${date}`];
+  if (photo) meta.push(`photo: ${photo.photo}`, `photoAlt: ${photo.photoAlt}`, `photoSize: ${photo.photoSize}`, `photoCredit: ${photo.photoCredit}`);
   return `---\n${meta.join("\n")}\n---\n${body.trim()}\n`;
 }
 
@@ -132,7 +145,7 @@ function runCodex(prompt) {
 }
 
 /** Picks the best-ranked topic we hold facts for, drafts it (max 2 attempts) and returns the post. */
-export function draftPost({ date, data, files, slug, generate = runCodex, log = () => {} }) {
+export function draftPost({ date, data, files, slug, photos = {}, used = [], generate = runCodex, log = () => {} }) {
   const ranked = rankTopics({ date: new Date(`${date}T00:00:00Z`), files, ...data });
   const topic = ranked.find((t) => (slug ? t.slug === slug : true) && factsFor(t, data));
   if (!topic) return { ok: false, reason: slug ? `no facts or a recent repeat for ${slug}` : "no topic with facts" };
@@ -144,7 +157,7 @@ export function draftPost({ date, data, files, slug, generate = runCodex, log = 
     const draft = tidy(generate(prompt + retry));
     problems = checkDraft(draft, facts);
     log(`attempt ${attempt}: ${problems.length ? problems.join("; ") : "pass"}`);
-    if (!problems.length) return { ok: true, topic, file: `${date}-${topic.slug}.md`, source: postFile({ topic, date, ...draft }) };
+    if (!problems.length) return { ok: true, topic, file: `${date}-${topic.slug}.md`, source: postFile({ topic, date, ...draft, photo: pickPhoto(topic.country, photos, used) }) };
   }
   return { ok: false, topic, reason: problems.join("; ") };
 }
@@ -160,12 +173,14 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const read = (p) => JSON.parse(readFileSync(path.join(root, p), "utf8"));
   const data = { pay: read("lib/help/pay.json"), phrases: read("lib/help/source.json"), translations: read("lib/help/translations.json") };
   const files = blogFiles(BLOG_DIR);
+  const photos = read("content/blog/photos.json");
+  const used = usedPhotos(files.map((f) => readFileSync(path.join(BLOG_DIR, f), "utf8")));
   if (process.argv.includes("--dry-run")) {
     const result = draftPost({ date, data, files, slug: arg("--slug"), generate: (prompt) => { console.log(prompt); return {}; } });
     console.log(`\ntopic: ${result.topic?.slug ?? `- (${result.reason})`}`);
     process.exit(0);
   }
-  const result = draftPost({ date, data, files, slug: arg("--slug"), log: (l) => console.error(l) });
+  const result = draftPost({ date, data, files, slug: arg("--slug"), photos, used, log: (l) => console.error(l) });
   if (!result.ok) {
     console.error(`no post: ${result.topic?.slug ?? "-"}: ${result.reason}`);
     process.exit(2);
