@@ -589,10 +589,12 @@
     object-fit: cover;
 }
 
-/* Hero pin photo: lies over the category icon; a failed photo (alt="") shows the icon below. */
-.ll-pin-face img.ll-hero-pin-photo {
+/* Hero pin photo: lies over the category icon; a failed background draws nothing, so the icon shows. */
+.ll-pin-face .ll-hero-pin-photo {
     position: absolute;
     inset: 0;
+    border-radius: 999px;
+    background: var(--ll-pin-photo) center / cover no-repeat;
 }
 
 .ll-pin-face::after {
