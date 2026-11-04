@@ -16,7 +16,9 @@ if (!manifest || !approvedBy) {
     console.error("usage: insert-photos.mjs --manifest <file> --approved-by harvester-<source> [--apply]");
     process.exit(2);
 }
-const statements = insertSql(JSON.parse(fs.readFileSync(manifest, "utf8")).photos, approvedBy);
+const data = JSON.parse(fs.readFileSync(manifest, "utf8"));
+// commons-harvest writes `photos`, kto-harvest writes `results`.
+const statements = insertSql(data.photos ?? data.results ?? [], approvedBy);
 const sqlFile = path.join(path.dirname(manifest), `insert-${approvedBy}.sql`);
 fs.writeFileSync(sqlFile, `${statements.join("\n")}\n`);
 console.log(`${statements.length} rows -> ${sqlFile}`);
