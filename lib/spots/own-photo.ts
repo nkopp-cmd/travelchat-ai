@@ -99,7 +99,7 @@ export function isCardGooglePhotoUrl(src: string): boolean {
 /** A stored spot photo with what its licence asks us to show (author, licence, source page). */
 export type StoredSpotPhoto = {
   src: string;
-  /** "Wikimedia Commons · CC BY-SA 4.0"; null for tip/own/cc0 photos, which need no credit. */
+  /** Caption: "CC BY-SA 4.0" (Commons) or "Korea Tourism Organization · KOGL Type 1"; null for tip/own/cc0 photos, which need no credit. */
   label: string | null;
   author: string | null;
   sourceUrl: string | null;
@@ -142,7 +142,9 @@ export function parseStoredSpotPhotos(json: unknown): StoredSpotPhoto[] {
     const author = source ? withoutSource(text(a), source) : null;
     return [{
       src, author, sourceUrl: source ? httpsUrl(u) : null,
-      label: source ? [source, licence].filter(Boolean).join(" · ") : null,
+      // Commons is only the host: the caption shows licence + author (linked to the file page); /credits keeps the
+      // full line. Shorter captions keep short spot pages under the content-check meta budget.
+      label: source ? (s === "commons" && licence ? licence : [source, licence].filter(Boolean).join(" · ")) : null,
       credit: source ? [author, licence, source].filter(Boolean).join(" · ") : null,
     }];
   });

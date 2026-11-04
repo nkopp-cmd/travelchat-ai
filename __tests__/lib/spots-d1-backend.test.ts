@@ -185,7 +185,7 @@ describe("spot detail sources on D1", () => {
     const stored = (await d1SpotSource(id(1)))!.stored_photos as { src: string; label: string | null; author: string | null; sourceUrl: string | null }[];
     expect(stored.map((photo) => photo.src)).toEqual([`/media/spot/${id(1)}/${"a".repeat(64)}.webp`, `/media/spot/${id(1)}/${"b".repeat(64)}.webp`]);
     expect(stored[0]).toMatchObject({ label: null, author: null, sourceUrl: null });
-    expect(stored[1]).toMatchObject({ label: "Wikimedia Commons · CC BY-SA 4.0", author: "Kakidai", sourceUrl: "https://commons.wikimedia.org/wiki/File:X.jpg" });
+    expect(stored[1]).toMatchObject({ label: "CC BY-SA 4.0", author: "Kakidai", sourceUrl: "https://commons.wikimedia.org/wiki/File:X.jpg" });
     expect((await d1SpotSource(id(2)))!.stored_photos).toEqual([]);
     const credits = await d1PhotoCredits();
     expect(credits).toHaveLength(1);
