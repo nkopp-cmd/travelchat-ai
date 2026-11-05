@@ -79,19 +79,6 @@ export function parseSpotGuide(value: unknown, spotId: string): SpotGuide | null
   return parsed.data;
 }
 
-/** Markdown links in imported descriptions ("[Venue guide](url)") move to the page-end sources list. */
-export function splitDescriptionLinks(description: string): { text: string; links: { title: string; url: string }[] } {
-  const links: { title: string; url: string }[] = [];
-  const text = description
-    .replace(/\[([^\]]{1,120})\]\((https?:\/\/[^\s)]+)\)/g, (_match, title: string, url: string) => {
-      links.push({ title: title.trim(), url });
-      return "";
-    })
-    .replace(/\s{2,}/g, " ")
-    .trim();
-  return { text, links };
-}
-
 /** Sources for the page end: guide sources, description links, stored source_urls; one entry per URL. */
 export function mergeSpotSources(...groups: { title: string; url: string }[][]): { title: string; url: string }[] {
   const seen = new Set<string>();

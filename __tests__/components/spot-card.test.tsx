@@ -48,6 +48,12 @@ describe("SpotCard", () => {
     fireEvent.click(screen.getByText("Verified place"));
     expect(verified.open).toBe(true);
   });
+  it("keeps Markdown source links out of the card text", () => {
+    const spot = { ...baseSpot, description: "Korean beef barbecue near Dosan Park. Order the sirloin. [Venue guide](https://www.diningcode.com/profile.php?rid=x) [Visit Seoul](https://english.visitseoul.net/r/1)" };
+    const { container } = render(<SpotCard spot={spot} />);
+    expect(container.textContent).not.toMatch(/\]\(https?:|Venue guide|Visit Seoul/);
+    expect(screen.getByText("Korean beef barbecue near Dosan Park. Order the sirloin.")).toBeTruthy();
+  });
   it("carries the selected spot and real city to planning, with a separate detail action", () => {
     render(<SpotCard spot={baseSpot} />);
     const href = screen.getByRole("link", { name: `Add to trip: ${baseSpot.name}` }).getAttribute("href");

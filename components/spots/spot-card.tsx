@@ -4,6 +4,7 @@ import { cardPhotoCredits, cardSpotPhotos } from "@/lib/spots/own-photo";
 import { SaveSpotButton } from "./save-spot-button";
 import { Card } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
+import { splitDescriptionLinks } from "@/lib/spots/description-links";
 import { cn } from "@/lib/utils";
 
 interface SpotCardProps {
@@ -25,8 +26,10 @@ export function spotDescriptionLead(description: string) {
  * Only the photo and the save button hydrate.
  */
 export function SpotCard({ spot, compact = false, priority = false }: SpotCardProps) {
-  const lead = spotDescriptionLead(spot.description);
-  const more = lead !== spot.description.trim().replace(/\s+/g, " ");
+  // Source links ("[Visit Seoul](https://...)") belong on the detail page's source list, not in card text.
+  const description = splitDescriptionLinks(spot.description).text;
+  const lead = spotDescriptionLead(description);
+  const more = lead !== description.replace(/\s+/g, " ");
   const geography = [spot.areaName, spot.cityName].filter(Boolean).join(", ");
   const planner = new URLSearchParams({ spot: spot.id });
   if (spot.cityName) planner.set("city", spot.cityName);
@@ -61,7 +64,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
             <summary className={cn(toggle, "text-sm font-medium text-primary")}>
               <span className="group-open:hidden">More</span><span className="hidden group-open:inline">Less</span><span className="sr-only"> about {spot.name}</span>
             </summary>
-            <p className="break-words">{spot.description}</p>
+            <p className="break-words">{description}</p>
           </details>}
         </div>}
         {(spot.verified || spot.communitySubmitted) && <div className="text-[13px] text-muted-foreground">

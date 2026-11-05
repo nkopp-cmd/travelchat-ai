@@ -48,7 +48,8 @@ import {
   normalizeLocalPercentage,
   normalizeSpotTips,
 } from "@/lib/spots/detail-normalization";
-import { mergeSpotSources, normalizeSourceUrls, publicTips, splitDescriptionLinks } from "@/lib/spots/guide";
+import { mergeSpotSources, normalizeSourceUrls, publicTips } from "@/lib/spots/guide";
+import { splitDescriptionLinks } from "@/lib/spots/description-links";
 import { readSpotGuide } from "@/lib/spots/guide-store";
 import { fetchSpotViralMentions } from "@/lib/viral/events";
 import { viralMentionMonth } from "@/lib/viral/feed";

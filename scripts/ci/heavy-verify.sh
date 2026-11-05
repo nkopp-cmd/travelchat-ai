@@ -666,6 +666,7 @@ ESLINT_FILES=(
   __tests__/lib/naver-local.test.ts
   __tests__/api/naver-local-route.test.ts
   components/spots/spot-card.tsx
+  lib/spots/description-links.ts
   components/spots/spot-card-events.tsx
   components/spots/spot-photo-image.tsx
   components/layout/seoul-living-link.tsx

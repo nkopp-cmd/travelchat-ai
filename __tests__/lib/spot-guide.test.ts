@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { bannedPhrases, mergeSpotSources, normalizeSourceUrls, parseSpotGuide, publicTips, splitDescriptionLinks } from "@/lib/spots/guide";
+import { bannedPhrases, mergeSpotSources, normalizeSourceUrls, parseSpotGuide, publicTips } from "@/lib/spots/guide";
+import { splitDescriptionLinks } from "@/lib/spots/description-links";
 
 const id = "6bff8713-ceaa-45f8-a8b8-3e39d4017b03";
 const words = (n: number) => Array.from({ length: n }, (_, i) => `word${i}`).join(" ");
