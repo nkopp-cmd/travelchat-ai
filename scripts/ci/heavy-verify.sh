@@ -9,6 +9,7 @@ set -uo pipefail
 cd "$(dirname "$0")/../.."
 
 VITEST_FILES=(
+  __tests__/providers/query-provider-scope.test.ts
   __tests__/components/generated-preview.test.tsx
   __tests__/lib/generated-preview.test.ts
   __tests__/api/itinerary-save-candidate.test.ts
