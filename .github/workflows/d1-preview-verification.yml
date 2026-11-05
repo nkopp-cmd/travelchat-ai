@@ -5,6 +5,11 @@ on:
     branches: [main]
     paths:
       - 'package.json'
+      - '__tests__/providers/query-provider-scope.test.ts'
+      - 'providers/**'
+      - 'lib/query-client.tsx'
+      - 'components/layout/navbar-account.tsx'
+      - 'app/**/layout.tsx'
       - '__tests__/lib/auth-schema-check.test.ts'
       - '__tests__/lib/supabase-exit-client.test.ts'
       - 'lib/auth/config.ts'

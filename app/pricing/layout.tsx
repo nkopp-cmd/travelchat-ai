@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { QueryProvider } from "@/lib/query-client";
 import { FAQJsonLd } from "@/components/seo/json-ld";
 
 export const metadata: Metadata = {
@@ -44,7 +45,7 @@ export default function PricingLayout({
     return (
         <>
             <FAQJsonLd items={faqItems} />
-            {children}
+            <QueryProvider>{children}</QueryProvider>
         </>
     );
 }
