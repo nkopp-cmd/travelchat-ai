@@ -13,6 +13,7 @@ export interface SpotsFilterParams {
     sort?: string;      // Sort order: "score", "trending", "local"
     search?: string;    // Search query (debounced)
     page?: string;      // Page number for pagination
+    view?: string;      // "grid" | "list" | "map" (the map view needs the full spot objects)
 }
 
 // Validated filter state used by data layer

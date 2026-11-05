@@ -58,6 +58,7 @@ const props: ComponentProps<typeof SpotsExplorer> = {
     initialSpots: [spot("a"), spot("b", 37.58, 127)], totalCount: 48, currentPage: 2,
     pageSize: 24, hasMore: false, filterOptions: { cities: [], categories: [], scores: [] },
     currentFilters: { city: "seoul", category: null, score: null, sortBy: "score", search: "", page: 2, limit: 24 },
+    cards: null,
 };
 
 beforeEach(() => {
@@ -171,6 +172,13 @@ describe("bounded discovery map", () => {
         state.query = "city=seoul&view=map";
         render(<SpotsExplorer {...props} initialSpots={[]} totalCount={0} />);
         expect(screen.getByRole("heading", { name: "No spots found" })).toBeTruthy();
+        expect(state.map).not.toHaveBeenCalled();
+    });
+
+    it("shows the server cards in grid view when the map data is left out", () => {
+        render(<SpotsExplorer {...props} initialSpots={[]} spotCount={2} cards={<p>server cards</p>} />);
+        expect(screen.getByText("server cards")).toBeTruthy();
+        expect(screen.queryByRole("heading", { name: "No spots found" })).toBeNull();
         expect(state.map).not.toHaveBeenCalled();
     });
 

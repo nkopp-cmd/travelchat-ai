@@ -110,7 +110,9 @@ async function SpotsContent({
             <ViralSpots items={viral} />
             <WeeklyTrendingSpots items={weeklyTrending} citySlug={filters.city} priority={viral.length === 0} />
             <SpotsExplorer
-                initialSpots={spotsData.spots}
+                // Only the map needs the full objects; grid and list get server HTML cards (saves ~56 KB of RSC per visit).
+                initialSpots={searchParams.view === "map" ? spotsData.spots : []}
+                spotCount={spotsData.spots.length}
                 totalCount={spotsData.total}
                 currentPage={spotsData.page}
                 pageSize={spotsData.pageSize}

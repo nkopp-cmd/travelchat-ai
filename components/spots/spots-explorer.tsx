@@ -20,7 +20,10 @@ const SpotsMap = dynamic(() => import("./spots-map"), {
 });
 
 interface SpotsExplorerProps {
+    /** Full spot objects for the map view only; the server sends [] for grid and list (the cards are HTML). */
     initialSpots: Spot[];
+    /** Spots on this page (defaults to initialSpots.length). */
+    spotCount?: number;
     totalCount: number;
     currentPage: number;
     pageSize: number;
@@ -37,6 +40,7 @@ interface SpotsExplorerProps {
  */
 export function SpotsExplorer({
     initialSpots,
+    spotCount = initialSpots.length,
     totalCount,
     currentPage,
     pageSize,
@@ -160,6 +164,7 @@ export function SpotsExplorer({
 
 
     const mapOverlay = viewMode === "map" && initialSpots.length > 0;
+    const hasSpots = spotCount > 0 || initialSpots.length > 0;
     useMapFiltersHeight(filtersRef, mapOverlay);
 
     return (
@@ -241,7 +246,7 @@ export function SpotsExplorer({
             {/* Spots Grid/List */}
             <ErrorBoundary>
                 <div className="pb-[calc(7rem+env(safe-area-inset-bottom,0px))] md:pb-0">
-                {initialSpots.length > 0 ? (
+                {hasSpots ? (
                     <>
                         {viewMode === "map" ? (
                             <SpotsMap
