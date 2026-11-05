@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
-import { CARD_PHOTO_WIDTH, cardGooglePhotoUrl, cardPhotoCredits, cardSpotPhotos, directSpotPhotos, isCardGooglePhotoUrl, ownSpotPhotoPath, parseStoredSpotPhotos, spotPhotoPinPath, spotPhotoThumbPath, storedGooglePhotoName } from "@/lib/spots/own-photo";
+import { CARD_PHOTO_WIDTH, cardGooglePhotoUrl, cardPhotoCredits, cardSpotPhotos, directSpotPhotos, isCardGooglePhotoUrl, ownSpotPhotoPath, parseStoredSpotPhotos, shortAuthor, spotPhotoPinPath, spotPhotoThumbPath, storedGooglePhotoName } from "@/lib/spots/own-photo";
 import { getDirectVenuePhotos } from "@/components/spots/venue-photo-provider";
 
 const spotId = "00000000-0000-4000-8000-000000000001";
@@ -106,5 +106,37 @@ describe("own spot photo first, Google Places only as fallback", () => {
       attributions: [{ displayName: "WiNG", uri: "https://commons.wikimedia.org/wiki/File:X.jpg" }] });
     expect(cardPhotoCredits({ ownPhoto: own, ownPhotoCredit: null })).toEqual([]);
     expect(cardPhotoCredits({ ownPhoto: null, ownPhotoCredit })).toEqual([]);
+  });
+});
+
+describe("shortAuthor keeps the name and drops Commons boilerplate", () => {
+  it.each([
+    ["No machine-readable author provided. LigerCommon assumed (based on copyright claims).", "LigerCommon"],
+    ["This Photo was taken by Supanut Arunoprayote . Feel free to use any of my images, but please mention me as the", "Supanut Arunoprayote"],
+    ["Fotograf / Photographer: Heinrich Damm ( User:Hdamm , Hdamm at de.wikipedia.org )", "Heinrich Damm"],
+    ["The original uploader was Weihao.chiu at Chinese Wikipedia .", "Weihao.chiu"],
+    ["RXerself , Creutzen This image was created with Hugin .", "RXerself, Creutzen"],
+    ["Atelierdreiseitl (= www.dreiseitl.de; OTRS confirmation )", "Atelierdreiseitl"],
+    ["Kakidai", "Kakidai"],
+  ])("%s", (input, expected) => expect(shortAuthor(input)).toBe(expected));
+
+  it("never returns more than the cap plus an ellipsis", () => {
+    const long = "Imperial Japanese Commission to the Panama-Pacific International Exposition";
+    const out = shortAuthor(long)!;
+    expect(out.length).toBeLessThanOrEqual(41);
+    expect(out.endsWith("…")).toBe(true);
+    expect(long.startsWith(out.slice(0, -1))).toBe(true);
+  });
+
+  it("returns null for empty input", () => {
+    expect(shortAuthor(null)).toBeNull();
+    expect(shortAuthor("  ( talk ) ")).toBeNull();
+  });
+
+  it("parseStoredSpotPhotos uses the short author in credit lines", () => {
+    const json = JSON.stringify([{ k: `spot-photos/0f8b442a-e869-4025-a0bb-e48f7fd44434/${"c".repeat(64)}.webp`, s: "commons", l: "CC BY 4.0", a: "No machine-readable author provided. WAHKEE assumed (based on copyright claims).", u: "https://commons.wikimedia.org/wiki/File:X.jpg" }]);
+    const [photo] = parseStoredSpotPhotos(json);
+    expect(photo.author).toBe("WAHKEE");
+    expect(photo.credit).toBe("WAHKEE · CC BY 4.0 · Wikimedia Commons");
   });
 });

@@ -123,6 +123,34 @@ function withoutSource(author: string | null, source: string): string | null {
   return rest || null;
 }
 
+/** Max characters of a photo author in a caption; the full text stays on the source page. */
+export const AUTHOR_MAX = 40;
+
+/**
+ * Short author name for captions. Commons "Artist" fields often hold sentences ("No machine-readable author
+ * provided. X assumed ...", "This Photo was taken by X. Feel free ..."); a long caption pushes short spot pages over
+ * the content-check meta budget. Keeps the person's name, drops boilerplate, cuts at a word boundary.
+ */
+export function shortAuthor(author: string | null): string | null {
+  if (!author) return null;
+  let a = author.replace(/\s+/g, " ").trim();
+  const pick = (re: RegExp) => { const m = re.exec(a); if (m?.[1]?.trim()) a = m[1].trim(); };
+  pick(/^No machine-readable author provided\.\s*(.+?)\s+assumed\b/i);
+  pick(/\btaken by\s+(.+?)\s*(?:\.|$)/i);
+  pick(/^The original uploader was\s+(.+?)\s+at\s+\S.*$/i);
+  a = a.replace(/\bThis (?:image|photo|file) was created with\b.*$/i, "")
+    .replace(/^(?:[\w-]+\s*\/\s*)?Photographer\s*:\s*/i, "")
+    .replace(/\s*\([^)]*\)/g, "")
+    .replace(/\s+([,.])/g, "$1")
+    .replace(/[\s,.;:/-]+$/, "")
+    .trim();
+  if (!a) return null;
+  if (a.length <= AUTHOR_MAX) return a;
+  const cut = a.slice(0, AUTHOR_MAX + 1);
+  const space = cut.lastIndexOf(" ");
+  return `${(space > 10 ? cut.slice(0, space) : a.slice(0, AUTHOR_MAX)).replace(/[\s,.;:/-]+$/, "")}…`;
+}
+
 function httpsUrl(value: unknown): string | null {
   if (typeof value !== "string") return null;
   try { return new URL(value).protocol === "https:" ? value : null; } catch { return null; }
@@ -139,7 +167,7 @@ export function parseStoredSpotPhotos(json: unknown): StoredSpotPhoto[] {
     const { s, l, a, u } = row as Record<string, unknown>;
     const source = typeof s === "string" ? CREDIT_SOURCES[s] : undefined;
     const licence = text(l);
-    const author = source ? withoutSource(text(a), source) : null;
+    const author = source ? shortAuthor(withoutSource(text(a), source)) : null;
     return [{
       src, author, sourceUrl: source ? httpsUrl(u) : null,
       // Commons is only the host: the caption shows licence + author (linked to the file page); /credits keeps the
