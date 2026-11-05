@@ -3,7 +3,8 @@
 import { useRef, useCallback, useEffect, useTransition } from "react";
 import dynamic from "next/dynamic";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { SpotCard } from "@/components/spots/spot-card";
+import { SpotCardEvents } from "@/components/spots/spot-card-events";
+import type { ReactNode } from "react";
 import { SpotsFilterBar } from "./spots-filter-bar";
 import { SpotsPagination } from "./spots-pagination";
 import { Spot } from "@/types";
@@ -26,6 +27,8 @@ interface SpotsExplorerProps {
     hasMore: boolean;
     filterOptions: FilterOptions;
     currentFilters: SpotsFilterState;
+    /** Server-rendered <SpotCard /> list for the grid and list views (the cards never hydrate). */
+    cards: ReactNode;
 }
 
 /**
@@ -39,6 +42,7 @@ export function SpotsExplorer({
     pageSize,
     filterOptions,
     currentFilters,
+    cards,
 }: SpotsExplorerProps) {
     const router = useRouter();
     const pathname = usePathname();
@@ -160,6 +164,7 @@ export function SpotsExplorer({
 
     return (
         <>
+            <SpotCardEvents />
             {/* Filter Bar: floats over the full-screen phone map, so search and filters stay in reach. */}
             <div ref={filtersRef} data-map-overlay={mapOverlay ? "" : undefined}
                 className={cn(mapOverlay && "max-lg:fixed max-lg:inset-x-0 max-lg:top-[var(--ll-topbar-height)] max-lg:z-[41] max-lg:bg-background max-lg:px-3 max-lg:pt-2 max-lg:[&>*]:mb-2")}>
@@ -255,37 +260,16 @@ export function SpotsExplorer({
                                     />
                                 }
                             />
-                        ) : viewMode === "grid" ? (
+                        ) : (
                             <div
+                                data-spot-view={viewMode}
                                 className={cn(
-                                    "grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4",
+                                    viewMode === "grid" ? "grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4" : "grid grid-cols-1 gap-3",
                                     "transition-opacity duration-200",
                                     isPending && "opacity-60"
                                 )}
                             >
-                                {initialSpots.map((spot, index) => (
-                                    <SpotCard
-                                        key={spot.id}
-                                        spot={spot}
-                                        priority={index < 6}
-                                    />
-                                ))}
-                            </div>
-                        ) : (
-                            <div
-                                className={cn(
-                                    "space-y-3 transition-opacity duration-200",
-                                    isPending && "opacity-60"
-                                )}
-                            >
-                                {initialSpots.map((spot, index) => (
-                                    <SpotCard
-                                        key={spot.id}
-                                        spot={spot}
-                                        compact
-                                        priority={index < 3}
-                                    />
-                                ))}
+                                {cards}
                             </div>
                         )}
 

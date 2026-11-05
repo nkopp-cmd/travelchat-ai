@@ -2,17 +2,16 @@
 
 import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import Link from "next/link";
-import { SpotCard } from "@/components/spots/spot-card";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "@/components/ui/icons";
-import type { Spot } from "@/types";
 
-export type SpotRailItem = { key: string; spot: Spot; caption?: ReactNode };
+/** `card` is a server-rendered <SpotCard />, so the rail hydrates only its own scroll controls. */
+export type SpotRailItem = { key: string; card: ReactNode; caption?: ReactNode };
 
 /** Horizontal carousel of shared spot cards (weekly trending, viral events). */
-export function SpotRail({ items, eyebrow, title, lede, trackLabel, seeAll, priority = false }: {
+export function SpotRail({ items, eyebrow, title, lede, trackLabel, seeAll }: {
   items: SpotRailItem[]; eyebrow: string; title: string; lede: ReactNode; trackLabel: string;
-  seeAll?: { href: string; label: string }; priority?: boolean;
+  seeAll?: { href: string; label: string };
 }) {
   const id = useId();
   const headingId = `${id}-heading`, trackId = `${id}-track`;
@@ -68,7 +67,7 @@ export function SpotRail({ items, eyebrow, title, lede, trackLabel, seeAll, prio
         role="group" aria-roledescription="slide" aria-label={`${index + 1} of ${items.length}`}
         className="flex w-[85%] min-w-0 shrink-0 snap-start flex-col gap-2 sm:w-[340px]">
         {item.caption}
-        <SpotCard spot={item.spot} priority={priority && index === 0} />
+        {item.card}
       </div>)}
     </div>
     <div className="mt-1 flex items-center justify-between gap-3">

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
 import { SpotCard } from "@/components/spots/spot-card";
+import { SpotCardEvents } from "@/components/spots/spot-card-events";
 import { Flame, Newspaper } from "@/components/ui/icons";
 import { fetchViralEvent } from "@/lib/viral/events";
 
@@ -36,6 +37,7 @@ export default async function ViralEventPage({ params }: Props) {
 
   return (
     <main className="container mx-auto px-4 pb-24 pt-6 md:pb-10 md:pt-8">
+      <SpotCardEvents />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       <PageHeader eyebrow="Viral spots" eyebrowIcon={Flame} title={event.label}
         lede={event.summary || `The places named in the news about ${event.person} in ${event.city}.`} />
