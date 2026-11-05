@@ -1,5 +1,4 @@
 import { z } from "zod";
-export { splitDescriptionLinks } from "./description-links";
 
 /**
  * Spot guidance written from verified facts (scripts/spot-guides.mjs, subscription only) and kept in R2
