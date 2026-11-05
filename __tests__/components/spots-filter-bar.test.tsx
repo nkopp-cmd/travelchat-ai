@@ -46,6 +46,31 @@ const defaultFilters: SpotsFilterState = {
 };
 
 describe("SpotsFilterBar", () => {
+  it("uses native selects that pass the chosen city, category, score and sort", () => {
+    const onFilterChange = vi.fn();
+    render(
+      <SpotsFilterBar
+        filterOptions={filterOptions}
+        currentFilters={defaultFilters}
+        onFilterChange={onFilterChange}
+        onClearFilters={vi.fn()}
+        isPending={false}
+      />,
+    );
+
+    const score = screen.getByTestId("spots-score-filter-trigger") as HTMLSelectElement;
+    expect(score.tagName).toBe("SELECT");
+    expect([...score.options].map((option) => option.textContent)).toEqual(["All Scores", "5+ Hidden Gem (7)", "4+ Local fave (10)"]);
+    fireEvent.change(score, { target: { value: "4" } });
+    expect(onFilterChange).toHaveBeenLastCalledWith("score", 4);
+    fireEvent.change(screen.getByLabelText("Select city"), { target: { value: "tokyo" } });
+    expect(onFilterChange).toHaveBeenLastCalledWith("city", "tokyo");
+    fireEvent.change(screen.getByLabelText("Select category"), { target: { value: "all" } });
+    expect(onFilterChange).toHaveBeenLastCalledWith("category", null);
+    fireEvent.change(screen.getByLabelText("Sort by"), { target: { value: "trending" } });
+    expect(onFilterChange).toHaveBeenLastCalledWith("sortBy", "trending");
+  });
+
   it("keeps mobile filter controls from overlapping active score controls", () => {
     render(
       <SpotsFilterBar
