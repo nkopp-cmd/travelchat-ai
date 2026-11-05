@@ -1,14 +1,7 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, type ReactNode } from "react";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +18,7 @@ import {
   Store,
   Flame,
   Loader2,
+  ChevronDown,
 } from "@/components/ui/icons";
 import {
   SpotsFilterState,
@@ -32,7 +26,6 @@ import {
   SORT_OPTIONS,
 } from "@/lib/spots/types";
 import { cn } from "@/lib/utils";
-import { CityImageAvatar } from "@/components/ui/city-image";
 import { useDebouncedCallback } from "use-debounce";
 
 // Quick filter chips with icons
@@ -82,7 +75,22 @@ const QUICK_FILTERS = [
 ];
 
 const FILTER_TRIGGER_CLASS =
-  "relative h-10 w-full min-w-0 max-w-full justify-start gap-1 overflow-hidden bg-raised px-2 text-xs text-foreground data-[state=open]:z-30 sm:px-3 sm:text-sm [&>svg:last-child]:ml-auto [&>svg:last-child]:shrink-0 [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:flex-1 [&_[data-slot=select-value]]:overflow-hidden [&_[data-slot=select-value]]:truncate [&_[data-slot=select-value]]:whitespace-nowrap";
+  "h-10 w-full min-w-0 max-w-full appearance-none overflow-hidden truncate rounded-md bg-raised py-0 pr-8 text-xs text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring sm:text-sm";
+
+function FilterSelect({ label, value, onChange, options, icon, testId }: {
+  label: string; value: string; onChange: (value: string) => void; options: { value: string; label: string }[]; icon?: ReactNode; testId?: string;
+}) {
+  return (
+    <div className="relative min-w-0 text-foreground">
+      {icon && <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 sm:left-3">{icon}</span>}
+      <select aria-label={label} data-testid={testId} value={value} onChange={(event) => onChange(event.target.value)}
+        className={cn(FILTER_TRIGGER_CLASS, icon ? "pl-7 sm:pl-9" : "pl-2 sm:pl-3")}>
+        {options.map((option) => <option key={option.value} value={option.value} className="bg-surface text-foreground">{option.label}</option>)}
+      </select>
+      <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 opacity-60" aria-hidden="true" />
+    </div>
+  );
+}
 
 interface SpotsFilterBarProps {
   filterOptions: FilterOptions;
@@ -301,110 +309,43 @@ export function SpotsFilterBar({
           More filters
         </div>
 
-        {/* City Filter */}
-        <Select
+        {/* Native selects: the phone's own picker, no popup library in the /spots bundle. */}
+        <FilterSelect
+          label="Select city"
+          icon={<MapPin className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" aria-hidden="true" />}
           value={currentFilters.city || "all"}
-          onValueChange={(v) => onFilterChange("city", v === "all" ? null : v)}
-        >
-          <SelectTrigger
-            className={FILTER_TRIGGER_CLASS}
-            aria-label="Select city"
-          >
-            <MapPin
-              className="mr-1 h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4"
-              aria-hidden="true"
-            />
-            <SelectValue placeholder="Search spots or areas" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Cities</SelectItem>
-            {filterOptions.cities.map((city) => (
-              <SelectItem key={city.slug} value={city.slug}>
-                <div className="flex items-center justify-between gap-3 w-full">
-                  <span className="flex min-w-0 items-center gap-2">
-                    <CityImageAvatar
-                      city={city.name}
-                      className="h-6 w-6 rounded-full"
-                      sizes="24px"
-                    />
-                    <span className="truncate">{city.name}</span>
-                  </span>
-                  <span className="text-muted-foreground text-xs ml-2">
-                    ({city.count})
-                  </span>
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* Category Filter */}
-        <Select
+          onChange={(v) => onFilterChange("city", v === "all" ? null : v)}
+          options={[
+            { value: "all", label: "All Cities" },
+            ...filterOptions.cities.map((city) => ({ value: city.slug, label: `${city.name} (${city.count})` })),
+          ]}
+        />
+        <FilterSelect
+          label="Select category"
           value={currentFilters.category || "all"}
-          onValueChange={(v) =>
-            onFilterChange("category", v === "all" ? null : v)
-          }
-        >
-          <SelectTrigger
-            className={FILTER_TRIGGER_CLASS}
-            aria-label="Select category"
-          >
-            <SelectValue placeholder="Search spots or areas" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            {filterOptions.categories.map((cat) => (
-              <SelectItem key={cat.name} value={cat.name}>
-                {cat.name} ({cat.count})
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* Score Filter */}
-        <Select
+          onChange={(v) => onFilterChange("category", v === "all" ? null : v)}
+          options={[
+            { value: "all", label: "All Categories" },
+            ...filterOptions.categories.map((cat) => ({ value: cat.name, label: `${cat.name} (${cat.count})` })),
+          ]}
+        />
+        <FilterSelect
+          label="Select Localley score"
+          testId="spots-score-filter-trigger"
+          icon={<Star className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" aria-hidden="true" />}
           value={currentFilters.score?.toString() || "all"}
-          onValueChange={(v) =>
-            onFilterChange("score", v === "all" ? null : parseInt(v))
-          }
-        >
-          <SelectTrigger
-            className={FILTER_TRIGGER_CLASS}
-            aria-label="Select Localley score"
-            data-testid="spots-score-filter-trigger"
-          >
-            <Star
-              className="mr-1 h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4"
-              aria-hidden="true"
-            />
-            <SelectValue placeholder="Search spots or areas" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Scores</SelectItem>
-            {filterOptions.scores.map((score) => (
-              <SelectItem key={score.value} value={score.value.toString()}>
-                {getScoreOptionLabel(score)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* Sort */}
-        <Select
+          onChange={(v) => onFilterChange("score", v === "all" ? null : parseInt(v))}
+          options={[
+            { value: "all", label: "All Scores" },
+            ...filterOptions.scores.map((score) => ({ value: score.value.toString(), label: getScoreOptionLabel(score) })),
+          ]}
+        />
+        <FilterSelect
+          label="Sort by"
           value={currentFilters.sortBy}
-          onValueChange={(v) => onFilterChange("sortBy", v)}
-        >
-          <SelectTrigger className={FILTER_TRIGGER_CLASS} aria-label="Sort by">
-            <SelectValue placeholder="Search spots or areas" />
-          </SelectTrigger>
-          <SelectContent>
-            {SORT_OPTIONS.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {getSortOptionLabel(option.label)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          onChange={(v) => onFilterChange("sortBy", v)}
+          options={SORT_OPTIONS.map((option) => ({ value: option.value, label: getSortOptionLabel(option.label) }))}
+        />
 
         {/* Clear Filters */}
         {hasActiveFilters && (
