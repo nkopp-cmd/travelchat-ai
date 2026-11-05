@@ -4,6 +4,7 @@ import { SpotCard } from "@/components/spots/spot-card";
 import { LocalleyScale, type Spot } from "@/types";
 import { trackSpotEvent } from "@/lib/spot-analytics";
 import { SpotEventLink } from "@/components/spots/spot-event-link";
+import { listen } from "@/components/spots/spot-card-events";
 
 vi.mock("@/lib/spot-analytics", () => ({ trackSpotEvent: vi.fn() }));
 
@@ -34,11 +35,18 @@ describe("SpotCard", () => {
   });
   it("expands the original description and explains verification without inventing an endorsement", () => {
     render(<SpotCard spot={baseSpot} />);
-    expect(screen.queryByText(baseSpot.description)).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: `More about ${baseSpot.name}` }));
-    expect(screen.getByText(baseSpot.description)).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Verified place" }));
-    expect(screen.getByText(/Check current hours and access/)).toBeTruthy();
+    // Native toggles: the full text is server HTML inside a closed <details>, so the card needs no hydration.
+    const more = screen.getByText("More").closest("summary")!;
+    expect(more.textContent).toBe(`MoreLess about ${baseSpot.name}`);
+    const why = screen.getByText(baseSpot.description).closest("details")!;
+    expect(why.open).toBe(false);
+    fireEvent.click(more);
+    expect(why.open).toBe(true);
+    const verified = screen.getByText("Verified place").closest("details")!;
+    expect(verified.open).toBe(false);
+    expect(verified.textContent).toMatch(/Check current hours and access/);
+    fireEvent.click(screen.getByText("Verified place"));
+    expect(verified.open).toBe(true);
   });
   it("carries the selected spot and real city to planning, with a separate detail action", () => {
     render(<SpotCard spot={baseSpot} />);
@@ -61,29 +69,48 @@ describe("SpotCard", () => {
   });
   it("reports a card view only once after at least half enters view", () => {
     let notify: IntersectionObserverCallback;
-    const disconnect = vi.fn();
+    const disconnect = vi.fn(), unobserve = vi.fn();
     vi.stubGlobal("IntersectionObserver", class {
       constructor(callback: IntersectionObserverCallback) { notify = callback; }
-      observe() {} disconnect = disconnect;
+      observe() {} unobserve = unobserve; disconnect = disconnect;
     });
-    const { unmount } = render(<SpotCard spot={baseSpot} />);
+    render(<SpotCard spot={baseSpot} />);
+    const stop = listen(vi.fn());
     const target = screen.getByTestId("spot-card");
-    const intersect = (ratio: number) => act(() => notify([{ target, isIntersecting: true, intersectionRatio: ratio } as IntersectionObserverEntry], {} as IntersectionObserver));
+    const intersect = (ratio: number) => act(() => notify([{ target, isIntersecting: true, intersectionRatio: ratio } as unknown as IntersectionObserverEntry], {} as IntersectionObserver));
     intersect(0.49); expect(trackSpotEvent).not.toHaveBeenCalled();
-    intersect(0.5); intersect(1);
+    intersect(0.5);
     expect(trackSpotEvent).toHaveBeenCalledExactlyOnceWith("card_view", baseSpot.id);
-    unmount(); expect(disconnect).toHaveBeenCalled();
+    expect(unobserve).toHaveBeenCalledWith(target);
+    stop(); expect(disconnect).toHaveBeenCalled();
   });
   it("does not count a late view after the card unmounts", () => {
     let notify: IntersectionObserverCallback;
     vi.stubGlobal("IntersectionObserver", class {
       constructor(callback: IntersectionObserverCallback) { notify = callback; }
-      observe() {} disconnect() {}
+      observe() {} unobserve() {} disconnect() {}
     });
     const { unmount } = render(<SpotCard spot={baseSpot} />);
+    const stop = listen(vi.fn());
     const target = screen.getByTestId("spot-card"); unmount();
-    act(() => notify([{ target, isIntersecting: true, intersectionRatio: 1 } as IntersectionObserverEntry], {} as IntersectionObserver));
+    act(() => notify([{ target, isIntersecting: true, intersectionRatio: 1 } as unknown as IntersectionObserverEntry], {} as IntersectionObserver));
     expect(trackSpotEvent).not.toHaveBeenCalled();
+    stop();
+  });
+  it("tracks card link clicks and navigates in the app; modified clicks keep the browser default", () => {
+    render(<SpotCard spot={baseSpot} />);
+    const navigate = vi.fn();
+    const stop = listen(navigate);
+    const details = screen.getByRole("link", { name: `Details: ${baseSpot.name}` });
+    fireEvent.click(details);
+    expect(trackSpotEvent).toHaveBeenCalledExactlyOnceWith("open_detail", baseSpot.id);
+    expect(navigate).toHaveBeenCalledExactlyOnceWith(`/spots/${baseSpot.id}`);
+    fireEvent.click(screen.getByRole("link", { name: `Add to trip: ${baseSpot.name}` }), { metaKey: true });
+    expect(trackSpotEvent).toHaveBeenLastCalledWith("add_to_trip", baseSpot.id);
+    expect(navigate).toHaveBeenCalledTimes(1);
+    stop();
+    fireEvent.click(details);
+    expect(navigate).toHaveBeenCalledTimes(1);
   });
   it.each(["add_to_trip", "open_detail", "directions"] as const)("reports a real %s link action", event => {
     render(<div onClick={click => click.preventDefault()}><SpotEventLink spotId={baseSpot.id} event={event} href="/spots/example">Open fixture</SpotEventLink></div>);

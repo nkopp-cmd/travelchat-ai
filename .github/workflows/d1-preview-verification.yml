@@ -94,6 +94,7 @@ on:
       - '__tests__/lib/own-spot-photo.test.ts'
       - '__tests__/lib/spots-d1-backend.test.ts'
       - 'components/spots/spot-card.tsx'
+      - 'components/spots/spot-card-events.tsx'
       - 'components/spots/venue-photo-provider.tsx'
       - 'lib/spots/transform.ts'
       - 'components/ui/radix-toaster.tsx'

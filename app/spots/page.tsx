@@ -3,6 +3,7 @@ import { SeoulLivingLink } from "@/components/layout/seoul-living-link";
 import { IntentLink } from "@/components/navigation/intent-link";
 import { PageEyebrow } from "@/components/layout/page-header";
 import { SpotsExplorer } from "@/components/spots/spots-explorer";
+import { SpotCard } from "@/components/spots/spot-card";
 import { SpotCardSkeleton } from "@/components/ui/skeleton";
 import { CityQuickFilters } from "@/components/spots/city-quick-filters";
 import { CityConditions } from "@/components/spots/city-conditions";
@@ -116,6 +117,7 @@ async function SpotsContent({
                 hasMore={spotsData.hasMore}
                 filterOptions={filterOptions}
                 currentFilters={filters}
+                cards={spotsData.spots.map((spot, index) => <SpotCard key={spot.id} spot={spot} priority={index < 6} />)}
             />
         </>
     );
