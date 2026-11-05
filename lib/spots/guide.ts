@@ -1,4 +1,5 @@
 import { z } from "zod";
+export { splitDescriptionLinks } from "./description-links";
 
 /**
  * Spot guidance written from verified facts (scripts/spot-guides.mjs, subscription only) and kept in R2
@@ -77,19 +78,6 @@ export function parseSpotGuide(value: unknown, spotId: string): SpotGuide | null
   const all = [parsed.data.guide, ...parsed.data.orderOrDo, ...parsed.data.tips, parsed.data.bestTime ?? "", parsed.data.price ?? "", parsed.data.duration ?? ""].join("\n");
   if (bannedPhrases(all).length) return null;
   return parsed.data;
-}
-
-/** Markdown links in imported descriptions ("[Venue guide](url)") move to the page-end sources list. */
-export function splitDescriptionLinks(description: string): { text: string; links: { title: string; url: string }[] } {
-  const links: { title: string; url: string }[] = [];
-  const text = description
-    .replace(/\[([^\]]{1,120})\]\((https?:\/\/[^\s)]+)\)/g, (_match, title: string, url: string) => {
-      links.push({ title: title.trim(), url });
-      return "";
-    })
-    .replace(/\s{2,}/g, " ")
-    .trim();
-  return { text, links };
 }
 
 /** Sources for the page end: guide sources, description links, stored source_urls; one entry per URL. */

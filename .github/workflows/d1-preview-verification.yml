@@ -576,6 +576,7 @@ on:
       - '__tests__/lib/viral-events.test.ts'
       - '__tests__/lib/spot-guide.test.ts'
       - 'lib/spots/guide.ts'
+      - 'lib/spots/description-links.ts'
       - 'lib/spots/guide-store.ts'
       - 'components/spots/spot-photo-image.tsx'
       - '__tests__/components/viral-spots.test.tsx'
