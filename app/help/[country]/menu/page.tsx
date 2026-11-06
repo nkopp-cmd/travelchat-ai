@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
+import { pageMeta } from "@/lib/seo/meta";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
@@ -15,7 +17,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ country: string }> }): Promise<Metadata> {
   const country = helpCountry((await params).country);
-  return country ? { title: `Help me order this in ${country.name}`, description: `Photograph a menu in ${country.name} and read every dish in English.` } : {};
+  return country ? pageMeta({ title: `Help me order this in ${country.name}`, description: `Photograph a menu in ${country.name} and read every dish in English.`, path: `/help/${country.slug}/menu` }) : {};
 }
 
 /**
@@ -58,6 +60,7 @@ export default async function HelpMenuPage({ params }: { params: Promise<{ count
   const wrap = country.language === "ko" ? "[word-break:keep-all]" : "";
   return (
     <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
+      <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Help", url: "/help" }, { name: country.name, url: `/help/${country.slug}` }, { name: "Menu help", url: `/help/${country.slug}/menu` }]} />
       <Link href={`/help/${country.slug}`} className="mb-4 inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="size-4" aria-hidden="true" /> {country.name} phrases
       </Link>

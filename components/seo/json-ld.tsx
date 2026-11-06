@@ -1,17 +1,14 @@
-import Script from "next/script";
-
-// Base JSON-LD component
+// Base JSON-LD component. A plain server-rendered <script>: crawlers and AI fetchers read the static HTML
+// without running JS, so next/script (afterInteractive) left every page without structured data.
 interface JsonLdProps {
     data: Record<string, unknown>;
 }
 
 export function JsonLd({ data }: JsonLdProps) {
     return (
-        <Script
-            id="json-ld"
+        <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{ __html: JSON.stringify(data).replace(/</g, "\\u003c") }}
-            strategy="afterInteractive"
         />
     );
 }
@@ -22,17 +19,13 @@ export function OrganizationJsonLd() {
         "@context": "https://schema.org",
         "@type": "Organization",
         name: "Localley",
-        description: "AI-powered travel companion that helps you discover hidden gems and create authentic local experiences.",
+        description: "Phrase cards, menu help, how to pay and spots locals rate in Korea, Japan, Thailand, Vietnam, Taiwan and Singapore.",
         url: process.env.NEXT_PUBLIC_BASE_URL || "https://www.localley.io",
         logo: `${process.env.NEXT_PUBLIC_BASE_URL || "https://www.localley.io"}/logo.png`,
-        sameAs: [
-            "https://twitter.com/localley",
-            "https://instagram.com/localley",
-        ],
         contactPoint: {
             "@type": "ContactPoint",
             contactType: "customer support",
-            email: "support@localley.com",
+            email: "hello@localley.io",
         },
     };
 
@@ -53,7 +46,7 @@ export function WebsiteJsonLd() {
             "@type": "SearchAction",
             target: {
                 "@type": "EntryPoint",
-                urlTemplate: `${baseUrl}/explore?city={search_term_string}`,
+                urlTemplate: `${baseUrl}/spots?search={search_term_string}`,
             },
             "query-input": "required name=search_term_string",
         },

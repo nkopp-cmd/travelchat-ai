@@ -3,13 +3,17 @@ import Link from "next/link";
 import { PageHeader } from "@/components/layout/page-header";
 import { Newspaper } from "@/components/ui/icons";
 import { BLOG_DESCRIPTION, BLOG_POSTS, BLOG_TITLE, BLOG_URL, formatPostDate } from "@/lib/blog/posts";
-import { blogJsonLd, jsonLdHtml } from "@/lib/blog/seo";
+import { blogJsonLd, DEFAULT_BLOG_IMAGE, jsonLdHtml, postImage } from "@/lib/blog/seo";
+
+// Share image: the first post's photo, else the default.
+const BLOG_IMAGE = BLOG_POSTS[0] ? postImage(BLOG_POSTS[0]) : DEFAULT_BLOG_IMAGE;
 
 export const metadata: Metadata = {
   title: BLOG_TITLE,
   description: BLOG_DESCRIPTION,
   alternates: { canonical: BLOG_URL, types: { "application/rss+xml": `${BLOG_URL}/rss.xml` } },
-  openGraph: { title: BLOG_TITLE, description: BLOG_DESCRIPTION, url: BLOG_URL, type: "website" },
+  openGraph: { title: BLOG_TITLE, description: BLOG_DESCRIPTION, url: BLOG_URL, type: "website", images: [{ url: BLOG_IMAGE }] },
+  twitter: { card: "summary_large_image", title: BLOG_TITLE, description: BLOG_DESCRIPTION, images: [BLOG_IMAGE] },
 };
 
 export const dynamic = "force-static";

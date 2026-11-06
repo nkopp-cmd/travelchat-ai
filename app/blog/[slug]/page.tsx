@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { clip } from "@/lib/seo/meta";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "@/components/ui/icons";
@@ -19,8 +20,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!post) return {};
   const image = postImage(post);
   const size = !post.image && post.photo ? { width: post.photo.width, height: post.photo.height } : { width: 1200, height: 630 };
+  // " | Localley" (11 chars) only when the whole title still fits 65 chars; long post titles stand alone.
   return {
-    title: post.title,
+    title: post.title.length + 11 <= 65 ? post.title : { absolute: clip(post.title, 65) },
     description: post.description,
     alternates: { canonical: postUrl(post), types: { "application/rss+xml": "https://www.localley.io/blog/rss.xml" } },
     openGraph: {

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
+import { pageMeta } from "@/lib/seo/meta";
 import Link from "next/link";
 import { PageHeader } from "@/components/layout/page-header";
 import { SeoulLivingLink } from "@/components/layout/seoul-living-link";
@@ -6,9 +8,11 @@ import { Flame } from "@/components/ui/icons";
 import { fetchViralEvents } from "@/lib/viral/events";
 
 export const metadata: Metadata = {
-  title: "Viral spots",
-  description: "Places in the news this month: where celebrities ate, shopped and stayed, with the sources.",
-  alternates: { canonical: "/trending" },
+  ...pageMeta({
+    title: "Viral spots",
+    description: "Places in the news this month: where celebrities ate, shopped and stayed, with the sources.",
+    path: "/trending",
+  }),
 };
 
 // Live public data, edge-cached for 5 minutes (cloudflare/opennext/edge-html-cache.ts).
@@ -18,6 +22,7 @@ export default async function TrendingPage() {
   const events = await fetchViralEvents();
   return (
     <main className="container mx-auto max-w-3xl px-4 pb-24 pt-6 md:pb-10 md:pt-8">
+      <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Viral spots", url: "/trending" }]} />
       <PageHeader eyebrow="Viral spots" eyebrowIcon={Flame} title="In the news"
         lede="When a visit goes viral, we find the places and put them on the map. Each event links to its news sources." />
       {events.length ? (

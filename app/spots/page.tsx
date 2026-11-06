@@ -8,6 +8,8 @@ import { SpotCardSkeleton } from "@/components/ui/skeleton";
 import { CityQuickFilters } from "@/components/spots/city-quick-filters";
 import { CityConditions } from "@/components/spots/city-conditions";
 import { getCityBySlug } from "@/lib/cities";
+import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
+import { pageMeta } from "@/lib/seo/meta";
 import { localMonth, seasonFor } from "@/lib/season/season-table";
 import { getWeather } from "@/lib/weather/met-norway";
 import { WeeklyTrendingSpots } from "@/components/spots/weekly-trending-spots";
@@ -28,10 +30,29 @@ import { fetchWeeklyTrendingSpots } from "@/lib/spots/weekly-trending";
 import { fetchViralSpots } from "@/lib/viral/events";
 import { socialSpotSubmissionsAvailable } from "@/lib/social-submissions-availability";
 
-export const metadata: Metadata = {
-    title: "Discover Hidden Gems",
-    description: "Find local favorites across Seoul, Tokyo, Bangkok, and Singapore. Curated spots rated by locals.",
-};
+// City hubs (/spots?city=<slug>) are sitemap URLs: their canonical keeps the city; other filters fold to the hub.
+function spotsHub(params: SpotsFilterParams) {
+    const city = params.city ? getCityBySlug(params.city) : undefined;
+    return city
+        ? { city, path: `/spots?city=${encodeURIComponent(city.slug)}` }
+        : { city: undefined, path: "/spots" };
+}
+
+export async function generateMetadata({ searchParams }: SpotsPageProps): Promise<Metadata> {
+    const { city, path } = spotsHub(await searchParams);
+    return city
+        ? pageMeta({
+            title: `Local spots in ${city.name}`,
+            description: `Cafes, food, bars and sights in ${city.name}, ${city.country}, rated by locals with the Localley Score. Filter by area, category and what is open now.`,
+            path,
+            image: city.heroImage,
+        })
+        : pageMeta({
+            title: "Discover hidden gems and local spots",
+            description: "Local favorites in Seoul, Tokyo, Bangkok, Singapore and more Asian cities. Cafes, food, bars and sights rated by locals with the Localley Score.",
+            path,
+        });
+}
 
 // Enable dynamic rendering for URL-based filtering
 export const dynamic = "force-dynamic";
@@ -140,9 +161,17 @@ async function SpotsContent({
  */
 export default async function SpotsPage({ searchParams }: SpotsPageProps) {
     const params = await searchParams;
+    const hub = spotsHub(params);
 
     return (
         <AppBackground ambient fitParent>
+            <BreadcrumbJsonLd
+                items={[
+                    { name: "Home", url: "/" },
+                    { name: "Spots", url: "/spots" },
+                    ...(hub.city ? [{ name: hub.city.name, url: hub.path }] : []),
+                ]}
+            />
             <div className="container mx-auto px-4 pb-24 pt-6 md:pb-10 md:pt-8">
                 {/* Header */}
                 <div className="mb-6 space-y-4 md:mb-8">

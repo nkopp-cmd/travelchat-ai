@@ -1,19 +1,23 @@
 import type { Metadata } from "next";
+import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
+import { pageMeta } from "@/lib/seo/meta";
 import Link from "next/link";
 import { PageHeader } from "@/components/layout/page-header";
 import { Languages } from "@/components/ui/icons";
 import { HELP_COUNTRIES } from "@/lib/help/phrases";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: "Help me say this",
   description: "Show-to-staff phrase cards in Korean, Japanese, Thai, Vietnamese and Chinese for travellers in Asia.",
-};
+  path: "/help",
+});
 
 export const dynamic = "force-static";
 
 export default function HelpPage() {
   return (
     <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
+      <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Help", url: "/help" }]} />
       <PageHeader eyebrow="Help" eyebrowIcon={Languages} title="Help me say this"
         lede="Pick the country you are in. Tap a phrase and show the big card to staff or a driver. Works without signal once the page is open." />
       <ul className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">

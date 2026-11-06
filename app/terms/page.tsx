@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
+import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
+import { pageMeta } from "@/lib/seo/meta";
 import Link from "next/link";
 import { PageHeader } from "@/components/layout/page-header";
 import { Newspaper } from "@/components/ui/icons";
 
 export const metadata: Metadata = {
-  title: "Terms of use",
-  description: "The short rules for using Localley.",
-  alternates: { canonical: "/terms" },
+  ...pageMeta({
+    title: "Terms of use",
+    description: "The short rules for using Localley: your account, what you post, fair use, paid plans and how the service can change or end.",
+    path: "/terms",
+  }),
 };
 
 // Public, static and edge-cached (cloudflare/opennext/edge-html-cache.ts). No account data.
@@ -17,6 +21,7 @@ const CONTACT = "nkopp@my-goodlife.com";
 export default function TermsPage() {
   return (
     <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
+      <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Terms", url: "/terms" }]} />
       <PageHeader eyebrow="Legal" eyebrowIcon={Newspaper} title="Terms of use"
         lede="By using Localley you agree to these short terms." />
       <div className="mt-8 space-y-8 text-[15px] leading-7 text-muted-foreground [&_h2]:mb-2 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-foreground [&_li]:ml-5 [&_li]:list-disc">

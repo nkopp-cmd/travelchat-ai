@@ -1,0 +1,38 @@
+# Localley
+
+> Localley is a travel helper for Asia (Korea, Japan, Thailand, Vietnam, Taiwan, Singapore and more). It has show-to-staff phrase cards, menu help, how-to-pay guides and "open near me" lists, plus a database of local spots with a Localley Score (0-6) that rates how local a place is, and trip plans built from those spots.
+
+## Start here
+
+- [Home](https://www.localley.io/): what Localley does and where to start.
+- [Local spots](https://www.localley.io/spots): browse rated local spots by city and category.
+- [Seoul spots](https://www.localley.io/spots?city=seoul): local spots in Seoul.
+- [Tokyo spots](https://www.localley.io/spots?city=tokyo): local spots in Tokyo.
+- [Bangkok spots](https://www.localley.io/spots?city=bangkok): local spots in Bangkok.
+- [Singapore spots](https://www.localley.io/spots?city=singapore): local spots in Singapore.
+- [Taipei spots](https://www.localley.io/spots?city=taipei): local spots in Taipei.
+
+## Travel help
+
+- [Help me say this](https://www.localley.io/help): phrase cards to show to staff, by country.
+- [Korea phrase cards](https://www.localley.io/help/korea): Korean phrases for ordering, paying, directions, allergies and emergencies.
+- [How to pay in Korea](https://www.localley.io/help/korea/pay): cards, T-money, cash and what to say at the counter.
+- [Menu help in Korea](https://www.localley.io/help/korea/menu): how to order from a Korean menu.
+- [Open nearby in Korea](https://www.localley.io/help/korea/open): spots open near you now.
+- [Japan phrase cards](https://www.localley.io/help/japan): Japanese phrases for travellers.
+- [Thailand phrase cards](https://www.localley.io/help/thailand): Thai phrases for travellers.
+- [Vietnam phrase cards](https://www.localley.io/help/vietnam): Vietnamese phrases for travellers.
+- [Taiwan phrase cards](https://www.localley.io/help/taiwan): Chinese phrases for Taiwan.
+
+## Guides and plans
+
+- [Journal](https://www.localley.io/blog): field notes and guides.
+- [Paying in Seoul](https://www.localley.io/blog/paying-in-seoul): what works for payment in Seoul and what does not.
+- [Viral spots](https://www.localley.io/trending): places in the news this month, with sources.
+- [Itinerary templates](https://www.localley.io/templates): ready-made trip plans by city and pace.
+
+## About
+
+- [Pricing](https://www.localley.io/pricing): Free, Pro and Premium plans.
+- [Photo credits](https://www.localley.io/credits): photographers and licences.
+- [Privacy](https://www.localley.io/privacy) and [Terms](https://www.localley.io/terms).
