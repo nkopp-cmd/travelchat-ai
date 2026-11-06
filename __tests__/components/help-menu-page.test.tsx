@@ -15,7 +15,7 @@ describe("help menu page hydration", () => {
     expect(card.textContent).toContain(order.en);
 
     const before = document.body.innerHTML;
-    const script = document.querySelector("script")!;
+    const script = document.querySelector("script:not([type=\"application/ld+json\"])")!;
     new Function(script.textContent ?? "")();
     expect(document.body.innerHTML).toBe(before);
   });
