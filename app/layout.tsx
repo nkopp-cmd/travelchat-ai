@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "@/styles/borderless-tokens.css";
 import "@/styles/borderless-theme.css";
-import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/seo/json-ld";
 import { REFERRAL_BEACON_SCRIPT } from "@/lib/referral-point";
 
 const geistSans = Geist({
@@ -35,7 +34,7 @@ export const metadata: Metadata = {
     default: "Localley - Your Local Friend in Asia",
     template: "%s | Localley",
   },
-  description: "Phrase cards, menu help, how to pay, taxi cards and spots open near you in Korea, Japan, Thailand, Vietnam, Taiwan and Singapore. Then a day-by-day route through the spots locals rate.",
+  description: "Phrase cards, menu help, how to pay and spots open near you in Korea, Japan, Thailand, Vietnam, Taiwan and Singapore. Then a route through spots locals rate.",
   keywords: "Asia trip planner, local travel guide, hidden gems, local spots, travel itinerary, Seoul travel, Tokyo guide, Bangkok tips, Singapore trip planner",
   manifest: "/manifest.json",
   appleWebApp: {
@@ -106,8 +105,6 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Localley" />
-        <OrganizationJsonLd />
-        <WebsiteJsonLd />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-dvh flex flex-col`}

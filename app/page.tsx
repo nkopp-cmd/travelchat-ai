@@ -11,6 +11,9 @@ import {
 import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { ENABLED_CITIES } from "@/lib/cities";
+import type { Metadata } from "next";
+import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/seo/json-ld";
+import { pageMeta } from "@/lib/seo/meta";
 import { LandingPlanner, LandingExploreLink, LandingSearch, LandingTripBuilder, LandingPresets } from "@/components/landing/planner";
 import { LandingHero } from "@/components/landing/hero";
 import { HeroHelperLinks, LandingHelpers } from "@/components/landing/helpers";
@@ -54,8 +57,19 @@ function highQualityUnsplashUrl(imageUrl: string | undefined, width = 1200, qual
   }
 }
 
+// Self canonical lives here, not in the root layout: a root canonical is inherited by every page.
+export const metadata: Metadata = pageMeta({
+  title: "Localley - Your Local Friend in Asia",
+  absoluteTitle: true,
+  description: "Phrase cards, menu help, how to pay and spots open near you in Korea, Japan, Thailand, Vietnam, Taiwan and Singapore. Then a route through spots locals rate.",
+  path: "/",
+});
+
 export default function LandingPage() {
   return (
+    <>
+    <OrganizationJsonLd />
+    <WebsiteJsonLd />
     <div className="min-h-screen bg-surface text-foreground selection:bg-primary/15 mobile-sticky-safe-space md:pb-0">
       <LandingPlanner cities={CITY_OPTIONS.map(({ name, slug, vibe }) => ({ name, slug, vibe }))}>
 
@@ -242,6 +256,7 @@ export default function LandingPage() {
       </footer>
       <MobileSignupBar />
     </div>
+    </>
   );
 }
 

@@ -30,10 +30,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: '/',
       },
       {
-        userAgent: 'ChatGPT-User',
-        disallow: '/',
-      },
-      {
         userAgent: 'CCBot',
         disallow: '/',
       },

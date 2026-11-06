@@ -1,41 +1,51 @@
 import type { Metadata } from "next";
 import { QueryProvider } from "@/lib/query-client";
-import { FAQJsonLd } from "@/components/seo/json-ld";
+import { BreadcrumbJsonLd, JsonLd } from "@/components/seo/json-ld";
+import { pageMeta, SITE_URL } from "@/lib/seo/meta";
+import { TIER_CONFIGS } from "@/lib/subscription";
 
 export const metadata: Metadata = {
-    title: "Pricing - Plans & Subscription | Localley",
-    description: "Choose a paid Localley plan. Pro and Premium subscriptions unlock local-first trip planning, richer maps, saved itineraries, and collaboration features.",
+    ...pageMeta({
+        title: "Pricing - Pro and Premium plans",
+        socialTitle: "Localley pricing",
+        description: `Localley Pro costs $${TIER_CONFIGS.pro.price} a month or $${TIER_CONFIGS.pro.yearlyPrice} a year; Premium $${TIER_CONFIGS.premium.price} a month. Local-first trip plans, richer maps, saved routes.`,
+        path: "/pricing",
+    }),
     keywords: "localley pricing, travel app subscription, paid travel planner, pro plan, premium plan, AI travel",
-    openGraph: {
-        title: "Pricing Plans | Localley",
-        description: "Unlock local-first trip planning, richer maps, saved itineraries, and collaboration features with Localley Pro and Premium.",
-        type: "website",
-    },
-    twitter: {
-        card: "summary_large_image",
-        title: "Pricing Plans | Localley",
-        description: "Choose the paid Localley plan that fits your travel style.",
-    },
 };
 
-const faqItems = [
-    {
-        question: "Can I cancel anytime?",
-        answer: "Yes! You can cancel your subscription at any time. You'll continue to have access until the end of your billing period.",
-    },
-    {
-        question: "Is Localley paid only?",
-        answer: "Yes. Localley offers paid Pro and Premium subscriptions so the product can focus on high-quality trip planning, richer data, and reliable AI workflows.",
-    },
-    {
-        question: "Can I switch between plans?",
-        answer: "Absolutely! You can upgrade or downgrade your plan at any time. Changes take effect immediately, and we'll prorate any differences.",
-    },
-    {
-        question: "Do you offer refunds?",
-        answer: "We offer a full refund within 14 days of your first payment if you're not satisfied with Localley.",
-    },
-];
+// The plans the page shows, as schema.org offers (prices from TIER_CONFIGS, the same source as the page).
+const offers = (["pro", "premium"] as const).flatMap((tier) => {
+    const plan = TIER_CONFIGS[tier];
+    return [
+        { name: `${plan.name} monthly`, price: plan.price, unitText: "MONTH" },
+        { name: `${plan.name} yearly`, price: plan.yearlyPrice, unitText: "ANN" },
+    ].map((offer) => ({
+        "@type": "Offer",
+        name: offer.name,
+        price: offer.price,
+        priceCurrency: "USD",
+        availability: "https://schema.org/InStock",
+        url: `${SITE_URL}/pricing`,
+        priceSpecification: {
+            "@type": "UnitPriceSpecification",
+            price: offer.price,
+            priceCurrency: "USD",
+            unitText: offer.unitText,
+        },
+    }));
+});
+
+const pricingJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: "Localley subscription",
+    serviceType: "Travel planning app",
+    provider: { "@type": "Organization", name: "Localley", url: SITE_URL },
+    areaServed: ["KR", "JP", "TH", "VN", "TW", "SG"],
+    url: `${SITE_URL}/pricing`,
+    offers,
+};
 
 export default function PricingLayout({
     children,
@@ -44,7 +54,8 @@ export default function PricingLayout({
 }) {
     return (
         <>
-            <FAQJsonLd items={faqItems} />
+            <JsonLd data={pricingJsonLd} />
+            <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Pricing", url: "/pricing" }]} />
             <QueryProvider>{children}</QueryProvider>
         </>
     );

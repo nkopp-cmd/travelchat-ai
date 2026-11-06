@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
+import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
+import { pageMeta } from "@/lib/seo/meta";
 import Link from "next/link";
 import { PageHeader } from "@/components/layout/page-header";
 import { Camera } from "@/components/ui/icons";
 import { d1PhotoCredits, type D1PhotoCredit } from "@/lib/spots/d1-queries";
 
 export const metadata: Metadata = {
-  title: "Photo credits",
-  description: "The photographers and archives behind the place photos on Localley, with each licence.",
-  alternates: { canonical: "/credits" },
+  ...pageMeta({
+    title: "Photo credits",
+    description: "The photographers and archives behind the place photos on Localley, with each licence.",
+    path: "/credits",
+  }),
 };
 
 // Live public data, edge-cached for an hour (cloudflare/opennext/edge-html-cache.ts).
@@ -29,6 +33,7 @@ export default async function CreditsPage() {
   }
   return (
     <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
+      <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Photo credits", url: "/credits" }]} />
       <PageHeader eyebrow="Photos" eyebrowIcon={Camera} title="Photo credits"
         lede="Every place photo on Localley shows the real place. Many come from photographers who share their work openly. Thank you." />
       <div className="mt-8 space-y-8 text-[15px] leading-7 text-muted-foreground [&_h2]:mb-2 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-foreground">

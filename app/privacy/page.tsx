@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
+import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
+import { pageMeta } from "@/lib/seo/meta";
 import { PageHeader } from "@/components/layout/page-header";
 import { ShieldCheck } from "@/components/ui/icons";
 
 export const metadata: Metadata = {
-  title: "Privacy policy",
-  description: "What Localley stores about you, why, and how to have it deleted.",
-  alternates: { canonical: "/privacy" },
+  ...pageMeta({
+    title: "Privacy policy",
+    description: "What Localley stores about you, why, which services help us run it, cookies, and how to have it deleted.",
+    path: "/privacy",
+  }),
 };
 
 // Public, static and edge-cached (cloudflare/opennext/edge-html-cache.ts). No account data.
@@ -16,6 +20,7 @@ const CONTACT = "nkopp@my-goodlife.com";
 export default function PrivacyPage() {
   return (
     <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
+      <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Privacy", url: "/privacy" }]} />
       <PageHeader eyebrow="Legal" eyebrowIcon={ShieldCheck} title="Privacy policy"
         lede="Localley helps you find local spots and plan trips in Asian cities. This page explains, in plain words, what we keep about you and why." />
       <div className="mt-8 space-y-8 text-[15px] leading-7 text-muted-foreground [&_h2]:mb-2 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-foreground [&_li]:ml-5 [&_li]:list-disc">

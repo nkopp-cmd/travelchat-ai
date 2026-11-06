@@ -19,6 +19,7 @@ import { VenueHeroPhoto, VenuePhotoThumbnails, VenueCardPhoto } from "@/componen
 import { VenuePhotoProvider, type DirectPhotoCredit } from "@/components/spots/venue-photo-provider";
 import { SpotDetailMap } from "@/components/spots/spot-detail-map";
 import { SpotJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
+import { clip, pageMeta, shareImage } from "@/lib/seo/meta";
 import { normalizeSpotPhotos } from "@/lib/spots/transform";
 import { summarizeSpotPhotos } from "@/lib/place-images";
 import {
@@ -491,9 +492,12 @@ export async function generateMetadata({
   }
 
   const scoreLabel = getScoreLabel(spot.localleyScore);
-  const title = `${spot.name} - ${scoreLabel} | Localley`;
-  const description = `${splitDescriptionLinks(spot.description).text.slice(0, 160)}... Localley Score: ${spot.localleyScore}/6 • ${spot.location.address}`;
-
+  const text = splitDescriptionLinks(spot.description).text;
+  const place = spot.location.address.split(",").slice(0, 2).join(",").trim();
+  const description = clip(
+    `${text || `${spot.name}: a ${spot.category.toLowerCase()} spot rated by locals.`} Localley Score ${spot.localleyScore}/6${place ? ` · ${place}` : ""}`,
+    165,
+  );
   const keywords = [
     spot.name,
     spot.category,
@@ -505,23 +509,16 @@ export async function generateMetadata({
   ].join(", ");
 
   return {
-    title,
-    description,
+    ...pageMeta({
+      // pageMeta adds " | Localley" (11 chars); keep the full title within 65 chars.
+      title: clip(`${spot.name} - ${scoreLabel}`, 54),
+      socialTitle: spot.name,
+      description: description.length >= 50 ? description : clip(`${description} Local tips, opening times and photos on Localley.`, 165),
+      path: `/spots/${id}`,
+      image: shareImage(directSpotPhotos(spot)),
+    }),
     keywords,
     ...(candidate ? { robots: { index: false, follow: false } } : {}),
-    openGraph: {
-      title: spot.name,
-      description: `${scoreLabel} - ${spot.description.slice(0, 100)}`,
-      type: "website",
-      siteName: "Localley",
-      images: [],
-    },
-    twitter: {
-      card: "summary",
-      title: spot.name,
-      description: `${scoreLabel} - ${spot.description.slice(0, 150)}`,
-      images: [],
-    },
   };
 }
 
@@ -589,6 +586,7 @@ export default async function SpotPage({
         address={spot.location.address}
         lat={spot.location.lat}
         lng={spot.location.lng}
+        imageUrl={directSpotPhotos(spot).find((photo) => photo.startsWith("https://"))}
         url={`/spots/${id}`}
         localleyScore={spot.localleyScore}
       />

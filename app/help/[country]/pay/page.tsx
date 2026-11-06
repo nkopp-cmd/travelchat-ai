@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
+import { pageMeta } from "@/lib/seo/meta";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
@@ -15,7 +17,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ country: string }> }): Promise<Metadata> {
   const country = helpCountry((await params).country);
-  return country ? { title: `How to pay in ${country.name}`, description: `Cards, cash, wallets, transit cards and ATMs for visitors to ${country.name}.` } : {};
+  return country ? pageMeta({ title: `How to pay in ${country.name}`, description: `Cards, cash, wallets, transit cards and ATMs for visitors to ${country.name}.`, path: `/help/${country.slug}/pay` }) : {};
 }
 
 const checked = new Date(`${PAY_CHECKED_AT}T00:00:00Z`).toLocaleDateString("en", { month: "long", year: "numeric", timeZone: "UTC" });
@@ -26,6 +28,7 @@ export default async function HelpPayPage({ params }: { params: Promise<{ countr
   if (!country || !guide) notFound();
   return (
     <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
+      <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Help", url: "/help" }, { name: country.name, url: `/help/${country.slug}` }, { name: "How to pay", url: `/help/${country.slug}/pay` }]} />
       <Link href={`/help/${country.slug}`} className="mb-4 inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="size-4" aria-hidden="true" /> {country.name} phrases
       </Link>

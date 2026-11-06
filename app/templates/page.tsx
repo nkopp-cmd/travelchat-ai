@@ -9,21 +9,16 @@ import Link from "next/link";
 import { AppBackground } from "@/components/layout/app-background";
 
 import type { Metadata } from "next";
+import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
+import { pageMeta } from "@/lib/seo/meta";
 
 export const metadata: Metadata = {
-  title: "Itinerary Templates - Curated Travel Plans | Localley",
-  description: "Start your trip planning with our AI-powered itinerary templates. Curated plans for every travel style - relaxed, moderate, or active adventures.",
+  ...pageMeta({
+    title: "Itinerary templates",
+    description: "Ready-made trip plans for Asian cities at a relaxed, moderate or active pace. Pick one and change it to fit your days.",
+    path: "/templates",
+  }),
   keywords: "itinerary templates, travel planning, trip templates, vacation planner, AI travel, trip itinerary",
-  openGraph: {
-    title: "Itinerary Templates | Localley",
-    description: "Jump-start your trip planning with curated templates designed for every travel style.",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Itinerary Templates | Localley",
-    description: "Jump-start your trip planning with curated templates designed for every travel style.",
-  },
 };
 
 export default function TemplatesPage() {
@@ -36,6 +31,7 @@ export default function TemplatesPage() {
   return (
     <AppBackground ambient className="min-h-screen">
       <PageShell>
+        <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Templates", url: "/templates" }]} />
         <PageHeader
           eyebrow="Start with a template"
           eyebrowIcon={Sparkles}
