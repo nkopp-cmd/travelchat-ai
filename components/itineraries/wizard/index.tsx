@@ -40,6 +40,29 @@ export function getTemplateGenerateLabel(city: string): string {
   return city ? `Generate for ${city}` : "Generate";
 }
 
+// Offer change 2026-11-06 (business loop ADJUST): funnel rows showed visitors stop inside the
+// 4-step form (31 planner_start -> 2 trip_generated). After the city pick, one tap now builds a
+// free plan with the defaults; "Customize" keeps the full form.
+export const QUICK_START_OFFER = "First plan free · no sign-up";
+
+export function getQuickStartLabel(days: number): string {
+  return `Free ${days}-day plan`;
+}
+
+export function canQuickStart(input: {
+  currentStep: number;
+  templateApplied: boolean;
+  city: string;
+  tripMode: "single" | "multi";
+}): boolean {
+  return (
+    input.currentStep === 0 &&
+    !input.templateApplied &&
+    Boolean(input.city) &&
+    input.tripMode !== "multi"
+  );
+}
+
 export function getTemplateFooterLayoutClass(compactTemplateFooter: boolean): string {
   return compactTemplateFooter
     ? "grid gap-2 sm:flex sm:items-center sm:gap-3"
@@ -65,6 +88,13 @@ function WizardContent({
   const templateApplied = Boolean(data.templateName);
   const compactTemplateFooter = templateApplied && currentStep === 0;
   const canGenerateFromTemplate = compactTemplateFooter && Boolean(data.city);
+  const quickStart = canQuickStart({
+    currentStep,
+    templateApplied,
+    city: data.city,
+    tripMode: data.tripMode,
+  });
+  const canGenerateNow = canGenerateFromTemplate || quickStart;
 
   // Progress message animation
   useEffect(() => {
@@ -89,7 +119,7 @@ function WizardContent({
   }, [currentStep]);
 
   const handleNext = async () => {
-    if (isLastStep || canGenerateFromTemplate) {
+    if (isLastStep || canGenerateNow) {
       setIsGenerating(true);
       try {
         await onGenerate(data);
@@ -119,7 +149,9 @@ function WizardContent({
       ? WIZARD_GENERATE_LABEL
       : canGenerateFromTemplate
         ? getTemplateGenerateLabel(data.city)
-        : currentStep === 0 && templateApplied && !data.city
+        : quickStart
+          ? getQuickStartLabel(data.days)
+          : currentStep === 0 && templateApplied && !data.city
           ? "Pick a city"
           : "Next";
 
@@ -189,6 +221,11 @@ function WizardContent({
               </span>
             </div>
           )}
+          {quickStart && (
+            <p className="mb-1.5 text-center text-xs font-medium text-foreground sm:mb-2">
+              {QUICK_START_OFFER}
+            </p>
+          )}
           <div className={getTemplateFooterLayoutClass(compactTemplateFooter)}>
             {compactTemplateFooter && (
               <div className="min-w-0 rounded-lg bg-primary/10 px-2.5 py-1.5 text-xs font-medium leading-tight text-foreground sm:flex-1 sm:px-3 sm:text-xs">
@@ -199,6 +236,16 @@ function WizardContent({
               </div>
             )}
             <div className={getTemplateFooterControlsClass(compactTemplateFooter)}>
+            {quickStart && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={nextStep}
+                className="h-10 shrink-0 px-3 text-foreground hover:bg-raised sm:h-11"
+              >
+                Customize
+              </Button>
+            )}
             {currentStep > 0 && (
               <Button
                 variant="outline"
@@ -225,7 +272,7 @@ function WizardContent({
               disabled={!canProceed}
               className={cn(
                 "h-10 min-w-0 flex-1 text-foreground sm:h-11",
-                currentStep === 0 && !compactTemplateFooter && "w-full",
+                currentStep === 0 && !compactTemplateFooter && !quickStart && "w-full",
                 compactTemplateFooter && "w-full px-3 sm:w-auto sm:min-w-[8.5rem] sm:shrink-0",
                 canGenerateFromTemplate && "sm:min-w-[9.25rem] sm:max-w-[9.75rem]",
                 "bg-primary text-primary-foreground",
@@ -234,7 +281,7 @@ function WizardContent({
                 "disabled:opacity-50 disabled:cursor-not-allowed"
               )}
             >
-              {isLastStep || canGenerateFromTemplate ? (
+              {isLastStep || canGenerateNow ? (
                 <>
                   <Sparkles className="mr-2 h-4 w-4 shrink-0" />
                   <span className="min-w-0 truncate">{primaryActionLabel}</span>
