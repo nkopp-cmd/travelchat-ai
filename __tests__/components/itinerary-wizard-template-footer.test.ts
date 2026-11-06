@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  canQuickStart,
+  getQuickStartLabel,
+  QUICK_START_OFFER,
   getTemplateFooterCityLabel,
   getTemplateFooterControlsClass,
   getTemplateFooterLayoutClass,
@@ -30,5 +33,23 @@ describe("template wizard footer copy", () => {
       "grid-cols-[minmax(0,1fr)_auto]",
     );
     expect(getTemplateFooterControlsClass(true)).toContain("sm:contents");
+  });
+});
+
+describe("quick-start free plan offer (2026-11-06)", () => {
+  const base = { currentStep: 0, templateApplied: false, city: "Seoul", tripMode: "single" as const };
+
+  it("offers one-tap generation once a single city is picked on step 0", () => {
+    expect(canQuickStart(base)).toBe(true);
+    expect(getQuickStartLabel(3)).toBe("Free 3-day plan");
+    expect(getQuickStartLabel(3).length).toBeLessThanOrEqual(16);
+    expect(QUICK_START_OFFER).toContain("free");
+  });
+
+  it("keeps the normal form for no city, later steps, templates and multi-city", () => {
+    expect(canQuickStart({ ...base, city: "" })).toBe(false);
+    expect(canQuickStart({ ...base, currentStep: 1 })).toBe(false);
+    expect(canQuickStart({ ...base, templateApplied: true })).toBe(false);
+    expect(canQuickStart({ ...base, tripMode: "multi" })).toBe(false);
   });
 });
