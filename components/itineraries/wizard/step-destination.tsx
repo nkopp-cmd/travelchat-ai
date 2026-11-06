@@ -231,7 +231,7 @@ export function StepDestination() {
                 {data.city} selected
               </p>
               <p className="truncate text-xs leading-tight text-foreground">
-                {templateMode ? "Template settings are ready." : "Continue to trip length."}
+                {templateMode ? "Template settings are ready." : "Get the free plan below, or Customize."}
               </p>
             </div>
           </div>
