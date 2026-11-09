@@ -78,7 +78,9 @@ if (stage === "deploy") {
   writeFileSync(path.join(STATE, "previous.json"), JSON.stringify(before[0]));
 
   const env = { ...process.env, CLOUDFLARE_ACCOUNT_ID: ACCOUNT };
-  const upload = run(["node", "node_modules/@opennextjs/cloudflare/dist/cli/index.js", "upload", "--env", "production", "--keep-vars",
+  const upload = run(["node", "node_modules/@opennextjs/cloudflare/dist/cli/index.js", "upload", "--env", "production",
+    // No --keep-vars: wrangler.jsonc env.production.vars is the only source of plain vars, so a var removed there
+    // (SUPABASE_READ_ONLY, Supabase exit 8b) leaves the Worker too. Secrets are inherited by every upload.
     // OpenNext runs wrangler through a shell: a space in an argument splits it ("release e2759d8" -> entry point "e2759d8").
     "--var", `BUILD_SHA:${sha}`, "--message", `release-${sha.slice(0, 7)}`], { env, capture: true });
   if (upload.status !== 0) fail(`upload failed (exit ${upload.status}): ${(upload.stderr ?? "").slice(-400)}`);
