@@ -118,7 +118,7 @@ export function OnboardingPanel({ className, onPromptClick }: OnboardingPanelPro
                         </div>
                     </Link>
 
-                    <Link href="/spots" className="block group">
+                    <Link href="/spots?view=map" className="block group">
                         <div className={cn(
                             "relative overflow-hidden rounded-2xl p-6",
                             "bg-surface shadow-surface hover:bg-raised",
@@ -134,10 +134,10 @@ export function OnboardingPanel({ className, onPromptClick }: OnboardingPanelPro
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <h3 className="font-bold text-lg mb-1 group-hover:text-primary transition-colors">
-                                        Browse Spots
+                                        Spot map
                                     </h3>
                                     <p className="text-sm text-muted-foreground">
-                                        Explore hidden gems and local favorites
+                                        Every spot we know, on one map
                                     </p>
                                 </div>
                                 <ArrowRight className={cn(

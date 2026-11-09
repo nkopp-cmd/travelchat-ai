@@ -13,6 +13,23 @@ import { ErrorBoundary } from "@/components/error-boundary";
 import { Button } from "@/components/ui/button";
 import { Loader2, Search, Grid3X3, List, Map } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
+import { pinIndexQuery } from "@/lib/spots/pin-index";
+
+/** Last chosen view, so the map stays one tap away for people who use it (shared/plans/localley-full-map.md item 3). */
+const VIEW_STORAGE_KEY = "localley:spots-view";
+type SpotsView = "grid" | "list" | "map";
+
+function storeView(view: SpotsView) {
+    try { window.localStorage.setItem(VIEW_STORAGE_KEY, view); } catch { /* private mode or storage off */ }
+}
+function storedView(): SpotsView | null {
+    try {
+        const view = window.localStorage.getItem(VIEW_STORAGE_KEY);
+        return view === "grid" || view === "list" || view === "map" ? view : null;
+    } catch {
+        return null;
+    }
+}
 
 const SpotsMap = dynamic(() => import("./spots-map"), {
     ssr: false,
@@ -55,7 +72,8 @@ export function SpotsExplorer({
 
     const requestedView = searchParams.get("view");
     const viewMode = requestedView === "map" || requestedView === "list" ? requestedView : "grid";
-    const setViewMode = (view: "grid" | "list" | "map") => {
+    const setViewMode = (view: SpotsView) => {
+        storeView(view);
         const params = new URLSearchParams(searchParams.toString());
         if (view === "grid") params.delete("view");
         else params.set("view", view);
@@ -63,6 +81,21 @@ export function SpotsExplorer({
             router.push(params.size ? `${pathname}?${params}` : pathname, { scroll: false });
         });
     };
+    // A bare /spots opens in the last chosen view; an explicit ?view= always wins (and is remembered).
+    useEffect(() => {
+        if (requestedView) {
+            if (requestedView === "map" || requestedView === "list") storeView(requestedView);
+            return;
+        }
+        const remembered = storedView();
+        if (remembered && remembered !== "grid") {
+            const params = new URLSearchParams(searchParams.toString());
+            params.set("view", remembered);
+            router.replace(`${pathname}?${params}`, { scroll: false });
+        }
+        // Only on the first render of this page: later changes go through setViewMode.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
     const resultsTopRef = useRef<HTMLDivElement | null>(null);
     const filtersRef = useRef<HTMLDivElement | null>(null);
 
@@ -206,42 +239,51 @@ export function SpotsExplorer({
 
                 {/* View Mode Toggle */}
                 <div
-                    className="flex shrink-0 overflow-hidden rounded-lg bg-white/50 dark:bg-white/5"
+                    className="flex shrink-0 overflow-hidden rounded-xl bg-raised p-0.5"
                     role="group"
                     aria-label="View mode"
                 >
                     <Button
                         variant={viewMode === "grid" ? "secondary" : "ghost"}
-                        size="icon"
-                        className="size-11 rounded-lg"
+                        className="h-11 min-w-11 gap-1.5 rounded-lg px-3 sm:px-3.5"
                         onClick={() => setViewMode("grid")}
                         aria-label="Grid view"
                         aria-pressed={viewMode === "grid"}
                     >
                         <Grid3X3 className="h-4 w-4" />
+                        <span className="hidden text-sm font-semibold sm:inline">Grid</span>
                     </Button>
                     <Button
                         variant={viewMode === "list" ? "secondary" : "ghost"}
-                        size="icon"
-                        className="size-11 rounded-lg"
+                        className="h-11 min-w-11 gap-1.5 rounded-lg px-3 sm:px-3.5"
                         onClick={() => setViewMode("list")}
                         aria-label="List view"
                         aria-pressed={viewMode === "list"}
                     >
                         <List className="h-4 w-4" />
+                        <span className="hidden text-sm font-semibold sm:inline">List</span>
                     </Button>
                     <Button
                         variant={viewMode === "map" ? "secondary" : "ghost"}
-                        size="icon"
-                        className="size-11 rounded-lg"
+                        className="h-11 min-w-11 gap-1.5 rounded-lg px-3 sm:px-3.5"
                         onClick={() => setViewMode("map")}
                         aria-label="Map view"
                         aria-pressed={viewMode === "map"}
                     >
                         <Map className="h-4 w-4" aria-hidden="true" />
+                        <span className="hidden text-sm font-semibold sm:inline">Map</span>
                     </Button>
                 </div>
             </div>
+
+            {/* Phones: one floating Map button above the bottom nav (the switch above scrolls away). */}
+            {viewMode !== "map" && hasSpots && (
+                <button type="button" onClick={() => setViewMode("map")}
+                    className="fixed bottom-[calc(var(--ll-nav-clearance)+1rem)] left-1/2 z-30 inline-flex h-12 -translate-x-1/2 items-center gap-2 rounded-full bg-foreground px-5 text-sm font-semibold text-background shadow-overlay active:scale-[0.97] md:hidden">
+                    <Map className="h-4 w-4" aria-hidden="true" />
+                    Map
+                </button>
+            )}
 
             {/* Spots Grid/List */}
             <ErrorBoundary>
@@ -253,6 +295,7 @@ export function SpotsExplorer({
                                 key={searchParams.toString()}
                                 spots={initialSpots}
                                 city={currentFilters.city || undefined}
+                                pinQuery={pinIndexQuery(currentFilters)}
                                 currentPage={currentPage}
                                 onClose={() => setViewMode("grid")}
                                 footer={

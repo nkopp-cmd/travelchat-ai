@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { capMarkers, clusterKeepingSelected, clusterPins, pinTone } from "@/lib/spots/pin-clusters";
+import { clusterBounded, clusterKeepingSelected, clusterPins, pinTone } from "@/lib/spots/pin-clusters";
 
 describe("spot pin clustering", () => {
   it("merges pins in the same screen cell and keeps distant pins single", () => {
@@ -20,12 +20,14 @@ describe("spot pin clustering", () => {
     expect(all.flatMap((cluster) => cluster.ids)).toHaveLength(50);
   });
 
-  it("bounds the marker count, nearest the centre first", () => {
-    const many = Array.from({ length: 100 }, (_, index) => ({ ids: [String(index)], x: index * 100, y: 0 }));
-    const kept = capMarkers(many, { x: 0, y: 0 }, 60);
-    expect(kept).toHaveLength(60);
-    expect(kept[0].ids).toEqual(["0"]);
-    expect(kept.at(-1)?.ids).toEqual(["59"]);
+  it("bounds the marker count by clustering coarser, never by dropping pins", () => {
+    const many = Array.from({ length: 3000 }, (_, index) => ({ id: String(index), x: (index * 37) % 1400, y: (index * 53) % 900 }));
+    const clusters = clusterBounded(many, "7", 40, 34, 60);
+    expect(clusters.length).toBeLessThanOrEqual(60);
+    const ids = clusters.flatMap((cluster) => cluster.ids);
+    expect(ids).toHaveLength(3000);
+    expect(new Set(ids).size).toBe(3000);
+    expect(clusters.some((cluster) => cluster.ids.length === 1 && cluster.ids[0] === "7")).toBe(true);
   });
 
   it("maps catalog categories to a bounded tone set", () => {

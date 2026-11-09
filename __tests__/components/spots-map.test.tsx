@@ -3,12 +3,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ComponentProps } from "react";
 import SpotsMap, { nextSnap, sheetInset } from "@/components/spots/spots-map";
 import { SpotsExplorer } from "@/components/spots/spots-explorer";
+import { encodePinIndex } from "@/lib/spots/pin-index";
 import type { Spot } from "@/types";
 
-const state = vi.hoisted(() => ({ query: "", push: vi.fn(), map: vi.fn() }));
+const state = vi.hoisted(() => ({ query: "", push: vi.fn(), replace: vi.fn(), map: vi.fn() }));
 
 vi.mock("next/navigation", () => ({
-    useRouter: () => ({ push: state.push }),
+    useRouter: () => ({ push: state.push, replace: state.replace }),
     usePathname: () => "/spots",
     useSearchParams: () => new URLSearchParams(state.query),
 }));
@@ -64,6 +65,7 @@ const props: ComponentProps<typeof SpotsExplorer> = {
 beforeEach(() => {
     vi.clearAllMocks();
     state.query = "";
+    window.localStorage.clear();
 });
 
 describe("bounded discovery map", () => {
@@ -207,5 +209,53 @@ describe("map fit under the phone sheet", () => {
         expect(fitPadding(776, 0)).toEqual({ top: 48, right: 48, bottom: 48, left: 48 });
         // 300px map with a 280px overlay: the fit box stays 120px tall.
         expect(fitPadding(300, 280)).toEqual({ top: 48, right: 48, bottom: 132, left: 48 });
+    });
+
+    it("remembers the map view and reopens a bare /spots in it", async () => {
+        state.query = "view=map";
+        const first = render(<SpotsExplorer {...props} initialSpots={[spot("a")]} />);
+        expect(window.localStorage.getItem("localley:spots-view")).toBe("map");
+        first.unmount();
+        state.query = "";
+        render(<SpotsExplorer {...props} />);
+        expect(state.replace).toHaveBeenCalledWith("/spots?view=map", { scroll: false });
+    });
+
+    it("offers a floating Map button on phones outside the map view", () => {
+        render(<SpotsExplorer {...props} spotCount={3} />);
+        fireEvent.click(screen.getByRole("button", { name: "Map" }));
+        expect(state.push).toHaveBeenCalledWith("/spots?view=map", { scroll: false });
+        expect(window.localStorage.getItem("localley:spots-view")).toBe("map");
+    });
+
+    it("pins every spot of the filter from the index, keeps listed spots and loads a card on tap", async () => {
+        const listedId = "aaaaaaaa-0000-4000-8000-000000000001";
+        const index = encodePinIndex([
+            { id: listedId, lat: 37.57, lng: 126.98, category: "Cafe", score: 4 },
+            { id: "bbbbbbbb-0000-4000-8000-000000000002", lat: 35.68, lng: 139.76, category: "Food", score: 8 },
+            { id: "cccccccc-0000-4000-8000-000000000003", lat: 13.75, lng: 100.5, category: null, score: null },
+        ]);
+        const card = { ...spot("bbbbbbbb-0000-4000-8000-000000000002", 35.68, 139.76), name: "Tokyo ramen" };
+        const fetchMock = vi.fn(async (url: string) => new Response(JSON.stringify(
+            url.startsWith("/api/spots/pins/") ? { spot: card } : index,
+        ), { status: 200, headers: { "content-type": "application/json" } }));
+        vi.stubGlobal("fetch", fetchMock);
+        try {
+            render(<SpotsMap spots={[spot(listedId)]} pinQuery="?city=seoul" currentPage={1} />);
+            expect(await screen.findByText("3 spots on the map")).toBeTruthy();
+            expect(fetchMock).toHaveBeenCalledWith("/api/spots/pins?city=seoul", expect.anything());
+            const pins = () => (state.map.mock.lastCall?.[0] as { spots: Array<Spot & { href?: string | null }> }).spots;
+            expect(pins()).toHaveLength(3);
+            const listed = pins().find((pin) => pin.href === `/spots/${listedId}`);
+            expect(listed?.name).toBe(`Spot ${listedId}`);
+            const stub = pins().find((pin) => pin.id === "bbbbbbbb")!;
+            expect(stub.href).toBeNull();
+            fireEvent.click(screen.getByRole("button", { name: `Marker ${pins().indexOf(stub) + 1}` }));
+            await waitFor(() => expect(pins().find((pin) => pin.id === "bbbbbbbb")?.name).toBe("Tokyo ramen"));
+            expect(fetchMock).toHaveBeenCalledWith("/api/spots/pins/bbbbbbbb");
+            expect(pins().find((pin) => pin.id === "bbbbbbbb")?.href).toBe("/spots/bbbbbbbb-0000-4000-8000-000000000002");
+        } finally {
+            vi.unstubAllGlobals();
+        }
     });
 });

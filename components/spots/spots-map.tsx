@@ -4,6 +4,8 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState, type PointerE
 import dynamic from "next/dynamic";
 import { SpotCard } from "@/components/spots/spot-card";
 import { getSpotLocationConfidence } from "@/lib/spots/location-confidence";
+import { decodePinIndex, type DecodedPin, type PinIndex } from "@/lib/spots/pin-index";
+import type { PinSpot } from "./spot-pin-map";
 import { cn } from "@/lib/utils";
 import { X } from "@/components/ui/icons";
 import type { Spot } from "@/types";
@@ -17,6 +19,8 @@ const SpotPinMap = dynamic(() => import("./spot-pin-map"), {
 interface SpotsMapProps {
     spots: Spot[];
     city?: string;
+    /** Query of the active filter for the full pin index ("" = all spots); omit to pin only the listed spots. */
+    pinQuery?: string;
     currentPage: number;
     /** Pagination, shown at the end of the list sheet. */
     footer?: ReactNode;
@@ -47,7 +51,7 @@ export function nextSnap(current: SheetSnap, offsetFraction: number, velocity: n
  * Airbnb-style discovery map. Phones: a full-height dark map with a draggable list sheet
  * (swipe up for the list, down for the map). Desktop: the list beside a sticky map.
  */
-export default function SpotsMap({ spots, footer, onClose }: SpotsMapProps) {
+export default function SpotsMap({ spots, pinQuery, footer, onClose }: SpotsMapProps) {
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [snap, setSnap] = useState<SheetSnap>("half");
     const [dragPx, setDragPx] = useState<number | null>(null);
@@ -60,6 +64,23 @@ export default function SpotsMap({ spots, footer, onClose }: SpotsMapProps) {
         [spots]
     );
     const missingCount = spots.length - pinnedSpots.length;
+    const { pins: indexPins, cards, loadCard } = usePinIndex(pinQuery);
+    // The full index once it arrives; the listed spots (with photos) keep their data in it.
+    const mapSpots = useMemo<PinSpot[]>(() => {
+        if (!indexPins) return pinnedSpots;
+        const keyLength = indexPins[0]?.key.length ?? 8;
+        const listed = new Map(pinnedSpots.map((spot) => [spot.id.slice(0, keyLength), spot]));
+        return indexPins.map((pin) => {
+            const spot = listed.get(pin.key);
+            if (spot) return { ...spot, id: pin.key, href: `/spots/${spot.id}` };
+            return cards[pin.key] ?? stubPin(pin);
+        });
+    }, [indexPins, pinnedSpots, cards]);
+    const dockSpots = useMemo(() => {
+        if (!indexPins) return undefined;
+        const keyLength = indexPins[0]?.key.length ?? 8;
+        return pinnedSpots.map((spot) => ({ ...spot, id: spot.id.slice(0, keyLength), href: `/spots/${spot.id}` }));
+    }, [indexPins, pinnedSpots]);
 
     // Desktop: bring the list + map split to the top. Phones show the map as a fixed full-screen layer.
     useEffect(() => {
@@ -68,9 +89,10 @@ export default function SpotsMap({ spots, footer, onClose }: SpotsMapProps) {
 
     const selectPin = useCallback((id: string | null) => {
         setSelectedId(id);
+        if (id && indexPins) loadCard(id);
         // Lower the sheet so the pin card has room on the map.
         if (id) setSnap("map");
-    }, []);
+    }, [indexPins, loadCard]);
 
     const travelOf = (sheet: HTMLElement) => Math.max(sheet.getBoundingClientRect().height - PEEK_PX, 1);
 
@@ -104,7 +126,9 @@ export default function SpotsMap({ spots, footer, onClose }: SpotsMapProps) {
     };
 
     const sheetY = dragPx !== null ? `${dragPx}px` : `calc((100% - ${PEEK_PX}px) * ${SNAP_FRACTION[snap]})`;
-    const countLabel = `${spots.length} ${spots.length === 1 ? "spot" : "spots"}`;
+    const countLabel = indexPins
+        ? `${indexPins.length.toLocaleString("en-US")} ${indexPins.length === 1 ? "spot" : "spots"} on the map`
+        : `${spots.length} ${spots.length === 1 ? "spot" : "spots"}`;
 
     return (
         <section ref={section} aria-label="Discovery map"
@@ -114,9 +138,10 @@ export default function SpotsMap({ spots, footer, onClose }: SpotsMapProps) {
                 "lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)] lg:gap-5 lg:overflow-visible",
             )}>
             <div className="absolute inset-0 isolate bg-background max-lg:[--ll-map-bottom-inset:88px] lg:relative lg:order-2 lg:min-h-0 lg:overflow-hidden lg:rounded-2xl"
-                role="region" aria-label="Map of this page's spots">
-                {pinnedSpots.length > 0 ? (
-                    <SpotPinMap spots={pinnedSpots} selectedId={selectedId} onSelect={selectPin} bottomInset={sheetInset} />
+                role="region" aria-label="Map of the matching spots" data-pin-total={indexPins?.length}>
+                {mapSpots.length > 0 ? (
+                    <SpotPinMap spots={mapSpots} fitKey={indexPins ? `index${pinQuery}` : "page"} dockSpots={dockSpots}
+                        selectedId={selectedId} onSelect={selectPin} bottomInset={sheetInset} />
                 ) : (
                     <p role="status" className="grid h-full place-items-center p-6 text-center text-muted-foreground">
                         No map pins are available for this page. No locations have been estimated.
@@ -152,7 +177,7 @@ export default function SpotsMap({ spots, footer, onClose }: SpotsMapProps) {
                             </button>
                         )}
                     </div>
-                    {missingCount > 0 && (
+                    {missingCount > 0 && !indexPins && (
                         <p className="text-center text-[13px] text-muted-foreground lg:text-left">
                             {missingCount} without coordinates are listed but not on the map
                         </p>
@@ -162,7 +187,7 @@ export default function SpotsMap({ spots, footer, onClose }: SpotsMapProps) {
                     className={cn("min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-4 pb-6",
                         snap === "map" && dragPx === null && "max-lg:invisible")}>
                     {spots.map((spot, index) => (
-                        <li key={spot.id} aria-current={spot.id === selectedId ? "true" : undefined}
+                        <li key={spot.id} aria-current={selectedId && spot.id.startsWith(selectedId) ? "true" : undefined}
                             className="rounded-2xl">
                             {/* The first card is the LCP image in map view. */}
                             <SpotCard spot={spot} priority={index === 0} />
@@ -173,6 +198,53 @@ export default function SpotsMap({ spots, footer, onClose }: SpotsMapProps) {
             </div>
         </section>
     );
+}
+
+/** A pin from the index before its card is fetched: category tile, no photo, no link yet. */
+function stubPin(pin: DecodedPin): PinSpot {
+    const category = pin.category ?? "Spot";
+    return {
+        id: pin.key,
+        name: `${category} spot`,
+        category,
+        location: { lat: pin.lat, lng: pin.lng, address: "" },
+        photos: [],
+        localleyScore: pin.score ?? undefined,
+        meta: "Loading…",
+        href: null,
+    };
+}
+
+/**
+ * The full pin index for the active filter: one request when the map opens (edge and browser cached), then
+ * one small card request per tapped pin.
+ */
+function usePinIndex(query: string | undefined) {
+    const [state, setState] = useState<{ query: string; pins: DecodedPin[] } | null>(null);
+    const [cards, setCards] = useState<Record<string, PinSpot>>({});
+    const requested = useRef(new Set<string>());
+    useEffect(() => {
+        if (query === undefined) return;
+        const controller = new AbortController();
+        fetch(`/api/spots/pins${query}`, { signal: controller.signal })
+            .then((response) => (response.ok ? response.json() as Promise<PinIndex> : null))
+            .then((index) => { if (index?.v === 1) setState({ query, pins: decodePinIndex(index) }); })
+            .catch(() => undefined);
+        return () => controller.abort();
+    }, [query]);
+    const loadCard = useCallback((key: string) => {
+        if (requested.current.has(key)) return;
+        requested.current.add(key);
+        fetch(`/api/spots/pins/${encodeURIComponent(key)}`)
+            .then((response) => (response.ok ? response.json() as Promise<{ spot: Spot }> : null))
+            .then((data) => {
+                if (!data?.spot) throw new Error("no card");
+                const spot = data.spot;
+                setCards((current) => ({ ...current, [key]: { ...spot, id: key, href: `/spots/${spot.id}` } }));
+            })
+            .catch(() => { requested.current.delete(key); });
+    }, []);
+    return { pins: state && state.query === query ? state.pins : null, cards, loadCard };
 }
 
 /** Visible phone sheet height: it starts 12px below the top (top-3) and moves down by (height - PEEK_PX) * fraction. */

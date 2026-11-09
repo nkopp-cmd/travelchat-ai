@@ -28,8 +28,13 @@ import {
   d1CommunitySpotIds,
   d1FilteredSpotKeys,
   d1PublicSpotKeys,
+  d1SpotByKeyPrefix,
   d1SpotCardsByIds,
 } from "./d1-queries";
+import { encodePinIndex, PIN_KEY_PATTERN, type PinIndex, type PinIndexRow } from "./pin-index";
+import { hasUsableCoordinates } from "./location-confidence";
+import { getSpotCoordinateValues } from "./coordinates";
+import type { Spot } from "@/types";
 export { PUBLIC_SPOT_SELECT } from "./projection";
 
 const SPOTS_QUERY_PAGE_SIZE = 1000;
@@ -521,4 +526,47 @@ async function fetchPublicSpotKeys(
     throw new Error(failure);
   }
   return getPublicVisibleSpotRows(rows);
+}
+
+/**
+ * Map pin index rows for a filter (shared/plans/localley-full-map.md): the same visibility rules, filters and
+ * dedupe as the list total, minus rows without usable coordinates. No paging.
+ */
+async function fetchPinIndexRowsInternal(filters: SpotsFilterState): Promise<PinIndexRow[]> {
+  if (dataBackend() === "d1") {
+    return dedupePublicSpotRows(await d1FilteredSpotKeys(filters)).flatMap((row) =>
+      hasUsableCoordinates(row.latitude, row.longitude)
+        ? [{ id: row.id, lat: row.latitude as number, lng: row.longitude as number, category: row.category, score: row.localley_score }]
+        : []);
+  }
+  const { rows, error } = await fetchFilteredSpotRows(filters);
+  if (error) throw new Error("Spot pins could not be loaded. Please try again.");
+  return getPublicVisibleSpotRows(rows).flatMap((row) => {
+    const { lat, lng } = getSpotCoordinateValues(row.location);
+    return hasUsableCoordinates(lat, lng)
+      ? [{ id: row.id, lat: lat as number, lng: lng as number, category: row.category, score: row.localley_score }]
+      : [];
+  });
+}
+
+export async function fetchPinIndex(filters: SpotsFilterState): Promise<PinIndex> {
+  const cacheKey = JSON.stringify({
+    backend: dataBackend(),
+    visibility: PUBLIC_SPOT_VISIBILITY_CACHE_VERSION,
+    city: filters.city,
+    category: filters.category,
+    score: filters.score,
+    search: filters.search,
+  });
+  return unstable_cache(async () => encodePinIndex(await fetchPinIndexRowsInternal(filters)),
+    [`spots-pin-index-${cacheKey}`], { revalidate: 300, tags: ["spots"] })();
+}
+
+/** Card data for one pin key (an id prefix from the pin index). */
+export async function fetchPinCard(key: string): Promise<Spot | null> {
+  if (!PIN_KEY_PATTERN.test(key)) return null;
+  // Pin cards read D1 only (Supabase exit): `visible = 1` is the stored public-quality verdict, as in the list read.
+  if (dataBackend() !== "d1") return null;
+  const row = await d1SpotByKeyPrefix(key);
+  return row ? transformSpot(row) : null;
 }

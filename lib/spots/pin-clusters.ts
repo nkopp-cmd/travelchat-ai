@@ -46,10 +46,20 @@ export function clusterPins(points: PinPoint[], cellPx = 56, minGapPx = 44): Pin
   return merged;
 }
 
-/** Keep the DOM bounded: singles first (nearest the viewport centre), then clusters, at most `max` markers. */
-export function capMarkers(clusters: PinCluster[], center: { x: number; y: number }, max = 60): PinCluster[] {
-  const distance = (cluster: PinCluster) => (cluster.x - center.x) ** 2 + (cluster.y - center.y) ** 2;
-  return [...clusters].sort((a, b) => distance(a) - distance(b)).slice(0, max);
+/**
+ * Keep the DOM bounded without dropping pins: when there are more than `max` markers, cluster again with a
+ * larger cell until they fit, so every pin in view still counts in exactly one marker.
+ */
+export function clusterBounded(points: PinPoint[], selectedId: string | null, cellPx: number, minGapPx: number, max = 60): PinCluster[] {
+  let cell = cellPx;
+  let gap = minGapPx;
+  let clusters = clusterKeepingSelected(points, selectedId, cell, gap);
+  while (clusters.length > max && cell < 1e6) {
+    cell = Math.max(cell * 1.6, 40);
+    gap = Math.max(gap * 1.6, 34);
+    clusters = clusterKeepingSelected(points, selectedId, cell, gap);
+  }
+  return clusters;
 }
 
 const CATEGORY_TONES = ["food", "cafe", "nightlife", "shopping", "market", "outdoor", "culture", "entertainment", "transport"] as const;

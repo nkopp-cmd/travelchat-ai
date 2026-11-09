@@ -5,7 +5,7 @@ import { expect, type Locator, type Page } from "@playwright/test";
 // with a count badge. Selecting a pin opens a role=dialog card titled with the spot name.
 
 export function pinMap(discovery: Locator): Locator {
-  return discovery.getByRole("region", { name: "Map of this page's spots" });
+  return discovery.getByRole("region", { name: "Map of the matching spots" });
 }
 
 export function singlePins(map: Locator): Locator {
