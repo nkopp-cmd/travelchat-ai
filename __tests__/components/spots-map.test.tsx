@@ -85,7 +85,8 @@ describe("bounded discovery map", () => {
         const { container } = render(<SpotsMap spots={[spot("a"), spot("b", 35, 139)]} currentPage={1} />);
         await screen.findByTestId("map");
         const sheet = container.querySelector("[data-snap]")!;
-        expect(sheet.getAttribute("data-snap")).toBe("half");
+        // Phones open on the map: the sheet does not cover half of it at load.
+        expect(sheet.getAttribute("data-snap")).toBe("map");
         fireEvent.click(screen.getByRole("button", { name: "Marker 2" }));
         expect(sheet.getAttribute("data-snap")).toBe("map");
         expect(screen.getByRole("link", { name: "Spot b" }).closest("li")?.getAttribute("aria-current")).toBe("true");
@@ -93,6 +94,19 @@ describe("bounded discovery map", () => {
         expect(sheet.getAttribute("data-snap")).toBe("list");
         fireEvent.click(screen.getByRole("button", { name: "Show the map" }));
         expect(sheet.getAttribute("data-snap")).toBe("half");
+    });
+
+    it("starts the map only after idle time or on the first touch of the map area", async () => {
+        vi.useFakeTimers();
+        try {
+            render(<SpotsMap spots={[spot("a")]} currentPage={1} />);
+            expect(state.map).not.toHaveBeenCalled();
+            expect(screen.getByText("Loading map...")).toBeTruthy();
+            fireEvent.pointerDown(screen.getByRole("region", { name: "Map of the matching spots" }));
+        } finally {
+            vi.useRealTimers();
+        }
+        await screen.findByTestId("map");
     });
 
     it.each(["seoul", "tokyo", undefined])("does not invent a center when no pins exist (%s)", (city) => {
