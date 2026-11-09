@@ -565,14 +565,8 @@ export async function fetchPinIndex(filters: SpotsFilterState): Promise<PinIndex
 /** Card data for one pin key (an id prefix from the pin index). */
 export async function fetchPinCard(key: string): Promise<Spot | null> {
   if (!PIN_KEY_PATTERN.test(key)) return null;
-  if (dataBackend() === "d1") {
-    const row = await d1SpotByKeyPrefix(key);
-    // `visible = 1` is the stored public-quality verdict, as in the list read.
-    return row ? transformSpot(row) : null;
-  }
-  const { data, error } = await createSupabaseClient().from("spots").select(PUBLIC_SPOT_CARD_SELECT)
-    .gte("id", key).lt("id", `${key}~`).limit(2);
-  if (error || !data || data.length !== 1) return null;
-  const [row] = getPublicVisibleSpotRows(data as unknown as RawSpot[]);
+  // Pin cards read D1 only (Supabase exit): `visible = 1` is the stored public-quality verdict, as in the list read.
+  if (dataBackend() !== "d1") return null;
+  const row = await d1SpotByKeyPrefix(key);
   return row ? transformSpot(row) : null;
 }

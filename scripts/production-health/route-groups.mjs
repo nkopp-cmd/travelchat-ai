@@ -81,6 +81,8 @@ const routes = [
   "/api/spots/[id]/reviews",
   "/api/spots/[id]/reviews/[reviewId]",
   "/api/spots/[id]/reviews/[reviewId]/helpful",
+  "/api/spots/pins",
+  "/api/spots/pins/[key]",
   "/api/spots/save",
   "/api/spots/social-submissions",
   "/api/spots/social-submissions/media-status",
