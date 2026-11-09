@@ -33,7 +33,8 @@ function storedView(): SpotsView | null {
 
 const SpotsMap = dynamic(() => import("./spots-map"), {
     ssr: false,
-    loading: () => <p role="status" className="py-12 text-center text-muted-foreground">Loading map view...</p>,
+    // Same desktop height as the map section, so the content below does not jump when the map loads (CLS).
+    loading: () => <p role="status" className="grid place-items-center py-12 text-center text-muted-foreground lg:h-[calc(100dvh-var(--ll-topbar-height)-2rem)] lg:py-0">Loading map view...</p>,
 });
 
 interface SpotsExplorerProps {
