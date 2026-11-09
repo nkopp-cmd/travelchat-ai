@@ -155,8 +155,7 @@
         // Release a compatible readonly version before this active variant.
         // Rollback retains D1 rows and readability; never return to Source storage.
         "AUTH_NOTIFICATION_STORAGE": "active",
-        // Override any preview-only default embedded by an OpenNext build.
-        "SUPABASE_READ_ONLY": "false",
+        // Supabase exit 8b (2026-11-09): no SUPABASE_* var or secret on production; unset = the read-only preview gates stay off.
         "NEXTJS_ENV": "production",
         // Supabase exit: D1 serves since 2026-10-25 01:24Z (shared/plans/localley-supabase-exit.md). Rollback = gate 2 runbook.
         "DATA_BACKEND": "d1",

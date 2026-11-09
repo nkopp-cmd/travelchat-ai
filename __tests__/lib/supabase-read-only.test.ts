@@ -55,10 +55,11 @@ it("pins preview read-only and production writable flags independently of build 
  const parsed=ts.parseConfigFileTextToJson("wrangler.jsonc",readFileSync("wrangler.jsonc","utf8"));
  expect(parsed.error).toBeUndefined();
  expect(parsed.config.vars.SUPABASE_READ_ONLY).toBe("true");
- expect(parsed.config.env.production.vars.SUPABASE_READ_ONLY).toBe("false");
+ // Supabase exit 8b: production carries no SUPABASE_* var; unset means writable (gates off).
+ expect(parsed.config.env.production.vars).not.toHaveProperty("SUPABASE_READ_ONLY");
  const originalFlag=process.env.SUPABASE_READ_ONLY;
  try {
-  process.env.SUPABASE_READ_ONLY=parsed.config.env.production.vars.SUPABASE_READ_ONLY;
+  delete process.env.SUPABASE_READ_ONLY;
   const options={global:{headers:{Authorization:"Bearer owned-test"}}};
   expect(withReadOnlyGuard(options)).toBe(options);
  } finally {
