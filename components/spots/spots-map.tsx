@@ -55,7 +55,6 @@ export default function SpotsMap({ spots, pinQuery, footer, onClose }: SpotsMapP
     const [selectedId, setSelectedId] = useState<string | null>(null);
     // Phones open on the map with only the handle and the count showing; one tap or swipe opens the list.
     const [snap, setSnap] = useState<SheetSnap>("map");
-    const mapReady = useIdleStart();
     const [dragPx, setDragPx] = useState<number | null>(null);
     const drag = useRef<{ startY: number; startPx: number; travel: number; lastY: number; lastT: number; velocity: number } | null>(null);
     const section = useRef<HTMLElement | null>(null);
@@ -140,11 +139,8 @@ export default function SpotsMap({ spots, pinQuery, footer, onClose }: SpotsMapP
                 "lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)] lg:gap-5 lg:overflow-visible",
             )}>
             <div className="absolute inset-0 isolate bg-background max-lg:[--ll-map-bottom-inset:88px] lg:relative lg:order-2 lg:min-h-0 lg:overflow-hidden lg:rounded-2xl"
-                role="region" aria-label="Map of the matching spots" data-pin-total={indexPins?.length}
-                onPointerDown={mapReady.start}>
-                {mapSpots.length > 0 && !mapReady.ready ? (
-                    <p role="status" className="grid h-full place-items-center text-muted-foreground">Loading map...</p>
-                ) : mapSpots.length > 0 ? (
+                role="region" aria-label="Map of the matching spots" data-pin-total={indexPins?.length}>
+                {mapSpots.length > 0 ? (
                     <SpotPinMap spots={mapSpots} fitKey={indexPins ? `index${pinQuery}` : "page"} dockSpots={dockSpots}
                         selectedId={selectedId} onSelect={selectPin} bottomInset={sheetInset} />
                 ) : (
@@ -203,24 +199,6 @@ export default function SpotsMap({ spots, pinQuery, footer, onClose }: SpotsMapP
             </div>
         </section>
     );
-}
-
-/**
- * Starts the map (MapLibre parse + first WebGL render, the page's longest tasks) only after the list has
- * painted and the main thread is idle, or at once when the visitor touches the map area.
- */
-function useIdleStart(): { ready: boolean; start: () => void } {
-    const [ready, setReady] = useState(false);
-    const start = useCallback(() => setReady(true), []);
-    useEffect(() => {
-        if (typeof window.requestIdleCallback === "function") {
-            const handle = window.requestIdleCallback(start, { timeout: 2000 });
-            return () => window.cancelIdleCallback(handle);
-        }
-        const timer = window.setTimeout(start, 1);
-        return () => window.clearTimeout(timer);
-    }, [start]);
-    return { ready, start };
 }
 
 /** A pin from the index before its card is fetched: category tile, no photo, no link yet. */

@@ -96,19 +96,6 @@ describe("bounded discovery map", () => {
         expect(sheet.getAttribute("data-snap")).toBe("half");
     });
 
-    it("starts the map only after idle time or on the first touch of the map area", async () => {
-        vi.useFakeTimers();
-        try {
-            render(<SpotsMap spots={[spot("a")]} currentPage={1} />);
-            expect(state.map).not.toHaveBeenCalled();
-            expect(screen.getByText("Loading map...")).toBeTruthy();
-            fireEvent.pointerDown(screen.getByRole("region", { name: "Map of the matching spots" }));
-        } finally {
-            vi.useRealTimers();
-        }
-        await screen.findByTestId("map");
-    });
-
     it.each(["seoul", "tokyo", undefined])("does not invent a center when no pins exist (%s)", (city) => {
         render(<SpotsMap spots={[spot("missing", 0, 0)]} city={city} currentPage={1} />);
         expect(state.map).not.toHaveBeenCalled();
