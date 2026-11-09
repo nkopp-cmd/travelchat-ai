@@ -14,7 +14,11 @@ import type { SpotsFilterState } from "./types";
  */
 
 /** Columns the list needs before paging: dedupe keys, city/category/score counts. */
-export type D1SpotKeyRow = Pick<RawSpot, "id" | "name" | "address" | "category" | "localley_score">;
+export type D1SpotKeyRow = Pick<RawSpot, "id" | "name" | "address" | "category" | "localley_score"> & {
+  /** Only the filtered list read carries coordinates (the map pin index uses them). */
+  latitude?: number | null;
+  longitude?: number | null;
+};
 
 const NAME_EN = "json_extract(CASE WHEN json_valid(s.name) THEN s.name END, '$.en')";
 const DESCRIPTION_EN = "json_extract(CASE WHEN json_valid(s.description) THEN s.description END, '$.en')";
@@ -62,7 +66,7 @@ export async function d1FilteredSpotKeys(filters: SpotsFilterState): Promise<D1S
     where.sql.push(`(${NAME_EN} LIKE ? ESCAPE '\\' OR ${DESCRIPTION_EN} LIKE ? ESCAPE '\\' OR s.address LIKE ? ESCAPE '\\')`);
     where.params.push(term, term, term);
   }
-  return keyRows(`SELECT s.id, s.name, s.address, s.category, s.localley_score FROM spots s
+  return keyRows(`SELECT s.id, s.name, s.address, s.category, s.localley_score, s.latitude, s.longitude FROM spots s
     WHERE ${where.sql.join(" AND ")} ORDER BY ${orderBy(filters.sortBy)}`, where.params);
 }
 
@@ -81,7 +85,20 @@ async function keyRows(sql: string, params: (string | number)[]): Promise<D1Spot
     address: (row.address ?? "") as RawSpot["address"],
     category: (row.category ?? null) as string | null,
     localley_score: typeof row.localley_score === "number" ? row.localley_score : null,
+    ...("latitude" in row ? {
+      latitude: typeof row.latitude === "number" ? row.latitude : null,
+      longitude: typeof row.longitude === "number" ? row.longitude : null,
+    } : {}),
   }));
+}
+
+/** One visible spot by a pin key (an id prefix from the pin index); null when none or more than one match. */
+export async function d1SpotByKeyPrefix(key: string): Promise<RawSpot | null> {
+  const { results } = await appDataDb().prepare("SELECT s.id FROM spots s WHERE s.visible = 1 AND s.id >= ? AND s.id < ? LIMIT 2")
+    .bind(key, `${key}~`).all<{ id: string }>();
+  if (results.length !== 1) return null;
+  const [row] = await d1SpotCardsByIds([String(results[0].id)]);
+  return row ?? null;
 }
 
 /** Full card rows for the given ids, in the given order. Hidden spots are never returned. */

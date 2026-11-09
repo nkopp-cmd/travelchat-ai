@@ -47,6 +47,7 @@ VITEST_FILES=(
   __tests__/lib/viral-events.test.ts
   __tests__/components/viral-spots.test.tsx
   __tests__/lib/pin-clusters.test.ts
+  __tests__/lib/pin-index.test.ts
   __tests__/lib/edge-dock.test.ts
   __tests__/components/spot-pin-map.test.tsx
   __tests__/lib/itinerary-pins.test.ts
@@ -673,6 +674,10 @@ ESLINT_FILES=(
   components/layout/seoul-living-link.tsx
   __tests__/components/seoul-living-link.test.tsx
   components/spots/spots-explorer.tsx
+  components/spots/spots-map.tsx
+  lib/spots/pin-index.ts
+  app/api/spots/pins/route.ts
+  app/api/spots/pins/[key]/route.ts
   __tests__/components/spot-photo-image.test.tsx
   lib/auth/server.ts
   __tests__/lib/auth-mail.test.ts

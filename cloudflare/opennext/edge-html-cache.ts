@@ -11,8 +11,9 @@
  * full OpenNext handler. The key carries the Worker version id, so a deploy
  * never serves HTML that points at removed hashed assets.
  *
- * One JSON exception: the planner's city list ("/api/cities?minSpots=1"), public catalog data
- * that is the same for every visitor and that the planner preloads with its HTML.
+ * JSON exceptions: the planner's city list ("/api/cities?minSpots=1"), public catalog data
+ * that is the same for every visitor and that the planner preloads with its HTML, and the spots map
+ * pin index ("/api/spots/pins", unfiltered or one enabled city) with its per-pin cards.
  */
 import { ENABLED_CITIES } from "../../lib/cities";
 
@@ -36,16 +37,20 @@ export const EDGE_HTML_TTL_SECONDS: Record<string, number> = {
   // Planner: server-rendered city list, revalidated every 5 minutes (app/itineraries/new).
   "/itineraries/new": 300,
   "/api/cities": 300,
+  "/api/spots/pins": 300,
 };
 // Spot detail pages: live public data like the catalog. Only the plain UUID path; any query
 // (e.g. the preview-only data_candidate) bypasses the cache.
 const SPOT_DETAIL_PATH = /^\/spots\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const SPOT_DETAIL_TTL_SECONDS = 300;
 const VIRAL_EVENT_PATH = /^\/trending\/[a-z0-9][a-z0-9-]{2,95}$/;
+// One map pin card ("/api/spots/pins/<id prefix>"), no query.
+const PIN_CARD_PATH = /^\/api\/spots\/pins\/[0-9a-f-]{8,36}$/;
 
 export function edgeTtlSeconds(pathname: string): number | undefined {
   if (Object.hasOwn(EDGE_HTML_TTL_SECONDS, pathname)) return EDGE_HTML_TTL_SECONDS[pathname];
-  return SPOT_DETAIL_PATH.test(pathname) || VIRAL_EVENT_PATH.test(pathname) ? SPOT_DETAIL_TTL_SECONDS : undefined;
+  return SPOT_DETAIL_PATH.test(pathname) || VIRAL_EVENT_PATH.test(pathname) || PIN_CARD_PATH.test(pathname)
+    ? SPOT_DETAIL_TTL_SECONDS : undefined;
 }
 
 // The only query the edge keys on: one enabled-city slug, so the key set stays bounded.
@@ -75,6 +80,11 @@ export function isEdgeCacheable(request: Request): boolean {
 function cacheableQuery(url: URL): boolean {
   if (url.pathname === "/api/cities") return url.search === "?minSpots=1";
   if (!url.search) return true;
+  if (url.pathname === "/api/spots/pins") {
+    // Only one enabled city; other filters are open-ended text and stay uncached at the edge.
+    const keys = [...url.searchParams.keys()];
+    return keys.length === 1 && keys[0] === "city" && EDGE_SPOTS_CITIES.has(url.searchParams.get("city") ?? "");
+  }
   if (url.pathname !== "/spots") return false;
   // An enabled city and/or the map or list view, each at most once (the view is a shared public page too).
   const keys = [...url.searchParams.keys()];
@@ -95,7 +105,7 @@ export function edgeCacheKey(request: Request, version: string): Request {
 
 function storable(request: Request, response: Response): boolean {
   const type = response.headers.get("content-type") ?? "";
-  const json = new URL(request.url).pathname === "/api/cities";
+  const json = new URL(request.url).pathname.startsWith("/api/");
   return response.status === 200
     && !response.headers.has("set-cookie")
     && (json ? type.startsWith("application/json") : type.startsWith("text/html"));

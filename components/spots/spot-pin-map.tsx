@@ -11,7 +11,7 @@ import { TONE_ICONS } from "@/components/spots/category-tone";
 import { EdgeDockLayer } from "@/components/spots/edge-dock-layer";
 import { getDirectVenuePhotos } from "@/components/spots/venue-photo-provider";
 import { cardSpotPhotos, spotPhotoPinPath } from "@/lib/spots/own-photo";
-import { capMarkers, clusterKeepingSelected, pinTone } from "@/lib/spots/pin-clusters";
+import { clusterBounded, pinTone } from "@/lib/spots/pin-clusters";
 import { localleyMapStyle, readMapTokens } from "@/lib/maps/localley-map-style";
 import type { Spot } from "@/types";
 
@@ -29,6 +29,7 @@ const MIN_FIT_HEIGHT = 160;
 const ROUTE_SOURCE = "ll-routes";
 const NO_ROUTES: PinRoute[] = [];
 const CARD_OFFSET_PX = 30;
+const MAX_MARKERS = 60;
 
 interface MarkerSlot { key: string; ids: string[]; host: HTMLElement }
 
@@ -46,8 +47,12 @@ export type PinSpot = Pick<Spot, "id" | "name" | "category" | "location" | "phot
 /** A dashed line through one day's stops, in visit order. */
 export interface PinRoute { key: string; color: string; points: Array<[number, number]> }
 
-export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = null, onSelect, bottomInset = 0 }: {
+export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = null, onSelect, bottomInset = 0, fitKey, dockSpots }: {
     spots: PinSpot[];
+    /** Refit only when this changes (default: every new spots array). Lets pin data fill in without a jump. */
+    fitKey?: string;
+    /** Spots for the off-screen edge dots (default: all spots); a big index passes only the listed ones. */
+    dockSpots?: PinSpot[];
     routes?: PinRoute[];
     /** Pixels at the bottom covered by an overlay (the phone list sheet); the first fit keeps pins above it. */
     bottomInset?: number;
@@ -92,12 +97,14 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
             return { id: spot.id, x: point.x, y: point.y };
         }).filter((point) => point.x > -60 && point.y > -60 && point.x < size.x + 60 && point.y < size.y + 60);
         // Pins may overlap a little (as in the reference) before they merge into a count bubble.
-        const clusters = capMarkers(clusterKeepingSelected(points, selectedRef.current ?? null, zoom >= NO_MERGE_ZOOM ? 1 : 40, 34), { x: size.x / 2, y: size.y / 2 });
+        // Larger cells when there are too many markers; no pin is ever dropped (the group counts add up).
+        const clusters = clusterBounded(points, selectedRef.current ?? null, zoom >= NO_MERGE_ZOOM ? 1 : 40, 34, MAX_MARKERS);
+        const byKey = new Map(spotsRef.current.map((spot) => [spot.id, spot]));
         const markers: Marker[] = [];
         const next: MarkerSlot[] = clusters.map((cluster) => {
             const host = document.createElement("div");
             host.className = cluster.ids.length > 1 ? "ll-pin-icon ll-pin-icon-group" : "ll-pin-icon";
-            const only = cluster.ids.length === 1 ? spotsRef.current.find((spot) => spot.id === cluster.ids[0]) : undefined;
+            const only = cluster.ids.length === 1 ? byKey.get(cluster.ids[0]) : undefined;
             const at = only ? lngLat(only) : map.unproject([cluster.x, cluster.y]);
             markers.push(new maplibregl.Marker({ element: host, anchor: "center" }).setLngLat(at).addTo(map));
             return { key: cluster.ids.join("|"), ids: cluster.ids, host };
@@ -187,7 +194,10 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
         if (!map) return;
         if (map.getContainer().clientHeight >= MIN_FIT_HEIGHT) fitToSpots();
         else fitPendingRef.current = true;
-    }, [spots, fitToSpots]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- fitKey stands for spots when it is given.
+    }, [fitKey ?? spots, fitToSpots]);
+    // New pin data under the same fit key only redraws.
+    useEffect(() => { drawMarkers(); }, [spots, drawMarkers]);
 
     useEffect(() => {
         const source = styleReady ? mapRef.current?.getSource<GeoJSONSource>(ROUTE_SOURCE) : undefined;
@@ -287,7 +297,7 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
                     <PinButton spot={spot} selected={spot.id === selectedId} onSelect={onSelect ? () => onSelect(spot.id) : undefined} />,
                     slot.host, slot.key) : null;
             })}
-            <EdgeDockLayer map={loadedMap} spots={spots} bottomInset={bottomInset}
+            <EdgeDockLayer map={loadedMap} spots={dockSpots ?? spots} bottomInset={bottomInset}
                 renderFace={(spot) => <PinFace spot={spot} />} onPick={pickDocked} />
             {selected && cardPoint && (
                 <PinCard key={selected.id} spot={selected} point={cardPoint} titleId={titleId} onClose={close} />

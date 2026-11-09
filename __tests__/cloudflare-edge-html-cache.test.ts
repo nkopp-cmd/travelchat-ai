@@ -176,4 +176,26 @@ describe("public HTML edge cache", () => {
       expect(cache.put).not.toHaveBeenCalled();
     }
   });
+
+  it("caches the map pin index per enabled city and each pin card, for five minutes", async () => {
+    const cache = memoryCache();
+    const json = () => new Response('{"v":1}', { status: 200, headers: { "content-type": "application/json" } });
+    const handler = vi.fn(async () => json());
+    for (const url of ["/api/spots/pins", "/api/spots/pins?city=tokyo", "/api/spots/pins/0a1b2c3d"]) {
+      const full = `https://www.localley.io${url}`;
+      expect((await serve(new Request(full), cache, handler)).headers.get(EDGE_CACHE_HEADER), url).toBe("MISS");
+      expect((await serve(new Request(full), cache, handler)).headers.get(EDGE_CACHE_HEADER), url).toBe("HIT");
+    }
+    expect(handler).toHaveBeenCalledTimes(3);
+    for (const other of [
+      "/api/spots/pins?city=atlantis",
+      "/api/spots/pins?search=noodles",
+      "/api/spots/pins?city=tokyo&category=Food",
+      "/api/spots/pins/short",
+      "/api/spots/pins/../admin",
+      "/api/spots/pins/0A1B2C3D",
+    ]) {
+      expect(isEdgeCacheable(new Request(`https://www.localley.io${other}`)), other).toBe(false);
+    }
+  });
 });

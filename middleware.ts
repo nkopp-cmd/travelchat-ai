@@ -37,6 +37,8 @@ const PUBLIC_ROUTES = [
     '/api/itineraries/:id/story/media/:generation/:slide',  // Story slides: the route enforces owner/shared + unexpired.
     '/api/places/naver-local', // Bounded public KR name/address references; no app writes
     '/api/places/photo',  // Public spot image proxy; API key stays server-side
+    '/api/spots/pins',  // Map pin index: public catalog coordinates for one filter, edge-cached
+    '/api/spots/pins/:key',  // One map pin's card: public spot fields, fetched on tap
     '/api/spots/social-submissions(.*)',  // Public intake/status; server routes handle validation and rate limits
     '/api/cron/cleanup-stories',  // Cron; route enforces CRON_SECRET
     '/api/cron/process-social-submissions',  // Cron; route enforces CRON_SECRET
