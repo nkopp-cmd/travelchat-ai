@@ -97,6 +97,13 @@ describe("map pin card", () => {
     expect(css).toMatch(/\.ll-pin-stack\[data-depth="2"\]/);
   });
 
+  it("draws pins once per frame and keeps markers whose group is unchanged (mobile TBT)", () => {
+    const source = readFileSync("components/spots/spot-pin-map.tsx", "utf8");
+    expect(source).toMatch(/if \(!drawFrameRef\.current\) drawFrameRef\.current = requestAnimationFrame\(drawNow\);/);
+    expect(source).toMatch(/const old = live\.get\(key\);[\s\S]*old\.marker\.setLngLat\(at\);[\s\S]*return old\.slot;/);
+    expect(source).not.toMatch(/for \(const marker of markersRef\.current\) marker\.remove\(\);/);
+  });
+
   it("expands to the detail in place and Escape steps back detail -> card -> closed", () => {
     const onClose = vi.fn();
     const rich = { ...spot, description: "Saturday flea market with vinyl and vintage.", bestTime: "Saturday morning",

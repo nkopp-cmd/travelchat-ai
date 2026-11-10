@@ -62,13 +62,13 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
 }) {
     const container = useRef<HTMLDivElement>(null);
     const mapRef = useRef<MapLibreMap | null>(null);
-    const markersRef = useRef<Marker[]>([]);
     const [styleReady, setStyleReady] = useState(false);
     const [loadedMap, setLoadedMap] = useState<MapLibreMap | null>(null);
     const spotsRef = useRef(spots);
     const bottomInsetRef = useRef(bottomInset);
     const fitPendingRef = useRef(false);
     const [slots, setSlots] = useState<MarkerSlot[]>([]);
+    const slotsRef = useRef<MarkerSlot[]>([]);
     const [near, setNear] = useState(false);
     const [cardPoint, setCardPoint] = useState<{ x: number; y: number } | null>(null);
     // Closing pans the map and redraws the pins, so focus returns after the redraw.
@@ -86,33 +86,62 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
         setCardPoint({ x: point.x, y: point.y });
     }, [selectedId]);
 
-    const drawMarkers = useCallback(() => {
+    // Markers stay alive while their cluster key stays on screen: a redraw only moves them, and React keeps
+    // their portals. Rebuilding up to 60 markers and portals on every call cost ~40 ms of mobile lab TBT.
+    const liveRef = useRef(new Map<string, { slot: MarkerSlot; marker: Marker }>());
+    const drawFrameRef = useRef(0);
+    const drawNow = useCallback(() => {
+        drawFrameRef.current = 0;
         const map = mapRef.current;
         if (!map) return;
-        for (const marker of markersRef.current) marker.remove();
         const size = { x: map.getContainer().clientWidth, y: map.getContainer().clientHeight };
         const zoom = map.getZoom();
-        const points = spotsRef.current.map((spot) => {
+        const points: Array<{ id: string; x: number; y: number }> = [];
+        const byKey = new Map<string, PinSpot>();
+        for (const spot of spotsRef.current) {
+            byKey.set(spot.id, spot);
             const point = map.project(lngLat(spot));
-            return { id: spot.id, x: point.x, y: point.y };
-        }).filter((point) => point.x > -60 && point.y > -60 && point.x < size.x + 60 && point.y < size.y + 60);
+            if (point.x > -60 && point.y > -60 && point.x < size.x + 60 && point.y < size.y + 60) {
+                points.push({ id: spot.id, x: point.x, y: point.y });
+            }
+        }
         // Pins may overlap a little (as in the reference) before they merge into a count bubble.
         // Larger cells when there are too many markers; no pin is ever dropped (the group counts add up).
         const clusters = clusterBounded(points, selectedRef.current ?? null, zoom >= NO_MERGE_ZOOM ? 1 : 40, 34, MAX_MARKERS);
-        const byKey = new Map(spotsRef.current.map((spot) => [spot.id, spot]));
-        const markers: Marker[] = [];
+        const live = liveRef.current;
+        const kept = new Map<string, { slot: MarkerSlot; marker: Marker }>();
+        let changed = clusters.length !== live.size;
         const next: MarkerSlot[] = clusters.map((cluster) => {
-            const host = document.createElement("div");
-            host.className = cluster.ids.length > 1 ? "ll-pin-icon ll-pin-icon-group" : "ll-pin-icon";
+            const key = cluster.ids.join("|");
             const only = cluster.ids.length === 1 ? byKey.get(cluster.ids[0]) : undefined;
             const at = only ? lngLat(only) : map.unproject([cluster.x, cluster.y]);
-            markers.push(new maplibregl.Marker({ element: host, anchor: "center" }).setLngLat(at).addTo(map));
-            return { key: cluster.ids.join("|"), ids: cluster.ids, host };
+            const old = live.get(key);
+            if (old) {
+                old.marker.setLngLat(at);
+                kept.set(key, old);
+                return old.slot;
+            }
+            changed = true;
+            const host = document.createElement("div");
+            host.className = cluster.ids.length > 1 ? "ll-pin-icon ll-pin-icon-group" : "ll-pin-icon";
+            const marker = new maplibregl.Marker({ element: host, anchor: "center" }).setLngLat(at).addTo(map);
+            const slot = { key, ids: cluster.ids, host };
+            kept.set(key, { slot, marker });
+            return slot;
         });
-        markersRef.current = markers;
-        setSlots(next);
+        for (const [key, entry] of live) if (!kept.has(key)) entry.marker.remove();
+        liveRef.current = kept;
+        // Same keys in the same order: no React work at all.
+        if (changed || next.some((slot, index) => slotsRef.current[index] !== slot)) {
+            slotsRef.current = next;
+            setSlots(next);
+        }
         setNear(zoom >= NEAR_ZOOM);
     }, []);
+    // Start-up asks for a redraw several times in one frame (selection, fit, pin data, moveend); draw once.
+    const drawMarkers = useCallback(() => {
+        if (!drawFrameRef.current) drawFrameRef.current = requestAnimationFrame(drawNow);
+    }, [drawNow]);
 
     // A new selection splits its spot out of any group at once, before the pan finishes.
     useEffect(() => {
@@ -181,8 +210,11 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
         resize.observe(container.current);
         return () => {
             resize.disconnect();
-            for (const marker of markersRef.current) marker.remove();
-            markersRef.current = [];
+            cancelAnimationFrame(drawFrameRef.current);
+            drawFrameRef.current = 0;
+            for (const entry of liveRef.current.values()) entry.marker.remove();
+            liveRef.current = new Map();
+            slotsRef.current = [];
             map.remove();
             mapRef.current = null;
             setLoadedMap(null);
