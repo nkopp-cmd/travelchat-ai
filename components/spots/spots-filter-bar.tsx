@@ -260,7 +260,7 @@ export function SpotsFilterBar({
               <Filter className="h-5 w-5" aria-hidden="true" />
               {advancedFilterCount > 0 && (
                 <span
-                  className="absolute right-1 top-1 grid min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-semibold leading-4 text-primary-foreground"
+                  className="absolute right-1 top-1 grid min-w-[18px] place-items-center rounded-full bg-primary px-1 text-xs font-semibold leading-[18px] text-primary-foreground"
                   data-testid="spots-filter-badge"
                 >
                   {advancedFilterCount}
