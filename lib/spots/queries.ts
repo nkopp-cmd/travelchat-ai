@@ -453,7 +453,9 @@ async function fetchFilterOptionsInternal(): Promise<FilterOptions> {
   const publicSpots = await fetchPublicSpotKeys("Spot filters could not be loaded. Please try again.");
 
   const cities = ENABLED_CITIES.map((city) => {
+    // Same rule as the D1 list filter: the city column wins; the address match only covers rows without one.
     const count = publicSpots.filter((spot) => {
+      if (spot.city) return spot.city === city.name;
       const address = getSpotTextFieldValue(spot.address);
 
       return address.toLowerCase().includes(city.name.toLowerCase());
@@ -518,7 +520,7 @@ export async function getTotalSpotCount(): Promise<number> {
 /** Public, deduplicated rows with the fields the counts need, from the active backend. */
 async function fetchPublicSpotKeys(
   failure: string,
-): Promise<Pick<RawSpot, "id" | "name" | "address" | "category" | "localley_score">[]> {
+): Promise<(Pick<RawSpot, "id" | "name" | "address" | "category" | "localley_score"> & { city?: string | null })[]> {
   if (dataBackend() === "d1") return dedupePublicSpotRows(await d1PublicSpotKeys());
   const { rows, error } = await fetchPublicCandidateRows();
   if (error) {
