@@ -36,6 +36,8 @@ describe("map pin card", () => {
     const dialog = screen.getByRole("dialog", { name: "Dongmyo Flea Market" });
     expect(document.activeElement).toBe(dialog);
     expect(screen.getByRole("link", { name: "Details" }).getAttribute("href")).toBe(`/spots/${spot.id}`);
+    expect(screen.getByText("· Hidden Gem")).toBeTruthy(); // score 5 on the real 1-6 scale, never a bare number
+    expect(screen.queryByText(/Localley score/)).toBeNull();
     fireEvent.keyDown(dialog, { key: "Escape" });
     expect(onClose).toHaveBeenCalledOnce();
     fireEvent.click(screen.getByRole("button", { name: "Close spot card" }));
@@ -138,7 +140,7 @@ describe("map pin card", () => {
     expect(screen.getByRole("dialog", { name: "Hawker Breakfast" })).toBeTruthy();
     expect(screen.getByText("Day 1 · 9:00 AM")).toBeTruthy();
     expect(screen.queryByRole("link", { name: "Details" })).toBeNull();
-    expect(screen.queryByText(/Localley score/)).toBeNull();
+    expect(screen.queryByText(/Hidden Gem|Localley score/)).toBeNull();
   });
 });
 
