@@ -131,7 +131,9 @@ describe("SpotsFilterBar", () => {
     const toggle = screen.getByTestId("spots-mobile-filter-toggle");
     const advanced = document.getElementById("spots-advanced-filters")!;
     expect(toggle.getAttribute("aria-expanded")).toBe("false");
-    expect(screen.getByTestId("spots-mobile-filter-row").className).toContain("lg:hidden");
+    // Compact chrome: no extra "Edit filters" row, the toggle sits inside the search pill.
+    expect(screen.queryByTestId("spots-mobile-filter-row")).toBeNull();
+    expect(toggle.parentElement!.className).toContain("lg:hidden");
     expect(advanced.className).toContain("hidden");
     expect(advanced.className).toContain("lg:grid");
     expect(advanced.className).not.toContain("md:grid");
@@ -139,6 +141,28 @@ describe("SpotsFilterBar", () => {
     fireEvent.click(toggle);
     expect(toggle.getAttribute("aria-expanded")).toBe("true");
     expect(advanced.className).not.toMatch(/(^| )hidden( |$)/);
+  });
+
+  it("shows the city inside the map search pill and counts active filters on the filter icon", () => {
+    const onFilterChange = vi.fn();
+    render(
+      <SpotsFilterBar
+        filterOptions={filterOptions}
+        currentFilters={activeFilters}
+        onFilterChange={onFilterChange}
+        onClearFilters={vi.fn()}
+        isPending={false}
+        overMap
+      />,
+    );
+
+    const cityToken = screen.getByTestId("spots-pill-city");
+    expect(cityToken.textContent).toBe("Seoul");
+    expect(screen.getByTestId("spots-filter-badge").textContent).toBe("4");
+    expect(screen.getByRole("list", { name: "Active filters" }).className).toContain("max-lg:hidden");
+    expect(screen.getByRole("group", { name: "Quick filters" }).className).toContain("max-lg:flex-nowrap");
+    fireEvent.click(cityToken);
+    expect(onFilterChange).toHaveBeenCalledWith("city", null);
   });
 
   it("keeps the explorer mounted across filter changes, so the phone map does not reload", () => {

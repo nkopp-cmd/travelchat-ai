@@ -188,36 +188,95 @@ export function SpotsFilterBar({
     label
       .replace("Highest Score", "Top score")
       .replace("Most Local", "Most local");
+  const activeCityName = currentFilters.city
+    ? filterOptions.cities.find((c) => c.slug === currentFilters.city)?.name || currentFilters.city
+    : null;
+  // Phone map: everything sits in ONE floating pill (city token + filter button) and one chip row.
+  const compactOverMap = overMap;
   const activeSortLabel =
     SORT_OPTIONS.find((option) => option.value === currentFilters.sortBy)
       ?.label || currentFilters.sortBy;
 
   return (
-    <div className="mb-4 space-y-3 rounded-lg bg-surface p-2.5 text-foreground backdrop-blur-xl sm:mb-5 sm:space-y-4 sm:p-4">
+    <div
+      className={cn(
+        "mb-4 space-y-3 rounded-lg bg-surface p-2.5 text-foreground backdrop-blur-xl sm:mb-5 sm:space-y-4 sm:p-4",
+        compactOverMap && "max-lg:mb-0 max-lg:space-y-2 max-lg:rounded-none max-lg:bg-transparent max-lg:p-0 max-lg:backdrop-blur-none",
+      )}
+      data-compact-chrome={compactOverMap ? "" : undefined}
+    >
       {/* Search Bar */}
       <div className="relative flex-1">
         <Search
-          className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-field-foreground"
+          className={cn(
+            "absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-field-foreground",
+            compactOverMap && isPending && "max-lg:hidden",
+          )}
           aria-hidden="true"
         />
         <Input
-          placeholder="Search spots or areas"
+          placeholder={compactOverMap && activeCityName ? "Search spots" : "Search spots or areas"}
           value={searchValue}
           onChange={(e) => handleSearchChange(e.target.value)}
-          className="h-10 min-w-0 pl-10 pr-10 text-sm focus-visible:ring-ring sm:h-11 sm:text-base"
+          className={cn(
+            "h-10 min-w-0 pl-10 pr-10 text-sm focus-visible:ring-ring sm:h-11 sm:text-base",
+            compactOverMap && "max-lg:min-h-11 max-lg:rounded-full max-lg:shadow-overlay",
+            compactOverMap && (activeCityName ? "max-lg:pr-44" : "max-lg:pr-12"),
+          )}
           aria-label="Search spots"
         />
         {isPending && (
           <Loader2
-            className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-field-foreground"
+            className={cn(
+              "absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-field-foreground",
+              compactOverMap && "max-lg:left-3.5 max-lg:right-auto",
+            )}
             aria-hidden="true"
           />
+        )}
+        {compactOverMap && (
+          <div className="absolute inset-y-0 right-0 flex items-center gap-0.5 pr-0.5 lg:hidden">
+            {activeCityName && (
+              <button
+                type="button"
+                onClick={() => onFilterChange("city", null)}
+                className="inline-flex h-8 max-w-[8.5rem] items-center gap-1 rounded-full bg-raised pl-2.5 pr-1.5 text-xs font-semibold text-foreground hover:bg-overlay"
+                aria-label={`Remove city filter ${activeCityName}`}
+                data-testid="spots-pill-city"
+              >
+                <span className="truncate">{activeCityName}</span>
+                <X className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setShowMobileFilters((value) => !value)}
+              className="relative grid size-11 place-items-center rounded-full text-foreground hover:bg-overlay"
+              aria-expanded={showMobileFilters}
+              aria-controls="spots-advanced-filters"
+              aria-label={advancedFilterCount > 0 ? `Edit filters (${advancedFilterCount} active)` : "Filters"}
+              data-testid="spots-mobile-filter-toggle"
+            >
+              <Filter className="h-5 w-5" aria-hidden="true" />
+              {advancedFilterCount > 0 && (
+                <span
+                  className="absolute right-1 top-1 grid min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-semibold leading-4 text-primary-foreground"
+                  data-testid="spots-filter-badge"
+                >
+                  {advancedFilterCount}
+                </span>
+              )}
+            </button>
+          </div>
         )}
       </div>
 
       {/* Quick Filter Chips */}
       <div
-        className="-mx-2.5 flex gap-1.5 overflow-x-auto px-2.5 pb-1.5 scrollbar-hide sm:mx-0 sm:flex-wrap sm:gap-2 sm:px-0 sm:pb-0"
+        className={cn(
+          "-mx-2.5 flex gap-1.5 overflow-x-auto px-2.5 pb-1.5 scrollbar-hide sm:mx-0 sm:flex-wrap sm:gap-2 sm:px-0 sm:pb-0",
+          compactOverMap && "max-lg:-mx-3 max-lg:flex-nowrap max-lg:px-3 max-lg:pb-0",
+        )}
         role="group"
         aria-label="Quick filters"
       >
@@ -247,10 +306,10 @@ export function SpotsFilterBar({
         })}
       </div>
 
-      <div
+      {!compactOverMap && <div
         className={cn(
           "grid min-w-0 items-center gap-2",
-          overMap ? "lg:hidden" : "md:hidden",
+          "md:hidden",
           hasActiveFilters
             ? "grid-cols-[minmax(0,1fr)_2.25rem]"
             : "grid-cols-1",
@@ -291,7 +350,7 @@ export function SpotsFilterBar({
             <span className="sr-only">Clear filters</span>
           </Button>
         )}
-      </div>
+      </div>}
 
       {/* Advanced Filters Row */}
       <div
@@ -353,7 +412,10 @@ export function SpotsFilterBar({
             variant="ghost"
             size="sm"
             onClick={onClearFilters}
-            className="hidden h-10 w-full shrink-0 rounded-lg bg-raised text-foreground hover:bg-overlay sm:col-span-2 md:inline-flex xl:col-span-4"
+            className={cn(
+              "hidden h-10 w-full shrink-0 rounded-lg bg-raised text-foreground hover:bg-overlay sm:col-span-2 md:inline-flex xl:col-span-4",
+              compactOverMap && "max-md:inline-flex",
+            )}
           >
             <X className="mr-1 h-4 w-4" aria-hidden="true" />
             Clear
@@ -364,7 +426,7 @@ export function SpotsFilterBar({
       {/* Active Filters Display */}
       {hasActiveFilters && (
         <div
-          className="flex min-w-0 flex-wrap gap-2 overflow-hidden"
+          className={cn("flex min-w-0 flex-wrap gap-2 overflow-hidden", compactOverMap && "max-lg:hidden")}
           role="list"
           aria-label="Active filters"
         >
