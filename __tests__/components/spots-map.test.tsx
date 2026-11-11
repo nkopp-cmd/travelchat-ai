@@ -195,10 +195,10 @@ describe("bounded discovery map", () => {
 
 describe("map fit under the phone sheet", () => {
     it("measures the visible sheet at each snap position", () => {
-        // 776px map section on a 390x844 phone; PEEK_PX (88) counts from the section top, the sheet sits 12px lower.
+        // 776px map section on a 390x844 phone; PEEK_PX (128) counts from the section top, the sheet sits 12px lower.
         expect(sheetInset(776, "list")).toBe(764);
-        expect(sheetInset(776, "half")).toBe(420);
-        expect(sheetInset(776, "map")).toBe(76);
+        expect(sheetInset(776, "half")).toBe(440);
+        expect(sheetInset(776, "map")).toBe(116);
     });
 
     it("pads the first fit by the sheet, but keeps a usable box on a short map", async () => {

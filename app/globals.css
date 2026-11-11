@@ -822,6 +822,47 @@
     .ll-pin-card-media { height: 132px; }
 }
 
+/* Phones and tablets (below lg): the spot preview is a compact bottom card above the
+   peeking list sheet: 72px thumb left, name, area, category, one Details button.
+   Tap the map or swipe down closes it, so the Close button and the long preview are wide-only. */
+@media (max-width: 1023px) {
+    .ll-pin-card:not([data-expanded]) {
+        left: 12px !important;
+        right: 12px;
+        top: auto !important;
+        bottom: calc(12px + var(--ll-map-bottom-inset, 0px));
+        width: auto;
+        max-width: 480px;
+        margin-inline: auto;
+        display: grid;
+        grid-template-columns: 72px minmax(0, 1fr);
+        gap: 12px;
+        align-items: center;
+        padding: 12px;
+        transform: none;
+        transform-origin: 50% 100%;
+        touch-action: pan-x;
+    }
+    .ll-pin-card:not([data-expanded])::after { display: none; }
+    .ll-pin-card:not([data-expanded]) .ll-pin-card-media {
+        grid-row: 1;
+        width: 72px;
+        height: 72px;
+        border-radius: 14px;
+    }
+    .ll-pin-card:not([data-expanded]) .ll-pin-card-body { grid-column: 1 / -1; padding: 0; }
+    .ll-pin-card:not([data-expanded]) .ll-pin-card-media + .ll-pin-card-body { grid-column: 2; }
+    .ll-pin-card:not([data-expanded]) .ll-pin-card-body > * + * { margin-top: 2px; }
+    .ll-pin-card:not([data-expanded]) h3 {
+        overflow: hidden;
+        font-size: 16px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .ll-pin-card:not([data-expanded]) .ll-pin-card-wide { display: none; }
+    .ll-pin-card:not([data-expanded]) .ll-pin-card-body > div:last-child { padding-top: 6px; }
+}
+
 /* On phones the open card can sit under the zoom buttons; the card's Close
    button and Escape replace them while it is open. */
 @media (max-width: 639px) {

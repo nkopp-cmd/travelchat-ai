@@ -8,8 +8,12 @@ import { getSpotLocationConfidence } from "@/lib/spots/location-confidence";
 import { decodePinIndex, type DecodedPin, type PinIndex } from "@/lib/spots/pin-index";
 import type { PinSpot } from "./spot-pin-map";
 import { cn } from "@/lib/utils";
-import { Navigation, X } from "@/components/ui/icons";
+import { Navigation } from "@/components/ui/icons";
 import { formatDistance, NEAR_RADIUS_KM } from "@/lib/spots/near";
+import { TONE_ICONS } from "@/components/spots/category-tone";
+import { getDirectVenuePhotos } from "@/components/spots/venue-photo-provider";
+import { cardSpotPhotos, spotPhotoPinPath } from "@/lib/spots/own-photo";
+import { pinTone } from "@/lib/spots/pin-clusters";
 import { useLocate, type LocateStatus } from "./use-locate";
 import type { Spot } from "@/types";
 
@@ -37,8 +41,8 @@ interface SpotsMapProps {
 export type SheetSnap = "list" | "half" | "map";
 const SNAP_ORDER: SheetSnap[] = ["list", "half", "map"];
 const SNAP_FRACTION: Record<SheetSnap, number> = { list: 0, half: 0.5, map: 1 };
-/** Visible sheet height in the map position: handle plus the result count. */
-const PEEK_PX = 88;
+/** Visible sheet height in the map position: handle, the count row and the three-spot peek row. */
+const PEEK_PX = 128;
 /** A flick faster than this (px/ms) moves one position in its direction. */
 const FLICK_SPEED = 0.45;
 
@@ -143,6 +147,9 @@ export default function SpotsMap({ spots, pinQuery, footer, onClose, cities = []
         ? `${indexPins.length.toLocaleString("en-US")} ${indexPins.length === 1 ? "spot" : "spots"} on the map`
         : `${spots.length} ${spots.length === 1 ? "spot" : "spots"}`;
 
+    const peekSpots = listSpots.slice(0, 3);
+    const pinKeyOf = (id: string) => indexPins?.length ? id.slice(0, indexPins[0].key.length) : id;
+
     return (
         <section ref={section} aria-label="Discovery map"
             className={cn(
@@ -150,7 +157,7 @@ export default function SpotsMap({ spots, pinQuery, footer, onClose, cities = []
                 "lg:relative lg:inset-auto lg:z-auto lg:grid lg:h-[calc(100dvh-var(--ll-topbar-height)-2rem)] lg:scroll-mt-[calc(var(--ll-topbar-height)+1rem)]",
                 "lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)] lg:gap-5 lg:overflow-visible",
             )}>
-            <div className="absolute inset-0 isolate bg-background max-lg:[--ll-map-bottom-inset:88px] lg:relative lg:order-2 lg:min-h-0 lg:overflow-hidden lg:rounded-2xl"
+            <div className="absolute inset-0 isolate bg-background max-lg:[--ll-map-bottom-inset:128px] lg:relative lg:order-2 lg:min-h-0 lg:overflow-hidden lg:rounded-2xl"
                 role="region" aria-label="Map of the matching spots" data-pin-total={indexPins?.length}>
                 {mapSpots.length > 0 ? (
                     <SpotPinMap spots={mapSpots} fitKey={indexPins ? `index${pinQuery}` : "page"} dockSpots={dockSpots}
@@ -189,19 +196,20 @@ export default function SpotsMap({ spots, pinQuery, footer, onClose, cities = []
                         onClick={() => setSnap(snap === "map" ? "list" : snap === "half" ? "map" : "half")}>
                         <span aria-hidden="true" className="block h-1.5 w-10 rounded-full bg-muted-foreground/40" />
                     </button>
-                    <div className="relative">
-                        <p className="text-center text-[15px] font-semibold lg:text-left" data-testid="map-sheet-title">{countLabel}</p>
+                    {/* Handle row: count left, the way back to the page right (a word, not a third X). */}
+                    <div className="flex min-h-11 items-center gap-3">
+                        <p className="min-w-0 flex-1 truncate text-[15px] font-semibold" data-testid="map-sheet-title">{countLabel}</p>
                         {nearMode && (
                             <button type="button" onClick={locate.reset} onPointerDown={(event) => event.stopPropagation()}
-                                className="mx-auto block min-h-11 text-sm font-medium text-primary lg:mx-0">
+                                className="min-h-11 shrink-0 text-sm font-medium text-primary">
                                 Show all spots
                             </button>
                         )}
                         {onClose && (
                             <button type="button" onClick={onClose} onPointerDown={(event) => event.stopPropagation()}
-                                className="absolute -top-1 right-0 grid size-11 place-items-center rounded-full text-muted-foreground hover:bg-raised hover:text-foreground lg:hidden"
+                                className="min-h-11 shrink-0 rounded-full px-3 text-sm font-medium text-primary hover:bg-raised lg:hidden"
                                 aria-label="Close map">
-                                <X className="size-5" aria-hidden="true" />
+                                List
                             </button>
                         )}
                     </div>
@@ -211,6 +219,26 @@ export default function SpotsMap({ spots, pinQuery, footer, onClose, cities = []
                         </p>
                     )}
                 </div>
+                    {/* Peek: the first (or nearest) three places, so the lowered sheet is never an empty title. */}
+                    {snap === "map" && dragPx === null && peekSpots.length > 0 && (
+                        <ul aria-label={nearMode ? "Nearest spots" : "Top spots"} data-testid="map-sheet-peek"
+                            className="-mt-1 flex shrink-0 gap-2 overflow-x-auto px-4 pb-2 lg:hidden">
+                            {peekSpots.map((spot) => (
+                                <li key={spot.id} className="w-[46%] max-w-48 shrink-0">
+                                    <button type="button" onClick={() => selectPin(pinKeyOf(spot.id))}
+                                        className="flex min-h-11 w-full items-center gap-2 rounded-xl bg-raised p-1.5 pr-3 text-left">
+                                        <PeekThumb spot={spot} />
+                                        <span className="min-w-0">
+                                            <span className="block truncate text-[13px] font-semibold leading-tight">{spot.name}</span>
+                                            <span className="block truncate text-xs text-muted-foreground">
+                                                {"distanceM" in spot && typeof spot.distanceM === "number" ? formatDistance(spot.distanceM) : spot.category}
+                                            </span>
+                                        </span>
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 <ul aria-label={nearMode ? "Spots near you" : "Spots on this page"}
                     className={cn("min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-4 pb-6",
                         snap === "map" && dragPx === null && "max-lg:invisible")}>
@@ -354,4 +382,23 @@ function useSheetInset(section: { current: HTMLElement | null }, snap: SheetSnap
         return () => observer.disconnect();
     }, [section, snap]);
     return inset;
+}
+
+/** 40px thumb of a peek row: the pin-size photo (same cached URL as the pin), else the category tone tile. */
+function PeekThumb({ spot }: { spot: Spot }) {
+    const tone = pinTone(spot.category);
+    const Icon = TONE_ICONS[tone];
+    const card = getDirectVenuePhotos(cardSpotPhotos({ ownPhoto: spot.ownPhoto, photos: spot.photos, googlePlaceId: spot.googlePlaceId }))[0]?.url;
+    const photo = card ? spotPhotoPinPath(card) : undefined;
+    const [failed, setFailed] = useState<string | null>(null);
+    if (photo && failed !== photo) {
+        // eslint-disable-next-line @next/next/no-img-element -- the pin's own small thumbnail, lazy.
+        return <img src={photo} alt="" loading="lazy" decoding="async" onError={() => setFailed(photo)}
+            className="size-8 shrink-0 rounded-lg object-cover" />;
+    }
+    return (
+        <span aria-hidden="true" data-tone={tone} className="ll-photo-tile size-8 shrink-0 rounded-lg">
+            <Icon className="size-4" />
+        </span>
+    );
 }
