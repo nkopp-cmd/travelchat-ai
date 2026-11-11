@@ -8,7 +8,7 @@ vi.mock("maplibre-gl", async () => {
   return { getVersion: () => version };
 });
 vi.mock("maplibre-gl/dist/maplibre-gl.css", () => ({}));
-import { PinCard, PinFace, SWIPE_CLOSE_PX, maplibreWorkerUrl } from "@/components/spots/spot-pin-map";
+import { PinCard, PinFace, SWIPE_CLOSE_PX, fitCore, maplibreWorkerUrl } from "@/components/spots/spot-pin-map";
 import type { Spot } from "@/types";
 import { CARD_PHOTO_WIDTH } from "@/lib/spots/own-photo";
 
@@ -168,4 +168,25 @@ describe("phone bottom card (mobile map item 3)", () => {
     const source = readFileSync("components/spots/spot-pin-map.tsx", "utf8");
     expect(source).toMatch(/if \(event\.originalEvent\?\.target === loadedMap\.getCanvas\(\)\) close\(\);/);
   });
+});
+
+describe("fitCore", () => {
+    const seoul: [number, number][] = Array.from({ length: 40 }, (_, i) => [126.95 + (i % 8) * 0.01, 37.53 + Math.floor(i / 8) * 0.01]);
+
+    it("drops a few far outliers so a city map opens on the city", () => {
+        const busan: [number, number] = [129.16, 35.16];
+        const daejeon: [number, number] = [127.4, 36.31];
+        const core = fitCore([...seoul, busan, daejeon]);
+        expect(core).toHaveLength(40);
+        expect(core).not.toContainEqual(busan);
+    });
+
+    it("keeps every point when far points are not rare (a multi-city map)", () => {
+        const tokyo: [number, number][] = seoul.slice(0, 20).map(([lng, lat]) => [lng + 12.8, lat - 1.85]);
+        expect(fitCore([...seoul, ...tokyo])).toHaveLength(60);
+    });
+
+    it("keeps small sets as they are", () => {
+        expect(fitCore([[126.9, 37.5], [129.1, 35.1]])).toHaveLength(2);
+    });
 });

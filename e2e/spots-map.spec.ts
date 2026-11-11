@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { expectPinCard, expectTilesRendered, firstClickablePin, openListSheet, pinMap, pinOrGroupOf, selectedListTitle, pinName, pinnedTotal, singlePins } from "./pin-map";
+import { expectPinCard, expectTilesRendered, firstClickablePin, openListSheet, pinMap, pinOrGroupOf, expectListSelection, loadedPinName, pinnedTotal, singlePins } from "./pin-map";
 
 const requireSeoulPins = process.env.PLAYWRIGHT_REQUIRE_SEOUL_PINS === "1";
 
@@ -48,12 +48,12 @@ for (const viewport of viewports) {
           // Mouse: click a pin whose centre is not covered by another pin or the list sheet.
           const pin = await firstClickablePin(map);
           const id = (await pin.getAttribute("data-pin-id")) || "";
-          const name = await pinName(pin);
           await expect(pin).toHaveAttribute("aria-pressed", "false");
           await pin.click();
           await expect(pin).toHaveAttribute("aria-pressed", "true");
+          const name = await loadedPinName(pin);
           const path = await expectPinCard(page, name);
-          await expect(selectedListTitle(discovery)).toHaveText(name);
+          await expectListSelection(discovery, name);
           await testInfo.attach("mouse-selection", { body: JSON.stringify({ id, name, path }), contentType: "application/json" });
           await page.screenshot({ path: testInfo.outputPath("selected-pin.png") });
 
@@ -62,14 +62,14 @@ for (const viewport of viewports) {
           await expect(page.getByRole("dialog", { name, exact: true })).toHaveCount(0);
           await expect(pinOrGroupOf(map, id)).toBeFocused();
           const other = await firstClickablePin(map, id);
-          const keyboardName = await pinName(other);
           await other.focus();
           await expect(other).toBeFocused();
           await page.keyboard.press("Enter");
           await expect(other).toHaveAttribute("aria-pressed", "true");
+          const keyboardName = await loadedPinName(other);
           await expectPinCard(page, keyboardName);
           await expect(page.getByRole("dialog", { name: keyboardName, exact: true })).toBeFocused();
-          await expect(selectedListTitle(discovery)).toHaveText(keyboardName);
+          await expectListSelection(discovery, keyboardName);
           await page.screenshot({ path: testInfo.outputPath("keyboard-selection.png") });
           await page.keyboard.press("Escape");
         } else {

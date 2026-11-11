@@ -162,7 +162,7 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
         fitPendingRef.current = false;
         const height = map.getContainer().clientHeight;
         if (current.length > 1) {
-            map.fitBounds(boundsOf(current.map(lngLat)), { padding: fitPadding(height, bottomInsetRef.current), maxZoom: FIT_MAX_ZOOM, animate: false });
+            map.fitBounds(boundsOf(fitCore(current.map(lngLat))), { padding: fitPadding(height, bottomInsetRef.current), maxZoom: FIT_MAX_ZOOM, animate: false });
         } else if (current[0]) {
             const bottom = fitPadding(height, bottomInsetRef.current).bottom - 48;
             map.jumpTo({ center: lngLat(current[0]), zoom: SINGLE_PIN_ZOOM });
@@ -392,6 +392,23 @@ function boundsOf(points: LngLatLike[]): maplibregl.LngLatBounds {
     const bounds = new maplibregl.LngLatBounds();
     for (const point of points) bounds.extend(point);
     return bounds;
+}
+
+/**
+ * Points for the first fit: drop the few far outliers (a mis-geocoded spot 300 km away) so a city map opens on the
+ * city. Keeps every point unless at most 10 % lie beyond max(3 x the 80th-percentile distance, 25 km) from the median.
+ */
+export function fitCore(points: [number, number][]): [number, number][] {
+    if (points.length < 8) return points;
+    const mid = (values: number[]) => values.slice().sort((a, b) => a - b)[Math.floor(values.length / 2)];
+    const lng0 = mid(points.map((p) => p[0]));
+    const lat0 = mid(points.map((p) => p[1]));
+    const kx = 111 * Math.cos((lat0 * Math.PI) / 180);
+    const km = points.map(([lng, lat]) => Math.hypot((lng - lng0) * kx, (lat - lat0) * 111));
+    const p80 = km.slice().sort((a, b) => a - b)[Math.floor(km.length * 0.8)];
+    const limit = Math.max(3 * p80, 25);
+    const core = points.filter((_, index) => km[index] <= limit);
+    return core.length >= points.length * 0.9 ? core : points;
 }
 
 /** Fit padding with room for a bottom overlay; capped so a short map still keeps a usable box. */
