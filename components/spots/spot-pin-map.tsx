@@ -29,6 +29,10 @@ const MIN_FIT_HEIGHT = 160;
 const ROUTE_SOURCE = "ll-routes";
 const NO_ROUTES: PinRoute[] = [];
 const CARD_OFFSET_PX = 30;
+/** A downward swipe of this length closes the phone card. */
+export const SWIPE_CLOSE_PX = 48;
+/** Height of the phone bottom card plus its gap (72px thumb + padding + Details row). */
+const BOTTOM_CARD_PX = 150;
 const MAX_MARKERS = 60;
 
 interface MarkerSlot { key: string; ids: string[]; host: HTMLElement }
@@ -292,7 +296,11 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
         if (!map || !selected) return;
         const point = map.project(lngLat(selected));
         const size = { x: map.getContainer().clientWidth, y: map.getContainer().clientHeight };
-        const target = { x: size.x / 2, y: Math.min(size.y - 40, Math.max(size.y * 0.72, 300)) };
+        // Phones show the card at the bottom (CSS below lg), so the pin goes to the middle of the free map above it.
+        const bottomCard = window.matchMedia?.("(max-width: 1023px)").matches;
+        const target = bottomCard
+            ? { x: size.x / 2, y: Math.max(60, (size.y - bottomInsetRef.current - BOTTOM_CARD_PX) / 2) }
+            : { x: size.x / 2, y: Math.min(size.y - 40, Math.max(size.y * 0.72, 300)) };
         map.panBy([point.x - target.x, point.y - target.y], { animate: !prefersReducedMotion() });
     }, [selected]);
 
@@ -300,6 +308,16 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
         returnFocus.current = selectedId;
         onSelect?.(null);
     }, [onSelect, selectedId]);
+
+    // Tap on the bare map closes the card (phones have no Close button). Pin taps hit their own button, not the canvas.
+    useEffect(() => {
+        if (!loadedMap || !selectedId) return;
+        const onMapClick = (event: { originalEvent?: Event }) => {
+            if (event.originalEvent?.target === loadedMap.getCanvas()) close();
+        };
+        loadedMap.on("click", onMapClick);
+        return () => { loadedMap.off("click", onMapClick); };
+    }, [loadedMap, selectedId, close]);
 
     useEffect(() => {
         const id = returnFocus.current;
@@ -454,10 +472,19 @@ export function PinCard({ spot, point, titleId, onClose }: {
     // Photo strip for the expanded card: the venue's other first-party photos.
     const strip = pinPhotos(spot).slice(1, 4).map((item) => item.url);
     useEffect(() => { card.current?.focus(); }, [spot.id]);
+    // Phones: the compact bottom card closes with a downward swipe (no extra Close button there).
+    const swipeStart = useRef<number | null>(null);
     return (
         <div ref={card} role="dialog" aria-modal="false" aria-labelledby={titleId} tabIndex={-1}
             className="ll-pin-card" data-tone={tone} data-expanded={expanded || undefined}
             style={{ left: `clamp(150px, ${point.x}px, calc(100% - 150px))`, top: point.y - CARD_OFFSET_PX }}
+            onPointerDown={(event) => { swipeStart.current = expanded ? null : event.clientY; }}
+            onPointerUp={(event) => {
+                const start = swipeStart.current;
+                swipeStart.current = null;
+                if (start !== null && event.clientY - start >= SWIPE_CLOSE_PX) onClose();
+            }}
+            onPointerCancel={() => { swipeStart.current = null; }}
             onKeyDown={(event) => {
                 if (event.key !== "Escape") return;
                 event.stopPropagation();
@@ -471,7 +498,7 @@ export function PinCard({ spot, point, titleId, onClose }: {
                     <img src={photo} alt="" loading="lazy" decoding="async" onError={() => setFailedPhoto(photo)} />
                 </div>
             )}
-            <div className="space-y-1.5 p-4">
+            <div className="ll-pin-card-body space-y-1.5 p-4">
                 <h3 id={titleId} className="text-[17px] font-semibold leading-snug">{spot.name}</h3>
                 {area && <p className="truncate text-[13px] text-muted-foreground">{area}</p>}
                 <p className="flex items-center gap-1.5 text-[13px] text-foreground">
@@ -482,7 +509,7 @@ export function PinCard({ spot, point, titleId, onClose }: {
                     )}
                 </p>
                 {spot.description && (
-                    <p className={expanded ? "pt-1 text-sm leading-relaxed" : "line-clamp-2 pt-1 text-sm leading-relaxed text-muted-foreground"}>
+                    <p className={expanded ? "pt-1 text-sm leading-relaxed" : "ll-pin-card-wide line-clamp-2 pt-1 text-sm leading-relaxed text-muted-foreground"}>
                         {spot.description}
                     </p>
                 )}
@@ -507,7 +534,7 @@ export function PinCard({ spot, point, titleId, onClose }: {
                     </div>
                 )}
                 <button type="button" onClick={() => setExpanded((value) => !value)} aria-expanded={expanded} aria-controls={detailsId}
-                    className="min-h-11 text-sm font-medium text-primary">
+                    className={expanded ? "min-h-11 text-sm font-medium text-primary" : "ll-pin-card-wide min-h-11 text-sm font-medium text-primary"}>
                     {expanded ? "Show less" : "More about this spot"}
                 </button>
                 <div className="flex gap-2 pt-1">
@@ -518,7 +545,7 @@ export function PinCard({ spot, point, titleId, onClose }: {
                         </Link>
                     )}
                     <button type="button" onClick={onClose} aria-label="Close spot card"
-                        className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl bg-raised text-foreground">
+                        className="ll-pin-card-wide inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl bg-raised text-foreground">
                         <X className="h-4 w-4" aria-hidden="true" />
                     </button>
                 </div>

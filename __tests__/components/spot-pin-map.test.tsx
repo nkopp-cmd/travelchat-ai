@@ -8,7 +8,7 @@ vi.mock("maplibre-gl", async () => {
   return { getVersion: () => version };
 });
 vi.mock("maplibre-gl/dist/maplibre-gl.css", () => ({}));
-import { PinCard, PinFace, maplibreWorkerUrl } from "@/components/spots/spot-pin-map";
+import { PinCard, PinFace, SWIPE_CLOSE_PX, maplibreWorkerUrl } from "@/components/spots/spot-pin-map";
 import type { Spot } from "@/types";
 import { CARD_PHOTO_WIDTH } from "@/lib/spots/own-photo";
 
@@ -142,3 +142,30 @@ describe("map pin card", () => {
   });
 });
 
+
+describe("phone bottom card (mobile map item 3)", () => {
+  it("closes on a downward swipe, not on a short drag", () => {
+    const onClose = vi.fn();
+    render(<PinCard spot={spot} point={{ x: 120, y: 300 }} titleId="swipe-title" onClose={onClose} />);
+    const dialog = screen.getByRole("dialog", { name: "Dongmyo Flea Market" });
+    fireEvent.pointerDown(dialog, { clientY: 500 });
+    fireEvent.pointerUp(dialog, { clientY: 520 });
+    expect(onClose).not.toHaveBeenCalled();
+    fireEvent.pointerDown(dialog, { clientY: 500 });
+    fireEvent.pointerUp(dialog, { clientY: 500 + SWIPE_CLOSE_PX });
+    expect(onClose).toHaveBeenCalledOnce();
+  });
+
+  it("is a compact bottom card below lg: thumb left, no Close button or long preview, and a map tap closes it", () => {
+    const css = readFileSync("app/globals.css", "utf8");
+    const phone = css.slice(css.indexOf("@media (max-width: 1023px) {\n    .ll-pin-card:not([data-expanded])"));
+    expect(phone).toMatch(/grid-template-columns: 72px minmax\(0, 1fr\);/);
+    expect(phone).toMatch(/\.ll-pin-card-media \{[^}]*width: 72px;[^}]*height: 72px;/);
+    expect(phone).toMatch(/bottom: calc\(12px \+ var\(--ll-map-bottom-inset, 0px\)\);/);
+    expect(phone).toMatch(/\.ll-pin-card-wide \{ display: none; \}/);
+    render(<PinCard spot={spot} point={{ x: 0, y: 0 }} titleId="t2" onClose={() => {}} />);
+    expect(screen.getByRole("button", { name: "Close spot card" }).className).toContain("ll-pin-card-wide");
+    const source = readFileSync("components/spots/spot-pin-map.tsx", "utf8");
+    expect(source).toMatch(/if \(event\.originalEvent\?\.target === loadedMap\.getCanvas\(\)\) close\(\);/);
+  });
+});
