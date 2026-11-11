@@ -6,7 +6,7 @@ import { listingPlaceFor } from "@/lib/spots/listing-place";
 import { getPublicSpotQualityIssue, PUBLIC_SPOT_VISIBILITY_CACHE_VERSION } from "@/lib/spots/public-quality";
 // The promoter writes over the D1 REST API (outside the facade write hook): this runs the app's real rules on its rows.
 // @ts-expect-error plain ESM script without types
-import { buildCandidateRows, gateCandidate, parseCities, parseCopy } from "../../scripts/promote-candidates.mjs";
+import { buildCandidateRows, exactAddress, gateCandidate, parseCities, parseCopy, WATCH_CITIES, watchLine } from "../../scripts/promote-candidates.mjs";
 
 const cities = parseCities(readFileSync("lib/cities.ts", "utf8"));
 const candidate = {
@@ -59,5 +59,26 @@ describe("candidate promoter", () => {
         expect(parseCopy(raw("Si Phum, Chiang Mai, Thailand"), items).get("cand-1")?.exactAddress).toBe(false);
         expect(parseCopy(raw("91 Sri Poom Rd, Si Phum, Bangkok, Thailand"), items).get("cand-1")?.exactAddress).toBe(false);
         expect(parseCopy("not json", items).size).toBe(0);
+    });
+
+    it("accepts 3-part street addresses and appends a missing country", () => {
+        const jeju = cities.jeju;
+        expect(exactAddress("115-2 Tapdong-ro, Jeju, South Korea", jeju)).toBe("115-2 Tapdong-ro, Jeju, South Korea");
+        expect(exactAddress("20 Tapdong-ro, Jeju", jeju)).toBe("20 Tapdong-ro, Jeju, South Korea");
+        expect(exactAddress("Tapdong-ro, Jeju, South Korea", jeju)).toBe("");
+        expect(exactAddress("Jeju, South Korea", jeju)).toBe("");
+        expect(exactAddress("20 Tapdong-ro, Seogwipo, South Korea", jeju)).toBe("");
+        const items = [{ c: { ...candidate, city_slug: "jeju" }, city: jeju }];
+        const copyOf = parseCopy(JSON.stringify({ spots: [{ ...copy, key: "cand-1", addressEn: "20 Tapdong-ro, Jeju" }] }), items).get("cand-1");
+        expect(copyOf).toMatchObject({ exactAddress: true, addressEn: "20 Tapdong-ro, Jeju, South Korea" });
+        expect(inferCityFromAddress(copyOf!.addressEn)?.name).toBe("Jeju");
+    });
+
+    it("alerts on a watched city without new spots or a long queue, else stays silent", () => {
+        const all = Object.fromEntries(WATCH_CITIES.map((c: string) => [c, 3]));
+        for (const c of WATCH_CITIES) expect(cities[Object.keys(cities).find((k) => cities[k].name === c)!]).toBeTruthy();
+        expect(watchLine(all, 50)).toBe("");
+        expect(watchLine({ ...all, Tokyo: 0, Busan: undefined }, 12)).toBe("Localley new places: 0 new spots in 14 days: Tokyo, Busan.");
+        expect(watchLine(all, 51)).toBe("Localley new places: 51 candidates pending (max 50).");
     });
 });

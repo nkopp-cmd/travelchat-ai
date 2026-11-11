@@ -33,6 +33,20 @@ export const MIN_RATING = 4.2;
 export const MAX_INSERTS_PER_CITY = 30;
 export const COPY_BATCH = 12;
 const STALE_DAYS = 14;
+/** Plan item 8: the 10 biggest cities must each get new spots; one line to Nils when one gets none in WATCH_DAYS. */
+export const WATCH_CITIES = ["Seoul", "Tokyo", "Singapore", "Bangkok", "Taipei", "Osaka", "Kyoto", "Hong Kong", "Busan", "Kuala Lumpur"];
+export const WATCH_DAYS = 14;
+export const MAX_PENDING = 50;
+const NOTIFY = "/home/dev/projects/CyberLink/shared/scripts/notify.sh";
+
+/** One alert line, or "" when every watched city got a new visible spot and the queue is short. */
+export function watchLine(newByCity, pending) {
+  const dry = WATCH_CITIES.filter((c) => !(newByCity[c] > 0));
+  const parts = [];
+  if (dry.length) parts.push(`0 new spots in ${WATCH_DAYS} days: ${dry.join(", ")}`);
+  if (pending > MAX_PENDING) parts.push(`${pending} candidates pending (max ${MAX_PENDING})`);
+  return parts.length ? `Localley new places: ${parts.join("; ")}.` : "";
+}
 
 /** slug -> { name, country, lat, lng } parsed from lib/cities.ts (the app's single city list). */
 export function parseCities(source) {
@@ -102,7 +116,17 @@ ${lines.join("\n")}`;
 
 const cleanText = (v, max) => String(v ?? "").replace(/\s+/g, " ").trim().slice(0, max);
 
-/** Valid copy per candidate id. The address must be exact (house number, 4+ parts) and end with the city + country. */
+/** Normalised English address, or "" when it is not exact: a house/street number before the city, at least
+ * 3 comma parts, ending with "<city>, <country>" (a missing country after the city is appended). */
+export function exactAddress(addressEn, city) {
+  const a = addressEn.endsWith(`, ${city.name}`) ? `${addressEn}, ${city.country}` : addressEn;
+  const tail = `, ${city.name}, ${city.country}`;
+  if (!a.endsWith(tail)) return "";
+  const head = a.slice(0, -tail.length);
+  return /\d/.test(head) && a.split(",").length >= 3 ? a : "";
+}
+
+/** Valid copy per candidate id; exactAddress false when the address is not exact (see exactAddress). */
 export function parseCopy(raw, items) {
   let data;
   try { data = JSON.parse(raw.slice(raw.indexOf("{"), raw.lastIndexOf("}") + 1)); } catch { return new Map(); }
@@ -111,10 +135,12 @@ export function parseCopy(raw, items) {
   for (const s of Array.isArray(data?.spots) ? data.spots : []) {
     const item = byKey.get(s?.key);
     if (!item || out.has(s.key) || !CATEGORIES.includes(s.category)) continue;
-    const addressEn = cleanText(s.addressEn, 200);
+    const rawAddress = cleanText(s.addressEn, 200);
+    const exact = exactAddress(rawAddress, item.city);
+    const addressEn = exact || rawAddress;
     const nameEn = cleanText(s.nameEn, 80), descriptionEn = cleanText(s.descriptionEn, 400);
     out.set(s.key, { nameEn, descriptionEn, category: s.category, addressEn,
-      exactAddress: addressEn.endsWith(`, ${item.city.name}, ${item.city.country}`) && /\d/.test(addressEn) && addressEn.split(",").length >= 4,
+      exactAddress: Boolean(exact),
       subcategories: (s.subcategories || []).map((t) => cleanText(t, 30)).filter(Boolean).slice(0, 3),
       tipsEn: (s.tipsEn || []).map((t) => cleanText(t, 100)).filter(Boolean).slice(0, 3),
       bestTimesEn: cleanText(s.bestTimesEn, 40) || "Anytime",
@@ -222,6 +248,12 @@ export async function run({ apply = false, city: onlyCity = null, limit = 500, l
   const stale = await d1(`SELECT count(*) n FROM apify_spot_candidates WHERE status = 'pending' AND created_at < ?`,
     [new Date(Date.now() - STALE_DAYS * 86400000).toISOString()]);
   tally.pendingOver14d = stale[0]?.n ?? 0;
+  const since = new Date(Date.now() - WATCH_DAYS * 86400000).toISOString();
+  const fresh = await d1(`SELECT city, count(*) n FROM spots WHERE visible = 1 AND created_at >= ? AND city IN (${WATCH_CITIES.map(() => "?").join(", ")}) GROUP BY city`,
+    [since, ...WATCH_CITIES]);
+  const left = await d1("SELECT count(*) n FROM apify_spot_candidates WHERE status = 'pending'");
+  tally.newByCity = Object.fromEntries(fresh.map((r) => [r.city, r.n]));
+  tally.watch = watchLine(tally.newByCity, left[0]?.n ?? 0);
   return tally;
 }
 
@@ -232,6 +264,7 @@ async function main() {
   const apply = args.includes("--apply");
   const tally = await run({ apply, city: opt("--city"), limit: Number(opt("--limit")) || 500 });
   console.log(`${new Date().toISOString()} candidate promoter ${apply ? "apply" : "dry run"}: ${JSON.stringify(tally)}`);
+  if (tally.watch && args.includes("--push")) execFileSync(NOTIFY, ["--title", "Localley new places", tally.watch], { stdio: "ignore", timeout: 60000 });
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) main().catch((e) => { console.error(`promoter failed: ${e.message}`); process.exitCode = 1; });
