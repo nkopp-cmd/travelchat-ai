@@ -123,6 +123,40 @@ function boxesOverlap(
   );
 }
 
+// Item 1 of the mobile map plan: on phones the map gets >= 65 % of the screen with no card open.
+const MAP_SHARE_VIEWPORTS = [
+  { name: "phone-360", width: 360, height: 780 },
+  { name: "phone-390", width: 390, height: 844 },
+  { name: "phone-430", width: 430, height: 932 },
+] as const;
+
+test.describe("phone map chrome", () => {
+  for (const viewport of MAP_SHARE_VIEWPORTS) {
+    test(`map keeps >= 65% of the screen at ${viewport.name}`, async ({ page, baseURL }) => {
+      skipIfLocalSupabaseEnvMissing(baseURL);
+      await page.setViewportSize(viewport);
+      await page.route((url) => decodeURIComponent(url.href).includes("/api/places/photo"), (route) => route.abort("blockedbyclient"));
+      await page.goto("/spots?city=seoul&view=map", { waitUntil: "domcontentloaded" });
+      await skipIfVercelProtectionPage(page);
+
+      const discovery = page.getByRole("region", { name: "Discovery map", exact: true });
+      await expect(discovery).toBeVisible();
+      await expect(page.getByRole("dialog")).toHaveCount(0);
+      // One pill (city token + filter icon inside), one chip row, no extra filter rows.
+      await expect(page.getByTestId("spots-pill-city")).toBeVisible();
+      await expect(page.getByTestId("spots-mobile-filter-toggle")).toBeVisible();
+      await expect(page.getByTestId("spots-mobile-filter-row")).toHaveCount(0);
+      await expect(page.getByRole("list", { name: "Active filters" })).toBeHidden();
+      await expectNoHorizontalOverflow(page);
+
+      await expect.poll(async () => {
+        const box = await discovery.boundingBox();
+        return box ? box.height / viewport.height : 0;
+      }, { message: "map share of the viewport" }).toBeGreaterThanOrEqual(0.65);
+    });
+  }
+});
+
 test.describe("spots responsive layout", () => {
   for (const viewport of VIEWPORTS) {
     test(`spots cards and filters fit at ${viewport.name}`, async ({
