@@ -203,7 +203,12 @@ export async function run({ apply = false, city: onlyCity = null, limit = 500, l
     for (const item of batch) {
       const copy = copies.get(item.c.id);
       if (!copy) { tally.copyFailed++; continue; } // stays pending, retried next run
-      if (!copy.exactAddress) { tally.rejected.inexact_address = (tally.rejected.inexact_address ?? 0) + 1; await reject(item.c, "inexact_address", apply); continue; }
+      if (!copy.exactAddress) {
+        tally.rejected.inexact_address = (tally.rejected.inexact_address ?? 0) + 1;
+        log(`${apply ? "rejected" : "would reject"}: ${item.city.name} | ${item.c.name} | inexact_address | ${copy.addressEn || "(none)"} | ${item.c.address}`);
+        await reject(item.c, `inexact_address (${copy.addressEn || "none"})`, apply);
+        continue;
+      }
       const rows = buildCandidateRows({ c: item.c, city: item.city, copy });
       if (!apply) { log(`would create: ${item.city.name} | ${copy.nameEn} | ${copy.category} | ${copy.addressEn}`); tally.created++; continue; }
       for (const s of insertStatements(rows)) await d1(s.sql, s.params);
