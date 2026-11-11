@@ -91,6 +91,7 @@ VITEST_FILES=(
   __tests__/lib/weekly-post-gates.test.ts
   __tests__/lib/weekly-post-publish.test.ts
   __tests__/api/help-open.test.ts
+  __tests__/api/spots-near.test.ts
   __tests__/lib/driver-card.test.ts
   __tests__/components/spot-activities.test.tsx
   __tests__/lib/community-qa.test.ts
@@ -353,6 +354,10 @@ ESLINT_FILES=(
   components/spots/city-quick-filters.tsx
   __tests__/components/city-quick-filters.test.tsx
   e2e/spots-layout.spec.ts
+  e2e/spots-locate.spec.ts
+  components/spots/use-locate.ts
+  lib/spots/near.ts
+  app/api/spots/near/route.ts
   e2e/spot-detail.ts
   components/chat/source-chat-page.tsx
   __tests__/components/source-chat-viewport.test.tsx

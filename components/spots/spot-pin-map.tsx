@@ -47,8 +47,10 @@ export type PinSpot = Pick<Spot, "id" | "name" | "category" | "location" | "phot
 /** A dashed line through one day's stops, in visit order. */
 export interface PinRoute { key: string; color: string; points: Array<[number, number]> }
 
-export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = null, onSelect, bottomInset = 0, fitKey, dockSpots }: {
+export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = null, onSelect, bottomInset = 0, fitKey, dockSpots, user }: {
     spots: PinSpot[];
+    /** The visitor's position ("My location"): a blue dot; the map centres on it each time `fix` changes. */
+    user?: { lat: number; lng: number; fix: number } | null;
     /** Refit only when this changes (default: every new spots array). Lets pin data fill in without a jump. */
     fitKey?: string;
     /** Spots for the off-screen edge dots (default: all spots); a big index passes only the listed ones. */
@@ -257,6 +259,32 @@ export default function SpotPinMap({ spots, routes = NO_ROUTES, selectedId = nul
         const frame = requestAnimationFrame(placeCard);
         return () => { cancelAnimationFrame(frame); map.off("moveend", update); map.off("move", follow); };
     }, [drawMarkers, placeCard]);
+
+    // "My location": one dot marker, moved on each fix; a new fix (a tap) also centres the map above the sheet.
+    const userMarker = useRef<Marker | null>(null);
+    const userFix = useRef(0);
+    useEffect(() => {
+        const map = mapRef.current;
+        if (!map || !user) return;
+        const at: [number, number] = [user.lng, user.lat];
+        if (!userMarker.current) {
+            const dot = document.createElement("div");
+            dot.className = "ll-user-dot";
+            dot.dataset.testid = "map-user-dot";
+            dot.setAttribute("role", "img");
+            dot.setAttribute("aria-label", "Your location");
+            userMarker.current = new maplibregl.Marker({ element: dot, anchor: "center" }).setLngLat(at).addTo(map);
+        } else {
+            userMarker.current.setLngLat(at);
+        }
+        if (user.fix > 0 && user.fix !== userFix.current) {
+            userFix.current = user.fix;
+            const height = map.getContainer().clientHeight;
+            map.easeTo({ center: at, zoom: Math.max(map.getZoom(), NEAR_ZOOM), padding: fitPadding(height, bottomInsetRef.current),
+                animate: !prefersReducedMotion() });
+        }
+    }, [user]);
+    useEffect(() => () => { userMarker.current?.remove(); userMarker.current = null; }, []);
 
     // Bring the selected pin into the lower part of the map so its card has room above it.
     useEffect(() => {

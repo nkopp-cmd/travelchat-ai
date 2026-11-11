@@ -299,6 +299,7 @@ export function SpotsExplorer({
                                 pinQuery={pinIndexQuery(currentFilters)}
                                 currentPage={currentPage}
                                 onClose={() => setViewMode("grid")}
+                                cities={filterOptions.cities}
                                 footer={
                                     <SpotsPagination
                                         currentPage={currentPage}

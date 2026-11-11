@@ -2,12 +2,15 @@
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { SpotCard } from "@/components/spots/spot-card";
 import { getSpotLocationConfidence } from "@/lib/spots/location-confidence";
 import { decodePinIndex, type DecodedPin, type PinIndex } from "@/lib/spots/pin-index";
 import type { PinSpot } from "./spot-pin-map";
 import { cn } from "@/lib/utils";
-import { X } from "@/components/ui/icons";
+import { Navigation, X } from "@/components/ui/icons";
+import { formatDistance, NEAR_RADIUS_KM } from "@/lib/spots/near";
+import { useLocate, type LocateStatus } from "./use-locate";
 import type { Spot } from "@/types";
 
 // Leaflet and the pin layer load with the map view, not with the spots page.
@@ -26,6 +29,8 @@ interface SpotsMapProps {
     footer?: ReactNode;
     /** Leaves the map view (phones cover the page with the map, so the sheet carries the way back). */
     onClose?: () => void;
+    /** Cities for the fallback picker when the location is not available. */
+    cities?: Array<{ slug: string; name: string }>;
 }
 
 /** Sheet positions on phones: the whole list, list and map shared, or the map with a peeking handle. */
@@ -51,7 +56,7 @@ export function nextSnap(current: SheetSnap, offsetFraction: number, velocity: n
  * Airbnb-style discovery map. Phones: a full-height dark map with a draggable list sheet
  * (swipe up for the list, down for the map). Desktop: the list beside a sticky map.
  */
-export default function SpotsMap({ spots, pinQuery, footer, onClose }: SpotsMapProps) {
+export default function SpotsMap({ spots, pinQuery, footer, onClose, cities = [] }: SpotsMapProps) {
     const [selectedId, setSelectedId] = useState<string | null>(null);
     // Phones open on the map with only the handle and the count showing; one tap or swipe opens the list.
     const [snap, setSnap] = useState<SheetSnap>("map");
@@ -60,6 +65,11 @@ export default function SpotsMap({ spots, pinQuery, footer, onClose }: SpotsMapP
     const section = useRef<HTMLElement | null>(null);
     const sheetId = useId();
     const sheetInset = useSheetInset(section, snap);
+    // "My location": a fix opens the sheet halfway on the nearest spots ("Near you").
+    const locate = useLocate(useCallback(() => setSnap("half"), []));
+    const nearMode = locate.status === "near";
+    const listSpots = nearMode ? locate.spots : spots;
+    const user = useMemo(() => locate.point ? { ...locate.point, fix: locate.fix } : null, [locate.point, locate.fix]);
     const pinnedSpots = useMemo(
         () => spots.filter((spot) => getSpotLocationConfidence(spot.location).usableCoordinates),
         [spots]
@@ -127,7 +137,9 @@ export default function SpotsMap({ spots, pinQuery, footer, onClose }: SpotsMapP
     };
 
     const sheetY = dragPx !== null ? `${dragPx}px` : `calc((100% - ${PEEK_PX}px) * ${SNAP_FRACTION[snap]})`;
-    const countLabel = indexPins
+    const countLabel = nearMode
+        ? `Near you · ${listSpots.length} ${listSpots.length === 1 ? "spot" : "spots"}`
+        : indexPins
         ? `${indexPins.length.toLocaleString("en-US")} ${indexPins.length === 1 ? "spot" : "spots"} on the map`
         : `${spots.length} ${spots.length === 1 ? "spot" : "spots"}`;
 
@@ -142,11 +154,20 @@ export default function SpotsMap({ spots, pinQuery, footer, onClose }: SpotsMapP
                 role="region" aria-label="Map of the matching spots" data-pin-total={indexPins?.length}>
                 {mapSpots.length > 0 ? (
                     <SpotPinMap spots={mapSpots} fitKey={indexPins ? `index${pinQuery}` : "page"} dockSpots={dockSpots}
-                        selectedId={selectedId} onSelect={selectPin} bottomInset={sheetInset} />
+                        selectedId={selectedId} onSelect={selectPin} bottomInset={sheetInset} user={user} />
                 ) : (
                     <p role="status" className="grid h-full place-items-center p-6 text-center text-muted-foreground">
                         No map pins are available for this page. No locations have been estimated.
                     </p>
+                )}
+                <button type="button" onClick={locate.locate} aria-label="Show my location" data-testid="map-locate"
+                    aria-busy={locate.status === "asking" || undefined}
+                    style={{ bottom: `${sheetInset + 12}px` }}
+                    className="absolute right-3 z-[5] grid size-11 place-items-center rounded-full bg-surface text-primary shadow-overlay transition-[bottom] duration-300 ease-out motion-reduce:transition-none lg:right-4">
+                    <Navigation className={cn("size-5", locate.status === "asking" && "animate-pulse")} aria-hidden="true" />
+                </button>
+                {(locate.status === "asking" || nearMode) && (
+                    <p role="status" className="sr-only">{nearMode ? countLabel : "Finding your location"}</p>
                 )}
             </div>
 
@@ -169,7 +190,13 @@ export default function SpotsMap({ spots, pinQuery, footer, onClose }: SpotsMapP
                         <span aria-hidden="true" className="block h-1.5 w-10 rounded-full bg-muted-foreground/40" />
                     </button>
                     <div className="relative">
-                        <p className="text-center text-[15px] font-semibold lg:text-left">{countLabel}</p>
+                        <p className="text-center text-[15px] font-semibold lg:text-left" data-testid="map-sheet-title">{countLabel}</p>
+                        {nearMode && (
+                            <button type="button" onClick={locate.reset} onPointerDown={(event) => event.stopPropagation()}
+                                className="mx-auto block min-h-11 text-sm font-medium text-primary lg:mx-0">
+                                Show all spots
+                            </button>
+                        )}
                         {onClose && (
                             <button type="button" onClick={onClose} onPointerDown={(event) => event.stopPropagation()}
                                 className="absolute -top-1 right-0 grid size-11 place-items-center rounded-full text-muted-foreground hover:bg-raised hover:text-foreground lg:hidden"
@@ -178,26 +205,80 @@ export default function SpotsMap({ spots, pinQuery, footer, onClose }: SpotsMapP
                             </button>
                         )}
                     </div>
-                    {missingCount > 0 && !indexPins && (
+                    {missingCount > 0 && !indexPins && !nearMode && (
                         <p className="text-center text-[13px] text-muted-foreground lg:text-left">
                             {missingCount} without coordinates are listed but not on the map
                         </p>
                     )}
                 </div>
-                <ul aria-label="Spots on this page"
+                <ul aria-label={nearMode ? "Spots near you" : "Spots on this page"}
                     className={cn("min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-4 pb-6",
                         snap === "map" && dragPx === null && "max-lg:invisible")}>
-                    {spots.map((spot, index) => (
+                    {listSpots.map((spot, index) => (
                         <li key={spot.id} aria-current={selectedId && spot.id.startsWith(selectedId) ? "true" : undefined}
                             className="rounded-2xl">
+                            {"distanceM" in spot && typeof spot.distanceM === "number" && (
+                                <p className="px-1 pb-1 text-[13px] font-medium text-muted-foreground">{formatDistance(spot.distanceM)} away</p>
+                            )}
                             {/* The first card is the LCP image in map view. */}
                             <SpotCard spot={spot} priority={index === 0} />
                         </li>
                     ))}
-                    {footer && <li className="list-none">{footer}</li>}
+                    {footer && !nearMode && <li className="list-none">{footer}</li>}
                 </ul>
             </div>
+            {/* Above the sheet (z-10): the map region is its own stacking context, so the message lives here. */}
+            <LocateMessage status={locate.status} cities={cities} onRetry={locate.locate} onDismiss={locate.reset} />
         </section>
+    );
+}
+
+const LOCATE_MESSAGES: Partial<Record<LocateStatus, { title: string; body?: string; retry?: boolean }>> = {
+    denied: {
+        title: "Location is off for Localley.",
+        body: "On iPhone: Settings > Privacy & Security > Location Services > Safari Websites > While Using. Then tap the location button again.",
+    },
+    off: { title: "Your phone did not share a location.", body: "Turn on Location Services and try again.", retry: true },
+    timeout: { title: "We could not find you in 10 seconds.", body: "Try again near a window or outside.", retry: true },
+    empty: { title: `No Localley spots within ${NEAR_RADIUS_KM} km of you yet.` },
+    error: { title: "Nearby spots did not load.", retry: true },
+};
+
+/** One short message when "My location" cannot help, with a city picker as the way on. */
+function LocateMessage({ status, cities, onRetry, onDismiss }: {
+    status: LocateStatus; cities: Array<{ slug: string; name: string }>; onRetry: () => void; onDismiss: () => void;
+}) {
+    const message = LOCATE_MESSAGES[status];
+    if (!message) return null;
+    return (
+        <div role="alert" data-testid="map-locate-message" data-status={status}
+            className="absolute inset-x-3 bottom-3 z-20 space-y-2 rounded-2xl bg-raised p-4 text-sm shadow-overlay lg:left-auto lg:right-4 lg:bottom-4 lg:w-96">
+            <p className="font-semibold">{message.title}</p>
+            {message.body && <p className="text-muted-foreground">{message.body}</p>}
+            {cities.length > 0 && (
+                <>
+                    <p className="text-muted-foreground">Or pick a city:</p>
+                    <ul className="-mx-4 flex gap-2 overflow-x-auto px-4" aria-label="Cities">
+                        {cities.map((city) => (
+                            <li key={city.slug} className="shrink-0">
+                                <Link href={`/spots?city=${city.slug}&view=map`} prefetch={false}
+                                    className="inline-flex min-h-11 items-center rounded-full bg-surface px-4 font-medium">
+                                    {city.name}
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
+                </>
+            )}
+            <div className="flex gap-2">
+                {message.retry && (
+                    <button type="button" onClick={onRetry} className="min-h-11 rounded-xl bg-primary px-4 font-medium text-primary-foreground">
+                        Try again
+                    </button>
+                )}
+                <button type="button" onClick={onDismiss} className="min-h-11 rounded-xl px-4 font-medium text-primary">OK</button>
+            </div>
+        </div>
     );
 }
 
