@@ -42,6 +42,7 @@ VITEST_FILES=(
   __tests__/lib/weekly-trending-spots.test.ts
   __tests__/lib/spots-public-quality.test.ts
   __tests__/lib/viral-scout-rows.test.ts
+  __tests__/lib/promote-candidates-rows.test.ts
   __tests__/lib/viral-feed.test.ts
   __tests__/lib/spot-guide.test.ts
   __tests__/lib/viral-events.test.ts
@@ -460,6 +461,7 @@ ESLINT_FILES=(
   app/trending/[slug]/page.tsx
   __tests__/lib/spots-public-quality.test.ts
   __tests__/lib/viral-scout-rows.test.ts
+  __tests__/lib/promote-candidates-rows.test.ts
   __tests__/lib/viral-feed.test.ts
   __tests__/lib/spot-guide.test.ts
   __tests__/lib/viral-events.test.ts
