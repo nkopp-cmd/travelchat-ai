@@ -1024,6 +1024,25 @@
     background: rgb(var(--ll-season-tone, var(--ll-muted)));
 }
 
+/* "My location" dot on the /spots map: a blue dot on a white ring inside a soft halo (no borders). */
+.ll-user-dot {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: rgb(37 99 235 / 0.22);
+    pointer-events: none;
+}
+.ll-user-dot::before {
+    content: "";
+    display: grid;
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgb(37 99 235) 0 5.5px, #fff 6px);
+}
+
 :is(.ll-season-chip, .ll-pick-chip, .ll-season-dot)[data-kind="blossom"] { --ll-season-tone: 255 180 188; }
 :is(.ll-season-chip, .ll-pick-chip, .ll-season-dot)[data-kind="foliage"] { --ll-season-tone: 250 176 128; }
 :is(.ll-season-chip, .ll-pick-chip, .ll-season-dot)[data-kind="festival"] { --ll-season-tone: 210 195 255; }
