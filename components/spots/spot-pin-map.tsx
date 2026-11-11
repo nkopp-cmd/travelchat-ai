@@ -11,6 +11,7 @@ import { TONE_ICONS } from "@/components/spots/category-tone";
 import { EdgeDockLayer } from "@/components/spots/edge-dock-layer";
 import { getDirectVenuePhotos } from "@/components/spots/venue-photo-provider";
 import { cardSpotPhotos, spotPhotoPinPath } from "@/lib/spots/own-photo";
+import { SCORE_LABELS } from "@/lib/spots/types";
 import { clusterBounded, pinTone } from "@/lib/spots/pin-clusters";
 import { localleyMapStyle, readMapTokens } from "@/lib/maps/localley-map-style";
 import type { Spot } from "@/types";
@@ -521,8 +522,8 @@ export function PinCard({ spot, point, titleId, onClose }: {
                 <p className="flex items-center gap-1.5 text-[13px] text-foreground">
                     <span className="ll-pin-card-dot" aria-hidden="true"><Icon className="h-3 w-3" /></span>
                     <span>{spot.category}</span>
-                    {spot.localleyScore !== undefined && (
-                        <span className="text-muted-foreground">· Localley score {spot.localleyScore}</span>
+                    {spot.localleyScore !== undefined && SCORE_LABELS[spot.localleyScore] && (
+                        <span className="text-muted-foreground">· {SCORE_LABELS[spot.localleyScore]}</span>
                     )}
                 </p>
                 {spot.description && (
