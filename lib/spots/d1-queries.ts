@@ -18,6 +18,8 @@ export type D1SpotKeyRow = Pick<RawSpot, "id" | "name" | "address" | "category" 
   /** Only the filtered list read carries coordinates (the map pin index uses them). */
   latitude?: number | null;
   longitude?: number | null;
+  /** Canonical city name (lib/cities.ts `name`); NULL for rows the backfill could not place. */
+  city?: string | null;
 };
 
 const NAME_EN = "json_extract(CASE WHEN json_valid(s.name) THEN s.name END, '$.en')";
@@ -50,8 +52,10 @@ export async function d1FilteredSpotKeys(filters: SpotsFilterState): Promise<D1S
   const where = visibilityWhere();
   const city = filters.city ? getCityBySlug(filters.city) : undefined;
   if (city) {
-    where.sql.push("s.address LIKE ?");
-    where.params.push(`%${city.name}%`);
+    // The `city` column holds the canonical lib/cities.ts name; the address only names the city in some rows
+    // (local scripts, district-only addresses). Rows without a city keep the old address match.
+    where.sql.push("(s.city = ? OR (s.city IS NULL AND s.address LIKE ?))");
+    where.params.push(city.name, `%${city.name}%`);
   }
   if (filters.category) {
     where.sql.push("s.category = ?");
@@ -66,14 +70,14 @@ export async function d1FilteredSpotKeys(filters: SpotsFilterState): Promise<D1S
     where.sql.push(`(${NAME_EN} LIKE ? ESCAPE '\\' OR ${DESCRIPTION_EN} LIKE ? ESCAPE '\\' OR s.address LIKE ? ESCAPE '\\')`);
     where.params.push(term, term, term);
   }
-  return keyRows(`SELECT s.id, s.name, s.address, s.category, s.localley_score, s.latitude, s.longitude FROM spots s
+  return keyRows(`SELECT s.id, s.name, s.address, s.category, s.localley_score, s.city, s.latitude, s.longitude FROM spots s
     WHERE ${where.sql.join(" AND ")} ORDER BY ${orderBy(filters.sortBy)}`, where.params);
 }
 
 /** Every public candidate row, for the filter counts. */
 export async function d1PublicSpotKeys(): Promise<D1SpotKeyRow[]> {
   const where = visibilityWhere();
-  return keyRows(`SELECT s.id, s.name, s.address, s.category, s.localley_score FROM spots s
+  return keyRows(`SELECT s.id, s.name, s.address, s.category, s.localley_score, s.city FROM spots s
     WHERE ${where.sql.join(" AND ")} ORDER BY s.id ASC`, where.params);
 }
 
@@ -85,6 +89,7 @@ async function keyRows(sql: string, params: (string | number)[]): Promise<D1Spot
     address: (row.address ?? "") as RawSpot["address"],
     category: (row.category ?? null) as string | null,
     localley_score: typeof row.localley_score === "number" ? row.localley_score : null,
+    city: typeof row.city === "string" ? row.city : null,
     ...("latitude" in row ? {
       latitude: typeof row.latitude === "number" ? row.latitude : null,
       longitude: typeof row.longitude === "number" ? row.longitude : null,

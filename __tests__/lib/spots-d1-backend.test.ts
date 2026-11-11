@@ -17,17 +17,17 @@ import { dataBackend } from "@/lib/app-data/backend";
 import { fetchFilterOptions, fetchFilteredSpots, getTotalSpotCount, parseFilterParams } from "@/lib/spots/queries";
 import { fetchWeeklyTrendingSpots } from "@/lib/spots/weekly-trending";
 import { getWeekStart } from "@/lib/weekly-social-trends";
-import { d1CityRelatedCandidates, d1CommunitySubmission, d1PhotoCredits, d1RelatedSpotSources, d1SpotSource } from "@/lib/spots/d1-queries";
+import { d1CityRelatedCandidates, d1CommunitySubmission, d1FilteredSpotKeys, d1PhotoCredits, d1RelatedSpotSources, d1SpotSource } from "@/lib/spots/d1-queries";
 
 const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 let db: D1Sqlite;
 
 function spot(n: number, values: { name: string; address: string; category?: string; score?: number | null; visible?: number;
-  trending?: number; local?: number | null; description?: string }) {
+  trending?: number; local?: number | null; description?: string; city?: string }) {
   db.sqlite.prepare(`INSERT INTO spots (id, name, description, category, localley_score, photos, visible, city, address, latitude,
-    longitude, subcategories, local_percentage, verified, trending_score) VALUES (?, ?, ?, ?, ?, '[]', ?, NULL, ?, 37.57, 126.99, '["tea"]', ?, 1, ?)`)
+    longitude, subcategories, local_percentage, verified, trending_score) VALUES (?, ?, ?, ?, ?, '[]', ?, ?, ?, 37.57, 126.99, '["tea"]', ?, 1, ?)`)
     .run(id(n), JSON.stringify({ en: values.name }), JSON.stringify({ en: values.description ?? `${values.name} description` }),
-      values.category ?? "Cafe", values.score === undefined ? 5 : values.score, values.visible ?? 1, values.address,
+      values.category ?? "Cafe", values.score === undefined ? 5 : values.score, values.visible ?? 1, values.city ?? null, values.address,
       values.local === undefined ? 70 : values.local, values.trending ?? 0);
 }
 
@@ -98,6 +98,21 @@ describe("public spots list on D1", () => {
     const page = await fetchFilteredSpots({ ...parseFilterParams({}), limit: 2, page: 2 });
     expect(page.spots.map((s) => s.name)).toEqual(["100% Local Noodles"]);
     expect(page.total).toBe(3);
+  });
+
+  it("filters and counts a city by the city column; the address match only covers rows without a city", async () => {
+    spot(7, { name: "Jungle Cafe", address: "Jl. Raya Sayan, Gianyar", city: "Ubud, Bali" });
+    spot(8, { name: "Pho Stall", address: "12 Lý Tự Trọng, Quận 1, Hồ Chí Minh", city: "Ho Chi Minh City" });
+    spot(9, { name: "Seoul Garden", address: "88 Orchard Rd, Singapore", city: "Singapore" }); // address names another city
+    const names = async (params: Record<string, string>) => (await fetchFilteredSpots(parseFilterParams(params))).spots.map((s) => s.name);
+    expect(await names({ city: "bali-ubud" })).toEqual(["Jungle Cafe"]);
+    expect(await names({ city: "ho-chi-minh" })).toEqual(["Pho Stall"]);
+    expect(await names({ city: "seoul" })).not.toContain("Seoul Garden");
+    expect(await names({ city: "singapore" })).toEqual(["Seoul Garden"]);
+    // The map pin index reads the same key query.
+    expect((await d1FilteredSpotKeys(parseFilterParams({ city: "bali-ubud" }))).map((r) => r.city)).toEqual(["Ubud, Bali"]);
+    const counts = Object.fromEntries((await fetchFilterOptions()).cities.map((c) => [c.slug, c.count]));
+    expect(counts).toMatchObject({ seoul: 2, "bali-ubud": 1, "ho-chi-minh": 1, singapore: 1 });
   });
 
   it("counts filter options and the total from public rows only", async () => {
