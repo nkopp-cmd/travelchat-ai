@@ -69,11 +69,29 @@ export function selectedListTitle(discovery: Locator): Locator {
   return discovery.locator('ul[aria-label="Spots on this page"] > li[aria-current=true]').getByTestId("spot-card-title");
 }
 
+/** The list marks the selected spot as current when that spot is on the list page (the map holds every pin). */
+export async function expectListSelection(discovery: Locator, name: string): Promise<void> {
+  const listed = discovery.locator('ul[aria-label="Spots on this page"] > li').getByTestId("spot-card-title")
+    .filter({ hasText: new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`) });
+  if (await listed.count() > 0) await expect(selectedListTitle(discovery)).toHaveText(name);
+}
+
 /** Spot name of a single pin: its label minus the trailing ", <category>". */
 export async function pinName(pin: Locator): Promise<string> {
   const label = (await pin.getAttribute("aria-label")) || "";
   const category = (await pin.locator(".ll-pin-chip").textContent()) || "";
   return label.endsWith(`, ${category}`) ? label.slice(0, -(category.length + 2)) : label;
+}
+
+/** The real spot name once the pin's card data has loaded (stub pins are named "<category> spot"). */
+export async function loadedPinName(pin: Locator): Promise<string> {
+  let name = "";
+  await expect.poll(async () => {
+    name = await pinName(pin);
+    const category = (await pin.locator(".ll-pin-chip").textContent()) || "";
+    return name !== "" && name !== `${category} spot`;
+  }, { message: "pin card data loads and names the pin" }).toBe(true);
+  return name;
 }
 
 /** The open pin card for a spot, and the /spots/<uuid> path of its Details link. */
