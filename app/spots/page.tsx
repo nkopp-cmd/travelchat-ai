@@ -87,22 +87,6 @@ function SpotsLoading() {
 }
 
 /**
- * City Coverage Stats Component - Server wrapper for client CityQuickFilters
- * Fetches filter options on server, passes to interactive client component
- */
-async function CityCoverageStats() {
-    const filterOptions = await fetchFilterOptions();
-    const totalSpots = filterOptions.cities.reduce((sum, c) => sum + c.count, 0);
-
-    return (
-        <CityQuickFilters
-            cities={filterOptions.cities}
-            totalSpots={totalSpots}
-        />
-    );
-}
-
-/**
  * Server component that fetches spots based on URL filters
  */
 async function SpotsContent({
@@ -160,8 +144,10 @@ async function SpotsContent({
  * Example: /spots?city=seoul&category=Food&page=2
  */
 export default async function SpotsPage({ searchParams }: SpotsPageProps) {
-    const params = await searchParams;
+    // Filter options are cached (10 min) and SpotsContent needs them too, so the shell waits for no extra round trip.
+    const [params, filterOptions] = await Promise.all([searchParams, fetchFilterOptions()]);
     const hub = spotsHub(params);
+    const totalSpots = filterOptions.cities.reduce((sum, c) => sum + c.count, 0);
 
     return (
         <AppBackground ambient fitParent>
@@ -219,21 +205,8 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
                         </div>
                     </div>
 
-                    {/* City Coverage Stats */}
-                    <Suspense
-                        fallback={
-                            <div className="flex gap-2">
-                                {[1, 2, 3, 4].map((i) => (
-                                    <div
-                                        key={i}
-                                        className="h-9 w-32 animate-pulse rounded-full bg-white/10 backdrop-blur-sm"
-                                    />
-                                ))}
-                            </div>
-                        }
-                    >
-                        <CityCoverageStats />
-                    </Suspense>
+                    {/* City chips render in the first HTML: a streamed fallback of another height shifted the page (PSI mobile CLS 0.39). */}
+                    <CityQuickFilters cities={filterOptions.cities} totalSpots={totalSpots} />
                 </div>
 
                 {/* Main Content: no key, so a filter change keeps the current view (and the mounted map) until new results arrive. */}
