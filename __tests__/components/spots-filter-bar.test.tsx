@@ -170,4 +170,10 @@ describe("SpotsFilterBar", () => {
     expect(page).toMatch(/<Suspense fallback={<SpotsLoading \/>}>\s*<SpotsContent/);
     expect(page).not.toMatch(/<Suspense key=/);
   });
+
+  it("renders the city chips in the first HTML, so no late stream shifts the page", () => {
+    const page = readFileSync("app/spots/page.tsx", "utf8");
+    expect(page).toMatch(/<CityQuickFilters cities={filterOptions\.cities}/);
+    expect(page).not.toMatch(/<Suspense[\s\S]{0,400}<CityQuickFilters/);
+  });
 });
