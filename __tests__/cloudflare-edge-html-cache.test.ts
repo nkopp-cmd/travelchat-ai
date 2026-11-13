@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { EDGE_CACHE_HEADER, isEdgeCacheable, serveWithEdgeCache } from "@/cloudflare/opennext/edge-html-cache";
+import { EDGE_CACHE_HEADER, edgeTtlSeconds, isEdgeCacheable, serveWithEdgeCache } from "@/cloudflare/opennext/edge-html-cache";
 
 function memoryCache() {
   const store = new Map<string, Response>();
@@ -113,7 +113,7 @@ describe("public HTML edge cache", () => {
     expect(cache.match).not.toHaveBeenCalled();
   });
 
-  it("keeps a spot detail page for five minutes under its own path", async () => {
+  it("keeps a spot detail page for one hour under its own path", async () => {
     const cache = memoryCache();
     const path = "https://www.localley.io/spots/15614d97-380f-4e8d-8aa6-aa6f43609bcf";
     const handler = vi.fn(async () => html({ "cache-control": "private, no-store" }));
@@ -123,7 +123,7 @@ describe("public HTML edge cache", () => {
     expect(hit.headers.get("cache-control")).toBe("private, no-store");
     expect(handler).toHaveBeenCalledTimes(1);
     expect([...cache.store.keys()]).toEqual([`${path}?__edge=v1`]);
-    expect(cache.store.get(`${path}?__edge=v1`)?.headers.get("cache-control")).toBe("public, s-maxage=300");
+    expect(cache.store.get(`${path}?__edge=v1`)?.headers.get("cache-control")).toBe("public, s-maxage=3600");
   });
 
   it("keeps one entry per enabled city and view on /spots", async () => {
@@ -197,5 +197,12 @@ describe("public HTML edge cache", () => {
     ]) {
       expect(isEdgeCacheable(new Request(`https://www.localley.io${other}`)), other).toBe(false);
     }
+  });
+
+  it("keeps viral events and pin cards at five minutes while spot pages get one hour", () => {
+    expect(edgeTtlSeconds("/spots/15614d97-380f-4e8d-8aa6-aa6f43609bcf")).toBe(3600);
+    expect(edgeTtlSeconds("/trending/songkran-water-fight")).toBe(300);
+    expect(edgeTtlSeconds("/api/spots/pins/15614d97")).toBe(300);
+    expect(edgeTtlSeconds("/spots/15614d97-380f-4e8d-8aa6-aa6f43609bcf/edit")).toBeUndefined();
   });
 });
