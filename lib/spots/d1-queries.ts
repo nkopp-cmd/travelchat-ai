@@ -276,14 +276,38 @@ export async function d1PhotoCredits(): Promise<D1PhotoCredit[]> {
  * Every public spot id with its real last change (sitemap lastmod): the newest of the row's created_at,
  * an approved stored photo and a visible tip. spots has no updated_at column; never "now".
  */
-export async function d1SitemapSpots(): Promise<{ id: string; lastmod: string | null }[]> {
+export type D1SitemapSpot = {
+  id: string; lastmod: string | null; name: string; address: string; description: string; hasPhoto: boolean;
+};
+
+/**
+ * Every public spot for the sitemap, in the hub's score order (so the name+address dedupe keeps the same row as the
+ * hub). Description and photo flag come from the page's own source (legacy_spot_source payload) so the sitemap filter
+ * and the page's noindex decision agree (lib/seo/spot-indexable.ts).
+ */
+export async function d1SitemapSpots(): Promise<D1SitemapSpot[]> {
   const where = visibilityWhere();
-  const { results } = await appDataDb().prepare(`SELECT s.id, NULLIF(MAX(COALESCE(substr(s.created_at, 1, 19), ''),
+  const { results } = await appDataDb().prepare(`SELECT s.id, ${NAME_EN} AS name_en, s.address,
+      CASE json_type(l.payload, '$.description') WHEN 'object' THEN json_extract(l.payload, '$.description.en')
+        WHEN 'text' THEN json_extract(l.payload, '$.description') END AS description,
+      (EXISTS (SELECT 1 FROM spot_photos ph WHERE ph.spot_id = s.id)
+        OR COALESCE(json_extract(l.payload, '$.google_place_id'), '') <> ''
+        OR COALESCE(json_array_length(l.payload, '$.photos'), 0) > 0) AS has_photo,
+      NULLIF(MAX(COALESCE(substr(s.created_at, 1, 19), ''),
       COALESCE((SELECT MAX(substr(ph.approved_at, 1, 19)) FROM spot_photos ph WHERE ph.spot_id = s.id), ''),
       COALESCE((SELECT MAX(substr(t.created_at, 1, 19)) FROM spot_tips t WHERE t.spot_id = s.id AND t.status = 'visible'), '')), '') AS lastmod
-    FROM spots s WHERE ${where.sql.join(" AND ")} ORDER BY s.id ASC`).bind(...where.params).all<Record<string, unknown>>();
-  return results.map((row) => ({
-    id: String(row.id),
-    lastmod: typeof row.lastmod === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(row.lastmod) ? `${row.lastmod}+00:00` : null,
-  }));
+    FROM spots s LEFT JOIN legacy_spot_source l ON l.spotId = s.id
+    WHERE ${where.sql.join(" AND ")} ORDER BY ${orderBy("score")}`).bind(...where.params).all<Record<string, unknown>>();
+  return results.map((row) => {
+    const address = parseJson(row.address);
+    return {
+      id: String(row.id),
+      lastmod: typeof row.lastmod === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(row.lastmod) ? `${row.lastmod}+00:00` : null,
+      name: typeof row.name_en === "string" ? row.name_en : "",
+      address: typeof address === "string" ? address
+        : address && typeof address === "object" ? String((address as Record<string, unknown>).en ?? Object.values(address)[0] ?? "") : "",
+      description: typeof row.description === "string" ? row.description : "",
+      hasPhoto: Number(row.has_photo) === 1,
+    };
+  });
 }

@@ -88,6 +88,8 @@ VITEST_FILES=(
   __tests__/lib/blog.test.ts
   __tests__/app/site-url-fallback.test.ts
   __tests__/lib/seo-sitemap.test.ts
+  __tests__/lib/seo-spot-indexable.test.ts
+  __tests__/lib/spots-city-directory.test.ts
   __tests__/lib/weekly-post-topic.test.ts
   __tests__/lib/weekly-post-draft.test.ts
   __tests__/lib/weekly-post-gates.test.ts
@@ -328,9 +330,15 @@ ESLINT_FILES=(
   scripts/weekly-post-publish.mjs
   lib/seo/sitemap.ts
   lib/seo/sitemap-spots.ts
+  lib/seo/spot-indexable.ts
+  lib/spots/city-directory.ts
+  lib/spots/city-directory-store.ts
+  components/spots/city-spot-directory.tsx
   app/sitemap.xml/route.ts
   app/sitemaps/[file]/route.ts
   __tests__/lib/seo-sitemap.test.ts
+  __tests__/lib/seo-spot-indexable.test.ts
+  __tests__/lib/spots-city-directory.test.ts
   __tests__/lib/blog.test.ts
   __tests__/lib/weekly-post-topic.test.ts
   __tests__/lib/weekly-post-draft.test.ts
@@ -785,6 +793,8 @@ lane_node() {
   node scripts/d1-migration/source-owner-policy-proof.mjs --out "$RUNNER_TEMP/localley-source-owner-proof-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"
   node scripts/d1-migration/affiliate-policy-proof.mjs --out "$RUNNER_TEMP/localley-affiliate-policy-proof-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"
   node scripts/d1-migration/atomic-usage-proof.mjs --out "$RUNNER_TEMP/localley-quota-proof-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"
+  node --test scripts/seo/orphan-check-lib.test.mjs
+  node --check scripts/seo/orphan-check.mjs
   node --test scripts/photos/quarantine-source.test.mjs
   node --test scripts/photos/kto-harvest-lib.test.mjs
   node --test scripts/photos/taiwan-opendata-lib.test.mjs
