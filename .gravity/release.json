@@ -1,6 +1,5 @@
 {
   "cwd": ".",
-  "paths": ["."],
   "vars": { "CLOUDFLARE_ACCOUNT_ID": "664f242340bcec2f32daaeee15f58bde", "WRANGLER_SEND_METRICS": "false" },
   "steps": [
     { "run": ["npm", "ci", "--no-audit", "--no-fund"] },
