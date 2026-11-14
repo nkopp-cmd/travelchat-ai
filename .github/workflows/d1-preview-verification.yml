@@ -40,6 +40,8 @@ on:
       - 'app/api/newsletter/**'
       - 'components/newsletter/**'
       - 'emails/newsletter-*.tsx'
+      - 'emails/newsletter-*.ts'
+      - 'public/email/**'
       - 'scripts/newsletter/**'
       - 'migrations/app-preview/0051_newsletter_subscribers.sql'
       - '__tests__/lib/newsletter-store.test.ts'

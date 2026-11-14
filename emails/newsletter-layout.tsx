@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import { Body, Container, Head, Hr, Html, Link, Preview, Section, Text } from "@react-email/components";
+import { Body, Container, Head, Hr, Html, Img, Link, Preview, Section, Text } from "@react-email/components";
+import { LOGO } from "./newsletter-assets";
 
 // Localley design tokens (docs/DESIGN.md): dark ink background, raised surface, violet action.
 export const tokens = {
@@ -33,8 +34,9 @@ export const styles = {
  * One frame for every newsletter mail: wordmark, content, legal footer. `unsubscribeUrl` is required for issues and
  * absent for the transactional confirmation (the address is not on the list yet).
  */
-export function NewsletterLayout({ preview, children, footerReason, unsubscribeUrl }: {
+export function NewsletterLayout({ preview, children, footerReason, unsubscribeUrl, hero }: {
   preview: string;
+  hero?: ReactNode;
   children: ReactNode;
   footerReason: string;
   unsubscribeUrl?: string;
@@ -48,11 +50,23 @@ export function NewsletterLayout({ preview, children, footerReason, unsubscribeU
       <Preview>{preview}</Preview>
       <Body style={{ backgroundColor: tokens.background, fontFamily: font, margin: 0, padding: "24px 12px" }}>
         <Container style={{ maxWidth: "560px", margin: "0 auto" }}>
-          <Text style={{ color: tokens.action, fontSize: "20px", fontWeight: 800, letterSpacing: "-0.01em", margin: "0 0 16px 4px" }}>
-            Localley
-          </Text>
-          <Section style={{ backgroundColor: tokens.surface, borderRadius: "20px", padding: "28px 24px" }}>
-            {children}
+          <table role="presentation" cellPadding={0} cellSpacing={0} style={{ margin: "0 0 16px 4px" }}>
+            <tbody>
+              <tr>
+                <td style={{ verticalAlign: "middle", paddingRight: "10px" }}>
+                  <Link href={SITE}>
+                    <Img src={LOGO} width={32} height={32} alt="Localley" style={{ display: "block", border: 0, borderRadius: "9px" }} />
+                  </Link>
+                </td>
+                <td style={{ verticalAlign: "middle", color: tokens.text, fontSize: "20px", fontWeight: 800, letterSpacing: "-0.01em" }}>
+                  Localley
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <Section style={{ backgroundColor: tokens.surface, borderRadius: "20px" }}>
+            {hero}
+            <Section style={{ padding: "28px 22px" }}>{children}</Section>
           </Section>
           <Section style={{ padding: "20px 8px 0" }}>
             <Text style={{ ...styles.muted, fontSize: "12px", lineHeight: "18px" }}>{footerReason}</Text>
