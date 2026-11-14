@@ -153,7 +153,7 @@ export default function SpotsMap({ spots, pinQuery, footer, onClose, cities = []
     return (
         <section ref={section} aria-label="Discovery map"
             className={cn(
-                "fixed inset-x-0 bottom-[var(--ll-nav-clearance)] top-[calc(var(--ll-topbar-height)+var(--ll-map-filters-height,0px))] z-40 overflow-hidden",
+                "fixed inset-x-0 bottom-[var(--ll-nav-clearance)] top-[var(--ll-topbar-height)] z-40 overflow-hidden",
                 "lg:relative lg:inset-auto lg:z-auto lg:grid lg:h-[calc(100dvh-var(--ll-topbar-height)-2rem)] lg:scroll-mt-[calc(var(--ll-topbar-height)+1rem)]",
                 "lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)] lg:gap-5 lg:overflow-visible",
             )}>
@@ -181,7 +181,7 @@ export default function SpotsMap({ spots, pinQuery, footer, onClose, cities = []
             <div id={sheetId} data-snap={snap} data-dragging={dragPx !== null ? "" : undefined}
                 style={{ ["--sheet-y" as string]: sheetY }}
                 className={cn(
-                    "absolute inset-x-0 bottom-0 top-3 z-10 flex flex-col rounded-t-3xl bg-surface shadow-overlay",
+                    "absolute inset-x-0 bottom-0 top-3 z-10 flex flex-col rounded-t-3xl bg-surface shadow-overlay max-lg:top-[calc(var(--ll-map-filters-height,0px)+0.75rem)]",
                     "max-lg:[transform:translateY(var(--sheet-y))] max-lg:will-change-transform",
                     dragPx === null && "transition-transform duration-300 ease-out motion-reduce:transition-none",
                     "lg:static lg:order-1 lg:min-h-0 lg:rounded-2xl lg:shadow-none",
@@ -357,9 +357,13 @@ function usePinIndex(query: string | undefined) {
     return { pins: state && state.query === query ? state.pins : null, cards, loadCard };
 }
 
-/** Visible phone sheet height: it starts 12px below the top (top-3) and moves down by (height - PEEK_PX) * fraction. */
-export function sheetInset(height: number, snap: SheetSnap): number {
-    return Math.max(0, Math.round(height - 12 - (height - PEEK_PX) * SNAP_FRACTION[snap]));
+/**
+ * Visible phone sheet height: it starts `top` px below the section top (12px + the floating search bar)
+ * and moves down by (sheet height - PEEK_PX) * fraction.
+ */
+export function sheetInset(height: number, snap: SheetSnap, top = 12): number {
+    const sheet = height - top;
+    return Math.max(0, Math.round(sheet - (sheet - PEEK_PX) * SNAP_FRACTION[snap]));
 }
 
 /**
@@ -373,7 +377,8 @@ function useSheetInset(section: { current: HTMLElement | null }, snap: SheetSnap
         if (!element) return;
         const measure = () => {
             if (window.matchMedia?.("(min-width: 1024px)").matches) return setInset(0);
-            setInset(sheetInset(element.clientHeight, snap));
+            const floating = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--ll-map-filters-height")) || 0;
+            setInset(sheetInset(element.clientHeight, snap, 12 + floating));
         };
         measure();
         if (typeof ResizeObserver === "undefined") return;

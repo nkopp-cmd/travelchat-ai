@@ -511,6 +511,8 @@
    map, never a stroke. The tail is a clip-path shape. */
 /* The base map is a MapLibre vector style drawn in the --ll-* tokens
    (lib/maps/localley-map-style.ts); no tile filter. */
+/* Phones: pinch zooms; the +/- buttons would sit under the floating search pill. */
+@media (max-width: 1023.98px) { .ll-pin-map .maplibregl-ctrl-top-left { display: none; } }
 .ll-pin-map {
     background: rgb(var(--ll-surface));
 }

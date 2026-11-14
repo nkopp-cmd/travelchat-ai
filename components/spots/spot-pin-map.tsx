@@ -413,9 +413,16 @@ export function fitCore(points: [number, number][]): [number, number][] {
 }
 
 /** Fit padding with room for a bottom overlay; capped so a short map still keeps a usable box. */
-export function fitPadding(height: number, bottomInset: number) {
-    const bottom = 48 + Math.max(0, Math.min(bottomInset, height - 48 - 48 - 120));
-    return { top: 48, right: 48, bottom, left: 48 };
+export function fitPadding(height: number, bottomInset: number, topInset = floatingTopInset()) {
+    const top = 48 + Math.max(0, Math.min(topInset, height / 3));
+    const bottom = 48 + Math.max(0, Math.min(bottomInset, height - top - 48 - 120));
+    return { top, right: 48, bottom, left: 48 };
+}
+
+/** Height of the search + chips that float over the phone map (set by the spots explorer; 0 elsewhere). */
+function floatingTopInset(): number {
+    if (typeof document === "undefined") return 0;
+    return parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--ll-map-filters-height")) || 0;
 }
 
 // Copied to public/ by scripts/copy-maplibre-worker.mjs; the bundled default URL points at a missing chunk.

@@ -143,6 +143,34 @@ describe("SpotsFilterBar", () => {
     expect(advanced.className).not.toMatch(/(^| )hidden( |$)/);
   });
 
+  it("floats the filter card over the phone map and closes it after a choice or when the map opens", () => {
+    const props = {
+      filterOptions,
+      onFilterChange: vi.fn(),
+      onClearFilters: vi.fn(),
+      isPending: false,
+    };
+    // Opened in the list view (active sort), then the user switches to the map: the card must not stay open.
+    const { rerender } = render(<SpotsFilterBar {...props} currentFilters={activeFilters} />);
+    const advanced = () => document.getElementById("spots-advanced-filters")!;
+    expect(advanced().className).not.toMatch(/(^| )hidden( |$)/);
+    rerender(<SpotsFilterBar {...props} currentFilters={activeFilters} overMap />);
+    const toggle = screen.getByTestId("spots-mobile-filter-toggle");
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    expect(advanced().className).toMatch(/(^| )hidden( |$)/);
+
+    // Over the map the card floats (absolute), so opening it never shrinks the map.
+    fireEvent.click(toggle);
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    expect(advanced().className).toContain("max-lg:absolute");
+    expect(advanced().className).toContain("max-lg:top-full");
+
+    // A choice closes the card, so the map is visible again at once.
+    rerender(<SpotsFilterBar {...props} currentFilters={{ ...activeFilters, category: "cafe" }} overMap />);
+    expect(screen.getByTestId("spots-mobile-filter-toggle").getAttribute("aria-expanded")).toBe("false");
+    expect(advanced().className).toMatch(/(^| )hidden( |$)/);
+  });
+
   it("shows the city inside the map search pill and counts active filters on the filter icon", () => {
     const onFilterChange = vi.fn();
     render(
