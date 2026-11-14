@@ -453,7 +453,8 @@ function DaySlide({ dayPlan, dayNumber, backgroundImage, isPaidUser }: { dayPlan
                 </div>
 
                 {/* Card sits low, above the footer: the photo shows on top, the card uses the lower space */}
-                <div style={{ display: "flex", flex: 1, alignItems: "flex-end", justifyContent: "center", width: "100%", paddingBottom: 28 }}>
+                {/* Card centre sits slightly above the slide middle (Nils 2026-11-14): clear of the TikTok/IG caption area. */}
+                <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center", width: "100%", paddingBottom: 200 }}>
                 {/* Main content card — centered glass card with Day title + activities */}
                 <div
                     style={{
@@ -663,7 +664,8 @@ function SummarySlide({ title, city, highlights, backgroundImage, isPaidUser }: 
                 </div>
 
                 {/* Card sits low, above the footer: the photo shows on top, the card uses the lower space */}
-                <div style={{ display: "flex", flex: 1, alignItems: "flex-end", justifyContent: "center", width: "100%", paddingBottom: 28 }}>
+                {/* Card centre sits slightly above the slide middle (Nils 2026-11-14): clear of the TikTok/IG caption area. */}
+                <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center", width: "100%", paddingBottom: 200 }}>
                 {/* Main content card - Glassmorphism */}
                 <div
                     style={{
