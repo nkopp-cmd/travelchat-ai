@@ -10,6 +10,8 @@ export type CityDirectoryEntry = {
   category: string | null;
   lat: number | null;
   lng: number | null;
+  /** Position in the hub's score order (0 = highest Localley Score); the list itself is A-Z. */
+  rank: number;
 };
 
 export type NearbyEntry = CityDirectoryEntry & { distanceKm: number };
@@ -32,15 +34,16 @@ function englishName(name: unknown): string {
   return "";
 }
 
-/** Rows (already deduped in hub order) -> named entries sorted A-Z; rows without a name are dropped. */
+/** Rows (already deduped in hub score order) -> named entries sorted A-Z; rows without a name are dropped. */
 export function toDirectoryEntries(rows: KeyRow[]): CityDirectoryEntry[] {
   return rows
-    .map((row) => ({
+    .map((row, rank) => ({
       id: row.id,
       name: englishName(row.name),
       category: row.category ?? null,
       lat: typeof row.latitude === "number" ? row.latitude : null,
       lng: typeof row.longitude === "number" ? row.longitude : null,
+      rank,
     }))
     .filter((entry) => entry.name.length > 0)
     .sort((a, b) => a.name.localeCompare(b.name, "en", { sensitivity: "base" }) || a.id.localeCompare(b.id));
@@ -75,4 +78,10 @@ export function groupByInitial(entries: CityDirectoryEntry[]): { letter: string;
   return [...groups.entries()]
     .sort(([a], [b]) => (a === "#" ? 1 : b === "#" ? -1 : a.localeCompare(b)))
     .map(([letter, list]) => ({ letter, entries: list }));
+}
+
+/** The `limit` best-scored entries of one category (hub score order), for the hub's cafe and food picks. */
+export function topPicks(entries: CityDirectoryEntry[], category: string, limit = 6): CityDirectoryEntry[] {
+  if (limit <= 0) return [];
+  return entries.filter((entry) => entry.category === category).sort((a, b) => a.rank - b.rank).slice(0, limit);
 }

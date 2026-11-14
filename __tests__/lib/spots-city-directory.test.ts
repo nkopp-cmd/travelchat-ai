@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import fc from "fast-check";
-import { groupByInitial, nearestEntries, toDirectoryEntries } from "@/lib/spots/city-directory";
+import { groupByInitial, nearestEntries, toDirectoryEntries, topPicks } from "@/lib/spots/city-directory";
 
 const rows = [
   { id: "1", name: { en: "Zen Cafe" }, category: "Cafe", latitude: 37.57, longitude: 126.98 },
@@ -47,5 +47,29 @@ describe("groupByInitial", () => {
   it("groups by first Latin letter, accents folded, other scripts under # last", () => {
     const groups = groupByInitial(toDirectoryEntries([...rows, { id: "6", name: { en: "Élan" }, category: null, latitude: null, longitude: null }]));
     expect(groups.map((g) => g.letter)).toEqual(["A", "B", "E", "Z", "#"]);
+  });
+});
+
+describe("topPicks", () => {
+  it("keeps hub score order (rank), filters one category and caps the list", () => {
+    const entries = toDirectoryEntries([
+      { id: "a", name: "Zebra Cafe", category: "Cafe" },
+      { id: "b", name: "Apple Food", category: "Food" },
+      { id: "c", name: "Mellow Cafe", category: "Cafe" },
+      { id: "d", name: "Brew Cafe", category: "Cafe" },
+    ]);
+    expect(topPicks(entries, "Cafe", 2).map((e) => e.id)).toEqual(["a", "c"]);
+    expect(topPicks(entries, "Food").map((e) => e.id)).toEqual(["b"]);
+    expect(topPicks(entries, "Cafe", 0)).toEqual([]);
+  });
+
+  it("property: at most `limit`, one category, ranks ascending", () => {
+    const arb = fc.array(fc.record({ id: fc.uuid(), name: fc.string({ minLength: 1 }), category: fc.constantFrom("Cafe", "Food", null) }), { maxLength: 40 });
+    fc.assert(fc.property(arb, fc.integer({ min: 0, max: 8 }), (input, limit) => {
+      const out = topPicks(toDirectoryEntries(input), "Cafe", limit);
+      expect(out.length).toBeLessThanOrEqual(limit);
+      for (const e of out) expect(e.category).toBe("Cafe");
+      for (let i = 1; i < out.length; i++) expect(out[i].rank).toBeGreaterThan(out[i - 1].rank);
+    }));
   });
 });

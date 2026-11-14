@@ -37,9 +37,9 @@ the autocomplete for every city), TikTok/IG reels and Pinterest boards before a 
 | 3 | bangkok hidden gems | browse -> plan | /spots?city=bangkok | live |
 | 4 | hidden gems singapore | browse -> plan | /spots?city=singapore | live |
 | 5 | non touristy things to do in seoul | browse | /spots?city=seoul | live (same hub as 1; answer in the hub intro) |
-| 6 | hidden gem seoul cafe | browse | /spots?city=seoul | gap: no cafe block on the hub; add one before a new page |
-| 7 | local cafes tokyo | browse | /spots?city=tokyo | gap: as 6 |
-| 8 | hidden gems bangkok food | browse | /spots?city=bangkok | gap: as 6 (food block) |
+| 6 | hidden gem seoul cafe | browse | /spots?city=seoul | PR #764: "Hidden-gem cafes in Seoul" top-6 block on the hub |
+| 7 | local cafes tokyo | browse | /spots?city=tokyo | PR #764 (cafe block) |
+| 8 | hidden gems bangkok food | browse | /spots?city=bangkok | PR #764 ("Local food in Bangkok" block) |
 | 9 | hidden gems kyoto | browse -> plan | /spots?city=kyoto | live |
 | 10 | seoul local itinerary | plan -> buy | /templates | live; Seoul week template; Pro upsell |
 | 11 | how to pay in south korea as a tourist | do now | /help/korea/pay | live |
