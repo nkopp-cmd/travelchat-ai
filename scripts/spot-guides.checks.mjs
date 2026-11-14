@@ -1,7 +1,7 @@
 // node --test scripts/spot-guides.checks.mjs — pure parts of the spot guide writer (no network).
 import assert from "node:assert/strict";
 import test from "node:test";
-import { MAX_FAILURES, RUN_CAP, acceptGuides, buildGuidePrompt, pickSpots, spotFacts } from "./spot-guides.mjs";
+import { GUIDE_SCHEMA, MAX_FAILURES, RUN_CAP, acceptGuides, buildGuidePrompt, claudeArgs, claudeEnv, parseClaudeResult, pickSpots, spotFacts, thinPoolIds } from "./spot-guides.mjs";
 
 const id = "6bff8713-ceaa-45f8-a8b8-3e39d4017b03";
 const words = (n) => Array.from({ length: n }, (_, i) => `word${i}`).join(" ");
@@ -41,4 +41,36 @@ test("pick order: viral first, no repeats, done and failed skipped, run cap", ()
   assert.deepEqual(pickSpots(["a", "b"], ["c"], state, { limit: 5, force: true }), ["a", "b", "c"]);
   const many = Array.from({ length: 100 }, (_, i) => `s${i}`);
   assert.equal(pickSpots([], many, { done: {}, failed: {} }, { limit: 999 }).length, RUN_CAP);
+});
+
+test("claude engine: subscription token required, metered key never passed, web tools only", () => {
+  assert.throws(() => claudeEnv({ ANTHROPIC_API_KEY: "k" }), /CLAUDE_CODE_OAUTH_TOKEN missing/);
+  const env = claudeEnv({ CLAUDE_CODE_OAUTH_TOKEN: "t", ANTHROPIC_API_KEY: "k", ANTHROPIC_AUTH_TOKEN: "a", PATH: "/bin" });
+  assert.equal(env.ANTHROPIC_API_KEY, undefined);
+  assert.equal(env.ANTHROPIC_AUTH_TOKEN, undefined);
+  assert.equal(env.PATH, "/bin");
+  const args = claudeArgs(GUIDE_SCHEMA);
+  assert.deepEqual(JSON.parse(args[args.indexOf("--json-schema") + 1]), GUIDE_SCHEMA);
+  assert.deepEqual(args.slice(args.indexOf("--tools") + 1, args.indexOf("--allowedTools")), ["WebSearch", "WebFetch"]);
+  assert.ok(!args.some((a) => /Bash|Write|Edit/.test(a)));
+});
+
+test("claude result: structured output or a clear error", () => {
+  assert.deepEqual(parseClaudeResult(JSON.stringify({ is_error: false, structured_output: { guides: [] } })), { guides: [] });
+  assert.throws(() => parseClaudeResult(JSON.stringify({ is_error: true, result: "Failed to authenticate" })), /Failed to authenticate/);
+  assert.throws(() => parseClaudeResult(JSON.stringify({ is_error: false, result: "text only" })), /text only/);
+});
+
+test("thin pool keeps only noindex spots with a unique name+address, in the given order", () => {
+  const long = "x".repeat(90);
+  const rows = [
+    { id: "a", name: "Cafe A", address: '{"en":"1 Road"}', description: "short", has_photo: 1 },
+    { id: "b", name: "Cafe B", address: "2 Road", description: long, has_photo: 1 },
+    { id: "c", name: "Cafe C", address: "3 Road", description: long, has_photo: 0 },
+    { id: "d", name: "Dup", address: "4 Road", description: "", has_photo: 0 },
+    { id: "e", name: "dup ", address: '{"en":"4 road"}', description: "", has_photo: 0 },
+    { id: "f", name: null, address: "5 Road", description: "", has_photo: 0 },
+    { id: "g", name: "Linky", address: "6 Road", description: `[${"y".repeat(70)}](https://example.com/very/long/link)`, has_photo: 1 },
+  ];
+  assert.deepEqual(thinPoolIds(rows), ["a", "c", "g"]);
 });

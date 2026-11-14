@@ -1,11 +1,15 @@
 #!/usr/bin/env node
 // Spot guides (shared/plans/content-first.md item 1): 80-200 words of own guidance per spot, drafted on the ChatGPT
-// subscription (`codex --search exec`, back-office rule; never a metered API) from the stored spot facts, its viral
+// subscription (`codex --search exec`) or the Claude Max subscription (`--engine claude`: `claude -p` with web search,
+// ANTHROPIC_API_KEY removed, CLAUDE_CODE_OAUTH_TOKEN required; back-office rule, never a metered API) from the stored spot facts, its viral
 // events and sources the model opened. Unknown stays null. Each guide passes parseSpotGuide (lib/spots/guide.ts: length,
 // banned internal wording) before it goes to R2 as guides/spots/<id>.json; the spot page reads it at render time.
 //
 //   node scripts/spot-guides.mjs [--limit 8] [--batch 4] [--ids a,b] [--dry-run] [--force] [--count]
-//   --dry-run still writes guides with codex (prints them, no upload); --count only lists what is still to do.
+//                                [--engine codex|claude] [--pool ranked|thin]
+//   --dry-run still writes guides with the model (prints them, no upload); --count only lists what is still to do.
+//   --pool thin: visible spots that are noindex today (no photo or a description < 80 chars, lib/seo/spot-indexable.ts)
+//   and have a unique name+address, ring-1 cities first; a guide makes them indexable.
 //
 // Order: spots of live viral events first, then visible ring-1 spots by trending score. Resumable: done ids live in
 // ~/.local/state/localley/spot-guides.json; a spot that failed 2 times is skipped until --force.
@@ -24,6 +28,7 @@ const STATE = join(STATE_DIR, "spot-guides.json");
 export const RING1 = ["Seoul", "Tokyo", "Bangkok", "Singapore"];
 export const MAX_FAILURES = 2;
 export const RUN_CAP = 40; // spots per run, whatever --limit says
+export const MIN_INDEXABLE_DESCRIPTION = 80; // = lib/seo/spot-indexable.ts
 
 const line = { type: ["string", "null"] };
 export const GUIDE_SCHEMA = {
@@ -138,6 +143,48 @@ export function pickSpots(viralIds, ranked, state, { limit, force = false }) {
   return out;
 }
 
+/** `claude -p` argv: structured output against the schema, web research tools only, no file or shell tools. */
+export function claudeArgs(schema, model = "sonnet") {
+  return ["-p", "--model", model, "--output-format", "json", "--json-schema", JSON.stringify(schema),
+    "--tools", "WebSearch", "WebFetch", "--allowedTools", "WebSearch", "WebFetch"];
+}
+
+/** Subscription only: the metered key never reaches `claude`, and no OAuth token means no run (no silent fallback). */
+export function claudeEnv(env) {
+  if (!env.CLAUDE_CODE_OAUTH_TOKEN) throw new Error("CLAUDE_CODE_OAUTH_TOKEN missing (source ~/secrets/keys.env); refusing a metered fallback");
+  const out = { ...env };
+  delete out.ANTHROPIC_API_KEY;
+  delete out.ANTHROPIC_AUTH_TOKEN;
+  return out;
+}
+
+/** `claude -p --output-format json` stdout -> the structured output, or an error with the CLI's reason. */
+export function parseClaudeResult(stdout) {
+  const data = JSON.parse(stdout);
+  if (data.is_error || !data.structured_output) throw new Error(`claude: ${String(data.result ?? data.subtype ?? "no structured output").slice(0, 200)}`);
+  return data.structured_output;
+}
+
+function englishAddress(value) {
+  if (typeof value !== "string") return "";
+  if (!/^\s*[{"]/.test(value)) return value;
+  try {
+    const parsed = JSON.parse(value);
+    return typeof parsed === "string" ? parsed : parsed && typeof parsed === "object" ? String(parsed.en ?? Object.values(parsed)[0] ?? "") : "";
+  } catch { return value; }
+}
+
+/** Thin-pool rows (ordered) -> ids: drop indexable rows and every name+address that occurs more than once (the
+ * sitemap keeps only one of those, so a guide there may never be crawled). Same keys as the sitemap (d1SitemapSpots). */
+export function thinPoolIds(rows) {
+  const key = (row) => `${String(row.name ?? "").toLowerCase().trim()}|${englishAddress(row.address).toLowerCase().trim()}`;
+  const counts = new Map();
+  for (const row of rows) counts.set(key(row), (counts.get(key(row)) ?? 0) + 1);
+  return rows.filter((row) => String(row.name ?? "").trim() && counts.get(key(row)) === 1
+    && !(Number(row.has_photo) === 1 && String(row.description ?? "").replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g, "$1").trim().length >= MIN_INDEXABLE_DESCRIPTION))
+    .map((row) => row.id);
+}
+
 // ---------- IO ----------
 async function d1(sql, params = []) {
   const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${ACCOUNT}/d1/database/${APP_DB}/query`, {
@@ -170,6 +217,23 @@ function codex(schema, prompt) {
   } finally { rmSync(dir, { recursive: true, force: true }); }
 }
 
+function claude(schema, prompt) {
+  const stdout = execFileSync("claude", claudeArgs(schema), {
+    input: prompt, env: claudeEnv(process.env), cwd: tmpdir(), stdio: ["pipe", "pipe", "pipe"], timeout: 1200000, maxBuffer: 32 * 1024 * 1024,
+  }).toString();
+  return parseClaudeResult(stdout);
+}
+
+const THIN_POOL_SQL = `SELECT s.id, s.city,
+    json_extract(CASE WHEN json_valid(s.name) THEN s.name END, '$.en') AS name, s.address,
+    CASE json_type(l.payload, '$.description') WHEN 'object' THEN json_extract(l.payload, '$.description.en')
+      WHEN 'text' THEN json_extract(l.payload, '$.description') END AS description,
+    (EXISTS (SELECT 1 FROM spot_photos ph WHERE ph.spot_id = s.id)
+      OR COALESCE(json_extract(l.payload, '$.google_place_id'), '') <> ''
+      OR COALESCE(json_array_length(l.payload, '$.photos'), 0) > 0) AS has_photo
+  FROM spots s JOIN legacy_spot_source l ON l.spotId = s.id WHERE s.visible = 1
+  ORDER BY CASE WHEN s.city IN (${RING1.map(() => "?").join(",")}) THEN 0 ELSE 1 END, s.trending_score DESC, s.localley_score DESC, s.id`;
+
 function upload(guide) {
   const dir = mkdtempSync(join(tmpdir(), "spot-guides-pub-"));
   try {
@@ -190,7 +254,12 @@ async function main() {
   const limit = Number(value("--limit", "8"));
   const batch = Math.max(1, Math.min(6, Number(value("--batch", "4"))));
   const dryRun = flag("--dry-run");
-  const countOnly = flag("--count"); // list what is still to do; no codex call, no upload
+  const countOnly = flag("--count"); // list what is still to do; no model call, no upload
+  const engine = value("--engine", "codex");
+  if (!["codex", "claude"].includes(engine)) throw new Error(`unknown --engine ${engine}`);
+  const draft = engine === "claude" ? claude : codex;
+  const pool = value("--pool", "ranked");
+  if (!["ranked", "thin"].includes(pool)) throw new Error(`unknown --pool ${pool}`);
   if (!process.env.CLOUDFLARE_API_TOKEN) throw new Error("CLOUDFLARE_API_TOKEN missing (source ~/secrets/keys.env)");
 
   const state = readState();
@@ -202,10 +271,11 @@ async function main() {
     mentionsById.set(spot.spotId, list);
   }
   const ids = value("--ids", "")?.split(",").filter(Boolean) ?? [];
-  const ranked = ids.length ? [] : (await d1(`SELECT id FROM spots WHERE visible = 1 AND city IN (${RING1.map(() => "?").join(",")})
+  const ranked = ids.length ? [] : pool === "thin" ? thinPoolIds(await d1(THIN_POOL_SQL, RING1))
+    : (await d1(`SELECT id FROM spots WHERE visible = 1 AND city IN (${RING1.map(() => "?").join(",")})
     ORDER BY trending_score DESC, localley_score DESC, id LIMIT 200`, RING1)).map((r) => r.id);
   const picked = ids.length ? ids : pickSpots([...mentionsById.keys()], ranked, state, { limit, force: flag("--force") });
-  console.log(`picked ${picked.length} spot(s)${dryRun ? " (dry run)" : ""}`);
+  console.log(`picked ${picked.length} spot(s), engine ${engine}, pool ${pool} (${ranked.length})${dryRun ? " (dry run)" : ""}`);
   if (countOnly) { console.log(`to do ${picked.length}, done ${Object.keys(state.done).length}, failed ${Object.keys(state.failed).length}`); return; }
 
   let written = 0;
@@ -216,8 +286,8 @@ async function main() {
     const facts = rows.map((row) => spotFacts(row, mentionsById.get(row.id) ?? []));
     if (!facts.length) continue;
     let result;
-    try { result = acceptGuides(codex(GUIDE_SCHEMA, buildGuidePrompt(facts)), facts); }
-    catch (error) { console.error(`codex failed: ${error.message.split("\n")[0]}`); result = { ok: [], failed: facts.map((f) => ({ spotId: f.spotId, reason: "codex" })) }; }
+    try { result = acceptGuides(draft(GUIDE_SCHEMA, buildGuidePrompt(facts)), facts); }
+    catch (error) { console.error(`${engine} failed: ${error.message.split("\n")[0]}`); result = { ok: [], failed: facts.map((f) => ({ spotId: f.spotId, reason: engine })) }; }
     for (const guide of result.ok) {
       if (dryRun) console.log(JSON.stringify(guide));
       else { upload(guide); state.done[guide.spotId] = guide.updatedAt; delete state.failed[guide.spotId]; written += 1; }
