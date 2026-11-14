@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Spot } from "@/types";
 
 const MAP_PLACEHOLDER = <p role="status" className="grid h-full place-items-center text-sm text-muted-foreground">Loading map...</p>;
+const ENGAGE_EVENTS = ["scroll", "pointerdown", "touchstart", "keydown", "wheel"] as const;
 
 // Same dark map and tone pin as the spots map view; static (no card) on the spot's own page.
 const SpotPinMap = dynamic(() => import("./spot-pin-map"), {
@@ -38,17 +39,36 @@ export function useNearViewport<T extends Element>(margin = "300px") {
   return { ref, near };
 }
 
+/**
+ * True after the visitor's first scroll, tap or key press. A short spot page puts the map inside the first
+ * screen, so "near the viewport" alone loaded MapLibre (~290 KB gzip, 630 ms TBT in PSI mobile 2026-11-14)
+ * before anyone looked at it.
+ */
+export function useEngaged() {
+  const [engaged, setEngaged] = useState(false);
+  useEffect(() => {
+    if (engaged) return;
+    const engage = () => setEngaged(true);
+    for (const type of ENGAGE_EVENTS) window.addEventListener(type, engage, { passive: true, once: true });
+    return () => { for (const type of ENGAGE_EVENTS) window.removeEventListener(type, engage); };
+  }, [engaged]);
+  return { engaged, engage: () => setEngaged(true) };
+}
+
 export function SpotDetailMap({ lat, lng, name, searchUrl, category = "Local spot", photos = [] }: {
   lat: number; lng: number; name: string; searchUrl: string; category?: string; photos?: string[];
 }) {
   // The MapLibre chunk (~290 KB gzip, ~1.8 s script on a mid phone) loads only when the map is
-  // about to scroll into view, so it no longer competes with the hero photo (LCP) on first load.
+  // about to scroll into view AND the visitor has scrolled, tapped or typed, so it never competes with first load.
   const { ref, near } = useNearViewport<HTMLDivElement>();
+  const { engaged, engage } = useEngaged();
   const pin = { id: "venue", name, category, photos, location: { lat, lng, address: "" } } as unknown as Spot;
   return <div>
     {hasValidVenueCoordinates(lat, lng) ? <>
       <div ref={ref} className="relative z-0 h-64" data-testid="spot-detail-map">
-        {near ? <SpotPinMap key={`${lat}:${lng}`} spots={[pin]} /> : MAP_PLACEHOLDER}
+        {near && engaged ? <SpotPinMap key={`${lat}:${lng}`} spots={[pin]} /> : engaged ? MAP_PLACEHOLDER : (
+          <button type="button" onClick={engage} className="grid h-full w-full place-items-center text-sm text-violet-100 underline">Show map</button>
+        )}
       </div>
       <p className="p-3 text-xs text-white">Approximate venue pin. Entrance not confirmed.</p>
     </> : <p className="p-3 text-sm text-white">No map pin available.</p>}
