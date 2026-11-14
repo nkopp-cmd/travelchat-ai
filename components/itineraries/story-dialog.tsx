@@ -35,7 +35,7 @@ interface ModelOption {
 interface DayPlan {
     day: number;
     theme?: string;
-    activities?: Array<{ name: string }>;
+    activities?: Array<{ name: string; category?: string; time?: string; type?: string }>;
 }
 
 interface StoryDialogProps {
@@ -265,6 +265,14 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
         return { slides: data.slides, retentionDays: data.retentionDays };
     };
 
+    const tripDays = Array.from({ length: Math.min(Math.max(totalDays, 0), 31) }, (_, j) => ({
+        activities: (dailyPlans?.[j]?.activities ?? []).slice(0, 32).map((a) => ({
+            category: typeof a.category === "string" ? a.category.slice(0, 100) : undefined,
+            time: typeof a.time === "string" ? a.time.slice(0, 100) : undefined,
+            type: typeof a.type === "string" ? a.type.slice(0, 100) : undefined,
+        })),
+    }));
+
     const generateBackground = async (
         slideType: "cover" | "day" | "summary",
         options: { theme: string; dayNumber?: number; activities?: string[]; excludeUrls?: string[]; slotIndex?: number }
@@ -286,6 +294,8 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                     : `${itineraryId}-${slideType}`,
                 excludeUrls: options.excludeUrls || [],
                 slotIndex: options.slotIndex,
+                // Whole trip for the server day picker: category + time per spot, never names.
+                days: tripDays,
             };
 
             const response = await fetch("/api/images/story-background", {

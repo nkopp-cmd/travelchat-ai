@@ -7,7 +7,10 @@ const mocks = vi.hoisted(() => ({ auth: vi.fn(), tier: vi.fn(), weighted: vi.fn(
 vi.mock("@/lib/auth/server", () => ({ auth: mocks.auth, currentUser: vi.fn() }));
 vi.mock("@/lib/usage-tracking", () => ({ getUserTier: mocks.tier, checkAndIncrementUsageWeighted: mocks.weighted }));
 vi.mock("@/lib/rate-limit", () => ({ rateLimit: () => async () => null }));
-vi.mock("@/lib/image-library", () => ({ nearestLibraryStoryBackground: mocks.library }));
+vi.mock("@/lib/image-library", async (orig) => ({
+  sanitizePickerDays: (await orig<typeof import("@/lib/image-library")>()).sanitizePickerDays,
+  libraryStoryBackgroundForSlide: mocks.library,
+}));
 import { POST } from "@/app/api/images/story-background/route";
 
 const post = (extra: Record<string, unknown> = {}) => POST(new NextRequest("https://www.localley.io/api/images/story-background", {
@@ -25,11 +28,24 @@ beforeEach(() => {
 });
 afterEach(() => vi.restoreAllMocks());
 
-describe("story backgrounds: painted library only, never a paid image API (Nils 2026-11-14)", () => {
+describe("story backgrounds: pre-generated library only, never a paid image API (Nils 2026-11-14)", () => {
   it("serves the nearest library image without a credit", async () => {
     expect(await (await post()).json()).toMatchObject({ success: true, image: LIB, source: "library" });
-    expect(mocks.library).toHaveBeenCalledWith("Seoul", "day", 2, ["/media/story/x.jpg"]);
+    expect(mocks.library).toHaveBeenCalledWith("Seoul", "day", 2, null, ["/media/story/x.jpg"]);
     expect(mocks.weighted).not.toHaveBeenCalled();
+  });
+
+  it("passes the trip days to the picker, without venue names", async () => {
+    const days = [{ activities: [{ name: "Real Venue", category: "Cafe", time: "09:00", type: "morning" }] }];
+    await post({ days });
+    expect(mocks.library).toHaveBeenCalledWith("Seoul", "day", 2,
+      [{ activities: [{ category: "Cafe", time: "09:00", type: "morning" }] }], ["/media/story/x.jpg"]);
+    expect(JSON.stringify(mocks.library.mock.calls)).not.toContain("Real Venue");
+  });
+
+  it("ignores a malformed days list instead of failing", async () => {
+    await post({ days: "not-a-list" });
+    expect(mocks.library).toHaveBeenCalledWith("Seoul", "day", 2, null, ["/media/story/x.jpg"]);
   });
 
   it("returns the gradient answer when every library image is excluded, without any generation", async () => {

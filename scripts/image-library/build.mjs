@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 // Image library for story backgrounds and activity thumbnails (reach-engine R8, weekend-sprint L5).
 //
-//   node scripts/image-library/build.mjs jobs  --out DIR [--cities seoul,tokyo]   -> DIR/jobs.json for codex-image.py
+//   node scripts/image-library/build.mjs jobs  --out DIR [--cities seoul,tokyo]   -> DIR/jobs.json (top 10 cities first)
 //   python3 shared/scripts/codex-image.py DIR/jobs.json --out DIR                 -> DIR/<id>-<shape>.png (ChatGPT plan)
 //   node scripts/image-library/build.mjs publish --out DIR [--dry-run]           -> R2 upload + lib/image-library.json
 //
-// Every image is a painted illustration of a mood or a category, never of a named venue or landmark, so a reader
-// cannot take it for a photo of a real spot. Story images are JPEG (Satori renders no WebP), thumbnails WebP.
+// Style (Nils 2026-11-14, approved on claude-work/localley-style-samples/review-sheet.jpg): warm editorial
+// field-guide travel photography, vibrant but natural colours, violet dusk tone. Generic city scenes only: never a
+// named landmark, shop or venue. Story images are JPEG (Satori renders no WebP), thumbnails WebP.
+// The painted gouache set is retired. Publish replaces the whole manifest and sets "live": true.
 // Keys are content-addressed under the existing prefixes: legacy/<sha256>.jpg (read by the story renderer as
 // /media/story/<sha>.jpg) and activity-thumbnails/<8 hex>.webp (served by /media/activity).
 import { createHash } from "node:crypto";
@@ -18,10 +20,12 @@ import { fileURLToPath } from "node:url";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const MANIFEST = path.join(ROOT, "lib/image-library.json");
 const BUCKET = "localley-legacy-media";
-export const RING_1 = ["seoul", "tokyo", "bangkok", "singapore"];
 
-const STYLE = "A painterly gouache travel-poster illustration with visible brush texture and soft muted colours; " +
-  "clearly an illustration, not a photograph. Generic scenery only: no specific real landmark, shop or venue.";
+const STYLE = "Warm editorial travel photograph, field-guide style, documentary magazine look, 35mm lens, eye level. " +
+  "Vibrant but natural colours, inviting, golden or warm light with a subtle violet dusk tone in the sky and shadows. " +
+  "Generic scene only: no named landmark, no real shop or venue, no readable text, signs or logos.";
+const STORY_FRAME = "Vertical frame. Calm darker sky area in the top third and darker ground in the bottom quarter for overlaid text.";
+const THUMB_FRAME = "Subject centered so a 4:3 crop works.";
 
 // Mood words per city: what the place feels like, never a named building.
 export const CITY_FEEL = {
@@ -58,14 +62,36 @@ export const CITY_FEEL = {
   "luang-prabang": "a Lao river town on a green peninsula, French-era villas, golden temple roofs and slow river boats",
 };
 
-const MOOD = {
-  skyline: "Wide view over the city at golden hour, layered rooftops fading into haze.",
-  street: "A quiet residential side street in the morning, potted plants, bicycles, soft shadows.",
-  food: "A busy food alley at dusk, steam rising from small stalls, warm lantern light, people as soft silhouettes.",
-  night: "A rainy night street with glowing reflections on wet pavement, deep blues and warm window light.",
-  cafe: "A small corner cafe interior by a window, a cup and a plant on a wooden table, city light outside.",
-  nature: "A calm park or hillside path above the city, trees, a bench, the city far below in late light.",
+// Story themes x lights (Nils 2026-11-14 CHANGE): the day picker (lib/image-library.ts) matches each itinerary day
+// to its dominant theme and light. Words stay generic: never a real venue name.
+export const THEMES = {
+  cafe: ["cafe hopping", "coffee cups, pastries, a quiet window seat"],
+  food: ["local food and markets", "street food stalls, steaming dishes, market produce"],
+  nature: ["parks and nature", "garden paths, old trees, a quiet viewpoint"],
+  culture: ["temples, heritage and museums", "old tiled temple roofs, stone courtyards, a calm gallery hall"],
+  nightlife: ["nightlife", "small cocktail bars, glowing lanterns, a late street"],
+  shopping: ["shopping streets", "small boutiques, a covered arcade, craft stalls"],
+  neighborhood: ["a neighborhood walk", "quiet lanes, low houses, potted plants"],
 };
+export const LIGHTS = {
+  day: "Lighting: natural daylight turning golden, low warm sun, a subtle violet tone in sky and shadows.",
+  night: "Lighting: blue hour into night, warm glowing windows and lamps, a deep violet-blue sky.",
+};
+/** Top 10 cities by traffic: generated first, all themes x lights (Nils 2026-11-14). */
+export const TOP_CITIES = ["seoul", "tokyo", "bangkok", "singapore", "osaka", "kyoto", "taipei", "hong-kong", "busan", "jeju"];
+
+const cityName = (slug) => slug.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
+
+/** Live generateDayBackground text (lib/imagen.ts before #769) + theme words + the approved photo style. */
+export function storyPrompt(city, theme, light) {
+  const name = cityName(city);
+  const [label, words] = THEMES[theme];
+  return `Professional travel photograph showcasing a day in ${name}: ${label}. ` +
+    `Scene: Beautiful atmospheric shot representing ${words} in ${name}. Setting: ${CITY_FEEL[city]}. ` +
+    `${STYLE} ${LIGHTS[light]} Composition: Vertical 9:16 portrait, balanced framing, depth and layers. ${STORY_FRAME} ` +
+    `STRICT REQUIREMENTS: NO text, words, letters, or watermarks. NO people or crowds visible. NO logos or brand names. ` +
+    `Evokes the feeling of ${label}.`;
+}
 
 const CATEGORY = {
   restaurant: "A simple table with shared dishes and chopsticks under a warm pendant lamp.",
@@ -90,21 +116,26 @@ function args(argv) {
   return out;
 }
 
-/** Story jobs (tall) for the given cities and generic activity jobs (square). Ids: story-<city>-<mood>, act-_-<cat>. */
-export function buildJobs(cities = RING_1) {
+/**
+ * Story jobs (tall): every theme x light for each city, cities in the given order (TOP_CITIES first by default),
+ * then generic activity thumbnails (square). Ids: story-<city>-<theme>-<light>, act-any-<category>.
+ */
+export function buildJobs(cities = Object.keys(CITY_FEEL)) {
   const jobs = [];
   for (const city of cities) {
-    const feel = CITY_FEEL[city];
-    if (!feel) throw new Error(`no mood text for ${city}`);
-    for (const [mood, scene] of Object.entries(MOOD)) {
-      jobs.push({ id: `story-${city}-${mood}`, prompt: `${STYLE} The feel of ${feel}. ${scene}`, formats: ["story"] });
+    if (!CITY_FEEL[city]) throw new Error(`no mood text for ${city}`);
+    for (const theme of Object.keys(THEMES)) for (const light of Object.keys(LIGHTS)) {
+      jobs.push({ id: `story-${city}-${theme}-${light}`, prompt: storyPrompt(city, theme, light), formats: ["story"] });
     }
   }
   for (const [category, scene] of Object.entries(CATEGORY)) {
-    jobs.push({ id: `act-any-${category}`, prompt: `${STYLE} ${scene}`, formats: ["square"] });
+    jobs.push({ id: `act-any-${category}`, prompt: `${STYLE} ${scene} ${THUMB_FRAME}`, formats: ["square"] });
   }
   return jobs;
 }
+
+/** Default generation order: the top 10 cities, then every other city in CITY_FEEL order. */
+export const JOB_CITIES = [...TOP_CITIES, ...Object.keys(CITY_FEEL).filter((c) => !TOP_CITIES.includes(c))];
 
 const sha256 = (buf) => createHash("sha256").update(buf).digest("hex");
 
@@ -134,11 +165,22 @@ function put(key, buf, type, outDir, dryRun) {
     "--cache-control", "public, max-age=31536000, immutable", "--jurisdiction", "eu", "--remote"], { stdio: ["ignore", "ignore", "inherit"] });
 }
 
+const pathsOf = (m) => [...Object.values(m.story ?? {}), ...Object.values(m.activity ?? {})].flatMap((set) => Object.values(set ?? {}));
+
+/** Old retired paths + every previous path that the new manifest no longer uses, sorted and unique. */
+export function retiredPaths(previous, next) {
+  const keep = new Set(pathsOf(next));
+  return [...new Set([...(previous.retired ?? []), ...pathsOf(previous)])].filter((p) => !keep.has(p)).sort();
+}
+
 function publish(outDir, dryRun) {
-  const manifest = existsSync(MANIFEST) ? JSON.parse(readFileSync(MANIFEST, "utf8")) : { story: {}, activity: {} };
+  // The whole set is replaced. Every path of the previous manifest that is not in the new one goes to "retired",
+  // so the painted set stays refused by the media routes (lib/image-library.ts isRetiredLibraryPath).
+  const previous = existsSync(MANIFEST) ? JSON.parse(readFileSync(MANIFEST, "utf8")) : { story: {}, activity: {} };
+  const manifest = { live: true, story: {}, activity: {}, retired: [] };
   let added = 0;
   for (const job of JSON.parse(readFileSync(path.join(outDir, "jobs.json"), "utf8"))) {
-    const story = /^story-([a-z-]+)-(skyline|street|night|food|nature|cafe)$/.exec(job.id);
+    const story = /^story-([a-z-]+)-(cafe|food|nature|culture|nightlife|shopping|neighborhood)-(day|night)$/.exec(job.id);
     const act = /^act-(any|[a-z-]+)-([a-z]+)$/.exec(job.id);
     const raw = path.join(outDir, `${job.id}-${story ? "tall" : "square"}.png`);
     if (!existsSync(raw)) continue;
@@ -146,7 +188,7 @@ function publish(outDir, dryRun) {
       const buf = storyJpeg(raw);
       const hash = sha256(buf);
       put(`legacy/${hash}.jpg`, buf, "image/jpeg", outDir, dryRun);
-      ((manifest.story[story[1]] ??= {}))[story[2]] = `/media/story/${hash}.jpg`;
+      ((manifest.story[story[1]] ??= {}))[`${story[2]}-${story[3]}`] = `/media/story/${hash}.jpg`;
     } else if (act) {
       const buf = thumbWebp(raw);
       const short = sha256(buf).slice(0, 8);
@@ -156,6 +198,7 @@ function publish(outDir, dryRun) {
     } else continue;
     added++;
   }
+  manifest.retired = retiredPaths(previous, manifest);
   if (!dryRun) writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2) + "\n");
   console.log(`${dryRun ? "dry run: " : ""}${added} image(s) in the manifest`);
 }
@@ -166,7 +209,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.a
   if (!outDir) throw new Error("--out DIR is required");
   if (a._[0] === "jobs") {
     mkdirSync(outDir, { recursive: true });
-    const cities = typeof a.cities === "string" ? a.cities.split(",") : RING_1;
+    const cities = typeof a.cities === "string" ? a.cities.split(",") : JOB_CITIES;
     const jobs = buildJobs(cities);
     writeFileSync(path.join(outDir, "jobs.json"), JSON.stringify(jobs, null, 2) + "\n");
     console.log(`${jobs.length} jobs -> ${path.join(outDir, "jobs.json")}`);

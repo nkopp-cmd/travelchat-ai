@@ -9,8 +9,8 @@ import { NextRequest } from "next/server";
 import { D1Sqlite } from "@/__tests__/helpers/d1-sqlite";
 const mocks=vi.hoisted(()=>({auth:vi.fn(),user:vi.fn(),source:vi.fn(),tier:vi.fn(),sourceTier:vi.fn(),weighted:vi.fn(),}));
 vi.mock("@/lib/auth/server",()=>({auth:mocks.auth,currentUser:mocks.user}));
-// Library behaviour with the set switched on (production ships live=false until the new style is approved).
-vi.mock("@/lib/image-library.json", async (orig) => ({ default: { ...((await orig()) as { default: object }).default, live: true } }));
+// Library behaviour with a live theme x light set (independent of the shipped manifest state).
+vi.mock("@/lib/image-library.json", async (orig) => (await import("../fixtures/live-image-library")).liveImageLibrary(orig));
 vi.mock("@/lib/supabase",()=>({createSupabaseAdmin:mocks.source}));
 vi.mock("@/lib/usage-tracking",()=>({getUserTier:mocks.sourceTier,checkAndIncrementUsageWeighted:mocks.weighted}));
 vi.mock("@/lib/app-data/preview-user-tier",()=>({previewUserTier:mocks.tier}));
@@ -46,7 +46,7 @@ afterEach(()=>{db.sqlite.close();process.env=original;delete(globalThis as Recor
 async function owner(){await db.prepare("INSERT OR IGNORE INTO owners VALUES('auth:one','new')").run();}
 const usage=()=>db.sqlite.prepare("SELECT * FROM preview_story_usage").all() as {count:number;baselineCount:number}[];
 describe("preview R2 background cache and atomic weighted usage",()=>{
- it("serves the painted library to a verified candidate and never generates, stores or charges (no paid image API)",async()=>{
+ it("serves the library to a verified candidate and never generates, stores or charges (no paid image API)",async()=>{
   const r=await POST(req());expect(r.status).toBe(200);
   expect(await r.json()).toMatchObject({success:true,source:"library",image:expect.stringMatching(/^\/media\/story\/[0-9a-f]{64}\.jpg$/)});
   expect(put).not.toHaveBeenCalled();expect(usage()).toEqual([]);expect(mocks.weighted).not.toHaveBeenCalled();expect(mocks.source).not.toHaveBeenCalled();

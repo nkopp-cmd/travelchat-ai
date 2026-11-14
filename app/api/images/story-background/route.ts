@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { getAvailableModels } from "@/lib/model-credits";
 import { rateLimit } from "@/lib/rate-limit";
-import { nearestLibraryStoryBackground } from "@/lib/image-library";
+import { libraryStoryBackgroundForSlide, sanitizePickerDays } from "@/lib/image-library";
 import { getUserTier } from "@/lib/usage-tracking";
 import { isPreviewStoryCandidate } from "@/lib/app-data/preview-story-candidate";
 import { previewUserTier } from "@/lib/app-data/preview-user-tier";
@@ -11,9 +11,10 @@ import { hasFeature } from "@/lib/subscription";
 import { Errors, handleApiError } from "@/lib/api-errors";
 
 /**
- * Story backgrounds come ONLY from the pre-generated painted library (lib/image-library.json, made on the ChatGPT
- * plan). No paid image API is called here, not even on a miss (Nils 2026-11-14, APPROVALS.md): a miss gets the
- * nearest library image. Library images are free, so no credit is charged. Free tier keeps the branded gradient.
+ * Story backgrounds come ONLY from the pre-generated photo library (lib/image-library.json, made on the ChatGPT
+ * plan). No paid image API and no live generation per request (Nils 2026-11-14, APPROVALS.md). The client sends the
+ * whole trip (`days`: each spot's category and time); the picker gives each slide the image that fits its day, with
+ * no repeat inside the trip. Library images are free, so no credit is charged. Free tier keeps the branded gradient.
  */
 
 // Rate limit: 20 story backgrounds per minute per user
@@ -32,6 +33,8 @@ interface StoryBackgroundRequest {
     preferAI?: boolean;
     // URLs to exclude (for duplicate prevention across slides)
     excludeUrls?: string[];
+    // The whole trip: per day, each spot's category + time (never names). Same list on every slide request.
+    days?: unknown;
 }
 
 async function storyBackgroundPost(req: NextRequest) {
@@ -49,8 +52,9 @@ async function storyBackgroundPost(req: NextRequest) {
 
         const body: StoryBackgroundRequest | null = candidate ? await readPreviewBackgroundBody(req) : await req.json();
         if (!body) return Errors.validationError("Invalid bounded background request");
+        const days = sanitizePickerDays(body.days);
         const candidateOwner = candidate ? await previewBackgroundOwner(userId) : null;
-        const candidateHash = candidate ? backgroundCacheHash(body) : null;
+        const candidateHash = candidate ? backgroundCacheHash({ ...body, days: days ?? undefined }) : null;
         if (candidate && (!candidateOwner || !candidateHash)) return Errors.forbidden();
         if (candidateOwner && candidateHash) {
             const cached = await cachedPreviewBackground(candidateOwner, candidateHash);
@@ -66,7 +70,8 @@ async function storyBackgroundPost(req: NextRequest) {
         const allowed = hasFeature(tier, "aiBackgrounds") || process.env.BYPASS_IMAGE_TIER_CHECK === "true";
 
         if (preferAI && allowed) {
-            const image = nearestLibraryStoryBackground(city, type, dayNumber, Array.isArray(excludeUrls) ? excludeUrls : []);
+            const exclude = Array.isArray(excludeUrls) ? excludeUrls.filter((u): u is string => typeof u === "string") : [];
+            const image = libraryStoryBackgroundForSlide(city, type, dayNumber, days, exclude);
             if (image) {
                 return NextResponse.json({ success: true, image, source: "library", cached: true });
             }
