@@ -105,6 +105,14 @@ describe("venue photos", () => {
     expect(screen.queryByRole("img")).toBeNull();
   });
 
+  it("keeps the hero box as a tone tile when photos turn out unavailable after loading (no layout shift)", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response([])));
+    render(<VenuePhotoProvider spotId="hero-none"><VenueHeroPhoto name="Venue" /></VenuePhotoProvider>);
+    expect(screen.getByTestId("photo-placeholder")).toBeTruthy();
+    await waitFor(() => expect(screen.getByTestId("photo-placeholder").dataset.state).toBe("unavailable"));
+    expect(screen.queryByRole("img")).toBeNull();
+  });
+
   it("ignores stale metadata after spot identity changes", async () => {
     let resolveOld!: (value: ReturnType<typeof response>) => void;
     const fetcher = vi.fn().mockImplementationOnce(() => new Promise((resolve) => { resolveOld = resolve; }))
