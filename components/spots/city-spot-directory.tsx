@@ -30,7 +30,7 @@ function PickList({ id, title, intro, more, href, picks, cityName }: { id: strin
           </li>
         ))}
       </ol>
-      <Link href={href} prefetch={false} className="mt-3 inline-block text-sm font-semibold text-primary underline-offset-2 hover:underline">
+      <Link href={href} prefetch={false} className="mt-1 inline-flex min-h-11 items-center text-sm font-semibold text-primary underline-offset-2 hover:underline">
         {more} in {cityName} →
       </Link>
     </div>

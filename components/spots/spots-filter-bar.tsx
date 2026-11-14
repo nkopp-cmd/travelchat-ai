@@ -75,7 +75,7 @@ const QUICK_FILTERS = [
 ];
 
 const FILTER_TRIGGER_CLASS =
-  "h-10 w-full min-w-0 max-w-full appearance-none overflow-hidden truncate rounded-md bg-raised py-0 pr-8 text-xs text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring sm:text-sm";
+  "h-11 w-full min-w-0 max-w-full appearance-none overflow-hidden truncate rounded-md bg-raised py-0 pr-8 text-xs text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring sm:text-sm";
 
 function FilterSelect({ label, value, onChange, options, icon, testId }: {
   label: string; value: string; onChange: (value: string) => void; options: { value: string; label: string }[]; icon?: ReactNode; testId?: string;
@@ -228,7 +228,7 @@ export function SpotsFilterBar({
           value={searchValue}
           onChange={(e) => handleSearchChange(e.target.value)}
           className={cn(
-            "h-10 min-w-0 pl-10 pr-10 text-sm focus-visible:ring-ring sm:h-11 sm:text-base",
+            "h-11 min-w-0 pl-10 pr-10 text-sm focus-visible:ring-ring sm:text-base",
             compactOverMap && "max-lg:min-h-11 max-lg:rounded-full max-lg:shadow-overlay",
             compactOverMap && (activeCityName ? "max-lg:pr-44" : "max-lg:pr-12"),
           )}
