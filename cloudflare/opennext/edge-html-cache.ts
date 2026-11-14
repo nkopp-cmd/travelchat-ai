@@ -42,15 +42,18 @@ export const EDGE_HTML_TTL_SECONDS: Record<string, number> = {
 // Spot detail pages: live public data like the catalog. Only the plain UUID path; any query
 // (e.g. the preview-only data_candidate) bypasses the cache.
 const SPOT_DETAIL_PATH = /^\/spots\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-const SPOT_DETAIL_TTL_SECONDS = 300;
+// One hour, as the page's own data cache (unstable_cache revalidate 3600, tag "spots"): crawlers walk thousands of
+// spot URLs, and a 5-minute TTL left most of them MISS. Reviews load client-side; a deploy changes the key (purge).
+const SPOT_DETAIL_TTL_SECONDS = 3600;
+const LIVE_DETAIL_TTL_SECONDS = 300;
 const VIRAL_EVENT_PATH = /^\/trending\/[a-z0-9][a-z0-9-]{2,95}$/;
 // One map pin card ("/api/spots/pins/<id prefix>"), no query.
 const PIN_CARD_PATH = /^\/api\/spots\/pins\/[0-9a-f-]{8,36}$/;
 
 export function edgeTtlSeconds(pathname: string): number | undefined {
   if (Object.hasOwn(EDGE_HTML_TTL_SECONDS, pathname)) return EDGE_HTML_TTL_SECONDS[pathname];
-  return SPOT_DETAIL_PATH.test(pathname) || VIRAL_EVENT_PATH.test(pathname) || PIN_CARD_PATH.test(pathname)
-    ? SPOT_DETAIL_TTL_SECONDS : undefined;
+  if (SPOT_DETAIL_PATH.test(pathname)) return SPOT_DETAIL_TTL_SECONDS;
+  return VIRAL_EVENT_PATH.test(pathname) || PIN_CARD_PATH.test(pathname) ? LIVE_DETAIL_TTL_SECONDS : undefined;
 }
 
 // The only query the edge keys on: one enabled-city slug, so the key set stays bounded.
