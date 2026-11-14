@@ -9,6 +9,12 @@ vi.mock("@/components/activities/itinerary-activity-card", () => ({
 }));
 
 describe("DayRouteSection", () => {
+  it("is a jump target named after its day", () => {
+    render(<DayRouteSection dayIndex={1} city="Seoul" userTier="free" dayPlan={{ day: 2, activities: [{ name: "Market" }] }} />);
+    const section = screen.getByRole("region", { name: "Day 2" });
+    expect(section.id).toBe("day-2");
+  });
+
   it("shows exact route confidence when every stop has an exact address", () => {
     render(
       <DayRouteSection

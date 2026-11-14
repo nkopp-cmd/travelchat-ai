@@ -119,7 +119,11 @@ export function DayRouteSection({
   const hiddenStopCount = Math.max(activities.length - stopPreview.length, 0);
 
   return (
-    <section className="overflow-hidden rounded-xl bg-surface backdrop-blur-xl">
+    <section
+      id={`day-${dayIndex + 1}`}
+      aria-label={`Day ${dayPlan.day || dayIndex + 1}`}
+      className="scroll-mt-24 overflow-hidden rounded-xl bg-surface"
+    >
       <div className="bg-raised px-3.5 py-3 text-foreground sm:px-5 sm:py-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div className="min-w-0 space-y-2.5">

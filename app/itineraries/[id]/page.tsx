@@ -392,6 +392,22 @@ export default async function ItineraryViewPage({
                 {dailyPlansForDisplay.length === 1 ? "route day" : "route days"}
               </p>
             </div>
+            {dailyPlansForDisplay.length > 1 && (
+              <nav aria-label="Jump to day" data-testid="itinerary-day-jump">
+                <ul className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+                  {dailyPlansForDisplay.map((dayPlan: DayPlan, dayIndex: number) => (
+                    <li key={dayIndex} className="shrink-0">
+                      <a
+                        href={`#day-${dayIndex + 1}`}
+                        className="inline-flex min-h-11 items-center rounded-full bg-raised px-4 text-sm font-semibold text-foreground hover:bg-overlay focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                      >
+                        Day {dayPlan.day || dayIndex + 1}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            )}
             {dailyPlansForDisplay.map((dayPlan: DayPlan, dayIndex: number) => (
               <DayRouteSection
                 key={dayIndex}
