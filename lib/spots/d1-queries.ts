@@ -277,7 +277,7 @@ export async function d1PhotoCredits(): Promise<D1PhotoCredit[]> {
  * an approved stored photo and a visible tip. spots has no updated_at column; never "now".
  */
 export type D1SitemapSpot = {
-  id: string; lastmod: string | null; name: string; address: string; description: string; hasPhoto: boolean;
+  id: string; lastmod: string | null; name: string; address: string; description: string; hasPhoto: boolean; city: string | null;
 };
 
 /**
@@ -287,7 +287,7 @@ export type D1SitemapSpot = {
  */
 export async function d1SitemapSpots(): Promise<D1SitemapSpot[]> {
   const where = visibilityWhere();
-  const { results } = await appDataDb().prepare(`SELECT s.id, ${NAME_EN} AS name_en, s.address,
+  const { results } = await appDataDb().prepare(`SELECT s.id, ${NAME_EN} AS name_en, s.address, s.city,
       CASE json_type(l.payload, '$.description') WHEN 'object' THEN json_extract(l.payload, '$.description.en')
         WHEN 'text' THEN json_extract(l.payload, '$.description') END AS description,
       (EXISTS (SELECT 1 FROM spot_photos ph WHERE ph.spot_id = s.id)
@@ -308,6 +308,7 @@ export async function d1SitemapSpots(): Promise<D1SitemapSpot[]> {
         : address && typeof address === "object" ? String((address as Record<string, unknown>).en ?? Object.values(address)[0] ?? "") : "",
       description: typeof row.description === "string" ? row.description : "",
       hasPhoto: Number(row.has_photo) === 1,
+      city: typeof row.city === "string" && row.city ? row.city : null,
     };
   });
 }

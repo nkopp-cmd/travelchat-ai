@@ -1,5 +1,6 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
+import { ENABLED_CITIES } from "@/lib/cities";
 import { dataBackend } from "@/lib/app-data/backend";
 import { d1SitemapSpots } from "@/lib/spots/d1-queries";
 import { listSpotGuideIds } from "@/lib/spots/guide-store";
@@ -9,11 +10,11 @@ import type { SitemapSpotRow } from "./sitemap";
 
 async function indexableSpots(): Promise<SitemapSpotRow[]> {
   const [rows, guideIds] = await Promise.all([d1SitemapSpots(), listSpotGuideIds()]);
-  return indexableSitemapRows(rows, new Set(guideIds.map((id) => id.toLowerCase())));
+  return indexableSitemapRows(rows, new Set(guideIds.map((id) => id.toLowerCase())), ENABLED_CITIES.map((city) => city.name));
 }
 
-// v2: thin spots (noindex on the page) and name+address duplicates leave the sitemap.
-const cachedSpots = unstable_cache(indexableSpots, ["sitemap-spots-v2", PUBLIC_SPOT_VISIBILITY_CACHE_VERSION], { revalidate: 3600, tags: ["spots"] });
+// v3: rows no enabled hub lists leave too. v2: thin spots (noindex on the page) and name+address duplicates leave the sitemap.
+const cachedSpots = unstable_cache(indexableSpots, ["sitemap-spots-v3", PUBLIC_SPOT_VISIBILITY_CACHE_VERSION], { revalidate: 3600, tags: ["spots"] });
 
 /** Public spot rows for the sitemap; empty when the D1 store is not the serving store (local builds). */
 export async function sitemapSpotRows(): Promise<SitemapSpotRow[]> {
