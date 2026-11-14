@@ -10,7 +10,6 @@ export {
   type TextGenerationProvider,
   type ItineraryGenerationProvider,
   type LocationValidationProvider,
-  type ImageGenerationProvider,
   type SupervisorProvider,
   AbstractLLMProvider,
   LLMProviderError,

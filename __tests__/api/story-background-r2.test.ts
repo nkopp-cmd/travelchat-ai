@@ -1,26 +1,22 @@
 // @vitest-environment node
-import { createHash } from "node:crypto";
 import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const mocks = vi.hoisted(() => ({ auth: vi.fn(), source: vi.fn(), tier: vi.fn(), weighted: vi.fn(), generate: vi.fn(), update: vi.fn() }));
+const mocks = vi.hoisted(() => ({ auth: vi.fn(), source: vi.fn(), tier: vi.fn(), weighted: vi.fn(), update: vi.fn() }));
 vi.mock("@/lib/auth/server", () => ({ auth: mocks.auth, currentUser: vi.fn() }));
+// Library behaviour with the set switched on (production ships live=false until the new style is approved).
+vi.mock("@/lib/image-library.json", async (orig) => ({ default: { ...((await orig()) as { default: object }).default, live: true } }));
 vi.mock("@/lib/supabase", () => ({ createSupabaseAdmin: mocks.source }));
 vi.mock("@/lib/usage-tracking", () => ({ getUserTier: mocks.tier, checkAndIncrementUsageWeighted: mocks.weighted }));
 vi.mock("@/lib/rate-limit", () => ({ rateLimit: () => async () => null }));
-vi.mock("@/lib/imagen", () => ({ isImagenAvailable: () => true }));
-vi.mock("@/lib/image-provider", () => ({ getImageProvider: () => "gemini", isAnyProviderAvailable: () => true, generateStoryBackground: mocks.generate, generateDayBackground: mocks.generate }));
 import { POST } from "@/app/api/images/story-background/route";
 import { PATCH } from "@/app/api/itineraries/[id]/ai-backgrounds/route";
 
 const context = Symbol.for("__cloudflare-context__");
-const png = Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), Buffer.alloc(600, 7)]);
-const jpg = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(600, 9)]);
-const sha = (bytes: Buffer) => createHash("sha256").update(bytes).digest("hex");
 let put: ReturnType<typeof vi.fn>;
 let objects: Map<string, unknown>;
 
-// A city outside lib/image-library.json (all 30 enabled cities are in the library), so the R2 path runs.
+// A city outside lib/image-library.json: it still gets the nearest library image.
 const post = (extra: Record<string, unknown> = {}) => POST(new NextRequest("https://www.localley.io/api/images/story-background", {
   method: "POST", body: JSON.stringify({ type: "cover", city: "Lisbon", ...extra }),
 }));
@@ -31,7 +27,6 @@ beforeEach(() => {
   mocks.auth.mockResolvedValue({ userId: "u1" });
   mocks.tier.mockResolvedValue("premium");
   mocks.weighted.mockResolvedValue({ allowed: true, usage: {} });
-  mocks.generate.mockResolvedValue(`data:image/png;base64,${png.toString("base64")}`);
   objects = new Map();
   put = vi.fn(async (key: string, body: unknown) => { objects.set(key, body); return {}; });
   const get = vi.fn(async (key: string) => objects.has(key) ? { text: async () => String(objects.get(key)) } : null);
@@ -39,37 +34,13 @@ beforeEach(() => {
 });
 afterEach(() => { delete (globalThis as Record<symbol, unknown>)[context]; vi.restoreAllMocks(); });
 
-describe("story backgrounds write to R2 (story media step 2)", () => {
-  it("stores the bytes content-addressed in R2 only (exit 8b) and returns the /media/story path", async () => {
+describe("story backgrounds: no R2 writes, no generation (library only)", () => {
+  it("serves a library path for a city outside the library and writes nothing to R2", async () => {
     const body = await (await post()).json();
-    expect(body).toMatchObject({ success: true, image: `/media/story/${sha(png)}.png` });
-    expect(put).toHaveBeenCalledWith(`legacy/${sha(png)}.png`, expect.anything(), { httpMetadata: { contentType: "image/png" } });
-    expect(Buffer.from(put.mock.calls[0][1] as Uint8Array).equals(png)).toBe(true);
-    expect(mocks.source).not.toHaveBeenCalled();
-  });
-
-  it("keeps the detected format: a JPEG gets a .jpg key", async () => {
-    mocks.generate.mockResolvedValue(`data:image/png;base64,${jpg.toString("base64")}`);
-    expect((await (await post()).json()).image).toBe(`/media/story/${sha(jpg)}.jpg`);
-    expect(put.mock.calls[0][2]).toEqual({ httpMetadata: { contentType: "image/jpeg" } });
-  });
-
-  it("never returns a Supabase URL when the R2 write fails or the binding is missing", async () => {
-    put.mockRejectedValueOnce(new Error("r2 down"));
-    const failed = await (await post()).json();
-    expect(JSON.stringify(failed)).not.toContain("supabase");
-    expect(failed.image ?? "").not.toMatch(/^\/media\/story\//);
-    delete (globalThis as Record<symbol, unknown>)[context];
-    expect(JSON.stringify(await (await post()).json())).not.toContain("supabase");
-    expect(mocks.source).not.toHaveBeenCalled();
-  });
-
-  it("caches the R2 path per user and cache key, and serves the cache without generating again", async () => {
-    const first = (await (await post({ cacheKey: "i1-cover" })).json()).image;
-    expect(objects.get("cache/u1/i1-cover")).toBe(first);
-    mocks.generate.mockClear();
-    expect(await (await post({ cacheKey: "i1-cover" })).json()).toMatchObject({ image: first, source: "cache", cached: true });
-    expect(mocks.generate).not.toHaveBeenCalled();
+    expect(body).toMatchObject({ success: true, source: "library" });
+    expect(body.image).toMatch(/^\/media\/story\/[0-9a-f]{64}\.jpg$/);
+    expect(put).not.toHaveBeenCalled();
+    expect(mocks.weighted).not.toHaveBeenCalled();
   });
 });
 

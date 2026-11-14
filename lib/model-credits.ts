@@ -1,13 +1,13 @@
 /**
- * AI image model credit costs and tier access configuration
+ * Story background options per tier.
  *
- * Each model costs a different number of credits per image.
- * Higher-tier models produce better quality but cost more credits.
+ * The only option is the pre-generated painted library (lib/image-library.ts). It costs no credit, because no paid
+ * image API is ever called (Nils 2026-11-14, APPROVALS.md). Free tier keeps the branded gradient.
  */
 
-import type { ImageProvider } from "@/lib/image-provider";
 import type { SubscriptionTier } from "@/lib/subscription";
-import { isImagenAvailable } from "@/lib/imagen";
+
+export type ImageProvider = "library";
 
 export interface ModelInfo {
     credits: number;
@@ -16,19 +16,17 @@ export interface ModelInfo {
 }
 
 export const MODEL_CREDITS: Record<ImageProvider, ModelInfo> = {
-    flux: { credits: 1, label: "FLUX", description: "Fast, high-quality" },
-    seedream: { credits: 2, label: "Seedream", description: "Rich detail, vivid colors" },
-    gemini: { credits: 3, label: "AI backgrounds", description: "Custom travel backgrounds" },
+    library: { credits: 0, label: "Painted backgrounds", description: "Illustrated city backgrounds" },
 };
 
-/** Which models each tier can access */
+/** Which options each tier can use */
 export const TIER_MODELS: Record<SubscriptionTier, ImageProvider[]> = {
     free: [],
-    pro: ["gemini"],
-    premium: ["gemini"],
+    pro: ["library"],
+    premium: ["library"],
 };
 
-/** Get models available to a tier (filtered by API key availability) */
+/** Options for a tier. The library needs no API key, so availability is the tier gate alone. */
 export function getAvailableModels(tier: SubscriptionTier): Array<{
     provider: ImageProvider;
     label: string;
@@ -38,39 +36,29 @@ export function getAvailableModels(tier: SubscriptionTier): Array<{
     tierLocked: boolean;
 }> {
     const bypassTierCheck = process.env.BYPASS_IMAGE_TIER_CHECK === "true";
-    const allProviders: ImageProvider[] = ["gemini"];
-    const tierModels = bypassTierCheck ? allProviders : TIER_MODELS[tier];
-
-    const apiAvailability: Record<ImageProvider, boolean> = {
-        flux: false,
-        seedream: false,
-        gemini: isImagenAvailable(),
-    };
-
-    return allProviders.map((provider) => {
+    const tierModels = bypassTierCheck ? (["library"] as ImageProvider[]) : TIER_MODELS[tier];
+    return (["library"] as ImageProvider[]).map((provider) => {
         const info = MODEL_CREDITS[provider];
-        const hasApiKey = apiAvailability[provider];
         const hasTierAccess = tierModels.includes(provider);
-
         return {
             provider,
             label: info.label,
             description: info.description,
             credits: info.credits,
-            available: hasApiKey && hasTierAccess,
+            available: hasTierAccess,
             tierLocked: !hasTierAccess && !bypassTierCheck,
         };
     });
 }
 
-/** Get credit cost for a provider */
+/** Credit cost for an option (always 0: library images are free) */
 export function getModelCredits(provider: ImageProvider): number {
-    return MODEL_CREDITS[provider].credits;
+    return MODEL_CREDITS[provider]?.credits ?? 0;
 }
 
-/** Check if a tier can use a specific model */
-export function canUseTierModel(tier: SubscriptionTier, provider: ImageProvider): boolean {
-    if (provider !== "gemini") return false;
+/** Check if a tier can use an option */
+export function canUseTierModel(tier: SubscriptionTier, provider: string): boolean {
+    if (provider !== "library") return false;
     if (process.env.BYPASS_IMAGE_TIER_CHECK === "true") return true;
     return TIER_MODELS[tier].includes(provider);
 }

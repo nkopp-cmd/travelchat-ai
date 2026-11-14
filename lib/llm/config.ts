@@ -6,7 +6,7 @@
  */
 
 import type { FallbackConfig, FallbackRoute, LLMProviderName, UserTier } from './types';
-import { readGLMProviderConfig, TEXT_MODEL, IMAGE_MODEL } from './env';
+import { readGLMProviderConfig, TEXT_MODEL } from './env';
 
 const glmProviderConfig = readGLMProviderConfig();
 
@@ -76,7 +76,6 @@ export const providerConfig = {
 
   gemini: {
     textModel: 'gemini-2.0-flash',
-    imageModel: IMAGE_MODEL,
     maxTokens: 3000,
     temperature: 0.8,
   },

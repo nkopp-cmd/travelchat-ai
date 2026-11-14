@@ -30,7 +30,7 @@ export interface SubscriptionFeatures {
 
     // AI features
     aiBackgrounds: boolean;
-    imageProvider: "none" | "flux" | "seedream" | "gemini";
+    imageProvider: "none" | "library";
     smartScheduling: boolean;
     weatherIntegration: boolean;
 
@@ -109,7 +109,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
             pdfExport: "clean",
             emailExport: true,
             aiBackgrounds: true,
-            imageProvider: "flux",
+            imageProvider: "library",
             smartScheduling: false,
             weatherIntegration: true,
             collaborativeTrips: false,
@@ -139,7 +139,7 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
             pdfExport: "branded",
             emailExport: true,
             aiBackgrounds: true,
-            imageProvider: "gemini",
+            imageProvider: "library",
             smartScheduling: true,
             weatherIntegration: true,
             collaborativeTrips: true,
@@ -289,8 +289,8 @@ export function getUpgradePrompt(feature: keyof SubscriptionFeatures): {
             suggestedTier: "pro",
         },
         imageProvider: {
-            title: "AI Image Generation",
-            description: "Generate beautiful AI images for your travel stories",
+            title: "Painted Story Backgrounds",
+            description: "Illustrated city backgrounds for your travel stories",
             suggestedTier: "pro",
         },
         storyRetentionDays: {

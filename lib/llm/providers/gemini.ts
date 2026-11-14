@@ -1,10 +1,9 @@
-import { IMAGE_MODEL } from "../env";
 /**
  * Gemini Provider
  *
  * Handles all interactions with Google's Gemini API for:
  * - Location validation and Google Places data
- * - Image generation (via existing imagen.ts)
+ * - No image generation: images come only from the painted library (lib/image-library.ts)
  * - Fallback text generation
  */
 
@@ -13,7 +12,6 @@ import {
   AbstractLLMProvider,
   type ItineraryGenerationProvider,
   type LocationValidationProvider,
-  type ImageGenerationProvider,
   LLMProviderError,
   ProviderNotAvailableError,
   JSONParseError,
@@ -40,7 +38,7 @@ const TEXT_MODEL = 'gemini-2.0-flash';
 
 export class GeminiProvider
   extends AbstractLLMProvider
-  implements ItineraryGenerationProvider, LocationValidationProvider, ImageGenerationProvider
+  implements ItineraryGenerationProvider, LocationValidationProvider
 {
   readonly name = 'gemini' as const;
   private client: GoogleGenAI | null = null;
@@ -263,60 +261,6 @@ Return a JSON array with validation results.
       reason: loc.reason,
       possibleMatches: loc.possibleMatches,
     }));
-  }
-
-  async generateImage(options: {
-    prompt: string;
-    aspectRatio?: '1:1' | '16:9' | '9:16' | '4:3' | '3:4';
-  }): Promise<{ imageBytes: string; mimeType: string }> {
-    if (!this.isAvailable()) {
-      throw new ProviderNotAvailableError('gemini');
-    }
-
-    try {
-      const config: Record<string, unknown> = {
-        responseModalities: ['IMAGE'],
-      };
-
-      if (options.aspectRatio) {
-        config.imageConfig = {
-          aspectRatio: options.aspectRatio,
-        };
-      }
-
-      const response = await this.client!.models.generateContent({
-        model: IMAGE_MODEL,
-        contents: [options.prompt],
-        config,
-      });
-
-      // Extract image from response
-      if (response.candidates && response.candidates.length > 0) {
-        for (const candidate of response.candidates) {
-          if (candidate.content && candidate.content.parts) {
-            for (const part of candidate.content.parts) {
-              if (part.inlineData && part.inlineData.mimeType?.startsWith('image/')) {
-                this.recordSuccess();
-                return {
-                  imageBytes: part.inlineData.data || '',
-                  mimeType: part.inlineData.mimeType || 'image/png',
-                };
-              }
-            }
-          }
-        }
-      }
-
-      throw new LLMProviderError('gemini', 'No image was generated', undefined, true);
-    } catch (error) {
-      this.recordError();
-      if (error instanceof LLMProviderError) throw error;
-      throw new LLMProviderError(
-        'gemini',
-        'Failed to generate image',
-        error instanceof Error ? error : undefined
-      );
-    }
   }
 
   private buildItineraryPrompt(params: ItineraryParams): string {

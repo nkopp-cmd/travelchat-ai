@@ -1,26 +1,9 @@
-// Generate thumbnail images for activities
-// - Free tier: Curated Unsplash images (direct URLs, no API needed)
-// - Pro/Premium: AI-generated images via Gemini, stored in Supabase Storage
+// Thumbnail images for activities
+// - Free tier: curated Unsplash images (direct URLs, no API needed)
+// - Pro/Premium: painted category illustrations from the pre-generated library (lib/image-library.ts).
+//   No paid image API is ever called (Nils 2026-11-14, APPROVALS.md).
 
-import { generateActivityThumbnail as generateAIThumbnail, isImagenAvailable } from './imagen';
 import { libraryActivityThumbnail } from './image-library';
-
-interface ActivityThumbnailBucket {
-  put(key: string, body: Uint8Array, options: { httpMetadata: { contentType: string } }): Promise<unknown>;
-  head(key: string): Promise<unknown | null>;
-}
-
-/** Supabase exit 8a: AI activity thumbnails live in R2 (STORY_MEDIA_R2) and are served by /media/activity/<hash>.png. */
-function activityThumbnailBucket(): ActivityThumbnailBucket | null {
-  const bucket = (globalThis as Record<symbol, { env?: Record<string, unknown> } | undefined>)
-    [Symbol.for('__cloudflare-context__')]?.env?.STORY_MEDIA_R2 as Partial<ActivityThumbnailBucket> | undefined;
-  return bucket && typeof bucket.put === 'function' && typeof bucket.head === 'function' ? bucket as ActivityThumbnailBucket : null;
-}
-
-/** activity-thumbnails/<hash>.png -> /media/activity/<hash>.png */
-export function activityThumbnailPath(storageKey: string): string {
-  return `/media/activity/${storageKey.slice('activity-thumbnails/'.length)}`;
-}
 
 /**
  * Curated high-quality images by city and category
@@ -229,94 +212,6 @@ export function getActivityThumbnail(
   return FALLBACK_IMAGE;
 }
 
-/**
- * Generate a unique storage key for an activity image
- */
-function generateImageKey(activityName: string, city: string): string {
-  // Create a deterministic hash from activity name and city
-  const input = `${activityName}-${city}`.toLowerCase();
-  let hash = 0;
-  for (let i = 0; i < input.length; i++) {
-    const char = input.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32bit integer
-  }
-  return `activity-thumbnails/${Math.abs(hash).toString(16)}.png`;
-}
-
-/**
- * Upload an AI-generated image to Supabase Storage and return the public URL
- */
-async function uploadImageToStorage(
-  imageBase64: string,
-  storageKey: string
-): Promise<string | null> {
-  const buffer = Buffer.from(imageBase64, 'base64');
-  let r2Path: string | null = null;
-  const bucket = activityThumbnailBucket();
-  if (bucket) {
-    try {
-      await bucket.put(storageKey, new Uint8Array(buffer), { httpMetadata: { contentType: 'image/png' } });
-      r2Path = activityThumbnailPath(storageKey);
-    } catch (error) {
-      console.error('[activity-images] R2 write failed:', error instanceof Error ? error.message : error);
-    }
-  }
-  return r2Path;
-}
-
-/**
- * Check if an image already exists in storage
- */
-async function getExistingImageUrl(storageKey: string): Promise<string | null> {
-  const bucket = activityThumbnailBucket();
-  if (bucket) {
-    try {
-      if (await bucket.head(storageKey)) return activityThumbnailPath(storageKey);
-    } catch {
-      return null;
-    }
-  }
-  return null;
-}
-
-/**
- * Generate an AI thumbnail for an activity (Pro/Premium feature)
- * Returns the R2 media path, or null if generation fails
- */
-export async function getAIActivityThumbnail(
-  activityName: string,
-  category: string,
-  city: string
-): Promise<string | null> {
-  if (!isImagenAvailable()) {
-    return null;
-  }
-
-  const storageKey = generateImageKey(activityName, city);
-
-  // Check if we already have this image cached in storage
-  const existingUrl = await getExistingImageUrl(storageKey);
-  if (existingUrl) {
-    return existingUrl;
-  }
-
-  try {
-    // Generate new AI image
-    const imageBase64 = await generateAIThumbnail(activityName, category, city);
-    if (!imageBase64) {
-      return null;
-    }
-
-    // Upload to storage and get URL
-    const publicUrl = await uploadImageToStorage(imageBase64, storageKey);
-    return publicUrl;
-  } catch (error) {
-    console.error('[activity-images] AI generation failed:', error);
-    return null;
-  }
-}
-
 // City cover images for itinerary headers
 const CITY_COVER_IMAGES: Record<string, string[]> = {
   seoul: [
@@ -377,9 +272,8 @@ export function addThumbnailsToItinerary(
 }
 
 /**
- * Add AI-generated thumbnail images to activities (Pro/Premium)
- * Images are uploaded to Supabase Storage and URLs are returned
- * This reduces database payload size significantly
+ * Add painted library thumbnails to activities (Pro/Premium). Category illustrations only, never a venue photo,
+ * and never a paid generation call: an activity always gets the library image of its category.
  */
 export async function addAIThumbnailsToItinerary(
   dailyPlans: Array<{
@@ -394,12 +288,10 @@ export async function addAIThumbnailsToItinerary(
     [key: string]: unknown;
   }>,
   city: string,
-  maxImages: number = 6 // Limit to avoid rate limits and long wait times
+  _maxImages: number = 6
 ): Promise<typeof dailyPlans> {
-  // Pre-generated category illustrations first (reach-engine R8): free, so every activity gets one. Only misses go on
-  // to the paid per-activity generation below.
-  const withLibrary = JSON.parse(JSON.stringify(dailyPlans)) as typeof dailyPlans;
-  for (const day of withLibrary) {
+  const result = JSON.parse(JSON.stringify(dailyPlans)) as typeof dailyPlans;
+  for (const day of result) {
     for (const activity of day.activities) {
       if (activity.image) continue;
       const libraryImage = libraryActivityThumbnail(activity.category, city);
@@ -409,66 +301,5 @@ export async function addAIThumbnailsToItinerary(
       }
     }
   }
-  dailyPlans = withLibrary;
-
-  if (!isImagenAvailable()) {
-    // No AI available — return as-is (Google Places fetched client-side)
-    return dailyPlans;
-  }
-
-  // Collect all activities that need images
-  const activitiesNeedingImages: Array<{
-    dayIndex: number;
-    activityIndex: number;
-    activity: { name: string; category?: string };
-  }> = [];
-
-  dailyPlans.forEach((day, dayIndex) => {
-    day.activities.forEach((activity, activityIndex) => {
-      if (!activity.image) {
-        activitiesNeedingImages.push({
-          dayIndex,
-          activityIndex,
-          activity: { name: activity.name, category: activity.category },
-        });
-      }
-    });
-  });
-
-  // Limit the number of AI images to generate
-  const toGenerate = activitiesNeedingImages.slice(0, maxImages);
-  const remaining = activitiesNeedingImages.slice(maxImages);
-
-  // Clone the dailyPlans to avoid mutation
-  const result = JSON.parse(JSON.stringify(dailyPlans));
-
-  // Generate AI images in parallel (with concurrency limit)
-  const CONCURRENCY = 3;
-  for (let i = 0; i < toGenerate.length; i += CONCURRENCY) {
-    const batch = toGenerate.slice(i, i + CONCURRENCY);
-    const promises = batch.map(async ({ dayIndex, activityIndex, activity }) => {
-      try {
-        const aiImageUrl = await getAIActivityThumbnail(
-          activity.name,
-          activity.category || 'attraction',
-          city
-        );
-        if (aiImageUrl) {
-          result[dayIndex].activities[activityIndex].image = aiImageUrl;
-          result[dayIndex].activities[activityIndex].aiGenerated = true;
-        }
-        // No fallback — Google Places photos fetched client-side
-      } catch (error) {
-        console.error(`[activity-images] Failed to generate AI image for ${activity.name}:`, error);
-        // No fallback — Google Places photos fetched client-side
-      }
-    });
-
-    await Promise.all(promises);
-  }
-
-  // Remaining activities beyond AI limit get no image here
-  // Google Places photos will be fetched client-side for paid users
-
   return result;
 }

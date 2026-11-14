@@ -157,7 +157,7 @@ VITEST_FILES=(
   __tests__/lib/chat-readiness.test.ts
   __tests__/lib/itinerary-provider-meta.test.ts
   __tests__/lib/llm-orchestrator.test.ts
-  __tests__/lib/current-image-generation.test.ts
+  __tests__/lib/no-paid-image-api.test.ts
   __tests__/api/itinerary-provider-fallback.test.ts
   __tests__/api/itinerary-spot-pool.test.ts
   __tests__/api/story-background-cache-candidate.test.ts
@@ -189,7 +189,6 @@ VITEST_FILES=(
   __tests__/components/preview-email-preferences.test.tsx
   __tests__/lib/email-preferences-candidate-url.test.ts
   __tests__/api/subscription-action-candidate.test.ts
-  __tests__/lib/preview-flux-client.test.ts
   __tests__/api/story-background-r2.test.ts
   __tests__/api/activity-thumbnails-r2.test.ts
   __tests__/api/story-background-library.test.ts

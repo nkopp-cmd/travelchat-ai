@@ -11,7 +11,7 @@ const uuid = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/;
 export class PreviewBackgroundUnavailable extends Error {}
 export interface PreviewBackgroundInput {
   type: "cover" | "day" | "summary"; city: string; theme?: string; dayNumber?: number;
-  activities?: string[]; preferAI?: boolean; provider?: "flux" | "seedream" | "gemini";
+  activities?: string[]; preferAI?: boolean; provider?: "library" | "gemini";
   cacheKey?: string; excludeUrls?: string[]; slotIndex?: number;
 }
 export function parsePreviewBackgroundInput(value: unknown): PreviewBackgroundInput | null {
@@ -22,7 +22,7 @@ export function parsePreviewBackgroundInput(value: unknown): PreviewBackgroundIn
     || (v.theme !== undefined && (typeof v.theme !== "string" || v.theme.length > 500))
     || (v.dayNumber !== undefined && (!Number.isInteger(v.dayNumber) || Number(v.dayNumber) < 1 || Number(v.dayNumber) > 30))
     || (v.preferAI !== undefined && typeof v.preferAI !== "boolean")
-    || (v.provider !== undefined && !["flux","seedream","gemini"].includes(String(v.provider)))
+    || (v.provider !== undefined && !["library","gemini"].includes(String(v.provider)))
     || (v.cacheKey !== undefined && (typeof v.cacheKey !== "string" || !/^[\w-]{1,200}$/.test(v.cacheKey)))
     || (v.slotIndex !== undefined && (!Number.isInteger(v.slotIndex) || Number(v.slotIndex) < 0 || Number(v.slotIndex) > 31))) return null;
   for (const [key,maxLength] of [["activities",200],["excludeUrls",2048]] as const) {
