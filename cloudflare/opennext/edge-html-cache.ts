@@ -24,6 +24,14 @@ export const EDGE_HTML_TTL_SECONDS: Record<string, number> = {
   "/pricing": 86400,
   "/privacy": 86400,
   "/terms": 86400,
+  // Newsletter sign-up and its static answer pages (the confirm/unsubscribe button pages carry tokens: never cached).
+  "/newsletter": 86400,
+  "/newsletter/thanks": 86400,
+  "/newsletter/confirmed": 86400,
+  "/newsletter/unsubscribed": 86400,
+  "/newsletter/invalid": 86400,
+  "/newsletter/check-email": 86400,
+  "/newsletter/retry": 86400,
   // Photo credits: live list of stored photos, changes when a harvest run lands.
   "/credits": 3600,
   "/sign-in": 86400,

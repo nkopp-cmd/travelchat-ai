@@ -320,7 +320,10 @@ VITEST_FILES=(
   __tests__/lib/naver-local.test.ts
   __tests__/api/naver-local-route.test.ts
   __tests__/components/spot-photo-image.test.tsx
-  __tests__/components/seoul-living-link.test.tsx
+  __tests__/lib/newsletter-store.test.ts
+  __tests__/api/newsletter-routes.test.ts
+  __tests__/components/localley-signup.test.tsx
+  __tests__/lib/newsletter-email.test.tsx
 )
 
 ESLINT_FILES=(
@@ -702,8 +705,26 @@ ESLINT_FILES=(
   lib/spots/description-links.ts
   components/spots/spot-card-events.tsx
   components/spots/spot-photo-image.tsx
-  components/layout/seoul-living-link.tsx
-  __tests__/components/seoul-living-link.test.tsx
+  lib/newsletter/store.ts
+  lib/newsletter/states.ts
+  lib/newsletter/mail.ts
+  app/api/newsletter/subscribe/route.ts
+  app/api/newsletter/confirm/route.ts
+  app/api/newsletter/unsubscribe/route.ts
+  app/newsletter/page.tsx
+  app/newsletter/[state]/page.tsx
+  app/newsletter/confirm/page.tsx
+  app/newsletter/unsubscribe/page.tsx
+  components/newsletter/localley-signup.tsx
+  emails/newsletter-layout.tsx
+  emails/newsletter-confirm-email.tsx
+  emails/newsletter-issue-email.tsx
+  scripts/newsletter/send-issue.tsx
+  scripts/newsletter/issues/2026-11-first.ts
+  __tests__/lib/newsletter-store.test.ts
+  __tests__/api/newsletter-routes.test.ts
+  __tests__/components/localley-signup.test.tsx
+  __tests__/lib/newsletter-email.test.tsx
   components/spots/spots-explorer.tsx
   components/spots/spots-map.tsx
   lib/spots/pin-index.ts
