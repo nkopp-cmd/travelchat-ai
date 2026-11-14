@@ -5,8 +5,9 @@ import { ALL_CITIES } from "./cities";
  * Pre-generated image library (reach-engine-20261114 R8, weekend-sprint L5): story backgrounds per city x mood and
  * activity thumbnails per city x category, made on the ChatGPT plan (scripts/image-library/) and stored in R2:
  * story -> legacy/<sha256>.jpg (read by the story renderer as /media/story/<sha256>.jpg, JPEG because Satori has no
- * WebP); activity -> activity-thumbnails/<hex>.webp (served by /media/activity/). The routes look here first and call
- * the paid image API only on a miss.
+ * WebP); activity -> activity-thumbnails/<hex>.webp (served by /media/activity/). The routes serve ONLY library
+ * images: no paid image API is ever called (Nils 2026-11-14, APPROVALS.md). A miss falls back to the nearest
+ * library image (same mood in another city, then another mood), never to generation.
  *
  * Every library image is a painted illustration of a city mood or a category (a cafe, a market), never of a named
  * place: a generated image must never pass as a photo of a real spot. That is why activity thumbnails are keyed by
@@ -47,7 +48,7 @@ export function librarySlug(city: string | null | undefined): string | null {
 /** Day slides render in parallel (each only excludes the cover), so each day number owns one mood: no two days match. */
 const DAY_MOODS: StoryMood[] = ["street", "food", "night", "cafe"];
 
-/** The library mood for a slide, or null when the slide has none (day 5+: the paid API makes a unique one). */
+/** The exact library mood for a slide, or null when the slide has none (day 5+: see nearestLibraryStoryBackground). */
 export function slideMood(type: string | undefined, dayNumber: number | undefined): StoryMood | null {
   if (type === "cover") return "skyline";
   if (type === "summary") return "nature";
@@ -70,6 +71,47 @@ export function libraryStoryBackground(
   const mood = slideMood(type, dayNumber);
   const path = slug && mood ? source.story[slug]?.[mood] : undefined;
   return path && STORY_PATH.test(path) && !exclude.includes(path) ? path : null;
+}
+
+function cityHash(value: string): number {
+  let h = 0;
+  for (const ch of value) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return h;
+}
+
+/**
+ * The nearest library story background for any slide, or null only when every candidate is excluded.
+ * Order: the city's own mood; the same mood in a same-country city; the same mood anywhere; then other moods.
+ * Day 5+ cycles DAY_MOODS and shifts one city further per cycle, so parallel day slides stay unique.
+ * An unknown city starts from a fixed city chosen by a hash of its name (same trip -> same images).
+ */
+export function nearestLibraryStoryBackground(
+  city: string | null | undefined,
+  type: string | undefined,
+  dayNumber: number | undefined,
+  exclude: readonly string[] = [],
+  source: Library = library as Library,
+): string | null {
+  const day = type === "day" && Number.isInteger(dayNumber) && (dayNumber as number) >= 1 ? (dayNumber as number) : null;
+  const mood: StoryMood = type === "cover" ? "skyline" : type === "summary" ? "nature" : day ? DAY_MOODS[(day - 1) % DAY_MOODS.length] : "street";
+  const shift = day ? Math.floor((day - 1) / DAY_MOODS.length) : 0;
+  const slugs = Object.keys(source.story).sort();
+  if (slugs.length === 0) return null;
+  const own = librarySlug(city);
+  const home = own && source.story[own] ? own : slugs[cityHash((city ?? "").trim().toLowerCase()) % slugs.length];
+  const country = ALL_CITIES.find((c) => c.slug === home)?.countryCode;
+  const sameCountry = slugs.filter((s) => s !== home && ALL_CITIES.find((c) => c.slug === s)?.countryCode === country);
+  const others = slugs.filter((s) => s !== home && !sameCountry.includes(s));
+  const order = [home, ...sameCountry, ...others];
+  const cities = [...order.slice(shift % order.length), ...order.slice(0, shift % order.length)];
+  const moods = [mood, ...STORY_MOODS.filter((m) => m !== mood)];
+  for (const m of moods) {
+    for (const slug of cities) {
+      const path = source.story[slug]?.[m];
+      if (path && STORY_PATH.test(path) && !exclude.includes(path)) return path;
+    }
+  }
+  return null;
 }
 
 /** Category words used by the itinerary generators -> one library category. */

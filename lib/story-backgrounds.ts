@@ -2,7 +2,7 @@
  * Story Background Image Sources
  *
  * Provides multiple image source options for story backgrounds:
- * 1. AI-generated via FLUX/Seedream/Gemini (Pro/Premium) - Best quality, unique images
+ * 1. Painted library (Pro/Premium, lib/image-library.ts) - pre-generated on the ChatGPT plan; no paid image API
  * 2. TripAdvisor Content API - Real location photos with reviews
  * 3. Pexels API - High quality curated photos (requires API key)
  *

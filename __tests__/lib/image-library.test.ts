@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  ANY_CITY, libraryActivityThumbnail, libraryCategory, librarySlug, libraryStoryBackground, slideMood, STORY_MOODS,
+  ANY_CITY, libraryActivityThumbnail, libraryCategory, librarySlug, libraryStoryBackground, nearestLibraryStoryBackground, slideMood, STORY_MOODS,
 } from "@/lib/image-library";
 import manifest from "@/lib/image-library.json";
 
@@ -28,11 +28,36 @@ describe("image library", () => {
     expect(new Set(slides.map(([t, d]) => slideMood(t, d))).size).toBe(STORY_MOODS.length);
   });
 
-  it("misses (so the paid API runs) for day 5+, unknown cities, excluded or malformed paths", () => {
+  it("exact lookup misses for day 5+, unknown cities, excluded or malformed paths", () => {
     expect(libraryStoryBackground("Seoul", "day", 5, [], lib)).toBeNull();
     expect(libraryStoryBackground("Tokyo", "cover", undefined, [], lib)).toBeNull();
     expect(libraryStoryBackground("Seoul", "cover", undefined, [sha("a")], lib)).toBeNull();
     expect(libraryStoryBackground("Seoul", "cover", undefined, [], { ...lib, story: { seoul: { skyline: "https://x.test/a.webp" } } })).toBeNull();
+  });
+
+  it("nearest fallback: same mood in a same-country city first, then any city, never null for a known library", () => {
+    const multi = { ...lib, story: { ...lib.story, busan: { skyline: sha("1"), street: sha("2") }, tokyo: { skyline: sha("3") } } };
+    // Seoul cover excluded -> Busan skyline (same country KR) before Tokyo skyline
+    expect(nearestLibraryStoryBackground("Seoul", "cover", undefined, [sha("a")], multi)).toBe(sha("1"));
+    // unknown city still gets a library image
+    expect(nearestLibraryStoryBackground("Atlantis", "cover", undefined, [], multi)).toMatch(/^\/media\/story\/[0-9a-f]{64}\.jpg$/);
+    // malformed paths are never served
+    expect(nearestLibraryStoryBackground("Seoul", "cover", undefined, [], { story: { seoul: { skyline: "https://x.test/a.webp" } }, activity: {} })).toBeNull();
+  });
+
+  it("nearest fallback gives day 5-8 images that differ from day 1-4 (parallel slides)", () => {
+    const multi = { ...lib, story: { ...lib.story, busan: { skyline: sha("1"), street: sha("2"), food: sha("3"), night: sha("4"), cafe: sha("5"), nature: sha("6") } } };
+    const days = [1, 2, 3, 4, 5, 6, 7, 8].map((d) => nearestLibraryStoryBackground("Seoul", "day", d, [], multi));
+    expect(days.every(Boolean)).toBe(true);
+    expect(new Set(days).size).toBe(8);
+  });
+
+  it("the real manifest answers every enabled-city slide without a miss", () => {
+    for (const city of ["Seoul", "Tokyo", "Bangkok", "Singapore", "Atlantis"]) {
+      for (const [type, day] of [["cover", undefined], ["day", 1], ["day", 6], ["summary", undefined]] as const) {
+        expect(nearestLibraryStoryBackground(city, type, day)).toMatch(/^\/media\/story\/[0-9a-f]{64}\.jpg$/);
+      }
+    }
   });
 
   it("keys activity thumbnails by category, never by venue name", () => {

@@ -123,7 +123,6 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
     const [generatingAi, setGeneratingAi] = useState(false);
     const [generationProgress, setGenerationProgress] = useState<string>("");
     const [isPaidUser, setIsPaidUser] = useState(false);
-    const [aiQuota, setAiQuota] = useState<{ used: number; limit: number } | null>(null);
     const [brokenSlides, setBrokenSlides] = useState<Set<number>>(new Set());
     const [previewLoading, setPreviewLoading] = useState(false);
     const [cloudSaved, setCloudSaved] = useState(false);
@@ -131,7 +130,6 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
     const [retentionDays, setRetentionDays] = useState<number | null>(null);
     const [userTier, setUserTier] = useState<string>("free");
     const [selectedModel, setSelectedModel] = useState<string | null>(null);
-    const [availableModels, setAvailableModels] = useState<ModelOption[]>([]);
     const [savedSlides, setSavedSlides] = useState<Record<string, string> | null>(null);
     const [, setUsedProviders] = useState<string[]>([]);
     const { toast } = useToast();
@@ -156,8 +154,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 setAiAvailable(data.sources?.ai ?? false);
                 // Load model options from the API
                 if (data.models && Array.isArray(data.models)) {
-                    const currentModels = data.models.filter((m: ModelOption) => m.provider === "gemini");
-                    setAvailableModels(currentModels);
+                    const currentModels = data.models.filter((m: ModelOption) => m.provider === "library");
                     // Auto-select the first available model
                     const firstAvailable = currentModels.find((m: ModelOption) => m.available);
                     if (firstAvailable) {
@@ -184,34 +181,12 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                 console.error("[STORY_DIALOG] Failed to check tier:", err);
                 setIsPaidUser(false);
             });
-
-        fetch("/api/subscription/status")
-            .then((res) => {
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                return res.json();
-            })
-            .then((data) => {
-                if (data.limits && data.usage) {
-                    setAiQuota({
-                        used: data.usage.aiImagesThisMonth || 0,
-                        limit: data.limits.aiImagesPerMonth || 0,
-                    });
-                }
-            })
-            .catch(() => setAiQuota(null));
     }, [statusRequested]);
 
-    // Auto-enable AI backgrounds when available and user has access (with quota remaining)
+    // Auto-enable painted backgrounds for paid users (library images are free: no credit quota applies)
     useEffect(() => {
-        if (aiAvailable && isPaidUser) {
-            // Disable if quota exhausted
-            if (aiQuota && aiQuota.limit > 0 && aiQuota.used >= aiQuota.limit) {
-                setUseAiBackgrounds(false);
-            } else {
-                setUseAiBackgrounds(true);
-            }
-        }
-    }, [aiAvailable, isPaidUser, aiQuota]);
+        if (aiAvailable && isPaidUser) setUseAiBackgrounds(true);
+    }, [aiAvailable, isPaidUser]);
 
     const generateSlides = () => {
         // Add paid=true query param for paid users to remove CTA
@@ -778,27 +753,13 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                                         id="ai-backgrounds"
                                         checked={useAiBackgrounds}
                                         onCheckedChange={setUseAiBackgrounds}
-                                        disabled={aiQuota !== null && aiQuota.limit > 0 && aiQuota.used >= aiQuota.limit}
                                     />
                                     <Label htmlFor="ai-backgrounds" className="flex items-center gap-2 cursor-pointer">
                                         <Sparkles className="h-4 w-4 text-primary" />
-                                        <span className="text-sm">Use AI-generated backgrounds (Pro)</span>
+                                        <span className="text-sm">Use painted city backgrounds (Pro)</span>
                                     </Label>
                                 </div>
 
-                                {useAiBackgrounds && selectedModel && (
-                                    <p className="text-xs text-muted-foreground text-center mt-2">
-                                        This story will use ~{(availableModels.find(m => m.provider === selectedModel)?.credits || 3) * (totalDays + 2)} credits ({totalDays + 2} slides)
-                                    </p>
-                                )}
-
-                                {aiQuota && isPaidUser && (
-                                    <p className="text-xs text-muted-foreground">
-                                        {aiQuota.limit - aiQuota.used > 0
-                                            ? `${aiQuota.limit - aiQuota.used} credits remaining this month`
-                                            : "Credit quota reached — branded gradients will be used"}
-                                    </p>
-                                )}
                             </div>
                         )}
 
@@ -806,7 +767,7 @@ export function StoryDialog({ itineraryId, itineraryTitle, totalDays, city, dail
                         {city && (
                             <p className="text-xs text-muted-foreground text-center mb-4">
                                 {useAiBackgrounds && aiAvailable
-                                    ? "Using AI-generated images"
+                                    ? "Using painted city backgrounds"
                                     : "Branded gradient backgrounds"}
                             </p>
                         )}

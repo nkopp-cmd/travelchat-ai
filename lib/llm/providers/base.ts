@@ -88,19 +88,6 @@ export interface LocationValidationProvider extends BaseLLMProvider {
 }
 
 /**
- * Provider capable of generating images
- */
-export interface ImageGenerationProvider extends BaseLLMProvider {
-  /**
-   * Generate an image based on a prompt
-   */
-  generateImage(options: {
-    prompt: string;
-    aspectRatio?: '1:1' | '16:9' | '9:16' | '4:3' | '3:4';
-  }): Promise<{ imageBytes: string; mimeType: string }>;
-}
-
-/**
  * Provider capable of supervising and validating itineraries
  */
 export interface SupervisorProvider extends TextGenerationProvider {

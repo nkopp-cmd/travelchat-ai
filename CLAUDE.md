@@ -27,9 +27,9 @@ All environment variables are already configured in Vercel. **DO NOT add duplica
 | `GLM_BASE_URL` | Z.AI OpenAI-compatible endpoint, defaults to `https://api.z.ai/api/paas/v4/` | Optional |
 | `ANTHROPIC_API_KEY` | Claude fallback for chat and validation | Active |
 | `OPENAI_API_KEY` | OpenAI itinerary fallback | Active |
-| `GEMINI_API_KEY` | Google Gemini for image generation | Active |
-| `FAL_KEY` | FAL AI for FLUX image generation (story backgrounds) | Active |
-| `ARK_API_KEY` | Bytedance ARK API for Seedream 4.5 image generation | Active |
+| `GEMINI_API_KEY` | Gemini text only (menu reader). NO image generation (Nils 2026-11-14) | Active |
+| `FAL_KEY` | FAL video understanding for social submissions only. NO image models | Active |
+| `ARK_API_KEY` | Unused since 2026-11-14 (Seedream removed); binding kept until Nils removes the secret | Unused |
 | `VIATOR_API_KEY` | Viator tours/experiences API | Active |
 | `TRIPADVISOR_API_KEY` | TripAdvisor API | Active |
 | `PEXELS_API_KEY` | Stock photos | Active |
@@ -82,39 +82,30 @@ All environment variables are already configured in Vercel. **DO NOT add duplica
 - `scripts/import-spots.ts` - Import JSON batch files to Supabase
 - Cache file at `data/.enrichment-cache.json` saves API quota
 
-### Story Image Pipeline — STABLE, DO NOT MODIFY WITHOUT EXPLICIT REQUEST
+### Story Image Pipeline — library only, NO paid image API (Nils 2026-11-14, APPROVALS.md)
 
-> **WARNING**: This pipeline is production-stable after extensive debugging.
-> Every constraint below exists because of a real bug that was encountered and fixed.
-> **DO NOT refactor, "improve", or change ANY image generation code unless the user explicitly requests it.**
+> Never call a paid image API from Localley: no Gemini/Imagen images, no FLUX/FAL image models, no Seedream,
+> no OpenAI image API, not even as a fallback. `__tests__/lib/no-paid-image-api.test.ts` enforces this.
+> New images are made only on the ChatGPT plan (`shared/scripts/codex-image.py`) into the painted library.
 
 #### Architecture Overview
 ```
-User triggers story → POST /api/images/story-background (generate + store)
+User triggers story → POST /api/images/story-background (nearest painted library image, 0 credits)
                     → PATCH /api/itineraries/[id]/ai-backgrounds (save URLs to DB)
                     → GET /api/itineraries/[id]/story?slide=X (render PNG via Satori)
 ```
 
-#### File Map (do not reorganize)
+#### File Map
 | File | Purpose |
 |------|---------|
-| `app/api/images/story-background/route.ts` | Background generation API (AI + stock fallback) |
+| `app/api/images/story-background/route.ts` | Library background lookup (Pro/Premium); free tier gets the gradient |
 | `app/api/itineraries/[id]/story/route.tsx` | Satori PNG rendering (Node.js runtime) |
 | `app/api/itineraries/[id]/ai-backgrounds/route.ts` | Save/retrieve background URLs in DB |
-| `lib/image-provider.ts` | Provider router — dispatches to correct AI provider |
-| `lib/flux.ts` | FLUX via FAL AI (`fal-ai/flux-2-flex`) |
-| `lib/seedream.ts` | Seedream 4.5 via Bytedance ARK (OpenAI-compatible API) |
-| `lib/imagen.ts` | Gemini 2.5 Flash Image via `@google/genai` |
-| `lib/model-credits.ts` | Per-provider credit costs + tier access rules |
-| `lib/story-backgrounds.ts` | Stock photo fallbacks (TripAdvisor + Pexels) |
+| `lib/image-library.ts` + `lib/image-library.json` | Painted library (30 cities x 6 moods, JPEG story, WebP activity); `nearestLibraryStoryBackground` never misses for a known library |
+| `scripts/image-library/build.mjs` | Builds the library on the ChatGPT plan (codex-image.py); illustrations, never a named venue |
+| `lib/model-credits.ts` | One option: `library`, 0 credits |
+| `lib/activity-images.ts` | Activity thumbnails from the library by category |
 | `components/itineraries/story-dialog.tsx` | Client-side orchestration UI |
-
-#### AI Provider Priority (cascading fallback)
-1. **FLUX** (`FAL_KEY`, `lib/flux.ts`) — 1 credit/image, Pro+ tiers
-2. **Seedream** (`ARK_API_KEY`, `lib/seedream.ts`) — 2 credits/image, Premium tier
-3. **Gemini** (`GEMINI_API_KEY`, `lib/imagen.ts`) — 3 credits/image, Premium tier
-- If one provider fails, tries next in list automatically
-- Provider routing in `lib/image-provider.ts`
 
 #### Stock Photo Fallback (when AI unavailable or fails)
 1. **TripAdvisor** (`TRIPADVISOR_API_KEY`) — paid tiers only, real location photos
@@ -122,12 +113,9 @@ User triggers story → POST /api/images/story-background (generate + store)
 - Unsplash has been **REMOVED** (was masking AI failures with hardcoded images)
 - `excludeUrls` parameter prevents duplicate images across slides
 
-#### Credit & Tier System (`lib/model-credits.ts`)
-- Free: no AI images
-- Pro: FLUX only (1 credit each)
-- Premium: all providers (1/2/3 credits)
+#### Tier System
+- Free: branded gradient (or stock photos); Pro/Premium: painted library, no credit charge
 - `BYPASS_IMAGE_TIER_CHECK=true` skips tier restrictions
-- Usage tracked via `checkAndIncrementUsageWeighted()` with advisory locks
 
 #### CRITICAL CONSTRAINTS — Each one prevents a real production bug
 
@@ -138,8 +126,7 @@ User triggers story → POST /api/images/story-background (generate + store)
 5. **Story route must use `runtime = "nodejs"`** — required for `next/og` ImageResponse + Satori.
 6. **Use `select("*")` for itinerary queries** — safely handles missing columns (e.g., `ai_backgrounds` before migration). Do NOT use named column selects.
 7. **No base64 in the database** — `ai_backgrounds` stores Supabase Storage URLs only. Base64 data URLs cause 413 Payload Too Large.
-8. **Seedream uses `response_format: "b64_json"`** — avoids extra fetch round-trip to SE Asia BytePlus servers. Critical for latency.
-9. **Slide deduplication** — `slotIndex` (cover=0, day1=1, ..., summary=N+1) + `excludeUrls` guarantee unique images per slide.
+8. **Slide deduplication** — `slotIndex` (cover=0, day1=1, ..., summary=N+1) + `excludeUrls` guarantee unique images per slide.
 
 #### Database Schema
 - `itineraries.ai_backgrounds` (jsonb): `{ cover?: URL, day1?: URL, day2?: URL, ..., summary?: URL }`

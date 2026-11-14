@@ -1,33 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
-import { isImagenAvailable } from "@/lib/imagen";
-import {
-    getImageProvider,
-    isAnyProviderAvailable,
-    generateStoryBackground,
-    generateDayBackground,
-    type ImageProvider,
-} from "@/lib/image-provider";
-import {
-    getAvailableModels,
-    getModelCredits,
-    canUseTierModel,
-} from "@/lib/model-credits";
-
-// AI image generation can take 10-20s per image
-export const maxDuration = 60;
-
-import { getStoryCachePath, putStoryCachePath, putStoryMedia } from "@/lib/story-media-r2";
+import { getAvailableModels } from "@/lib/model-credits";
 import { rateLimit } from "@/lib/rate-limit";
-import { libraryStoryBackground } from "@/lib/image-library";
-import { getUserTier, checkAndIncrementUsageWeighted } from "@/lib/usage-tracking";
+import { nearestLibraryStoryBackground } from "@/lib/image-library";
+import { getUserTier } from "@/lib/usage-tracking";
 import { isPreviewStoryCandidate } from "@/lib/app-data/preview-story-candidate";
 import { previewUserTier } from "@/lib/app-data/preview-user-tier";
-import { previewBackgroundOwner, readPreviewBackgroundBody, backgroundCacheHash, cachedPreviewBackground, savePreviewBackground, PreviewBackgroundUnavailable } from "@/lib/app-data/preview-story-background-cache";
-import { incrementPreviewStoryUsage } from "@/lib/app-data/preview-story-usage";
-import { TIER_CONFIGS } from "@/lib/subscription";
+import { previewBackgroundOwner, readPreviewBackgroundBody, backgroundCacheHash, cachedPreviewBackground } from "@/lib/app-data/preview-story-background-cache";
 import { hasFeature } from "@/lib/subscription";
 import { Errors, handleApiError } from "@/lib/api-errors";
+
+/**
+ * Story backgrounds come ONLY from the pre-generated painted library (lib/image-library.json, made on the ChatGPT
+ * plan). No paid image API is called here, not even on a miss (Nils 2026-11-14, APPROVALS.md): a miss gets the
+ * nearest library image. Library images are free, so no credit is charged. Free tier keeps the branded gradient.
+ */
 
 // Rate limit: 20 story backgrounds per minute per user
 const limiter = rateLimit({
@@ -40,49 +27,16 @@ type BackgroundType = "cover" | "day" | "summary";
 interface StoryBackgroundRequest {
     type: BackgroundType;
     city: string;
-    theme?: string;
     dayNumber?: number;
-    activities?: string[];
-    // Whether to prefer AI generation (requires Pro/Premium)
+    // Whether to use painted backgrounds (requires Pro/Premium)
     preferAI?: boolean;
-    // User-selected AI model (null = auto-select based on priority)
-    provider?: ImageProvider;
-    // Cache key for storing/retrieving from storage
-    cacheKey?: string;
     // URLs to exclude (for duplicate prevention across slides)
     excludeUrls?: string[];
-    // Unique per slide to guarantee image variety (cover=0, day1=1, ..., summary=N+1)
-    slotIndex?: number;
-}
-
-/**
- * Detect actual image format from buffer magic bytes.
- * CRITICAL: Providers may return JPEG, PNG, or WebP regardless of what we request.
- * Uploading with wrong content type causes Satori to fail silently during rendering.
- */
-function detectImageContentType(buffer: Buffer): string {
-    if (buffer.length < 4) return "image/png";
-    // PNG: 89 50 4E 47
-    if (buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47) {
-        return "image/png";
-    }
-    // JPEG: FF D8 FF
-    if (buffer[0] === 0xFF && buffer[1] === 0xD8 && buffer[2] === 0xFF) {
-        return "image/jpeg";
-    }
-    // WebP: 52 49 46 46 ... 57 45 42 50
-    if (buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46 &&
-        buffer.length > 11 && buffer[8] === 0x57 && buffer[9] === 0x45 && buffer[10] === 0x42 && buffer[11] === 0x50) {
-        return "image/webp";
-    }
-    // Default to PNG
-    return "image/png";
 }
 
 async function storyBackgroundPost(req: NextRequest) {
     const candidate = isPreviewStoryCandidate(req);
     try {
-        // Check rate limit
         const rateLimitResponse = candidate ? null : await limiter(req);
         if (rateLimitResponse) {
             return rateLimitResponse;
@@ -102,253 +56,26 @@ async function storyBackgroundPost(req: NextRequest) {
             const cached = await cachedPreviewBackground(candidateOwner, candidateHash);
             if (cached) return NextResponse.json({ success: true, image: cached, source: "cache", cached: true });
         }
-        const { type, city, theme, dayNumber, activities, preferAI = true, provider: requestedProviderRaw, cacheKey, excludeUrls = [] } = body;
-        if (requestedProviderRaw && requestedProviderRaw !== "gemini") {
-            return Errors.validationError("This image option is no longer available");
-        }
-        const requestedProvider: ImageProvider = "gemini";
+        const { type, city, dayNumber, preferAI = true, excludeUrls = [] } = body;
 
         if (!city) {
             return Errors.validationError("city is required");
         }
 
-        // Determine user tier and AI eligibility
         const tier = candidate ? await previewUserTier(userId) : await getUserTier(userId);
-        const hasAiFeature = hasFeature(tier, 'aiBackgrounds');
-        const anyProviderAvailable = isAnyProviderAvailable();
-        const bypassTierCheck = process.env.BYPASS_IMAGE_TIER_CHECK === "true";
+        const allowed = hasFeature(tier, "aiBackgrounds") || process.env.BYPASS_IMAGE_TIER_CHECK === "true";
 
-        // Log gate check BEFORE evaluating canUseAI — this always appears in Vercel logs
-        console.log("[STORY_BG] Gate check:", {
-            tier,
-            preferAI,
-            hasAiFeature,
-            anyProviderAvailable,
-            bypassTierCheck,
-            geminiKey: isImagenAvailable(),
-        });
-
-        let canUseAI = preferAI && anyProviderAvailable && (hasAiFeature || bypassTierCheck);
-
-        // If user explicitly requested a provider, validate tier access
-        if (requestedProvider && canUseAI) {
-            if (!canUseTierModel(tier, requestedProvider)) {
-                return NextResponse.json({
-                    success: false,
-                    error: "Your plan does not include AI backgrounds. Upgrade to Pro to create them.",
-                    _debug: { tier, hasAiFeature, anyProviderAvailable, bypassTierCheck },
-                }, { status: 403 });
+        if (preferAI && allowed) {
+            const image = nearestLibraryStoryBackground(city, type, dayNumber, Array.isArray(excludeUrls) ? excludeUrls : []);
+            if (image) {
+                return NextResponse.json({ success: true, image, source: "library", cached: true });
             }
         }
-
-        // Pre-generated library first (reach-engine R8): no credit, no paid image call. Only a miss below reaches Gemini.
-        if (!candidate && preferAI && (hasAiFeature || bypassTierCheck)) {
-            const libraryImage = libraryStoryBackground(city, type, dayNumber, Array.isArray(excludeUrls) ? excludeUrls : []);
-            if (libraryImage) {
-                console.log("[STORY_BG] library hit");
-                return NextResponse.json({ success: true, image: libraryImage, source: "library", cached: true });
-            }
-        }
-
-        // Determine credit cost based on provider
-        const creditCost = getModelCredits("gemini");
-
-        // Check AI usage quota before attempting generation
-        // Refuse paid generation when the atomic usage check cannot complete.
-        if (canUseAI && !candidate) {
-            try {
-                const { allowed, usage } = await checkAndIncrementUsageWeighted(userId, "ai_images_generated", creditCost);
-                if (!allowed) {
-                    console.log("[STORY_BG] AI quota exceeded, branded gradient will be used", {
-                        current: usage.currentUsage,
-                        limit: usage.limit,
-                        creditCost,
-                    });
-                    canUseAI = false;
-                }
-            } catch (usageError) {
-                console.error("[STORY_BG] Usage tracking unavailable");
-                throw usageError;
-            }
-        }
-
-        // Use user-chosen provider or auto-select based on priority
-        let imageProvider: ImageProvider | null = canUseAI
-            ? (requestedProvider || getImageProvider(tier))
-            : null;
-
-        console.log("[STORY_BG] Request:", {
-            type,
-            city,
-            theme,
-            dayNumber,
-            canUseAI,
-            imageProvider,
-            tier,
-        });
-
-        // Check the per-user R2 slide cache first if cacheKey provided
-        if (cacheKey && !candidate) {
-            const cachedPath = await getStoryCachePath(userId, cacheKey);
-            if (cachedPath) {
-                console.log("[STORY_BG] Returning cached image URL");
-                return NextResponse.json({
-                    success: true,
-                    image: cachedPath,
-                    source: "cache",
-                    cached: true,
-                });
-            }
-        }
-
-        let imageUrl: string | null = null;
-        const source = "ai";
-        const failedProviders: Array<{ provider: string; error: string }> = [];
-
-        // =====================================================================
-        // AI GENERATION — respect user's model choice (no silent fallback)
-        // =====================================================================
-        if (canUseAI) {
-            if (candidate && process.env.PREVIEW_STORY_GENERATION_ENABLED !== "true") {
-                return NextResponse.json({ success: false, error: "Preview generation is disabled" }, { status: 503 });
-            }
-            const providerOrder: ImageProvider[] = ["gemini"];
-
-            for (const currentProvider of providerOrder) {
-                if (candidateOwner) {
-                    // Each attempted provider uses its actual weight, including automatic fallback.
-                    // A cache hit has already returned. Quota failures never permit generation.
-                    const usage = await incrementPreviewStoryUsage(candidateOwner, getModelCredits(currentProvider), TIER_CONFIGS[tier].limits.aiImagesPerMonth);
-                    if (!usage.allowed) return NextResponse.json({ success: false, error: "Image credit limit reached", usage }, { status: 429 });
-                }
-                try {
-                    console.log(`[STORY_BG] Attempting AI generation with ${currentProvider}...`);
-                    let aiImage: string | null = null;
-
-                    if (type === "day" && dayNumber) {
-                        aiImage = await generateDayBackground(
-                            currentProvider,
-                            city,
-                            dayNumber,
-                            theme || `Day ${dayNumber} adventures`,
-                            activities || [],
-                            candidate ? { singleSubmission: true } : undefined
-                        );
-                    } else {
-                        const bgTheme = type === "cover"
-                            ? "iconic landmarks and cityscape"
-                            : type === "summary"
-                                ? "beautiful travel scenery"
-                                : theme || "travel destination";
-
-                        aiImage = await generateStoryBackground(currentProvider, city, bgTheme, "vibrant", candidate ? { singleSubmission: true } : undefined);
-                    }
-
-                    // Check for empty string (Gemini returns "" on failure)
-                    if (aiImage && aiImage.length > 100) {
-                        imageProvider = currentProvider;
-                        console.log(`[STORY_BG] ${currentProvider} succeeded! Image length: ${aiImage.length}`);
-
-                        // Candidate bytes stay in the private preview bucket; normal backgrounds go to R2 story media.
-                        const cleanBase64 = aiImage.replace(/^data:image\/\w+;base64,/, "");
-                        const buffer = Buffer.from(cleanBase64, "base64");
-
-                        // Detect actual image format from magic bytes — providers may return
-                        // JPEG even when PNG is requested. Using wrong content type causes
-                        // Satori to fail silently when building data URIs for rendering.
-                        const detectedType = detectImageContentType(buffer);
-
-                        // Satori does NOT support WebP — reject and try next provider
-                        if (detectedType === "image/webp") {
-                            console.error(`[STORY_BG] ${currentProvider} returned WebP — rejected (Satori incompatible)`);
-                            failedProviders.push({ provider: currentProvider, error: "Returned WebP (unsupported by Satori)" });
-                            continue;
-                        }
-
-                        const ext = detectedType === "image/jpeg" ? "jpg" : "png";
-                        console.log(`[STORY_BG] Upload: detected ${detectedType}, size ${buffer.length} bytes`);
-
-                        if (candidateOwner && candidateHash) {
-                            imageUrl = await savePreviewBackground(candidateOwner, candidateHash, buffer);
-                        } else {
-                            const r2Path = await putStoryMedia(buffer, ext, detectedType);
-                            console.log(`[STORY_BG] story_media_write=${r2Path ? "r2" : "failed"}`);
-                            if (!r2Path) {
-                                // Image generated but not stored — the base64 is too large to return directly.
-                                failedProviders.push({ provider: currentProvider, error: "Upload failed: R2 story media unavailable" });
-                            } else {
-                                imageUrl = r2Path;
-                                if (cacheKey) await putStoryCachePath(userId, cacheKey, r2Path);
-                            }
-                        }
-                        break; // AI succeeded — stop trying providers
-                    } else {
-                        const msg = aiImage ? `Empty response (length: ${aiImage.length})` : "Returned null";
-                        console.error(`[STORY_BG] ${currentProvider} returned empty:`, msg);
-                        failedProviders.push({ provider: currentProvider, error: msg });
-                    }
-                } catch (error: unknown) {
-                    if (candidate && error instanceof PreviewBackgroundUnavailable) {
-                        return NextResponse.json({ success: false, error: "Preview background storage unavailable" }, { status: 503 });
-                    }
-                    const errorMsg = error instanceof Error ? error.message : String(error);
-                    // Capture full error details (FAL ApiError has .body, .status)
-                    const apiError = error as { status?: number; body?: unknown };
-                    const details = apiError.body ? JSON.stringify(apiError.body) : undefined;
-                    console.error(`[STORY_BG] ${currentProvider} FAILED:`, {
-                        message: errorMsg,
-                        status: apiError.status,
-                        body: details,
-                    });
-                    failedProviders.push({
-                        provider: currentProvider,
-                        error: details ? `${errorMsg} | body: ${details}` : errorMsg,
-                    });
-                }
-            }
-        }
-
-        // =====================================================================
-        // NO IMAGE — branded gradient fallback will be used by story renderer
-        // =====================================================================
-        if (!imageUrl) {
-            const reason = "Background generation failed — branded gradient will be used";
-            console.error("[STORY_BG] No image:", {
-                reason,
-                requestedProvider,
-                canUseAI,
-                imageProvider,
-                tier,
-                failedProviders,
-                hasGeminiKey: isImagenAvailable(),
-            });
-
-            return NextResponse.json({
-                success: false,
-                error: reason,
-                failedProviders,
-                _debug: {
-                    tier,
-                    canUseAI,
-                    imageProvider,
-                    hasAiFeature,
-                    anyProviderAvailable,
-                    bypassTierCheck,
-                                    geminiKey: isImagenAvailable(),
-                },
-            });
-        }
-
-        console.log("[STORY_BG] Final result:", { source, type, city, imageUrl: imageUrl.substring(0, 80) });
 
         return NextResponse.json({
-            success: true,
-            image: imageUrl,
-            source,
-            provider: imageProvider,
-            cached: false,
-            failedProviders: failedProviders.length > 0 ? failedProviders : undefined,
-            _debug: { tier, canUseAI, bypassTierCheck, hasAiFeature, anyProviderAvailable },
+            success: false,
+            error: "No background — branded gradient will be used",
+            _debug: { tier, preferAI, allowed },
         });
     } catch (error) {
         console.error("[STORY_BG] Error:", error);
@@ -383,8 +110,8 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
         sources: {
-            ai: isAnyProviderAvailable(),
-            gemini: isImagenAvailable(),
+            ai: true,
+            library: true,
         },
         models,
         tier,

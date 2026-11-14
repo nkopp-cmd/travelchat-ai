@@ -7,20 +7,15 @@ import { readFileSync } from "node:fs";
 import { afterEach,beforeEach,describe,expect,it,vi } from "vitest";
 import { NextRequest } from "next/server";
 import { D1Sqlite } from "@/__tests__/helpers/d1-sqlite";
-const mocks=vi.hoisted(()=>({auth:vi.fn(),user:vi.fn(),source:vi.fn(),tier:vi.fn(),sourceTier:vi.fn(),weighted:vi.fn(),generate:vi.fn(),day:vi.fn(),available:vi.fn(),provider:vi.fn()}));
+const mocks=vi.hoisted(()=>({auth:vi.fn(),user:vi.fn(),source:vi.fn(),tier:vi.fn(),sourceTier:vi.fn(),weighted:vi.fn(),}));
 vi.mock("@/lib/auth/server",()=>({auth:mocks.auth,currentUser:mocks.user}));
 vi.mock("@/lib/supabase",()=>({createSupabaseAdmin:mocks.source}));
 vi.mock("@/lib/usage-tracking",()=>({getUserTier:mocks.sourceTier,checkAndIncrementUsageWeighted:mocks.weighted}));
 vi.mock("@/lib/app-data/preview-user-tier",()=>({previewUserTier:mocks.tier}));
 vi.mock("@/lib/rate-limit",()=>({rateLimit:()=>async()=>null}));
-vi.mock("@/lib/flux",()=>({isFluxAvailable:()=>true}));
-vi.mock("@/lib/seedream",()=>({isSeedreamAvailable:()=>true}));
-vi.mock("@/lib/imagen",()=>({isImagenAvailable:()=>true}));
-vi.mock("@/lib/image-provider",()=>({getImageProvider:mocks.provider,isAnyProviderAvailable:mocks.available,generateStoryBackground:mocks.generate,generateDayBackground:mocks.day}));
 import { POST,GET } from "@/app/api/images/story-background/route";
 import { PUT,DELETE } from "@/app/api/test-app-data/story-background/route";
-import { GET as media } from "@/app/api/images/story-background/media/[id]/route";
-import { backgroundCacheHash,cachedPreviewBackground,savePreviewBackground,previewBackgroundId,previewBackgroundData,previewBackgroundMime } from "@/lib/app-data/preview-story-background-cache";
+import { backgroundCacheHash,cachedPreviewBackground,savePreviewBackground,previewBackgroundData,previewBackgroundMime } from "@/lib/app-data/preview-story-background-cache";
 import { incrementPreviewStoryUsage } from "@/lib/app-data/preview-story-usage";
 import { updatePreviewStoryBackgrounds } from "@/lib/app-data/preview-story-metadata";
 const symbol=Symbol.for("__cloudflare-context__"),original=process.env,host="localley-next-preview.nkopp.workers.dev";
@@ -43,70 +38,42 @@ beforeEach(()=>{
  db.sqlite.exec(readFileSync("migrations/app-preview/0031_preview_story_background_capacity.sql","utf8"));
  objects=new Map();put=vi.fn(async(key:string,bytes:Uint8Array)=>{objects.set(key,new Uint8Array(bytes));return{key};});
  (globalThis as Record<symbol,unknown>)[symbol]={env:{APP_DATA_PREVIEW_DB:db,STORY_PREVIEW_MEDIA:{put,get:async(key:string)=>objects.has(key)?{arrayBuffer:async()=>new Uint8Array(objects.get(key)!).buffer}:null,delete:async(key:string)=>{objects.delete(key);}}}};
- user();mocks.provider.mockReturnValue("gemini");mocks.tier.mockResolvedValue("pro");mocks.sourceTier.mockResolvedValue("pro");mocks.available.mockReturnValue(true);mocks.generate.mockResolvedValue(`data:image/png;base64,${png.toString("base64")}`);
+ user();mocks.tier.mockResolvedValue("pro");mocks.sourceTier.mockResolvedValue("pro");
 });
 afterEach(()=>{db.sqlite.close();process.env=original;delete(globalThis as Record<symbol,unknown>)[symbol];vi.restoreAllMocks();});
 async function owner(){await db.prepare("INSERT OR IGNORE INTO owners VALUES('auth:one','new')").run();}
 const usage=()=>db.sqlite.prepare("SELECT * FROM preview_story_usage").all() as {count:number;baselineCount:number}[];
 describe("preview R2 background cache and atomic weighted usage",()=>{
- it("blocks real generation by default and rejects invalid bounded requests without source calls",async()=>{
-  expect((await POST(req())).status).toBe(503);expect(mocks.generate).not.toHaveBeenCalled();expect(usage()).toEqual([]);
-  for(const body of[{...input,ownerId:"other"},{...input,city:"x".repeat(20000)},{...input,provider:"bad"}])expect((await POST(req(body))).status).toBe(400);
+ it("serves the painted library to a verified candidate and never generates, stores or charges (no paid image API)",async()=>{
+  const r=await POST(req());expect(r.status).toBe(200);
+  expect(await r.json()).toMatchObject({success:true,source:"library",image:expect.stringMatching(/^\/media\/story\/[0-9a-f]{64}\.jpg$/)});
+  expect(put).not.toHaveBeenCalled();expect(usage()).toEqual([]);expect(mocks.weighted).not.toHaveBeenCalled();expect(mocks.source).not.toHaveBeenCalled();
+  for(const body of[{...input,ownerId:"other"},{...input,city:"x".repeat(20000)},{...input,provider:"bad"},{...input,provider:"flux"},{...input,provider:"seedream"}])expect((await POST(req(body))).status).toBe(400);
   expect(previewBackgroundMime(png.subarray(0,499))).toBeNull();
-  expect(mocks.source).not.toHaveBeenCalled();expect(mocks.weighted).not.toHaveBeenCalled();expect(mocks.sourceTier).not.toHaveBeenCalled();
  });
- it("refuses unverified, nonreserved and mismatched candidate identities before any paid call or credit write",async()=>{
-  process.env.PREVIEW_STORY_GENERATION_ENABLED="true";
+ it("refuses unverified, nonreserved and mismatched candidate identities",async()=>{
   for(const value of [null,{id:"one",emailVerified:false,primaryEmailAddress:{emailAddress:"one@preview.localley.test"}},
     {id:"one",emailVerified:true,primaryEmailAddress:{emailAddress:"one@example.com"}},
     {id:"other",emailVerified:true,primaryEmailAddress:{emailAddress:"other@preview.localley.test"}}]) {
    mocks.user.mockResolvedValue(value);
-   expect((await POST(req())).status).toBe(503);
+   expect((await POST(req())).status).toBeGreaterThanOrEqual(400);
   }
-  expect(mocks.generate).not.toHaveBeenCalled();expect(mocks.day).not.toHaveBeenCalled();expect(usage()).toEqual([]);
-  expect(mocks.tier).not.toHaveBeenCalled();expect(mocks.source).not.toHaveBeenCalled();expect(mocks.weighted).not.toHaveBeenCalled();
-  user();expect((await POST(req())).status).toBe(200);expect(mocks.generate).toHaveBeenCalledTimes(1);expect(usage()[0].count).toBe(3);
+  expect(mocks.tier).not.toHaveBeenCalled();expect(usage()).toEqual([]);
+  user();expect((await POST(req())).status).toBe(200);
  });
- it("stores actual byte format privately and cache hits preserve credits and skip tier/provider calls",async()=>{
-  process.env.PREVIEW_STORY_GENERATION_ENABLED="true";
-  const jpeg=Buffer.concat([Buffer.from([255,216,255]),Buffer.alloc(600)]);mocks.generate.mockResolvedValue(`data:image/png;base64,${jpeg.toString("base64")}`);
-  const first=await POST(req());expect(first.status).toBe(200);expect(mocks.generate.mock.calls[0]?.at(-1)).toEqual({singleSubmission:true});const result=await first.json();expect(result).toMatchObject({success:true,cached:false,provider:"gemini"});
-  expect([...objects.keys()][0]).toMatch(/\.jpg$/);expect(usage()[0].count).toBe(3);
-  mocks.tier.mockRejectedValue(new Error("must not need entitlement on owned cache hit"));
-  const hit=await POST(req());expect(await hit.json()).toMatchObject({success:true,image:result.image,source:"cache",cached:true});
-  expect(usage()[0].count).toBe(3);expect(mocks.generate).toHaveBeenCalledTimes(1);expect(mocks.source).not.toHaveBeenCalled();
-  expect(await previewBackgroundData(result.image,"other")).toBeNull();
-  const response=await media(new NextRequest(result.image),{params:Promise.resolve({id:previewBackgroundId(result.image)!})});
-  expect(Buffer.from(await response.arrayBuffer())).toEqual(jpeg);expect(response.headers.get("content-type")).toBe("image/jpeg");
+ it("gives free tier the branded gradient, not a library image",async()=>{
+  mocks.tier.mockResolvedValue("free");
+  expect(await (await POST(req())).json()).toMatchObject({success:false});
  });
- it("passes the submission boundary to candidate day backgrounds",async()=>{
-  process.env.PREVIEW_STORY_GENERATION_ENABLED="true";mocks.day.mockResolvedValue(png.toString("base64"));
-  expect((await POST(req({...input,type:"day",dayNumber:1,activities:["Controlled walk"]}))).status).toBe(200);
-  expect(mocks.day.mock.calls[0]?.at(-1)).toEqual({singleSubmission:true});expect(mocks.generate).not.toHaveBeenCalled();
+ it("serves day backgrounds from the library without a provider",async()=>{
+  const r=await POST(req({...input,type:"day",dayNumber:1,activities:["Controlled walk"]}));
+  expect(await r.json()).toMatchObject({success:true,source:"library"});expect(put).not.toHaveBeenCalled();
  });
- it("uses one provider without automatic fallback and charges its actual weight",async()=>{
-  process.env.PREVIEW_STORY_GENERATION_ENABLED="true";mocks.tier.mockResolvedValue("pro");mocks.generate.mockRejectedValue(new Error("provider unavailable"));
-  const r=await POST(req());expect(r.status).toBe(200);expect(await r.json()).toMatchObject({success:false});
-  expect(mocks.generate.mock.calls.map(x=>x[0])).toEqual(["gemini"]);expect(usage()[0].count).toBe(3);
-  user("two");mocks.tier.mockResolvedValue("premium");
-  await POST(req({...input,provider:"gemini"}));expect(mocks.generate.mock.calls.at(-1)?.[0]).toBe("gemini");
-  expect(db.sqlite.prepare("SELECT count FROM preview_story_usage WHERE ownerId='auth:two'").get()).toEqual({count:3});
- });
- it("refuses retired options before usage or provider work",async()=>{
-  process.env.PREVIEW_STORY_GENERATION_ENABLED="true";
-  for(const provider of ["flux","seedream"])expect((await POST(req({...input,provider}))).status).toBe(400);
-  expect(mocks.generate).not.toHaveBeenCalled();expect(usage()).toEqual([]);
- });
- it("refuses production generation if atomic usage accounting is unavailable",async()=>{
-  mocks.weighted.mockRejectedValue(new Error("usage unavailable"));
-  const r=await POST(req({...input,cacheKey:undefined},"www.localley.io",true));
-  expect(r.status).toBeGreaterThanOrEqual(500);expect(mocks.generate).not.toHaveBeenCalled();
- });
- it("never treats WebP as PNG and does not retry generation after storage failure",async()=>{
-  process.env.PREVIEW_STORY_GENERATION_ENABLED="true";mocks.generate.mockResolvedValue(Buffer.concat([Buffer.from("RIFFxxxxWEBP"),Buffer.alloc(600)]).toString("base64"));
-  await POST(req({...input,provider:"gemini"}));expect(put).not.toHaveBeenCalled();expect(mocks.generate).toHaveBeenCalledTimes(1);
-  mocks.generate.mockResolvedValue(png.toString("base64"));put.mockRejectedValue(new Error("R2 failure"));
-  const response=await POST(req({...input,cacheKey:"failure"}));expect(response.status).toBe(503);expect(mocks.generate).toHaveBeenCalledTimes(2);expect(mocks.source).not.toHaveBeenCalled();
+ it("serves www requests from the library without usage accounting",async()=>{
+  mocks.weighted.mockRejectedValue(new Error("usage must not be called"));
+  const r=await POST(req({type:"cover",city:"Seoul"},"www.localley.io",false));
+  expect(r.status).toBe(200);expect(await r.json()).toMatchObject({success:true,source:"library"});
+  expect(mocks.weighted).not.toHaveBeenCalled();expect(put).not.toHaveBeenCalled();
  });
  it("atomically enforces concurrent weighted caps, isolates owners and rolls months without resetting old counts",async()=>{
   await owner();const now=new Date("2026-10-03T00:00:00Z");const results=await Promise.all(Array.from({length:10},()=>incrementPreviewStoryUsage("auth:one",3,6,now)));
@@ -142,24 +109,9 @@ describe("preview R2 background cache and atomic weighted usage",()=>{
   user("two");await owner();await expect(updatePreviewStoryBackgrounds("trip","two",{cover:result.image})).rejects.toThrow();
   const denied=await DELETE(new NextRequest(`https://${host}/api/test-app-data/story-background?data_candidate=d1&image=${encodeURIComponent(result.image)}`,{method:"DELETE"}));expect(await denied.json()).toEqual({deleted:false});
   user();const deleted=await DELETE(new NextRequest(`https://${host}/api/test-app-data/story-background?data_candidate=d1&image=${encodeURIComponent(result.image)}`,{method:"DELETE"}));expect(await deleted.json()).toEqual({deleted:true});expect(objects.size).toBe(0);
-  expect(mocks.generate).not.toHaveBeenCalled();expect(mocks.source).not.toHaveBeenCalled();
- });
- it("keeps normal www generation on the R2 media store, with byte detection and source quota",async()=>{
-  const upload=vi.fn(async()=>({error:null}));mocks.source.mockReturnValue({storage:{from:vi.fn(()=>({upload}))}});
-  const media=vi.fn(async()=>({}));(globalThis as Record<symbol,{env:Record<string,unknown>}>)[symbol].env.STORY_MEDIA_R2={put:media,get:async()=>null};
-  mocks.weighted.mockResolvedValue({allowed:true,usage:{}});
-  const jpeg=Buffer.concat([Buffer.from([255,216,255]),Buffer.alloc(600)]);
-  mocks.generate.mockResolvedValue(`data:image/png;base64,${jpeg.toString("base64")}`);
-  const response=await POST(req({...input,cacheKey:undefined,provider:"gemini"},"www.localley.io",true));
-  expect(response.status).toBe(200);const body=await response.json();expect(body).toMatchObject({success:true,source:"ai",provider:"gemini"});
-  expect(body.image).toMatch(/^\/media\/story\/[0-9a-f]{64}\.jpg$/);
-  expect(media).toHaveBeenCalledWith(expect.stringMatching(/^legacy\/[0-9a-f]{64}\.jpg$/),expect.anything(),expect.anything());
-  expect(upload).not.toHaveBeenCalled();
-  expect(mocks.weighted).toHaveBeenCalledWith("one","ai_images_generated",3);
-  expect(mocks.generate).toHaveBeenCalledTimes(1);expect(mocks.generate.mock.calls[0]?.at(-1)).toBeUndefined();expect(put).not.toHaveBeenCalled();expect(usage()).toEqual([]);
+  expect(mocks.source).not.toHaveBeenCalled();
  });
  it("keeps normal preview/www on source and rejects anonymous candidate callers",async()=>{
-  mocks.available.mockReturnValue(false);
   for(const [hostname,flag]of[[host,false],["www.localley.io",true]]as const){const r=await POST(req({...input,cacheKey:undefined},hostname,flag));expect(r.headers.get("x-localley-data-source")).toBeNull();}
   expect(mocks.sourceTier).toHaveBeenCalledTimes(2);
   mocks.auth.mockResolvedValue({userId:null});expect((await POST(req())).status).toBe(401);
