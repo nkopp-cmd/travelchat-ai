@@ -56,6 +56,7 @@ import { readSpotGuide } from "@/lib/spots/guide-store";
 import { isSpotIndexable } from "@/lib/seo/spot-indexable";
 import { cityDirectory } from "@/lib/spots/city-directory-store";
 import { nearestEntries } from "@/lib/spots/city-directory";
+import { spotIntro } from "@/lib/seo/spot-intro";
 import { cache } from "react";
 import { fetchSpotViralMentions } from "@/lib/viral/events";
 import { viralMentionMonth } from "@/lib/viral/feed";
@@ -560,6 +561,11 @@ export default async function SpotPage({
   // Six closest spots of the same city hub as plain links: every spot page links its neighbours, so no spot is an
   // orphan even outside the hub's first page (weekend sprint L3).
   const nearbyLinks = nearestEntries(directory, spot.location, [spot.id, ...relatedSpots.map((related) => related.id)], 6);
+  // Own-data lead (sprint-2 L8): score, hub rank and the closest neighbours make each spot page's opening unique.
+  const intro = candidate ? null : spotIntro({
+    id: spot.id, name: spot.name, category: spot.category, score: spot.localleyScore, area: primaryArea, city,
+    directory, nearby: nearestEntries(directory, spot.location, [spot.id], 6),
+  });
   let saveActor: string | null = null;
   if (candidate) {
     try { saveActor = await previewSavedSpotActor(); }
@@ -662,6 +668,7 @@ export default async function SpotPage({
 
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-3 lg:gap-6">
           <div className="space-y-5 lg:col-span-2">
+            {intro && <p data-testid="spot-intro" className="text-base font-medium leading-7 text-foreground">{intro}</p>}
             {(guide?.guide || description.text) && (
               <section data-testid="spot-guide" className={`${LIQUID_CARD} space-y-3 p-4 sm:p-6`}>
                 {(guide?.guide || description.text).split(/\n{2,}/).map((paragraph, index) => (
