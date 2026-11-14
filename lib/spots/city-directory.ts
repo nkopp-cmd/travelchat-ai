@@ -12,6 +12,8 @@ export type CityDirectoryEntry = {
   lng: number | null;
   /** Position in the hub's score order (0 = highest Localley Score); the list itself is A-Z. */
   rank: number;
+  /** Localley Score 1-6, or null when the row has none. */
+  score: number | null;
 };
 
 export type NearbyEntry = CityDirectoryEntry & { distanceKm: number };
@@ -22,6 +24,7 @@ type KeyRow = {
   category?: string | null;
   latitude?: number | null;
   longitude?: number | null;
+  localley_score?: number | null;
 };
 
 function englishName(name: unknown): string {
@@ -44,6 +47,7 @@ export function toDirectoryEntries(rows: KeyRow[]): CityDirectoryEntry[] {
       lat: typeof row.latitude === "number" ? row.latitude : null,
       lng: typeof row.longitude === "number" ? row.longitude : null,
       rank,
+      score: typeof row.localley_score === "number" && Number.isInteger(row.localley_score) && row.localley_score >= 1 && row.localley_score <= 6 ? row.localley_score : null,
     }))
     .filter((entry) => entry.name.length > 0)
     .sort((a, b) => a.name.localeCompare(b.name, "en", { sensitivity: "base" }) || a.id.localeCompare(b.id));
@@ -84,4 +88,11 @@ export function groupByInitial(entries: CityDirectoryEntry[]): { letter: string;
 export function topPicks(entries: CityDirectoryEntry[], category: string, limit = 6): CityDirectoryEntry[] {
   if (limit <= 0) return [];
   return entries.filter((entry) => entry.category === category).sort((a, b) => a.rank - b.rank).slice(0, limit);
+}
+
+/** How many hub entries sit at each Localley Score (6 down to 1); entries without a score are not counted. */
+export function scoreCounts(entries: CityDirectoryEntry[]): { score: number; count: number }[] {
+  const counts = [0, 0, 0, 0, 0, 0];
+  for (const entry of entries) if (entry.score !== null) counts[entry.score - 1]++;
+  return counts.map((count, index) => ({ score: index + 1, count })).reverse();
 }

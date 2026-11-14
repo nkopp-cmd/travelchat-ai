@@ -70,4 +70,5 @@ list; no DMs, no paid placement.
 - **"Spots locals save" monthly index per city**, from our own save and view data (count of saves per spot, top 20 per
   city, month-on-month change). Method + date on the page; conclusions only, never raw rows (moat rule).
 - Blocker: data rows 26 (BUSINESS.md 2026-11-14) is too thin for a credible index. First issue when a city has 200+
-  saves; until then the asset is the "Hidden gems in <city>" hub itself with the Localley Score method explained.
+  saves; until then the asset is the "Hidden gems in <city>" hub itself with the Localley Score method explained
+  (live block "How we rate places in <City>": method, places per score level, "Last updated <month>").
