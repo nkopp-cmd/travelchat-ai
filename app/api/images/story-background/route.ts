@@ -19,6 +19,7 @@ export const maxDuration = 60;
 
 import { getStoryCachePath, putStoryCachePath, putStoryMedia } from "@/lib/story-media-r2";
 import { rateLimit } from "@/lib/rate-limit";
+import { libraryStoryBackground } from "@/lib/image-library";
 import { getUserTier, checkAndIncrementUsageWeighted } from "@/lib/usage-tracking";
 import { isPreviewStoryCandidate } from "@/lib/app-data/preview-story-candidate";
 import { previewUserTier } from "@/lib/app-data/preview-user-tier";
@@ -137,6 +138,15 @@ async function storyBackgroundPost(req: NextRequest) {
                     error: "Your plan does not include AI backgrounds. Upgrade to Pro to create them.",
                     _debug: { tier, hasAiFeature, anyProviderAvailable, bypassTierCheck },
                 }, { status: 403 });
+            }
+        }
+
+        // Pre-generated library first (reach-engine R8): no credit, no paid image call. Only a miss below reaches Gemini.
+        if (!candidate && preferAI && (hasAiFeature || bypassTierCheck)) {
+            const libraryImage = libraryStoryBackground(city, type, dayNumber, Array.isArray(excludeUrls) ? excludeUrls : []);
+            if (libraryImage) {
+                console.log("[STORY_BG] library hit");
+                return NextResponse.json({ success: true, image: libraryImage, source: "library", cached: true });
             }
         }
 

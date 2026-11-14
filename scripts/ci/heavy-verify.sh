@@ -188,6 +188,9 @@ VITEST_FILES=(
   __tests__/lib/preview-flux-client.test.ts
   __tests__/api/story-background-r2.test.ts
   __tests__/api/activity-thumbnails-r2.test.ts
+  __tests__/api/story-background-library.test.ts
+  __tests__/lib/image-library.test.ts
+  __tests__/lib/image-library-build.test.ts
   __tests__/api/story-render-access.test.tsx
   __tests__/lib/story-emoji.test.ts
   __tests__/api/story-slides-r2.test.ts
