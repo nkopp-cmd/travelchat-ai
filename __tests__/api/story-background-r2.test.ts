@@ -4,8 +4,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({ auth: vi.fn(), source: vi.fn(), tier: vi.fn(), weighted: vi.fn(), update: vi.fn() }));
 vi.mock("@/lib/auth/server", () => ({ auth: mocks.auth, currentUser: vi.fn() }));
-// Library behaviour with the set switched on (production ships live=false until the new style is approved).
-vi.mock("@/lib/image-library.json", async (orig) => ({ default: { ...((await orig()) as { default: object }).default, live: true } }));
+// Library behaviour with a live theme x light set (independent of the shipped manifest state).
+vi.mock("@/lib/image-library.json", async (orig) => (await import("../fixtures/live-image-library")).liveImageLibrary(orig));
 vi.mock("@/lib/supabase", () => ({ createSupabaseAdmin: mocks.source }));
 vi.mock("@/lib/usage-tracking", () => ({ getUserTier: mocks.tier, checkAndIncrementUsageWeighted: mocks.weighted }));
 vi.mock("@/lib/rate-limit", () => ({ rateLimit: () => async () => null }));
