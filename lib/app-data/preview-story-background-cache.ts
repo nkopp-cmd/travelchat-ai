@@ -4,7 +4,6 @@ import { currentUser } from "@/lib/auth/server";
 import { ensureOwnerId, ownerIds } from "./preview-conversations";
 import { previewAppDataReader } from "./preview-db";
 import { previewStoryBucket } from "./preview-story-media";
-import { sanitizePickerDays, type PickerDay } from "@/lib/image-library";
 
 const maxBackgroundBytes = 8 * 1024 * 1024;
 const origin = "https://localley-next-preview.nkopp.workers.dev";
@@ -12,25 +11,23 @@ const uuid = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/;
 export class PreviewBackgroundUnavailable extends Error {}
 export interface PreviewBackgroundInput {
   type: "cover" | "day" | "summary"; city: string; theme?: string; dayNumber?: number;
-  activities?: string[]; preferAI?: boolean; provider?: "library" | "gemini";
-  cacheKey?: string; excludeUrls?: string[]; slotIndex?: number; days?: PickerDay[];
+  activities?: string[]; preferAI?: boolean; provider?: "flux" | "seedream" | "gemini";
+  cacheKey?: string; excludeUrls?: string[]; slotIndex?: number;
 }
 export function parsePreviewBackgroundInput(value: unknown): PreviewBackgroundInput | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const v = value as Record<string, unknown>;
-  if (Object.keys(v).some(k => !["type","city","theme","dayNumber","activities","preferAI","provider","cacheKey","excludeUrls","slotIndex","days"].includes(k))
-    || (v.days !== undefined && !sanitizePickerDays(v.days))
+  if (Object.keys(v).some(k => !["type","city","theme","dayNumber","activities","preferAI","provider","cacheKey","excludeUrls","slotIndex"].includes(k))
     || !["cover","day","summary"].includes(String(v.type)) || typeof v.city !== "string" || !v.city.trim() || v.city.length > 200
     || (v.theme !== undefined && (typeof v.theme !== "string" || v.theme.length > 500))
     || (v.dayNumber !== undefined && (!Number.isInteger(v.dayNumber) || Number(v.dayNumber) < 1 || Number(v.dayNumber) > 30))
     || (v.preferAI !== undefined && typeof v.preferAI !== "boolean")
-    || (v.provider !== undefined && !["library","gemini"].includes(String(v.provider)))
+    || (v.provider !== undefined && !["flux","seedream","gemini"].includes(String(v.provider)))
     || (v.cacheKey !== undefined && (typeof v.cacheKey !== "string" || !/^[\w-]{1,200}$/.test(v.cacheKey)))
     || (v.slotIndex !== undefined && (!Number.isInteger(v.slotIndex) || Number(v.slotIndex) < 0 || Number(v.slotIndex) > 31))) return null;
   for (const [key,maxLength] of [["activities",200],["excludeUrls",2048]] as const) {
     const a=v[key]; if (a !== undefined && (!Array.isArray(a) || a.length > 32 || a.some(x=>typeof x!=="string" || x.length>maxLength))) return null;
   }
-  if (v.days !== undefined) v.days = sanitizePickerDays(v.days);
   return v as unknown as PreviewBackgroundInput;
 }
 export async function readPreviewBackgroundBody(req: Request): Promise<PreviewBackgroundInput | null> {
@@ -49,7 +46,7 @@ export async function previewBackgroundOwner(userId: string): Promise<string> {
 }
 export function backgroundCacheHash(input: PreviewBackgroundInput): string {
   return createHash("sha256").update(JSON.stringify([input.cacheKey ?? randomUUID(),input.type,input.city,input.theme??null,
-    input.dayNumber??null,input.activities??[],input.preferAI??true,input.provider??null,input.excludeUrls??[],input.slotIndex??null,input.days??null])).digest("hex");
+    input.dayNumber??null,input.activities??[],input.preferAI??true,input.provider??null,input.excludeUrls??[],input.slotIndex??null])).digest("hex");
 }
 export function previewBackgroundId(url: string): string | null {
   try { const u=new URL(url); const id=u.pathname.match(/^\/api\/images\/story-background\/media\/([^/]+)$/)?.[1];
