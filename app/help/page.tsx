@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { pageMeta } from "@/lib/seo/meta";
+import { pageCardImage } from "@/lib/seo/page-card";
 import Link from "next/link";
 import { PageHeader } from "@/components/layout/page-header";
 import { Languages } from "@/components/ui/icons";
@@ -10,6 +11,7 @@ export const metadata: Metadata = pageMeta({
   title: "Help me say this",
   description: "Show-to-staff phrase cards in Korean, Japanese, Thai, Vietnamese and Chinese for travellers in Asia.",
   path: "/help",
+  image: pageCardImage("help"),
 });
 
 export const dynamic = "force-static";

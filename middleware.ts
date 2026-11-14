@@ -47,6 +47,7 @@ const PUBLIC_ROUTES = [
     '/api/cron/refresh-weekly-social-trends',  // Cron; route enforces CRON_SECRET
     '/api/cron/ai-provider-probe',  // Cron; route enforces CRON_SECRET
     '/spots(.*)',  // Allow browsing spots without login
+    '/og/pages/:key',  // Share cards for home, pricing, templates and help pages (fixed registry, no account data)
     '/templates(.*)',  // Allow browsing templates
     '/itineraries/:id/stories',  // Public stories download page
     '/api/itineraries/:id/story',  // The route enforces owner/public access before rendering.

@@ -132,6 +132,7 @@ const routes = [
   "/leaderboard",
   "/media/activity/[file]",
   "/media/spot/[spotId]/[file]",
+  "/og/pages/[key]",
   "/pricing",
   "/privacy",
   "/profile",
