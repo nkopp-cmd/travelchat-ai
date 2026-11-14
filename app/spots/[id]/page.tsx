@@ -593,8 +593,12 @@ export default async function SpotPage({
     guide?.duration ? { icon: Clock3, label: "How long", value: guide.duration } : null,
   ].filter((fact): fact is { icon: typeof Clock; label: string; value: string } => Boolean(fact));
 
+  // No stored photo, place id or photo list: the photos API can only answer "unavailable", so skip the request and the
+  // hero placeholder (it collapsed after load: CLS 0.31 on mobile PSI, weekend sprint L4 follow-up).
+  const photosPossible = !candidate && spot.hasIndexPhoto;
+
   return (
-    <VenuePhotoProvider key={spot.id} spotId={spot.id} allowFetch={!candidate} directPhotos={directSpotPhotos(spot)}
+    <VenuePhotoProvider key={spot.id} spotId={spot.id} allowFetch={photosPossible} directPhotos={directSpotPhotos(spot)}
       photoCredits={"photoCredits" in spot ? spot.photoCredits ?? [] : []}>
       {/* JSON-LD Structured Data */}
       <SpotJsonLd
