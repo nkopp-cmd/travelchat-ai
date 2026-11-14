@@ -9,6 +9,8 @@ import { NextRequest } from "next/server";
 import { D1Sqlite } from "@/__tests__/helpers/d1-sqlite";
 const mocks=vi.hoisted(()=>({auth:vi.fn(),user:vi.fn(),source:vi.fn(),tier:vi.fn(),sourceTier:vi.fn(),weighted:vi.fn(),}));
 vi.mock("@/lib/auth/server",()=>({auth:mocks.auth,currentUser:mocks.user}));
+// Library behaviour with the set switched on (production ships live=false until the new style is approved).
+vi.mock("@/lib/image-library.json", async (orig) => ({ default: { ...((await orig()) as { default: object }).default, live: true } }));
 vi.mock("@/lib/supabase",()=>({createSupabaseAdmin:mocks.source}));
 vi.mock("@/lib/usage-tracking",()=>({getUserTier:mocks.sourceTier,checkAndIncrementUsageWeighted:mocks.weighted}));
 vi.mock("@/lib/app-data/preview-user-tier",()=>({previewUserTier:mocks.tier}));

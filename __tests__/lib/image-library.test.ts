@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  ANY_CITY, libraryActivityThumbnail, libraryCategory, librarySlug, libraryStoryBackground, nearestLibraryStoryBackground, slideMood, STORY_MOODS,
+  ANY_CITY, isRetiredLibraryPath, LIBRARY_LIVE, libraryActivityThumbnail, libraryCategory, librarySlug, libraryStoryBackground, nearestLibraryStoryBackground, slideMood, STORY_MOODS,
 } from "@/lib/image-library";
 import manifest from "@/lib/image-library.json";
 
@@ -52,10 +52,24 @@ describe("image library", () => {
     expect(new Set(days).size).toBe(8);
   });
 
-  it("the real manifest answers every enabled-city slide without a miss", () => {
+  it("ships off live: no lookup answers and every library path is retired (Nils 2026-11-14, new style pending)", () => {
+    expect(LIBRARY_LIVE).toBe(false);
+    expect(nearestLibraryStoryBackground("Seoul", "cover", undefined)).toBeNull();
+    expect(libraryStoryBackground("Seoul", "cover", undefined)).toBeNull();
+    expect(libraryActivityThumbnail("cafe", "Seoul")).toBeNull();
+    const story = (manifest.story as Record<string, Record<string, string>>).seoul.skyline;
+    const thumb = Object.values((manifest.activity as Record<string, Record<string, string>>)._)[0];
+    expect(isRetiredLibraryPath(story)).toBe(true);
+    expect(isRetiredLibraryPath(thumb)).toBe(true);
+    expect(isRetiredLibraryPath(story, true)).toBe(false);
+    expect(isRetiredLibraryPath("/media/story/" + "e".repeat(64) + ".png")).toBe(false);
+  });
+
+  it("the real manifest answers every enabled-city slide without a miss when switched on", () => {
+    const on = { ...(manifest as object), live: true } as Parameters<typeof nearestLibraryStoryBackground>[4];
     for (const city of ["Seoul", "Tokyo", "Bangkok", "Singapore", "Atlantis"]) {
       for (const [type, day] of [["cover", undefined], ["day", 1], ["day", 6], ["summary", undefined]] as const) {
-        expect(nearestLibraryStoryBackground(city, type, day)).toMatch(/^\/media\/story\/[0-9a-f]{64}\.jpg$/);
+        expect(nearestLibraryStoryBackground(city, type, day, [], on)).toMatch(/^\/media\/story\/[0-9a-f]{64}\.jpg$/);
       }
     }
   });

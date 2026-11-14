@@ -2,7 +2,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
-vi.mock("@/lib/image-library", () => ({ libraryActivityThumbnail: (category?: string) => category === "cafe" ? "/media/activity/0000caf0.webp" : null }));
+const retired = vi.hoisted(() => ({ paths: new Set<string>() }));
+vi.mock("@/lib/image-library", () => ({ isRetiredLibraryPath: (p: string) => retired.paths.has(p), libraryActivityThumbnail: (category?: string) => category === "cafe" ? "/media/activity/0000caf0.webp" : null }));
 vi.mock("@/lib/supabase", () => { throw new Error("activity thumbnails must not touch Supabase (exit 8b)"); });
 import { addAIThumbnailsToItinerary } from "@/lib/activity-images";
 import { GET } from "@/app/media/activity/[file]/route";
@@ -49,6 +50,16 @@ describe("activity thumbnails: R2 media + painted library (Supabase exit 8a)", (
     const response = await serve("0000caf0.webp");
     expect(response.headers.get("content-type")).toBe("image/webp");
     expect(response.headers.get("cache-control")).toContain("immutable");
+  });
+
+  it("refuses library thumbnails while the library is off live", async () => {
+    objects.set("activity-thumbnails/0000caf0.webp", Buffer.from("RIFF0000WEBPVP8 "));
+    retired.paths.add("/media/activity/0000caf0.webp");
+    try {
+      expect((await serve("0000caf0.webp")).status).toBe(404);
+    } finally {
+      retired.paths.clear();
+    }
   });
 
   it("fills activities from the library only and never writes or generates (no paid image API)", async () => {

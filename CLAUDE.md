@@ -84,6 +84,11 @@ All environment variables are already configured in Vercel. **DO NOT add duplica
 
 ### Story Image Pipeline — library only, NO paid image API (Nils 2026-11-14, APPROVALS.md)
 
+> **OFF LIVE (Nils 2026-11-14):** the painted set does not match the app design system. `lib/image-library.json` has
+> `"live": false`: lookups return null (Pro/Premium get the branded gradient / normal photo fallback), `/media/activity`
+> refuses library files and saved library slides render the gradient. New style samples go to Nils on Telegram first;
+> no upload before his "ok". Switch back = `"live": true`.
+
 > Never call a paid image API from Localley: no Gemini/Imagen images, no FLUX/FAL image models, no Seedream,
 > no OpenAI image API, not even as a fallback. `__tests__/lib/no-paid-image-api.test.ts` enforces this.
 > New images are made only on the ChatGPT plan (`shared/scripts/codex-image.py`) into the painted library.

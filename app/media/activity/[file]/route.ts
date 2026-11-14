@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { isRetiredLibraryPath } from "@/lib/image-library";
 
 interface ActivityThumbnailObject { arrayBuffer(): Promise<ArrayBuffer> }
 interface ActivityThumbnailReader { get(key: string): Promise<ActivityThumbnailObject | null> }
@@ -12,7 +13,7 @@ const missing = () => new Response(null, { status: 404, headers: { "Cache-Contro
  */
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ file: string }> }) {
     const { file } = await params;
-    if (!FILE.test(file)) return missing();
+    if (!FILE.test(file) || isRetiredLibraryPath(`/media/activity/${file}`)) return missing();
     const bucket = (globalThis as Record<symbol, { env?: { STORY_MEDIA_R2?: ActivityThumbnailReader } } | undefined>)
         [Symbol.for("__cloudflare-context__")]?.env?.STORY_MEDIA_R2;
     const object = await bucket?.get(`activity-thumbnails/${file}`).catch(() => null);
