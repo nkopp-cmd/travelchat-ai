@@ -11,7 +11,7 @@ import { ALL_CITIES } from "./cities";
  * Story images fit each day of the picked trip (Nils 2026-11-14 CHANGE): pickTripBackgrounds reads every day's
  * spots -> dominant theme (cafe, food/market, nature/park, culture, nightlife, shopping, neighborhood walk) and light
  * (most spots before 17:00 = day, else night). Cover = trip top theme, summary = second theme. No image repeats
- * inside one trip: next-best theme, then the other light, then a same-country city, then any city.
+ * inside one trip: the same theme in the other light, then the next-best theme, then a same-country city, then any city.
  *
  * Every library image shows a generic city scene or category (a cafe, a market), never a named place: a generated
  * image must never pass as a photo of a real spot.
@@ -159,11 +159,12 @@ export function pickTripBackgrounds(
   const retired = new Set(source.retired ?? []);
   const used = new Set(exclude);
 
+  // Theme before light: the same theme in the other light fits a day better than the next theme in the same light.
   const pick = (themes: StoryTheme[], light: StoryLight): string | null => {
     const other: StoryLight = light === "day" ? "night" : "day";
     for (const slug of cities) {
-      for (const l of [light, other]) {
-        for (const t of themes) {
+      for (const t of themes) {
+        for (const l of [light, other]) {
           const path = source.story[slug]?.[storyKey(t, l)];
           if (path && STORY_PATH.test(path) && !used.has(path) && !retired.has(path)) {
             used.add(path);
@@ -179,8 +180,9 @@ export function pickTripBackgrounds(
   const all = perDay.flat();
   const tripThemes = rankThemes(all);
   const tripLight = lightOf(all);
-  const cover = pick(tripThemes, tripLight);
+  // Days first: each day gets the image that fits it best; cover and summary take the best of what is left.
   const dayImages = perDay.map((acts) => pick(rankThemes(acts), lightOf(acts)));
+  const cover = pick(tripThemes, tripLight);
   const summary = pick([...tripThemes.slice(1), tripThemes[0]], tripLight);
   return { cover, days: dayImages, summary };
 }

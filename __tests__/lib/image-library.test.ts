@@ -73,10 +73,10 @@ describe("story day picker (Nils 2026-11-14 CHANGE)", () => {
     const t = pickTripBackgrounds("Seoul", [cafeDay], [], lib);
     expect(new Set(all(t)).size).toBe(3);
     expect(all(t).every(Boolean)).toBe(true);
-    expect(slot(t.cover)).toBe("seoul:cafe-day");
-    // day 1 is cafe too, so it falls back to the next-best theme of the day (culture, from the museum)
-    expect(slot(t.days[0])).toBe("seoul:culture-day");
-    expect(slot(t.summary)).toBe("seoul:neighborhood-day");
+    // days pick first: the day gets its own best fit; the cover takes the same theme in the other light
+    expect(slot(t.days[0])).toBe("seoul:cafe-day");
+    expect(slot(t.cover)).toBe("seoul:cafe-night");
+    expect(slot(t.summary)).toBe("seoul:culture-day");
   });
 
   it("3-day trip: each day gets its own theme and light, cover = top theme, summary = second theme", () => {
@@ -87,8 +87,8 @@ describe("story day picker (Nils 2026-11-14 CHANGE)", () => {
     expect(slot(t.days[0])).toBe("seoul:culture-day");
     expect(slot(t.days[1])).toBe("seoul:food-night");
     expect(slot(t.days[2])).toBe("seoul:nightlife-night");
-    // summary starts at the 2nd trip theme (food); food-night is day 2, culture-night the cover -> next theme, same light
-    expect(slot(t.summary)).toBe("seoul:neighborhood-night");
+    // summary starts at the 2nd trip theme (food); food-night is day 2 -> same theme in the other light
+    expect(slot(t.summary)).toBe("seoul:food-day");
   });
 
   it("7-day trip: 9 distinct images, every day in the home city and in its own light", () => {
@@ -111,11 +111,14 @@ describe("story day picker (Nils 2026-11-14 CHANGE)", () => {
     const images = all(t);
     expect(images.every(Boolean)).toBe(true);
     expect(new Set(images).size).toBe(images.length);
-    const firstBusan = images.findIndex((p) => slot(p)!.startsWith("busan:"));
-    const firstTokyo = images.findIndex((p) => slot(p)!.startsWith("tokyo:"));
-    expect(firstBusan).toBeGreaterThan(0);
+    const dayImages = t.days as string[];
+    expect(slot(dayImages[0])).toBe("seoul:food-night");
+    expect(slot(dayImages[1])).toBe("seoul:food-day");
+    const firstBusan = dayImages.findIndex((p) => slot(p)!.startsWith("busan:"));
+    const firstTokyo = dayImages.findIndex((p) => slot(p)!.startsWith("tokyo:"));
+    expect(firstBusan).toBe(14);
     expect(firstTokyo === -1 || firstTokyo > firstBusan).toBe(true);
-    expect(images.slice(0, 14).every((p) => slot(p)!.startsWith("seoul:"))).toBe(true);
+    expect(dayImages.slice(0, 14).every((p) => slot(p)!.startsWith("seoul:"))).toBe(true);
   });
 
   it("is deterministic, so parallel per-slide requests agree and stay distinct", () => {
