@@ -21,6 +21,10 @@ const PUBLIC_ROUTES = [
     '/privacy',  // Public privacy policy (Google OAuth branding needs it without sign-in)
     '/terms',  // Public terms of use
     '/credits',  // Public photo credits (licence attribution)
+    '/newsletter(.*)',  // Newsletter sign-up, static answer pages, token button pages (no account data)
+    '/api/newsletter/subscribe',  // Double opt-in form post: honeypot + per-IP limit in the route
+    '/api/newsletter/confirm',  // Token-only POST from the confirm page
+    '/api/newsletter/unsubscribe',  // Token-only POST, also RFC 8058 one-click from mail clients
     '/trending',  // Public viral-event index (R2 feed of public news sources)
     '/trending/:slug',  // Public viral-event page
     '/itineraries/preview', // Browser-only generated itinerary; no account data

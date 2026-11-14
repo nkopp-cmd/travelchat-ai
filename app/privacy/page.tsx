@@ -24,7 +24,7 @@ export default function PrivacyPage() {
       <PageHeader eyebrow="Legal" eyebrowIcon={ShieldCheck} title="Privacy policy"
         lede="Localley helps you find local spots and plan trips in Asian cities. This page explains, in plain words, what we keep about you and why." />
       <div className="mt-8 space-y-8 text-[15px] leading-7 text-muted-foreground [&_h2]:mb-2 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-foreground [&_li]:ml-5 [&_li]:list-disc">
-        <p className="text-sm">Last updated: 31 October 2026</p>
+        <p className="text-sm">Last updated: 14 November 2026</p>
         <section>
           <h2>What we store</h2>
           <ul>
@@ -34,6 +34,10 @@ export default function PrivacyPage() {
             <li>If you pay for a plan: your plan and its status. Stripe handles the payment; we never see or store your card number.</li>
           </ul>
           <p>You can browse spots and use the phrase cards without an account.</p>
+        </section>
+        <section>
+          <h2>Newsletter</h2>
+          <p>If you sign up for the Localley newsletter, we store your email address, the page where you signed up, the time you confirmed and the consent text you agreed to. We send the newsletter only after you confirm the link in our first email. Every issue has a one-click unsubscribe link; after you unsubscribe we keep only the address and the date, so we never email you again by mistake.</p>
         </section>
         <section>
           <h2>Google sign-in</h2>

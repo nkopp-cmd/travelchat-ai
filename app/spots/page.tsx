@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { SeoulLivingLink } from "@/components/layout/seoul-living-link";
+import { LocalleySignup } from "@/components/newsletter/localley-signup";
 import { IntentLink } from "@/components/navigation/intent-link";
 import { PageEyebrow } from "@/components/layout/page-header";
 import { SpotsExplorer } from "@/components/spots/spots-explorer";
@@ -223,7 +223,7 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
                     </Suspense>
                 ) : null}
 
-                <SeoulLivingLink className="mt-10" />
+                <LocalleySignup source={hub.city ? "city-hub" : "spots"} city={hub.city?.slug} className="mt-10" />
             </div>
         </AppBackground>
     );

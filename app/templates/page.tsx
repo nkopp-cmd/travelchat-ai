@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sparkles } from "@/components/ui/icons";
 import Link from "next/link";
 import { AppBackground } from "@/components/layout/app-background";
-import { SeoulLivingLink } from "@/components/layout/seoul-living-link";
+import { LocalleySignup } from "@/components/newsletter/localley-signup";
 
 import type { Metadata } from "next";
 import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
@@ -64,7 +64,7 @@ export default function TemplatesPage() {
             </Link>
           </Button>
         </div>
-        <SeoulLivingLink className="mt-10 lg:max-w-[calc(100%-22rem)]" />
+        <LocalleySignup source="templates" className="mt-10 lg:max-w-[calc(100%-22rem)]" />
       </PageShell>
     </AppBackground>
   );

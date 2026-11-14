@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SeoulLivingLink } from "@/components/layout/seoul-living-link";
+import { LocalleySignup } from "@/components/newsletter/localley-signup";
 import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { pageMeta } from "@/lib/seo/meta";
 import { pageCardImage } from "@/lib/seo/page-card";
@@ -58,7 +58,7 @@ export default async function HelpPayPage({ params }: { params: Promise<{ countr
           {guide.sources.map((url) => <li key={url}><a href={url} rel="noopener noreferrer nofollow" target="_blank" className="underline">{url}</a></li>)}
         </ul>
       </details>
-      {country.slug === "korea" ? <SeoulLivingLink className="mt-10" /> : null}
+      <LocalleySignup source="help-pay" className="mt-10" />
     </main>
   );
 }

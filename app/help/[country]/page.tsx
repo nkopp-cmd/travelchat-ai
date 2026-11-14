@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SeoulLivingLink } from "@/components/layout/seoul-living-link";
+import { LocalleySignup } from "@/components/newsletter/localley-signup";
 import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { pageMeta } from "@/lib/seo/meta";
 import { pageCardImage } from "@/lib/seo/page-card";
@@ -83,7 +83,7 @@ export default async function HelpCountryPage({ params }: { params: Promise<{ co
           </ul>
         </section>
       ))}
-      {country.slug === "korea" ? <SeoulLivingLink className="mt-10" /> : null}
+      <LocalleySignup source="help" className="mt-10" />
     </main>
   );
 }

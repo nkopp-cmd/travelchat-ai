@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SeoulLivingLink } from "@/components/layout/seoul-living-link";
+import { LocalleySignup } from "@/components/newsletter/localley-signup";
 import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { pageMeta } from "@/lib/seo/meta";
 import { pageCardImage } from "@/lib/seo/page-card";
@@ -87,7 +87,7 @@ export default async function HelpOpenPage({ params }: { params: Promise<{ count
         </p>
       )}
       <script dangerouslySetInnerHTML={{ __html: SCRIPT }} />
-      {country.slug === "korea" ? <SeoulLivingLink className="mt-10" /> : null}
+      <LocalleySignup source="help-open" className="mt-10" />
     </main>
   );
 }

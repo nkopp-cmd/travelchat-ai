@@ -1,7 +1,7 @@
 // node --test scripts/business-metrics.checks.mjs — pure parts of the business-loop money + moat probe (no network).
 import assert from "node:assert/strict";
 import test from "node:test";
-import { PAID_PATH_LIVE_SINCE, isInternal, newsletterCounts, summarize } from "./business-metrics.mjs";
+import { PAID_PATH_LIVE_SINCE, isInternal, summarize } from "./business-metrics.mjs";
 
 const now = Date.parse("2026-11-01T12:00:00Z");
 const users = [
@@ -64,12 +64,21 @@ test("moat fields count our own records and outside user content only", () => {
   assert.doesNotMatch(JSON.stringify(out), /@|u1|house|user_legacy/);
 });
 
-test("owned audience = confirmed Seoul Living subscribers from our link; a missing probe stays null", async () => {
+test("owned audience = confirmed Localley newsletter subscribers, own addresses out; unreadable table stays null", () => {
   const base = { users, sessions: [], subscriptions: [], funnel: [] };
-  const out = summarize({ ...base, newsletter: { source: "localley", signups_30d: 3, confirmed: 2 } }, now);
+  const t = (iso) => Date.parse(iso) / 1000;
+  const subscribers = [
+    { email: "a@example.com", status: "confirmed", created_at: t("2026-10-25T00:00:00Z") },
+    { email: "b@example.com", status: "confirmed", created_at: t("2026-01-01T00:00:00Z") },
+    { email: "c@example.com", status: "pending", created_at: t("2026-10-30T00:00:00Z") },
+    { email: "d@example.com", status: "unsubscribed", created_at: t("2026-10-30T00:00:00Z") },
+    { email: "nkopp@my-goodlife.com", status: "confirmed", created_at: t("2026-11-01T00:00:00Z") },
+    { email: "hello@localley.io", status: "confirmed", created_at: t("2026-11-01T00:00:00Z") },
+  ];
+  const out = summarize({ ...base, subscribers }, now);
   assert.equal(out.owned_audience, 2);
-  assert.match(out.notes, /3 signups 30d/);
-  assert.equal(summarize({ ...base, newsletter: { source: "localley", confirmed: "2" } }, now).owned_audience, null);
-  assert.equal(await newsletterCounts("/nonexistent/probe"), null);
-  assert.equal(await newsletterCounts("/bin/false"), null); // probe fails = unknown, not zero
+  assert.match(out.notes, /Localley newsletter.*\(3 signups 30d\)/);
+  assert.doesNotMatch(JSON.stringify(out), /@/);
+  assert.equal(summarize({ ...base, subscribers: [] }, now).owned_audience, 0);
+  assert.equal(summarize({ ...base, subscribers: null }, now).owned_audience, null);
 });
