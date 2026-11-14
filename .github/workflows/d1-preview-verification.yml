@@ -409,7 +409,6 @@ on:
       - '__tests__/lib/image-library.test.ts'
       - '__tests__/lib/image-library-build.test.ts'
       - 'scripts/image-library/**'
-      - '__tests__/fixtures/live-image-library.ts'
       - 'app/media/**'
       - 'app/api/itineraries/[id]/story/route.tsx'
       - 'lib/story-media-manifest.ts'
