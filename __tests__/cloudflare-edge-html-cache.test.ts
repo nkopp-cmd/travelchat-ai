@@ -206,3 +206,25 @@ describe("public HTML edge cache", () => {
     expect(edgeTtlSeconds("/spots/15614d97-380f-4e8d-8aa6-aa6f43609bcf/edit")).toBeUndefined();
   });
 });
+
+describe("per-spot share card at the edge", () => {
+  const og = "https://www.localley.io/spots/f242e187-56ee-4cc8-9736-52f4ea46aebc/og";
+  it("caches the PNG for a week and only for the exact path", () => {
+    expect(edgeTtlSeconds(new URL(og).pathname)).toBe(604800);
+    expect(isEdgeCacheable(new Request(og))).toBe(true);
+    expect(isEdgeCacheable(new Request(`${og}?v=2`))).toBe(false);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots/not-a-uuid/og"))).toBe(false);
+  });
+
+  it("stores a PNG but never HTML or an error on the card path", async () => {
+    const cache = memoryCache();
+    const png = vi.fn(async () => new Response(new Uint8Array([0x89, 0x50, 0x4e, 0x47]), { headers: { "content-type": "image/png" } }));
+    await serve(new Request(og), cache, png);
+    expect((await serve(new Request(og), cache, png)).headers.get(EDGE_CACHE_HEADER)).toBe("HIT");
+    expect(png).toHaveBeenCalledTimes(1);
+    const other = memoryCache();
+    await serve(new Request(og), other, async () => html());
+    await serve(new Request(og), other, async () => new Response("x", { status: 404, headers: { "content-type": "image/png" } }));
+    expect(other.put).not.toHaveBeenCalled();
+  });
+});

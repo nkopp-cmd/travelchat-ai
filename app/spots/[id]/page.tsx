@@ -20,6 +20,7 @@ import { VenuePhotoProvider, type DirectPhotoCredit } from "@/components/spots/v
 import { SpotDetailMap } from "@/components/spots/spot-detail-map";
 import { SpotJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { clip, pageMeta, shareImage } from "@/lib/seo/meta";
+import { scoreLabel } from "@/lib/seo/spot-card";
 import { normalizeSpotPhotos } from "@/lib/spots/transform";
 import { summarizeSpotPhotos } from "@/lib/place-images";
 import {
@@ -471,13 +472,6 @@ async function getRelatedSpots(
     }));
 }
 
-// Get score label for metadata
-function getScoreLabel(score: LocalleyScale): string {
-  if (score >= 6) return "Legendary Local Spot";
-  if (score >= 5) return "Hidden Gem";
-  if (score >= 4) return "Local Favorite";
-  return "Popular Spot";
-}
 
 // Generate metadata for SEO
 // generateMetadata (noindex decision) and the page read the same guide once per request.
@@ -501,7 +495,7 @@ export async function generateMetadata({
     };
   }
 
-  const scoreLabel = getScoreLabel(spot.localleyScore);
+  const label = scoreLabel(spot.localleyScore);
   const text = splitDescriptionLinks(spot.description).text;
   const place = spot.location.address.split(",").slice(0, 2).join(",").trim();
   const description = clip(
@@ -521,11 +515,12 @@ export async function generateMetadata({
   return {
     ...pageMeta({
       // pageMeta adds " | Localley" (11 chars); keep the full title within 65 chars.
-      title: clip(`${spot.name} - ${scoreLabel}`, 54),
+      title: clip(`${spot.name} - ${label}`, 54),
       socialTitle: spot.name,
       description: description.length >= 50 ? description : clip(`${description} Local tips, opening times and photos on Localley.`, 165),
       path: `/spots/${id}`,
-      image: shareImage(directSpotPhotos(spot)),
+      // No own photo: the per-spot card (app/spots/[id]/og), never the one shared default card.
+      image: shareImage([...directSpotPhotos(spot), `/spots/${spot.id}/og`]),
     }),
     keywords,
     ...(candidate

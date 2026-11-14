@@ -46,6 +46,9 @@ const SPOT_DETAIL_PATH = /^\/spots\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]
 // spot URLs, and a 5-minute TTL left most of them MISS. Reviews load client-side; a deploy changes the key (purge).
 const SPOT_DETAIL_TTL_SECONDS = 3600;
 const LIVE_DETAIL_TTL_SECONDS = 300;
+// Per-spot share card PNG (app/spots/[id]/og): drawn from name/category/score only, so a week is fine; a deploy re-keys.
+const SPOT_OG_PATH = /^\/spots\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/og$/;
+const SPOT_OG_TTL_SECONDS = 604800;
 const VIRAL_EVENT_PATH = /^\/trending\/[a-z0-9][a-z0-9-]{2,95}$/;
 // One map pin card ("/api/spots/pins/<id prefix>"), no query.
 const PIN_CARD_PATH = /^\/api\/spots\/pins\/[0-9a-f-]{8,36}$/;
@@ -53,6 +56,7 @@ const PIN_CARD_PATH = /^\/api\/spots\/pins\/[0-9a-f-]{8,36}$/;
 export function edgeTtlSeconds(pathname: string): number | undefined {
   if (Object.hasOwn(EDGE_HTML_TTL_SECONDS, pathname)) return EDGE_HTML_TTL_SECONDS[pathname];
   if (SPOT_DETAIL_PATH.test(pathname)) return SPOT_DETAIL_TTL_SECONDS;
+  if (SPOT_OG_PATH.test(pathname)) return SPOT_OG_TTL_SECONDS;
   return VIRAL_EVENT_PATH.test(pathname) || PIN_CARD_PATH.test(pathname) ? LIVE_DETAIL_TTL_SECONDS : undefined;
 }
 
@@ -108,10 +112,11 @@ export function edgeCacheKey(request: Request, version: string): Request {
 
 function storable(request: Request, response: Response): boolean {
   const type = response.headers.get("content-type") ?? "";
-  const json = new URL(request.url).pathname.startsWith("/api/");
+  const pathname = new URL(request.url).pathname;
+  const expected = pathname.startsWith("/api/") ? "application/json" : SPOT_OG_PATH.test(pathname) ? "image/png" : "text/html";
   return response.status === 200
     && !response.headers.has("set-cookie")
-    && (json ? type.startsWith("application/json") : type.startsWith("text/html"));
+    && type.startsWith(expected);
 }
 
 export async function serveWithEdgeCache(

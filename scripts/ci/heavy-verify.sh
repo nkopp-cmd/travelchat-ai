@@ -89,6 +89,8 @@ VITEST_FILES=(
   __tests__/app/site-url-fallback.test.ts
   __tests__/lib/seo-sitemap.test.ts
   __tests__/lib/seo-spot-indexable.test.ts
+  __tests__/lib/seo-spot-card.test.ts
+  __tests__/api/spot-og-card.test.ts
   __tests__/lib/spots-city-directory.test.ts
   __tests__/lib/weekly-post-topic.test.ts
   __tests__/lib/weekly-post-draft.test.ts
@@ -334,6 +336,8 @@ ESLINT_FILES=(
   lib/seo/sitemap.ts
   lib/seo/sitemap-spots.ts
   lib/seo/spot-indexable.ts
+  lib/seo/spot-card.ts
+  app/spots/[id]/og/route.tsx
   lib/spots/city-directory.ts
   lib/spots/city-directory-store.ts
   components/spots/city-spot-directory.tsx
@@ -341,6 +345,8 @@ ESLINT_FILES=(
   app/sitemaps/[file]/route.ts
   __tests__/lib/seo-sitemap.test.ts
   __tests__/lib/seo-spot-indexable.test.ts
+  __tests__/lib/seo-spot-card.test.ts
+  __tests__/api/spot-og-card.test.ts
   __tests__/lib/spots-city-directory.test.ts
   __tests__/lib/blog.test.ts
   __tests__/lib/weekly-post-topic.test.ts
