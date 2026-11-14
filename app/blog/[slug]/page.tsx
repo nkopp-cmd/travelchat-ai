@@ -3,6 +3,7 @@ import { clip } from "@/lib/seo/meta";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "@/components/ui/icons";
+import { LocalleySignup } from "@/components/newsletter/localley-signup";
 import { BlogMarkdown } from "@/lib/blog/markdown";
 import { BLOG_POSTS, blogPost, formatPostDate } from "@/lib/blog/posts";
 import { spotPhotoThumbPath } from "@/lib/spots/own-photo";
@@ -69,6 +70,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           Last updated <time dateTime={post.updated}>{formatPostDate(post.updated)}</time>
         </p>
       </article>
+      <LocalleySignup source="blog" className="mt-10" />
     </main>
   );
 }
