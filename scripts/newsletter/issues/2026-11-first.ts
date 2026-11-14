@@ -5,6 +5,9 @@ const SITE = "https://www.localley.io";
 const utm = (path: string) => `${SITE}${path}${path.includes("?") ? "&" : "?"}utm_source=newsletter&utm_medium=email&utm_campaign=2026-11-first`;
 const spot = (id: string) => utm(`/spots/${id}`);
 
+// Telegram approval tag for the list send (Nils replies "ok NL-20261114-rich").
+export const approval = "NL-20261114-rich";
+
 export const issue: NewsletterIssue = {
   subject: "41 Seoul places locals rate at the top, and how to pay in Korea",
   preview: "Our Seoul scores in one chart, the five most local Legendary spots, and a payment tip for Korea.",

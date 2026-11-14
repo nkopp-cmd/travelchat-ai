@@ -325,6 +325,7 @@ VITEST_FILES=(
   __tests__/api/newsletter-routes.test.ts
   __tests__/components/localley-signup.test.tsx
   __tests__/lib/newsletter-email.test.tsx
+  __tests__/scripts/newsletter-list-send.test.ts
 )
 
 ESLINT_FILES=(
@@ -723,11 +724,13 @@ ESLINT_FILES=(
   emails/newsletter-confirm-email.tsx
   emails/newsletter-issue-email.tsx
   scripts/newsletter/send-issue.tsx
+  scripts/newsletter/list-send.ts
   scripts/newsletter/issues/2026-11-first.ts
   __tests__/lib/newsletter-store.test.ts
   __tests__/api/newsletter-routes.test.ts
   __tests__/components/localley-signup.test.tsx
   __tests__/lib/newsletter-email.test.tsx
+  __tests__/scripts/newsletter-list-send.test.ts
   components/spots/spots-explorer.tsx
   components/spots/spots-map.tsx
   lib/spots/pin-index.ts
