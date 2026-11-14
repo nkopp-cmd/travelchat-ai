@@ -54,7 +54,7 @@ function ScoreMethod({ entries, cityName }: { entries: CityDirectoryEntry[]; cit
       </p>
       <ul className="mt-4 grid gap-x-6 gap-y-1 text-sm sm:grid-cols-2 lg:grid-cols-3">
         {levels.map((level) => (
-          <li key={level.score} className="flex justify-between gap-3 border-b border-border/60 py-1">
+          <li key={level.score} className="flex justify-between gap-3 rounded-lg bg-muted/40 px-2 py-1">
             <span className="text-foreground">{level.score} · {SCORE_LABELS[level.score]}</span>
             <span className="tabular-nums text-muted-foreground">{level.count} {level.count === 1 ? "place" : "places"}</span>
           </li>
