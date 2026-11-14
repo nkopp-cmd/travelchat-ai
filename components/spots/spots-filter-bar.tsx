@@ -437,7 +437,7 @@ export function SpotsFilterBar({
       {hasActiveFilters && (
         <div
           className={cn("flex min-w-0 flex-wrap gap-2 overflow-hidden", compactOverMap && "max-lg:hidden")}
-          role="list"
+          role="group"
           aria-label="Active filters"
         >
           {currentFilters.search && (

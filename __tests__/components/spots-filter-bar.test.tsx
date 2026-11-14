@@ -187,7 +187,7 @@ describe("SpotsFilterBar", () => {
     const cityToken = screen.getByTestId("spots-pill-city");
     expect(cityToken.textContent).toBe("Seoul");
     expect(screen.getByTestId("spots-filter-badge").textContent).toBe("4");
-    expect(screen.getByRole("list", { name: "Active filters" }).className).toContain("max-lg:hidden");
+    expect(screen.getByRole("group", { name: "Active filters" }).className).toContain("max-lg:hidden");
     expect(screen.getByRole("group", { name: "Quick filters" }).className).toContain("max-lg:flex-nowrap");
     fireEvent.click(cityToken);
     expect(onFilterChange).toHaveBeenCalledWith("city", null);
