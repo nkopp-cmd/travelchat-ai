@@ -108,6 +108,7 @@
     "dotenv": "^17.2.3",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
+    "fast-check": "^4.10.2",
     "jsdom": "^27.2.0",
     "miniflare": "5.20261019.1-beta",
     "postcss": "^8.5.6",

@@ -52,6 +52,10 @@ import {
 import { mergeSpotSources, normalizeSourceUrls, publicTips } from "@/lib/spots/guide";
 import { splitDescriptionLinks } from "@/lib/spots/description-links";
 import { readSpotGuide } from "@/lib/spots/guide-store";
+import { isSpotIndexable } from "@/lib/seo/spot-indexable";
+import { cityDirectory } from "@/lib/spots/city-directory-store";
+import { nearestEntries } from "@/lib/spots/city-directory";
+import { cache } from "react";
 import { fetchSpotViralMentions } from "@/lib/viral/events";
 import { viralMentionMonth } from "@/lib/viral/feed";
 import type { Metadata } from "next";
@@ -273,7 +277,7 @@ async function getSpot(id: string, candidate = false) {
       category: row.category, subcategories: [] as string[],
       localleyScore: normalizeLocalleyScore(row.score), localPercentage: 50,
       bestTime: "Not verified", photos, hasRealPhoto: photoSummary.hasRealPhoto,
-      realPhotoCount: countRealDisplaySpotPhotos(photos), googlePlaceId: null,
+      realPhotoCount: countRealDisplaySpotPhotos(photos), googlePlaceId: null, hasIndexPhoto: false,
       tips: [] as string[], verified: false, trending: false, communitySubmission: null,
       sourceUrls: [] as { title: string; url: string }[], updatedAt: null as string | null,
     };
@@ -332,6 +336,9 @@ async function getSpot(id: string, candidate = false) {
     ownPhotos: storedPhotos.map((photo) => photo.src),
     photoCredits: storedPhotos.filter((photo) => photo.label),
     hasRealPhoto: photoSummary.hasRealPhoto,
+    // Same photo test as the sitemap query (d1SitemapSpots), so the sitemap never lists a noindex page.
+    hasIndexPhoto: storedPhotos.length > 0 || (typeof spot.google_place_id === "string" && spot.google_place_id !== "")
+      || (Array.isArray(spot.photos) && spot.photos.length > 0),
     realPhotoCount: countRealDisplaySpotPhotos(normalizedPhotos),
     googlePlaceId: getTrustedSpotGooglePlaceId({
       photos: normalizedPhotos,
@@ -473,6 +480,9 @@ function getScoreLabel(score: LocalleyScale): string {
 }
 
 // Generate metadata for SEO
+// generateMetadata (noindex decision) and the page read the same guide once per request.
+const spotGuide = cache(readSpotGuide);
+
 export async function generateMetadata({
   params,
   searchParams,
@@ -518,7 +528,11 @@ export async function generateMetadata({
       image: shareImage(directSpotPhotos(spot)),
     }),
     keywords,
-    ...(candidate ? { robots: { index: false, follow: false } } : {}),
+    ...(candidate
+      ? { robots: { index: false, follow: false } }
+      : isSpotIndexable({ description: spot.description, hasPhoto: spot.hasIndexPhoto, hasGuide: Boolean(await spotGuide(spot.id)) })
+        ? {}
+        : { robots: { index: false, follow: true } }),
   };
 }
 
@@ -542,11 +556,15 @@ export default async function SpotPage({
   const city = getSpotContextCity(spot);
   const citySlug = inferSpotCitySlug(spot);
   const primaryArea = getPrimaryArea(spot.location.address, city);
-  const [relatedSpots, guide, viralMentions] = await Promise.all([
+  const [relatedSpots, guide, viralMentions, directory] = await Promise.all([
     candidate ? Promise.resolve([] as RelatedSpot[]) : getRelatedSpots(spot, city),
-    candidate ? Promise.resolve(null) : readSpotGuide(spot.id),
+    candidate ? Promise.resolve(null) : spotGuide(spot.id),
     candidate ? Promise.resolve([]) : fetchSpotViralMentions(spot.id).catch(() => []),
+    candidate ? Promise.resolve([]) : cityDirectory(citySlug),
   ]);
+  // Six closest spots of the same city hub as plain links: every spot page links its neighbours, so no spot is an
+  // orphan even outside the hub's first page (weekend sprint L3).
+  const nearbyLinks = nearestEntries(directory, spot.location, [spot.id, ...relatedSpots.map((related) => related.id)], 6);
   let saveActor: string | null = null;
   if (candidate) {
     try { saveActor = await previewSavedSpotActor(); }
@@ -699,7 +717,7 @@ export default async function SpotPage({
 
         {!candidate && <SpotActivities spotId={spot.id} city={city} spotName={spot.name} />}
 
-        {relatedSpots.length > 0 && (
+        {(relatedSpots.length > 0 || nearbyLinks.length > 0) && (
           <section className="space-y-3" aria-label="Nearby">
             <div className="flex items-end justify-between gap-3">
               <h2 className="text-xl font-bold text-foreground">Nearby</h2>
@@ -709,7 +727,7 @@ export default async function SpotPage({
                 </Link>
               ) : null}
             </div>
-            <div className="grid gap-3 sm:grid-cols-3">
+            {relatedSpots.length > 0 ? <div className="grid gap-3 sm:grid-cols-3">
               {relatedSpots.map((related) => (
                 <div key={related.id} className="group relative overflow-hidden rounded-lg bg-raised transition-all duration-300 hover:-translate-y-0.5">
                   <VenueCardPhoto spotId={related.id} name={related.name} directPhotos={related.directPhotos} photoCredits={related.photoCredits} frameClassName="aspect-[4/3] w-full" category={related.category} />
@@ -723,7 +741,20 @@ export default async function SpotPage({
                   </div>
                 </div>
               ))}
-            </div>
+            </div> : null}
+            {nearbyLinks.length > 0 ? (
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">Also close by</h3>
+                <ul className="mt-2 grid gap-x-4 gap-y-1.5 text-sm sm:grid-cols-2">
+                  {nearbyLinks.map((entry) => (
+                    <li key={entry.id} className="flex min-w-0 items-baseline justify-between gap-2">
+                      <Link href={`/spots/${entry.id}`} prefetch={false} className="truncate text-foreground underline-offset-2 hover:underline">{entry.name}</Link>
+                      <span className="shrink-0 text-xs text-muted-foreground">{formatRelatedSpotDistance(entry.distanceKm)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
           </section>
         )}
 

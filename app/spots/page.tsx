@@ -13,6 +13,7 @@ import { pageMeta } from "@/lib/seo/meta";
 import { localMonth, seasonFor } from "@/lib/season/season-table";
 import { getWeather } from "@/lib/weather/met-norway";
 import { WeeklyTrendingSpots } from "@/components/spots/weekly-trending-spots";
+import { CitySpotDirectory } from "@/components/spots/city-spot-directory";
 import { ViralSpots } from "@/components/spots/viral-spots";
 import { Images, MapPin, Plus } from "@/components/ui/icons";
 import { AppBackground } from "@/components/layout/app-background";
@@ -213,6 +214,12 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
                 <Suspense fallback={<SpotsLoading />}>
                     <SpotsContent searchParams={params} />
                 </Suspense>
+
+                {hub.city ? (
+                    <Suspense fallback={null}>
+                        <CitySpotDirectory citySlug={hub.city.slug} cityName={hub.city.name} />
+                    </Suspense>
+                ) : null}
 
                 <SeoulLivingLink className="mt-10" />
             </div>
