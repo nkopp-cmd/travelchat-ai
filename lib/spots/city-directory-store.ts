@@ -12,7 +12,7 @@ async function loadCityDirectory(citySlug: string): Promise<CityDirectoryEntry[]
   return toDirectoryEntries(dedupePublicSpotRows(rows));
 }
 
-const cachedCityDirectory = unstable_cache(loadCityDirectory, ["city-directory-v2", PUBLIC_SPOT_VISIBILITY_CACHE_VERSION],
+const cachedCityDirectory = unstable_cache(loadCityDirectory, ["city-directory-v3", PUBLIC_SPOT_VISIBILITY_CACHE_VERSION],
   { revalidate: 3600, tags: ["spots"] });
 
 /** Every public spot of one city hub, A-Z (one cached D1 read per city and hour); empty outside D1. */

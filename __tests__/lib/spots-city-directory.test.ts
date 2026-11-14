@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import fc from "fast-check";
-import { groupByInitial, nearestEntries, toDirectoryEntries, topPicks } from "@/lib/spots/city-directory";
+import { groupByInitial, nearestEntries, scoreCounts, toDirectoryEntries, topPicks } from "@/lib/spots/city-directory";
 
 const rows = [
   { id: "1", name: { en: "Zen Cafe" }, category: "Cafe", latitude: 37.57, longitude: 126.98 },
@@ -70,6 +70,36 @@ describe("topPicks", () => {
       expect(out.length).toBeLessThanOrEqual(limit);
       for (const e of out) expect(e.category).toBe("Cafe");
       for (let i = 1; i < out.length; i++) expect(out[i].rank).toBeGreaterThan(out[i - 1].rank);
+    }));
+  });
+});
+
+describe("scoreCounts", () => {
+  it("counts valid scores 6..1 and ignores missing or invalid ones", () => {
+    const entries = toDirectoryEntries([
+      { id: "a", name: "A", localley_score: 5 },
+      { id: "b", name: "B", localley_score: 5 },
+      { id: "c", name: "C", localley_score: 3 },
+      { id: "d", name: "D", localley_score: null },
+      { id: "e", name: "E", localley_score: 9 },
+      { id: "f", name: "F", localley_score: 4.5 },
+    ]);
+    expect(scoreCounts(entries)).toEqual([
+      { score: 6, count: 0 }, { score: 5, count: 2 }, { score: 4, count: 0 },
+      { score: 3, count: 1 }, { score: 2, count: 0 }, { score: 1, count: 0 },
+    ]);
+  });
+
+  it("property: the counts sum to the entries with a 1-6 integer score", () => {
+    const arb = fc.array(fc.record({ id: fc.uuid(), name: fc.string({ minLength: 1 }).filter((n) => n.trim().length > 0),
+      localley_score: fc.oneof(fc.constant(null), fc.integer({ min: -2, max: 9 }), fc.double({ noNaN: true })) }), { maxLength: 60 });
+    fc.assert(fc.property(arb, (input) => {
+      const entries = toDirectoryEntries(input);
+      const counts = scoreCounts(entries);
+      expect(counts.map((c) => c.score)).toEqual([6, 5, 4, 3, 2, 1]);
+      const valid = entries.filter((e) => e.score !== null && Number.isInteger(e.score) && e.score >= 1 && e.score <= 6).length;
+      expect(counts.reduce((sum, c) => sum + c.count, 0)).toBe(valid);
+      expect(entries.every((e) => e.score === null || (e.score >= 1 && e.score <= 6))).toBe(true);
     }));
   });
 });

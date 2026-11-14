@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { cityDirectory } from "@/lib/spots/city-directory-store";
-import { groupByInitial, topPicks, type CityDirectoryEntry } from "@/lib/spots/city-directory";
+import { groupByInitial, scoreCounts, topPicks, type CityDirectoryEntry } from "@/lib/spots/city-directory";
+import { SCORE_LABELS } from "@/lib/spots/types";
 
 /**
  * Every spot of a city hub as an A-Z link list (server HTML, collapsed by default). The paged card grid links only
@@ -36,6 +37,34 @@ function PickList({ id, title, intro, more, href, picks, cityName }: { id: strin
   );
 }
 
+// Link-earning asset (reach-engine R3, docs/reach.md): the hub explains its own ranking method, with counts and a date.
+function ScoreMethod({ entries, cityName }: { entries: CityDirectoryEntry[]; cityName: string }) {
+  const levels = scoreCounts(entries).filter((level) => level.count > 0);
+  const rated = levels.reduce((sum, level) => sum + level.count, 0);
+  if (rated === 0) return null;
+  const updated = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date());
+  return (
+    <section aria-labelledby="city-score-method" className="mt-10 rounded-2xl bg-surface p-5 shadow-surface md:p-7">
+      <h2 id="city-score-method" className="text-xl font-bold text-foreground">How we rate places in {cityName}</h2>
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
+        Every place gets a Localley Score from 1 to 6. A place with a very high rating from a few hundred reviews scores
+        higher than a famous place with thousands: the people who find it love it, and it has no tour-bus queue.
+        Places that locals keep posting about score higher too. Start with Hidden Gem and Legendary Alley places, then
+        use the score filter above to widen the list.
+      </p>
+      <ul className="mt-4 grid gap-x-6 gap-y-1 text-sm sm:grid-cols-2 lg:grid-cols-3">
+        {levels.map((level) => (
+          <li key={level.score} className="flex justify-between gap-3 border-b border-border/60 py-1">
+            <span className="text-foreground">{level.score} · {SCORE_LABELS[level.score]}</span>
+            <span className="tabular-nums text-muted-foreground">{level.count} {level.count === 1 ? "place" : "places"}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-3 text-xs text-muted-foreground">{rated} places rated in {cityName}. Last updated {updated}.</p>
+    </section>
+  );
+}
+
 export async function CitySpotDirectory({ citySlug, cityName }: { citySlug: string; cityName: string }) {
   const entries = await cityDirectory(citySlug);
   if (entries.length === 0) return null;
@@ -59,6 +88,7 @@ export async function CitySpotDirectory({ citySlug, cityName }: { citySlug: stri
         ))}
       </section>
     ) : null}
+    <ScoreMethod entries={entries} cityName={cityName} />
     <section aria-labelledby="city-spot-directory" className="mt-10 rounded-2xl bg-surface p-5 shadow-surface md:p-7">
       <details>
         <summary className="cursor-pointer list-none">
