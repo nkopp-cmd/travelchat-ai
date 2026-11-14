@@ -40,3 +40,17 @@ export function indexableSitemapRows(rows: SitemapCandidate[], guideIds: Readonl
   }
   return kept.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 }
+
+/** Hub H1 + intro: each city hub needs its own heading (all hubs shared "Discover Hidden Gems", L2 2026-11-14). */
+export function spotsHubHeading(city?: { name: string; country: string }): { title: string; intro: string } {
+  if (!city) {
+    return {
+      title: "Discover Hidden Gems",
+      intro: "Browse local-first restaurants, alleys, markets, cafes, and night spots across Asia. Pick a city, filter by vibe, then save the places worth building a trip around.",
+    };
+  }
+  return {
+    title: `Hidden gems in ${city.name}`,
+    intro: `Local-first restaurants, alleys, markets, cafes and night spots in ${city.name}, ${city.country}. Filter by area and vibe, then save the places worth building a trip around.`,
+  };
+}

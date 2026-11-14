@@ -8,6 +8,7 @@ import { SpotCardSkeleton } from "@/components/ui/skeleton";
 import { CityQuickFilters } from "@/components/spots/city-quick-filters";
 import { CityConditions } from "@/components/spots/city-conditions";
 import { getCityBySlug } from "@/lib/cities";
+import { spotsHubHeading } from "@/lib/seo/spot-indexable";
 import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { pageMeta } from "@/lib/seo/meta";
 import { localMonth, seasonFor } from "@/lib/season/season-table";
@@ -148,6 +149,7 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
     // Filter options are cached (10 min) and SpotsContent needs them too, so the shell waits for no extra round trip.
     const [params, filterOptions] = await Promise.all([searchParams, fetchFilterOptions()]);
     const hub = spotsHub(params);
+    const heading = spotsHubHeading(hub.city);
     const totalSpots = filterOptions.cities.reduce((sum, c) => sum + c.count, 0);
 
     return (
@@ -180,11 +182,11 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
                             <PageEyebrow icon={MapPin} className="mb-3">Asia-First Discovery</PageEyebrow>
                             <h1 className="mb-2 text-3xl font-bold tracking-tight md:text-4xl">
                                 <GradientText variant="violet">
-                                    Discover Hidden Gems
+                                    {heading.title}
                                 </GradientText>
                             </h1>
                             <p className="text-[15px] leading-6 text-muted-foreground">
-                                Browse local-first restaurants, alleys, markets, cafes, and night spots across Asia. Pick a city, filter by vibe, then save the places worth building a trip around.
+                                {heading.intro}
                             </p>
                             <Button asChild className="mt-4"><IntentLink href="/itineraries/new">Start with a city</IntentLink></Button>
                             {socialSpotSubmissionsAvailable() && (
