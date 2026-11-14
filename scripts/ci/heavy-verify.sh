@@ -89,6 +89,7 @@ VITEST_FILES=(
   __tests__/app/site-url-fallback.test.ts
   __tests__/lib/seo-sitemap.test.ts
   __tests__/lib/seo-spot-indexable.test.ts
+  __tests__/lib/seo-spot-intro.test.ts
   __tests__/lib/seo-spot-card.test.ts
   __tests__/lib/seo-page-card.test.ts
   __tests__/api/spot-og-card.test.ts
@@ -340,6 +341,7 @@ ESLINT_FILES=(
   lib/seo/sitemap.ts
   lib/seo/sitemap-spots.ts
   lib/seo/spot-indexable.ts
+  lib/seo/spot-intro.ts
   lib/seo/page-card.ts
   lib/seo/spot-card.ts
   app/spots/[id]/og/route.tsx
@@ -351,6 +353,7 @@ ESLINT_FILES=(
   app/sitemaps/[file]/route.ts
   __tests__/lib/seo-sitemap.test.ts
   __tests__/lib/seo-spot-indexable.test.ts
+  __tests__/lib/seo-spot-intro.test.ts
   __tests__/lib/seo-spot-card.test.ts
   __tests__/api/spot-og-card.test.ts
   __tests__/api/page-og-card.test.ts
