@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import fc from "fast-check";
-import { indexableSitemapRows, isSpotIndexable, MIN_INDEXABLE_DESCRIPTION } from "@/lib/seo/spot-indexable";
+import { indexableSitemapRows, isSpotIndexable, MIN_INDEXABLE_DESCRIPTION, spotsHubHeading } from "@/lib/seo/spot-indexable";
 
 const long = "A quiet riverside noodle bar where office workers queue at noon for hand-cut kalguksu and kimchi.";
 
@@ -61,5 +61,16 @@ describe("indexableSitemapRows", () => {
         expect(isSpotIndexable({ description: source.description, hasPhoto: source.hasPhoto, hasGuide: guides.has(id.toLowerCase()) })).toBe(true);
       }
     }));
+  });
+});
+
+describe("spotsHubHeading", () => {
+  it("gives every city hub its own H1 and keeps the all-cities heading", () => {
+    expect(spotsHubHeading().title).toBe("Discover Hidden Gems");
+    const seoul = spotsHubHeading({ name: "Seoul", country: "South Korea" });
+    const tokyo = spotsHubHeading({ name: "Tokyo", country: "Japan" });
+    expect(seoul.title).toBe("Hidden gems in Seoul");
+    expect(seoul.title).not.toBe(tokyo.title);
+    expect(seoul.intro).toContain("Seoul, South Korea");
   });
 });
