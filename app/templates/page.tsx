@@ -12,12 +12,14 @@ import { SeoulLivingLink } from "@/components/layout/seoul-living-link";
 import type { Metadata } from "next";
 import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { pageMeta } from "@/lib/seo/meta";
+import { pageCardImage } from "@/lib/seo/page-card";
 
 export const metadata: Metadata = {
   ...pageMeta({
     title: "Itinerary templates",
     description: "Ready-made trip plans for Asian cities at a relaxed, moderate or active pace. Pick one and change it to fit your days.",
     path: "/templates",
+    image: pageCardImage("templates"),
   }),
   keywords: "itinerary templates, travel planning, trip templates, vacation planner, AI travel, trip itinerary",
 };

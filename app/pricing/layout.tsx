@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { QueryProvider } from "@/lib/query-client";
 import { BreadcrumbJsonLd, JsonLd } from "@/components/seo/json-ld";
 import { pageMeta, SITE_URL } from "@/lib/seo/meta";
+import { pageCardImage } from "@/lib/seo/page-card";
 import { TIER_CONFIGS } from "@/lib/subscription";
 
 export const metadata: Metadata = {
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
         socialTitle: "Localley pricing",
         description: `Localley Pro costs $${TIER_CONFIGS.pro.price} a month or $${TIER_CONFIGS.pro.yearlyPrice} a year; Premium $${TIER_CONFIGS.premium.price} a month. Local-first trip plans, richer maps, saved routes.`,
         path: "/pricing",
+        image: pageCardImage("pricing"),
     }),
     keywords: "localley pricing, travel app subscription, paid travel planner, pro plan, premium plan, AI travel",
 };

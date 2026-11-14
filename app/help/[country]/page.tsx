@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { SeoulLivingLink } from "@/components/layout/seoul-living-link";
 import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { pageMeta } from "@/lib/seo/meta";
+import { pageCardImage } from "@/lib/seo/page-card";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
@@ -23,6 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<{ country: 
       title: `Help me say this in ${country.languageName}`,
       description: `Show-to-staff ${country.languageName} phrase cards for ${country.name}: ordering, paying, directions, allergies and emergencies.`,
       path: `/help/${country.slug}`,
+      image: pageCardImage(`help-${country.slug}`),
     })
     : {};
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { SeoulLivingLink } from "@/components/layout/seoul-living-link";
 import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { pageMeta } from "@/lib/seo/meta";
+import { pageCardImage } from "@/lib/seo/page-card";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
@@ -18,7 +19,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ country: string }> }): Promise<Metadata> {
   const country = helpCountry((await params).country);
-  return country ? pageMeta({ title: `Help me order this in ${country.name}`, description: `Photograph a menu in ${country.name} and read every dish in English.`, path: `/help/${country.slug}/menu` }) : {};
+  return country ? pageMeta({ title: `Help me order this in ${country.name}`, description: `Photograph a menu in ${country.name} and read every dish in English.`, path: `/help/${country.slug}/menu`, image: pageCardImage(`help-${country.slug}-menu`) }) : {};
 }
 
 /**

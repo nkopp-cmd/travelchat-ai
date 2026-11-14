@@ -14,6 +14,7 @@ import { ENABLED_CITIES } from "@/lib/cities";
 import type { Metadata } from "next";
 import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/seo/json-ld";
 import { pageMeta } from "@/lib/seo/meta";
+import { pageCardImage } from "@/lib/seo/page-card";
 import { LandingPlanner, LandingExploreLink, LandingSearch, LandingTripBuilder, LandingPresets } from "@/components/landing/planner";
 import { LandingHero } from "@/components/landing/hero";
 import { HeroHelperLinks, LandingHelpers } from "@/components/landing/helpers";
@@ -63,6 +64,7 @@ export const metadata: Metadata = pageMeta({
   absoluteTitle: true,
   description: "Phrase cards, menu help, how to pay and spots open near you in Korea, Japan, Thailand, Vietnam, Taiwan and Singapore. Then a route through spots locals rate.",
   path: "/",
+  image: pageCardImage("home"),
 });
 
 export default function LandingPage() {

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { SeoulLivingLink } from "@/components/layout/seoul-living-link";
 import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { pageMeta } from "@/lib/seo/meta";
+import { pageCardImage } from "@/lib/seo/page-card";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
@@ -20,7 +21,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ country: string }> }): Promise<Metadata> {
   const country = helpCountry((await params).country);
-  return country ? pageMeta({ title: `Find somewhere open nearby in ${country.name}`, description: `Places near you in ${country.name}, with one tap to their opening hours.`, path: `/help/${country.slug}/open` }) : {};
+  return country ? pageMeta({ title: `Find somewhere open nearby in ${country.name}`, description: `Places near you in ${country.name}, with one tap to their opening hours.`, path: `/help/${country.slug}/open`, image: pageCardImage(`help-${country.slug}-open`) }) : {};
 }
 
 /** Vanilla, no framework: works before hydration and keeps the route's JS tiny. Text only via textContent. */
