@@ -20,8 +20,9 @@ const sha = (bytes: Buffer) => createHash("sha256").update(bytes).digest("hex");
 let put: ReturnType<typeof vi.fn>;
 let objects: Map<string, unknown>;
 
+// A city outside lib/image-library.json (all 30 enabled cities are in the library), so the R2 path runs.
 const post = (extra: Record<string, unknown> = {}) => POST(new NextRequest("https://www.localley.io/api/images/story-background", {
-  method: "POST", body: JSON.stringify({ type: "cover", city: "Osaka", ...extra }),
+  method: "POST", body: JSON.stringify({ type: "cover", city: "Lisbon", ...extra }),
 }));
 
 beforeEach(() => {
