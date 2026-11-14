@@ -58,7 +58,6 @@ export function CityQuickFilters({ cities, totalSpots }: CityQuickFiltersProps) 
                     <button
                         key={city.slug}
                         type="button"
-                        aria-label={`${city.name} ${city.count.toLocaleString("en-US")} spots`}
                         aria-pressed={isActive}
                         onClick={() => handleCityClick(city.slug)}
                         disabled={isPending}
@@ -69,19 +68,19 @@ export function CityQuickFilters({ cities, totalSpots }: CityQuickFiltersProps) 
                             className={cn(
                                 "min-h-11 max-w-full cursor-pointer flex-wrap gap-2 whitespace-normal rounded-full py-1.5 pl-1.5 pr-3 text-sm transition-all duration-200",
                                 isActive
-                                    ? " bg-violet-500 text-white shadow-md shadow-violet-500/20 hover:bg-violet-400"
-                                    : " bg-[#100b1c]/78 text-violet-50/75 backdrop-blur-sm hover:bg-violet-400/10 hover:text-white",
+                                    ? "bg-violet-600 text-white hover:bg-violet-700"
+                                    : "bg-[#100b1c] text-violet-50/85 hover:bg-violet-400/10 hover:text-white",
                                 isPending && "opacity-60"
                             )}
                         >
                             <CityImageAvatar city={city.name} className="h-6 w-6 rounded-full " sizes="24px" />
-                            <span className="min-w-0 break-words font-medium">{city.name}</span>
+                            <span className="min-w-0 break-words font-medium">{city.name}</span>{" "}
                             <span
                                 className={cn(
                                     "ml-1.5 text-xs",
                                     isActive
-                                        ? "text-violet-200"
-                                        : "text-violet-50/45"
+                                        ? "text-violet-100"
+                                        : "text-violet-50/70"
                                 )}
                             >
                                 {city.count.toLocaleString("en-US")} spots
