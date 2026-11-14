@@ -24,11 +24,38 @@ const STYLE = "A painterly gouache travel-poster illustration with visible brush
   "clearly an illustration, not a photograph. Generic scenery only: no specific real landmark, shop or venue.";
 
 // Mood words per city: what the place feels like, never a named building.
-const CITY_FEEL = {
+export const CITY_FEEL = {
   seoul: "an East Asian megacity between granite mountains, low hanok-style tiled roofs beside modern towers, a wide river",
   tokyo: "a dense Japanese city of narrow lanes, small wooden houses beside glass towers, overhead power lines, trains",
   bangkok: "a humid Southeast Asian river city, gilded temple roof shapes, long-tail boats, tropical trees and canals",
   singapore: "a green tropical city-state, shophouse rows in pastel colours, lush trees, a calm harbour at the edge",
+  // Every other enabled city, in rough traffic order (a run stops at the plan cap and resumes where it stopped).
+  osaka: "a lively Japanese merchant city of canals, neon-lit shopping arcades, small food counters and river bridges",
+  kyoto: "an old Japanese city of wooden machiya townhouses, quiet stone lanes, moss gardens and wooded hills",
+  taipei: "a subtropical East Asian city with green mountains around it, scooters, covered arcades and night-market lights",
+  "hong-kong": "a vertical harbour city of steep streets, dense high-rises against green peaks, trams and ferries",
+  busan: "a Korean port city of hillside houses in pastel colours, a long sandy beach, fishing boats and bridges",
+  jeju: "a volcanic Korean island of black basalt stone walls, tangerine orchards, green craters and a blue sea",
+  hanoi: "a Vietnamese capital of narrow tube houses, yellow facades, tangled wires, lakes and street stools",
+  "ho-chi-minh": "a busy south Vietnamese city of motorbike streams, French-era yellow buildings, a brown river, palms",
+  "kuala-lumpur": "a tropical Malaysian city of glass towers above old shophouses, rain trees and warm evening storms",
+  "bali-ubud": "a green Balinese hill town of rice terraces, carved stone gates, offerings and jungle ravines",
+  "bali-canggu": "a Balinese surf coast of black-sand beaches, rice fields, palm-lined lanes and small surf cafes",
+  "chiang-mai": "a northern Thai old town inside a moat, brick ruins, teak houses, mountains and slow lanes",
+  keelung: "a rainy Taiwanese harbour town of green hills, colourful fishing boats, stairs and a night-food street",
+  yilan: "a green Taiwanese plain of rice paddies, hot springs, mountains in mist and a long quiet coast",
+  "da-nang": "a central Vietnamese beach city of a long white beach, green mountains, river bridges and fishing baskets",
+  penang: "a Malaysian island town of faded colonial shophouses, clan-house roofs, street murals and hawker smoke",
+  nara: "a calm old Japanese town of large park lawns, deer, wooden temple roofs and stone lanterns",
+  kanazawa: "a Japanese castle town of samurai-district earthen walls, teahouse lanes, gardens and gold-leaf craft",
+  gyeongju: "an old Korean royal town of grassy burial mounds, low tiled-roof houses, lotus ponds and cherry trees",
+  sapporo: "a snowy north Japanese city of wide grid streets, low snowy rooftops, parks and warm bars",
+  okinawa: "a subtropical Japanese island of turquoise bays, red-tiled houses with lion figures, sugar cane and coral",
+  manila: "a Philippine bay city of colourful jeepneys, old Spanish stone walls, palms and a red sunset over the bay",
+  phuket: "a Thai island of limestone cliffs, turquoise bays, long-tail boats and pastel Sino-Portuguese houses",
+  "siem-reap": "a Cambodian river town of jungle ruins in the distance, tuk-tuks, rice fields and sugar palms",
+  "hoi-an": "an old Vietnamese river town of yellow walls, wooden shopfronts, silk lanterns and small boats",
+  "luang-prabang": "a Lao river town on a green peninsula, French-era villas, golden temple roofs and slow river boats",
 };
 
 const MOOD = {
