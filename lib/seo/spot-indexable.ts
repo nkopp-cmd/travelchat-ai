@@ -22,16 +22,31 @@ export function isSpotIndexable(input: SpotIndexInput): boolean {
 
 export type SitemapCandidate = {
   id: string; lastmod: string | null; name: string; address: string; description: string; hasPhoto: boolean;
+  /** Stored canonical city (lib/cities.ts name); null when the backfill could not place the row. */
+  city?: string | null;
 };
 
 /**
- * Sitemap rows worth a crawl: the hub's name+address dedupe (first row in the given order wins, as on the hub), then
+ * The hub filter in SQL (d1-queries `filters.city`): the stored city, or for rows without one an address match. A row
+ * no enabled hub lists has no internal link, so it stays out of the sitemap (L3 orphans: 9 unplaced Depok spots).
+ */
+export function onEnabledHub(row: { city?: string | null; address: string }, hubCities: readonly string[]): boolean {
+  if (row.city) return hubCities.includes(row.city);
+  const address = row.address.toLowerCase();
+  return hubCities.some((name) => address.includes(name.toLowerCase()));
+}
+
+/**
+ * Sitemap rows worth a crawl: only rows an enabled hub lists (when `hubCities` is given), the hub's name+address dedupe (first row in the given order wins, as on the hub), then
  * isSpotIndexable with the stored guide ids, sorted by id so chunks stay stable between runs.
  */
-export function indexableSitemapRows(rows: SitemapCandidate[], guideIds: ReadonlySet<string>): { id: string; lastmod: string | null }[] {
+export function indexableSitemapRows(
+  rows: SitemapCandidate[], guideIds: ReadonlySet<string>, hubCities?: readonly string[],
+): { id: string; lastmod: string | null }[] {
   const seen = new Set<string>();
   const kept: { id: string; lastmod: string | null }[] = [];
   for (const row of rows) {
+    if (hubCities && !onEnabledHub(row, hubCities)) continue;
     const key = `${row.name.toLowerCase().trim()}|${row.address.toLowerCase().trim()}`;
     if (seen.has(key)) continue;
     seen.add(key);

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import fc from "fast-check";
-import { indexableSitemapRows, isSpotIndexable, MIN_INDEXABLE_DESCRIPTION, spotsHubHeading } from "@/lib/seo/spot-indexable";
+import { indexableSitemapRows, isSpotIndexable, onEnabledHub, MIN_INDEXABLE_DESCRIPTION, spotsHubHeading } from "@/lib/seo/spot-indexable";
 
 const long = "A quiet riverside noodle bar where office workers queue at noon for hand-cut kalguksu and kimchi.";
 
@@ -43,6 +43,27 @@ describe("indexableSitemapRows", () => {
   it("keeps only the first row of a name+address duplicate, like the hub", () => {
     const rows = [row("z", { name: "Same", address: "One Road" }), row("a", { name: " same ", address: "ONE ROAD" })];
     expect(indexableSitemapRows(rows, new Set()).map((r) => r.id)).toEqual(["z"]);
+  });
+
+  it("drops rows no enabled hub lists: stored city off the list, or no city and no hub name in the address", () => {
+    const rows = [
+      row("a", { city: "Seoul" }), row("b", { city: "Jakarta" }),
+      row("c", { city: null, address: "Jl. Margonda, Depok, Indonesia" }), row("d", { city: null, address: "12 Sukhumvit, bangkok" }),
+    ];
+    expect(indexableSitemapRows(rows, new Set(), ["Seoul", "Bangkok"]).map((r) => r.id)).toEqual(["a", "d"]);
+    expect(indexableSitemapRows(rows, new Set()).map((r) => r.id)).toEqual(["a", "b", "c", "d"]);
+  });
+
+  it("property: with hub cities, every kept row is on an enabled hub", () => {
+    const hubs = ["Seoul", "Tokyo"];
+    const arb = fc.array(fc.record({
+      id: fc.uuid(), lastmod: fc.constant(null), name: fc.string({ maxLength: 4 }), address: fc.constantFrom("Seoul 1", "Depok", "tokyo x", ""),
+      description: fc.constant(long), hasPhoto: fc.constant(true), city: fc.constantFrom(null, "Seoul", "Tokyo", "Jakarta"),
+    }), { maxLength: 30 });
+    fc.assert(fc.property(arb, (rows) => {
+      const byId = new Map(rows.map((r) => [r.id, r]));
+      for (const out of indexableSitemapRows(rows, new Set(), hubs)) expect(onEnabledHub(byId.get(out.id)!, hubs)).toBe(true);
+    }));
   });
 
   it("property: output ids are unique, a subset of the input, and every one is indexable", () => {
