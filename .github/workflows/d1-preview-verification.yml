@@ -393,6 +393,8 @@ on:
       - 'lib/image-library.json'
       - '__tests__/api/story-background-library.test.ts'
       - '__tests__/lib/image-library.test.ts'
+      - '__tests__/lib/image-library-build.test.ts'
+      - 'scripts/image-library/**'
       - 'app/media/**'
       - 'app/api/itineraries/[id]/story/route.tsx'
       - 'lib/story-media-manifest.ts'
