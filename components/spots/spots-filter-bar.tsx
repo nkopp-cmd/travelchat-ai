@@ -249,7 +249,7 @@ export function SpotsFilterBar({
               <button
                 type="button"
                 onClick={() => onFilterChange("city", null)}
-                className="inline-flex h-8 max-w-[8.5rem] items-center gap-1 rounded-full bg-raised pl-2.5 pr-1.5 text-xs font-semibold text-foreground hover:bg-overlay"
+                className="relative inline-flex h-8 max-w-[8.5rem] items-center gap-1 rounded-full after:absolute after:-inset-y-1.5 after:inset-x-0 after:content-[''] bg-raised pl-2.5 pr-1.5 text-xs font-semibold text-foreground hover:bg-overlay"
                 aria-label={`Remove city filter ${activeCityName}`}
                 data-testid="spots-pill-city"
               >
@@ -301,7 +301,7 @@ export function SpotsFilterBar({
               key={filter.id}
               onClick={() => handleQuickFilter(filter.id)}
               className={cn(
-                "flex min-h-8 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium transition-all sm:min-h-9 sm:px-3 sm:py-1.5 sm:text-sm",
+                "flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium transition-all sm:px-3.5 sm:py-1.5 sm:text-sm",
                 isActive
                   ? " bg-primary text-primary-foreground"
                   : " bg-raised text-foreground hover:bg-overlay",
@@ -330,7 +330,7 @@ export function SpotsFilterBar({
           variant="ghost"
           size="sm"
           onClick={togglePanel}
-          className="h-9 w-full min-w-0 max-w-full justify-center overflow-hidden rounded-full bg-raised px-3 text-xs text-foreground hover:bg-overlay"
+          className="h-11 w-full min-w-0 max-w-full justify-center overflow-hidden rounded-full bg-raised px-3 text-xs text-foreground hover:bg-overlay"
           aria-expanded={panelOpen}
           aria-controls="spots-advanced-filters"
           data-testid="spots-mobile-filter-toggle"
@@ -352,7 +352,7 @@ export function SpotsFilterBar({
             type="button"
             variant="ghost"
             onClick={onClearFilters}
-            className="h-9 w-9 shrink-0 justify-self-end rounded-full bg-raised p-0 text-foreground hover:bg-overlay"
+            className="size-11 shrink-0 justify-self-end rounded-full bg-raised p-0 text-foreground hover:bg-overlay"
             data-testid="spots-mobile-clear-filters"
           >
             <X className="h-4 w-4" aria-hidden="true" />
@@ -448,7 +448,7 @@ export function SpotsFilterBar({
               <button
                 onClick={() => onFilterChange("search", null)}
                 aria-label="Remove search filter"
-                className="ml-1 flex-shrink-0 rounded-full p-0.5 hover:bg-muted"
+                className="relative ml-1 flex-shrink-0 rounded-full p-0.5 hover:bg-muted after:absolute after:-inset-3.5 after:content-['']"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -467,7 +467,7 @@ export function SpotsFilterBar({
               <button
                 onClick={() => onFilterChange("city", null)}
                 aria-label="Remove city filter"
-                className="ml-1 flex-shrink-0 rounded-full p-0.5 hover:bg-muted"
+                className="relative ml-1 flex-shrink-0 rounded-full p-0.5 hover:bg-muted after:absolute after:-inset-3.5 after:content-['']"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -481,7 +481,7 @@ export function SpotsFilterBar({
               <button
                 onClick={() => onFilterChange("category", null)}
                 aria-label="Remove category filter"
-                className="ml-1 flex-shrink-0 rounded-full p-0.5 hover:bg-muted"
+                className="relative ml-1 flex-shrink-0 rounded-full p-0.5 hover:bg-muted after:absolute after:-inset-3.5 after:content-['']"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -494,7 +494,7 @@ export function SpotsFilterBar({
               <button
                 onClick={() => onFilterChange("score", null)}
                 aria-label="Remove score filter"
-                className="ml-1 flex-shrink-0 rounded-full p-0.5 hover:bg-muted"
+                className="relative ml-1 flex-shrink-0 rounded-full p-0.5 hover:bg-muted after:absolute after:-inset-3.5 after:content-['']"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -509,7 +509,7 @@ export function SpotsFilterBar({
               <button
                 onClick={() => onFilterChange("sortBy", "score")}
                 aria-label="Reset sort filter"
-                className="ml-1 flex-shrink-0 rounded-full p-0.5 hover:bg-muted"
+                className="relative ml-1 flex-shrink-0 rounded-full p-0.5 hover:bg-muted after:absolute after:-inset-3.5 after:content-['']"
               >
                 <X className="h-3 w-3" />
               </button>

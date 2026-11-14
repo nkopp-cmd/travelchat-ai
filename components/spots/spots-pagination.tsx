@@ -79,7 +79,7 @@ export function SpotsPagination({
                 onClick={() => onPageChange(currentPage - 1)}
                 disabled={currentPage <= 1 || isPending}
                 aria-label="Previous page"
-                className="h-9 w-9"
+                className="size-11"
             >
                 <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -110,7 +110,7 @@ export function SpotsPagination({
                             aria-label={`Page ${page}`}
                             aria-current={isActive ? "page" : undefined}
                             className={cn(
-                                "h-9 w-9",
+                                "size-11",
                                 isActive && "bg-violet-600 hover:bg-violet-700 text-white"
                             )}
                         >
@@ -127,7 +127,7 @@ export function SpotsPagination({
                 onClick={() => onPageChange(currentPage + 1)}
                 disabled={currentPage >= totalPages || isPending}
                 aria-label="Next page"
-                className="h-9 w-9"
+                className="size-11"
             >
                 <ChevronRight className="h-4 w-4" />
             </Button>
