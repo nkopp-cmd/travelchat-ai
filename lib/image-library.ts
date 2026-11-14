@@ -1,0 +1,105 @@
+import library from "./image-library.json";
+import { ALL_CITIES } from "./cities";
+
+/**
+ * Pre-generated image library (reach-engine-20261114 R8, weekend-sprint L5): story backgrounds per city x mood and
+ * activity thumbnails per city x category, made on the ChatGPT plan (scripts/image-library/) and stored in R2:
+ * story -> legacy/<sha256>.jpg (read by the story renderer as /media/story/<sha256>.jpg, JPEG because Satori has no
+ * WebP); activity -> activity-thumbnails/<hex>.webp (served by /media/activity/). The routes look here first and call
+ * the paid image API only on a miss.
+ *
+ * Every library image is a painted illustration of a city mood or a category (a cafe, a market), never of a named
+ * place: a generated image must never pass as a photo of a real spot. That is why activity thumbnails are keyed by
+ * category, not by venue name.
+ */
+export const STORY_MOODS = ["skyline", "street", "night", "food", "nature", "cafe"] as const;
+export type StoryMood = (typeof STORY_MOODS)[number];
+
+export const ACTIVITY_CATEGORIES = [
+  "restaurant", "cafe", "bar", "market", "temple", "park", "museum", "shopping", "attraction", "neighborhood",
+] as const;
+export type ActivityCategory = (typeof ACTIVITY_CATEGORIES)[number];
+
+/** Key for the city-independent activity thumbnails. */
+export const ANY_CITY = "_";
+
+type Library = {
+  story: Record<string, Partial<Record<StoryMood, string>>>;
+  activity: Record<string, Partial<Record<ActivityCategory, string>>>;
+};
+
+const STORY_PATH = /^\/media\/story\/[0-9a-f]{64}\.jpg$/;
+const ACTIVITY_PATH = /^\/media\/activity\/[0-9a-f]{1,8}\.webp$/;
+
+/** "Seoul", "seoul", "Seoul, South Korea", "Ho Chi Minh City", "hong-kong" -> the lib/cities.ts slug, else null. */
+export function librarySlug(city: string | null | undefined): string | null {
+  const raw = (city ?? "").trim().toLowerCase();
+  if (!raw) return null;
+  const candidates = [raw, raw.split(",")[0].trim()];
+  for (const value of candidates) {
+    const dashed = value.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const hit = ALL_CITIES.find((c) => c.slug === dashed || c.name.toLowerCase() === value);
+    if (hit) return hit.slug;
+  }
+  return null;
+}
+
+/** Day slides render in parallel (each only excludes the cover), so each day number owns one mood: no two days match. */
+const DAY_MOODS: StoryMood[] = ["street", "food", "night", "cafe"];
+
+/** The library mood for a slide, or null when the slide has none (day 5+: the paid API makes a unique one). */
+export function slideMood(type: string | undefined, dayNumber: number | undefined): StoryMood | null {
+  if (type === "cover") return "skyline";
+  if (type === "summary") return "nature";
+  if (type === "day" && Number.isInteger(dayNumber) && (dayNumber as number) >= 1) return DAY_MOODS[(dayNumber as number) - 1] ?? null;
+  return null;
+}
+
+/**
+ * The library story background for this slide when it is not in `exclude` (the other slides' images), or null.
+ * The caller then generates one with the paid API.
+ */
+export function libraryStoryBackground(
+  city: string | null | undefined,
+  type: string | undefined,
+  dayNumber: number | undefined,
+  exclude: readonly string[] = [],
+  source: Library = library as Library,
+): string | null {
+  const slug = librarySlug(city);
+  const mood = slideMood(type, dayNumber);
+  const path = slug && mood ? source.story[slug]?.[mood] : undefined;
+  return path && STORY_PATH.test(path) && !exclude.includes(path) ? path : null;
+}
+
+/** Category words used by the itinerary generators -> one library category. */
+export function libraryCategory(category: string | null | undefined): ActivityCategory {
+  const value = (category ?? "").toLowerCase();
+  const direct = ACTIVITY_CATEGORIES.find((c) => c === value);
+  if (direct) return direct;
+  if (/market/.test(value)) return "market";
+  if (/food|dining|eat|restaurant|street food/.test(value)) return "restaurant";
+  if (/coffee|cafe|dessert|bakery|tea/.test(value)) return "cafe";
+  if (/night|bar|pub|club|drink/.test(value)) return "bar";
+  if (/temple|shrine|church|religio|palace|heritage|historic/.test(value)) return "temple";
+  if (/park|nature|garden|outdoor|hike|beach|mountain|river/.test(value)) return "park";
+  if (/museum|gallery|art|culture/.test(value)) return "museum";
+  if (/shop|mall|boutique|retail/.test(value)) return "shopping";
+  if (/neighbo|street|district|area|walk/.test(value)) return "neighborhood";
+  return "attraction";
+}
+
+/** Library thumbnail for an activity's category: the city's own set first, then the city-independent set. */
+export function libraryActivityThumbnail(
+  category: string | null | undefined,
+  city: string | null | undefined,
+  source: Library = library as Library,
+): string | null {
+  const key = libraryCategory(category);
+  const slug = librarySlug(city);
+  for (const set of [slug ? source.activity[slug] : undefined, source.activity[ANY_CITY]]) {
+    const path = set?.[key];
+    if (path && ACTIVITY_PATH.test(path)) return path;
+  }
+  return null;
+}

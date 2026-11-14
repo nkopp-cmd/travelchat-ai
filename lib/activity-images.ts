@@ -3,6 +3,7 @@
 // - Pro/Premium: AI-generated images via Gemini, stored in Supabase Storage
 
 import { generateActivityThumbnail as generateAIThumbnail, isImagenAvailable } from './imagen';
+import { libraryActivityThumbnail } from './image-library';
 
 interface ActivityThumbnailBucket {
   put(key: string, body: Uint8Array, options: { httpMetadata: { contentType: string } }): Promise<unknown>;
@@ -395,6 +396,21 @@ export async function addAIThumbnailsToItinerary(
   city: string,
   maxImages: number = 6 // Limit to avoid rate limits and long wait times
 ): Promise<typeof dailyPlans> {
+  // Pre-generated category illustrations first (reach-engine R8): free, so every activity gets one. Only misses go on
+  // to the paid per-activity generation below.
+  const withLibrary = JSON.parse(JSON.stringify(dailyPlans)) as typeof dailyPlans;
+  for (const day of withLibrary) {
+    for (const activity of day.activities) {
+      if (activity.image) continue;
+      const libraryImage = libraryActivityThumbnail(activity.category, city);
+      if (libraryImage) {
+        activity.image = libraryImage;
+        activity.aiGenerated = true;
+      }
+    }
+  }
+  dailyPlans = withLibrary;
+
   if (!isImagenAvailable()) {
     // No AI available — return as-is (Google Places fetched client-side)
     return dailyPlans;

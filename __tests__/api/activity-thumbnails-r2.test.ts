@@ -4,8 +4,9 @@ import { NextRequest } from "next/server";
 
 const mocks = vi.hoisted(() => ({ generate: vi.fn() }));
 vi.mock("@/lib/imagen", () => ({ isImagenAvailable: () => true, generateActivityThumbnail: mocks.generate }));
+vi.mock("@/lib/image-library", () => ({ libraryActivityThumbnail: (category?: string) => category === "cafe" ? "/media/activity/0000caf0.webp" : null }));
 vi.mock("@/lib/supabase", () => { throw new Error("activity thumbnails must not touch Supabase (exit 8b)"); });
-import { getAIActivityThumbnail } from "@/lib/activity-images";
+import { addAIThumbnailsToItinerary, getAIActivityThumbnail } from "@/lib/activity-images";
 import { GET } from "@/app/media/activity/[file]/route";
 
 const context = Symbol.for("__cloudflare-context__");
@@ -23,6 +24,7 @@ beforeEach(() => {
     get: vi.fn(async (key: string) => (objects.has(key) ? { arrayBuffer: async () => objects.get(key)!.slice().buffer } : null)),
   };
   (globalThis as Record<symbol, unknown>)[context] = { env: { STORY_MEDIA_R2: bucket } };
+  mocks.generate.mockClear();
   mocks.generate.mockResolvedValue(png.toString("base64"));
 });
 afterEach(() => { delete (globalThis as Record<symbol, unknown>)[context]; vi.restoreAllMocks(); });
@@ -60,4 +62,22 @@ describe("AI activity thumbnails in R2 (Supabase exit 8a)", () => {
       expect(response.headers.get("cache-control")).toBe("no-store");
     }
   });
+  it("serves library thumbnails as immutable WebP", async () => {
+    const webp = Buffer.from("RIFF0000WEBPVP8 ");
+    objects.set("activity-thumbnails/0000caf0.webp", webp);
+    const response = await serve("0000caf0.webp");
+    expect(response.headers.get("content-type")).toBe("image/webp");
+    expect(response.headers.get("cache-control")).toContain("immutable");
+  });
+
+  it("fills library category images first and generates only the misses (reach-engine R8)", async () => {
+    const plans = [{ day: 1, theme: "t", activities: [{ name: "Cafe Onion", category: "cafe" }, { name: "Gyeongbokgung", category: "temple" }] }];
+    const [day] = await addAIThumbnailsToItinerary(plans, "Seoul");
+    expect(day.activities[0]).toMatchObject({ image: "/media/activity/0000caf0.webp", aiGenerated: true });
+    expect(day.activities[1].image).toMatch(/^\/media\/activity\/[0-9a-f]{1,8}\.png$/);
+    expect(mocks.generate).toHaveBeenCalledTimes(1);
+    expect(mocks.generate).toHaveBeenCalledWith("Gyeongbokgung", "temple", "Seoul");
+    expect(plans[0].activities[0]).not.toHaveProperty("image");
+  });
 });
+

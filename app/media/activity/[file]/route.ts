@@ -3,10 +3,13 @@ import { NextRequest } from "next/server";
 interface ActivityThumbnailObject { arrayBuffer(): Promise<ArrayBuffer> }
 interface ActivityThumbnailReader { get(key: string): Promise<ActivityThumbnailObject | null> }
 
-const FILE = /^[0-9a-f]{1,8}\.png$/;
+const FILE = /^[0-9a-f]{1,8}\.(png|webp)$/;
 const missing = () => new Response(null, { status: 404, headers: { "Cache-Control": "no-store" } });
 
-/** Public AI activity thumbnails in R2 (activity-thumbnails/<hash>.png, written by lib/activity-images.ts). Nothing else. */
+/**
+ * Public AI activity thumbnails in R2: activity-thumbnails/<hash>.png (written by lib/activity-images.ts) and the
+ * pre-generated library <hash>.webp (lib/image-library.ts). Nothing else.
+ */
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ file: string }> }) {
     const { file } = await params;
     if (!FILE.test(file)) return missing();
@@ -15,7 +18,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ fil
     const object = await bucket?.get(`activity-thumbnails/${file}`).catch(() => null);
     if (!object) return missing();
     return new Response(new Uint8Array(await object.arrayBuffer()), {
-        headers: { "Content-Type": "image/png", "Cache-Control": "public, max-age=86400", "X-Content-Type-Options": "nosniff",
+        headers: { "Content-Type": file.endsWith(".webp") ? "image/webp" : "image/png",
+            "Cache-Control": file.endsWith(".webp") ? "public, max-age=31536000, immutable" : "public, max-age=86400", "X-Content-Type-Options": "nosniff",
             "Content-Security-Policy": "default-src 'none'" },
     });
 }
