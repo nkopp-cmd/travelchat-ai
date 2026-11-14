@@ -67,7 +67,7 @@ export function SpotDetailMap({ lat, lng, name, searchUrl, category = "Local spo
     {hasValidVenueCoordinates(lat, lng) ? <>
       <div ref={ref} className="relative z-0 h-64" data-testid="spot-detail-map">
         {near && engaged ? <SpotPinMap key={`${lat}:${lng}`} spots={[pin]} /> : engaged ? MAP_PLACEHOLDER : (
-          <button type="button" onClick={engage} className="grid h-full w-full place-items-center text-sm text-violet-100 underline">Show map</button>
+          <button type="button" onClick={engage} className="grid h-full w-full place-items-center text-sm text-foreground underline">Show map</button>
         )}
       </div>
       <p className="p-3 text-xs text-white">Approximate venue pin. Entrance not confirmed.</p>
