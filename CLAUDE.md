@@ -84,6 +84,13 @@ All environment variables are already configured in Vercel. **DO NOT add duplica
 
 ### Story Image Pipeline — STABLE, DO NOT MODIFY WITHOUT EXPLICIT REQUEST
 
+> **Current state (Nils 2026-11-14, APPROVALS.md "SCOPE FIX"):** the app story uses its own per-day Gemini images
+> (`lib/image-provider.ts` -> `lib/imagen.ts` generateStoryBackground / generateDayBackground). The "no paid image
+> API" rule covers OUR content (social posts, SEO pages), not this app feature. The painted library
+> (`lib/image-library.json`) stays `"live": false`: lookups return null, so every slide reaches Gemini. Our TikTok
+> carousel (CyberLink shared/services/localley-tiktok-carousel) never uses Gemini: it uses the ChatGPT plan
+> (shared/scripts/codex-image.py) with the same prompt text, filled with the city and that day's real spot names.
+
 > **WARNING**: This pipeline is production-stable after extensive debugging.
 > Every constraint below exists because of a real bug that was encountered and fixed.
 > **DO NOT refactor, "improve", or change ANY image generation code unless the user explicitly requests it.**

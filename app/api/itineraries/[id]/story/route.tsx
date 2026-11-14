@@ -10,6 +10,7 @@ import { normalizeDailyPlansForDisplay } from "@/lib/itineraries/normalize-daily
 import { STORY_MEDIA_R2 } from "@/lib/story-media-manifest";
 import { getActivityEmoji, getHighlightEmoji } from "@/lib/story-emoji";
 import { STORY_EMOJI_SVG } from "@/lib/story-emoji-svg";
+import { isRetiredLibraryPath } from "@/lib/image-library";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -44,6 +45,8 @@ interface StoryMediaBucket { get(key: string): Promise<{ arrayBuffer(): Promise<
 const STORY_MEDIA_PATH = /^\/media\/story\/([0-9a-f]{64}\.(?:png|jpg))$/;
 
 async function prefetchFromR2(url: string): Promise<string | undefined> {
+    // Painted library switched off (lib/image-library.json live=false): saved library slides render the gradient.
+    if (isRetiredLibraryPath(url)) return undefined;
     const direct = STORY_MEDIA_PATH.exec(url)?.[1];
     const marker = "/storage/v1/object/public/generated-images/";
     const idx = url.indexOf(marker);

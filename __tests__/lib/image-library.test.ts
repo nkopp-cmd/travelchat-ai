@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  ANY_CITY, libraryActivityThumbnail, libraryCategory, librarySlug, libraryStoryBackground, slideMood, STORY_MOODS,
+  ANY_CITY, isRetiredLibraryPath, LIBRARY_LIVE, libraryActivityThumbnail, libraryCategory, librarySlug, libraryStoryBackground, slideMood, STORY_MOODS,
 } from "@/lib/image-library";
 import manifest from "@/lib/image-library.json";
 
@@ -51,5 +51,22 @@ describe("image library", () => {
       for (const path of Object.values(moods)) expect(path).toMatch(/^\/media\/story\/[0-9a-f]{64}\.jpg$/);
     for (const set of Object.values(manifest.activity as Record<string, Record<string, string>>))
       for (const path of Object.values(set)) expect(path).toMatch(/^\/media\/activity\/[0-9a-f]{1,8}\.webp$/);
+  });
+});
+
+describe("shipped library is off live (Nils 2026-11-14: story backgrounds = own per-day Gemini images)", () => {
+  const shipped = manifest as unknown as Parameters<typeof libraryStoryBackground>[4];
+  it("returns no library image, so the story route generates the day image with Gemini", () => {
+    expect(LIBRARY_LIVE).toBe(false);
+    for (const type of ["cover", "day", "summary"]) {
+      expect(libraryStoryBackground("Seoul", type, 1, [], shipped)).toBeNull();
+    }
+    expect(libraryActivityThumbnail("cafe", "Seoul", shipped as never)).toBeNull();
+  });
+  it("retires every shipped library path for the media routes", () => {
+    const path = Object.values((manifest as { story: Record<string, Record<string, string>> }).story.seoul)[0];
+    expect(isRetiredLibraryPath(path)).toBe(true);
+    expect(isRetiredLibraryPath(path, true)).toBe(false);
+    expect(isRetiredLibraryPath("/media/story/" + "0".repeat(64) + ".jpg")).toBe(false);
   });
 });

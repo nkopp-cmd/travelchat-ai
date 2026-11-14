@@ -4,7 +4,7 @@ import { NextRequest } from "next/server";
 
 const mocks = vi.hoisted(() => ({ generate: vi.fn() }));
 vi.mock("@/lib/imagen", () => ({ isImagenAvailable: () => true, generateActivityThumbnail: mocks.generate }));
-vi.mock("@/lib/image-library", () => ({ libraryActivityThumbnail: (category?: string) => category === "cafe" ? "/media/activity/0000caf0.webp" : null }));
+vi.mock("@/lib/image-library", () => ({ isRetiredLibraryPath: () => false, libraryActivityThumbnail: (category?: string) => category === "cafe" ? "/media/activity/0000caf0.webp" : null }));
 vi.mock("@/lib/supabase", () => { throw new Error("activity thumbnails must not touch Supabase (exit 8b)"); });
 import { addAIThumbnailsToItinerary, getAIActivityThumbnail } from "@/lib/activity-images";
 import { GET } from "@/app/media/activity/[file]/route";

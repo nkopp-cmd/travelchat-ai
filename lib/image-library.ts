@@ -24,9 +24,26 @@ export type ActivityCategory = (typeof ACTIVITY_CATEGORIES)[number];
 export const ANY_CITY = "_";
 
 type Library = {
+  /** false = the set is off live (Nils 2026-11-14: painted style does not match the app; story backgrounds are the
+   * app's own per-day Gemini images again, APPROVALS.md SCOPE FIX). Lookups return null, the media routes refuse its
+   * files, and saved slides render the branded gradient. Set true to switch it back on. */
+  live?: boolean;
   story: Record<string, Partial<Record<StoryMood, string>>>;
   activity: Record<string, Partial<Record<ActivityCategory, string>>>;
 };
+
+/** True when the shipped library is switched on (lib/image-library.json "live"). */
+export const LIBRARY_LIVE = (library as Library).live !== false;
+
+const LIBRARY_PATHS = new Set<string>([
+  ...Object.values((library as Library).story).flatMap((m) => Object.values(m ?? {})),
+  ...Object.values((library as Library).activity).flatMap((m) => Object.values(m ?? {})),
+].filter((p): p is string => typeof p === "string"));
+
+/** A /media/story or /media/activity path from the library while the library is off live: serve nothing for it. */
+export function isRetiredLibraryPath(path: string | null | undefined, live: boolean = LIBRARY_LIVE): boolean {
+  return !live && !!path && LIBRARY_PATHS.has(path.split("?")[0]);
+}
 
 const STORY_PATH = /^\/media\/story\/[0-9a-f]{64}\.jpg$/;
 const ACTIVITY_PATH = /^\/media\/activity\/[0-9a-f]{1,8}\.webp$/;
@@ -66,6 +83,7 @@ export function libraryStoryBackground(
   exclude: readonly string[] = [],
   source: Library = library as Library,
 ): string | null {
+  if (source.live === false) return null;
   const slug = librarySlug(city);
   const mood = slideMood(type, dayNumber);
   const path = slug && mood ? source.story[slug]?.[mood] : undefined;
@@ -95,6 +113,7 @@ export function libraryActivityThumbnail(
   city: string | null | undefined,
   source: Library = library as Library,
 ): string | null {
+  if (source.live === false) return null;
   const key = libraryCategory(category);
   const slug = librarySlug(city);
   for (const set of [slug ? source.activity[slug] : undefined, source.activity[ANY_CITY]]) {
