@@ -1,8 +1,9 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
 import { ACTIVITY_CATEGORIES, STORY_MOODS } from "@/lib/image-library";
+import { ENABLED_CITIES } from "@/lib/cities";
 // @ts-expect-error plain .mjs build script without types
-import { buildJobs } from "../../scripts/image-library/build.mjs";
+import { buildJobs, CITY_FEEL } from "../../scripts/image-library/build.mjs";
 
 type Job = { id: string; prompt: string; formats: string[] };
 
@@ -26,5 +27,11 @@ describe("image library jobs (reach-engine R8)", () => {
 
   it("refuses a city without mood text", () => {
     expect(() => buildJobs(["atlantis"])).toThrow(/no mood text/);
+  });
+
+  it("has mood text for every enabled city, and only for real city slugs", () => {
+    const enabled = ENABLED_CITIES.map((c) => c.slug).sort();
+    expect(Object.keys(CITY_FEEL).sort()).toEqual(enabled);
+    for (const feel of Object.values(CITY_FEEL) as string[]) expect(feel.length).toBeGreaterThan(40);
   });
 });
