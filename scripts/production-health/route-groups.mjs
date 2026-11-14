@@ -146,6 +146,7 @@ const routes = [
   "/sitemaps/[file]",
   "/spots",
   "/spots/[id]",
+  "/spots/[id]/og",
   "/spots/[id]/tips",
   "/spots/submissions",
   "/spots/submit",
