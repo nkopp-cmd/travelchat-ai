@@ -44,8 +44,8 @@ export async function generateMetadata({ searchParams }: SpotsPageProps): Promis
     const { city, path } = spotsHub(await searchParams);
     return city
         ? pageMeta({
-            title: `Local spots in ${city.name}`,
-            description: `Cafes, food, bars and sights in ${city.name}, ${city.country}, rated by locals with the Localley Score. Filter by area, category and what is open now.`,
+            title: `Hidden gems in ${city.name}: local spots`,
+            description: `Hidden gems in ${city.name}, ${city.country}: cafes, food, bars and sights rated by locals with the Localley Score. Filter by area, category and what is open now.`,
             path,
             image: city.heroImage,
         })
