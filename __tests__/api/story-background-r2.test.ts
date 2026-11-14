@@ -21,7 +21,7 @@ let put: ReturnType<typeof vi.fn>;
 let objects: Map<string, unknown>;
 
 const post = (extra: Record<string, unknown> = {}) => POST(new NextRequest("https://www.localley.io/api/images/story-background", {
-  method: "POST", body: JSON.stringify({ type: "cover", city: "Seoul", ...extra }),
+  method: "POST", body: JSON.stringify({ type: "cover", city: "Osaka", ...extra }),
 }));
 
 beforeEach(() => {
