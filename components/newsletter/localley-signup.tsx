@@ -27,7 +27,7 @@ export function LocalleySignup({ source, city, className, heading = "The Localle
         <input type="hidden" name="source" value={source} />
         {city ? <input type="hidden" name="city" value={city} /> : null}
         {/* Honeypot: hidden from people and screen readers; bots that fill it get the normal answer and no mail. */}
-        <div aria-hidden="true" className="absolute -left-[10000px] h-px w-px overflow-hidden">
+        <div aria-hidden="true" className="absolute -left-[10000px] size-0 overflow-hidden">
           <label htmlFor={`newsletter-website-${source}`}>Website</label>
           <input id={`newsletter-website-${source}`} type="text" name="website" tabIndex={-1} autoComplete="off" />
         </div>
