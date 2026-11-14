@@ -123,6 +123,15 @@ export function SpotsFilterBar({
     ),
   );
 
+  // Over the phone map the panel is a floating card: it closes after a choice and when the map opens.
+  const filterKey = `${overMap}|${currentFilters.city}|${currentFilters.category}|${currentFilters.score}|${currentFilters.sortBy}`;
+  const [openedFor, setOpenedFor] = useState(filterKey);
+  const panelOpen = showMobileFilters && (!overMap || openedFor === filterKey);
+  const togglePanel = () => {
+    setOpenedFor(filterKey);
+    setShowMobileFilters(!panelOpen);
+  };
+
   // Debounce search input - 300ms delay
   const debouncedSearch = useDebouncedCallback((value: string) => {
     onFilterChange("search", value || null);
@@ -201,7 +210,7 @@ export function SpotsFilterBar({
     <div
       className={cn(
         "mb-4 space-y-3 rounded-lg bg-surface p-2.5 text-foreground backdrop-blur-xl sm:mb-5 sm:space-y-4 sm:p-4",
-        compactOverMap && "max-lg:mb-0 max-lg:space-y-2 max-lg:rounded-none max-lg:bg-transparent max-lg:p-0 max-lg:backdrop-blur-none",
+        compactOverMap && "max-lg:relative max-lg:mb-0 max-lg:space-y-2 max-lg:rounded-none max-lg:bg-transparent max-lg:p-0 max-lg:backdrop-blur-none",
       )}
       data-compact-chrome={compactOverMap ? "" : undefined}
     >
@@ -250,9 +259,9 @@ export function SpotsFilterBar({
             )}
             <button
               type="button"
-              onClick={() => setShowMobileFilters((value) => !value)}
+              onClick={togglePanel}
               className="relative grid size-11 place-items-center rounded-full text-foreground hover:bg-overlay"
-              aria-expanded={showMobileFilters}
+              aria-expanded={panelOpen}
               aria-controls="spots-advanced-filters"
               aria-label={advancedFilterCount > 0 ? `Edit filters (${advancedFilterCount} active)` : "Filters"}
               data-testid="spots-mobile-filter-toggle"
@@ -320,9 +329,9 @@ export function SpotsFilterBar({
           type="button"
           variant="ghost"
           size="sm"
-          onClick={() => setShowMobileFilters((value) => !value)}
+          onClick={togglePanel}
           className="h-9 w-full min-w-0 max-w-full justify-center overflow-hidden rounded-full bg-raised px-3 text-xs text-foreground hover:bg-overlay"
-          aria-expanded={showMobileFilters}
+          aria-expanded={panelOpen}
           aria-controls="spots-advanced-filters"
           data-testid="spots-mobile-filter-toggle"
         >
@@ -357,7 +366,8 @@ export function SpotsFilterBar({
         id="spots-advanced-filters"
         className={cn(
           "grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-2 md:items-center xl:grid-cols-4",
-          !showMobileFilters && (overMap ? "hidden lg:grid" : "hidden md:grid"),
+          compactOverMap && "max-lg:absolute max-lg:inset-x-0 max-lg:top-full max-lg:z-10 max-lg:mt-2 max-lg:rounded-2xl max-lg:bg-surface max-lg:p-3 max-lg:shadow-overlay",
+          !panelOpen && (overMap ? "hidden lg:grid" : "hidden md:grid"),
         )}
         role="group"
         aria-label="Filter options"

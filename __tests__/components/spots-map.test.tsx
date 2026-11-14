@@ -195,10 +195,13 @@ describe("bounded discovery map", () => {
 
 describe("map fit under the phone sheet", () => {
     it("measures the visible sheet at each snap position", () => {
-        // 776px map section on a 390x844 phone; PEEK_PX (128) counts from the section top, the sheet sits 12px lower.
+        // 776px map section on a 390x844 phone; the sheet starts 12px below the section top and always peeks PEEK_PX (128).
         expect(sheetInset(776, "list")).toBe(764);
-        expect(sheetInset(776, "half")).toBe(440);
-        expect(sheetInset(776, "map")).toBe(116);
+        expect(sheetInset(776, "half")).toBe(446);
+        expect(sheetInset(776, "map")).toBe(128);
+        // Under a 100px floating search bar the sheet starts 112px down; it still peeks 128px.
+        expect(sheetInset(776, "list", 112)).toBe(664);
+        expect(sheetInset(776, "map", 112)).toBe(128);
     });
 
     it("pads the first fit by the sheet, but keeps a usable box on a short map", async () => {
@@ -210,6 +213,9 @@ describe("map fit under the phone sheet", () => {
         expect(fitPadding(776, 0)).toEqual({ top: 48, right: 48, bottom: 48, left: 48 });
         // 300px map with a 280px overlay: the fit box stays 120px tall.
         expect(fitPadding(300, 280)).toEqual({ top: 48, right: 48, bottom: 132, left: 48 });
+        // Pins stay out from under the floating search pill + chips (100px), capped at a third of the map.
+        expect(fitPadding(776, 0, 100)).toEqual({ top: 148, right: 48, bottom: 48, left: 48 });
+        expect(fitPadding(300, 0, 200)).toEqual({ top: 148, right: 48, bottom: 48, left: 48 });
     });
 
     it("remembers the map view and reopens a bare /spots in it", async () => {

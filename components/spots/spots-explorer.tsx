@@ -204,9 +204,9 @@ export function SpotsExplorer({
     return (
         <>
             <SpotCardEvents />
-            {/* Filter Bar: floats over the full-screen phone map, so search and filters stay in reach. */}
+            {/* Filter Bar: floats over the full-screen phone map (no band), so search and filters stay in reach. */}
             <div ref={filtersRef} data-map-overlay={mapOverlay ? "" : undefined}
-                className={cn(mapOverlay && "max-lg:fixed max-lg:inset-x-0 max-lg:top-[var(--ll-topbar-height)] max-lg:z-[41] max-lg:bg-background max-lg:px-3 max-lg:pt-2 max-lg:[&>*]:mb-2")}>
+                className={cn(mapOverlay && "max-lg:pointer-events-none max-lg:fixed max-lg:inset-x-0 max-lg:top-[var(--ll-topbar-height)] max-lg:z-[41] max-lg:px-3 max-lg:pt-2 max-lg:[&_button]:pointer-events-auto max-lg:[&_input]:pointer-events-auto max-lg:[&_select]:pointer-events-auto max-lg:[&_[role=group]]:pointer-events-auto max-lg:[&>*]:mb-2")}>
                 <SpotsFilterBar
                     overMap={mapOverlay}
                     filterOptions={filterOptions}
@@ -357,7 +357,7 @@ export function SpotsExplorer({
     );
 }
 
-/** Publishes the floating filter bar height, so the phone map starts below it (0 when not floating). */
+/** Publishes the floating filter bar height: the phone map runs under it and keeps pins out of that strip (0 when not floating). */
 function useMapFiltersHeight(ref: { current: HTMLElement | null }, active: boolean) {
     useEffect(() => {
         const root = document.documentElement;
