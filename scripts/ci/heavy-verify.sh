@@ -33,6 +33,7 @@ VITEST_FILES=(
   __tests__/lib/planner-draft.test.ts
   __tests__/components/planner-resume.test.tsx
   __tests__/components/planner-auth-return.test.tsx
+  __tests__/components/planner-start-signal.test.tsx
   __tests__/components/weekly-shared-cards.test.tsx
   __tests__/components/icon-geometry.test.tsx
   __tests__/components/spot-card.test.tsx

@@ -339,16 +339,20 @@ interface ItineraryWizardProps {
   initialCities?: PlannerCity[] | null;
 }
 
-// One planner_start per page load, even when the wizard remounts (restored draft, StrictMode).
+// One planner_start per page load, on the visitor's first real input in the wizard (click, tap,
+// keyboard activation or typing), not on render: page-load counting let bot bursts swamp the funnel
+// (261 starts on 2026-11-03, 303 starts vs 2 trips in 30 d). Module flag: remounts do not re-count.
 let plannerStartTracked = false;
+export function markPlannerStart() {
+  if (plannerStartTracked) return;
+  plannerStartTracked = true;
+  trackFunnelStep("planner_start", funnelSource(document.referrer, location.origin));
+}
+/** Test hook: a new page load. */
+export function resetPlannerStartForTest() { plannerStartTracked = false; }
 
 export function ItineraryWizard({ initialData, initialStep, initialCities = null }: ItineraryWizardProps) {
   const router = useRouter();
-  useEffect(() => {
-    if (plannerStartTracked) return;
-    plannerStartTracked = true;
-    trackFunnelStep("planner_start", funnelSource(document.referrer, location.origin));
-  }, []);
   const { toast } = useToast();
 
   // Failures throw to the wizard footer, which shows the toast with a Try again action.
@@ -439,7 +443,7 @@ export function ItineraryWizard({ initialData, initialStep, initialCities = null
   return (
     <PlannerCitiesContext.Provider value={initialCities}>
     <WizardProvider initialData={initialData} initialStep={initialStep}>
-      <div className="flex min-w-0 flex-col bg-background sm:rounded-2xl md:rounded-none">
+      <div className="flex min-w-0 flex-col bg-background sm:rounded-2xl md:rounded-none" onClickCapture={markPlannerStart} onInputCapture={markPlannerStart}>
         <WizardContent onGenerate={handleGenerate} />
       </div>
     </WizardProvider>
