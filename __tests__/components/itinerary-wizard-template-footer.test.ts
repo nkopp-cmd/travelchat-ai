@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   canQuickStart,
+  showsQuickStartOffer,
   getQuickStartLabel,
   QUICK_START_OFFER,
   getTemplateFooterCityLabel,
@@ -51,5 +52,17 @@ describe("quick-start free plan offer (2026-11-06)", () => {
     expect(canQuickStart({ ...base, currentStep: 1 })).toBe(false);
     expect(canQuickStart({ ...base, templateApplied: true })).toBe(false);
     expect(canQuickStart({ ...base, tripMode: "multi" })).toBe(false);
+  });
+});
+
+describe("free offer before the first tap (push M, 2026-11-15)", () => {
+  const base = { currentStep: 0, templateApplied: false, tripMode: "single" as const };
+  it("shows the offer on step 1 of a plain single-city plan, with or without a city", () => {
+    expect(showsQuickStartOffer(base)).toBe(true);
+  });
+  it("hides it on later steps, for templates and for multi-city trips", () => {
+    expect(showsQuickStartOffer({ ...base, currentStep: 1 })).toBe(false);
+    expect(showsQuickStartOffer({ ...base, templateApplied: true })).toBe(false);
+    expect(showsQuickStartOffer({ ...base, tripMode: "multi" })).toBe(false);
   });
 });

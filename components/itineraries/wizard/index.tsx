@@ -74,6 +74,15 @@ export function canQuickStart(input: {
   );
 }
 
+/** The free-offer line shows on the first step of a plain single-city plan, before and after the city tap (push M). */
+export function showsQuickStartOffer(input: {
+  currentStep: number;
+  templateApplied: boolean;
+  tripMode: "single" | "multi";
+}): boolean {
+  return input.currentStep === 0 && !input.templateApplied && input.tripMode !== "multi";
+}
+
 export function getTemplateFooterLayoutClass(compactTemplateFooter: boolean): string {
   return compactTemplateFooter
     ? "grid gap-2 sm:flex sm:items-center sm:gap-3"
@@ -107,6 +116,8 @@ function WizardContent({
     tripMode: data.tripMode,
   });
   const canGenerateNow = canGenerateFromTemplate || quickStart;
+  const showOffer = showsQuickStartOffer({ currentStep, templateApplied, tripMode: data.tripMode });
+  const awaitingCity = showOffer && !data.city;
 
   // Progress message animation
   useEffect(() => {
@@ -171,7 +182,7 @@ function WizardContent({
         ? getTemplateGenerateLabel(data.city)
         : quickStart
           ? getQuickStartLabel(data.days)
-          : currentStep === 0 && templateApplied && !data.city
+          : currentStep === 0 && !data.city && (templateApplied || awaitingCity)
           ? "Pick a city"
           : "Next";
 
@@ -241,7 +252,7 @@ function WizardContent({
               </span>
             </div>
           )}
-          {quickStart && (
+          {showOffer && (
             <p className="mb-1.5 text-center text-xs font-medium text-foreground sm:mb-2">
               {QUICK_START_OFFER}
             </p>
@@ -298,7 +309,9 @@ function WizardContent({
                 "bg-primary text-primary-foreground",
                 "",
                 "",
-                "disabled:opacity-50 disabled:cursor-not-allowed"
+                "disabled:opacity-50 disabled:cursor-not-allowed",
+                // Before the city tap: an opaque, readable hint instead of a see-through "Next" bar.
+                awaitingCity && "disabled:bg-raised disabled:text-foreground disabled:opacity-100",
               )}
             >
               {isLastStep || canGenerateNow ? (
