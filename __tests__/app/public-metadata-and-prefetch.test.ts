@@ -13,7 +13,9 @@ describe("public page metadata and prefetch", () => {
 
   it("keeps /spots calls to action from prefetching the zod-heavy submission routes on view", () => {
     const page = readFileSync("app/spots/page.tsx", "utf8");
-    for (const href of ["/itineraries/new", "/spots/submit", "/spots/submissions"]) {
+    // The planner CTA carries the hub city (?city=), so its href is an expression.
+    expect(page).toMatch(/<IntentLink href=\{[^\n]*`\/itineraries\/new\?/);
+    for (const href of ["/spots/submit", "/spots/submissions"]) {
       expect(page).toContain(`<IntentLink href="${href}">`);
     }
     expect(page).not.toMatch(/<Link href=/);
