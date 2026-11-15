@@ -202,9 +202,9 @@ function WizardContent({
           </div>
           <div className="absolute inset-0 rounded-full bg-primary/15 animate-ping" />
         </div>
-        <h2 className="text-xl font-bold text-foreground mb-2 text-center">
+        <h1 className="text-xl font-bold text-foreground mb-2 text-center">
           Creating your itinerary
-        </h2>
+        </h1>
         <p className="text-primary text-center animate-pulse">
           {progressMessage}
         </p>

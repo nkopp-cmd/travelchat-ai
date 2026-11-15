@@ -58,7 +58,7 @@ export function StepDuration() {
         <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/15 sm:mb-4 sm:h-14 sm:w-14">
           <Calendar className="h-6 w-6 text-primary sm:h-7 sm:w-7" />
         </div>
-        <h2 className="mb-1.5 text-xl font-bold text-foreground sm:mb-2 sm:text-2xl">Trip details</h2>
+        <h1 className="mb-1.5 text-xl font-bold text-foreground sm:mb-2 sm:text-2xl">Trip details</h1>
         <p className="text-sm text-muted-foreground sm:text-base">
           When are you going, and what&apos;s your budget?
         </p>

@@ -9,7 +9,7 @@ describe("page share cards", () => {
     for (const country of HELP_COUNTRIES) {
       for (const suffix of ["", "-pay", "-menu", "-open"]) expect(pageCard(`help-${country.slug}${suffix}`)).not.toBeNull();
     }
-    expect(PAGE_CARD_KEYS).toHaveLength(4 + HELP_COUNTRIES.length * 4);
+    expect(PAGE_CARD_KEYS).toHaveLength(5 + HELP_COUNTRIES.length * 4);
   });
 
   it("keeps every card short enough for two headline lines and URL-safe keys", () => {
