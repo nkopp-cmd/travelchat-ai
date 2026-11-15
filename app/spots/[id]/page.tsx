@@ -61,6 +61,7 @@ import { cache } from "react";
 import { fetchSpotViralMentions } from "@/lib/viral/events";
 import { viralMentionMonth } from "@/lib/viral/feed";
 import type { Metadata } from "next";
+import { LocalleySignup } from "@/components/newsletter/localley-signup";
 import { PreviewSaveSpotButton } from "@/components/spots/preview-save-spot-button";
 import { previewSavedSpotActor } from "@/lib/app-data/preview-saved-spot-actor";
 import { previewSpotPageData } from "@/lib/app-data/preview-spot-page";
@@ -551,6 +552,7 @@ export default async function SpotPage({
   // Use city-level context for related activities; the first address segment is often a district.
   const city = getSpotContextCity(spot);
   const citySlug = inferSpotCitySlug(spot);
+  const knownCity = citySlug ? city : null; // address fallback is not a planner city
   const primaryArea = getPrimaryArea(spot.location.address, city);
   const [relatedSpots, guide, viralMentions, directory] = await Promise.all([
     candidate ? Promise.resolve([] as RelatedSpot[]) : getRelatedSpots(spot, city),
@@ -707,6 +709,19 @@ export default async function SpotPage({
 
           <aside className="space-y-3 lg:sticky lg:top-24 lg:self-start">
             <GetDirectionsButton spot={spot} />
+            {!candidate && (
+              <Button asChild variant="secondary" className="h-12 w-full rounded-xl text-base" size="lg">
+                <SpotEventLink
+                  spotId={spot.id}
+                  event="add_to_trip"
+                  prefetch={false}
+                  data-testid="spot-plan-trip"
+                  href={`/itineraries/new?${new URLSearchParams(knownCity ? { spot: spot.id, city: knownCity } : { spot: spot.id })}`}
+                >
+                  <span className="truncate">Plan a free trip with this spot</span>
+                </SpotEventLink>
+              </Button>
+            )}
             <DriverCardLink spotId={spot.id} />
             <div className={`${LIQUID_CARD} overflow-hidden`}>
               <SpotDetailMap lat={spot.location.lat} lng={spot.location.lng} name={spot.name} category={spot.category} photos={spot.photos}
@@ -763,6 +778,8 @@ export default async function SpotPage({
             ) : null}
           </section>
         )}
+
+        {!candidate && <LocalleySignup source="spot" city={citySlug ?? undefined} heading={knownCity ? `More ${knownCity} picks by email` : "The Localley newsletter"} />}
 
         <section className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">

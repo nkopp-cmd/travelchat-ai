@@ -188,7 +188,11 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
                             <p className="text-[15px] leading-6 text-muted-foreground">
                                 {heading.intro}
                             </p>
-                            <Button asChild className="mt-4"><IntentLink href="/itineraries/new">Start with a city</IntentLink></Button>
+                            <Button asChild className="mt-4 min-h-11">
+                                <IntentLink href={hub.city ? `/itineraries/new?${new URLSearchParams({ city: hub.city.name })}` : "/itineraries/new"} data-testid="hub-plan-trip">
+                                    {hub.city ? `Plan a free ${hub.city.name} trip` : "Plan a free trip"}
+                                </IntentLink>
+                            </Button>
                             {socialSpotSubmissionsAvailable() && (
                                 <div className="mt-4 flex flex-wrap gap-2">
                                     <Button asChild variant="secondary">
