@@ -40,8 +40,7 @@ export function WeekendPicks() {
                     const source = pickSources(pick.slug);
                     return (
                         <li key={pick.slug} className="ll-pick">
-                            <Link prefetch={false} href={`/spots?city=${pick.slug}`} className="ll-pick-card"
-                                aria-label={`${pick.name}: ${pick.tagline}`}>
+                            <Link prefetch={false} href={`/spots?city=${pick.slug}`} className="ll-pick-card">
                                 <picture>
                                     <source type="image/avif" srcSet={source.avif} sizes={SIZES} />
                                     {/* Pre-sized CDN photo; inside <picture> the next/image rule does not apply. */}
@@ -49,7 +48,8 @@ export function WeekendPicks() {
                                         alt="" loading="lazy" decoding="async" className="ll-pick-photo" />
                                 </picture>
                                 <span className="ll-pick-shade" aria-hidden="true" />
-                                <span className="ll-pick-caption" aria-hidden="true">
+                                {/* The link name is the visible caption (WCAG 2.5.3 label in name); no aria-label. */}
+                                <span className="ll-pick-caption">
                                     <span className="ll-pick-name">{pick.name}</span>
                                     <span className="ll-pick-tagline">{pick.tagline}</span>
                                     <PickChip slug={pick.slug} />

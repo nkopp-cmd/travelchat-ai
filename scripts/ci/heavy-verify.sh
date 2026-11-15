@@ -63,6 +63,7 @@ VITEST_FILES=(
   __tests__/components/spots-filter-bar.test.tsx
   __tests__/lib/mobile-chrome.test.ts
   __tests__/components/landing-planner.test.tsx
+  __tests__/components/weekend-picks.test.tsx
   __tests__/components/pricing-checkout.test.tsx
   __tests__/components/conditional-navbar.test.tsx
   __tests__/motion-tokens.test.ts

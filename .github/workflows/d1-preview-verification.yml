@@ -155,6 +155,7 @@ on:
       - 'components/layout/marketing-navbar.tsx'
       - 'components/layout/conditional-navbar.tsx'
       - '__tests__/components/landing-planner.test.tsx'
+      - '__tests__/components/weekend-picks.test.tsx'
       - '__tests__/components/pricing-checkout.test.tsx'
       - 'lib/pricing-checkout.ts'
       - 'lib/offer-copy.ts'
