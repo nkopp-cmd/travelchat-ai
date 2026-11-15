@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     ...pageMeta({
         title: "Pricing - Pro and Premium plans",
         socialTitle: "Localley pricing",
-        description: `Localley Pro costs $${TIER_CONFIGS.pro.price} a month or $${TIER_CONFIGS.pro.yearlyPrice} a year; Premium $${TIER_CONFIGS.premium.price} a month. Local-first trip plans, richer maps, saved routes.`,
+        description: `Your first Localley trip plan is free, no account needed. Pro costs $${TIER_CONFIGS.pro.price} a month or $${TIER_CONFIGS.pro.yearlyPrice} a year; Premium $${TIER_CONFIGS.premium.price} a month. Local-first trip plans, richer maps, saved routes.`,
         path: "/pricing",
         image: pageCardImage("pricing"),
     }),

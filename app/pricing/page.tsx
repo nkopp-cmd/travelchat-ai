@@ -152,7 +152,7 @@ export default function PricingPage() {
                         Back
                     </Link>
                     <Badge className="rounded-md bg-primary/10 px-3 py-1.5 text-foreground">
-                        Paid access only
+                        First plan free
                     </Badge>
                 </header>
 
@@ -164,11 +164,14 @@ export default function PricingPage() {
                                 Secure subscription through Stripe
                             </div>
                             <h1 className="max-w-3xl text-4xl font-semibold leading-tight tracking-normal text-foreground sm:text-5xl lg:text-6xl">
-                                Choose the Localley plan before you travel.
+                                Plan your first trip free. Upgrade when you need more.
                             </h1>
                             <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
-                                Localley is a paid travel-planning product. Pick Pro for regular trips or Premium for the full collaboration, maps, and high-capacity experience.
+                                Your first plan costs nothing and needs no account. Pro adds unlimited plans, full addresses and exports. Premium adds shared trips and richer maps.
                             </p>
+                            <Button asChild className="mt-6 min-h-12 px-5 font-semibold">
+                                <Link href="/itineraries/new" data-testid="pricing-free-plan">Plan a free trip</Link>
+                            </Button>
                         </div>
 
                         <div className="rounded-lg bg-raised p-4">
