@@ -279,6 +279,7 @@ on:
       - 'app/spots/page.tsx'
       - '__tests__/components/spots-map.test.tsx'
       - 'components/brand/logo.tsx'
+      - '__tests__/components/brand-logo.test.tsx'
       - 'components/layout/mobile-bottom-nav.tsx'
       - '__tests__/components/chat-design-tokens.test.ts'
       - 'components/dashboard/**'

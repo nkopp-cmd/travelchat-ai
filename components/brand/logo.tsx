@@ -44,7 +44,8 @@ export function Logo({
       >
         <Image
           src="/icons/android-chrome-192x192.png"
-          alt="Localley"
+          // Decorative next to the "Localley" text (axe image-redundant-alt); names the link alone.
+          alt={showText ? "" : "Localley"}
           width={config.icon}
           height={config.icon}
           className="object-cover"
@@ -55,7 +56,8 @@ export function Logo({
         <span
           className={cn(
             config.text,
-            "font-bold transition-colors hidden sm:inline-block",
+            // sr-only below sm keeps the link's name "Localley" for screen readers on mobile.
+            "font-bold transition-colors sr-only sm:not-sr-only sm:inline-block",
             isLanding
               ? "text-white"
               : "bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-indigo-600"
