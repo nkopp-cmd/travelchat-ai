@@ -1,4 +1,5 @@
 import { GENERATED_PREVIEW_PATH } from "@/lib/trips/generated-preview";
+import { parseCheckoutIntent } from "@/lib/pricing-checkout";
 
 export type AuthMode = "sign-up" | "sign-in";
 export type AuthCopy = { title: string; subtitle: string };
@@ -19,6 +20,19 @@ const TRIP_COPY: Record<"preview" | "planner", Record<AuthMode, AuthCopy>> = {
     },
 };
 
+const TIER_NAME = { pro: "Pro", premium: "Premium" } as const;
+
+// A pricing plan button sends new visitors here with /pricing?checkout=<tier>-<cycle>; Stripe opens after sign-up.
+function checkoutCopy(mode: AuthMode, redirectUrl: string): AuthCopy | null {
+    const intent = parseCheckoutIntent(redirectUrl.slice(redirectUrl.indexOf("?") + 1));
+    if (!intent) return null;
+    const tier = TIER_NAME[intent.tier];
+    const subtitle = `Your ${tier} ${intent.cycle} checkout opens next.`;
+    return mode === "sign-up"
+        ? { title: `Create your account to start ${tier}`, subtitle }
+        : { title: `Sign in to start ${tier}`, subtitle };
+}
+
 function pathOf(redirectUrl: string | null | undefined): string | null {
     if (!redirectUrl || !redirectUrl.startsWith("/") || redirectUrl.startsWith("//")) return null;
     return redirectUrl.split(/[?#]/)[0];
@@ -29,5 +43,6 @@ export function authCopy(mode: AuthMode, redirectUrl: string | null | undefined)
     const path = pathOf(redirectUrl);
     if (path === GENERATED_PREVIEW_PATH) return TRIP_COPY.preview[mode];
     if (path === "/itineraries/new") return TRIP_COPY.planner[mode];
+    if (path === "/pricing" && redirectUrl?.includes("?")) return checkoutCopy(mode, redirectUrl.split("#")[0]) ?? DEFAULT_COPY[mode];
     return DEFAULT_COPY[mode];
 }
