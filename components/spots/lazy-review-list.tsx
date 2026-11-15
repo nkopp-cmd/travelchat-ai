@@ -22,10 +22,6 @@ export function LazyReviewList({ spotId }: { spotId: string }) {
         if (!cancelled) setList(() => mod.ReviewList);
       });
     };
-    if (typeof IntersectionObserver === "undefined") {
-      load();
-      return () => { cancelled = true; };
-    }
     const observer = new IntersectionObserver((entries) => {
       if (entries.some((entry) => entry.isIntersecting)) {
         observer.disconnect();
