@@ -21,6 +21,7 @@ on:
       - 'lib/trips/generated-preview.ts'
       - 'app/itineraries/preview/**'
       - '__tests__/lib/generated-preview.test.ts'
+      - '__tests__/lib/generated-preview-schema.test.ts'
       - '__tests__/components/generated-preview.test.tsx'
       - 'lib/trips/public-catalog-preview.mjs'
       - 'scripts/public-catalog-preview.checks.mjs'

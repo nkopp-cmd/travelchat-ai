@@ -12,6 +12,7 @@ VITEST_FILES=(
   __tests__/providers/query-provider-scope.test.ts
   __tests__/components/generated-preview.test.tsx
   __tests__/lib/generated-preview.test.ts
+  __tests__/lib/generated-preview-schema.test.ts
   __tests__/api/itinerary-save-candidate.test.ts
   __tests__/api/itinerary-update-candidate.test.ts
   __tests__/api/subscription-checkout-live.test.ts
