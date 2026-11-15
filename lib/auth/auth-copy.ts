@@ -10,11 +10,11 @@ const DEFAULT_COPY: Record<AuthMode, AuthCopy> = {
 
 const TRIP_COPY: Record<"preview" | "planner", Record<AuthMode, AuthCopy>> = {
     preview: {
-        "sign-up": { title: "Save your free trip", subtitle: "Free account. Your plan stays on every device." },
+        "sign-up": { title: "Create an account to save your trip", subtitle: "Your plan stays in this browser while you sign up. Saving and editing come with Pro." },
         "sign-in": { title: "Sign in to save your trip", subtitle: "Your plan is waiting on the next screen." },
     },
     planner: {
-        "sign-up": { title: "Keep planning free", subtitle: "Free account. Your trip settings stay as you left them." },
+        "sign-up": { title: "Keep planning", subtitle: "Create a free account. Your trip settings stay as you left them." },
         "sign-in": { title: "Sign in to keep planning", subtitle: "Your trip settings stay as you left them." },
     },
 };
