@@ -181,6 +181,7 @@ VITEST_FILES=(
   __tests__/middleware.test.ts
   __tests__/cloudflare-static-public-html.test.ts
   __tests__/app/planner-ssr-cities.test.tsx
+  __tests__/lib/auth-copy.test.ts
   __tests__/styles/leaflet-borderless.test.ts
   __tests__/components/itinerary-wizard-template-footer.test.ts
   __tests__/lib/apify-spot-discovery.test.ts
