@@ -619,6 +619,7 @@ on:
       - '__tests__/lib/planner-draft.test.ts'
       - '__tests__/components/planner-resume.test.tsx'
       - '__tests__/components/planner-auth-return.test.tsx'
+      - '__tests__/components/planner-start-signal.test.tsx'
       - '__tests__/components/icon-geometry.test.tsx'
       - '__tests__/components/route-preview.test.tsx'
       - '__tests__/components/place-autocomplete.test.tsx'
