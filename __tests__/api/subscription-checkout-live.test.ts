@@ -48,3 +48,16 @@ describe("live checkout preserves billing state", () => {
  const response=await POST(new NextRequest("https://www.localley.io/api/subscription/checkout",{method:"POST",body:JSON.stringify({tier:"pro",returnTo:"https://evil.test"})}));
  expect(response.status).toBe(400);expect(m.customer).not.toHaveBeenCalled();expect(m.checkout).not.toHaveBeenCalled();
  });
+
+it("returns a /pricing checkout to settings on success and to the /pricing closed note on cancel", async () => {
+  const response = await POST(request());
+  expect(response.status).toBe(200);
+  const { successUrl, cancelUrl } = m.checkout.mock.calls[0][0];
+  expect(new URL(successUrl).pathname + new URL(successUrl).search).toBe("/settings?subscription=success");
+  expect(new URL(cancelUrl).pathname + new URL(cancelUrl).search).toBe("/pricing?canceled=true");
+  expect(new URL(cancelUrl).origin).toBe(new URL(successUrl).origin);
+});
+it.each(["pricing", "https://evil.example/x", "itinerary-preview-x", 1])("refuses any other return destination %j before billing", async (returnTo) => {
+  const response = await POST(new NextRequest("https://www.localley.io/api/subscription/checkout", { method: "POST", body: JSON.stringify({ tier: "pro", billingCycle: "monthly", returnTo }) }));
+  expect(response.status).toBe(400); expect(m.customer).not.toHaveBeenCalled(); expect(m.checkout).not.toHaveBeenCalled();
+});
