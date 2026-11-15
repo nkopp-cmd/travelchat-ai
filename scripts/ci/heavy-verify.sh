@@ -34,6 +34,7 @@ VITEST_FILES=(
   __tests__/components/planner-resume.test.tsx
   __tests__/components/planner-auth-return.test.tsx
   __tests__/components/planner-start-signal.test.tsx
+  __tests__/components/planner-preview-signed-out.test.tsx
   __tests__/components/weekly-shared-cards.test.tsx
   __tests__/components/icon-geometry.test.tsx
   __tests__/components/spot-card.test.tsx

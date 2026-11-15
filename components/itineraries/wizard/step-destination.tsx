@@ -10,6 +10,7 @@ import { MAX_CORRIDOR_DESTINATIONS } from "@/lib/trips/wizard-corridor";
 import { selectableSlugs, type CorridorNetwork } from "@/lib/trips/corridor-network";
 import { PLANNER_CITIES_URL } from "@/lib/trips/planner-cities";
 import { PlannerCitiesContext } from "./planner-cities-context";
+import { useAuth } from "@/lib/auth/client";
 
 interface CityOption {
   slug: string;
@@ -36,6 +37,8 @@ export function StepDestination() {
   const [isLoading, setIsLoading] = useState(() => !serverCities?.length);
   const [multiCityAvailable, setMultiCityAvailable] = useState(false);
   const [corridorNetwork, setCorridorNetwork] = useState<CorridorNetwork | null>(null);
+  // The multi-city preview API is signed-in only: a signed-out visitor would only get a 401.
+  const { isLoaded: authLoaded, isSignedIn } = useAuth();
 
   const loadCities = useCallback(async () => {
     setIsLoading(true);
@@ -60,6 +63,7 @@ export function StepDestination() {
   }, [loadCities]);
 
   useEffect(() => {
+    if (!authLoaded || !isSignedIn) return;
     let cancelled = false;
     fetch("/api/v2/trips/preview", { method: "GET", cache: "no-store" })
       .then(async (response) => {
@@ -76,7 +80,7 @@ export function StepDestination() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [authLoaded, isSignedIn]);
 
   useEffect(() => {
     if (!citiesData?.cities?.length) return;
