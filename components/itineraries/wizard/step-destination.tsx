@@ -8,7 +8,7 @@ import { MapPin, Check, RefreshCw, Route } from "@/components/ui/icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MAX_CORRIDOR_DESTINATIONS } from "@/lib/trips/wizard-corridor";
 import { selectableSlugs, type CorridorNetwork } from "@/lib/trips/corridor-network";
-import { PLANNER_CITIES_URL } from "@/lib/trips/planner-cities";
+import { PLANNER_CITIES_URL, isPlannerCity } from "@/lib/trips/planner-cities";
 import { PlannerCitiesContext } from "./planner-cities-context";
 import { useAuth } from "@/lib/auth/client";
 
@@ -46,8 +46,8 @@ export function StepDestination() {
 
     try {
       const response = await fetch(PLANNER_CITIES_URL);
-      const result = await response.json();
-      setCitiesData(result);
+      const result: CitiesResponse = await response.json();
+      setCitiesData(result.cities ? { ...result, cities: result.cities.filter(isPlannerCity) } : result);
       setCitiesError(!response.ok || !result.success);
     } catch {
       setCitiesError(true);
