@@ -88,7 +88,7 @@ interface EdgeCache {
 // Cookies that make a cached path render per visitor. Such a request never reads or writes the shared entry:
 // on 2026-11-15 the preview HTML of one draft holder (cookie `lly_draft`, lib/trips/preview-draft-store.ts) was
 // stored under the shared key and served to every visitor. The key ignores cookies, so the request must bypass.
-const PER_VISITOR_COOKIES: Record<string, readonly string[]> = {
+export const PER_VISITOR_COOKIES: Record<string, readonly string[]> = {
   "/itineraries/preview": ["lly_draft"],
 };
 
