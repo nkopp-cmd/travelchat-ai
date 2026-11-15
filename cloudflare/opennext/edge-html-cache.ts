@@ -46,6 +46,7 @@ export const EDGE_HTML_TTL_SECONDS: Record<string, number> = {
   "/itineraries/new": 300,
   // Free-trip preview: static client page (the trip lives in localStorage, Save/checkout run on the client),
   // same HTML for every visitor; the ?payment=success return bypasses. Changes only on deploy (the key carries the version).
+  // A visitor with the server draft cookie gets their own trip in the HTML: see PER_VISITOR_COOKIES.
   "/itineraries/preview": 86400,
   "/api/cities": 300,
   "/api/spots/pins": 300,
@@ -84,10 +85,28 @@ interface EdgeCache {
   put(request: Request, response: Response): Promise<void>;
 }
 
+// Cookies that make a cached path render per visitor. Such a request never reads or writes the shared entry:
+// on 2026-11-15 the preview HTML of one draft holder (cookie `lly_draft`, lib/trips/preview-draft-store.ts) was
+// stored under the shared key and served to every visitor. The key ignores cookies, so the request must bypass.
+const PER_VISITOR_COOKIES: Record<string, readonly string[]> = {
+  "/itineraries/preview": ["lly_draft"],
+};
+
+function hasCookie(request: Request, names: readonly string[]): boolean {
+  const header = request.headers.get("cookie");
+  if (!header) return false;
+  return header.split(";").some((part) => {
+    const [name, ...value] = part.trim().split("=");
+    return names.includes(name) && value.join("=").length > 0;
+  });
+}
+
 export function isEdgeCacheable(request: Request): boolean {
   if (request.method !== "GET") return false;
   const url = new URL(request.url);
   if (edgeTtlSeconds(url.pathname) === undefined || !cacheableQuery(url)) return false;
+  const perVisitor = PER_VISITOR_COOKIES[url.pathname];
+  if (perVisitor && hasCookie(request, perVisitor)) return false;
   // RSC and router-prefetch requests return flight data, not HTML (see Next's Vary header).
   for (const name of request.headers.keys()) {
     if (name === "rsc" || name.startsWith("next-router-")) return false;

@@ -211,6 +211,37 @@ describe("public HTML edge cache", () => {
   });
 });
 
+describe("per-visitor preview draft", () => {
+  const url = "https://www.localley.io/itineraries/preview";
+  const withDraft = (cookie = "lly_draft=131f863a-7371-4924-aeda-a93a6528d7bf") => new Request(url, { headers: { cookie: `theme=dark; ${cookie}` } });
+  const render = vi.fn(async (request: Request) => new Response(
+    request.headers.get("cookie")?.includes("lly_draft=1") ? "<html>MY TRIP</html>" : "<html>empty</html>",
+    { status: 200, headers: { "content-type": "text/html; charset=utf-8" } },
+  ));
+
+  it("never stores a draft holder's page and never serves the shared page to a draft holder", async () => {
+    const cache = memoryCache();
+    const mine = await serve(withDraft(), cache, render);
+    expect(await mine.text()).toBe("<html>MY TRIP</html>");
+    expect(mine.headers.get(EDGE_CACHE_HEADER)).toBeNull();
+    expect(cache.put).not.toHaveBeenCalled();
+    const other = await serve(new Request(url), cache, render);
+    expect(await other.text()).toBe("<html>empty</html>");
+    expect(other.headers.get(EDGE_CACHE_HEADER)).toBe("MISS");
+    expect((await serve(new Request(url), cache, render)).headers.get(EDGE_CACHE_HEADER)).toBe("HIT");
+    const againMine = await serve(withDraft(), cache, render);
+    expect(await againMine.text()).toBe("<html>MY TRIP</html>");
+    expect(cache.match).toHaveBeenCalledTimes(2);
+  });
+
+  it("bypasses only for a non-empty draft cookie on the preview path", () => {
+    expect(isEdgeCacheable(withDraft())).toBe(false);
+    expect(isEdgeCacheable(withDraft("lly_draft="))).toBe(true);
+    expect(isEdgeCacheable(withDraft("xlly_draft=1"))).toBe(true);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/", { headers: { cookie: "lly_draft=1" } }))).toBe(true);
+  });
+});
+
 describe("per-spot share card at the edge", () => {
   const og = "https://www.localley.io/spots/f242e187-56ee-4cc8-9736-52f4ea46aebc/og";
   it("caches the PNG for a week and only for the exact path", () => {
