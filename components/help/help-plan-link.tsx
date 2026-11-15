@@ -16,11 +16,11 @@ export function helpPlanHref(countrySlug: string): string | null {
 }
 
 /** Server-rendered link from a help guide to the free planner. No client JS. */
-export function HelpPlanLink({ countrySlug, className = "mt-8" }: { countrySlug: string; className?: string }) {
+export function HelpPlanLink({ countrySlug }: { countrySlug: string }) {
   const href = helpPlanHref(countrySlug);
   if (!href) return null;
   return (
-    <div className={className}>
+    <div className="mt-8">
       <Button asChild variant="secondary" className="h-12 w-full rounded-xl text-base" size="lg">
         <Link href={href} prefetch={false} data-testid="help-plan-trip">
           <span className="truncate">Plan a free day in {HELP_PLAN_CITY[countrySlug]}</span>
