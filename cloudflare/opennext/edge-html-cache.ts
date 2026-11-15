@@ -34,6 +34,8 @@ export const EDGE_HTML_TTL_SECONDS: Record<string, number> = {
   "/newsletter/retry": 86400,
   // Photo credits: live list of stored photos, changes when a harvest run lands.
   "/credits": 3600,
+  // Itinerary templates: static template data, same HTML for every visitor (changes only on deploy).
+  "/templates": 86400,
   "/sign-in": 86400,
   "/sign-up": 86400,
   "/forgot-password": 86400,

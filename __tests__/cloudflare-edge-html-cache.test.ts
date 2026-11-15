@@ -120,6 +120,13 @@ describe("public HTML edge cache", () => {
     expect(cache.match).not.toHaveBeenCalled();
   });
 
+  it("caches the static /templates page for a day", async () => {
+    const cache = memoryCache();
+    await serve(new Request("https://www.localley.io/templates"), cache, async () => html());
+    const stored = [...cache.store.entries()];
+    expect(stored.find(([url]) => url.includes("/templates?"))?.[1].headers.get("cache-control")).toBe("public, s-maxage=86400");
+  });
+
   it("keeps a spot detail page for one hour under its own path", async () => {
     const cache = memoryCache();
     const path = "https://www.localley.io/spots/15614d97-380f-4e8d-8aa6-aa6f43609bcf";
