@@ -268,7 +268,12 @@ async function getSpotSourceD1(id: string) {
 }
 
 // Keep the existing Supabase page for all normal preview and www requests.
+// Every spot id is a UUID (D1 check 2026-11-15: 3399/3399). Any other path segment is a missing spot (404),
+// not a database error (Supabase throws "invalid input syntax for type uuid" -> 500).
+const SPOT_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 async function getSpot(id: string, candidate = false) {
+  if (!candidate && !SPOT_ID.test(id)) return null;
   if (candidate) {
     const row = await previewSpotPageData(id);
     if (!row) return null;
@@ -490,12 +495,9 @@ export async function generateMetadata({
   const candidate = await previewSpotPageCandidate(searchParams);
   const spot = await getSpot(id, candidate);
 
-  if (!spot) {
-    return {
-      title: "Spot Not Found - Localley",
-      description: "The requested spot could not be found.",
-    };
-  }
+  // Metadata blocks the response (htmlLimitedBots /.*/), so notFound() here runs before the first byte:
+  // a missing spot answers HTTP 404 with noindex instead of a 200 "Spot Not Found" page.
+  if (!spot) notFound();
 
   const label = scoreLabel(spot.localleyScore);
   const text = splitDescriptionLinks(spot.description).text;
