@@ -346,6 +346,8 @@ ESLINT_FILES=(
   lib/seo/sitemap-spots.ts
   lib/seo/spot-indexable.ts
   lib/seo/home-links.ts
+  lib/seo/home-links-snapshot.ts
+  scripts/seo/refresh-home-links.mjs
   lib/seo/spot-intro.ts
   lib/seo/page-card.ts
   lib/seo/spot-card.ts

@@ -31,8 +31,8 @@ vi.mock("next/link", () => ({
     <a {...props} href={String(href)} data-prefetch={String(prefetch)} />
   ),
 }));
-vi.mock("@/lib/seo/sitemap-spots", () => ({
-  sitemapSpotRows: async () => Array.from({ length: 14 }, (_, i) => ({
+vi.mock("@/lib/seo/home-links-snapshot", () => ({
+  homeLinkRows: () => Array.from({ length: 14 }, (_, i) => ({
     id: `00000000-0000-4000-8000-${String(i).padStart(12, "0")}`, lastmod: null, hub: i % 2 ? "Seoul" : "Tokyo", name: `Guide spot ${i}`,
   })),
 }));

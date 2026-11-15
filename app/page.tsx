@@ -20,7 +20,7 @@ import { LandingHero } from "@/components/landing/hero";
 import { HeroHelperLinks, LandingHelpers } from "@/components/landing/helpers";
 import { WeekendPicks } from "@/components/landing/weekend-picks";
 import { GuideSpotLinks } from "@/components/landing/guide-spot-links";
-import { sitemapSpotRows } from "@/lib/seo/sitemap-spots";
+import { homeLinkRows } from "@/lib/seo/home-links-snapshot";
 import { homeGuideSpots, homeHubLinks } from "@/lib/seo/home-links";
 
 const CITY_OPTIONS = ENABLED_CITIES.slice(0, 8);
@@ -70,11 +70,9 @@ export const metadata: Metadata = pageMeta({
   image: pageCardImage("home"),
 });
 
-// Renders per request so the guide-spot links come from live D1 + R2; the edge cache keeps it one hit per deploy.
-export const dynamic = "force-dynamic";
-
-export default async function LandingPage() {
-  const spotRows = await sitemapSpotRows().catch(() => []);
+export default function LandingPage() {
+  // Static prerender ("/" ships as a static asset); the guide-spot links come from a committed snapshot of the live sitemap.
+  const spotRows = homeLinkRows();
   return (
     <>
     <OrganizationJsonLd />
