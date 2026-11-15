@@ -173,6 +173,8 @@ on:
       - '__tests__/components/landing-planner.test.tsx'
       - '__tests__/components/weekend-picks.test.tsx'
       - '__tests__/components/pricing-checkout.test.tsx'
+      - '__tests__/components/subscription-success-refetch.test.ts'
+      - 'components/subscription/subscription-success-handler.tsx'
       - 'lib/pricing-checkout.ts'
       - 'lib/offer-copy.ts'
       - '__tests__/components/conditional-navbar.test.tsx'
