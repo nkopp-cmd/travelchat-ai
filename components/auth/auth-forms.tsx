@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth/auth-client";
 import { safeRedirect } from "@/lib/auth/client";
 
-const primaryClass = "w-full  text-foreground";
+const primaryClass = "w-full";
 const secondaryClass = "w-full bg-raised text-foreground hover:bg-raised";
 
 function Field({ id, label, children }: { id: string; label: string; children: ReactNode }) {

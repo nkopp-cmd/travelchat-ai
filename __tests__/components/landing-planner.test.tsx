@@ -77,6 +77,8 @@ describe("helper-first landing entry", () => {
     const pro = html.indexOf('data-testid="landing-pro"');
     expect(pro).toBeGreaterThan(html.indexOf(">Then plan the day<"));
     expect(pro).toBeLessThan(html.indexOf(">Cities live now<"));
+    // Above the preset cards, so it sits above y=4000 at 390 px (it was at 4560 below them).
+    expect(pro).toBeLessThan(html.indexOf("One night in Seoul"));
     expect(html.slice(pro)).toContain('href="/pricing"');
   });
 
