@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
-import { EDGE_CACHE_HEADER, edgeTtlSeconds, isEdgeCacheable, serveWithEdgeCache } from "@/cloudflare/opennext/edge-html-cache";
+import { EDGE_AUTH_REDIRECTS, EDGE_CACHE_HEADER, edgeTtlSeconds, isEdgeCacheable, serveWithEdgeCache } from "@/cloudflare/opennext/edge-html-cache";
+import { GENERATED_PREVIEW_PATH } from "@/lib/trips/generated-preview";
+import { PLANNER_RESUME_PATH } from "@/lib/trips/planner-draft";
+import { checkoutSignUpUrl } from "@/lib/pricing-checkout";
 
 function memoryCache() {
   const store = new Map<string, Response>();
@@ -208,6 +211,49 @@ describe("public HTML edge cache", () => {
     expect(edgeTtlSeconds("/trending/songkran-water-fight")).toBe(300);
     expect(edgeTtlSeconds("/api/spots/pins/15614d97")).toBe(300);
     expect(edgeTtlSeconds("/spots/15614d97-380f-4e8d-8aa6-aa6f43609bcf/edit")).toBeUndefined();
+  });
+});
+
+describe("auth pages on the money-path redirects", () => {
+  const origin = "https://www.localley.io";
+  const moneyRedirects = [
+    GENERATED_PREVIEW_PATH,
+    PLANNER_RESUME_PATH,
+    ...(["pro", "premium"] as const).flatMap((tier) => (["monthly", "yearly"] as const).map((cycle) =>
+      new URL(checkoutSignUpUrl(tier, cycle), origin).searchParams.get("redirect_url")!)),
+  ];
+
+  it("lists exactly the redirects the app sends to sign-up", () => {
+    expect([...EDGE_AUTH_REDIRECTS].sort()).toEqual([...moneyRedirects].sort());
+  });
+
+  it("caches each money redirect under its own key and nothing else", async () => {
+    const cache = memoryCache();
+    for (const path of ["/sign-up", "/sign-in"]) {
+      for (const redirect of moneyRedirects) {
+        const url = `${origin}${path}?redirect_url=${encodeURIComponent(redirect)}`;
+        expect(isEdgeCacheable(new Request(url))).toBe(true);
+        const handler = vi.fn(async () => new Response(`<html>${path} ${redirect}</html>`, { status: 200, headers: { "content-type": "text/html" } }));
+        expect((await serve(new Request(url), cache, handler)).headers.get(EDGE_CACHE_HEADER)).toBe("MISS");
+        const hit = await serve(new Request(url), cache, handler);
+        expect(hit.headers.get(EDGE_CACHE_HEADER)).toBe("HIT");
+        expect(await hit.text()).toBe(`<html>${path} ${redirect}</html>`);
+        expect(handler).toHaveBeenCalledTimes(1);
+      }
+    }
+    expect(cache.store.size).toBe(2 * moneyRedirects.length);
+    for (const search of [
+      "?redirect_url=%2Fdashboard",
+      "?redirect_url=%2Fpricing%3Fcheckout%3Dgold-monthly",
+      "?redirect_url=%2F%2Fevil.example%2Fitineraries%2Fpreview",
+      "?redirect_url=%2Fitineraries%2Fpreview&redirect_url=%2Fdashboard",
+      "?redirect_url=%2Fitineraries%2Fpreview&utm=x",
+      "?next=%2Fitineraries%2Fpreview",
+    ]) {
+      expect(isEdgeCacheable(new Request(`${origin}/sign-up${search}`))).toBe(false);
+    }
+    expect(isEdgeCacheable(new Request(`${origin}/forgot-password?redirect_url=%2Fitineraries%2Fpreview`))).toBe(false);
+    expect(isEdgeCacheable(new Request(`${origin}/pricing?redirect_url=%2Fitineraries%2Fpreview`))).toBe(false);
   });
 });
 

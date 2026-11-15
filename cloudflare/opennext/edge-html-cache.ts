@@ -75,6 +75,15 @@ export function edgeTtlSeconds(pathname: string): number | undefined {
 // The only query the edge keys on: one enabled-city slug, so the key set stays bounded.
 const EDGE_SPOTS_CITIES = new Set(ENABLED_CITIES.map((city) => city.slug));
 const EDGE_SPOTS_VIEWS = new Set(["map", "list"]);
+// Auth pages: besides the plain path, only the money-path returns (Save on the free-trip preview, the planner
+// resume, a pricing plan -> Stripe). The server HTML differs per redirect (headline + form links), so the key
+// carries the exact value; any other redirect stays uncached, which keeps the key set at 2 x 6 entries.
+const AUTH_PATHS = new Set(["/sign-up", "/sign-in"]);
+export const EDGE_AUTH_REDIRECTS: ReadonlySet<string> = new Set([
+  "/itineraries/preview",
+  "/itineraries/new?resume=1",
+  ...["pro", "premium"].flatMap((tier) => ["monthly", "yearly"].map((cycle) => `/pricing?checkout=${tier}-${cycle}`)),
+]);
 export const EDGE_CACHE_HEADER = "x-localley-edge-cache";
 const ORIGIN_CACHE_CONTROL = "x-localley-origin-cache-control";
 
@@ -117,6 +126,10 @@ export function isEdgeCacheable(request: Request): boolean {
 function cacheableQuery(url: URL): boolean {
   if (url.pathname === "/api/cities") return url.search === "?minSpots=1";
   if (!url.search) return true;
+  if (AUTH_PATHS.has(url.pathname)) {
+    const keys = [...url.searchParams.keys()];
+    return keys.length === 1 && keys[0] === "redirect_url" && EDGE_AUTH_REDIRECTS.has(url.searchParams.get("redirect_url") ?? "");
+  }
   if (url.pathname === "/api/spots/pins") {
     // Only one enabled city; other filters are open-ended text and stay uncached at the edge.
     const keys = [...url.searchParams.keys()];
@@ -135,7 +148,9 @@ export function edgeCacheKey(request: Request, version: string): Request {
   const url = new URL(request.url);
   const city = url.searchParams.get("city");
   const view = url.searchParams.get("view");
+  const redirect = AUTH_PATHS.has(url.pathname) ? url.searchParams.get("redirect_url") : null;
   const variant = url.pathname === "/api/cities" ? "&minSpots=1"
+    : redirect ? `&redirect_url=${encodeURIComponent(redirect)}`
     : `${city ? `&city=${encodeURIComponent(city)}` : ""}${view ? `&view=${encodeURIComponent(view)}` : ""}`;
   return new Request(`${url.origin}${url.pathname}?__edge=${encodeURIComponent(version)}${variant}`);
 }
