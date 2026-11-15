@@ -88,6 +88,8 @@ on:
       - 'components/spots/spot-activities.tsx'
       - '__tests__/components/spot-activities.test.tsx'
       - '__tests__/components/lazy-review-list.test.tsx'
+      - '__tests__/components/review-list.test.tsx'
+      - 'components/spots/review-list.tsx'
       - '__tests__/lib/driver-card.test.ts'
       - '__tests__/lib/help-phrases.test.ts'
       - '__tests__/api/help-menu.test.ts'
