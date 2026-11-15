@@ -31,4 +31,15 @@ describe("funnel analytics", () => {
     trackFunnelStep("checkout_start", "pricing");
     expect(beacon).not.toHaveBeenCalled();
   });
+
+  it("sends nothing from an automated browser (navigator.webdriver)", () => {
+    const beacon = vi.fn(() => true);
+    const fetchSpy = vi.fn(() => Promise.resolve(new Response()));
+    vi.stubGlobal("fetch", fetchSpy);
+    vi.stubGlobal("navigator", { ...navigator, sendBeacon: beacon, doNotTrack: null, webdriver: true });
+    trackFunnelStep("planner_start", "home");
+    trackFunnelStep("preview_view", "preview");
+    expect(beacon).not.toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
 });

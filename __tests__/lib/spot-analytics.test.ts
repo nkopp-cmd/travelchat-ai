@@ -11,7 +11,7 @@ describe("public spot event contract", () => {
     expect((dispatch.mock.calls[0][0] as CustomEvent).detail).toEqual({ event, spot_id: "public-spot-123" });
     expect(gtag).toHaveBeenCalledExactlyOnceWith("event", event, { spot_id: "public-spot-123" });
   });
-  it.each([{ doNotTrack: "1" }, { globalPrivacyControl: true }])("respects the browser privacy preference %j", preference => {
+  it.each([{ doNotTrack: "1" }, { globalPrivacyControl: true }, { webdriver: true }])("respects the browser privacy preference or skips automation %j", preference => {
     vi.stubGlobal("navigator", preference);
     const dispatch = vi.spyOn(window, "dispatchEvent"), gtag = vi.fn(); vi.stubGlobal("gtag", gtag);
     trackSpotEvent("save", "public-spot");

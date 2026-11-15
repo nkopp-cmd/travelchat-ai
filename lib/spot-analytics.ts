@@ -39,10 +39,19 @@ export function resetSpotEventQueue() {
   seenViews = new Set();
 }
 
+/**
+ * No analytics for Do Not Track / Global Privacy Control, or for automated browsers
+ * (navigator.webdriver: our own Playwright live checks inflated planner_start/preview_view).
+ */
+export function analyticsOff(): boolean {
+  const nav = navigator as Navigator & { globalPrivacyControl?: boolean };
+  return nav.doNotTrack === "1" || Boolean(nav.globalPrivacyControl) || nav.webdriver === true;
+}
+
 /** Public catalog identity only. Never add account, query, location or URL data. */
 export function trackSpotEvent(event: SpotEvent, spotId: string) {
   if (typeof window === "undefined" || !/^[a-zA-Z0-9_-]{1,128}$/.test(spotId)) return;
-  if (navigator.doNotTrack === "1" || (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl) return;
+  if (analyticsOff()) return;
   const detail = { event, spot_id: spotId };
   // No SDK, storage or cookies: daily aggregate counts in D1 (app/api/events/spots), one beacon per page.
   try { window.dispatchEvent(new CustomEvent("localley:spot-event", { detail })); } catch { /* Analytics must not block an action. */ }
