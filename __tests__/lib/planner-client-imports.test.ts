@@ -10,7 +10,7 @@ const banned = /^(zod|zod\/.*)$|corridor-network|transport-manifest|seed-manifes
 const wizard = readdirSync(join(process.cwd(), "components/itineraries/wizard")).filter(f => /\.tsx?$/.test(f)).map(f => `components/itineraries/wizard/${f}`);
 
 describe("planner client bundle stays free of zod and manifests", () => {
-  it.each([...wizard, "app/itineraries/new/planner-client.tsx", "app/itineraries/preview/page.tsx", "lib/trips/generated-preview.ts", "lib/trips/corridor-select.ts"])("%s", file => {
+  it.each([...wizard, "app/itineraries/new/planner-client.tsx", "app/itineraries/preview/preview-client.tsx", "lib/trips/generated-preview.ts", "lib/trips/corridor-select.ts"])("%s", file => {
     expect(importsOf(read(file)).filter(spec => banned.test(spec))).toEqual([]);
   });
   it("corridor-select has no imports at all", () => {

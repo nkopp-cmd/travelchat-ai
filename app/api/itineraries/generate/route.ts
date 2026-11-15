@@ -1,5 +1,6 @@
 import { rateLimiters } from "@/lib/rate-limit";
 import { logItineraryFormatFailure, logItineraryRequestFailure } from "./diagnostics";
+import { DRAFT_COOKIE, draftCookieOptions, keepServerDraft } from "@/lib/trips/preview-draft-store";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseAdmin } from '@/lib/supabase';
@@ -337,15 +338,15 @@ Respect the pace, keep each day geographically coherent, avoid repeated categori
     }
 
     // Build response
+    const itinerary = { id: savedItinerary?.id, ...itineraryData, city: normalizedCity, days };
+    // Anonymous and free plans open as a preview; keep a server copy so the preview page renders it in HTML.
+    const preview = isAnonymous || tier === "free" ? await keepServerDraft(itinerary) : null;
     const response = NextResponse.json({
       success: true,
       isAnonymous,
       requiresSaveUpgrade: tier === "free",
-      itinerary: {
-        id: savedItinerary?.id,
-        ...itineraryData,
-        city: normalizedCity, days,
-      },
+      itinerary,
+      ...(preview && { preview: { id: preview.id } }),
       meta: {
         provider: aiProvider,
         model: aiModel,
@@ -369,6 +370,8 @@ Respect the pace, keep each day geographically coherent, avoid repeated categori
         },
       }),
     });
+
+    if (preview) response.cookies.set(DRAFT_COOKIE, preview.id, draftCookieOptions());
 
     // Set anonymous usage cookie for anonymous users
     if (isAnonymous) {

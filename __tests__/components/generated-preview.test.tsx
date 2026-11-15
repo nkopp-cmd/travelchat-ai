@@ -1,7 +1,9 @@
 import React from 'react';
 import {beforeEach,describe,expect,it,vi} from 'vitest';
 import {fireEvent,render,screen,waitFor} from '@testing-library/react';
-import Page from '@/app/itineraries/preview/page';
+import PreviewClient from '@/app/itineraries/preview/preview-client';
+import type {GeneratedPreview} from '@/lib/trips/generated-preview';
+const Page=({initialDraft=null}:{initialDraft?:GeneratedPreview|null})=><PreviewClient initialDraft={initialDraft}/>;
 import {GENERATED_PREVIEW_KEY,storeGeneratedPreview} from '@/lib/trips/generated-preview';
 const state=vi.hoisted(()=>({signed:false,query:'',push:vi.fn(),fetch:vi.fn()}));
 const funnel=vi.hoisted(()=>({track:vi.fn()}));
@@ -20,4 +22,6 @@ describe('free itinerary, paid save',()=>{
  it('sends a refused save to Stripe checkout only',async()=>{state.signed=true;const assign=vi.fn();vi.stubGlobal('location',{...window.location,assign});state.fetch.mockResolvedValueOnce({status:402,json:async()=>({})}).mockResolvedValueOnce({ok:true,json:async()=>({url:'https://checkout.stripe.com/c/pay/cs_test_1'})});render(<Page/>);fireEvent.click(await screen.findByRole('button',{name:'Save & unlock editing'}));await waitFor(()=>expect(assign).toHaveBeenCalledWith('https://checkout.stripe.com/c/pay/cs_test_1'));expect(funnel.track).toHaveBeenCalledWith('checkout_start','preview');expect(localStorage.getItem(GENERATED_PREVIEW_KEY)).not.toBeNull();vi.unstubAllGlobals();});
  it.each(['https://checkout.stripe.com.evil.example/pay','http://checkout.stripe.com/c/pay/x','https://evil.example/pay'])('refuses a checkout address that is not Stripe: %s',async(url)=>{state.signed=true;const assign=vi.fn();vi.stubGlobal('location',{...window.location,assign});state.fetch.mockResolvedValueOnce({status:402,json:async()=>({})}).mockResolvedValueOnce({ok:true,json:async()=>({url})});render(<Page/>);fireEvent.click(await screen.findByRole('button',{name:'Save & unlock editing'}));expect((await screen.findByRole('alert')).textContent).toContain('Unexpected checkout address');expect(assign).not.toHaveBeenCalled();expect(localStorage.getItem(GENERATED_PREVIEW_KEY)).not.toBeNull();vi.unstubAllGlobals();});
  it('saves once after a confirmed paid return, without a new checkout',async()=>{state.signed=true;state.query='payment=success';state.fetch.mockResolvedValueOnce({ok:true,json:async()=>({tier:'pro'})}).mockResolvedValueOnce({ok:true,status:200,json:async()=>({id:'paid-trip'})});render(<Page/>);await waitFor(()=>expect(state.push).toHaveBeenCalledWith('/itineraries/paid-trip'));expect(state.fetch.mock.calls.map((call)=>call[0])).toEqual(['/api/subscription/status','/api/itineraries/save']);expect(localStorage.getItem(GENERATED_PREVIEW_KEY)).toBeNull();});
+ it('renders the server copy when this browser has none (cold return from sign-up or checkout)',async()=>{localStorage.clear();const initialDraft={version:1 as const,id:'550e8400-e29b-41d4-a716-446655440000',createdAt:Date.now(),itinerary:plan};render(<Page initialDraft={initialDraft}/>);expect(await screen.findByRole('heading',{name:plan.title})).toBeTruthy();expect(screen.getByText('Market walk')).toBeTruthy();});
+ it('shows the start state with no browser or server copy',async()=>{localStorage.clear();render(<Page/>);expect(await screen.findByRole('heading',{name:'Start with a trip idea'})).toBeTruthy();});
 });

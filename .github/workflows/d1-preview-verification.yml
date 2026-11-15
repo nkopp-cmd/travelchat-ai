@@ -23,6 +23,8 @@ on:
       - '__tests__/lib/generated-preview.test.ts'
       - '__tests__/lib/generated-preview-schema.test.ts'
       - '__tests__/lib/planner-client-imports.test.ts'
+      - '__tests__/lib/preview-draft-store.test.ts'
+      - 'lib/trips/preview-draft-store.ts'
       - 'lib/trips/corridor-select.ts'
       - 'lib/trips/corridor-network.ts'
       - '__tests__/components/generated-preview.test.tsx'

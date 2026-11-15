@@ -14,6 +14,7 @@ VITEST_FILES=(
   __tests__/lib/generated-preview.test.ts
   __tests__/lib/generated-preview-schema.test.ts
   __tests__/lib/planner-client-imports.test.ts
+  __tests__/lib/preview-draft-store.test.ts
   __tests__/api/itinerary-save-candidate.test.ts
   __tests__/api/itinerary-update-candidate.test.ts
   __tests__/api/subscription-checkout-live.test.ts
@@ -387,6 +388,8 @@ ESLINT_FILES=(
   app/api/events/referral/route.ts
   __tests__/lib/referral-point.test.ts
   app/itineraries/preview/page.tsx
+  app/itineraries/preview/preview-client.tsx
+  lib/trips/preview-draft-store.ts
   app/itineraries/preview/layout.tsx
   lib/trips/generated-preview.ts
   scripts/check-borderless.mjs

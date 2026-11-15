@@ -30,6 +30,8 @@
   ],
   // Landing referrer/UTM points (lib/referral-point.ts); preview writes to its own dataset.
   "analytics_engine_datasets": [{ "binding": "REFERRALS", "dataset": "localley_referrals_preview" }],
+  // Server copy of anonymous trip previews, 24 h TTL (lib/trips/preview-draft-store.ts).
+  "kv_namespaces": [{ "binding": "PREVIEW_DRAFTS", "id": "f307f7fae35940c59f6e4eec4a0db63c" }],
   "r2_buckets": [
     { "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "localley-next-preview-cache" },
     { "binding": "STORY_PREVIEW_MEDIA", "bucket_name": "localley-story-preview-media", "jurisdiction": "eu" }
@@ -108,6 +110,8 @@
       "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "localley-next" }],
       // Launch attribution (lib/referral-point.ts, scripts/referral-report.py).
       "analytics_engine_datasets": [{ "binding": "REFERRALS", "dataset": "localley_referrals" }],
+      // Server copy of anonymous trip previews, 24 h TTL (lib/trips/preview-draft-store.ts). Created 2026-11-15.
+      "kv_namespaces": [{ "binding": "PREVIEW_DRAFTS", "id": "eb53e11d941943009aaeb59e443f79a1" }],
       // Created 2026-09-23 (step P2, approved by Nils).
       "r2_buckets": [
         { "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "localley-next-cache" },
