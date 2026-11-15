@@ -5,6 +5,7 @@ import { parsePlannerDraft, PLANNER_DRAFT_KEY, PLANNER_RESUME_PATH } from "@/lib
 import { GENERATED_PREVIEW_KEY, GENERATED_PREVIEW_PATH, parseGeneratedPreview } from "@/lib/trips/generated-preview";
 import type { WizardData } from "@/components/itineraries/wizard/wizard-context";
 import { apiError, ErrorCodes } from "@/lib/api-errors";
+import { GENERATE_FAILED_MESSAGE } from "@/components/itineraries/wizard";
 
 const state = vi.hoisted(() => ({ push: vi.fn(), toast: vi.fn() }));
 vi.mock("@/lib/funnel-analytics", () => ({ trackFunnelStep: vi.fn(), funnelSource: () => "direct" }));
@@ -64,5 +65,29 @@ describe("wizard authentication return", () => {
     expect(parseGeneratedPreview(localStorage.getItem(GENERATED_PREVIEW_KEY))?.itinerary).toMatchObject({ ...itinerary, city: saved.city, days: saved.days });
     expect(state.push).toHaveBeenCalledWith(GENERATED_PREVIEW_PATH);
     expect(localStorage.getItem("pendingItinerary")).toBeNull();
+  });
+  it.each([
+    ["a 502 HTML page", () => ({ ok: false, status: 502, json: async () => JSON.parse("<!DOCTYPE html><title>502</title>") })],
+    ["a network drop", () => { throw new TypeError("Failed to fetch"); }],
+  ])("shows one plain sentence and a Try again that re-sends the same inputs after %s", async (_name, failure) => {
+    const itinerary = { title: "Retry trip", dailyPlans: [{ day: 1, activities: [{ name: "Stop", time: "10:00" }] }] };
+    const fetch = vi.fn().mockImplementationOnce(async () => failure())
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ isAnonymous: true, itinerary }) });
+    vi.stubGlobal("fetch", fetch);
+    await generate();
+    await waitFor(() => expect(state.toast).toHaveBeenCalledTimes(1));
+    const shown = state.toast.mock.calls[0][0];
+    expect(shown).toMatchObject({ title: "Generation failed", description: GENERATE_FAILED_MESSAGE, variant: "destructive" });
+    expect(shown.action.props.altText).toBe("Try again");
+    expect(state.push).not.toHaveBeenCalled();
+    await act(async () => { shown.action.props.onClick(); });
+    await waitFor(() => expect(state.push).toHaveBeenCalledWith(GENERATED_PREVIEW_PATH));
+    expect(fetch).toHaveBeenCalledTimes(2);
+    expect(fetch.mock.calls[1][1].body).toBe(fetch.mock.calls[0][1].body);
+  });
+  it("keeps a server message that is meant for the visitor", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, json: async () => ({ error: { code: "bad_city", message: "Pick an enabled city." } }) }));
+    await generate();
+    await waitFor(() => expect(state.toast).toHaveBeenCalledWith(expect.objectContaining({ description: "Pick an enabled city." })));
   });
 });
