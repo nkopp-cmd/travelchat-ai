@@ -167,6 +167,7 @@ VITEST_FILES=(
   __tests__/lib/social-spot-submissions.test.ts
   __tests__/cloudflare-cron-routes.test.ts
   __tests__/cloudflare-edge-html-cache.test.ts
+  __tests__/cloudflare-robots-host.test.ts
   __tests__/middleware.test.ts
   __tests__/cloudflare-static-public-html.test.ts
   __tests__/app/planner-ssr-cities.test.tsx
@@ -484,7 +485,9 @@ ESLINT_FILES=(
   cloudflare/opennext/cron-routes.ts
   cloudflare/opennext/worker.ts
   cloudflare/opennext/edge-html-cache.ts
+  cloudflare/opennext/robots-host.ts
   __tests__/cloudflare-edge-html-cache.test.ts
+  __tests__/cloudflare-robots-host.test.ts
   app/privacy/page.tsx
   app/terms/page.tsx
   lib/spots/public-quality.ts
