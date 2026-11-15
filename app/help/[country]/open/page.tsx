@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LocalleySignup } from "@/components/newsletter/localley-signup";
+import { HelpPlanLink } from "@/components/help/help-plan-link";
 import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { pageMeta } from "@/lib/seo/meta";
 import { pageCardImage } from "@/lib/seo/page-card";
@@ -87,6 +88,7 @@ export default async function HelpOpenPage({ params }: { params: Promise<{ count
         </p>
       )}
       <script dangerouslySetInnerHTML={{ __html: SCRIPT }} />
+      <HelpPlanLink countrySlug={country.slug} />
       <LocalleySignup source="help-open" className="mt-10" />
     </main>
   );
