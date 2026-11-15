@@ -35,6 +35,7 @@ VITEST_FILES=(
   __tests__/components/planner-dates.test.tsx
   __tests__/lib/planner-draft.test.ts
   __tests__/components/planner-resume.test.tsx
+  __tests__/components/planner-quick-start-money-path.test.tsx
   __tests__/components/planner-auth-return.test.tsx
   __tests__/components/planner-start-signal.test.tsx
   __tests__/components/planner-preview-signed-out.test.tsx
