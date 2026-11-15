@@ -621,6 +621,7 @@ export default async function SpotPage({
         items={[
           { name: "Home", url: "/" },
           { name: "Spots", url: "/spots" },
+          ...(knownCity && citySlug ? [{ name: knownCity, url: `/spots?city=${citySlug}` }] : []),
           { name: spot.name, url: `/spots/${id}` },
         ]}
       />

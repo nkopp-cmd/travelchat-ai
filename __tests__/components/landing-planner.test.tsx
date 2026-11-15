@@ -31,6 +31,11 @@ vi.mock("next/link", () => ({
     <a {...props} href={String(href)} data-prefetch={String(prefetch)} />
   ),
 }));
+vi.mock("@/lib/seo/sitemap-spots", () => ({
+  sitemapSpotRows: async () => Array.from({ length: 14 }, (_, i) => ({
+    id: `00000000-0000-4000-8000-${String(i).padStart(12, "0")}`, lastmod: null, hub: i % 2 ? "Seoul" : "Tokyo", name: `Guide spot ${i}`,
+  })),
+}));
 vi.mock("@/components/ui/city-image", () => ({
   CityImageAvatar: () => <span />,
 }));
@@ -42,8 +47,8 @@ const cities = [
 ];
 
 describe("helper-first landing entry", () => {
-  it("leads with the helper promise and keeps planning second", () => {
-    const html = renderToStaticMarkup(<LandingPage />);
+  it("leads with the helper promise and keeps planning second", async () => {
+    const html = renderToStaticMarkup(await LandingPage());
     const doc = new DOMParser().parseFromString(html, "text/html");
     expect(doc.querySelector("h1")?.textContent).toBe("Your local friend in Asia.");
     const text = doc.body.textContent ?? "";
@@ -55,6 +60,14 @@ describe("helper-first landing entry", () => {
     const links = Array.from(doc.querySelectorAll("a")).filter(link => link.textContent?.trim() === "Start planning");
     expect(links.length).toBeGreaterThanOrEqual(1);
     for (const link of links) expect(new URL(link.getAttribute("href")!, "https://localley.io").pathname).toBe("/itineraries/new");
+  });
+
+  it("links 12 guide spots and the hubs as plain server HTML, without sort=local", async () => {
+    const html = renderToStaticMarkup(await LandingPage());
+    expect(html.match(/href="\/spots\/[0-9a-f-]{36}"/g)?.length).toBe(12);
+    expect(html).toContain('href="/spots?city=seoul"');
+    expect(html).not.toContain("sort=local");
+    for (const helper of LANDING_HELPERS) expect(helper.href).not.toContain("sort=local");
   });
 
   it("points every helper at a live route", () => {
@@ -144,7 +157,7 @@ describe("landing planner islands", () => {
       screen
         .getByRole("link", { name: "Browse local spots" })
         .getAttribute("href"),
-    ).toBe("/spots?city=seoul&sort=local&category=Food");
+    ).toBe("/spots?city=seoul&category=Food");
   });
   it("shares selected city and duration across controls", () => {
     mount();
@@ -196,7 +209,7 @@ describe("landing planner islands", () => {
     );
     fireEvent.submit(screen.getByRole("textbox").closest("form")!);
     expect(push).toHaveBeenCalledWith(
-      "/spots?city=bangkok&sort=local&category=Street",
+      "/spots?city=bangkok&category=Street",
     );
   });
   it("passes button styling through and prevents speculative navigation", () => {

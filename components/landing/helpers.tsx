@@ -28,7 +28,7 @@ export const LANDING_HELPERS: LandingHelper[] = [
         text: "Which cards work, when you need cash, which wallets and transit cards to load, and what to say at the counter.",
     },
     {
-        id: "driver", title: "Show the driver", short: "Taxi card", href: "/spots?city=seoul&sort=local", icon: Car,
+        id: "driver", title: "Show the driver", short: "Taxi card", href: "/spots?city=seoul", icon: Car,
         text: "Every spot page has a full-screen card with the address in the local script, so a taxi driver can take you to the door.",
     },
     {
