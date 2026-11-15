@@ -81,6 +81,7 @@ VITEST_FILES=(
   __tests__/app/explore-candidate-page.test.tsx
   __tests__/components/itinerary-detail-design-tokens.test.ts
   __tests__/components/intent-link.test.tsx
+  __tests__/components/brand-logo.test.tsx
   __tests__/components/spots-map.test.tsx
   __tests__/app/itinerary-detail-cache.test.ts
   __tests__/app/public-metadata-and-prefetch.test.ts
