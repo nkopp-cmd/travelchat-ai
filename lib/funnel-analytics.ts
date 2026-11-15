@@ -1,4 +1,4 @@
-import { SPOT_EVENTS_URL } from "@/lib/spot-analytics";
+import { analyticsOff, SPOT_EVENTS_URL } from "@/lib/spot-analytics";
 
 // Planner/checkout funnel steps (shared/plans/localley-spot-cards-mobile.md). Sent at once with
 // sendBeacon (the step usually precedes a navigation). Only the step and a coarse source go out.
@@ -20,7 +20,7 @@ export function funnelSource(referrer: string, origin: string): FunnelSource {
 
 export function trackFunnelStep(step: BrowserFunnelStep, source: FunnelSource) {
   if (typeof window === "undefined") return;
-  if (navigator.doNotTrack === "1" || (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl) return;
+  if (analyticsOff()) return;
   const body = JSON.stringify({ funnel: [{ step, source }] });
   try {
     if (!navigator.sendBeacon?.(SPOT_EVENTS_URL, new Blob([body], { type: "application/json" }))) {
