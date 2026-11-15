@@ -209,6 +209,7 @@ on:
       - 'app/layout.tsx'
       - 'scripts/cf-static-public-html.mjs'
       - 'components/itineraries/wizard/index.tsx'
+      - 'components/itineraries/wizard/step-*.tsx'
       - '__tests__/components/itinerary-wizard-template-footer.test.ts'
       - 'app/api/cron/discover-spots-with-apify/route.ts'
       - '__tests__/lib/apify*.test.ts'

@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react";
 
 vi.mock("server-only", () => ({}));
 vi.mock("next/image", () => ({ default: (props: { alt: string }) => <span>{props.alt}</span> }));
+vi.mock("@/lib/cities-catalog", async (orig) => ({ ...(await orig<typeof import("@/lib/cities-catalog")>()), plannerCities: async () => [] }));
 
 import { toPlannerCities, type CityWithCount } from "@/lib/cities-catalog";
 import { PLANNER_MIN_SPOTS } from "@/lib/trips/planner-cities";
@@ -44,5 +45,26 @@ describe("planner city list rendered with the page", () => {
     // The API answers every city with a spot; the picker drops the ones that cannot fill a trip.
     expect(screen.queryByText("Hanoi")).toBeNull();
     expect(fetcher.mock.calls.map(([url]) => String(url))).toContain("/api/cities?minSpots=1");
+  });
+
+  it("is the page's one <h1> (the step heading) so the free-trip landing has a main heading", () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status: 404 })));
+    render(<PlannerCitiesContext.Provider value={toPlannerCities([city("seoul", 386, "recommended")])}><WizardProvider><StepDestination /></WizardProvider></PlannerCitiesContext.Provider>);
+    expect(screen.getAllByRole("heading", { level: 1 }).map((h) => h.textContent)).toEqual(["Where to?"]);
+  });
+
+  it("has its own title, self canonical and a free-offer schema (not the home page metadata)", async () => {
+    const { metadata, default: Page } = await import("@/app/itineraries/new/page");
+    const title = (metadata.title as { absolute: string }).absolute;
+    expect(title).toMatch(/^Free trip planner/);
+    expect(title.length).toBeLessThanOrEqual(65);
+    expect(String(metadata.description).length).toBeGreaterThanOrEqual(50);
+    expect(String(metadata.description).length).toBeLessThanOrEqual(170);
+    expect(metadata.alternates?.canonical).toBe("https://www.localley.io/itineraries/new");
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status: 404 })));
+    Element.prototype.scrollTo = () => {};
+    const { container } = render(await Page());
+    const ld = JSON.parse(container.querySelector('script[type="application/ld+json"]')!.textContent!);
+    expect(ld).toMatchObject({ "@type": "WebApplication", url: "https://www.localley.io/itineraries/new", offers: { price: 0 } });
   });
 });

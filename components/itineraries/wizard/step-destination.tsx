@@ -156,7 +156,7 @@ export function StepDestination() {
         )}>
           <MapPin className="h-5 w-5 text-primary sm:h-6 sm:w-6" />
         </div>
-        <h2 className="mb-1 text-xl font-bold text-foreground sm:mb-2 sm:text-2xl">Where to?</h2>
+        <h1 className="mb-1 text-xl font-bold text-foreground sm:mb-2 sm:text-2xl">Where to?</h1>
         <p className="text-sm text-muted-foreground sm:text-base">
           {data.templateName
             ? "Confirm the suggested city or switch it before generating"

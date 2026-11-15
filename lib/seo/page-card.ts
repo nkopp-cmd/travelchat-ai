@@ -13,6 +13,7 @@ export interface PageCard {
 const STATIC_CARDS: Record<string, PageCard> = {
   home: { label: "Your local friend in Asia", headline: "Hidden gems locals rate", subline: "Seoul · Tokyo · Bangkok · Singapore" },
   pricing: { label: "Localley Pro", headline: "Trip plans built from local spots", subline: `Pro from $${TIER_CONFIGS.pro.price} a month · cancel any time` },
+  planner: { label: "Free trip planner", headline: "A free 3-day plan from local spots", subline: "Pick a city · no sign-up" },
   templates: { label: "Itinerary templates", headline: "Ready-made trip plans for Asia", subline: "Relaxed, moderate or active pace" },
   help: { label: "Help me say this", headline: "Phrase cards to show staff", subline: "Korean · Japanese · Thai · Vietnamese · Chinese" },
 };
