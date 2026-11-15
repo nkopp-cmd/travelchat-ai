@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { DRAFT_COOKIE, draftCookieOptions, dropServerDraft } from "@/lib/trips/preview-draft-store";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { saveItinerarySchema, validateBody } from "@/lib/validations";
@@ -15,7 +16,20 @@ import {
     type ItineraryDayPlanLike,
 } from "@/lib/itineraries/normalize-daily-plans";
 
+// A saved trip leaves preview mode: drop the server draft and its cookie (shared/plans/localley-preview-server-draft.md).
 export async function POST(req: NextRequest) {
+    const response = await saveItinerary(req);
+    if (response.ok) {
+        const draftId = req.cookies.get(DRAFT_COOKIE)?.value;
+        if (draftId) {
+            await dropServerDraft(draftId);
+            response.cookies.set(DRAFT_COOKIE, "", draftCookieOptions(0));
+        }
+    }
+    return response;
+}
+
+async function saveItinerary(req: NextRequest): Promise<NextResponse> {
     try {
         const { userId } = await auth();
         if (!userId) {

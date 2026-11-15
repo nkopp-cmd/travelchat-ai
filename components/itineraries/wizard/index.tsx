@@ -423,7 +423,9 @@ export function ItineraryWizard({ initialData, initialStep, initialCities = null
     trackFunnelStep("trip_generated", "direct");
     // Free generation is a full readable browser preview. Saving is a separate paid action.
     if (result.isAnonymous || result.requiresSaveUpgrade) {
-      storeGeneratedPreview(localStorage, { ...result.itinerary, city: result.itinerary.city || data.city, days: data.days });
+      // Same id as the server copy (HttpOnly cookie), so a cold return from sign-up or checkout renders it in HTML.
+      const serverId = typeof result.preview?.id === "string" && /^[0-9a-f-]{36}$/.test(result.preview.id) ? result.preview.id : undefined;
+      storeGeneratedPreview(localStorage, { ...result.itinerary, city: result.itinerary.city || data.city, days: data.days }, Date.now(), serverId);
       router.push(GENERATED_PREVIEW_PATH);
     } else {
       // Authenticated user - redirect to saved itinerary

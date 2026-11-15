@@ -26,6 +26,7 @@ import {
   planCorridorTrip,
 } from "@/lib/trips/corridor-planner";
 import { buildCorridorRequest } from "@/lib/trips/wizard-corridor";
+import { DRAFT_COOKIE, draftCookieOptions, keepServerDraft } from "@/lib/trips/preview-draft-store";
 import {
   buildCorridorUserPrompt,
   corridorLegsFromPlan,
@@ -322,24 +323,28 @@ export async function handleCorridorGeneration({
     }
   }
 
-  return NextResponse.json({
+  const itinerary = {
+    id: savedItinerary?.id,
+    ...itineraryData,
+    city: routeLabel,
+    days: corridor.totalDays,
+    corridor: {
+      route: routeLabel,
+      legs: legs.map((leg) => ({
+        slug: leg.slug,
+        cityName: leg.cityName,
+        nights: leg.nights,
+        dayIndexes: leg.dayIndexes,
+      })),
+    },
+  };
+  // Anonymous trips open as a preview; keep a server copy so the preview page renders it in HTML.
+  const preview = isAnonymous ? await keepServerDraft(itinerary) : null;
+  const response = NextResponse.json({
     success: true,
     isAnonymous,
-    itinerary: {
-      id: savedItinerary?.id,
-      ...itineraryData,
-      city: routeLabel,
-      days: corridor.totalDays,
-      corridor: {
-        route: routeLabel,
-        legs: legs.map((leg) => ({
-          slug: leg.slug,
-          cityName: leg.cityName,
-          nights: leg.nights,
-          dayIndexes: leg.dayIndexes,
-        })),
-      },
-    },
+    itinerary,
+    ...(preview && { preview: { id: preview.id } }),
     meta: {
       provider: aiProvider,
       model: aiModel,
@@ -363,4 +368,6 @@ export async function handleCorridorGeneration({
       },
     }),
   });
+  if (preview) response.cookies.set(DRAFT_COOKIE, preview.id, draftCookieOptions());
+  return response;
 }
