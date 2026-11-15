@@ -28,7 +28,7 @@ function harness(tiers: string[]) {
     }
     throw new Error("refetch loop did not stop");
   };
-  return { client, schedule, drain, fetches: () => fetches };
+  return { client, schedule, drain, fetches: () => fetches, done: vi.fn<(paid: boolean) => void>() };
 }
 
 describe("post-checkout subscription refetch", () => {
@@ -69,5 +69,23 @@ describe("post-checkout subscription refetch", () => {
       pending.shift()?.();
     }
     expect(refetch).toHaveBeenCalledTimes(SUCCESS_REFETCH_MAX);
+  });
+
+  it.each([
+    [["free"], false],
+    [["free", "pro"], true],
+  ])("reports once at the end whether the plan shows paid (%j)", async (tiers, paid) => {
+    const h = harness(tiers);
+    refetchUntilPaid(h.client, h.schedule, h.done);
+    await h.drain();
+    expect(h.done).toHaveBeenCalledTimes(1);
+    expect(h.done).toHaveBeenCalledWith(paid);
+  });
+
+  it("reports nothing after a stop (unmount)", async () => {
+    const h = harness(["free"]);
+    refetchUntilPaid(h.client, h.schedule, h.done).stop();
+    await h.drain();
+    expect(h.done).not.toHaveBeenCalled();
   });
 });

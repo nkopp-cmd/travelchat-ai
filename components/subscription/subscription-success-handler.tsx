@@ -14,7 +14,11 @@ export const SUCCESS_REFETCH_DELAY_MS = 2000;
  * Re-reads the subscription until it shows a paid tier, at most SUCCESS_REFETCH_MAX times,
  * SUCCESS_REFETCH_DELAY_MS apart. Returns a stop function. Never loops past the cap.
  */
-export function refetchUntilPaid(queryClient: QueryClient, schedule: (run: () => void, ms: number) => unknown = setTimeout) {
+export function refetchUntilPaid(
+  queryClient: QueryClient,
+  schedule: (run: () => void, ms: number) => unknown = setTimeout,
+  onDone: (paid: boolean) => void = () => undefined,
+) {
   let stopped = false;
   let runs = 0;
   const tick = async () => {
@@ -22,7 +26,9 @@ export function refetchUntilPaid(queryClient: QueryClient, schedule: (run: () =>
     runs += 1;
     await queryClient.refetchQueries({ queryKey: queryKeys.subscription }).catch(() => undefined);
     const tier = queryClient.getQueryData<{ tier?: string }>(queryKeys.subscription)?.tier;
-    if (stopped || (tier && tier !== "free") || runs >= SUCCESS_REFETCH_MAX) return;
+    if (stopped) return;
+    const paid = Boolean(tier && tier !== "free");
+    if (paid || runs >= SUCCESS_REFETCH_MAX) { onDone(paid); return; }
     schedule(() => void tick(), SUCCESS_REFETCH_DELAY_MS);
   };
   void tick();
@@ -45,12 +51,10 @@ export function SubscriptionSuccessHandler() {
 
   useEffect(() => {
     if (searchParams.get("subscription") !== "success" || loop.current) return;
-    loop.current = refetchUntilPaid(queryClient);
-
-    toast({
-      title: "Subscription activated!",
-      description: "Your subscription has been successfully activated. Enjoy your new features!",
-    });
+    // Say "activated" only when the plan shows it; a late webhook gets an honest line instead.
+    loop.current = refetchUntilPaid(queryClient, setTimeout, (paid) => toast(paid
+      ? { title: "Subscription activated!", description: "Your subscription has been successfully activated. Enjoy your new features!" }
+      : { title: "Payment received", description: "Your plan updates within a minute. Reload this page to see it." }));
 
     // Clean up URL by removing the query parameter
     const url = new URL(window.location.href);
