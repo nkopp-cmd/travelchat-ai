@@ -1,7 +1,7 @@
 /**
  * Edge cache for public HTML.
  *
- * "/pricing" is a static prerender; "/" renders per request (live guide-spot links, F5); "/spots" and its enabled-city
+ * "/" and "/pricing" are static prerenders; "/spots" and its enabled-city
  * variants ("/spots?city=seoul") render per request but only from anonymous
  * catalog reads. A spot detail page ("/spots/<uuid>") is the same: its server HTML
  * reads only public spot data, and the save, review and photo controls load on the client. The auth pages render the same form for every visitor (the

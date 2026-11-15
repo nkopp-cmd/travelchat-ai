@@ -4,6 +4,9 @@ import fc from "fast-check";
 vi.mock("server-only", () => ({}));
 import { homeGuideSpots, homeHubLinks } from "@/lib/seo/home-links";
 import { ENABLED_CITIES } from "@/lib/cities";
+import { homeLinkRows } from "@/lib/seo/home-links-snapshot";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 const row = (id: string, hub: string, lastmod: string | null = null, name = `Spot ${id}`) => ({ id, hub, lastmod, name });
 
@@ -38,5 +41,35 @@ describe("homeHubLinks", () => {
     expect(homeHubLinks([])).toHaveLength(ENABLED_CITIES.length);
     const seoul = Array.from({ length: 5 }, (_, i) => row(`s${i}`, "Seoul"));
     expect(homeHubLinks([...seoul, row("t", "Tokyo")]).map((h) => h.href)).toEqual(["/spots?city=seoul"]);
+  });
+});
+
+describe("static home snapshot (release: '/' must stay a static prerender)", () => {
+  it("home page reads the committed snapshot and never renders per request", () => {
+    const page = readFileSync(resolve("app/page.tsx"), "utf8");
+    expect(page).not.toMatch(/export const (dynamic|revalidate)\b/);
+    expect(page).not.toMatch(/async function LandingPage/);
+    expect(page).not.toContain("sitemap-spots");
+  });
+
+  it("snapshot rows are named guide spots on enabled hubs and give 12 links", () => {
+    const rows = homeLinkRows();
+    const hubs = new Set(ENABLED_CITIES.map((c) => c.name));
+    expect(new Set(rows.map((r) => r.id)).size).toBe(rows.length);
+    for (const r of rows) {
+      expect(r.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
+      expect(r.name.trim()).not.toBe("");
+      expect(hubs.has(r.hub)).toBe(true);
+    }
+    expect(homeGuideSpots(rows)).toHaveLength(12);
+    expect(homeHubLinks(rows).length).toBeGreaterThan(0);
+  });
+
+  it("refresh script parses hub HTML and city names", async () => {
+    const { hubRows, cityNames } = await import("../../scripts/seo/refresh-home-links.mjs");
+    expect([...cityNames('slug: "seoul",\n        name: "Seoul",').entries()]).toEqual([["seoul", "Seoul"]]);
+    const id = "e2230c5a-e857-4f8c-8917-770d9edf12d4";
+    const html = `<a class="x" href="/spots/${id}">Dad&#x27;s &amp; Co</a><a href="/spots/00000000-0000-4000-8000-000000000000">Not in sitemap</a>`;
+    expect(hubRows(html, "Seoul", new Map([[id, "2026-11-14"]]))).toEqual([{ id, name: "Dad's & Co", hub: "Seoul", lastmod: "2026-11-14" }]);
   });
 });

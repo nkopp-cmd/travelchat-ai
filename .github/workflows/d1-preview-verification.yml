@@ -66,6 +66,7 @@ on:
       - '__tests__/lib/seo-sitemap.test.ts'
       - '__tests__/lib/seo-spot-indexable.test.ts'
       - '__tests__/lib/seo-home-links.test.ts'
+      - 'scripts/seo/refresh-home-links.mjs'
       - '__tests__/lib/seo-spot-intro.test.ts'
       - '__tests__/lib/seo-spot-card.test.ts'
       - '__tests__/lib/seo-page-card.test.ts'
