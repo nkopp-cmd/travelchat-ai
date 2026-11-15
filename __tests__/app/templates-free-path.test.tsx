@@ -45,4 +45,10 @@ describe("/templates free path", () => {
     const names = [...container.querySelectorAll("h2")].map((h) => h.textContent);
     expect(names).toContain(templates[0].name);
   });
+
+  it("has no complementary landmark inside main (axe landmark-complementary-is-top-level)", () => {
+    const { container } = render(<TemplatesPage />);
+    // The labelled newsletter <aside> passes axe live; an unlabelled one (the old summary panel) failed at 1280 px.
+    expect(container.querySelectorAll("aside:not([aria-labelledby]):not([aria-label]), [role='complementary']")).toHaveLength(0);
+  });
 });

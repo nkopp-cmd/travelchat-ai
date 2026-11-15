@@ -120,9 +120,10 @@ export function TemplatePicker({ templates }: TemplatePickerProps) {
         </div>
       </div>
 
-      <aside className="hidden rounded-2xl bg-surface p-4 backdrop-blur-xl lg:sticky lg:top-20 lg:block">
+      {/* Not <aside>: it sits inside <main>, and a nested complementary landmark fails axe. */}
+      <div className="hidden rounded-2xl bg-surface p-4 backdrop-blur-xl lg:sticky lg:top-20 lg:block">
         <TemplateSummary template={selectedTemplate} />
-      </aside>
+      </div>
 
       <div
         className="fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] z-40 bg-surface px-3 py-2 shadow-[0_-16px_34px_rgba(0,0,0,0.34)] backdrop-blur-xl lg:hidden"
