@@ -20,7 +20,7 @@ export const dynamic = "force-static";
 
 export default function BlogIndexPage() {
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
+    <div className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(blogJsonLd(BLOG_POSTS)) }} />
       <PageHeader eyebrow="Journal" eyebrowIcon={Newspaper} title={BLOG_TITLE} lede={BLOG_DESCRIPTION} />
       <ul className="mt-6 flex flex-col gap-3">
@@ -39,6 +39,6 @@ export default function BlogIndexPage() {
         Going soon? <Link href="/itineraries/new" className="font-semibold text-primary underline underline-offset-2">Plan a free day with local spots</Link> or
         {" "}<Link href="/help" className="font-semibold text-primary underline underline-offset-2">open the phrase cards</Link>.
       </p>
-    </main>
+    </div>
   );
 }

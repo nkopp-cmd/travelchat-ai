@@ -14,12 +14,12 @@ export default async function NewsletterConfirmPage({ searchParams }: { searchPa
   const { token } = await searchParams;
   if (!isToken(token)) redirect("/newsletter/invalid");
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
+    <div className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
       <PageHeader eyebrow="Newsletter" eyebrowIcon={Mail} title="Confirm your sign-up" lede="One more tap: confirm that you want the Localley newsletter." />
       <form method="post" action="/api/newsletter/confirm" className="mt-8">
         <input type="hidden" name="token" value={token} />
         <Button type="submit" className="min-h-12 px-6 font-semibold">Confirm my sign-up</Button>
       </form>
-    </main>
+    </div>
   );
 }

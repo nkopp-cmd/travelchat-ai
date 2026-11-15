@@ -38,7 +38,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const post = blogPost((await params).slug);
   if (!post) notFound();
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
+    <div className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(blogPostingJsonLd(post)) }} />
       <Link href="/blog" className="mb-4 inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="size-4" aria-hidden="true" /> Journal
@@ -71,6 +71,6 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </p>
       </article>
       <LocalleySignup source="blog" className="mt-10" />
-    </main>
+    </div>
   );
 }

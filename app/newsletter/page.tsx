@@ -17,7 +17,7 @@ export const dynamic = "force-static";
 
 export default function NewsletterPage() {
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
+    <div className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
       <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Newsletter", url: "/newsletter" }]} />
       <PageHeader eyebrow="Newsletter" eyebrowIcon={Mail} title="Asia picks, in your inbox"
         lede="One short email about twice a month: places locals rate, and the practical answers you need before you go." />
@@ -36,6 +36,6 @@ export default function NewsletterPage() {
           <p>Enter your email. We send one link; your sign-up starts only when you open it. Every issue has a one-click unsubscribe link. We never sell or share your address. Details are in our <Link className="text-primary underline" href="/privacy">privacy policy</Link>.</p>
         </section>
       </div>
-    </main>
+    </div>
   );
 }

@@ -42,7 +42,7 @@ export default async function HelpCountryPage({ params }: { params: Promise<{ co
   // Korean wraps at spaces; Japanese and Chinese have none and must keep normal breaking.
   const wrap = country.language === "ko" ? "[word-break:keep-all]" : "";
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6" lang="en">
+    <div className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6" lang="en">
       <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Help", url: "/help" }, { name: country.name, url: `/help/${country.slug}` }]} />
       <Link href="/help" className="mb-4 inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="size-4" aria-hidden="true" /> All countries
@@ -86,6 +86,6 @@ export default async function HelpCountryPage({ params }: { params: Promise<{ co
       ))}
       <HelpPlanLink countrySlug={country.slug} />
       <LocalleySignup source="help" className="mt-10" />
-    </main>
+    </div>
   );
 }

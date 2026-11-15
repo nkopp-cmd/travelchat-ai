@@ -23,7 +23,7 @@ export default async function CommunityPage({ searchParams }: { searchParams: Pr
   const cityName = (slug: string) => ALL_CITIES.find((c) => c.slug === slug)?.name ?? slug;
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
+    <div className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
       <PageHeader eyebrow="Community" eyebrowIcon={Users} title="Ask travellers and locals"
         lede="Questions from people on the road in Asia. Answer what you know, upvote what helped."
         actions={<div className="flex gap-2">
@@ -65,6 +65,6 @@ export default async function CommunityPage({ searchParams }: { searchParams: Pr
           ))}
         </ul>
       )}
-    </main>
+    </div>
   );
 }

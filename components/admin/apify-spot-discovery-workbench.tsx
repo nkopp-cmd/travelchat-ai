@@ -95,7 +95,7 @@ export function ApifySpotDiscoveryWorkbench() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="rounded-2xl bg-surface p-5 sm:p-7">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
@@ -213,6 +213,6 @@ export function ApifySpotDiscoveryWorkbench() {
           </div>
         )}
       </div>
-    </main>
+    </div>
   );
 }

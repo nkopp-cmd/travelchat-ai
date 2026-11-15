@@ -1,3 +1,5 @@
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { render, screen, cleanup } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MainContentShell } from "@/components/layout/main-content-shell";
@@ -26,5 +28,24 @@ describe("mobile page scrolling", () => {
     const main = screen.getByRole("main");
     expect(main.className).not.toMatch(/overflow-|h-\[/);
     expect(main.className).toContain("pb-[var(--ll-nav-clearance)]");
+  });
+});
+
+// The root layout's MainContentShell is the page's only <main>. A page that renders its own
+// <main> nests a second landmark inside it (axe landmark-main-is-top-level,
+// landmark-no-duplicate-main, landmark-unique), so screen-reader "jump to main" breaks.
+describe("single main landmark", () => {
+  const walk = (dir: string): string[] =>
+    readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
+      e.isDirectory() ? walk(join(dir, e.name)) : e.name.endsWith(".tsx") ? [join(dir, e.name)] : [],
+    );
+
+  it("renders <main> only in MainContentShell", () => {
+    const offenders = ["app", "components"]
+      .flatMap((d) => walk(join(process.cwd(), d)))
+      .filter((f) => !f.endsWith(join("layout", "main-content-shell.tsx")))
+      .filter((f) => /<main[\s>]/.test(readFileSync(f, "utf8")))
+      .map((f) => f.slice(process.cwd().length + 1));
+    expect(offenders).toEqual([]);
   });
 });

@@ -32,7 +32,7 @@ export default async function CreditsPage() {
     spot.photos.push(credit);
   }
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
+    <div className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
       <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Photo credits", url: "/credits" }]} />
       <PageHeader eyebrow="Photos" eyebrowIcon={Camera} title="Photo credits"
         lede="Every place photo on Localley shows the real place. Many come from photographers who share their work openly. Thank you." />
@@ -68,6 +68,6 @@ export default async function CreditsPage() {
         ))}
         <p className="text-sm">To correct or remove a credit, write to hello@localley.io.</p>
       </div>
-    </main>
+    </div>
   );
 }
