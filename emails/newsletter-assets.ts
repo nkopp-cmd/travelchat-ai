@@ -1,7 +1,7 @@
 // Static email images (built by scripts/newsletter/build-email-assets.tsx, served from public/email/v1/).
 export const EMAIL_ASSET_BASE = "https://www.localley.io/email/v1";
 
-// Localley score levels (components/spots/localley-scale.tsx): same icons, 400-shade colours for the dark email.
+// Localley score levels: same icons as the app, 400-shade colours for the dark email.
 export const LEVELS = {
   1: { name: "Tourist Trap", color: "#f87171", glyph: "Warning" },
   2: { name: "Tourist Friendly", color: "#fb923c", glyph: "Camera" },
