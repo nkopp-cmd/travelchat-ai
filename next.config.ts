@@ -18,6 +18,10 @@ const withBundleAnalyzer = bundleAnalyzer({
 });
 
 const nextConfig: NextConfig = {
+  // SEO (indexing diagnosis 2026-11-15 RC3): send <title>, description, canonical and robots inside <head>
+  // for every client. Streamed metadata put them ~37 KB into the body, and the edge HTML cache served those
+  // bytes to Googlebot and Bingbot too.
+  htmlLimitedBots: /.*/,
   turbopack: {
     root: projectRoot,
   },
