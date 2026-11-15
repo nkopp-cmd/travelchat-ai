@@ -587,6 +587,7 @@ on:
       - '__tests__/lib/auth-mail.test.ts'
       - 'app/api/itineraries/generate-v2/stream/route.ts'
       - '__tests__/api/generate-v2-stream-route.test.ts'
+      - '__tests__/api/generate-anon-limit.test.ts'
       - 'lib/llm/**'
       - 'lib/imagen.ts'
       - 'lib/model-credits.ts'
