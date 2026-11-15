@@ -36,6 +36,11 @@ describe("password sign-in with Better Auth's real default redirect plugin", () 
  await waitFor(() => expect(mocks.navigate).toHaveBeenCalledTimes(1)); await act(async () => {});
  expect(mocks.navigate).toHaveBeenCalledTimes(1); expect((screen.getByRole("button", { name: /Sign in|Signing in/i }) as HTMLButtonElement).disabled).toBe(true); expect(mocks.navigate).toHaveBeenCalledWith("/itineraries/owned-trip");
  });
+ it("returns a pricing-plan visitor to the checkout intent", async () => {
+ mocks.query = "redirect_url=%2Fpricing%3Fcheckout%3Dpro-monthly"; submit();
+ await waitFor(() => expect(mocks.navigate).toHaveBeenCalledTimes(1)); await act(async () => {});
+ expect(mocks.navigate).toHaveBeenCalledTimes(1); expect(mocks.navigate).toHaveBeenCalledWith("/pricing?checkout=pro-monthly");
+ });
  it("clamps external destinations before the SDK receives them", async () => {
  mocks.query = "redirect_url=https%3A%2F%2Fevil.example"; submit();
  await waitFor(() => expect(mocks.navigate).toHaveBeenCalledTimes(1)); await act(async () => {});
