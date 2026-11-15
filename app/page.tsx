@@ -19,6 +19,9 @@ import { LandingPlanner, LandingExploreLink, LandingSearch, LandingTripBuilder, 
 import { LandingHero } from "@/components/landing/hero";
 import { HeroHelperLinks, LandingHelpers } from "@/components/landing/helpers";
 import { WeekendPicks } from "@/components/landing/weekend-picks";
+import { GuideSpotLinks } from "@/components/landing/guide-spot-links";
+import { sitemapSpotRows } from "@/lib/seo/sitemap-spots";
+import { homeGuideSpots, homeHubLinks } from "@/lib/seo/home-links";
 
 const CITY_OPTIONS = ENABLED_CITIES.slice(0, 8);
 const FEATURED_CITIES = ENABLED_CITIES.slice(0, 6);
@@ -67,7 +70,11 @@ export const metadata: Metadata = pageMeta({
   image: pageCardImage("home"),
 });
 
-export default function LandingPage() {
+// Renders per request so the guide-spot links come from live D1 + R2; the edge cache keeps it one hit per deploy.
+export const dynamic = "force-dynamic";
+
+export default async function LandingPage() {
+  const spotRows = await sitemapSpotRows().catch(() => []);
   return (
     <>
     <OrganizationJsonLd />
@@ -186,7 +193,7 @@ export default function LandingPage() {
                 <Link
                   prefetch={false}
                   key={city.slug}
-                  href={`/spots?city=${city.slug}&sort=local`}
+                  href={`/spots?city=${city.slug}`}
                   className="group relative min-h-[180px] overflow-hidden rounded-lg bg-surface transition"
                 >
                   {imageUrl && (
@@ -216,6 +223,8 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      <GuideSpotLinks spots={homeGuideSpots(spotRows)} hubs={homeHubLinks(spotRows)} />
 
       <section className="bg-surface py-14">
         <div className="container mx-auto grid max-w-7xl gap-6 px-4 md:grid-cols-[1fr_0.9fr] md:px-6">

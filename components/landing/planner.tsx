@@ -95,10 +95,8 @@ function usePlannerState(cities: CityOption[]) {
   }, [days, interests, selectedCity]);
 
   const exploreHref = useMemo(() => {
-    const params = new URLSearchParams({
-      city: citySlug(selectedCity),
-      sort: "local",
-    });
+    // Canonical hub URL (no sort): one indexable URL per city hub (indexing diagnosis F5).
+    const params = new URLSearchParams({ city: citySlug(selectedCity) });
     if (interests[0]) {
       const category = interests[0].split(" ")[0];
       params.set("category", category);

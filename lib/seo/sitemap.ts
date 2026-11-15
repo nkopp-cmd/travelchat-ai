@@ -12,7 +12,7 @@ export const SITE = "https://www.localley.io";
 export const SPOTS_PER_SITEMAP = 5000;
 
 export type SitemapEntry = { loc: string; lastmod?: string };
-export type SitemapSpotRow = { id: string; lastmod: string | null; hub?: string | null };
+export type SitemapSpotRow = { id: string; lastmod: string | null; hub?: string | null; name?: string };
 
 const DATE = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\+00:00|Z))?$/;
 const latest = (dates: (string | undefined)[]) => dates.filter((d): d is string => !!d).sort().at(-1);

@@ -16,7 +16,7 @@ export type SitemapCandidate = {
   city?: string | null;
 };
 
-export type IndexableRow = { id: string; lastmod: string | null; hub: string | null };
+export type IndexableRow = { id: string; lastmod: string | null; hub: string | null; name: string };
 
 /** The hub that lists a row: the stored city, or for rows without one the first hub name in the address. */
 export function hubOf(row: { city?: string | null; address: string }, hubCities: readonly string[]): string | null {
@@ -54,7 +54,7 @@ export function indexableSitemapRows(
     seen.add(key);
     const id = row.id.toLowerCase();
     if (!isSpotIndexable({ hasGuide: guides.has(id) })) continue;
-    kept.push({ id: row.id, lastmod: newer(row.lastmod, guides.get(id)), hub });
+    kept.push({ id: row.id, lastmod: newer(row.lastmod, guides.get(id)), hub, name: row.name.trim() });
   }
   return kept.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 }
