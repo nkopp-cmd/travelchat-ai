@@ -168,6 +168,8 @@ function GetDirectionsButton({
     googlePlaceId: spot.googlePlaceId,
   });
   const isKorea = isKoreanLocation(spot.location.address);
+  // The accessible name starts with the visible text (WCAG 2.5.3 label in name).
+  const directionsLabel = isKorea ? "Directions in Kakao Map" : "Directions in Google Maps";
 
   return (
     <Button asChild className="h-12 w-full rounded-xl text-base shadow-lg" size="lg">
@@ -178,10 +180,10 @@ function GetDirectionsButton({
         href={directionsUrl}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label={`Open directions to ${spot.name}`}
+        aria-label={`${directionsLabel} to ${spot.name}`}
       >
         <Navigation className="mr-2 h-5 w-5" />
-        {isKorea ? "Directions in Kakao Map" : "Directions in Google Maps"}
+        {directionsLabel}
       </SpotEventLink>
     </Button>
   );

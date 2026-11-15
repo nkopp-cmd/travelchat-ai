@@ -124,7 +124,9 @@ export function ReviewForm({ spotId, onSuccess, existingReview }: ReviewFormProp
                                     onClick={() => setRating(star)}
                                     onMouseEnter={() => setHoveredRating(star)}
                                     onMouseLeave={() => setHoveredRating(0)}
-                                    className="p-1 transition-transform hover:scale-110 focus:outline-none"
+                                    aria-label={`Rate ${star} star${star === 1 ? "" : "s"}`}
+                                    aria-pressed={rating === star}
+                                    className="rounded p-1 transition-transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                                     disabled={loading}
                                 >
                                     <Star
