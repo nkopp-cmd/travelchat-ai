@@ -63,3 +63,22 @@ describe("/pricing subscribe flow", () => {
     expect(mocks.openCheckout).not.toHaveBeenCalled();
   });
 });
+
+describe("/pricing after a closed Stripe checkout", () => {
+  it("says nothing was charged, keeps the free plan link and drops the parameter", async () => {
+    mocks.signedIn = true;
+    setUrl("/pricing?canceled=true#plans");
+    render(<PricingPage />);
+    const note = await screen.findByTestId("pricing-checkout-closed");
+    expect(note.getAttribute("role")).toBe("status");
+    expect(note.textContent).toContain("You were not charged.");
+    expect(note.querySelector("a")?.getAttribute("href")).toBe("/itineraries/new");
+    expect(window.location.pathname + window.location.search + window.location.hash).toBe("/pricing#plans");
+    expect(mocks.openCheckout).not.toHaveBeenCalled();
+  });
+  it.each(["/pricing", "/pricing?canceled=false", "/pricing?checkout=pro-monthly"])("shows no note on %s", (path) => {
+    setUrl(path);
+    render(<PricingPage />);
+    expect(screen.queryByTestId("pricing-checkout-closed")).toBeNull();
+  });
+});

@@ -112,6 +112,16 @@ export default function PricingPage() {
         }
     };
 
+    // Back from a closed Stripe checkout (?canceled=true): say once that nothing was charged, then drop the parameter.
+    const [checkoutClosed, setCheckoutClosed] = useState(false);
+    useEffect(() => {
+        const url = new URL(window.location.href);
+        if (url.searchParams.get("canceled") !== "true") return;
+        url.searchParams.delete("canceled");
+        window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+        setCheckoutClosed(true);
+    }, []);
+
     // Back from sign-up with ?checkout=<tier>-<cycle>: start Stripe once, then drop the parameter.
     const autoCheckoutStarted = useRef(false);
     useEffect(() => {
@@ -174,6 +184,12 @@ export default function PricingPage() {
                 </header>
 
                 <main className="flex flex-1 flex-col">
+                    {checkoutClosed && (
+                        <div role="status" data-testid="pricing-checkout-closed" className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-raised px-4 py-3 text-sm text-foreground">
+                            <p>Checkout closed. You were not charged. Pick a plan below when you are ready.</p>
+                            <Link href="/itineraries/new" className="inline-flex min-h-11 items-center font-semibold text-primary underline-offset-4 hover:underline">Plan a free trip</Link>
+                        </div>
+                    )}
                     <section className="grid gap-6 py-8 md:grid-cols-[1fr_320px] md:items-end lg:py-12">
                         <div>
                             <div className="mb-4 inline-flex items-center gap-2 rounded-lg bg-raised px-3 py-2 text-sm text-muted-foreground">
