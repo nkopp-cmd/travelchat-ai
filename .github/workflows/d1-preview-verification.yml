@@ -6,6 +6,10 @@ on:
     paths:
       - 'package.json'
       - '__tests__/providers/query-provider-scope.test.ts'
+      - '__tests__/lib/auth-copy.test.ts'
+      - 'lib/auth/auth-copy.ts'
+      - 'app/sign-up/**'
+      - 'app/sign-in/**'
       - 'providers/**'
       - 'lib/query-client.tsx'
       - 'components/layout/navbar-account.tsx'
