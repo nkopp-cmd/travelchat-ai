@@ -44,6 +44,9 @@ export const EDGE_HTML_TTL_SECONDS: Record<string, number> = {
   "/trending": 300,
   // Planner: server-rendered city list, revalidated every 5 minutes (app/itineraries/new).
   "/itineraries/new": 300,
+  // Free-trip preview: static client page (the trip lives in localStorage, Save/checkout run on the client),
+  // same HTML for every visitor; the ?payment=success return bypasses. Changes only on deploy (the key carries the version).
+  "/itineraries/preview": 86400,
   "/api/cities": 300,
   "/api/spots/pins": 300,
 };
