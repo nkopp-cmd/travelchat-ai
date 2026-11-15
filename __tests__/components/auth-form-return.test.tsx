@@ -35,3 +35,16 @@ describe("authentication form return path", () => {
     expect(state.fetch).not.toHaveBeenCalled();
   });
 });
+
+describe("authentication submit buttons", () => {
+  // Lighthouse /sign-up 2026-11-15: text-foreground on bg-primary was 1.99:1. The Button default pairs
+  // bg-primary with text-primary-foreground (7.9:1), so the forms must not override the text color.
+  it.each([["sign up", SignUpForm, "Create account"], ["sign in", SignInForm, "Sign in"]] as const)("keeps the readable primary colors on %s", (_, Form, name) => {
+    state.query = "";
+    const view = render(<Form googleEnabled={false} />);
+    const button = screen.getAllByRole("button", { name }).find(b => b.getAttribute("type") === "submit")!;
+    expect(button.className).toContain("text-primary-foreground");
+    expect(button.className).not.toMatch(/(^|\s)text-foreground(\s|$)/);
+    view.unmount();
+  });
+});
