@@ -1,6 +1,7 @@
 import { BLOG_POSTS } from "@/lib/blog/posts";
 import { ENABLED_CITIES } from "@/lib/cities";
 import { HELP_COUNTRIES } from "@/lib/help/phrases";
+import { hubIndexable } from "./spot-indexable";
 
 /**
  * Sitemap index (Nils 2026-11-04): /sitemap.xml lists /sitemaps/pages.xml, /sitemaps/guides.xml and
@@ -11,13 +12,14 @@ export const SITE = "https://www.localley.io";
 export const SPOTS_PER_SITEMAP = 5000;
 
 export type SitemapEntry = { loc: string; lastmod?: string };
-export type SitemapSpotRow = { id: string; lastmod: string | null };
+export type SitemapSpotRow = { id: string; lastmod: string | null; hub?: string | null };
 
 const DATE = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\+00:00|Z))?$/;
 const latest = (dates: (string | undefined)[]) => dates.filter((d): d is string => !!d).sort().at(-1);
 
-export function pageEntries(): SitemapEntry[] {
-  const cities = ENABLED_CITIES.map((city) => ({ loc: `${SITE}/spots?city=${city.slug}` }));
+/** Static pages plus every city hub with enough indexable spots (`spotRows` omitted = all hubs, e.g. in tests). */
+export function pageEntries(spotRows: readonly SitemapSpotRow[] = []): SitemapEntry[] {
+  const cities = ENABLED_CITIES.filter((city) => hubIndexable(spotRows, city.name)).map((city) => ({ loc: `${SITE}/spots?city=${city.slug}` }));
   return [
     { loc: SITE }, { loc: `${SITE}/spots` }, ...cities, { loc: `${SITE}/trending` }, { loc: `${SITE}/templates` },
     { loc: `${SITE}/pricing` }, { loc: `${SITE}/credits` }, { loc: `${SITE}/privacy` }, { loc: `${SITE}/terms` },

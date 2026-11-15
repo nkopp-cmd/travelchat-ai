@@ -28,7 +28,7 @@ const STATE = join(STATE_DIR, "spot-guides.json");
 export const RING1 = ["Seoul", "Tokyo", "Bangkok", "Singapore"];
 export const MAX_FAILURES = 2;
 export const RUN_CAP = 40; // spots per run, whatever --limit says
-export const MIN_INDEXABLE_DESCRIPTION = 80; // = lib/seo/spot-indexable.ts
+export const MIN_INDEXABLE_DESCRIPTION = 80; // thin = shorter description or no photo: these get a guide first
 
 const line = { type: ["string", "null"] };
 export const GUIDE_SCHEMA = {

@@ -529,7 +529,7 @@ export async function generateMetadata({
     keywords,
     ...(candidate
       ? { robots: { index: false, follow: false } }
-      : isSpotIndexable({ description: spot.description, hasPhoto: spot.hasIndexPhoto, hasGuide: Boolean(await spotGuide(spot.id)) })
+      : isSpotIndexable({ hasGuide: Boolean(await spotGuide(spot.id)) })
         ? {}
         : { robots: { index: false, follow: true } }),
   };

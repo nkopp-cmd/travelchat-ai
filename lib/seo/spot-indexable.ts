@@ -1,59 +1,77 @@
-import { splitDescriptionLinks } from "@/lib/spots/description-links";
-
 /**
- * Thin spot pages (no own guide, a short or missing description, or no photo) stay out of Google's index until they
- * are filled: GSC 2026-11-14 showed 0 of 3,161 sitemap URLs indexed and "Discovered - currently not indexed" on
- * sampled spots, so the sitemap must carry only pages worth a crawl. The page keeps `follow`, so its links still count.
+ * Only spots with their own guide go into Google's index (indexing diagnosis 2026-11-15, F4, approved in APPROVALS.md):
+ * GSC showed 0 of 3,161 sitemap URLs indexed, so the sitemap carries only pages with real, sourced text. Every other
+ * spot page stays live with `noindex, follow` until the guide run writes its guide.
  */
-export const MIN_INDEXABLE_DESCRIPTION = 80;
-
-export type SpotIndexInput = {
-  /** English description as stored (links are stripped here, as on the page). */
-  description: string | null | undefined;
-  hasPhoto: boolean;
-  hasGuide: boolean;
-};
-
-export function isSpotIndexable(input: SpotIndexInput): boolean {
-  if (input.hasGuide) return true;
-  const text = splitDescriptionLinks(input.description ?? "").text.trim();
-  return input.hasPhoto && text.length >= MIN_INDEXABLE_DESCRIPTION;
+export function isSpotIndexable(input: { hasGuide: boolean }): boolean {
+  return input.hasGuide;
 }
 
+/** A city hub with fewer indexable spots than this is thin: out of the sitemap and `noindex, follow`. */
+export const MIN_HUB_SPOTS = 5;
+
 export type SitemapCandidate = {
-  id: string; lastmod: string | null; name: string; address: string; description: string; hasPhoto: boolean;
+  id: string; lastmod: string | null; name: string; address: string;
   /** Stored canonical city (lib/cities.ts name); null when the backfill could not place the row. */
   city?: string | null;
 };
+
+export type IndexableRow = { id: string; lastmod: string | null; hub: string | null };
+
+/** The hub that lists a row: the stored city, or for rows without one the first hub name in the address. */
+export function hubOf(row: { city?: string | null; address: string }, hubCities: readonly string[]): string | null {
+  if (row.city) return hubCities.includes(row.city) ? row.city : null;
+  const address = row.address.toLowerCase();
+  return hubCities.find((name) => address.includes(name.toLowerCase())) ?? null;
+}
 
 /**
  * The hub filter in SQL (d1-queries `filters.city`): the stored city, or for rows without one an address match. A row
  * no enabled hub lists has no internal link, so it stays out of the sitemap (L3 orphans: 9 unplaced Depok spots).
  */
 export function onEnabledHub(row: { city?: string | null; address: string }, hubCities: readonly string[]): boolean {
-  if (row.city) return hubCities.includes(row.city);
-  const address = row.address.toLowerCase();
-  return hubCities.some((name) => address.includes(name.toLowerCase()));
+  return hubOf(row, hubCities) !== null;
+}
+
+/** The newer of two sitemap dates (both YYYY-MM-DDTHH:MM:SS+00:00, so text order = time order). */
+const newer = (a: string | null, b: string | null | undefined) => (!b ? a : !a || b > a ? b : a);
+
+/**
+ * Sitemap rows worth a crawl: only rows an enabled hub lists (when `hubCities` is given), one row per name + city
+ * (address when the city is unknown; the first row in the given score order wins), and only rows with a guide.
+ * lastmod = the newer of the row date and the guide upload date. Sorted by id so chunks stay stable between runs.
+ */
+export function indexableSitemapRows(
+  rows: SitemapCandidate[], guides: ReadonlyMap<string, string | null>, hubCities?: readonly string[],
+): IndexableRow[] {
+  const seen = new Set<string>();
+  const kept: IndexableRow[] = [];
+  for (const row of rows) {
+    const hub = hubCities ? hubOf(row, hubCities) : row.city ?? null;
+    if (hubCities && !hub) continue;
+    const key = `${row.name.toLowerCase().trim()}|${(row.city ?? row.address).toLowerCase().trim()}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const id = row.id.toLowerCase();
+    if (!isSpotIndexable({ hasGuide: guides.has(id) })) continue;
+    kept.push({ id: row.id, lastmod: newer(row.lastmod, guides.get(id)), hub });
+  }
+  return kept.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+}
+
+/** Indexable spots per hub city name. */
+export function hubSpotCounts(rows: readonly { hub?: string | null }[]): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const row of rows) if (row.hub) counts.set(row.hub, (counts.get(row.hub) ?? 0) + 1);
+  return counts;
 }
 
 /**
- * Sitemap rows worth a crawl: only rows an enabled hub lists (when `hubCities` is given), the hub's name+address dedupe (first row in the given order wins, as on the hub), then
- * isSpotIndexable with the stored guide ids, sorted by id so chunks stay stable between runs.
+ * Whether a city hub may be indexed. Unknown (no rows: local build, or the D1/R2 read gave nothing) keeps the hub
+ * indexable, so a failed read never noindexes every hub.
  */
-export function indexableSitemapRows(
-  rows: SitemapCandidate[], guideIds: ReadonlySet<string>, hubCities?: readonly string[],
-): { id: string; lastmod: string | null }[] {
-  const seen = new Set<string>();
-  const kept: { id: string; lastmod: string | null }[] = [];
-  for (const row of rows) {
-    if (hubCities && !onEnabledHub(row, hubCities)) continue;
-    const key = `${row.name.toLowerCase().trim()}|${row.address.toLowerCase().trim()}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    const hasGuide = guideIds.has(row.id.toLowerCase());
-    if (isSpotIndexable({ description: row.description, hasPhoto: row.hasPhoto, hasGuide })) kept.push({ id: row.id, lastmod: row.lastmod });
-  }
-  return kept.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+export function hubIndexable(rows: readonly { hub?: string | null }[], cityName: string): boolean {
+  return rows.length === 0 || (hubSpotCounts(rows).get(cityName) ?? 0) >= MIN_HUB_SPOTS;
 }
 
 /** Hub H1 + intro: each city hub needs its own heading (all hubs shared "Discover Hidden Gems", L2 2026-11-14). */

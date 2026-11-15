@@ -8,7 +8,8 @@ import { SpotCardSkeleton } from "@/components/ui/skeleton";
 import { CityQuickFilters } from "@/components/spots/city-quick-filters";
 import { CityConditions } from "@/components/spots/city-conditions";
 import { getCityBySlug } from "@/lib/cities";
-import { spotsHubHeading } from "@/lib/seo/spot-indexable";
+import { hubIndexable, spotsHubHeading } from "@/lib/seo/spot-indexable";
+import { sitemapSpotRows } from "@/lib/seo/sitemap-spots";
 import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { pageMeta } from "@/lib/seo/meta";
 import { localMonth, seasonFor } from "@/lib/season/season-table";
@@ -42,13 +43,18 @@ function spotsHub(params: SpotsFilterParams) {
 
 export async function generateMetadata({ searchParams }: SpotsPageProps): Promise<Metadata> {
     const { city, path } = spotsHub(await searchParams);
+    // A hub with fewer than 5 guide spots is thin (F4): keep it live and followed, but out of the index.
+    const thin = city ? !hubIndexable(await sitemapSpotRows().catch(() => []), city.name) : false;
     return city
-        ? pageMeta({
-            title: `Hidden gems in ${city.name}: local spots`,
-            description: `Hidden gems in ${city.name}, ${city.country}: cafes, food, bars and sights rated by locals with the Localley Score. Filter by area, category and what is open now.`,
-            path,
-            image: city.heroImage,
-        })
+        ? {
+            ...pageMeta({
+                title: `Hidden gems in ${city.name}: local spots`,
+                description: `Hidden gems in ${city.name}, ${city.country}: cafes, food, bars and sights rated by locals with the Localley Score. Filter by area, category and what is open now.`,
+                path,
+                image: city.heroImage,
+            }),
+            ...(thin ? { robots: { index: false, follow: true } } : {}),
+        }
         : pageMeta({
             title: "Discover hidden gems and local spots",
             description: "Local favorites in Seoul, Tokyo, Bangkok, Singapore and more Asian cities. Cafes, food, bars and sights rated by locals with the Localley Score.",
