@@ -11,6 +11,7 @@ cd "$(dirname "$0")/../.."
 VITEST_FILES=(
   __tests__/providers/query-provider-scope.test.ts
   __tests__/components/generated-preview.test.tsx
+  __tests__/lib/paid-return.test.ts
   __tests__/lib/generated-preview.test.ts
   __tests__/lib/generated-preview-schema.test.ts
   __tests__/lib/planner-client-imports.test.ts
@@ -395,6 +396,8 @@ ESLINT_FILES=(
   lib/trips/preview-draft-store.ts
   app/itineraries/preview/layout.tsx
   lib/trips/generated-preview.ts
+  lib/trips/paid-return.ts
+  __tests__/lib/paid-return.test.ts
   scripts/check-borderless.mjs
   scripts/verify-spot-card-routes.mjs
   __tests__/middleware-redirect.test.ts
