@@ -142,9 +142,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <LandingPresets />
-      </LandingPlanner>
-
       <section data-testid="landing-pro" className="bg-surface py-14">
         <div className="container mx-auto grid max-w-7xl gap-6 px-4 md:grid-cols-[1fr_0.9fr] md:px-6">
           <div>
@@ -172,6 +169,10 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      <LandingPresets />
+      </LandingPlanner>
+
 
 
       <WeekendPicks />
