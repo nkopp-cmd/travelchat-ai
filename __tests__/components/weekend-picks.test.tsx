@@ -16,7 +16,10 @@ describe("weekend picks selector", () => {
     for (const [index, pick] of WEEKEND_PICKS.entries()) {
       expect(enabled.has(pick.slug)).toBe(true);
       expect(links[index].getAttribute("href")).toBe(`/spots?city=${pick.slug}`);
-      expect(links[index].getAttribute("aria-label")).toBe(`${pick.name}: ${pick.tagline}`);
+      // Label in name (axe label-content-name-mismatch, Lighthouse 2026-11-15): the name is the visible caption.
+      expect(links[index].hasAttribute("aria-label")).toBe(false);
+      expect(links[index].querySelector(".ll-pick-caption")?.closest("[aria-hidden]")).toBeNull();
+      expect(links[index].textContent).toContain(`${pick.name}${pick.tagline}`);
     }
   });
 
