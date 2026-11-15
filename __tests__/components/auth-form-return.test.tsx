@@ -14,7 +14,7 @@ import { SignInForm, SignUpForm } from "@/components/auth/auth-forms";
 afterAll(() => { globalThis.fetch = state.originalFetch; });
 
 describe("authentication form return path", () => {
-  it.each(["/itineraries/new?resume=1", "/itineraries/claim"])("keeps %s when switching between account forms", target => {
+  it.each(["/itineraries/new?resume=1", "/itineraries/claim", "/itineraries/preview", "/pricing?checkout=pro-monthly"])("keeps %s when switching between account forms", target => {
     state.query = new URLSearchParams({ redirect_url: target }).toString();
     const signup = render(<SignUpForm googleEnabled={false} />);
     const signinURL = new URL(screen.getByRole("link", { name: "Sign in" }).getAttribute("href")!, "https://www.localley.io");
