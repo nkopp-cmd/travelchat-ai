@@ -8,6 +8,7 @@ import {
   type PublicSpotQualityInput,
 } from "@/lib/spots/public-quality";
 import { countSpotsByCity } from "@/lib/city-spot-counts";
+import { isPlannerCity } from "@/lib/trips/planner-cities";
 import { runCityGeographyShadowComparison } from "@/lib/geography/city-shadow";
 
 // Public city catalog with live spot counts: GET /api/cities and the planner's server render
@@ -78,7 +79,7 @@ export const getCachedCities = unstable_cache(
 );
 
 
-/** Planner destination list: the same rows and order as GET /api/cities?minSpots=1. */
+/** Planner destination list: the rows of GET /api/cities?minSpots=1 that can fill a trip (isPlannerCity), same order. */
 export interface PlannerCity {
   slug: string;
   name: string;
@@ -91,7 +92,7 @@ export interface PlannerCity {
 
 export function toPlannerCities(cities: CityWithCount[]): PlannerCity[] {
   return cities
-    .filter((city) => city.spotCount >= 1 && city.status !== "hidden")
+    .filter((city) => isPlannerCity(city) && city.status !== "hidden")
     .sort((a, b) => b.spotCount - a.spotCount)
     .map(({ slug, name, emoji, vibe, heroImage, spotCount, status }) => ({
       slug, name, emoji, ...(vibe ? { vibe } : {}), ...(heroImage ? { heroImage } : {}), spotCount,
