@@ -62,6 +62,7 @@ VITEST_FILES=(
   __tests__/components/spots-filter-bar.test.tsx
   __tests__/lib/mobile-chrome.test.ts
   __tests__/components/landing-planner.test.tsx
+  __tests__/components/pricing-checkout.test.tsx
   __tests__/components/conditional-navbar.test.tsx
   __tests__/motion-tokens.test.ts
   __tests__/lib/auth-notification-store.test.ts
@@ -411,6 +412,7 @@ ESLINT_FILES=(
   components/layout/navbar-routes.ts
   components/layout/conditional-navbar.tsx
   __tests__/components/landing-planner.test.tsx
+  __tests__/components/pricing-checkout.test.tsx
   __tests__/components/conditional-navbar.test.tsx
   lib/places-quota.ts
   lib/places-guard.ts

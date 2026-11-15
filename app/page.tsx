@@ -145,6 +145,35 @@ export default function LandingPage() {
       <LandingPresets />
       </LandingPlanner>
 
+      <section data-testid="landing-pro" className="bg-surface py-14">
+        <div className="container mx-auto grid max-w-7xl gap-6 px-4 md:grid-cols-[1fr_0.9fr] md:px-6">
+          <div>
+            <p className="text-sm font-bold uppercase tracking-[0.16em] text-foreground">Free first, Pro when you go</p>
+            <h2 className="mt-3 text-3xl font-black leading-tight text-foreground md:text-5xl">
+              Built for people with a ticket booked.
+            </h2>
+            <p className="mt-4 text-lg leading-8 text-muted-foreground">
+              Your first trip plan is free with no sign-up. Pro saves and edits your trips, with full addresses and exports.
+            </p>
+          </div>
+
+          <div className="rounded-lg bg-raised p-5">
+            <CreditCard className="mb-4 h-6 w-6 text-foreground" />
+            <h3 className="text-2xl font-bold text-foreground">Pro starts at $9/month.</h3>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">
+              Pro is for regular travelers. Premium is for heavier planning, maps, collaboration and high-capacity usage.
+            </p>
+            <Button asChild className="mt-5 h-12 w-full rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">
+              <Link prefetch={false} href="/pricing">
+                Compare paid plans
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+
       <WeekendPicks />
 
       <section className="bg-surface py-14">
@@ -223,34 +252,6 @@ export default function LandingPage() {
       </section>
 
       <GuideSpotLinks spots={homeGuideSpots(spotRows)} hubs={homeHubLinks(spotRows)} />
-
-      <section className="bg-surface py-14">
-        <div className="container mx-auto grid max-w-7xl gap-6 px-4 md:grid-cols-[1fr_0.9fr] md:px-6">
-          <div>
-            <p className="text-sm font-bold uppercase tracking-[0.16em] text-foreground">Paid only</p>
-            <h2 className="mt-3 text-3xl font-black leading-tight text-foreground md:text-5xl">
-              Built for people with a ticket booked.
-            </h2>
-            <p className="mt-4 text-lg leading-8 text-muted-foreground">
-              Localley is not an endless inspiration feed. It is a practical trip-planning tool for turning a messy city into a route with better local signal.
-            </p>
-          </div>
-
-          <div className="rounded-lg bg-raised p-5">
-            <CreditCard className="mb-4 h-6 w-6 text-foreground" />
-            <h3 className="text-2xl font-bold text-foreground">Pro starts at $9/month.</h3>
-            <p className="mt-3 text-sm leading-6 text-muted-foreground">
-              Pro is for regular travelers. Premium is for heavier planning, maps, collaboration and high-capacity usage.
-            </p>
-            <Button asChild className="mt-5 h-12 w-full rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">
-              <Link prefetch={false} href="/pricing">
-                Compare paid plans
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
 
       <footer className="bg-surface py-8">
         <div className="container mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 md:flex-row md:px-6">

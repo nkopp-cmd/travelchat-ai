@@ -43,7 +43,8 @@ export function getTemplateGenerateLabel(city: string): string {
 // Offer change 2026-11-06 (business loop ADJUST): funnel rows showed visitors stop inside the
 // 4-step form (31 planner_start -> 2 trip_generated). After the city pick, one tap now builds a
 // free plan with the defaults; "Customize" keeps the full form.
-export const QUICK_START_OFFER = "First plan free · no sign-up";
+export { QUICK_START_OFFER } from "@/lib/offer-copy";
+import { QUICK_START_OFFER } from "@/lib/offer-copy";
 
 export function getQuickStartLabel(days: number): string {
   return `Free ${days}-day plan`;
