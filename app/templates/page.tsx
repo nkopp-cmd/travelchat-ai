@@ -50,17 +50,17 @@ export default function TemplatesPage() {
 
         <TemplatePicker templates={templates} />
 
-        {/* Custom Option CTA */}
-        <div className="mt-3 hidden pt-3 text-center sm:mt-4 sm:pt-4 md:block lg:max-w-[calc(100%-22rem)]">
-          <h3 className="mb-1.5 text-base font-bold sm:text-lg">
+        {/* Custom Option CTA: the free planner, open to signed-out visitors */}
+        <div className="mt-3 pt-3 text-center sm:mt-4 sm:pt-4 lg:max-w-[calc(100%-22rem)]">
+          <h2 className="mb-1.5 text-base font-bold sm:text-lg">
             Don&apos;t see what you&apos;re looking for?
-          </h3>
+          </h2>
           <p className="mb-2.5 text-sm text-muted-foreground">
-            Create a fully custom itinerary from scratch with Alley AI
+            Plan your own trip from scratch. First plan free, no sign-up.
           </p>
           <Button asChild>
-            <Link href="/dashboard">
-              Create Custom Itinerary
+            <Link href="/itineraries/new">
+              Plan a free trip
             </Link>
           </Button>
         </div>
