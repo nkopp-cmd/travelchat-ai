@@ -21,7 +21,7 @@ export const dynamic = "force-dynamic";
 export default async function TrendingPage() {
   const events = await fetchViralEvents();
   return (
-    <main className="container mx-auto max-w-3xl px-4 pb-24 pt-6 md:pb-10 md:pt-8">
+    <div className="container mx-auto max-w-3xl px-4 pb-24 pt-6 md:pb-10 md:pt-8">
       <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Viral spots", url: "/trending" }]} />
       <PageHeader eyebrow="Viral spots" eyebrowIcon={Flame} title="In the news"
         lede="When a visit goes viral, we find the places and put them on the map. Each event links to its news sources." />
@@ -42,6 +42,6 @@ export default async function TrendingPage() {
         <p className="mt-8 text-muted-foreground">No viral events right now. Check back soon.</p>
       )}
       <LocalleySignup source="trending" className="mt-10" />
-    </main>
+    </div>
   );
 }

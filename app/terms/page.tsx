@@ -20,7 +20,7 @@ const CONTACT = "nkopp@my-goodlife.com";
 
 export default function TermsPage() {
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
+    <div className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
       <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Terms", url: "/terms" }]} />
       <PageHeader eyebrow="Legal" eyebrowIcon={Newspaper} title="Terms of use"
         lede="By using Localley you agree to these short terms." />
@@ -60,6 +60,6 @@ export default function TermsPage() {
           <p>Our <Link className="text-primary underline" href="/privacy">privacy policy</Link> explains how we handle your data. Questions: <a className="text-primary underline" href={`mailto:${CONTACT}`}>{CONTACT}</a>.</p>
         </section>
       </div>
-    </main>
+    </div>
   );
 }

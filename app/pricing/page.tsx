@@ -183,7 +183,7 @@ export default function PricingPage() {
                     </Badge>
                 </header>
 
-                <main className="flex flex-1 flex-col">
+                <div className="flex flex-1 flex-col">
                     {checkoutClosed && (
                         <div role="status" data-testid="pricing-checkout-closed" className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-raised px-4 py-3 text-sm text-foreground">
                             <p>Checkout closed. You were not charged. Pick a plan below when you are ready.</p>
@@ -330,7 +330,7 @@ export default function PricingPage() {
                             <p>Refund requests are handled within 14 days of the first payment when the product is not a fit.</p>
                         </div>
                     </section>
-                </main>
+                </div>
             </div>
         </AppBackground>
     );

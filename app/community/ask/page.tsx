@@ -18,7 +18,7 @@ export default async function AskPage({ searchParams }: { searchParams: Promise<
   const userId = await requireCommunityPage((await auth()).userId, "/community/ask");
   const { error, city, topic } = await searchParams;
   return (
-    <main className="mx-auto w-full max-w-2xl px-4 pb-24 pt-6 sm:px-6">
+    <div className="mx-auto w-full max-w-2xl px-4 pb-24 pt-6 sm:px-6">
       <Link href="/community" className="mb-4 inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="size-4" aria-hidden="true" /> Community
       </Link>
@@ -48,6 +48,6 @@ export default async function AskPage({ searchParams }: { searchParams: Promise<
         </label>
         <Button type="submit" size="lg">Post question</Button>
       </form>
-    </main>
+    </div>
   );
 }

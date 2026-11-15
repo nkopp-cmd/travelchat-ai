@@ -14,12 +14,12 @@ export default async function NewsletterUnsubscribePage({ searchParams }: { sear
   const { token } = await searchParams;
   if (!isToken(token)) redirect("/newsletter/invalid");
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
+    <div className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
       <PageHeader eyebrow="Newsletter" eyebrowIcon={Mail} title="Unsubscribe from the newsletter" lede="Tap the button and we stop sending you the Localley newsletter." />
       <form method="post" action="/api/newsletter/unsubscribe" className="mt-8">
         <input type="hidden" name="token" value={token} />
         <Button type="submit" className="min-h-12 px-6 font-semibold">Unsubscribe</Button>
       </form>
-    </main>
+    </div>
   );
 }

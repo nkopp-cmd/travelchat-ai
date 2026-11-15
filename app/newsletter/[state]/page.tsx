@@ -20,12 +20,12 @@ export default async function NewsletterStatePage({ params }: { params: Promise<
   const key = state as NewsletterState;
   const copy = NEWSLETTER_STATES[key];
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
+    <div className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
       <PageHeader eyebrow="Newsletter" eyebrowIcon={Mail} title={copy.title} lede={copy.lede} />
       {RETRY_FORM.has(key) ? <LocalleySignup source={`newsletter-${key}`} className="mt-8" /> : null}
       <p className="mt-8 text-[15px]">
         <Link className="font-semibold text-primary underline-offset-4 hover:underline" href="/spots">Browse places locals rate</Link>
       </p>
-    </main>
+    </div>
   );
 }

@@ -36,7 +36,7 @@ export default async function ViralEventPage({ params }: Props) {
   };
 
   return (
-    <main className="container mx-auto px-4 pb-24 pt-6 md:pb-10 md:pt-8">
+    <div className="container mx-auto px-4 pb-24 pt-6 md:pb-10 md:pt-8">
       <SpotCardEvents />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       <PageHeader eyebrow="Viral spots" eyebrowIcon={Flame} title={event.label}
@@ -72,6 +72,6 @@ export default async function ViralEventPage({ params }: Props) {
           ))}
         </ul>
       </section>
-    </main>
+    </div>
   );
 }

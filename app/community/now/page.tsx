@@ -36,7 +36,7 @@ export default async function TravellingNowPage({ searchParams }: { searchParams
   const groupHref = (w: string) => `/community/now?${new URLSearchParams({ city, week: w })}`;
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
+    <div className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
       <Link href="/community" className="mb-4 inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="size-4" aria-hidden="true" /> Community
       </Link>
@@ -172,6 +172,6 @@ export default async function TravellingNowPage({ searchParams }: { searchParams
           <Button type="submit" className="self-end">Join this group</Button>
         </form>
       </section>
-    </main>
+    </div>
   );
 }

@@ -62,7 +62,7 @@ export default async function HelpMenuPage({ params }: { params: Promise<{ count
   const order = helpPhrases(country).flatMap((group) => group.phrases).find((phrase) => phrase.id === "order_this");
   const wrap = country.language === "ko" ? "[word-break:keep-all]" : "";
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
+    <div className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
       <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Help", url: "/help" }, { name: country.name, url: `/help/${country.slug}` }, { name: "Menu help", url: `/help/${country.slug}/menu` }]} />
       <Link href={`/help/${country.slug}`} className="mb-4 inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="size-4" aria-hidden="true" /> {country.name} phrases
@@ -101,6 +101,6 @@ export default async function HelpMenuPage({ params }: { params: Promise<{ count
       <script dangerouslySetInnerHTML={{ __html: SCRIPT }} />
       <HelpPlanLink countrySlug={country.slug} />
       <LocalleySignup source="help-menu" className="mt-10" />
-    </main>
+    </div>
   );
 }

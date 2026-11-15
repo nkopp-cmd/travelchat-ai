@@ -19,7 +19,7 @@ const CONTACT = "nkopp@my-goodlife.com";
 
 export default function PrivacyPage() {
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
+    <div className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
       <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Privacy", url: "/privacy" }]} />
       <PageHeader eyebrow="Legal" eyebrowIcon={ShieldCheck} title="Privacy policy"
         lede="Localley helps you find local spots and plan trips in Asian cities. This page explains, in plain words, what we keep about you and why." />
@@ -64,6 +64,6 @@ export default function PrivacyPage() {
           <p>Questions about privacy: <a className="text-primary underline" href={`mailto:${CONTACT}`}>{CONTACT}</a>.</p>
         </section>
       </div>
-    </main>
+    </div>
   );
 }

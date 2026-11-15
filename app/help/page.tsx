@@ -18,7 +18,7 @@ export const dynamic = "force-static";
 
 export default function HelpPage() {
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
+    <div className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
       <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Help", url: "/help" }]} />
       <PageHeader eyebrow="Help" eyebrowIcon={Languages} title="Help me say this"
         lede="Pick the country you are in. Tap a phrase and show the big card to staff or a driver. Works without signal once the page is open." />
@@ -34,6 +34,6 @@ export default function HelpPage() {
           </li>
         ))}
       </ul>
-    </main>
+    </div>
   );
 }

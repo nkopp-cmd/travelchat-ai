@@ -69,7 +69,7 @@ export default async function QuestionPage({ params, searchParams }: { params: P
   const city = ALL_CITIES.find((c) => c.slug === question.city);
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
+    <div className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
       <Link href={`/community?city=${question.city}`} className="mb-4 inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="size-4" aria-hidden="true" /> {city?.name ?? "Community"} questions
       </Link>
@@ -107,6 +107,6 @@ export default async function QuestionPage({ params, searchParams }: { params: P
           <Button type="submit" className="self-end">Post answer</Button>
         </form>
       )}
-    </main>
+    </div>
   );
 }

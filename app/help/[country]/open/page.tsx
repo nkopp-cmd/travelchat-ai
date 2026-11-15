@@ -53,7 +53,7 @@ export default async function HelpOpenPage({ params }: { params: Promise<{ count
   const cities = ALL_CITIES.filter((city) => city.countryCode === HELP_COUNTRY_CODES[country.slug])
     .sort((a, b) => Number(b.isEnabled) - Number(a.isEnabled) || a.ring - b.ring);
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
+    <div className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
       <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Help", url: "/help" }, { name: country.name, url: `/help/${country.slug}` }, { name: "Open nearby", url: `/help/${country.slug}/open` }]} />
       <Link href={`/help/${country.slug}`} className="mb-4 inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="size-4" aria-hidden="true" /> {country.name} phrases
@@ -90,6 +90,6 @@ export default async function HelpOpenPage({ params }: { params: Promise<{ count
       <script dangerouslySetInnerHTML={{ __html: SCRIPT }} />
       <HelpPlanLink countrySlug={country.slug} />
       <LocalleySignup source="help-open" className="mt-10" />
-    </main>
+    </div>
   );
 }
