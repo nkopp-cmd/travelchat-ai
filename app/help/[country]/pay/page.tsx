@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LocalleySignup } from "@/components/newsletter/localley-signup";
+import { HelpPlanLink } from "@/components/help/help-plan-link";
 import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { pageMeta } from "@/lib/seo/meta";
 import { pageCardImage } from "@/lib/seo/page-card";
@@ -58,6 +59,7 @@ export default async function HelpPayPage({ params }: { params: Promise<{ countr
           {guide.sources.map((url) => <li key={url}><a href={url} rel="noopener noreferrer nofollow" target="_blank" className="underline">{url}</a></li>)}
         </ul>
       </details>
+      <HelpPlanLink countrySlug={country.slug} />
       <LocalleySignup source="help-pay" className="mt-10" />
     </main>
   );

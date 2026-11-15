@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LocalleySignup } from "@/components/newsletter/localley-signup";
+import { HelpPlanLink } from "@/components/help/help-plan-link";
 import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { pageMeta } from "@/lib/seo/meta";
 import { pageCardImage } from "@/lib/seo/page-card";
@@ -98,6 +99,7 @@ export default async function HelpMenuPage({ params }: { params: Promise<{ count
         </div>
       </div>
       <script dangerouslySetInnerHTML={{ __html: SCRIPT }} />
+      <HelpPlanLink countrySlug={country.slug} />
       <LocalleySignup source="help-menu" className="mt-10" />
     </main>
   );
