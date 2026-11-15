@@ -20,6 +20,8 @@ on:
       - 'lib/auth/config.ts'
       - 'package-lock.json'
       - 'lib/trips/generated-preview.ts'
+      - 'lib/trips/paid-return.ts'
+      - '__tests__/lib/paid-return.test.ts'
       - 'app/itineraries/preview/**'
       - '__tests__/lib/generated-preview.test.ts'
       - '__tests__/lib/generated-preview-schema.test.ts'
