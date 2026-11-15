@@ -7,7 +7,7 @@ import { useWizard } from "./wizard-context";
 import { MapPin, Check, RefreshCw, Route } from "@/components/ui/icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MAX_CORRIDOR_DESTINATIONS } from "@/lib/trips/wizard-corridor";
-import { selectableSlugs, type CorridorNetwork } from "@/lib/trips/corridor-network";
+import { selectableSlugs, type CorridorNetwork } from "@/lib/trips/corridor-select";
 import { PLANNER_CITIES_URL, isPlannerCity } from "@/lib/trips/planner-cities";
 import { PlannerCitiesContext } from "./planner-cities-context";
 import { useAuth } from "@/lib/auth/client";

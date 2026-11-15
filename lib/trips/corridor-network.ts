@@ -1,11 +1,8 @@
 import { directedTransportEdges } from "./transport-manifest";
 import { geographySeedManifest } from "../geography/seed-manifest";
+import type { CorridorNetwork } from "./corridor-select";
 
-export type CorridorNetwork = {
-  slugs: string[];
-  adjacency: Record<string, string[]>;
-  countryBySlug: Record<string, string>;
-};
+export { selectableSlugs, type CorridorNetwork } from "./corridor-select";
 
 let cached: CorridorNetwork | null = null;
 
@@ -35,22 +32,4 @@ export function supportedCorridorNetwork(): CorridorNetwork {
     countryBySlug,
   };
   return cached;
-}
-
-export function selectableSlugs(
-  network: CorridorNetwork,
-  selected: readonly string[],
-): Set<string> {
-  if (selected.length === 0) {
-    return new Set(network.slugs);
-  }
-  const anchorCountry = network.countryBySlug[selected[0]];
-  const selectable = new Set<string>();
-  for (const slug of network.slugs) {
-    if (selected.includes(slug)) continue;
-    if (network.countryBySlug[slug] !== anchorCountry) continue;
-    const connected = selected.some((picked) => network.adjacency[picked]?.includes(slug));
-    if (connected) selectable.add(slug);
-  }
-  return selectable;
 }
