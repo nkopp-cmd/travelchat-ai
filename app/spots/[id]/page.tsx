@@ -14,7 +14,7 @@ import { d1CommunitySubmission, d1RelatedSpotSources, d1SpotSource } from "@/lib
 import { cardPhotoCredits, cardSpotPhotos, directSpotPhotos, type StoredSpotPhoto } from "@/lib/spots/own-photo";
 import { SpotInteractions } from "@/components/spots/spot-interactions";
 import { SpotActivities } from "@/components/spots/spot-activities";
-import { ReviewList } from "@/components/spots/review-list";
+import { LazyReviewList } from "@/components/spots/lazy-review-list";
 import { VenueHeroPhoto, VenuePhotoThumbnails, VenueCardPhoto } from "@/components/spots/spot-photo-image";
 import { VenuePhotoProvider, type DirectPhotoCredit } from "@/components/spots/venue-photo-provider";
 import { SpotDetailMap } from "@/components/spots/spot-detail-map";
@@ -803,7 +803,7 @@ export default async function SpotPage({
               </Link>
             )}
           </div>
-          <ReviewList spotId={spot.id} />
+          <LazyReviewList spotId={spot.id} />
         </section>
 
         <footer data-testid="spot-sources" className="mt-2 space-y-1 pt-6 text-xs leading-5 text-muted-foreground">

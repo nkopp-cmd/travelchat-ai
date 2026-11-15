@@ -109,6 +109,7 @@ VITEST_FILES=(
   __tests__/api/spots-near.test.ts
   __tests__/lib/driver-card.test.ts
   __tests__/components/spot-activities.test.tsx
+  __tests__/components/lazy-review-list.test.tsx
   __tests__/lib/community-qa.test.ts
   __tests__/lib/community-access.test.ts
   __tests__/lib/places-quota.test.ts
