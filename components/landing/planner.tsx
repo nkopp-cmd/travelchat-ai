@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { QUICK_START_OFFER } from "@/lib/offer-copy";
 import {
   createContext,
   useContext,
@@ -427,6 +428,7 @@ function TripBuilder({
           </div>
         </div>
 
+        <p data-testid="landing-free-offer" className="text-sm font-semibold text-foreground">{QUICK_START_OFFER}</p>
         <div className="grid gap-2 sm:grid-cols-2">
           <Button
             asChild

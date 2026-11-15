@@ -602,6 +602,8 @@ export default async function SpotPage({
   // hero placeholder (it collapsed after load: CLS 0.31 on mobile PSI, weekend sprint L4 follow-up).
   const photosPossible = !candidate && spot.hasIndexPhoto;
 
+  const planHref = `/itineraries/new?${new URLSearchParams(knownCity ? { spot: spot.id, city: knownCity } : { spot: spot.id })}`;
+
   return (
     <VenuePhotoProvider key={spot.id} spotId={spot.id} allowFetch={photosPossible} directPhotos={directSpotPhotos(spot)}
       photoCredits={"photoCredits" in spot ? spot.photoCredits ?? [] : []}>
@@ -650,6 +652,12 @@ export default async function SpotPage({
             {candidate && saveActor && <PreviewSaveSpotButton spotId={spot.id} spotName={spot.name} actorId={saveActor} />}
           </div>
         </header>
+
+        {!candidate && (
+          <div className="lg:hidden">
+            <PlanTripButton spotId={spot.id} href={planHref} testId="spot-plan-trip-top" label={`Plan a free day around ${spot.name}`} />
+          </div>
+        )}
 
         {viralMentions.length > 0 && (
           <section data-testid="spot-trending" className={`${LIQUID_CARD} space-y-2 p-4`} aria-label="Why it is trending">
@@ -713,17 +721,7 @@ export default async function SpotPage({
           <aside className="space-y-3 lg:sticky lg:top-24 lg:self-start">
             <GetDirectionsButton spot={spot} />
             {!candidate && (
-              <Button asChild variant="secondary" className="h-12 w-full rounded-xl text-base" size="lg">
-                <SpotEventLink
-                  spotId={spot.id}
-                  event="add_to_trip"
-                  prefetch={false}
-                  data-testid="spot-plan-trip"
-                  href={`/itineraries/new?${new URLSearchParams(knownCity ? { spot: spot.id, city: knownCity } : { spot: spot.id })}`}
-                >
-                  <span className="truncate">Plan a free trip with this spot</span>
-                </SpotEventLink>
-              </Button>
+              <PlanTripButton spotId={spot.id} href={planHref} testId="spot-plan-trip" label="Plan a free trip with this spot" />
             )}
             <DriverCardLink spotId={spot.id} />
             <div className={`${LIQUID_CARD} overflow-hidden`}>
@@ -782,6 +780,13 @@ export default async function SpotPage({
           </section>
         )}
 
+        {!candidate && (
+          <div className="mx-auto w-full max-w-md">
+            <PlanTripButton spotId={spot.id} href={planHref} testId="spot-plan-trip-nearby" label={`Plan a free day around ${spot.name}`} />
+            <p className="mt-2 text-center text-sm text-muted-foreground">First plan free · no sign-up</p>
+          </div>
+        )}
+
         {!candidate && <LocalleySignup source="spot" city={citySlug ?? undefined} heading={knownCity ? `More ${knownCity} picks by email` : "The Localley newsletter"} />}
 
         <section className="space-y-4">
@@ -825,5 +830,16 @@ export default async function SpotPage({
       </div>
       <DriverCardDialog spotId={spot.id} name={spot.name} nameField={spot.nameField} address={spot.location.address} />
     </VenuePhotoProvider>
+  );
+}
+
+// Planner entry (revenue push L1): plain link, add_to_trip event; the first plan is free and needs no account.
+function PlanTripButton({ spotId, href, testId, label }: { spotId: string; href: string; testId: string; label: string }) {
+  return (
+    <Button asChild variant="secondary" className="h-12 w-full rounded-xl text-base" size="lg">
+      <SpotEventLink spotId={spotId} event="add_to_trip" prefetch={false} data-testid={testId} href={href}>
+        <span className="truncate">{label}</span>
+      </SpotEventLink>
+    </Button>
   );
 }

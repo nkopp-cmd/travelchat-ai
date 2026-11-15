@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth/client";
 import {
@@ -22,6 +22,7 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { useToast } from "@/hooks/use-toast";
 import { TIER_CONFIGS } from "@/lib/subscription";
 import { cn } from "@/lib/utils";
+import { checkoutSignUpUrl, parseCheckoutIntent, withoutCheckoutParam } from "@/lib/pricing-checkout";
 
 type PaidTier = "pro" | "premium";
 
@@ -86,12 +87,8 @@ export default function PricingPage() {
 
     const handleSubscribe = async (tier: PaidTier) => {
         if (!isSignedIn) {
-            toast({
-                title: "Sign in required",
-                description: "Create or sign in to your account before checkout.",
-                variant: "destructive",
-            });
-            window.location.href = "/sign-in";
+            // New visitors have no account: sign up, then come back here and go straight to Stripe.
+            window.location.href = checkoutSignUpUrl(tier, isYearly ? "yearly" : "monthly");
             return;
         }
 
@@ -114,6 +111,26 @@ export default function PricingPage() {
             setLoadingTier(null);
         }
     };
+
+    // Back from sign-up with ?checkout=<tier>-<cycle>: start Stripe once, then drop the parameter.
+    const autoCheckoutStarted = useRef(false);
+    useEffect(() => {
+        if (!isSignedIn || isLoading || autoCheckoutStarted.current) return;
+        const intent = parseCheckoutIntent(window.location.search);
+        if (!intent) return;
+        autoCheckoutStarted.current = true;
+        window.history.replaceState(null, "", withoutCheckoutParam(window.location.href));
+        if (hasPaidSubscription) return;
+        setIsYearly(intent.cycle === "yearly");
+        setLoadingTier(intent.tier);
+        openCheckout(intent.tier, intent.cycle)
+            .catch((error) => toast({
+                title: "Checkout error",
+                description: error instanceof Error ? error.message : "Failed to start checkout",
+                variant: "destructive",
+            }))
+            .finally(() => setLoadingTier(null));
+    }, [isSignedIn, isLoading, hasPaidSubscription, openCheckout, toast]);
 
     const handleManageSubscription = async () => {
         if (!isSignedIn) {

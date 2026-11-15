@@ -70,6 +70,16 @@ describe("helper-first landing entry", () => {
     for (const helper of LANDING_HELPERS) expect(helper.href).not.toContain("sort=local");
   });
 
+  it("says the first plan is free and shows Pro right after the planner (revenue push L3)", async () => {
+    const html = renderToStaticMarkup(await LandingPage());
+    expect(html).toContain("First plan free · no sign-up");
+    expect(html).not.toContain(">Paid only<");
+    const pro = html.indexOf('data-testid="landing-pro"');
+    expect(pro).toBeGreaterThan(html.indexOf(">Then plan the day<"));
+    expect(pro).toBeLessThan(html.indexOf(">Cities live now<"));
+    expect(html.slice(pro)).toContain('href="/pricing"');
+  });
+
   it("points every helper at a live route", () => {
     const routes: Record<string, string> = {
       "/help": "app/help/page.tsx", "/help/korea/menu": "app/help/[country]/menu/page.tsx",
