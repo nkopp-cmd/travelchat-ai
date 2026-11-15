@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 import { ArrowLeft, ArrowRight, Loader2, MapPin, Sparkles } from "@/components/ui/icons";
 import { WizardProvider, useWizard, WizardData } from "./wizard-context";
 import { PlannerCitiesContext } from "./planner-cities-context";
@@ -28,6 +29,15 @@ const PROGRESS_MESSAGES = [
   "Curating your perfect trip...",
   "Almost there...",
 ];
+
+// Network drops (TypeError) and non-JSON answers such as a 502 HTML page (SyntaxError) carry
+// browser/parser text; the visitor sees this one sentence and a Try again action instead.
+export const GENERATE_FAILED_MESSAGE = "We could not build your trip. Your choices are kept. Try again.";
+
+export function generateFailureText(error: unknown): string {
+  if (error instanceof TypeError || error instanceof SyntaxError) return GENERATE_FAILED_MESSAGE;
+  return getErrorMessage(error) || GENERATE_FAILED_MESSAGE;
+}
 
 export function getTemplateFooterCityLabel(city: string): string {
   return city ? `Confirm city: ${city}` : "Pick a city";
@@ -82,6 +92,7 @@ function WizardContent({
   onGenerate: (data: WizardData) => Promise<void>;
 }) {
   const { currentStep, totalSteps, data, canProceed, nextStep, prevStep, goToStep } = useWizard();
+  const { toast } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
   const [progressMessage, setProgressMessage] = useState("");
   const stepScrollRef = useRef<HTMLDivElement | null>(null);
@@ -124,6 +135,14 @@ function WizardContent({
       setIsGenerating(true);
       try {
         await onGenerate(data);
+      } catch (error) {
+        toast({
+          title: "Generation failed",
+          description: generateFailureText(error),
+          variant: "destructive",
+          // Re-sends the same inputs through this path (progress state included).
+          action: <ToastAction altText="Try again" onClick={() => void handleNext()}>Try again</ToastAction>,
+        });
       } finally {
         setIsGenerating(false);
       }
@@ -332,94 +351,88 @@ export function ItineraryWizard({ initialData, initialStep, initialCities = null
   }, []);
   const { toast } = useToast();
 
+  // Failures throw to the wizard footer, which shows the toast with a Try again action.
   const handleGenerate = async (data: WizardData) => {
-    try {
-      // Preserve inputs before any request or authentication redirect. This grants no paid access.
-      savePlannerDraft(localStorage, data);
-      const isMultiCity = data.tripMode === "multi" && data.citySlugs.length >= 2;
-      const response = await fetch("/api/itineraries/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(
-          isMultiCity
-            ? {
-                corridor: {
-                  destinations: data.citySlugs.map((destinationSlug) => ({ destinationSlug })),
-                  totalDays: data.days,
-                },
-                interests: data.interests,
-                budget: data.budget,
-                localnessLevel: data.localnessLevel,
-                pace: data.pace,
-                groupType: data.groupType,
-              }
-            : {
-                city: data.city,
-                days: data.days,
-                interests: data.interests,
-                budget: data.budget,
-                localnessLevel: data.localnessLevel,
-                pace: data.pace,
-                groupType: data.groupType,
-                templatePrompt: data.templatePrompt,
+    // Preserve inputs before any request or authentication redirect. This grants no paid access.
+    savePlannerDraft(localStorage, data);
+    const isMultiCity = data.tripMode === "multi" && data.citySlugs.length >= 2;
+    const response = await fetch("/api/itineraries/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(
+        isMultiCity
+          ? {
+              corridor: {
+                destinations: data.citySlugs.map((destinationSlug) => ({ destinationSlug })),
+                totalDays: data.days,
               },
-        ),
-      });
+              interests: data.interests,
+              budget: data.budget,
+              localnessLevel: data.localnessLevel,
+              pace: data.pace,
+              groupType: data.groupType,
+            }
+          : {
+              city: data.city,
+              days: data.days,
+              interests: data.interests,
+              budget: data.budget,
+              localnessLevel: data.localnessLevel,
+              pace: data.pace,
+              groupType: data.groupType,
+              templatePrompt: data.templatePrompt,
+            },
+      ),
+    });
 
-      const result = await response.json();
+    const result = await response.json().catch(() => null);
+    if (!result) throw new Error(GENERATE_FAILED_MESSAGE);
 
-      if (!response.ok) {
-        const errorCode = typeof result.error === "string" ? result.error : result.error?.code;
-        const errorMessage = typeof result.message === "string" ? result.message
-          : typeof result.error?.message === "string" ? result.error.message : undefined;
-        // Handle specific error types
-        if (errorCode === "signup_required" || errorCode === "unauthorized") {
-          toast({
-            title: "Sign up to continue",
-            description: errorMessage,
-          });
-          router.push(`/sign-up?redirect_url=${encodeURIComponent(PLANNER_RESUME_PATH)}`);
-          return;
-        }
-
-        if (errorCode === "limit_exceeded") {
-          toast({
-            title: "Limit reached",
-            description: errorMessage,
-          });
-          if (result.upgrade) {
-            router.push("/pricing");
-          }
-          return;
-        }
-
-        throw new Error(errorMessage || (typeof result.error === "string" ? result.error : "Failed to generate itinerary"));
-      }
-
-      trackFunnelStep("trip_generated", "direct");
-      // Free generation is a full readable browser preview. Saving is a separate paid action.
-      if (result.isAnonymous || result.requiresSaveUpgrade) {
-        storeGeneratedPreview(localStorage, { ...result.itinerary, city: result.itinerary.city || data.city, days: data.days });
-        router.push(GENERATED_PREVIEW_PATH);
-      } else {
-        // Authenticated user - redirect to saved itinerary
+    if (!response.ok) {
+      const errorCode = typeof result.error === "string" ? result.error : result.error?.code;
+      const errorMessage = typeof result.message === "string" ? result.message
+        : typeof result.error?.message === "string" ? result.error.message : undefined;
+      // Handle specific error types
+      if (errorCode === "signup_required" || errorCode === "unauthorized") {
         toast({
-          title: "Itinerary created!",
-          description: `${result.itinerary.title} is ready to explore`,
+          title: "Sign up to continue",
+          description: errorMessage,
         });
-
-        if (result.itinerary.id) {
-          router.push(`/itineraries/${result.itinerary.id}`);
-        } else {
-          router.push("/itineraries");
-        }
+        router.push(`/sign-up?redirect_url=${encodeURIComponent(PLANNER_RESUME_PATH)}`);
+        return;
       }
-    } catch (error) {
+
+      if (errorCode === "limit_exceeded") {
+        toast({
+          title: "Limit reached",
+          description: errorMessage,
+        });
+        if (result.upgrade) {
+          router.push("/pricing");
+        }
+        return;
+      }
+
+      throw new Error(errorMessage || (typeof result.error === "string" ? result.error : "Failed to generate itinerary"));
+    }
+
+    trackFunnelStep("trip_generated", "direct");
+    // Free generation is a full readable browser preview. Saving is a separate paid action.
+    if (result.isAnonymous || result.requiresSaveUpgrade) {
+      storeGeneratedPreview(localStorage, { ...result.itinerary, city: result.itinerary.city || data.city, days: data.days });
+      router.push(GENERATED_PREVIEW_PATH);
+    } else {
+      // Authenticated user - redirect to saved itinerary
       toast({
-        title: "Generation failed",
-        description: getErrorMessage(error),
-        variant: "destructive",
+        title: "Itinerary created!",
+        description: `${result.itinerary.title} is ready to explore`,
       });
+
+      if (result.itinerary.id) {
+        router.push(`/itineraries/${result.itinerary.id}`);
+      } else {
+        router.push("/itineraries");
+      }
     }
   };
 
