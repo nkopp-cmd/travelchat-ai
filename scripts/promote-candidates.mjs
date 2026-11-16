@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 // Localley candidate promoter (shared/plans/localley-mobile-map-ux-asia-growth.md items 6 + 7).
-// Reads pending rows of D1 apify_spot_candidates (Apify map discovery today; OSM/other free sources later write the same
-// table), runs the spot gate and either creates a visible spot or rejects the row with a reason. Never leaves a row pending
+// Reads pending rows of D1 apify_spot_candidates (Apify map discovery, and OSM notable places from discover-osm-places.mjs), runs the spot gate and either creates a visible spot or rejects the row with a reason. Never leaves a row pending
 // longer than one run unless the copy step fails (it retries next run).
 //
 // Gate, in order: known city + coordinates <= 50 km from its centre; signal (>= 30 reviews, rating >= 4.2); no hotel;
 // not already a spot (same place ID, or the same name within ~150 m). Then `codex exec` on the ChatGPT subscription writes
 // our own copy (never a metered API); a romanized exact street address is required, else the row is rejected.
 // Rows use the viral scout's insert statements (same columns, journal, runtime listing photo: no photo is stored, so no
-// Google photo reference lands in our storage). Caps: 30 inserts per city per run. Dry run unless --apply.
+// Google photo reference lands in our storage). OSM rows have no Google place: their Wikidata image (Commons, free licence)
+// is stored in R2 with its credit (scripts/photos/osm-spot-photo.mjs). Caps: 30 inserts per city per run. Dry run unless --apply.
 //
 // Usage: node scripts/promote-candidates.mjs [--apply] [--city <slug>] [--limit <n>]
 // Rollback: every created spot id is appended to ~/.local/state/localley/candidate-promote-created.jsonl.
@@ -20,6 +20,7 @@ import { homedir, tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { CATEGORIES, ewkbPoint, insertStatements, VISIBILITY_VERSION } from "./viral-scout.mjs";
+import { commonsFileName, fetchSpotPhoto, photoInsert } from "./photos/osm-spot-photo.mjs";
 
 const ACCOUNT = "664f242340bcec2f32daaeee15f58bde";
 const APP_DB = "f1cc916b-5606-443f-9c4f-695c4ccc4a63"; // localley-app (production)
@@ -31,6 +32,7 @@ export const MAX_CITY_KM = 50;
 export const MIN_REVIEWS = 30;
 export const MIN_RATING = 4.2;
 export const MAX_INSERTS_PER_CITY = 30;
+export const OSM_SOURCE = "osm_discovery";
 export const COPY_BATCH = 12;
 const STALE_DAYS = 14;
 /** Plan item 8: the 10 biggest cities must each get new spots; one line to Nils when one gets none in WATCH_DAYS. */
@@ -71,7 +73,12 @@ export function gateCandidate(c, cities, { listed = false, nearby = [] } = {}) {
   if (!city) return { reject: "unknown_city" };
   const lat = Number(c.latitude), lng = Number(c.longitude);
   if (!Number.isFinite(lat) || !Number.isFinite(lng) || distanceKm(city, { lat, lng }) > MAX_CITY_KM) return { reject: "outside_city" };
-  if ((Number(c.reviews_count) || 0) < MIN_REVIEWS || (Number(c.total_score) || 0) < MIN_RATING) return { reject: "weak_signal" };
+  // OSM rows have no reviews; discover-osm-places.mjs keeps only places with a Wikipedia article (notability = signal).
+  const signal = c.source_type === OSM_SOURCE ? parseList(c.categories).includes("wikipedia")
+    : (Number(c.reviews_count) || 0) >= MIN_REVIEWS && (Number(c.total_score) || 0) >= MIN_RATING;
+  if (!signal) return { reject: "weak_signal" };
+  // OSM spots have no Google photo lookup: without their Wikidata image (a Commons file page) they cannot pass the public photo rule.
+  if (c.source_type === OSM_SOURCE && !commonsFileName(c.primary_image_url)) return { reject: "no_photo" };
   const cats = [c.category_name, ...parseList(c.categories)].join(" ").toLowerCase();
   if (/\b(hotel|hostel|resort|guest ?house|lodging|motel)\b/.test(cats)) return { reject: "hotel" };
   if (listed) return { reject: "duplicate" };
@@ -150,19 +157,25 @@ export function parseCopy(raw, items) {
 }
 
 /** The D1 rows of a new spot (same shape as the viral scout's buildSpotRows), from a map-discovery candidate. */
-export function buildCandidateRows({ id = randomUUID(), c, city, copy, now = new Date().toISOString() }) {
+export function buildCandidateRows({ id = randomUUID(), c, city, copy, photo = null, now = new Date().toISOString() }) {
   const lat = Number(c.latitude), lng = Number(c.longitude);
+  const osm = c.source_type === OSM_SOURCE; // an "osm:node/1" id is no Google place ID: no listing row, no runtime photo lookup
   const score = [3, 4, 5].includes(Number(c.recommended_localley_score)) ? Number(c.recommended_localley_score) : 3;
   const name = { en: copy.nameEn };
   const address = { en: copy.addressEn, local: cleanText(c.address, 200) };
   const common = { category: copy.category, localley_score: score, local_percentage: copy.localPercentage, subcategories: copy.subcategories,
-    best_times: { en: copy.bestTimesEn }, tips: { en: copy.tipsEn }, photos: [], trending_score: 0,
-    name_en_normalized: copy.nameEn.toLowerCase(), address_en_normalized: copy.addressEn.toLowerCase(), google_place_id: c.place_id };
+    best_times: { en: copy.bestTimesEn }, tips: { en: copy.tipsEn }, photos: photo ? [photo.path] : [], trending_score: 0,
+    name_en_normalized: copy.nameEn.toLowerCase(), address_en_normalized: copy.addressEn.toLowerCase(), google_place_id: osm ? null : c.place_id };
   const spot = { id, name, description: { en: copy.descriptionEn }, ...common, visible: 1, city: city.name, address: copy.addressEn,
     latitude: lat, longitude: lng, source_urls: c.maps_url ? [c.maps_url] : [], address_json: address, created_at: now, visibility_version: VISIBILITY_VERSION };
   const payload = { id, name, description: { en: copy.descriptionEn }, location: ewkbPoint(lng, lat), address, ...common,
     discovered_by: null, verified: false, created_at: now, review_count: 0, average_rating: 0, destination_id: null, local_area_id: null };
-  return { spot, payload, listing: { spot_id: id, place_id: c.place_id, source: "live google_place_id" } };
+  return { spot, payload, listing: osm ? null : { spot_id: id, place_id: c.place_id, source: "live google_place_id" }, photo };
+}
+
+/** All writes of one new spot: the spot rows, then its first photo (spot_photos references the spot). */
+export function candidateStatements(rows) {
+  return [...insertStatements(rows), ...(rows.photo ? [photoInsert(rows.spot.id, rows.photo)] : [])];
 }
 
 // ---------- I/O ----------
@@ -235,9 +248,20 @@ export async function run({ apply = false, city: onlyCity = null, limit = 500, l
         await reject(item.c, `inexact_address (${copy.addressEn || "none"})`, apply);
         continue;
       }
-      const rows = buildCandidateRows({ c: item.c, city: item.city, copy });
-      if (!apply) { log(`would create: ${item.city.name} | ${copy.nameEn} | ${copy.category} | ${copy.addressEn}`); tally.created++; continue; }
-      for (const s of insertStatements(rows)) await d1(s.sql, s.params);
+      const id = randomUUID();
+      let photo = null;
+      if (item.c.source_type === OSM_SOURCE) {
+        photo = await fetchSpotPhoto(commonsFileName(item.c.primary_image_url), id, { apply }).catch((e) => ({ problem: `photo: ${e.message}` }));
+        if (photo.problem) {
+          tally.rejected.no_photo = (tally.rejected.no_photo ?? 0) + 1;
+          log(`${apply ? "rejected" : "would reject"}: ${item.city.name} | ${item.c.name} | no_photo (${photo.problem})`);
+          await reject(item.c, `no_photo (${photo.problem})`, apply);
+          continue;
+        }
+      }
+      const rows = buildCandidateRows({ id, c: item.c, city: item.city, copy, photo });
+      if (!apply) { log(`would create: ${item.city.name} | ${copy.nameEn} | ${copy.category} | ${copy.addressEn}${photo ? ` | ${photo.licence} ${photo.author}` : ""}`); tally.created++; continue; }
+      for (const s of candidateStatements(rows)) await d1(s.sql, s.params);
       const now = new Date().toISOString();
       await d1("UPDATE apify_spot_candidates SET status = 'imported', imported_spot_id = ?, reviewed_at = ?, updated_at = ? WHERE id = ?",
         [rows.spot.id, now, now, item.c.id]);

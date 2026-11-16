@@ -55,6 +55,8 @@ VITEST_FILES=(
   __tests__/lib/spots-public-quality.test.ts
   __tests__/lib/viral-scout-rows.test.ts
   __tests__/lib/promote-candidates-rows.test.ts
+  __tests__/lib/discover-osm-places.test.ts
+  __tests__/lib/osm-spot-photo.test.ts
   __tests__/lib/discover-new-places.test.ts
   __tests__/lib/viral-feed.test.ts
   __tests__/lib/spot-guide.test.ts
@@ -538,6 +540,8 @@ ESLINT_FILES=(
   __tests__/lib/spots-public-quality.test.ts
   __tests__/lib/viral-scout-rows.test.ts
   __tests__/lib/promote-candidates-rows.test.ts
+  __tests__/lib/discover-osm-places.test.ts
+  __tests__/lib/osm-spot-photo.test.ts
   __tests__/lib/discover-new-places.test.ts
   __tests__/lib/viral-feed.test.ts
   __tests__/lib/spot-guide.test.ts
