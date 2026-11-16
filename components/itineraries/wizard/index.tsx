@@ -342,7 +342,7 @@ let plannerStartTracked = false;
 export function markPlannerStart() {
   if (plannerStartTracked) return;
   plannerStartTracked = true;
-  trackFunnelStep("planner_start", funnelSource(document.referrer, location.origin));
+  trackFunnelStep("planner_start", funnelSource(document.referrer, location.origin, location.search));
 }
 /** Test hook: a new page load. */
 export function resetPlannerStartForTest() { plannerStartTracked = false; }
