@@ -224,6 +224,8 @@ export const TABLES: Record<string, TableSpec> = {
       google_place_id: { kind: "text" },
       destination_id: { kind: "text" },
       local_area_id: { kind: "text" },
+      // Canonical lib/cities.ts name (migration 0004); NULL rows fall back to the address match.
+      city: { kind: "text" },
     },
     // Policy "Public spots read": anon + authenticated SELECT all rows; writes are service-role only.
     anonRead: "1",

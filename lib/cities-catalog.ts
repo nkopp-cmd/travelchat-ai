@@ -36,7 +36,7 @@ export async function fetchCitiesWithCounts(): Promise<CityWithCount[]> {
   let counts: Map<string, number> | null = null;
   try {
     const { data, error } = await applyPublicSpotVisibilityFilters(
-      supabase.from("spots").select("name, address, location, photos, google_place_id"),
+      supabase.from("spots").select("name, address, city, location, photos, google_place_id"),
     );
     if (error) console.error("[api/cities] Supabase error:", error.message);
     else counts = countSpotsByCity((data || []) as PublicSpotQualityInput[]);
