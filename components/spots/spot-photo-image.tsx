@@ -10,15 +10,15 @@ import { earlyHeroScript, getDirectVenuePhotos, type DirectPhotoCredit, useDetai
 
 type Photo = PhotoGalleryResponse["photos"][number];
 
-export function SpotPhotoImage({ photo, alt, className = "object-cover", sizes, priority = false, loading = false, creditClassName = "", children, frameClassName, hero = false, earlySpotId, category }: {
-  photo?: Photo; alt: string; className?: string; sizes: string; priority?: boolean; loading?: boolean; creditClassName?: string; children?: ReactNode; frameClassName?: string; hero?: boolean; earlySpotId?: string; category?: string;
+export function SpotPhotoImage({ photo, alt, className = "object-cover", sizes, priority = false, loading = false, children, frameClassName, hero = false, earlySpotId, category }: {
+  photo?: Photo; alt: string; className?: string; sizes: string; priority?: boolean; loading?: boolean; children?: ReactNode; frameClassName?: string; hero?: boolean; earlySpotId?: string; category?: string;
 }) {
   // Reset only the image state on source changes; keep hero interactions mounted.
-  return <PhotoImage photo={photo} alt={alt} className={className} sizes={sizes} priority={priority} loading={loading} creditClassName={creditClassName} frameClassName={frameClassName} hero={hero} earlySpotId={earlySpotId} category={category}>{children}</PhotoImage>;
+  return <PhotoImage photo={photo} alt={alt} className={className} sizes={sizes} priority={priority} loading={loading} frameClassName={frameClassName} hero={hero} earlySpotId={earlySpotId} category={category}>{children}</PhotoImage>;
 }
 
-function PhotoImage({ photo, alt, className, sizes, priority, loading, creditClassName, children, frameClassName, hero, earlySpotId, category = "" }: {
-  photo?: Photo; alt: string; className: string; sizes: string; priority: boolean; loading: boolean; creditClassName: string; children?: ReactNode; frameClassName?: string; hero: boolean; earlySpotId?: string; category?: string;
+function PhotoImage({ photo, alt, className, sizes, priority, loading, children, frameClassName, hero, earlySpotId, category = "" }: {
+  photo?: Photo; alt: string; className: string; sizes: string; priority: boolean; loading: boolean; children?: ReactNode; frameClassName?: string; hero: boolean; earlySpotId?: string; category?: string;
 }) {
   const [imageState, setImageState] = useState<{ url?: string; status: "loading" | "loaded" | "failed" }>({ url: photo?.url, status: "loading" });
   if (imageState.url !== photo?.url) setImageState({ url: photo?.url, status: "loading" });
@@ -37,23 +37,12 @@ function PhotoImage({ photo, alt, className, sizes, priority, loading, creditCla
         {loading && earlySpotId && <>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img alt="" hidden suppressHydrationWarning className={cn("absolute inset-0 h-full w-full", className)} />
-          <span hidden suppressHydrationWarning className="absolute bottom-0 left-0 bg-surface/80 px-3 py-1.5 text-xs text-muted-foreground">{" "}</span>
           <script dangerouslySetInnerHTML={{ __html: earlyHeroScript(earlySpotId) }} />
         </>}
       </> : <Image key={photo.url} src={photo.url} alt={alt} fill unoptimized sizes={sizes} priority={priority} className={className}
         onLoad={() => setImageState({url:photo.url,status:"loaded"})} onError={() => setImageState({url:photo.url,status:"failed"})} />}
       {children}
     </div>
-    {!unavailable && photo && <figcaption aria-label="Photo source and author credits" className={`relative z-10 shrink-0 break-words bg-surface px-3 py-1.5 text-[11px] leading-4 text-muted-foreground focus-visible:outline focus-visible:outline-2 ${creditClassName}`}>
-      <span translate="no" className="whitespace-nowrap text-[11px] font-normal not-italic tracking-normal text-violet-100/75">{photo.sourceLabel === "Google listing photo" ? "Google Maps" : photo.sourceLabel}</span>{photo.attributions?.length ? " · " : null}
-      {photo.attributions?.map((author, index) => {
-        let href: string | undefined;
-        try { const url = new URL(author.uri || ""); if (url.protocol === "https:" && !url.username && !url.password) href = url.href; } catch {}
-        return <span key={index} className="mr-2 inline-block text-[11px]">{href
-          ? <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 min-w-11 items-center underline" onClick={(event) => event.stopPropagation()}>{author.displayName}</a>
-          : author.displayName}</span>;
-      })}
-    </figcaption>}
   </figure>;
 }
 
@@ -71,7 +60,8 @@ export function VenuePhotoThumbnails({ name }: { name: string }) {
   const { data, spotId } = useDetailVenuePhotos();
   const photos = data?.photos.slice(1) || [];
   if (!photos.length) return null;
-  return <div data-testid="venue-thumbnails" className="grid gap-2 sm:gap-3" style={{ gridTemplateColumns: `repeat(${photos.length}, minmax(0, 1fr))` }}>
+  // Fixed columns (2 for one or two photos, else 3): one leftover photo no longer stretches across the page.
+  return <div data-testid="venue-thumbnails" className={cn("grid gap-2 sm:gap-3", photos.length >= 3 ? "grid-cols-3" : "grid-cols-2")}>
     {photos.map((photo, index) => <div key={`${spotId}:${photo.id}`} className="relative overflow-hidden rounded-lg bg-violet-950/40">
       <SpotPhotoImage photo={photo} alt={`${name} photo ${index + 2}`} frameClassName="aspect-[4/3] w-full" sizes="(max-width: 768px) 33vw, 320px" />
     </div>)}

@@ -59,21 +59,19 @@ function fetchGallery(spotId: string): Promise<PhotoGalleryResponse | null> {
 
 /**
  * Inline script for the server-rendered hero placeholder. It runs at HTML parse time, starts the
- * photos request and shows the first photo (with its credit) before hydration. Its previous
- * siblings are the hidden early <img> and credit <span>.
+ * photos request and shows the first photo before hydration. Its previous sibling is the hidden early <img>.
  */
 export function earlyHeroScript(spotId: string) {
   const id = JSON.stringify(spotId).replace(/</g, "\\u003c");
-  return `(function(){var s=document.currentScript,c=s&&s.previousElementSibling,i=c&&c.previousElementSibling,id=${id};` +
+  return `(function(){var s=document.currentScript,i=s&&s.previousElementSibling,id=${id};` +
     // A prerendered page waits until the visitor really opens it, so a speculative load costs no Places call.
     `var p=new Promise(function(go){var d=document;d.prerendering?d.addEventListener("prerenderingchange",go,{once:true}):go()})` +
     `.then(function(){return fetch("/api/spots/"+encodeURIComponent(id)+"/photos")}).then(function(r){return r.ok?r.json():null}).catch(function(){return null});` +
     `window.${EARLY_HERO_KEY}={id:id,p:p};` +
     `p.then(function(d){var f=d&&d.status==="available"&&Array.isArray(d.photos)&&d.photos[0];` +
     `if(!f||!f.id||typeof f.url!=="string"||f.url.charAt(0)!=="/"||f.url.charAt(1)==="/"||!i||!i.isConnected)return;` +
-    `var a=(f.attributions||[]).map(function(x){return x&&x.displayName}).filter(Boolean);` +
-    `c.firstChild.nodeValue=(f.sourceLabel==="Google listing photo"?"Google Maps":String(f.sourceLabel||""))+(a.length?" \u00b7 "+a.join(", "):"");` +
-    `i.setAttribute("fetchpriority","high");i.src=f.url;i.hidden=false;c.hidden=false;})})();`;
+    // No photo credit on the page (Nils 2026-11-16): the first photo only.
+    `i.setAttribute("fetchpriority","high");i.src=f.url;i.hidden=false;})})();`;
 }
 
 function requestPhotos(spotId: string) {

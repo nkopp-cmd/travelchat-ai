@@ -74,7 +74,12 @@ function imageType(bytes: Uint8Array): string | null {
 
 const PHOTO_NAME = /^places\/[A-Za-z0-9_-]{1,256}\/photos\/[A-Za-z0-9_-]{1,4096}$/;
 
-async function currentPhotoName(placeId: string, apiKey: string, signal: AbortSignal): Promise<string | null> {
+/**
+ * The current name of the requested photo. Photo names expire, so a name still in the place's current list is served
+ * as it is; an expired one falls back to the photo at the same gallery position (`i`, default 0: the card photo).
+ * Before this, every request got photos[0], so a 4-photo gallery showed the same image 4 times.
+ */
+async function currentPhotoName(placeId: string, requested: string, index: number, apiKey: string, signal: AbortSignal): Promise<string | null> {
     const response = await fetch(`https://places.googleapis.com/v1/places/${placeId}`, { cache: "no-store", redirect: "manual",
         signal, headers: { "X-Goog-Api-Key": apiKey, "X-Goog-FieldMask": "photos.name" } });
     if (!response.ok) {
@@ -83,8 +88,9 @@ async function currentPhotoName(placeId: string, apiKey: string, signal: AbortSi
         throw new Error("Place details unavailable");
     }
     const data = JSON.parse(new TextDecoder().decode(await readBounded(response, 64 * 1024)));
-    const fresh = data?.photos?.[0]?.name;
-    return typeof fresh === "string" && fresh.startsWith(`places/${placeId}/photos/`) && PHOTO_NAME.test(fresh) ? fresh : null;
+    const names: string[] = (Array.isArray(data?.photos) ? data.photos : []).map((photo: { name?: unknown }) => photo?.name)
+        .filter((fresh: unknown): fresh is string => typeof fresh === "string" && fresh.startsWith(`places/${placeId}/photos/`) && PHOTO_NAME.test(fresh));
+    return names.includes(requested) ? requested : names[index] ?? null;
 }
 
 export async function GET(req: NextRequest) {
@@ -93,7 +99,9 @@ export async function GET(req: NextRequest) {
     const ref = params.get("ref");
     if ((!!name === !!ref) || params.getAll("name").length > 1 || params.getAll("ref").length > 1 ||
         (name && !PHOTO_NAME.test(name)) ||
-        (ref && !/^[A-Za-z0-9_-]{1,4096}$/.test(ref))) return unavailable(400);
+        (ref && !/^[A-Za-z0-9_-]{1,4096}$/.test(ref)) ||
+        params.getAll("i").length > 1 || (params.has("i") && !/^[0-9]$/.test(params.get("i")!))) return unavailable(400);
+    const index = Number(params.get("i") ?? 0);
 
     // Bots, Lighthouse and prefetches never cost a billed Places call.
     if (isAutomatedPlacesRequest(req.headers)) return unavailable(404);
@@ -112,9 +120,9 @@ export async function GET(req: NextRequest) {
         const apiKey = getGooglePlacesApiKey();
         if (!apiKey) return unavailable(503);
         const width = normalizePhotoWidth(params.get("w"));
-        // Photo names expire (Google: "retrieve it from Places API endpoints"), so the stored name only gives the
-        // place id; the current first photo comes from a Details call with photos only (IDs Only SKU, no charge).
-        const photoName = name ? await currentPhotoName(name.split("/")[1], apiKey, controller.signal) : null;
+        // Photo names expire (Google: "retrieve it from Places API endpoints"), so a Details call with photos only
+        // (IDs Only SKU, no charge) confirms the requested name or finds the current photo at the same position.
+        const photoName = name ? await currentPhotoName(name.split("/")[1], name, index, apiKey, controller.signal) : null;
         if (name && !photoName) return unavailable(404);
         const upstream = name
             ? new URL(`https://places.googleapis.com/v1/${photoName}/media`)
