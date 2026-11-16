@@ -381,6 +381,7 @@ export function ItineraryWizard({ initialData, initialStep, initialCities = null
               pace: data.pace,
               groupType: data.groupType,
               templatePrompt: data.templatePrompt,
+              spotId: data.selectedSpotId,
             },
       ),
     });

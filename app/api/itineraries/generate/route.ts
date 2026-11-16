@@ -22,6 +22,8 @@ import {
   groundGeneratedDailyPlans,
   hasItineraryGroundingCoverage,
   rankItineraryGroundingSpots,
+  pinSelectedSpot,
+  ensurePinnedSpot,
   type ItineraryGroundingSpot,
 } from '@/lib/itineraries/grounded-generation';
 import { handleCorridorGeneration } from './corridor-generation';
@@ -128,7 +130,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const { city, days, interests, budget, localnessLevel, pace, groupType, templatePrompt } = validation.data;
+    const { city, days, interests, budget, localnessLevel, pace, groupType, templatePrompt, spotId } = validation.data;
 
     // Validate city is supported
     const cityValidation = validateCityForItinerary(city);
@@ -147,9 +149,10 @@ export async function POST(req: NextRequest) {
       throw new Error(`Could not load verified itinerary spots: ${spotsError.message}`);
     }
     const visibleSpots = (spots || []).filter((spot) => shouldShowPublicSpot(spot));
-    const groundingSpots = rankItineraryGroundingSpots(
+    const { spots: groundingSpots, pinnedId } = pinSelectedSpot(
+      rankItineraryGroundingSpots(visibleSpots as ItineraryGroundingSpot[], { days, interests, localnessLevel, pace }),
       visibleSpots as ItineraryGroundingSpot[],
-      { days, interests, localnessLevel, pace },
+      spotId,
     );
     const hasGroundingCoverage = hasItineraryGroundingCoverage(
       groundingSpots,
@@ -184,13 +187,16 @@ export async function POST(req: NextRequest) {
       ? `\n\nVERIFIED CANDIDATES — choose ONLY from this list and return the exact spotId for every activity:\n${buildItinerarySpotContext(groundedCandidateSpots)}`
       : '';
 
+    // The id is first in the candidate list below; ensurePinnedSpot adds it if the model leaves it out.
+    const pinnedLine = pinnedId ? `\n- Must include: the traveler chose spotId ${pinnedId}; put it in the plan.` : '';
+
     const userPrompt = `
 Create a ${days}-day itinerary for ${normalizedCity} with these preferences:
 - Interests: ${interests?.join(', ') || 'general exploration'}
 - Budget: ${budget || 'moderate'}
 - Localness Level: ${localnessLevel || 3}/5 (5 = maximum local authenticity)
 - Pace: ${pace || 'moderate'}
-- Group Type: ${groupType || 'solo'}
+- Group Type: ${groupType || 'solo'}${pinnedLine}
 ${spotsContext}
 
 ${templatePrompt ? `\nIMPORTANT: Follow this template style:\n${templatePrompt}` : ''}
@@ -235,9 +241,10 @@ Respect the pace, keep each day geographically coherent, avoid repeated categori
       }
     }
 
-    itineraryData.dailyPlans = groundGeneratedDailyPlans(
-      itineraryData.dailyPlans,
+    itineraryData.dailyPlans = ensurePinnedSpot(
+      groundGeneratedDailyPlans(itineraryData.dailyPlans, groundedCandidateSpots, { days, interests, localnessLevel, pace }),
       groundedCandidateSpots,
+      pinnedId,
       { days, interests, localnessLevel, pace },
     );
 

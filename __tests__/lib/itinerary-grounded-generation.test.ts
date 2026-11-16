@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   groundGeneratedDailyPlans,
   hasItineraryGroundingCoverage,
+  ensurePinnedSpot,
+  pinSelectedSpot,
   rankItineraryGroundingSpots,
   type ItineraryGroundingSpot,
 } from "@/lib/itineraries/grounded-generation";
@@ -266,5 +268,73 @@ describe("grounded itinerary generation", () => {
       spot("4", "Night Bar", "Nightlife"),
     ];
     expect(hasItineraryGroundingCoverage(candidates, { days: 2, pace: "relaxed" })).toBe(true);
+  });
+});
+
+describe("add-to-trip pinned spot", () => {
+  const prefs = { days: 1, interests: ["Nightlife & Bars"], localnessLevel: 4, pace: "relaxed" as const };
+
+  it("moves the chosen spot to the front of the candidate list", () => {
+    const ranked = [spot("1", "One", "Food"), spot("2", "Two", "Nightlife"), spot("3", "Three", "Outdoor")];
+    const result = pinSelectedSpot(ranked, ranked, "3");
+    expect(result.pinnedId).toBe("3");
+    expect(result.spots.map((candidate) => candidate.id)).toEqual(["3", "1", "2"]);
+  });
+
+  it("uses the ranked twin when the chosen row lost the name dedupe", () => {
+    const ranked = [spot("1", "One", "Food"), spot("2", "Twin Bar", "Nightlife")];
+    const pool = [...ranked, spot("9", "Twin  bar", "Nightlife")];
+    expect(pinSelectedSpot(ranked, pool, "9").pinnedId).toBe("2");
+  });
+
+  it("changes nothing for an unknown or other-city spot", () => {
+    const ranked = [spot("1", "One", "Food"), spot("2", "Two", "Nightlife")];
+    expect(pinSelectedSpot(ranked, ranked, "77")).toEqual({ spots: ranked });
+    expect(pinSelectedSpot(ranked, ranked, undefined)).toEqual({ spots: ranked });
+    const plans = [{ day: 1, activities: [{ spotId: "1", name: "One" }] }];
+    expect(ensurePinnedSpot(plans, ranked, undefined, prefs)).toBe(plans);
+  });
+
+  it("keeps plans that already include the spot", () => {
+    const ranked = [spot("1", "One", "Food"), spot("2", "Two", "Nightlife")];
+    const plans = [{ day: 1, activities: [{ spotId: "2", name: "Two" }, { spotId: "1", name: "One" }] }];
+    expect(ensurePinnedSpot(plans, ranked, "2", prefs)).toBe(plans);
+  });
+
+  it("puts the spot into the slot of the nearest stop and keeps its time and interest cover", () => {
+    const ranked = [
+      spot("1", "Night Bar", "Nightlife"),
+      spot("2", "Food Two", "Food"),
+      spot("5", "Outdoor Five", "Outdoor"),
+      spot("6", "Chosen Gallery", "Culture"),
+    ];
+    const plans = [{ day: 1, activities: [
+      { spotId: "1", name: "Night Bar", time: "7:00 PM" },
+      { spotId: "2", name: "Food Two", time: "12:00 PM" },
+      { spotId: "5", name: "Outdoor Five", time: "3:00 PM" },
+    ] }];
+    const result = ensurePinnedSpot(plans, ranked, "6", prefs);
+    const ids = result[0].activities?.map((activity) => activity.spotId);
+    expect(ids).toEqual(["1", "2", "6"]);
+    expect(result[0].activities?.[2].time).toBe("3:00 PM");
+    expect(result[0].activities?.[2].name).toBe("Chosen Gallery");
+  });
+
+  it("never removes the only stop that covers a requested interest", () => {
+    const ranked = [spot("1", "Night Bar", "Nightlife"), spot("2", "Chosen Gallery", "Culture")];
+    const plans = [{ day: 1, activities: [{ spotId: "1", name: "Night Bar" }] }];
+    expect(ensurePinnedSpot(plans, ranked, "2", prefs)).toBe(plans);
+  });
+
+  it("always includes a chosen spot from the pool when a slot is free of interest duty", () => {
+    for (let chosen = 1; chosen <= 6; chosen += 1) {
+      const ranked = Array.from({ length: 6 }, (_, index) =>
+        spot(String(index + 1), `Place ${index + 1}`, index % 2 ? "Food" : "Outdoor"));
+      const plans = [{ day: 1, activities: [1, 2, 3].map((id) => ({ spotId: String(id), name: `Place ${id}` })) }];
+      const { pinnedId } = pinSelectedSpot(ranked, ranked, String(chosen));
+      const result = ensurePinnedSpot(plans, ranked, pinnedId, { days: 1, localnessLevel: 4, pace: "relaxed" });
+      expect(result[0].activities?.some((activity) => activity.spotId === String(chosen))).toBe(true);
+      expect(result[0].activities).toHaveLength(3);
+    }
   });
 });
