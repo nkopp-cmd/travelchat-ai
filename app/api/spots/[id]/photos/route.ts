@@ -199,7 +199,8 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
                 } catch { /* Keep the author's name when their link is unsafe or absent. */ }
                 return { displayName: author.displayName, ...(uri ? { uri } : {}) };
             });
-            const params = new URLSearchParams({ name: photo.name, w: "1600", v: "venue-photos-2" });
+            // i = gallery position: the proxy's fallback when this name has expired, so a stale URL never repeats photo 0.
+            const params = new URLSearchParams({ name: photo.name, i: String(gallery.length), w: "1600", v: "venue-photos-3" });
             gallery.push({ id: photo.name, url: `/api/places/photo?${params}`, sourceLabel: "Google listing photo", attributions });
             if (gallery.length === 4) break;
         }

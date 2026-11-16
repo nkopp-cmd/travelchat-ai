@@ -59,7 +59,7 @@ function fetchGallery(spotId: string): Promise<PhotoGalleryResponse | null> {
 
 /**
  * Inline script for the server-rendered hero placeholder. It runs at HTML parse time, starts the
- * photos request and shows the first photo (with its credit) before hydration. Its previous
+ * photos request and shows the first photo (with the gallery credit) before hydration. Its previous
  * siblings are the hidden early <img> and credit <span>.
  */
 export function earlyHeroScript(spotId: string) {
@@ -71,9 +71,11 @@ export function earlyHeroScript(spotId: string) {
     `window.${EARLY_HERO_KEY}={id:id,p:p};` +
     `p.then(function(d){var f=d&&d.status==="available"&&Array.isArray(d.photos)&&d.photos[0];` +
     `if(!f||!f.id||typeof f.url!=="string"||f.url.charAt(0)!=="/"||f.url.charAt(1)==="/"||!i||!i.isConnected)return;` +
-    `var a=(f.attributions||[]).map(function(x){return x&&x.displayName}).filter(Boolean);` +
-    `c.firstChild.nodeValue=(f.sourceLabel==="Google listing photo"?"Google Maps":String(f.sourceLabel||""))+(a.length?" \u00b7 "+a.join(", "):"");` +
-    `i.setAttribute("fetchpriority","high");i.src=f.url;i.hidden=false;c.hidden=false;})})();`;
+    // Same one-line gallery credit as galleryCreditText: Google photos only, unique author names of all photos.
+    `var g=d.photos.filter(function(x){return x&&x.sourceLabel==="Google listing photo"}),a=[];` +
+    `g.forEach(function(x){(x.attributions||[]).forEach(function(y){var n=y&&String(y.displayName||"").trim();if(n&&a.indexOf(n)<0)a.push(n)})});` +
+    `i.setAttribute("fetchpriority","high");i.src=f.url;i.hidden=false;` +
+    `if(g.length){c.firstChild.nodeValue="Google Maps"+(a.length?" \u00b7 "+a.join(", "):"");c.hidden=false}})})();`;
 }
 
 function requestPhotos(spotId: string) {

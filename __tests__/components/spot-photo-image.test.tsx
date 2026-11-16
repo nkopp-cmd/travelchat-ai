@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { SpotPhotoImage, VenueCardPhoto, VenueHeroPhoto, VenuePhotoThumbnails } from "@/components/spots/spot-photo-image";
+import { SpotPhotoImage, VenueCardPhoto, VenueHeroPhoto, VenuePhotoThumbnails, galleryCreditText } from "@/components/spots/spot-photo-image";
 import { resetVenuePhotoMemory } from "@/components/spots/venue-photo-provider";
 import { EARLY_HERO_KEY, earlyHeroScript, getDirectVenuePhotos, VenuePhotoProvider } from "@/components/spots/venue-photo-provider";
 import { useState, type ImgHTMLAttributes } from "react";
@@ -25,21 +25,22 @@ describe("venue photos", () => {
     expect(screen.getByRole("button", {name:"Details open"})).toBeTruthy();
     expect(screen.getByAltText("Hero")).toBeTruthy();
   });
-  it("keeps multi-author hero credits outside overlays and retains overlays on image failure", () => {
-    render(<SpotPhotoImage photo={{ ...photo("hero"), attributions: [{displayName:"Alice"},{displayName:"Bob"}] }} alt="Hero" sizes="100vw" hero frameClassName="aspect-[4/3]">
-      <h1>Owned venue title</h1>
-    </SpotPhotoImage>);
-    const frame = screen.getByTestId("spot-detail-hero");
-    const caption = screen.getByLabelText("Photo source and author credits");
-    expect(frame.contains(screen.getByRole("heading", {name:"Owned venue title"}))).toBe(true);
-    expect(frame.contains(caption)).toBe(false);
-    expect(frame.nextElementSibling).toBe(caption);
-    expect(caption.textContent).toContain("Alice");
-    expect(caption.textContent).toContain("Bob");
-    fireEvent.error(screen.getByAltText("Hero"));
-    expect(screen.getByRole("heading", {name:"Owned venue title"})).toBeTruthy();
-    expect(screen.getByTestId("photo-placeholder").dataset.state).toBe("unavailable");
-    expect(screen.queryByLabelText("Photo source and author credits")).toBeNull();
+  it("shows no caption under any photo: one gallery credit line sits on the hero only", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, json: async () => ({ status: "available", photos: [
+      { ...photo("p1"), attributions: [{ displayName: "Alice" }] },
+      { ...photo("p2"), attributions: [{ displayName: "Bob" }, { displayName: "Alice" }] },
+      { ...photo("p3"), attributions: [] },
+    ] }) })));
+    render(<VenuePhotoProvider spotId="credit-spot"><VenueHeroPhoto name="Venue" /><VenuePhotoThumbnails name="Venue" /></VenuePhotoProvider>);
+    await waitFor(() => expect(screen.getByTestId("gallery-credit").textContent).toBe("Google Maps · Alice, Bob"));
+    expect(screen.getAllByTestId("gallery-credit")).toHaveLength(1);
+    expect(screen.getByTestId("spot-detail-hero").contains(screen.getByTestId("gallery-credit"))).toBe(true);
+    expect(document.querySelector("figcaption")).toBeNull();
+    expect(screen.getByTestId("venue-thumbnails").className).toContain("grid-cols-2");
+  });
+  it("credits only Google photos in the gallery line", () => {
+    expect(galleryCreditText([{ id: "a", url: "/media/spot/a.jpg", sourceLabel: "Wikimedia Commons", attributions: [{ displayName: "Eve" }] }])).toBeNull();
+    expect(galleryCreditText([photo("g")])).toBe("Google Maps");
   });
   it("never renders a blank box: a missing photo shows a category tile with its icon", () => {
     const { rerender } = render(<SpotPhotoImage alt="Market" sizes="320px" category="Market" />);
@@ -57,24 +58,11 @@ describe("venue photos", () => {
     const image = screen.getByAltText("Venue");
     expect(image.getAttribute("src")).not.toContain("/_next/image");
     fireEvent.load(image);
-    expect(screen.getByText("Google Maps")).toBeTruthy();
-    expect(screen.getByText("Google Maps").closest("figcaption")).toBeTruthy();
+    expect(screen.queryByText("Google Maps")).toBeNull();
     fireEvent.error(image);
     expect(screen.getByTestId("photo-placeholder").dataset.state).toBe("unavailable");
-    expect(screen.queryByText("Google Maps")).toBeNull();
     rerender(<SpotPhotoImage photo={photo("b")} alt="Venue" sizes="320px" />);
     expect(screen.getByAltText("Venue").getAttribute("src")).toContain("name=b");
-  });
-
-  it("shows author names and permits only safe HTTPS author links", () => {
-    render(<SpotPhotoImage photo={{ ...photo("credit"), attributions: [
-      { displayName: "Alice", uri: "https://example.com/alice" },
-      { displayName: "Bob", uri: "javascript:alert(1)" },
-      { displayName: "Carol", uri: "https://user:password@example.com" },
-    ] }} alt="Venue" sizes="320px" />);
-    expect(screen.getByRole("link", { name: "Alice" }).getAttribute("href")).toBe("https://example.com/alice");
-    expect(screen.getByText("Bob").closest("a")).toBeNull();
-    expect(screen.getByText("Carol").closest("a")).toBeNull();
   });
 
   it("coordinates hero and unique thumbnail indices with one request", async () => {

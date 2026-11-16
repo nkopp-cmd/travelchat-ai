@@ -54,9 +54,10 @@ describe("public spot photo gallery", () => {
         expect(data.status).toBe("available");
         expect(data.photos).toHaveLength(4);
         expect(new Set(data.photos.map((photo: { id: string }) => photo.id)).size).toBe(4);
-        for (const photo of data.photos) {
+        for (const [index, photo] of data.photos.entries()) {
             const url = new URL(photo.url, "https://localley.io");
-            expect(url.searchParams.get("v")).toBe("venue-photos-2");
+            expect(url.searchParams.get("i")).toBe(String(index));
+            expect(url.searchParams.get("v")).toBe("venue-photos-3");
             expect(url.searchParams.get("name")).not.toContain("expired");
             expect(photo.sourceLabel).toBe("Google listing photo");
             expect(photo.attributions).toEqual([{ displayName: "Photographer", uri: "https://maps.google.com/maps/contrib/123" },

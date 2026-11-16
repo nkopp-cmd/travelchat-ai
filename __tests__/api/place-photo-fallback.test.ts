@@ -57,6 +57,33 @@ describe("place photo proxy without substitution", () => {
         expect(fetch).toHaveBeenNthCalledWith(3, cdn, expect.objectContaining({ cache: "no-store", redirect: "manual" }));
     });
 
+    it("serves the requested gallery photo, not always the first one (one image 3x on spot pages)", async () => {
+        const second = "places/ChIJabc/photos/second";
+        vi.mocked(fetch).mockResolvedValueOnce(Response.json({ photos: [{ name: fresh }, { name: second }] }))
+            .mockResolvedValueOnce(Response.json({ photoUri: cdn })).mockResolvedValueOnce(new Response(jpeg));
+        expect((await GET(request(`name=${second}&i=1`))).status).toBe(200);
+        expect(fetch).toHaveBeenNthCalledWith(2, expect.stringContaining(`/v1/${second}/media`), expect.anything());
+    });
+
+    it("falls back to the same gallery position when the requested name has expired", async () => {
+        const second = "places/ChIJabc/photos/second";
+        vi.mocked(fetch).mockResolvedValueOnce(Response.json({ photos: [{ name: fresh }, { name: second }] }))
+            .mockResolvedValueOnce(Response.json({ photoUri: cdn })).mockResolvedValueOnce(new Response(jpeg));
+        expect((await GET(request(`name=${name}&i=1`))).status).toBe(200);
+        expect(fetch).toHaveBeenNthCalledWith(2, expect.stringContaining(`/v1/${second}/media`), expect.anything());
+    });
+
+    it("never repeats photo 0 for a missing gallery position", async () => {
+        vi.mocked(fetch).mockResolvedValueOnce(details());
+        expect((await GET(request(`name=${name}&i=2`))).status).toBe(404);
+        expect(fetch).toHaveBeenCalledTimes(1);
+    });
+
+    it.each(["i=a", "i=10", "i=1&i=2", "i=-1"])("rejects an invalid gallery position: %s", async query => {
+        expect((await GET(request(`name=${name}&${query}`))).status).toBe(400);
+        expect(fetch).not.toHaveBeenCalled();
+    });
+
     it.each([400, 403, 404, 429, 500])("never replaces a denied or expired photo (%s)", async status => {
         vi.mocked(fetch).mockResolvedValueOnce(details()).mockResolvedValueOnce(new Response("secret upstream body", { status }));
         const response = await GET(request(`name=${name}&fallback=https://images.pexels.com/stock.jpg`));

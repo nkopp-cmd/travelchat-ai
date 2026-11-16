@@ -47,7 +47,7 @@ describe("ItineraryActivityCard", () => {
     expect(galleryMock.use).toHaveBeenCalledWith("550e8400-e29b-41d4-a716-446655440000", false, [], true);
     const image = screen.getByRole("img", { name: "Owned venue" });
     expect(image.getAttribute("src")).toContain("fresh"); expect(image.getAttribute("src")).not.toContain("expired");
-    expect(screen.getByText("Owned author")).toBeTruthy();
+    expect(screen.queryByText("Owned author")).toBeNull(); // no caption on small photos (Nils 2026-11-16)
   });
   it("does not request legacy expired images without a grounded identity", () => {
     galleryMock.result = { ...galleryMock.result, data: null };
