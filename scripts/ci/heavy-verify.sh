@@ -171,6 +171,7 @@ VITEST_FILES=(
   __tests__/app/itinerary-detail-candidate-page.test.tsx
   __tests__/api/generate-v2-stream-route.test.ts
   __tests__/api/generate-anon-limit.test.ts
+  __tests__/api/generate-anon-success.test.ts
   __tests__/lib/chat-provider-fallback.test.ts
   __tests__/lib/chat-readiness.test.ts
   __tests__/lib/itinerary-provider-meta.test.ts
