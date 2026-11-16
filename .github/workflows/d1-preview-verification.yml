@@ -348,6 +348,8 @@ on:
       - '__tests__/api/reviews-route.test.ts'
       - 'lib/spots/queries.ts'
       - '__tests__/lib/spots-query-public-rows.test.ts'
+      - '__tests__/lib/planner-href.test.ts'
+      - 'lib/planner-href.ts'
       - 'scripts/d1-migration/source-owner-*'
       - 'scripts/d1-migration/anonymous-read-*'
       - 'app/api/user/saved-itineraries/route.ts'

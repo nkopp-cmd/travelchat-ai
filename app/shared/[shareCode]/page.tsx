@@ -6,6 +6,8 @@ import { createSupabaseAdmin } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { SharedActions } from "./shared-actions";
+import { freePlannerHref } from "@/lib/planner-href";
+import { QUICK_START_OFFER } from "@/lib/offer-copy";
 import { ItineraryJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { AppBackground } from "@/components/layout/app-background";
 import { HeroSection } from "@/components/itinerary/hero-section";
@@ -213,7 +215,7 @@ export default async function SharedItineraryPage({ params, searchParams }: { pa
                                 </div>
                                 <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
                                     <SharedActions itineraryId={itinerary.id} shareCode={shareCode} candidate={candidate} />
-                                    <Link href="/sign-up">
+                                    <Link href={freePlannerHref(itinerary.city)} prefetch={false} data-testid="shared-plan-own">
                                         <Button className="h-10 rounded-xl bg-primary text-primary-foreground">
                                             <Sparkles className="mr-2 h-4 w-4" />
                                             Create mine
@@ -321,9 +323,9 @@ export default async function SharedItineraryPage({ params, searchParams }: { pa
                         <div className="text-center space-y-4">
                             <div>
                                 <h3 className="text-2xl font-bold mb-2">Ready to discover your own hidden gems?</h3>
-                                <p className="text-muted-foreground">Join Localley and create personalized itineraries for authentic local experiences</p>
+                                <p className="text-muted-foreground">Plan your own trip with real local spots. {QUICK_START_OFFER}.</p>
                             </div>
-                            <Link href="/sign-up">
+                            <Link href={freePlannerHref(itinerary.city)} prefetch={false} data-testid="shared-plan-footer">
                                 <Button size="lg" className="bg-primary text-primary-foreground">
                                     <Sparkles className="mr-2 h-5 w-5" />
                                     Start planning
