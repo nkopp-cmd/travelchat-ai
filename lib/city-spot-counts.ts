@@ -8,14 +8,24 @@ function addressEn(address: unknown): string | null {
   return typeof en === "string" ? en : null;
 }
 
-/** Per-city counts of visible spots; the city match is `address->>en ILIKE '%<city>%'`. */
-export function countSpotsByCity(spots: PublicSpotQualityInput[]): Map<string, number> {
+type CitySpot = PublicSpotQualityInput & { city?: string | null };
+
+/**
+ * The /spots list rule (lib/spots/d1-queries.ts): the `city` column (canonical lib/cities.ts name) wins; only rows
+ * without one fall back to `address->>en ILIKE '%<city>%'`. Many Hanoi/HCMC rows name only the district in the
+ * address, so an address-only match counted 3 spots there while /spots listed 50+.
+ */
+export function spotMatchesCity(spot: { city?: string | null; address?: unknown }, cityName: string): boolean {
+  if (spot.city) return spot.city === cityName;
+  return addressEn(spot.address)?.toLowerCase().includes(cityName.toLowerCase()) ?? false;
+}
+
+/** Per-city counts of visible spots, matched with spotMatchesCity. */
+export function countSpotsByCity(spots: CitySpot[]): Map<string, number> {
   const counts = new Map<string, number>();
-  const addresses = spots.filter((spot) => shouldShowPublicSpot(spot))
-    .map((spot) => addressEn(spot.address)?.toLowerCase()).filter((value): value is string => Boolean(value));
+  const visible = spots.filter((spot) => shouldShowPublicSpot(spot));
   for (const city of ENABLED_CITIES) {
-    const term = city.name.toLowerCase();
-    counts.set(city.slug, addresses.filter((address) => address.includes(term)).length);
+    counts.set(city.slug, visible.filter((spot) => spotMatchesCity(spot, city.name)).length);
   }
   return counts;
 }
