@@ -52,8 +52,6 @@ export const EDGE_HTML_TTL_SECONDS: Record<string, number> = {
   "/itineraries/preview": 86400,
   "/api/cities": 300,
   "/api/spots/pins": 300,
-  // Sitemap index: read from D1 on every request otherwise (crawlers fetch it often); an hour matches its s-maxage.
-  "/sitemap.xml": 3600,
 };
 // Spot detail pages: live public data like the catalog. Only the plain UUID path; any query
 // (e.g. the preview-only data_candidate) bypasses the cache.
@@ -68,7 +66,9 @@ const SPOT_OG_TTL_SECONDS = 604800;
 const VIRAL_EVENT_PATH = /^\/trending\/[a-z0-9][a-z0-9-]{2,95}$/;
 // One map pin card ("/api/spots/pins/<id prefix>"), no query.
 const PIN_CARD_PATH = /^\/api\/spots\/pins\/[0-9a-f-]{8,36}$/;
-// Child sitemaps (app/sitemaps/[file], same names as parseSitemapFile); a missing spots chunk is a 404 and never stored.
+// Sitemaps (route handlers app/sitemap.xml and app/sitemaps/[file], same names as parseSitemapFile), kept out of the
+// HTML page map above. The index reads D1 on every request otherwise; an hour matches its s-maxage. A missing spots
+// chunk is a 404 and never stored.
 const SITEMAP_CHILD_PATH = /^\/sitemaps\/(?:pages|guides|spots-[1-9]\d{0,3})\.xml$/;
 const SITEMAP_TTL_SECONDS = 3600;
 const isSitemap = (pathname: string) => pathname === "/sitemap.xml" || SITEMAP_CHILD_PATH.test(pathname);
@@ -77,7 +77,7 @@ export function edgeTtlSeconds(pathname: string): number | undefined {
   if (Object.hasOwn(EDGE_HTML_TTL_SECONDS, pathname)) return EDGE_HTML_TTL_SECONDS[pathname];
   if (SPOT_DETAIL_PATH.test(pathname)) return SPOT_DETAIL_TTL_SECONDS;
   if (SPOT_OG_PATH.test(pathname)) return SPOT_OG_TTL_SECONDS;
-  if (SITEMAP_CHILD_PATH.test(pathname)) return SITEMAP_TTL_SECONDS;
+  if (isSitemap(pathname)) return SITEMAP_TTL_SECONDS;
   return VIRAL_EVENT_PATH.test(pathname) || PIN_CARD_PATH.test(pathname) ? LIVE_DETAIL_TTL_SECONDS : undefined;
 }
 
