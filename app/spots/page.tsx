@@ -132,7 +132,9 @@ async function SpotsContent({
                 hasMore={spotsData.hasMore}
                 filterOptions={filterOptions}
                 currentFilters={filters}
-                cards={spotsData.spots.map((spot, index) => <SpotCard key={spot.id} spot={spot} priority={index < 6} />)}
+                // With a rail above, grid cards start below the fold: lazy-load them (each eager Places photo is a billed call).
+                cards={spotsData.spots.map((spot, index) => <SpotCard key={spot.id} spot={spot}
+                    priority={index < 6 && viral.length === 0 && weeklyTrending.length === 0} />)}
             />
         </>
     );
