@@ -67,4 +67,10 @@ describe("planner city list rendered with the page", () => {
     const ld = JSON.parse(container.querySelector('script[type="application/ld+json"]')!.textContent!);
     expect(ld).toMatchObject({ "@type": "WebApplication", url: "https://www.localley.io/itineraries/new", offers: { price: 0 } });
   });
+
+  it("renders per request (edge-cached), never as ISR: the build has no D1, so ISR shipped initialCities null", async () => {
+    const mod = await import("@/app/itineraries/new/page");
+    expect((mod as { dynamic?: string }).dynamic).toBe("force-dynamic");
+    expect("revalidate" in mod).toBe(false);
+  });
 });
