@@ -25,6 +25,22 @@ describe("sitemap index", () => {
     expect(xml).not.toContain("<lastmod>");
   });
 
+  it("gives each hub the newest date of its own spots, /spots the newest of all, static pages none", () => {
+    const hubRows = [
+      ...Array.from({ length: 5 }, (_, i) => ({ id: `s${i}`, hub: "Seoul", lastmod: `2026-11-0${i + 1}T00:00:00+00:00` })),
+      ...Array.from({ length: 5 }, (_, i) => ({ id: `t${i}`, hub: "Tokyo", lastmod: i === 0 ? null : `2026-10-0${i}T00:00:00+00:00` })),
+      { id: "b0", hub: "Busan", lastmod: "2026-11-15T00:00:00+00:00" },
+    ];
+    const entries = pageEntries(hubRows);
+    const at = (path: string) => entries.find((e) => e.loc === `https://www.localley.io${path}`);
+    expect(at("/spots?city=seoul")?.lastmod).toBe("2026-11-05T00:00:00+00:00");
+    expect(at("/spots?city=tokyo")?.lastmod).toBe("2026-10-04T00:00:00+00:00");
+    expect(at("/spots?city=busan")).toBeUndefined();
+    expect(at("/spots")?.lastmod).toBe("2026-11-15T00:00:00+00:00");
+    for (const path of ["", "/pricing", "/terms"]) expect(at(path)?.lastmod).toBeUndefined();
+    expect(renderIndex(hubRows)).toContain("<loc>https://www.localley.io/sitemaps/pages.xml</loc><lastmod>2026-11-15T00:00:00+00:00</lastmod>");
+  });
+
   it("splits spots into children of at most 5,000 URLs and covers every row once", () => {
     const all = rows(SPOTS_PER_SITEMAP * 2 + 7);
     expect(spotChunkCount(all.length)).toBe(3);

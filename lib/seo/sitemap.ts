@@ -17,11 +17,18 @@ export type SitemapSpotRow = { id: string; lastmod: string | null; hub?: string 
 const DATE = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\+00:00|Z))?$/;
 const latest = (dates: (string | undefined)[]) => dates.filter((d): d is string => !!d).sort().at(-1);
 
-/** Static pages plus every city hub with enough indexable spots (`spotRows` omitted = all hubs, e.g. in tests). */
+/**
+ * Static pages plus every city hub with enough indexable spots (`spotRows` omitted = all hubs, e.g. in tests).
+ * A hub's lastmod is the newest date of the spots it lists, /spots the newest of all (reach R5 loop 1: Google left
+ * the hubs "Discovered - currently not indexed" with no lastmod to tell it they changed). Static pages stay without.
+ */
 export function pageEntries(spotRows: readonly SitemapSpotRow[] = []): SitemapEntry[] {
-  const cities = ENABLED_CITIES.filter((city) => hubIndexable(spotRows, city.name)).map((city) => ({ loc: `${SITE}/spots?city=${city.slug}` }));
+  const newest = (rows: readonly SitemapSpotRow[]) => latest(rows.map((row) => row.lastmod ?? undefined));
+  const cities = ENABLED_CITIES.filter((city) => hubIndexable(spotRows, city.name)).map((city) => ({
+    loc: `${SITE}/spots?city=${city.slug}`, lastmod: newest(spotRows.filter((row) => row.hub === city.name)),
+  }));
   return [
-    { loc: SITE }, { loc: `${SITE}/spots` }, ...cities, { loc: `${SITE}/trending` }, { loc: `${SITE}/templates` },
+    { loc: SITE }, { loc: `${SITE}/spots`, lastmod: newest(spotRows) }, ...cities, { loc: `${SITE}/trending` }, { loc: `${SITE}/templates` },
     { loc: `${SITE}/pricing` }, { loc: `${SITE}/credits` }, { loc: `${SITE}/privacy` }, { loc: `${SITE}/terms` },
   ];
 }
@@ -66,7 +73,7 @@ export function renderUrlset(entries: SitemapEntry[]): string {
 /** The index: one <sitemap> per child, lastmod = the newest lastmod inside that child. */
 export function renderIndex(spotRows: SitemapSpotRow[]): string {
   const children: SitemapEntry[] = [
-    { loc: `${SITE}/sitemaps/pages.xml` },
+    { loc: `${SITE}/sitemaps/pages.xml`, lastmod: latest(pageEntries(spotRows).map((e) => e.lastmod)) },
     { loc: `${SITE}/sitemaps/guides.xml`, lastmod: latest(guideEntries().map((e) => e.lastmod)) },
     ...Array.from({ length: spotChunkCount(spotRows.length) }, (_, i) => ({
       loc: `${SITE}/sitemaps/spots-${i + 1}.xml`,
