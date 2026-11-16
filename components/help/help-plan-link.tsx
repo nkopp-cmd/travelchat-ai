@@ -2,13 +2,17 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { QUICK_START_OFFER } from "@/lib/offer-copy";
 
-/** Main planner city per help country. A country without a city with enough spots gets no block. */
+/**
+ * Main planner city per help country. A country without a city with enough spots gets no block.
+ * Vietnam -> Hanoi since Push Y1: the planner counts the spots.city column (54 Hanoi spots, was 3 address-only).
+ */
 export const HELP_PLAN_CITY: Readonly<Record<string, string>> = {
   korea: "Seoul",
   japan: "Tokyo",
   thailand: "Bangkok",
   taiwan: "Taipei",
   singapore: "Singapore",
+  vietnam: "Hanoi",
 };
 
 export function helpPlanHref(countrySlug: string): string | null {

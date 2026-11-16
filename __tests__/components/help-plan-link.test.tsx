@@ -13,6 +13,7 @@ describe("help guide link to the free planner", () => {
   it("links each mapped country to its main planner city", () => {
     expect(helpPlanHref("korea")).toBe("/itineraries/new?city=Seoul");
     expect(helpPlanHref("singapore")).toBe("/itineraries/new?city=Singapore");
+    expect(helpPlanHref("vietnam")).toBe("/itineraries/new?city=Hanoi");
   });
 
   it("maps only real help countries to real enabled planner cities", () => {
@@ -28,7 +29,7 @@ describe("help guide link to the free planner", () => {
     expect(html).toContain('href="/itineraries/new?city=Tokyo"');
     expect(html).toContain("Plan a free day in Tokyo");
     expect(html).toContain("First plan free · no sign-up");
-    expect(renderToStaticMarkup(<HelpPlanLink countrySlug="vietnam" />)).toBe("");
+    expect(renderToStaticMarkup(<HelpPlanLink countrySlug="laos" />)).toBe("");
   });
 
   // Push X1: index pages in sitemaps/pages.xml had no planner link in server HTML on phones
