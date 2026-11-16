@@ -547,3 +547,63 @@ export function groundGeneratedDailyPlans(
 
   return groundedPlans;
 }
+
+/**
+ * "Add to trip" on a spot card or spot page opens the planner with ?spot=<id>. Move that spot to the top of the
+ * ranked pool so it is in the model's candidate list (only the first 30 are sent). A twin row (same name, other id)
+ * that won the name dedupe stands in for it. Returns the pinned id, or undefined when the spot cannot ground a trip
+ * (other city, hidden, no photo/coordinates, below the localness threshold).
+ */
+export function pinSelectedSpot(
+  rankedSpots: ItineraryGroundingSpot[],
+  pool: ItineraryGroundingSpot[],
+  spotId: string | undefined,
+): { spots: ItineraryGroundingSpot[]; pinnedId?: string } {
+  if (!spotId) return { spots: rankedSpots };
+  let pinned = rankedSpots.find((spot) => spot.id === spotId);
+  if (!pinned) {
+    const source = pool.find((spot) => spot.id === spotId);
+    const name = source ? normalizedName(localizedText(source.name)) : "";
+    pinned = name ? rankedSpots.find((spot) => normalizedName(localizedText(spot.name)) === name) : undefined;
+  }
+  if (!pinned) return { spots: rankedSpots };
+  return { spots: [pinned, ...rankedSpots.filter((spot) => spot !== pinned)], pinnedId: pinned.id };
+}
+
+/**
+ * The pinned spot must be in the trip the visitor asked for. If the model and the grounding left it out, it takes
+ * the slot (time, type, duration) of the nearest stop whose removal keeps every requested interest covered.
+ */
+export function ensurePinnedSpot(
+  dailyPlans: GeneratedDayPlan[],
+  rankedSpots: ItineraryGroundingSpot[],
+  pinnedId: string | undefined,
+  preferences: ItineraryGroundingPreferences,
+): GeneratedDayPlan[] {
+  const pinned = pinnedId ? rankedSpots.find((spot) => spot.id === pinnedId) : undefined;
+  if (!pinned) return dailyPlans;
+  if (dailyPlans.some((day) => (day.activities || []).some((activity) => activity.spotId === pinned.id))) return dailyPlans;
+
+  const spotsById = new Map(rankedSpots.map((spot) => [spot.id, spot]));
+  const groups = requestedInterestGroups(preferences.interests);
+  const slots = dailyPlans.flatMap((day, dayIndex) => (day.activities || []).map((activity, index) => ({ dayIndex, index, activity })));
+  const covers = (skip: { dayIndex: number; index: number }) => groups.every((group) =>
+    spotMatchesInterestGroup(pinned, group) || slots.some((slot) => {
+      if (slot.dayIndex === skip.dayIndex && slot.index === skip.index) return false;
+      const spot = slot.activity.spotId ? spotsById.get(slot.activity.spotId) : undefined;
+      return Boolean(spot && spotMatchesInterestGroup(spot, group));
+    }));
+  const distance = (activity: GeneratedActivity) => {
+    const spot = activity.spotId ? spotsById.get(activity.spotId) : undefined;
+    return spot ? distanceBetweenSpots(spot, pinned) : Number.POSITIVE_INFINITY;
+  };
+  const target = slots.filter(covers).sort((left, right) => distance(left.activity) - distance(right.activity))[0];
+  if (!target) return dailyPlans;
+
+  const { time, type, duration, cost } = target.activity;
+  return dailyPlans.map((day, dayIndex) => dayIndex !== target.dayIndex ? day : {
+    ...day,
+    activities: (day.activities || []).map((activity, index) => index !== target.index ? activity
+      : hydrateActivity({ name: localizedText(pinned.name), time, type, duration, cost }, pinned)),
+  });
+}

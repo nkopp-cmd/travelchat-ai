@@ -21,6 +21,8 @@ export const generateItinerarySchema = z.object({
     pace: z.enum(["relaxed", "moderate", "active", "packed"]).optional(),
     groupType: z.enum(["solo", "couple", "family", "friends", "business"]).optional(),
     templatePrompt: z.string().max(2000).optional(),
+    // "Add to trip" spot (planner ?spot=<id>): the trip must include it when it can ground a trip in this city.
+    spotId: z.string().regex(/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i).transform((value) => value.toLowerCase()).optional(),
 });
 
 // Multi-city (corridor) itinerary generation validation
