@@ -4,6 +4,7 @@ import { pageMeta } from "@/lib/seo/meta";
 import Link from "next/link";
 import { PageHeader } from "@/components/layout/page-header";
 import { LocalleySignup } from "@/components/newsletter/localley-signup";
+import { FreePlanLink } from "@/components/help/help-plan-link";
 import { Flame } from "@/components/ui/icons";
 import { fetchViralEvents } from "@/lib/viral/events";
 
@@ -41,6 +42,7 @@ export default async function TrendingPage() {
       ) : (
         <p className="mt-8 text-muted-foreground">No viral events right now. Check back soon.</p>
       )}
+      <FreePlanLink label="Plan a free trip" testId="trending-plan-trip" />
       <LocalleySignup source="trending" className="mt-10" />
     </div>
   );
