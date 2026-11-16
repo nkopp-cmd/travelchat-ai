@@ -15,7 +15,7 @@ import type { SpotsFilterState } from "./types";
 
 /** Columns the list needs before paging: dedupe keys, city/category/score counts. */
 export type D1SpotKeyRow = Pick<RawSpot, "id" | "name" | "address" | "category" | "localley_score"> & {
-  /** Only the filtered list read carries coordinates (the map pin index uses them). */
+  /** Coordinates: the map pin index and the same-name twin dedupe (dedupePublicSpotRows) use them. */
   latitude?: number | null;
   longitude?: number | null;
   /** Canonical city name (lib/cities.ts `name`); NULL for rows the backfill could not place. */
@@ -77,7 +77,7 @@ export async function d1FilteredSpotKeys(filters: SpotsFilterState): Promise<D1S
 /** Every public candidate row, for the filter counts. */
 export async function d1PublicSpotKeys(): Promise<D1SpotKeyRow[]> {
   const where = visibilityWhere();
-  return keyRows(`SELECT s.id, s.name, s.address, s.category, s.localley_score, s.city FROM spots s
+  return keyRows(`SELECT s.id, s.name, s.address, s.category, s.localley_score, s.city, s.latitude, s.longitude FROM spots s
     WHERE ${where.sql.join(" AND ")} ORDER BY s.id ASC`, where.params);
 }
 
@@ -278,6 +278,8 @@ export async function d1PhotoCredits(): Promise<D1PhotoCredit[]> {
  */
 export type D1SitemapSpot = {
   id: string; lastmod: string | null; name: string; address: string; description: string; hasPhoto: boolean; city: string | null;
+  /** Twin dedupe keys (dedupePublicSpotRows), the same as the hub list. */
+  latitude: number | null; longitude: number | null; google_place_id: string | null;
 };
 
 /**
@@ -287,7 +289,8 @@ export type D1SitemapSpot = {
  */
 export async function d1SitemapSpots(): Promise<D1SitemapSpot[]> {
   const where = visibilityWhere();
-  const { results } = await appDataDb().prepare(`SELECT s.id, ${NAME_EN} AS name_en, s.address, s.city,
+  const { results } = await appDataDb().prepare(`SELECT s.id, ${NAME_EN} AS name_en, s.address, s.city, s.latitude, s.longitude,
+      (SELECT p.place_id FROM spot_listing_places p WHERE p.spot_id = s.id AND p.provider = 'google' LIMIT 1) AS google_place_id,
       CASE json_type(l.payload, '$.description') WHEN 'object' THEN json_extract(l.payload, '$.description.en')
         WHEN 'text' THEN json_extract(l.payload, '$.description') END AS description,
       (EXISTS (SELECT 1 FROM spot_photos ph WHERE ph.spot_id = s.id)
@@ -309,6 +312,9 @@ export async function d1SitemapSpots(): Promise<D1SitemapSpot[]> {
       description: typeof row.description === "string" ? row.description : "",
       hasPhoto: Number(row.has_photo) === 1,
       city: typeof row.city === "string" && row.city ? row.city : null,
+      latitude: typeof row.latitude === "number" ? row.latitude : null,
+      longitude: typeof row.longitude === "number" ? row.longitude : null,
+      google_place_id: typeof row.google_place_id === "string" && row.google_place_id ? row.google_place_id : null,
     };
   });
 }

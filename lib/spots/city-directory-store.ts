@@ -2,7 +2,7 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { dataBackend } from "@/lib/app-data/backend";
 import { d1FilteredSpotKeys } from "./d1-queries";
-import { dedupePublicSpotRows } from "./queries";
+import { SPOT_DEDUPE_VERSION, dedupePublicSpotRows } from "./queries";
 import { PUBLIC_SPOT_VISIBILITY_CACHE_VERSION } from "./public-quality";
 import { toDirectoryEntries, type CityDirectoryEntry } from "./city-directory";
 
@@ -12,7 +12,7 @@ async function loadCityDirectory(citySlug: string): Promise<CityDirectoryEntry[]
   return toDirectoryEntries(dedupePublicSpotRows(rows));
 }
 
-const cachedCityDirectory = unstable_cache(loadCityDirectory, ["city-directory-v3", PUBLIC_SPOT_VISIBILITY_CACHE_VERSION],
+const cachedCityDirectory = unstable_cache(loadCityDirectory, ["city-directory-v3", PUBLIC_SPOT_VISIBILITY_CACHE_VERSION, SPOT_DEDUPE_VERSION],
   { revalidate: 3600, tags: ["spots"] });
 
 /** Every public spot of one city hub, A-Z (one cached D1 read per city and hour); empty outside D1. */
