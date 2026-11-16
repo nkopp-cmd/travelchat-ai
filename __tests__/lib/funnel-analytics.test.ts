@@ -14,6 +14,16 @@ describe("funnel analytics", () => {
     expect(funnelSource("https://news.example/?q=private", origin)).toBe("other");
   });
 
+  it("counts a planner start from a spot's Add to trip (?spot=) as spots, whatever the stale referrer (push AD3)", () => {
+    const origin = "https://www.localley.io";
+    const spot = "?city=seoul&spot=0022DC9C-5F13-41FD-9940-38A190795704";
+    expect(funnelSource("", origin, spot)).toBe("spots");
+    expect(funnelSource("https://www.google.com/", origin, spot)).toBe("spots");
+    expect(funnelSource("https://www.localley.io/", origin, spot)).toBe("spots");
+    expect(funnelSource("", origin, "?city=seoul&spot=not-a-uuid")).toBe("direct");
+    expect(funnelSource("https://www.google.com/", origin, "?city=seoul")).toBe("other");
+  });
+
   it("sends one beacon with only the step and the source", async () => {
     const beacon = vi.fn(() => true);
     vi.stubGlobal("navigator", { ...navigator, sendBeacon: beacon, doNotTrack: null });
