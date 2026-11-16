@@ -347,6 +347,7 @@ on:
       - 'app/api/spots/*/reviews/**'
       - '__tests__/api/reviews-route.test.ts'
       - 'lib/spots/queries.ts'
+      - '__tests__/lib/no-bare-sign-up.test.ts'
       - '__tests__/lib/spots-query-public-rows.test.ts'
       - '__tests__/lib/planner-href.test.ts'
       - 'lib/planner-href.ts'
