@@ -6,9 +6,10 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
-import { ArrowLeft, ArrowRight, Loader2, MapPin, Sparkles } from "@/components/ui/icons";
+import { ArrowLeft, ArrowRight, MapPin, Sparkles } from "@/components/ui/icons";
 import { WizardProvider, useWizard, WizardData } from "./wizard-context";
 import { PlannerCitiesContext } from "./planner-cities-context";
+import { GeneratingScreen } from "./generating-screen";
 import type { PlannerCity } from "@/lib/cities-catalog";
 import { WizardProgress } from "./wizard-progress";
 import { StepDestination } from "./step-destination";
@@ -194,25 +195,7 @@ function WizardContent({
   ];
 
   if (isGenerating) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
-        <div className="relative mb-8">
-          <div className="w-20 h-20 rounded-full bg-primary/15 flex items-center justify-center">
-            <Loader2 className="w-10 h-10 text-primary animate-spin" />
-          </div>
-          <div className="absolute inset-0 rounded-full bg-primary/15 animate-ping" />
-        </div>
-        <h1 className="text-xl font-bold text-foreground mb-2 text-center">
-          Creating your itinerary
-        </h1>
-        <p className="text-primary text-center animate-pulse">
-          {progressMessage}
-        </p>
-        <p className="text-muted-foreground text-sm mt-4">
-          This usually takes 20-30 seconds
-        </p>
-      </div>
-    );
+    return <GeneratingScreen data={data} progressMessage={progressMessage} />;
   }
 
   // The action bar is fixed to the screen bottom (no bottom nav on /itineraries/new), so it

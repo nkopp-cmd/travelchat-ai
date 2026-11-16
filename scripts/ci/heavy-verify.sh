@@ -40,6 +40,7 @@ VITEST_FILES=(
   __tests__/components/planner-trip-generated-order.test.tsx
   __tests__/components/planner-auth-return.test.tsx
   __tests__/components/planner-start-signal.test.tsx
+  __tests__/components/planner-generating-screen.test.tsx
   __tests__/components/planner-preview-signed-out.test.tsx
   __tests__/components/help-plan-link.test.tsx
   __tests__/components/weekly-shared-cards.test.tsx
