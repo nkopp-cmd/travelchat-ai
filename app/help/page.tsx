@@ -6,6 +6,7 @@ import Link from "next/link";
 import { PageHeader } from "@/components/layout/page-header";
 import { Languages } from "@/components/ui/icons";
 import { HELP_COUNTRIES } from "@/lib/help/phrases";
+import { FreePlanLink } from "@/components/help/help-plan-link";
 
 export const metadata: Metadata = pageMeta({
   title: "Help me say this",
@@ -34,6 +35,7 @@ export default function HelpPage() {
           </li>
         ))}
       </ul>
+      <FreePlanLink label="Plan a free trip" testId="help-index-plan-trip" />
     </div>
   );
 }

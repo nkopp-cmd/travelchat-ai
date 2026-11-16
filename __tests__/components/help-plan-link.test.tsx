@@ -1,8 +1,13 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { HELP_COUNTRIES } from "@/lib/help/phrases";
 import { ALL_CITIES } from "@/lib/cities";
 import { HELP_PLAN_CITY, HelpPlanLink, helpPlanHref } from "@/components/help/help-plan-link";
+import HelpPage from "@/app/help/page";
+import TrendingPage from "@/app/trending/page";
+
+vi.mock("@/lib/viral/events", () => ({ fetchViralEvents: vi.fn(async () => []) }));
+vi.mock("@/components/newsletter/localley-signup", () => ({ LocalleySignup: () => null }));
 
 describe("help guide link to the free planner", () => {
   it("links each mapped country to its main planner city", () => {
@@ -24,5 +29,15 @@ describe("help guide link to the free planner", () => {
     expect(html).toContain("Plan a free day in Tokyo");
     expect(html).toContain("First plan free · no sign-up");
     expect(renderToStaticMarkup(<HelpPlanLink countrySlug="vietnam" />)).toBe("");
+  });
+
+  // Push X1: index pages in sitemaps/pages.xml had no planner link in server HTML on phones
+  // (navbar "Start planning" is client-only and hidden below sm).
+  it("puts a server-rendered free-planner link on /help and /trending", async () => {
+    for (const html of [renderToStaticMarkup(<HelpPage />), renderToStaticMarkup(await TrendingPage())]) {
+      expect(html).toContain('href="/itineraries/new"');
+      expect(html).toContain("Plan a free trip");
+      expect(html).toContain("First plan free · no sign-up");
+    }
   });
 });
