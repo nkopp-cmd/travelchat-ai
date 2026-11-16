@@ -26,6 +26,10 @@ export default async function NewsletterStatePage({ params }: { params: Promise<
       <p className="mt-8 text-[15px]">
         <Link className="font-semibold text-primary underline-offset-4 hover:underline" href="/spots">Browse places locals rate</Link>
       </p>
+      <p className="mt-3 text-[15px]">
+        <Link className="font-semibold text-primary underline-offset-4 hover:underline" href="/itineraries/new">Plan a free trip</Link>
+        <span className="text-muted-foreground"> · First plan free, no sign-up</span>
+      </p>
     </div>
   );
 }
