@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { SpotPhotoImage, VenueCardPhoto, VenueHeroPhoto, VenuePhotoThumbnails, galleryCreditText } from "@/components/spots/spot-photo-image";
+import { SpotPhotoImage, VenueCardPhoto, VenueHeroPhoto, VenuePhotoThumbnails } from "@/components/spots/spot-photo-image";
 import { resetVenuePhotoMemory } from "@/components/spots/venue-photo-provider";
 import { EARLY_HERO_KEY, earlyHeroScript, getDirectVenuePhotos, VenuePhotoProvider } from "@/components/spots/venue-photo-provider";
 import { useState, type ImgHTMLAttributes } from "react";
@@ -25,22 +25,17 @@ describe("venue photos", () => {
     expect(screen.getByRole("button", {name:"Details open"})).toBeTruthy();
     expect(screen.getByAltText("Hero")).toBeTruthy();
   });
-  it("shows no caption under any photo: one gallery credit line sits on the hero only", async () => {
+  it("shows no photo credit anywhere on the gallery (Nils 2026-11-16)", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, json: async () => ({ status: "available", photos: [
       { ...photo("p1"), attributions: [{ displayName: "Alice" }] },
-      { ...photo("p2"), attributions: [{ displayName: "Bob" }, { displayName: "Alice" }] },
+      { ...photo("p2"), attributions: [{ displayName: "Bob" }] },
       { ...photo("p3"), attributions: [] },
     ] }) })));
-    render(<VenuePhotoProvider spotId="credit-spot"><VenueHeroPhoto name="Venue" /><VenuePhotoThumbnails name="Venue" /></VenuePhotoProvider>);
-    await waitFor(() => expect(screen.getByTestId("gallery-credit").textContent).toBe("Google Maps · Alice, Bob"));
-    expect(screen.getAllByTestId("gallery-credit")).toHaveLength(1);
-    expect(screen.getByTestId("spot-detail-hero").contains(screen.getByTestId("gallery-credit"))).toBe(true);
-    expect(document.querySelector("figcaption")).toBeNull();
+    const { container } = render(<VenuePhotoProvider spotId="credit-spot"><VenueHeroPhoto name="Venue" /><VenuePhotoThumbnails name="Venue" /></VenuePhotoProvider>);
+    await waitFor(() => expect(screen.getAllByRole("img")).toHaveLength(3));
+    expect(container.textContent).not.toMatch(/Google Maps|Alice|Bob/);
+    expect(container.querySelector("figcaption")).toBeNull();
     expect(screen.getByTestId("venue-thumbnails").className).toContain("grid-cols-2");
-  });
-  it("credits only Google photos in the gallery line", () => {
-    expect(galleryCreditText([{ id: "a", url: "/media/spot/a.jpg", sourceLabel: "Wikimedia Commons", attributions: [{ displayName: "Eve" }] }])).toBeNull();
-    expect(galleryCreditText([photo("g")])).toBe("Google Maps");
   });
   it("never renders a blank box: a missing photo shows a category tile with its icon", () => {
     const { rerender } = render(<SpotPhotoImage alt="Market" sizes="320px" category="Market" />);
@@ -158,13 +153,13 @@ describe("venue photos", () => {
 describe("early hero photo", () => {
   const runEarly = (spotId: string) => {
     const frame = document.createElement("div");
-    frame.innerHTML = `<img alt="" hidden><span hidden> </span><script></script>`;
+    frame.innerHTML = `<img alt="" hidden><script></script>`;
     document.body.appendChild(frame);
     const script = frame.querySelector("script")!;
     Object.defineProperty(document, "currentScript", { value: script, configurable: true });
     new Function(earlyHeroScript(spotId))();
     Object.defineProperty(document, "currentScript", { value: null, configurable: true });
-    return { img: frame.querySelector("img")!, credit: frame.querySelector("span")! };
+    return { img: frame.querySelector("img")! };
   };
   afterEach(() => { delete (globalThis as Record<string, unknown>)[EARLY_HERO_KEY]; document.body.innerHTML = ""; });
 
@@ -178,15 +173,14 @@ describe("early hero photo", () => {
     const { container } = render(<VenuePhotoProvider spotId="spot-2" allowFetch={false}><VenueHeroPhoto name="Venue" /></VenuePhotoProvider>);
     expect(container.querySelector("script")).toBeNull();
   });
-  it("shows the first photo with its credit at parse time and hands the request to React", async () => {
+  it("shows the first photo without a credit at parse time and hands the request to React", async () => {
     const fetchMock = vi.fn(async () => response(["first", "second"]));
     vi.stubGlobal("fetch", fetchMock);
-    const { img, credit } = runEarly("spot-3");
+    const { img } = runEarly("spot-3");
     await waitFor(() => expect(img.hidden).toBe(false));
     expect(img.getAttribute("src")).toContain("name=first");
     expect(img.getAttribute("fetchpriority")).toBe("high");
-    expect(credit.hidden).toBe(false);
-    expect(credit.textContent).toBe("Google Maps");
+    expect(img.parentElement!.textContent).not.toContain("Google Maps");
     render(<VenuePhotoProvider spotId="spot-3"><VenueHeroPhoto name="Venue" /><VenuePhotoThumbnails name="Venue" /></VenuePhotoProvider>);
     await waitFor(() => expect(screen.getByAltText("Venue").getAttribute("src")).toContain("name=first"));
     expect(fetchMock).toHaveBeenCalledTimes(1);

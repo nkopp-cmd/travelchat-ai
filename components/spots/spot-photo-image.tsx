@@ -37,7 +37,6 @@ function PhotoImage({ photo, alt, className, sizes, priority, loading, children,
         {loading && earlySpotId && <>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img alt="" hidden suppressHydrationWarning className={cn("absolute inset-0 h-full w-full", className)} />
-          <span hidden suppressHydrationWarning className={CREDIT_OVERLAY}>{" "}</span>
           <script dangerouslySetInnerHTML={{ __html: earlyHeroScript(earlySpotId) }} />
         </>}
       </> : <Image key={photo.url} src={photo.url} alt={alt} fill unoptimized sizes={sizes} priority={priority} className={className}
@@ -47,25 +46,6 @@ function PhotoImage({ photo, alt, className, sizes, priority, loading, children,
   </figure>;
 }
 
-/** One quiet line on the hero for the whole gallery: no caption under each photo (Nils 2026-11-16). */
-const CREDIT_OVERLAY = "pointer-events-none absolute bottom-1.5 right-1.5 max-w-[85%] truncate rounded bg-black/45 px-1.5 py-0.5 text-[10px] leading-4 text-foreground/80";
-
-/**
- * Google requires the source and author names next to Places photos, so the gallery keeps one small line for all of
- * its photos instead of a caption block under each tile. Stored licensed photos are credited on /credits.
- */
-export function galleryCreditText(photos: Photo[]): string | null {
-  const google = photos.filter((photo) => photo.sourceLabel === "Google listing photo");
-  if (!google.length) return null;
-  const authors = [...new Set(google.flatMap((photo) => photo.attributions || []).map((author) => author.displayName.trim()).filter(Boolean))];
-  return `Google Maps${authors.length ? ` · ${authors.join(", ")}` : ""}`;
-}
-
-function GalleryCredit({ photos }: { photos: Photo[] }) {
-  const text = galleryCreditText(photos);
-  return text ? <span translate="no" data-testid="gallery-credit" className={CREDIT_OVERLAY}>{text}</span> : null;
-}
-
 export function VenueHeroPhoto({ name, children }: { name: string; children?: ReactNode }) {
   const { data, loading, spotId } = useDetailVenuePhotos();
   // No photo known at first render: no hero block (content-first rule 2), the page starts with the guide. A box first
@@ -73,10 +53,7 @@ export function VenueHeroPhoto({ name, children }: { name: string; children?: Re
   // page up 311 px (mobile PSI CLS 0.308 on spot f242e187; the photos API always says unavailable to automated agents).
   const [shownWhileLoading] = useState(loading);
   if (!loading && !data?.photos[0] && !shownWhileLoading) return null;
-  return <SpotPhotoImage key={spotId} photo={data?.photos[0]} alt={name} sizes="(max-width: 768px) 100vw, 1024px" priority loading={loading} hero earlySpotId={spotId} frameClassName="relative aspect-[4/3] min-h-60 w-full overflow-hidden rounded-lg shadow-2xl shadow-violet-950/30 sm:aspect-[16/10] sm:min-h-0 md:aspect-[21/9]">
-    {children}
-    {!loading && <GalleryCredit photos={data?.photos || []} />}
-  </SpotPhotoImage>;
+  return <SpotPhotoImage key={spotId} photo={data?.photos[0]} alt={name} sizes="(max-width: 768px) 100vw, 1024px" priority loading={loading} hero earlySpotId={spotId} frameClassName="relative aspect-[4/3] min-h-60 w-full overflow-hidden rounded-lg shadow-2xl shadow-violet-950/30 sm:aspect-[16/10] sm:min-h-0 md:aspect-[21/9]">{children}</SpotPhotoImage>;
 }
 
 export function VenuePhotoThumbnails({ name }: { name: string }) {
