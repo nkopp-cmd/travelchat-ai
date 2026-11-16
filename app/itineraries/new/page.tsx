@@ -5,9 +5,11 @@ import { pageMeta, SITE_URL } from "@/lib/seo/meta";
 import { pageCardImage } from "@/lib/seo/page-card";
 import { NewItineraryClient } from "./planner-client";
 
-// Same freshness as /spots and /api/cities: the destination list is rendered into the HTML
-// (no client fetch on the first screen) and refreshed every 5 minutes.
-export const revalidate = 300;
+// Rendered per request like /spots: the destination list is in the HTML (no client fetch on the first
+// screen). The edge HTML cache keeps it 5 minutes and the city counts sit in the 1 h data cache, so a
+// request is a cache hit. ISR (revalidate) kept the build-time render, which has no D1, so the live HTML
+// had initialCities null: an extra /api/cities fetch and no city photo on the wait screen.
+export const dynamic = "force-dynamic";
 
 // The planner is the only free-trip entry (preview -> Save -> checkout). Its own title, one self
 // canonical (query variants like ?city=Seoul fold into it) and a free-offer schema let search
