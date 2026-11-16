@@ -326,6 +326,7 @@ VITEST_FILES=(
   __tests__/api/connect-onboard-candidate-route.test.ts
   __tests__/lib/app-data-preview-guide-application.test.ts
   __tests__/api/admin-guide-reject-candidate-route.test.ts
+  __tests__/lib/no-bare-sign-up.test.ts
   __tests__/lib/spots-query-public-rows.test.ts
   __tests__/lib/planner-href.test.ts
   __tests__/lib/spots-query-timeout.test.ts
