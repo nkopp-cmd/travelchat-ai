@@ -9,7 +9,7 @@ const mocks = vi.hoisted(() => ({ db: null as unknown }));
 vi.mock("@/lib/app-data/backend", () => ({ appDataDb: () => mocks.db }));
 vi.mock("@/lib/rate-limit", () => ({ rateLimit: () => async () => null, strictPlatformLimit: async () => "allowed" }));
 import { PLACES_DAILY_CAP_DEFAULT, PLACES_MONTHLY_CAP_DEFAULT, placesDailyCap, placesMonthlyCap, reservePlacesCall } from "@/lib/places-quota";
-import { isAutomatedPlacesRequest } from "@/lib/places-guard";
+import { isAutomatedPlacesRequest, requestAsn } from "@/lib/places-guard";
 import { GET as galleryGET } from "@/app/api/spots/[id]/photos/route";
 import { GET } from "@/app/api/places/photo/route";
 
@@ -131,6 +131,31 @@ describe("automated requests never cost a Places call", () => {
     expect(isAutomatedPlacesRequest(h({ "user-agent": chrome, "cf-connecting-ip": "2a03:2880:f80e:2c::" }))).toBe(true);
     expect(isAutomatedPlacesRequest(h({ "user-agent": chrome, "sec-ch-ua": realHint, "cf-connecting-ip": "2001:e60:1234::1" }))).toBe(false);
     expect(isAutomatedPlacesRequest(h({ "user-agent": iphone, "cf-connecting-ip": "116.122.170.131" }))).toBe(false);
+  });
+
+  it("refuses cloud/hosting networks by ASN (2026-11-16 Huawei Cloud renderers) and keeps ISPs, carriers and relays", () => {
+    for (const asn of [136907, 55990, 16509, 14618, 396982, 8075, 45102, 132203, 14061, 24940, 16276])
+      expect(isAutomatedPlacesRequest(h({ "user-agent": chrome }), asn), String(asn)).toBe(true);
+    // KT, SK Broadband, LG U+, NTT, Comcast, Cloudflare WARP, iCloud Private Relay (Akamai, Fastly), unknown.
+    for (const asn of [4766, 9318, 3786, 4713, 7922, 13335, 36183, 54113, undefined])
+      expect(isAutomatedPlacesRequest(h({ "user-agent": chrome }), asn), String(asn)).toBe(false);
+  });
+
+  it("reads the ASN from the Cloudflare request context", () => {
+    const key = Symbol.for("__cloudflare-context__");
+    const g = globalThis as Record<symbol, unknown>;
+    const before = g[key];
+    try {
+      g[key] = { env: {}, cf: { asn: 136907 } };
+      expect(requestAsn()).toBe(136907);
+      expect(isAutomatedPlacesRequest(h({ "user-agent": chrome }))).toBe(true);
+      g[key] = { env: {}, cf: { asn: 4766 } };
+      expect(isAutomatedPlacesRequest(h({ "user-agent": chrome }))).toBe(false);
+      g[key] = { env: {} };
+      expect(requestAsn()).toBeUndefined();
+    } finally {
+      g[key] = before;
+    }
   });
 
   it("the photo proxy and the gallery refuse automated requests before reserving or fetching", async () => {

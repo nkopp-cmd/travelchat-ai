@@ -12,12 +12,41 @@ const AUTOMATED_IPV6_PREFIXES = [
   /^2a03:2880:/i, // Meta crawlers 2a03:2880::/32
 ];
 
+// Cloud and hosting networks (ASN, from Cloudflare request.cf). On 2026-11-16 the daily cap (600) was used by 18:52
+// UTC while real card views were 54: a Worker tail showed Huawei Cloud renderers with plain desktop Chrome user agents
+// calling the photo APIs, plus Amazon crawlers. Consumer ISPs, mobile carriers and privacy relays (Cloudflare WARP
+// 13335, iCloud Private Relay on Akamai 36183 / Fastly 54113) are deliberately NOT listed.
+export const DATACENTER_ASNS: ReadonlySet<number> = new Set([
+  16509, 14618, // Amazon AWS
+  396982, // Google Cloud
+  8075, // Microsoft Azure
+  136907, 55990, 265443, // Huawei Cloud
+  45102, 37963, // Alibaba Cloud
+  132203, 45090, // Tencent Cloud
+  14061, // DigitalOcean
+  24940, 213230, // Hetzner
+  16276, // OVH
+  31898, // Oracle Cloud
+  63949, // Akamai Linode
+  20473, // Vultr
+  51167, // Contabo
+  12876, // Scaleway
+]);
+
+/** The caller's ASN from the Cloudflare request context (set by the OpenNext Worker; a client cannot forge it). */
+export function requestAsn(): number | undefined {
+  const context = (globalThis as Record<symbol, { cf?: { asn?: unknown } } | undefined>)[Symbol.for("__cloudflare-context__")];
+  const asn = Number(context?.cf?.asn);
+  return Number.isInteger(asn) && asn > 0 ? asn : undefined;
+}
+
 /**
  * True when a request must not spend a Places call: an automated client (empty or known automated user agent) or a
  * speculative load (prefetch / prerender before the visitor opens the page), headless client hints, or a request
- * from our own servers or a crawler network. Such requests get "photo unavailable".
+ * from our own servers, a crawler network or a cloud/hosting network (ASN). Such requests get "photo unavailable".
  */
-export function isAutomatedPlacesRequest(headers: Headers): boolean {
+export function isAutomatedPlacesRequest(headers: Headers, asn: number | undefined = requestAsn()): boolean {
+  if (asn !== undefined && DATACENTER_ASNS.has(asn)) return true;
   const purpose = `${headers.get("sec-purpose") ?? ""} ${headers.get("purpose") ?? ""} ${headers.get("x-purpose") ?? ""}`;
   if (/prefetch|prerender|preview/i.test(purpose)) return true;
   if (HEADLESS_HINT.test(headers.get("sec-ch-ua") ?? "")) return true;
