@@ -68,6 +68,30 @@ describe("public HTML edge cache", () => {
     }
   });
 
+  it("stores sitemaps for an hour as XML and never stores a non-XML or missing sitemap", async () => {
+    const xml = () => new Response("<urlset/>", { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=3600" } });
+    for (const path of ["/sitemap.xml", "/sitemaps/pages.xml", "/sitemaps/guides.xml", "/sitemaps/spots-12.xml"]) {
+      expect(edgeTtlSeconds(path)).toBe(3600);
+      const cache = memoryCache();
+      const handler = vi.fn(async () => xml());
+      expect((await serve(new Request(`https://www.localley.io${path}`), cache, handler)).headers.get(EDGE_CACHE_HEADER)).toBe("MISS");
+      const hit = await serve(new Request(`https://www.localley.io${path}`), cache, handler);
+      expect(hit.headers.get(EDGE_CACHE_HEADER)).toBe("HIT");
+      expect(hit.headers.get("cache-control")).toBe("public, max-age=3600");
+      expect(await hit.text()).toBe("<urlset/>");
+      expect(handler).toHaveBeenCalledTimes(1);
+    }
+    for (const path of ["/sitemaps/other.xml", "/sitemaps/spots-0.xml", "/sitemaps/spots-12345.xml", "/sitemaps/pages.xml/x"]) {
+      expect(edgeTtlSeconds(path)).toBeUndefined();
+    }
+    expect(isEdgeCacheable(new Request("https://www.localley.io/sitemap.xml?x=1"))).toBe(false);
+    for (const response of [html(), new Response("missing", { status: 404, headers: { "content-type": "application/xml" } })]) {
+      const cache = memoryCache();
+      await serve(new Request("https://www.localley.io/sitemaps/spots-99.xml"), cache, async () => response);
+      expect(cache.put).not.toHaveBeenCalled();
+    }
+  });
+
   it("bypasses the cache for other routes, queries, methods, RSC requests and missing versions", async () => {
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots/abc"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots/15614d97-380f-4e8d-8aa6-aa6f43609bcf"))).toBe(true);
