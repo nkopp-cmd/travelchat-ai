@@ -273,14 +273,46 @@ export function getPublicVisibleSpotRows(rows: RawSpot[]): RawSpot[] {
   return dedupePublicSpotRows(rows.filter(shouldShowPublicSpot));
 }
 
-/** D1 rows already carry the public-quality verdict; only the dedupe applies. */
-export function dedupePublicSpotRows<T extends Pick<RawSpot, "name" | "address">>(rows: T[]): T[] {
-  const seen = new Map<string, boolean>();
+/** Two rows with the same name closer than this are one place imported twice (Shilin Night Market: 75 m apart). */
+export const SPOT_TWIN_RADIUS_KM = 0.3;
+/** Part of every cached list/count/pin key: bump when dedupePublicSpotRows changes which rows it keeps. */
+export const SPOT_DEDUPE_VERSION = "twin-1";
+
+type DedupeRow = Pick<RawSpot, "name" | "address"> & {
+  latitude?: number | null;
+  longitude?: number | null;
+  google_place_id?: string | null;
+};
+
+function kmBetween(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+  const rad = Math.PI / 180;
+  const h = Math.sin(((b.lat - a.lat) * rad) / 2) ** 2
+    + Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin(((b.lng - a.lng) * rad) / 2) ** 2;
+  return 6371 * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+}
+
+/**
+ * D1 rows already carry the public-quality verdict; only the dedupe applies. The first row in the given order wins.
+ * A row is a twin when an earlier row has the same name + address, the same Google place id, or the same name within
+ * SPOT_TWIN_RADIUS_KM (imports wrote "101 Jihe Road" and "No. 101 Jihe Rd" as two rows). Chain branches with the same
+ * name further apart stay.
+ */
+export function dedupePublicSpotRows<T extends DedupeRow>(rows: T[]): T[] {
+  const seenAddress = new Set<string>();
+  const seenPlace = new Set<string>();
+  const keptPoints = new Map<string, { lat: number; lng: number }[]>();
   return rows.filter((spot) => {
-    // Safety net: deduplicate by (name + address) in case DB has dupes.
-    const key = `${getSpotTextFieldValue(spot.name).toLowerCase().trim()}|${getSpotTextFieldValue(spot.address).toLowerCase().trim()}`;
-    if (seen.has(key)) return false;
-    seen.set(key, true);
+    const name = getSpotTextFieldValue(spot.name).toLowerCase().trim();
+    const addressKey = `${name}|${getSpotTextFieldValue(spot.address).toLowerCase().trim()}`;
+    const placeId = typeof spot.google_place_id === "string" ? spot.google_place_id.trim() : "";
+    const point = hasUsableCoordinates(spot.latitude, spot.longitude)
+      ? { lat: spot.latitude as number, lng: spot.longitude as number } : null;
+    if (seenAddress.has(addressKey) || (placeId && seenPlace.has(placeId))) return false;
+    const near = point && name ? keptPoints.get(name) : undefined;
+    if (point && near?.some((kept) => kmBetween(kept, point) <= SPOT_TWIN_RADIUS_KM)) return false;
+    seenAddress.add(addressKey);
+    if (placeId) seenPlace.add(placeId);
+    if (point && name) keptPoints.set(name, [...(near ?? []), point]);
     return true;
   });
 }
@@ -423,6 +455,7 @@ export async function fetchFilteredSpots(
     backend: dataBackend(),
     projection: PUBLIC_SPOT_CARD_SELECT,
     visibility: PUBLIC_SPOT_VISIBILITY_CACHE_VERSION,
+    dedupe: SPOT_DEDUPE_VERSION,
     provenance: COMMUNITY_PROVENANCE_CACHE_VERSION,
     city: filters.city,
     category: filters.category,
@@ -495,7 +528,7 @@ async function fetchFilterOptionsInternal(): Promise<FilterOptions> {
 export async function fetchFilterOptions(): Promise<FilterOptions> {
   const cachedFetch = unstable_cache(
     fetchFilterOptionsInternal,
-    ["spots-filter-options", dataBackend(), PUBLIC_SPOT_VISIBILITY_CACHE_VERSION, PUBLIC_SPOT_SELECT],
+    ["spots-filter-options", dataBackend(), PUBLIC_SPOT_VISIBILITY_CACHE_VERSION, SPOT_DEDUPE_VERSION, PUBLIC_SPOT_SELECT],
     {
       revalidate: 600, // 10 minutes
       tags: ["spots"],
@@ -555,6 +588,7 @@ export async function fetchPinIndex(filters: SpotsFilterState): Promise<PinIndex
   const cacheKey = JSON.stringify({
     backend: dataBackend(),
     visibility: PUBLIC_SPOT_VISIBILITY_CACHE_VERSION,
+    dedupe: SPOT_DEDUPE_VERSION,
     city: filters.city,
     category: filters.category,
     score: filters.score,
