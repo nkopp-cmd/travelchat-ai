@@ -42,7 +42,7 @@ export function GeneratingScreen({ data, progressMessage }: { data: WizardData; 
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
           <div className="absolute inset-x-0 bottom-0 p-4 text-white">
             <p className="text-2xl font-bold">{city.emoji} {city.name}</p>
-            {city.vibe && <p className="text-sm text-white/85">{city.vibe}</p>}
+            {city.vibe && <p className="text-sm text-white">{city.vibe}</p>}
           </div>
         </div>
       ) : (
