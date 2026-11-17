@@ -19,3 +19,15 @@ export const VERIFIED_PATH = "/verified";
 export function verifiedCallbackURL(page: string): string {
   return `${VERIFIED_PATH}?to=${encodeURIComponent(safeRedirect(page))}`;
 }
+
+/**
+ * Server side of the same rule: every verify mail (sign-up, resend, and the sendOnSignIn mail that
+ * Better Auth builds from the sign-in callbackURL) returns through /verified. Idempotent.
+ */
+export function wrapVerifyMailURL(url: string): string {
+  const u = new URL(url);
+  const cb = u.searchParams.get("callbackURL");
+  if (cb === null || cb.split("?")[0].replace(/\/$/, "") === VERIFIED_PATH) return url;
+  u.searchParams.set("callbackURL", verifiedCallbackURL(cb));
+  return u.toString();
+}

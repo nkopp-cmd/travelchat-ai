@@ -10,6 +10,7 @@
  */
 import { betterAuth, type BetterAuthOptions } from "better-auth";
 import { magicLink } from "better-auth/plugins";
+import { wrapVerifyMailURL } from "@/lib/auth/redirect";
 
 export type AuthMailKind = "verify-email" | "reset-password" | "magic-link";
 
@@ -91,7 +92,7 @@ export function createAuth(input: CreateAuthInput) {
       autoSignInAfterVerification: true,
       expiresIn: 60 * 60 * 24,
       sendVerificationEmail: async ({ user, url }) => {
-        await input.sendMail({ kind: "verify-email", to: user.email, url, name: user.name });
+        await input.sendMail({ kind: "verify-email", to: user.email, url: wrapVerifyMailURL(url), name: user.name });
       },
     },
     socialProviders,

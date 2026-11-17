@@ -211,3 +211,25 @@ describe("expired or used verify-email link (Push AH3)", () => {
     expect(response.headers.get("location") ?? "").not.toContain("error=link");
   });
 });
+
+describe("verify mail URL wrap (Push AI1)", async () => {
+  const { wrapVerifyMailURL } = await import("@/lib/auth/redirect");
+  const mail = (cb?: string) => `https://www.localley.io/api/auth/verify-email?token=abc.def${cb === undefined ? "" : `&callbackURL=${encodeURIComponent(cb)}`}`;
+
+  it("routes the sign-in callbackURL through /verified and keeps the token", () => {
+    const u = new URL(wrapVerifyMailURL(mail("/pricing?checkout=pro-monthly")));
+    expect(u.searchParams.get("token")).toBe("abc.def");
+    expect(u.searchParams.get("callbackURL")).toBe("/verified?to=%2Fpricing%3Fcheckout%3Dpro-monthly");
+  });
+
+  it("does not wrap twice", () => {
+    const once = wrapVerifyMailURL(mail("/spots/abc"));
+    expect(wrapVerifyMailURL(once)).toBe(once);
+    expect(wrapVerifyMailURL(mail("/verified?to=%2Fhelp"))).toBe(mail("/verified?to=%2Fhelp"));
+  });
+
+  it("leaves a mail without callbackURL alone and drops external targets", () => {
+    expect(wrapVerifyMailURL(mail())).toBe(mail());
+    expect(new URL(wrapVerifyMailURL(mail("https://evil.example/x"))).searchParams.get("callbackURL")).toBe("/verified?to=%2Fdashboard");
+  });
+});
