@@ -228,6 +228,8 @@ on:
       - 'app/api/events/**'
       - 'migrations/auth/**'
       - '__tests__/lib/spot-event-store.test.ts'
+      - 'lib/check-traffic.ts'
+      - '__tests__/lib/check-traffic.test.ts'
       - 'lib/referral-point.ts'
       - '__tests__/lib/referral-point.test.ts'
       - 'lib/funnel-analytics.ts'
