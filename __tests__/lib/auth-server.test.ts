@@ -94,6 +94,8 @@ describe("server auth adapter", () => {
 
     const verify = outbox(email).find((m) => m.kind === "verify-email");
     expect(verify).toBeTruthy();
+    // sendOnSignIn mail: Better Auth builds it from the sign-in callbackURL; the hook routes it via /verified.
+    expect(new URL(verify!.url).searchParams.get("callbackURL")).toMatch(/^\/verified\?to=%2F/);
     const verified = await getAuth().handler(new Request(verify!.url, { redirect: "manual" }));
     expect([200, 302]).toContain(verified.status);
     const cookie = cookiesFrom(verified);

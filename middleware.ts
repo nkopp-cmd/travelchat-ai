@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { ACCOUNT_HINT_COOKIE, hasAccountHint, hasValidSessionCookie } from "@/lib/auth/session-cookie";
+import { safeRedirect, VERIFIED_PATH } from "@/lib/auth/redirect";
 
 // About one year (browsers cap cookie lifetime near 400 days). Value "1" only; httpOnly, no user data.
 const ACCOUNT_HINT_OPTIONS = { path: "/", maxAge: 60 * 60 * 24 * 365, httpOnly: true, secure: true, sameSite: "lax" } as const;
@@ -11,6 +12,7 @@ const PUBLIC_ROUTES = [
     '/sign-in(.*)',
     '/sign-up(.*)',
     '/forgot-password',
+    '/verified',  // Verify-mail return hop: 307 to a same-site page (lib/auth/redirect.ts)
     '/reset-password',
     '/api/auth(.*)',  // Better Auth endpoints (sign-in, sign-up, callbacks, get-session)
     '/api/test-auth(.*)',  // Preview-only test mailbox; the route returns 404 unless AUTH_MAIL_MODE=outbox
@@ -106,11 +108,14 @@ export const writeFreeze = (request: NextRequest) => {
 const VERIFY_LINK_ERRORS = new Set(['TOKEN_EXPIRED', 'INVALID_TOKEN', 'USER_NOT_FOUND', 'INVALID_USER']);
 export const verifyLinkErrorRedirect = (request: NextRequest) => {
     const { pathname, searchParams } = request.nextUrl;
-    if (!['GET', 'HEAD'].includes(request.method) || /^\/(?:api|trpc|sign-in)(?:\/|$)/.test(pathname)) return null;
+    if (!['GET', 'HEAD'].includes(request.method) || /^\/(?:api|trpc|sign-in|reset-password)(?:\/|$)/.test(pathname)) return null;
+    // /reset-password reads its own ?error=INVALID_TOKEN (Better Auth reset link) and offers a new link.
     if (!VERIFY_LINK_ERRORS.has(searchParams.get('error') ?? '')) return null;
     const rest = new URLSearchParams(searchParams);
     rest.delete('error');
-    const page = pathname + (rest.size ? `?${rest}` : '');
+    const page = pathname.replace(/\/$/, '') === VERIFIED_PATH
+        ? safeRedirect(rest.get('to'))
+        : pathname + (rest.size ? `?${rest}` : '');
     const target = new URL('/sign-in', request.url);
     target.searchParams.set('error', 'link');
     if (page !== '/dashboard') target.searchParams.set('redirect_url', page);

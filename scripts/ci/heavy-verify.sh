@@ -468,6 +468,8 @@ ESLINT_FILES=(
   __tests__/lib/auth-notification-store.test.ts
   lib/notifications/auth-http.ts
   lib/auth/client.ts
+  lib/auth/redirect.ts
+  app/verified/route.ts
   __tests__/api/auth-notification-routes.test.ts
   __tests__/hooks/auth-notification-ownership.test.tsx
   scripts/d1-migration/source-owner-policy-guard.mjs

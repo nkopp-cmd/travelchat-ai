@@ -186,8 +186,100 @@ describe("expired or used verify-email link (Push AH3)", () => {
     expect(response.headers.get("location") ?? "").not.toContain("error=link");
   });
 
+  it.each([
+    ["/verified?to=%2Fpricing%3Fcheckout%3Dpro-monthly&error=TOKEN_EXPIRED", "/pricing?checkout=pro-monthly"],
+    ["/verified?to=%2F%2Fevil.example&error=INVALID_TOKEN", null],
+  ])("unwraps the verify-mail hop %s to the page behind it", async (path, page) => {
+    const destination = new URL((await middleware(request(path))).headers.get("location")!);
+    expect(destination.pathname).toBe("/sign-in");
+    expect(destination.searchParams.get("error")).toBe("link");
+    expect(destination.searchParams.get("redirect_url")).toBe(page);
+  });
+
+  it("lets a good link through the public /verified hop, which forwards to the safe page", async () => {
+    const { GET } = await import("@/app/verified/route");
+    const response = await middleware(request("/verified?to=%2Fpricing%3Fcheckout%3Dpro-monthly"));
+    expect(response.headers.get("location")).toBeNull();
+    const hop = GET(request("/verified?to=%2Fpricing%3Fcheckout%3Dpro-monthly"));
+    expect(hop.status).toBe(307);
+    expect(new URL(hop.headers.get("location")!).pathname + new URL(hop.headers.get("location")!).search).toBe("/pricing?checkout=pro-monthly");
+    expect(new URL(GET(request("/verified?to=https%3A%2F%2Fevil.example")).headers.get("location")!).href).toBe(new URL("/dashboard", hop.headers.get("location")!).href);
+  });
+
   it("ignores POST requests", async () => {
     const response = await middleware(request("/pricing?error=TOKEN_EXPIRED", { method: "POST" }));
     expect(response.headers.get("location") ?? "").not.toContain("error=link");
+  });
+});
+
+describe("verify mail URL wrap (Push AI1)", async () => {
+  const { wrapVerifyMailURL } = await import("@/lib/auth/redirect");
+  const mail = (cb?: string) => `https://www.localley.io/api/auth/verify-email?token=abc.def${cb === undefined ? "" : `&callbackURL=${encodeURIComponent(cb)}`}`;
+
+  it("routes the sign-in callbackURL through /verified and keeps the token", () => {
+    const u = new URL(wrapVerifyMailURL(mail("/pricing?checkout=pro-monthly")));
+    expect(u.searchParams.get("token")).toBe("abc.def");
+    expect(u.searchParams.get("callbackURL")).toBe("/verified?to=%2Fpricing%3Fcheckout%3Dpro-monthly");
+  });
+
+  it("does not wrap twice", () => {
+    const once = wrapVerifyMailURL(mail("/spots/abc"));
+    expect(wrapVerifyMailURL(once)).toBe(once);
+    expect(wrapVerifyMailURL(mail("/verified?to=%2Fhelp"))).toBe(mail("/verified?to=%2Fhelp"));
+  });
+
+  it("leaves a mail without callbackURL alone and drops external targets", () => {
+    expect(wrapVerifyMailURL(mail())).toBe(mail());
+    expect(new URL(wrapVerifyMailURL(mail("https://evil.example/x"))).searchParams.get("callbackURL")).toBe("/verified?to=%2Fdashboard");
+  });
+});
+
+describe("expired reset-password link (Push AI2)", () => {
+  it.each(["/reset-password?error=INVALID_TOKEN", "/reset-password/?error=INVALID_TOKEN"])("leaves %s to the reset form", async path => {
+    const response = await middleware(new NextRequest(`https://www.localley.io${path}`));
+    expect(response.headers.get("location")).toBeNull();
+    expect(response.status).toBe(200);
+  });
+});
+
+describe("verify hop stays on the site for any `to` (Push AI3, property)", async () => {
+  const fc = await import("fast-check");
+  const { GET } = await import("@/app/verified/route");
+  const { safeRedirect, wrapVerifyMailURL } = await import("@/lib/auth/redirect");
+  const ORIGIN = "https://www.localley.io";
+  const at = (path: string) => new NextRequest(`${ORIGIN}${path}`);
+  const tricky = fc.constantFrom("//evil.example", "/\\evil.example", "\\\\evil.example", "/\t/evil.example", "/\n/evil.example",
+    "https://evil.example/x", "javascript:alert(1)", "data:text/html,x", "/%2F%2Fevil.example", "/@evil.example", " /x", "");
+  const to = fc.oneof(tricky, fc.string({ unit: "binary" }), fc.webUrl(), fc.string({ unit: "binary" }).map((s) => `/${s}`),
+    fc.tuple(tricky, fc.string()).map(([a, b]) => a + b));
+
+  it("the /verified route only redirects to this origin", () => {
+    fc.assert(fc.property(to, (value) => {
+      const location = GET(at(`/verified?to=${encodeURIComponent(value)}`)).headers.get("location")!;
+      expect(new URL(location).origin).toBe(ORIGIN);
+    }), { numRuns: 500 });
+  });
+
+  it("the middleware unwrap only hands sign-in a same-site redirect_url", async () => {
+    await fc.assert(fc.asyncProperty(to, fc.constantFrom("TOKEN_EXPIRED", "INVALID_TOKEN", "USER_NOT_FOUND"), async (value, code) => {
+      const destination = new URL((await middleware(at(`/verified?to=${encodeURIComponent(value)}&error=${code}`))).headers.get("location")!);
+      expect(destination.origin).toBe(ORIGIN);
+      expect(destination.pathname).toBe("/sign-in");
+      const back = destination.searchParams.get("redirect_url");
+      if (back !== null) {
+        expect(safeRedirect(back)).toBe(back);
+        expect(new URL(back, ORIGIN).origin).toBe(ORIGIN);
+      }
+    }), { numRuns: 300 });
+  });
+
+  it("the mail wrap always yields a /verified callback on this origin and is idempotent", () => {
+    fc.assert(fc.property(to, (value) => {
+      const once = wrapVerifyMailURL(`${ORIGIN}/api/auth/verify-email?token=t&callbackURL=${encodeURIComponent(value)}`);
+      const cb = new URL(once).searchParams.get("callbackURL")!;
+      if (!cb.startsWith("/verified?") && cb.split("?")[0].replace(/\/$/, "") !== "/verified") throw new Error(`unwrapped ${cb}`);
+      expect(new URL(cb, ORIGIN).origin).toBe(ORIGIN);
+      expect(wrapVerifyMailURL(once)).toBe(once);
+    }), { numRuns: 500 });
   });
 });
