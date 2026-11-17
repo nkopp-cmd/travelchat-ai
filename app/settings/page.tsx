@@ -22,6 +22,7 @@ import { headers } from "next/headers";
 import { PreviewBillingSummary } from "@/components/settings/preview-billing-summary";
 import { previewBillingSettings } from "@/lib/app-data/preview-billing-settings";
 import { assertPreviewNotificationUser } from "@/lib/app-data/preview-notifications";
+import { signInGateHref } from "@/lib/auth/gate-href";
 
 const LIQUID_CARD = "rounded-2xl bg-raised backdrop-blur-xl";
 const LIQUID_CARD_SOFT = "rounded-2xl bg-raised backdrop-blur-xl";
@@ -37,7 +38,7 @@ async function getSubscriptionData() {
     const { userId } = await auth();
 
     if (!userId) {
-        redirect("/sign-in");
+        redirect(signInGateHref("/settings"));
     }
 
     const supabase = createSupabaseAdmin();
@@ -115,7 +116,7 @@ export default async function SettingsPage({ searchParams }: {
     const user = await currentUser();
 
     if (!user) {
-        redirect("/sign-in");
+        redirect(signInGateHref("/settings"));
     }
 
     const params = await searchParams;

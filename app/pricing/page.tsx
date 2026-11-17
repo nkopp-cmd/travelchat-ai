@@ -23,6 +23,7 @@ import { useToast } from "@/hooks/use-toast";
 import { TIER_CONFIGS } from "@/lib/subscription";
 import { cn } from "@/lib/utils";
 import { checkoutSignUpUrl, parseCheckoutIntent, withoutCheckoutParam } from "@/lib/pricing-checkout";
+import { currentPagePath, signInGateHref } from "@/lib/auth/gate-href";
 
 type PaidTier = "pro" | "premium";
 
@@ -149,7 +150,7 @@ export default function PricingPage() {
                 description: "Sign in to manage billing.",
                 variant: "destructive",
             });
-            window.location.href = "/sign-in";
+            window.location.href = signInGateHref(currentPagePath());
             return;
         }
 
