@@ -90,7 +90,7 @@ function TemplateCardContent({
             <div className="relative h-8 w-9 shrink-0 overflow-hidden rounded-md bg-black/20 shadow-sm sm:h-10 sm:w-11">
               <Image
                 src={imageUrl}
-                alt={`${sampleCity} inspiration for ${template.name}`}
+                alt=""
                 fill
                 sizes="48px"
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -142,6 +142,8 @@ function TemplateCardContent({
   );
 }
 
+// The card link/button takes its name from its visible text (Lighthouse label-content-name-mismatch: an
+// aria-label must contain the visible text). The thumbnail is decorative; the h2 carries the template name.
 export function TemplateCard({ template, href, actionHref, primaryHref, isSelected, onSelect }: TemplateCardProps) {
   const className = "block h-full rounded-lg text-left focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background";
   const content = <TemplateCardContent template={template} isSelected={isSelected} />;
@@ -154,7 +156,6 @@ export function TemplateCard({ template, href, actionHref, primaryHref, isSelect
         onMouseEnter={onSelect}
         onFocus={onSelect}
         onClick={onSelect}
-        aria-label={`Use ${template.name} template`}
       >
         {content}
       </Link>
@@ -169,7 +170,6 @@ export function TemplateCard({ template, href, actionHref, primaryHref, isSelect
           onClick={onSelect}
           className={cn(className, "w-full")}
           aria-pressed={isSelected}
-          aria-label={`Select ${template.name} template`}
         >
           {content}
         </button>
@@ -177,7 +177,7 @@ export function TemplateCard({ template, href, actionHref, primaryHref, isSelect
           <Link
             href={primaryHref}
             className="absolute right-1.5 top-1.5 z-20 hidden h-6 items-center justify-center gap-1 rounded-md bg-primary px-1.5 text-xs font-semibold text-primary-foreground transition hover:bg-primary focus:outline-none focus:ring-2 focus:ring-violet-300 focus:ring-offset-2 focus:ring-offset-[#100b1c] sm:inset-x-1.5 sm:top-auto sm:bottom-1.5 sm:inline-flex sm:h-8 sm:px-2 sm:text-xs"
-            aria-label={`Use ${template.name} template`}
+            aria-label={`Use this template: ${template.name}`}
             data-testid="template-card-inline-action"
           >
             <span className="sm:hidden">Use</span>
@@ -193,7 +193,6 @@ export function TemplateCard({ template, href, actionHref, primaryHref, isSelect
     <Link
       href={href || `/itineraries/new?template=${template.id}`}
       className={className}
-      aria-label={`Use ${template.name} template`}
     >
       {content}
     </Link>

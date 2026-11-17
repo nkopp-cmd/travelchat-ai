@@ -27,12 +27,25 @@ describe("TemplateCard", () => {
     );
 
     const useAction = screen.getByRole("link", {
-      name: "Use Live Like a Local template",
+      name: "Use this template: Live Like a Local",
     });
 
     expect(useAction.getAttribute("href")).toBe(
       "/itineraries/new?template=local-authentic",
     );
+  });
+
+  it("names the select button by its visible text (label-in-name)", () => {
+    render(<TemplateCard template={template} onSelect={() => undefined} />);
+    const button = screen.getByRole("button", { name: /Live Like a Local/ });
+    expect(button.hasAttribute("aria-label")).toBe(false);
+  });
+
+  it("names the plain card link by its visible text", () => {
+    render(<TemplateCard template={template} />);
+    const link = screen.getByRole("link", { name: /Live Like a Local/ });
+    expect(link.hasAttribute("aria-label")).toBe(false);
+    expect(link.getAttribute("href")).toBe("/itineraries/new?template=local-authentic");
   });
 
   it("keeps selected mobile cards compact while exposing an immediate use action", () => {
