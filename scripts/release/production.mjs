@@ -19,6 +19,8 @@ const STATE = path.resolve(".release");
 const ASSETS = path.resolve(".open-next/assets");
 const STATIC = path.join(ASSETS, "_next/static");
 const OWN_STATIC = path.join(STATE, "static-own");
+const PROBE = path.join(STATE, "carried-probe.txt");
+const SITE = "https://www.localley.io";
 
 const stage = process.argv[2];
 const shaFlag = process.argv.indexOf("--sha");
@@ -79,11 +81,13 @@ if (stage === "build") {
       // Keep this build's own chunks for the archive (written after a confirmed promote), then add the live release's.
       try {
         rmSync(OWN_STATIC, { recursive: true, force: true });
+        rmSync(PROBE, { force: true });
         mkdirSync(STATE, { recursive: true });
         cpSync(STATIC, OWN_STATIC, { recursive: true });
         const archive = keepDir();
         const carried = archive ? carryPrevious(archive, STATIC, { assetFiles: listFiles(ASSETS).length }) : { added: 0, skipped: "no-git-dir" };
         console.log(`[release] previous chunks carried: ${carried.added}${carried.skipped ? ` (${carried.skipped})` : ""}`);
+        if (carried.probe) writeFileSync(PROBE, carried.probe);
       } catch (error) {
         console.warn(`[release] previous chunks not carried: ${error.message}`);
       }
@@ -124,6 +128,17 @@ if (stage === "deploy") {
   const after = await activeVersions();
   if (after.length !== 1 || after[0].version_id !== id || after[0].percentage !== 100) fail(`promote not confirmed for ${id}`);
   console.log(`[release] live ${sha.slice(0, 7)} = Worker ${id} (previous ${before[0].version_id})`);
+  // Skew proof: a file only the previous release had must still load from the live site (warning only; the release
+  // itself is fine without it). Promotion reaches all edges within seconds, so allow three tries.
+  if (existsSync(PROBE)) {
+    const url = `${SITE}/_next/static/${readFileSync(PROBE, "utf8").trim()}`;
+    let status = 0;
+    for (let attempt = 1; attempt <= 3 && status !== 200; attempt++) {
+      if (attempt > 1) await new Promise((resolve) => setTimeout(resolve, 5_000));
+      status = (await fetch(url, { method: "HEAD", signal: AbortSignal.timeout(10_000) }).catch(() => null))?.status ?? 0;
+    }
+    (status === 200 ? console.log : console.warn)(`[release] previous-release chunk ${url} -> ${status}`);
+  }
   const archive = keepDir();
   if (archive && existsSync(OWN_STATIC)) {
     try { replaceArchive(OWN_STATIC, archive); } catch (error) { console.warn(`[release] chunk archive not updated: ${error.message}`); }
