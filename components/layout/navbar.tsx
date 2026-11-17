@@ -32,6 +32,8 @@ export function Navbar() {
   useEffect(() => { if (inboxOwner) prefetchInbox(inboxOwner); }, [inboxOwner]);
   const scrollDirection = useScrollDirection({ threshold: 20 });
   const isLanding = pathname === "/";
+  // Push AF3: phones show "Join free" (only one action fits next to Sign in); the visitor returns to this page after sign-up.
+  const joinTarget = !pathname || /^\/(?:sign-in|sign-up)(?:\/|$)/.test(pathname) ? "/" : pathname;
   const isHidden = !isLanding && scrollDirection === "down";
   const [menuOpen, setMenuOpen] = useState(false);
   // Stays mounted after the first open so Radix can animate the close and restore focus.
@@ -49,7 +51,7 @@ export function Navbar() {
         return <IntentLink key={route.href} href={route.href} aria-current={active ? 'page' : undefined} className={cn("flex min-h-11 items-center gap-2 rounded-xl px-3 py-2 lg:px-4 text-sm text-muted-foreground hover:bg-raised hover:text-foreground", active && "bg-raised font-semibold text-foreground")}><route.icon className="hidden size-4 lg:block" />{route.label}</IntentLink>;
       })}</nav>
       <div className="flex min-h-11 items-center gap-2 sm:gap-4">
-        {!isLoaded ? <div role="status" aria-label="Checking account" className="h-11 w-20 rounded-xl bg-raised"><span className="sr-only">Checking account</span></div> : isSignedIn ? <NavbarAccount /> : <><Button asChild variant="ghost" size="sm"><IntentLink href="/sign-in">Sign in</IntentLink></Button><Button asChild size="sm" className="hidden sm:inline-flex"><IntentLink href="/itineraries/new">Start planning</IntentLink></Button></>}
+        {!isLoaded ? <div role="status" aria-label="Checking account" className="h-11 w-20 rounded-xl bg-raised"><span className="sr-only">Checking account</span></div> : isSignedIn ? <NavbarAccount /> : <><Button asChild variant="ghost" size="sm"><IntentLink href="/sign-in">Sign in</IntentLink></Button><Button asChild size="sm" className="sm:hidden"><IntentLink href={`/sign-up?redirect_url=${encodeURIComponent(joinTarget)}`}>Join free</IntentLink></Button><Button asChild size="sm" className="hidden sm:inline-flex"><IntentLink href="/itineraries/new">Start planning</IntentLink></Button></>}
       </div>
     </div>
   </header>;
