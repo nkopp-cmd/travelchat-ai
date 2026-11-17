@@ -104,4 +104,29 @@ describe("planner funnel", () => {
     expect((await send({ funnel: [{ step: "preview_view", source: "preview" }] })).status).toBe(204);
     expect((await send({ funnel: [{ step: "checkout_paid", source: "stripe" }] })).status).toBe(400);
   });
+  // Push AE3: the money step end to end. The wizard's beacon body (lib/funnel-analytics.ts trackFunnelStep)
+  // reaches the route, the route finds AUTH_DB in the Cloudflare context and a funnel_events_daily row exists.
+  it("route stores the wizard's trip_generated beacon in funnel_events_daily", async () => {
+    const { POST } = await import("@/app/api/events/spots/route");
+    const db = createAuthTestDatabase();
+    const key = Symbol.for("__cloudflare-context__");
+    const global = globalThis as Record<symbol, unknown>;
+    const before = global[key];
+    global[key] = { env: { AUTH_DB: db } };
+    try {
+      const beacon = JSON.stringify({ funnel: [{ step: "trip_generated", source: "direct" }] });
+      const send = () => POST(new NextRequest("https://www.localley.io/api/events/spots", {
+        method: "POST", body: beacon, headers: { origin: "https://www.localley.io", "content-type": "application/json" },
+      }));
+      const first = await send();
+      expect(first.status).toBe(204);
+      expect(first.headers.get("x-localley-events")).toBe("stored");
+      await send();
+      expect(db.sqlite.prepare("SELECT step, source, count FROM funnel_events_daily").all())
+        .toEqual([{ step: "trip_generated", source: "direct", count: 2 }]);
+      expect(db.sqlite.prepare("SELECT SUM(total) AS total FROM spot_card_events_budget").get()).toEqual({ total: 2 });
+    } finally {
+      global[key] = before;
+    }
+  });
 });
