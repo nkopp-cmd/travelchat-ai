@@ -41,13 +41,13 @@ describe("sign-up check-inbox screen (Push AH1/AH2)", () => {
   it("sends the checkout page as callbackURL so the verify link returns the new user to checkout", async () => {
     mocks.query = "redirect_url=%2Fpricing%3Fcheckout%3Dpro-monthly";
     await signUp();
-    expect(calls("/sign-up/email")[0].callbackURL).toBe("/pricing?checkout=pro-monthly");
+    expect(calls("/sign-up/email")[0].callbackURL).toBe("/verified?to=%2Fpricing%3Fcheckout%3Dpro-monthly");
   });
 
   it("falls back to /dashboard for an external redirect", async () => {
     mocks.query = "redirect_url=https%3A%2F%2Fevil.example%2F";
     await signUp();
-    expect(calls("/sign-up/email")[0].callbackURL).toBe("/dashboard");
+    expect(calls("/sign-up/email")[0].callbackURL).toBe("/verified?to=%2Fdashboard");
   });
 
   it("names the address and sender, then resends with the same callbackURL after the cool-down", async () => {
@@ -61,7 +61,7 @@ describe("sign-up check-inbox screen (Push AH1/AH2)", () => {
     expect(resend.disabled).toBe(false);
     fireEvent.click(resend);
     await screen.findByText("We sent a new link to new@preview.localley.test.");
-    expect(calls("/send-verification-email")).toEqual([{ email: "new@preview.localley.test", callbackURL: "/spots/abc" }]);
+    expect(calls("/send-verification-email")).toEqual([{ email: "new@preview.localley.test", callbackURL: "/verified?to=%2Fspots%2Fabc" }]);
     expect(resend.disabled).toBe(true);
   });
 
@@ -83,6 +83,6 @@ describe("sign-in with an unverified email (Push AH4)", () => {
     await screen.findByText(/Please confirm your email first/);
     await passCooldown();
     fireEvent.click(screen.getByRole("button", { name: /Resend link/ }));
-    await waitFor(() => expect(calls("/send-verification-email")).toEqual([{ email: "old@preview.localley.test", callbackURL: "/pricing?checkout=pro-monthly" }]));
+    await waitFor(() => expect(calls("/send-verification-email")).toEqual([{ email: "old@preview.localley.test", callbackURL: "/verified?to=%2Fpricing%3Fcheckout%3Dpro-monthly" }]));
   });
 });

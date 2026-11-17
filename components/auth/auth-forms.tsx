@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth/auth-client";
 import { safeRedirect } from "@/lib/auth/client";
+import { verifiedCallbackURL } from "@/lib/auth/redirect";
 
 const primaryClass = "w-full";
 const secondaryClass = "w-full bg-raised text-foreground hover:bg-raised";
@@ -75,7 +76,7 @@ export function VerifyEmailHelp({ email, callbackURL, onChangeEmail }: { email: 
 
     async function resend() {
         setBusy(true); setStatus(null);
-        const { error: failure } = await authClient.sendVerificationEmail({ email, callbackURL });
+        const { error: failure } = await authClient.sendVerificationEmail({ email, callbackURL: verifiedCallbackURL(callbackURL) });
         setBusy(false);
         if (failure) { setStatus({ tone: "error", text: errorText(failure.message) }); return; }
         setStatus({ tone: "success", text: `We sent a new link to ${email}.` });
@@ -187,7 +188,8 @@ export function SignUpForm({ googleEnabled }: { googleEnabled: boolean }) {
             password,
             firstName: firstName || undefined,
             lastName: rest.join(" ") || undefined,
-            callbackURL: redirectTo,
+            // Through the Worker route, so an expired link on a static page still reaches sign-in.
+            callbackURL: verifiedCallbackURL(redirectTo),
         });
         setBusy(false);
         if (failure) {

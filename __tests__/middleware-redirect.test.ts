@@ -186,6 +186,26 @@ describe("expired or used verify-email link (Push AH3)", () => {
     expect(response.headers.get("location") ?? "").not.toContain("error=link");
   });
 
+  it.each([
+    ["/verified?to=%2Fpricing%3Fcheckout%3Dpro-monthly&error=TOKEN_EXPIRED", "/pricing?checkout=pro-monthly"],
+    ["/verified?to=%2F%2Fevil.example&error=INVALID_TOKEN", null],
+  ])("unwraps the verify-mail hop %s to the page behind it", async (path, page) => {
+    const destination = new URL((await middleware(request(path))).headers.get("location")!);
+    expect(destination.pathname).toBe("/sign-in");
+    expect(destination.searchParams.get("error")).toBe("link");
+    expect(destination.searchParams.get("redirect_url")).toBe(page);
+  });
+
+  it("lets a good link through the public /verified hop, which forwards to the safe page", async () => {
+    const { GET } = await import("@/app/verified/route");
+    const response = await middleware(request("/verified?to=%2Fpricing%3Fcheckout%3Dpro-monthly"));
+    expect(response.headers.get("location")).toBeNull();
+    const hop = GET(request("/verified?to=%2Fpricing%3Fcheckout%3Dpro-monthly"));
+    expect(hop.status).toBe(307);
+    expect(new URL(hop.headers.get("location")!).pathname + new URL(hop.headers.get("location")!).search).toBe("/pricing?checkout=pro-monthly");
+    expect(new URL(GET(request("/verified?to=https%3A%2F%2Fevil.example")).headers.get("location")!).href).toBe(new URL("/dashboard", hop.headers.get("location")!).href);
+  });
+
   it("ignores POST requests", async () => {
     const response = await middleware(request("/pricing?error=TOKEN_EXPIRED", { method: "POST" }));
     expect(response.headers.get("location") ?? "").not.toContain("error=link");

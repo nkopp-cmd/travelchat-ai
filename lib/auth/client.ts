@@ -94,8 +94,6 @@ export async function signOut(redirectTo = "/"): Promise<void> {
   window.location.assign(safeRedirect(redirectTo));
 }
 
-/** Only same-site paths; blocks //evil.com and backslash tricks. */
-export function safeRedirect(target: string | null | undefined, fallback = "/dashboard"): string {
-  if (!target) return fallback;
-  return target.startsWith("/") && !target.startsWith("//") && !/[\\\r\n\t]/.test(target) ? target : fallback;
-}
+import { safeRedirect } from "@/lib/auth/redirect";
+
+export { safeRedirect };
