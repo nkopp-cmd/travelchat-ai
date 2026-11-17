@@ -23,7 +23,7 @@ test("previous chunks are added, the new build's files are never overwritten", (
   const archive = path.join(root, "archive"), live = path.join(root, "static");
   tree(archive, { "chunks/old-aaa.js": "old", "chunks/shared-bbb.js": "previous copy", "css/old.css": "c" });
   tree(live, { "chunks/new-ccc.js": "new", "chunks/shared-bbb.js": "new copy" });
-  assert.deepEqual(carryPrevious(archive, live), { added: 2, skipped: null });
+  assert.deepEqual(carryPrevious(archive, live), { added: 2, skipped: null, probe: "chunks/old-aaa.js" });
   assert.deepEqual(listFiles(live), ["chunks/new-ccc.js", "chunks/old-aaa.js", "chunks/shared-bbb.js", "css/old.css"]);
   assert.equal(readFileSync(path.join(live, "chunks/shared-bbb.js"), "utf8"), "new copy");
 });
@@ -32,10 +32,10 @@ test("first release (no archive) and the file limit carry nothing", (t) => {
   const root = scratch(t);
   const live = path.join(root, "static");
   tree(live, { "a.js": "a" });
-  assert.deepEqual(carryPrevious(path.join(root, "missing"), live), { added: 0, skipped: "no-archive" });
+  assert.deepEqual(carryPrevious(path.join(root, "missing"), live), { added: 0, skipped: "no-archive", probe: null });
   const archive = path.join(root, "archive");
   tree(archive, { "b.js": "b", "c.js": "c" });
-  assert.deepEqual(carryPrevious(archive, live, { assetFiles: 9, maxFiles: 10 }), { added: 0, skipped: "file-limit" });
+  assert.deepEqual(carryPrevious(archive, live, { assetFiles: 9, maxFiles: 10 }), { added: 0, skipped: "file-limit", probe: null });
   assert.deepEqual(listFiles(live), ["a.js"]);
 });
 

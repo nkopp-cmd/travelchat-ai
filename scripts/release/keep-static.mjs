@@ -21,18 +21,20 @@ export function listFiles(dir) {
 
 /**
  * Copies files of the archive that the new build lacks into staticDir. Never overwrites. Returns
- * { added, skipped } where skipped names the reason nothing was carried.
+ * { added, skipped, probe } where skipped names the reason nothing was carried and probe is one carried file that
+ * only the previous release has (a JS chunk when there is one), for the after-promote check.
  */
 export function carryPrevious(archiveDir, staticDir, { assetFiles, maxFiles = MAX_ASSET_FILES } = {}) {
   const previous = listFiles(archiveDir);
-  if (!previous.length) return { added: 0, skipped: "no-archive" };
+  if (!previous.length) return { added: 0, skipped: "no-archive", probe: null };
   const missing = previous.filter((file) => !existsSync(path.join(staticDir, file)));
-  if ((assetFiles ?? listFiles(staticDir).length) + missing.length > maxFiles) return { added: 0, skipped: "file-limit" };
+  if ((assetFiles ?? listFiles(staticDir).length) + missing.length > maxFiles) return { added: 0, skipped: "file-limit", probe: null };
   for (const file of missing) {
     mkdirSync(path.dirname(path.join(staticDir, file)), { recursive: true });
     cpSync(path.join(archiveDir, file), path.join(staticDir, file), { errorOnExist: true, force: false });
   }
-  return { added: missing.length, skipped: null };
+  const probe = missing.find((file) => /^chunks\/.+\.js$/.test(file)) ?? missing[0] ?? null;
+  return { added: missing.length, skipped: null, probe };
 }
 
 /** Replaces archiveDir with a copy of ownDir (the build's own files), via a sibling temp dir and rename. */
