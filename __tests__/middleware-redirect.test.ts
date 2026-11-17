@@ -241,3 +241,45 @@ describe("expired reset-password link (Push AI2)", () => {
     expect(response.status).toBe(200);
   });
 });
+
+describe("verify hop stays on the site for any `to` (Push AI3, property)", async () => {
+  const fc = await import("fast-check");
+  const { GET } = await import("@/app/verified/route");
+  const { safeRedirect, wrapVerifyMailURL } = await import("@/lib/auth/redirect");
+  const ORIGIN = "https://www.localley.io";
+  const at = (path: string) => new NextRequest(`${ORIGIN}${path}`);
+  const tricky = fc.constantFrom("//evil.example", "/\\evil.example", "\\\\evil.example", "/\t/evil.example", "/\n/evil.example",
+    "https://evil.example/x", "javascript:alert(1)", "data:text/html,x", "/%2F%2Fevil.example", "/@evil.example", " /x", "");
+  const to = fc.oneof(tricky, fc.string({ unit: "binary" }), fc.webUrl(), fc.string({ unit: "binary" }).map((s) => `/${s}`),
+    fc.tuple(tricky, fc.string()).map(([a, b]) => a + b));
+
+  it("the /verified route only redirects to this origin", () => {
+    fc.assert(fc.property(to, (value) => {
+      const location = GET(at(`/verified?to=${encodeURIComponent(value)}`)).headers.get("location")!;
+      expect(new URL(location).origin).toBe(ORIGIN);
+    }), { numRuns: 500 });
+  });
+
+  it("the middleware unwrap only hands sign-in a same-site redirect_url", async () => {
+    await fc.assert(fc.asyncProperty(to, fc.constantFrom("TOKEN_EXPIRED", "INVALID_TOKEN", "USER_NOT_FOUND"), async (value, code) => {
+      const destination = new URL((await middleware(at(`/verified?to=${encodeURIComponent(value)}&error=${code}`))).headers.get("location")!);
+      expect(destination.origin).toBe(ORIGIN);
+      expect(destination.pathname).toBe("/sign-in");
+      const back = destination.searchParams.get("redirect_url");
+      if (back !== null) {
+        expect(safeRedirect(back)).toBe(back);
+        expect(new URL(back, ORIGIN).origin).toBe(ORIGIN);
+      }
+    }), { numRuns: 300 });
+  });
+
+  it("the mail wrap always yields a /verified callback on this origin and is idempotent", () => {
+    fc.assert(fc.property(to, (value) => {
+      const once = wrapVerifyMailURL(`${ORIGIN}/api/auth/verify-email?token=t&callbackURL=${encodeURIComponent(value)}`);
+      const cb = new URL(once).searchParams.get("callbackURL")!;
+      if (!cb.startsWith("/verified?") && cb.split("?")[0].replace(/\/$/, "") !== "/verified") throw new Error(`unwrapped ${cb}`);
+      expect(new URL(cb, ORIGIN).origin).toBe(ORIGIN);
+      expect(wrapVerifyMailURL(once)).toBe(once);
+    }), { numRuns: 500 });
+  });
+});
