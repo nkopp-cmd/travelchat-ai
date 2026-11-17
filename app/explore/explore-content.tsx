@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { currentPagePath, signUpGateHref } from "@/lib/auth/gate-href";
 import { LikeButton } from "@/components/itineraries/like-button";
 import { CityImageAvatar } from "@/components/ui/city-image";
 
@@ -117,11 +118,11 @@ export function ExploreContent({
 
             if (response.status === 401) {
                 toast({
-                    title: "Sign in required",
-                    description: "Please sign in to save this itinerary to your account.",
+                    title: "Create a free account",
+                    description: "Save this itinerary to your account.",
                     variant: "default",
                 });
-                router.push("/sign-in");
+                router.push(signUpGateHref(currentPagePath()));
                 return;
             }
 

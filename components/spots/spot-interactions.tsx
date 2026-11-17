@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/lib/auth/client";
 import { useToast } from "@/hooks/use-toast";
+import { currentPagePath, signUpGateHref } from "@/lib/auth/gate-href";
 
 interface SpotInteractionsProps {
     spotId: string;
@@ -92,10 +93,10 @@ export function SpotInteractions({ spotId, spotName }: SpotInteractionsProps) {
     const handleLike = async () => {
         if (!isSignedIn) {
             toast({
-                title: "Sign in to save spots",
+                title: "Create a free account to save spots",
                 description: `Save ${spotName} to your trip list.`,
             });
-            router.push("/sign-in");
+            router.push(signUpGateHref(currentPagePath()));
             return;
         }
 

@@ -8,6 +8,7 @@ import { Heart } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { trackSpotEvent } from "@/lib/spot-analytics";
+import { currentPagePath, signUpGateHref } from "@/lib/auth/gate-href";
 
 interface SaveSpotButtonProps {
     spotId: string;
@@ -47,10 +48,10 @@ export function SaveSpotButton({ spotId, spotName, className, size = "icon" }: S
 
         if (!isSignedIn) {
             toast({
-                title: "Sign in to save spots",
+                title: "Create a free account to save spots",
                 description: "Keep your favorite places in one trip list.",
             });
-            router.push("/sign-in");
+            router.push(signUpGateHref(currentPagePath()));
             return;
         }
 
