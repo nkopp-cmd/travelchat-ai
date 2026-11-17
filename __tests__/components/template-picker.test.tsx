@@ -113,7 +113,7 @@ describe("TemplatePicker", () => {
     );
 
     fireEvent.click(
-      screen.getByRole("button", { name: "Select Active Weekend template" }),
+      screen.getByRole("button", { name: /Active Weekend/ }),
     );
 
     expect(mobileCta.textContent).toContain("Active Weekend");
