@@ -229,13 +229,14 @@ export function SpotsExplorer({
                             aria-hidden="true"
                         />
                     )}
-                    <span className="min-w-0">
+                    {/* h2: the client card titles are h3, so the list needs a level-2 heading above them (axe heading-order). */}
+                    <h2 className="min-w-0 text-sm font-normal tracking-normal">
                         {isPending
                             ? "Loading..."
                             : totalCount > 0
                                 ? `${totalCount.toLocaleString("en-US")} spots`
                                 : "No spots found"}
-                    </span>
+                    </h2>
                 </div>
 
                 {/* View Mode Toggle */}
@@ -340,7 +341,7 @@ export function SpotsExplorer({
                                 aria-hidden="true"
                             />
                         </div>
-                        <h3 className="text-xl font-semibold mb-2">No spots found</h3>
+                        <p className="text-xl font-semibold mb-2">No spots found</p>
                         <p className="text-muted-foreground mb-4">
                             Try adjusting your filters or search query
                         </p>
