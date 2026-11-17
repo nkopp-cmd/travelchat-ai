@@ -1,11 +1,15 @@
+// @vitest-environment node
 import { readFileSync } from "node:fs";
+import { readdirSync } from "node:fs";
+import path from "node:path";
+import { D1Sqlite } from "@/__tests__/helpers/d1-sqlite";
 import { describe, expect, it } from "vitest";
 import { inferCityFromAddress } from "@/lib/cities";
 import { ewkbPoint } from "@/lib/app-data/ewkb";
 import { listingPlaceFor } from "@/lib/spots/listing-place";
 import { getPublicSpotQualityIssue } from "@/lib/spots/public-quality";
 // @ts-expect-error plain ESM script without types
-import { isListed, wikidataId, MAX_CONSIDER, MAX_WORSHIP_PER_CITY, normalizeOsm, osmAddress, overpassQuery, pickCities, rankCandidates, reverseAddress, SOURCE_TYPE } from "../../scripts/discover-osm-places.mjs";
+import { isListed, wikidataId, MAX_CONSIDER, MAX_WORSHIP_PER_CITY, normalizeOsm, osmAddress, overpassQuery, pickCities, rankCandidates, reverseAddress, SOURCE_TYPE, INSERT_CANDIDATE_SQL, candidateParams } from "../../scripts/discover-osm-places.mjs";
 // @ts-expect-error plain ESM script without types
 import { buildCandidateRows, candidateStatements, gateCandidate, parseCities } from "../../scripts/promote-candidates.mjs";
 // @ts-expect-error plain ESM script without types
@@ -95,7 +99,7 @@ describe("discover-osm-places", () => {
             primary_image_url: "https://commons.wikimedia.org/wiki/File:Bangkok_Folk_Museum.jpg" };
         expect(gateCandidate(c, cities).ok).toBe(true);
         expect(gateCandidate({ ...c, categories: JSON.stringify(["museum"]) }, cities).reject).toBe("weak_signal");
-        expect(gateCandidate({ ...c, source_type: "map_discovery" }, cities).reject).toBe("weak_signal");
+        expect(gateCandidate({ ...c, place_id: "ChIJ-google-place" }, cities).reject).toBe("weak_signal");
         expect(gateCandidate({ ...c, primary_image_url: null }, cities).reject).toBe("no_photo");
         expect(gateCandidate({ ...c, primary_image_url: "https://example.com/x.jpg" }, cities).reject).toBe("no_photo");
         const copy = { nameEn: "Bangkok Folk Museum", descriptionEn: "A small museum.", category: "Culture", subcategories: ["Museum"],
@@ -128,5 +132,26 @@ describe("discover-osm-places", () => {
         expect(last.params.slice(0, 2)).toEqual([photo.r2Key, id]);
         expect(last.params).toContain("harvester-osm-p18");
         expect(candidateStatements(bare)).toEqual(insertStatements(bare));
+    });
+});
+
+describe("OSM candidate insert against the real D1 schema", () => {
+    it("stores the row (the source_type CHECK passes), skips a known place_id, and the promoter still sees it as OSM", () => {
+        const d1 = new D1Sqlite();
+        const dir = path.resolve(__dirname, "../../migrations/app-preview");
+        for (const file of readdirSync(dir).filter((x) => x.endsWith(".sql")).sort()) d1.sqlite.exec(readFileSync(path.join(dir, file), "utf8"));
+        d1.sqlite.prepare(`INSERT INTO apify_spot_discovery_runs (id, discovery_date, city_slug, actor_id, actor_run_id, state, max_places, completed_at)
+            VALUES ('run1', '2026-11-17', 'osm-multi', 'osm-overpass', 'osm:2026-11-17:run1', 'succeeded', 100, '2026-11-17T04:39:00.000Z')`).run();
+        const n = normalizeOsm(museum, bkk);
+        const c = { ...n, address: "1 Charoen Krung Rd, Bang Rak, Bangkok, Thailand" };
+        const image = "https://commons.wikimedia.org/wiki/File:Bangkok_Folk_Museum.jpg";
+        const insert = () => d1.sqlite.prepare(INSERT_CANDIDATE_SQL).all(...candidateParams("run1", c, image));
+        expect(insert()).toHaveLength(1);
+        expect(insert()).toHaveLength(0); // ON CONFLICT (place_id) DO NOTHING
+        const row = d1.sqlite.prepare("SELECT * FROM apify_spot_candidates").get() as Record<string, unknown>;
+        expect(row).toMatchObject({ status: "pending", source_type: SOURCE_TYPE, place_id: n.placeId });
+        expect(gateCandidate({ ...row, id: "cand-osm" }, cities).ok).toBe(true);
+        // A bad row fails loudly instead of being ignored.
+        expect(() => d1.sqlite.prepare(INSERT_CANDIDATE_SQL).all(...candidateParams("run1", { ...c, placeId: "osm:node/9", latitude: 999 }, image))).toThrow();
     });
 });
