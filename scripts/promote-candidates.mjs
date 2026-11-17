@@ -32,7 +32,8 @@ export const MAX_CITY_KM = 50;
 export const MIN_REVIEWS = 30;
 export const MIN_RATING = 4.2;
 export const MAX_INSERTS_PER_CITY = 30;
-export const OSM_SOURCE = "osm_discovery";
+// OSM rows (discover-osm-places.mjs) carry source_type map_discovery (D1 CHECK); their place_id starts with "osm:".
+export const isOsmCandidate = (c) => String(c?.place_id ?? "").startsWith("osm:");
 export const COPY_BATCH = 12;
 const STALE_DAYS = 14;
 /** Plan item 8: the 10 biggest cities must each get new spots; one line to Nils when one gets none in WATCH_DAYS. */
@@ -74,11 +75,11 @@ export function gateCandidate(c, cities, { listed = false, nearby = [] } = {}) {
   const lat = Number(c.latitude), lng = Number(c.longitude);
   if (!Number.isFinite(lat) || !Number.isFinite(lng) || distanceKm(city, { lat, lng }) > MAX_CITY_KM) return { reject: "outside_city" };
   // OSM rows have no reviews; discover-osm-places.mjs keeps only places with a Wikipedia article (notability = signal).
-  const signal = c.source_type === OSM_SOURCE ? parseList(c.categories).includes("wikipedia")
+  const signal = isOsmCandidate(c) ? parseList(c.categories).includes("wikipedia")
     : (Number(c.reviews_count) || 0) >= MIN_REVIEWS && (Number(c.total_score) || 0) >= MIN_RATING;
   if (!signal) return { reject: "weak_signal" };
   // OSM spots have no Google photo lookup: without their Wikidata image (a Commons file page) they cannot pass the public photo rule.
-  if (c.source_type === OSM_SOURCE && !commonsFileName(c.primary_image_url)) return { reject: "no_photo" };
+  if (isOsmCandidate(c) && !commonsFileName(c.primary_image_url)) return { reject: "no_photo" };
   const cats = [c.category_name, ...parseList(c.categories)].join(" ").toLowerCase();
   if (/\b(hotel|hostel|resort|guest ?house|lodging|motel)\b/.test(cats)) return { reject: "hotel" };
   if (listed) return { reject: "duplicate" };
@@ -159,7 +160,7 @@ export function parseCopy(raw, items) {
 /** The D1 rows of a new spot (same shape as the viral scout's buildSpotRows), from a map-discovery candidate. */
 export function buildCandidateRows({ id = randomUUID(), c, city, copy, photo = null, now = new Date().toISOString() }) {
   const lat = Number(c.latitude), lng = Number(c.longitude);
-  const osm = c.source_type === OSM_SOURCE; // an "osm:node/1" id is no Google place ID: no listing row, no runtime photo lookup
+  const osm = isOsmCandidate(c); // an "osm:node/1" id is no Google place ID: no listing row, no runtime photo lookup
   const score = [3, 4, 5].includes(Number(c.recommended_localley_score)) ? Number(c.recommended_localley_score) : 3;
   const name = { en: copy.nameEn };
   const address = { en: copy.addressEn, local: cleanText(c.address, 200) };
@@ -250,7 +251,7 @@ export async function run({ apply = false, city: onlyCity = null, limit = 500, l
       }
       const id = randomUUID();
       let photo = null;
-      if (item.c.source_type === OSM_SOURCE) {
+      if (isOsmCandidate(item.c)) {
         photo = await fetchSpotPhoto(commonsFileName(item.c.primary_image_url), id, { apply }).catch((e) => ({ problem: `photo: ${e.message}` }));
         if (photo.problem) {
           tally.rejected.no_photo = (tally.rejected.no_photo ?? 0) + 1;

@@ -4,7 +4,8 @@
 // guard is over, so 8 of the 10 watch cities got no new spot in 14 days. This job costs nothing: one OpenStreetMap
 // Overpass query per city for notable places (name + wikidata + wikipedia tags), with an exact street address from the
 // OSM addr:* tags or one Nominatim reverse lookup (max 1 request per second). Rows go to apify_spot_candidates with
-// source_type 'osm_discovery'; promote-candidates.mjs runs the same gate (wikipedia link = signal, hotel filter,
+// source_type 'map_discovery' (the column CHECK allows only map_discovery|social_trend; the "osm:" place_id prefix marks
+// OSM rows); promote-candidates.mjs runs the same gate (wikipedia link = signal, hotel filter,
 // dedupe, subscription copy, exact address) and its 30-per-city cap.
 // Cities: the watch cities with the fewest new visible spots in 14 days, CITIES_PER_RUN per day, each at most once per
 // REQUERY_DAYS. Candidates hang on the day's apify_spot_discovery_runs row (UNIQUE discovery_date): the Apify row when it
@@ -27,7 +28,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const STATE_FILE = join(homedir(), ".local/state/localley/osm-discovery.json");
 const UA = "localley-new-places/1.0 (+https://localley.io)";
 
-export const SOURCE_TYPE = "osm_discovery";
+export const SOURCE_TYPE = "map_discovery"; // D1 CHECK (source_type IN ('map_discovery', 'social_trend'))
 export const ACTOR_ID = "osm-overpass";
 export const RADIUS_M = 15000;
 export const CITIES_PER_RUN = 3;
@@ -177,6 +178,15 @@ async function knownIds(ids) {
   return known;
 }
 
+export const INSERT_CANDIDATE_SQL = `INSERT INTO apify_spot_candidates (run_id, city_slug, place_id, name, address, latitude, longitude, maps_url,
+  category_name, categories, total_score, reviews_count, price, primary_image_url, discovery_query, recommended_localley_score, source_type)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, ?, 'osm notable places', 3, ?)
+  ON CONFLICT (place_id) DO NOTHING RETURNING id`;
+
+export function candidateParams(runId, c, image) {
+  return [runId, c.citySlug, c.placeId, c.name, c.address, c.latitude, c.longitude, c.mapsUrl, c.categoryName, JSON.stringify(c.categories), image, SOURCE_TYPE];
+}
+
 async function dayRunId(date) {
   const row = (await d1("SELECT id FROM apify_spot_discovery_runs WHERE discovery_date = ?", [date]))[0];
   if (row) return row.id;
@@ -225,11 +235,10 @@ export async function run({ apply = false, city: onlyCity = null, now = new Date
       const image = commonsFileUrl(imageOf(c));
       if (!apply) { log(`would insert: ${city.name} | ${c.name} | ${c.categoryName} | ${c.address} | ${image}`); continue; }
       runId ??= await dayRunId(date);
-      await d1(`INSERT OR IGNORE INTO apify_spot_candidates (run_id, city_slug, place_id, name, address, latitude, longitude, maps_url,
-        category_name, categories, total_score, reviews_count, price, primary_image_url, discovery_query, recommended_localley_score, source_type)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, ?, 'osm notable places', 3, ?)`,
-      [runId, c.citySlug, c.placeId, c.name, c.address, c.latitude, c.longitude, c.mapsUrl, c.categoryName, JSON.stringify(c.categories), image, SOURCE_TYPE]);
-      stat.inserted++; out.inserted++;
+      // No OR IGNORE: it also swallowed CHECK failures (2026-11-17: 45 rows "inserted", 0 stored). Only a known place_id is skipped.
+      const added = await d1(INSERT_CANDIDATE_SQL, candidateParams(runId, c, image)).catch((e) => { stat.error = `insert: ${e.message}`; return null; });
+      if (!added) break;
+      if (added.length) { stat.inserted++; out.inserted++; }
     }
     if (apply) state[city.slug] = date;
   }
