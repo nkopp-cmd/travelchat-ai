@@ -611,6 +611,7 @@ on:
       - 'app/api/notifications/push/subscribe/route.ts'
       - 'components/auth/auth-forms.tsx'
       - '__tests__/components/auth-password-redirect.test.tsx'
+      - '__tests__/components/auth-verify-resend.test.tsx'
       - 'lib/auth/client.ts'
       - 'lib/auth/auth-client.ts'
       - 'lib/auth/session-store.ts'
