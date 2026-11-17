@@ -102,7 +102,8 @@ export function parseImageInfo(json) {
     if (!out.licence) return { ...out, problem: "licence" };
     if (out.restrictions) return { ...out, problem: "restricted" };
     if (!/^image\/(jpeg|png|webp|tiff)$/.test(out.mime || "")) return { ...out, problem: "not-a-photo" };
-    if (!/^https:\/\/upload\.wikimedia\.org\//.test(out.thumbUrl || "")) return { ...out, problem: "bad-url" };
+    // Commons moved thumbnails to thumb.wikimedia.org in 2026 (originals stay on upload.); both are Wikimedia media hosts.
+    if (!/^https:\/\/(upload|thumb)\.wikimedia\.org\//.test(out.thumbUrl || "")) return { ...out, problem: "bad-url" };
     return out;
 }
 

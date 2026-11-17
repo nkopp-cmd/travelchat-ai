@@ -46,14 +46,16 @@ describe("osm-spot-photo", () => {
         expect(imageNear(undefined, { lat: 13.75, lng: 100.5 })).toBeNull();
     });
 
-    it("accepts only free, unrestricted photos from upload.wikimedia.org", () => {
+    it("accepts only free, unrestricted photos from the Wikimedia media hosts (upload. and thumb.)", () => {
         const ok = parseImageInfo(info());
         expect(ok.problem).toBeUndefined();
         expect(ok).toMatchObject({ licence: "CC BY-SA 4.0", author: "Jane Doe", sourceUrl: "https://commons.wikimedia.org/wiki/File:A.jpg" });
         expect(parseImageInfo(info({}, { LicenseShortName: { value: "Fair use" } })).problem).toBe("licence");
         expect(parseImageInfo(info({}, { Restrictions: { value: "trademarked" } })).problem).toBe("restricted");
         expect(parseImageInfo(info({ mime: "image/svg+xml" })).problem).toBe("not-a-photo");
+        expect(parseImageInfo(info({ thumburl: "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cc/A.jpg/1920px-A.jpg?utm_source=commons.wikimedia.org" })).problem).toBeUndefined();
         expect(parseImageInfo(info({ thumburl: "https://evil.example/a.jpg" })).problem).toBe("bad-url");
+        expect(parseImageInfo(info({ thumburl: "https://thumb.wikimedia.org.evil.example/a.jpg" })).problem).toBe("bad-url");
         expect(parseImageInfo({ query: { pages: [{}] } }).problem).toBe("no-file-info");
     });
 
