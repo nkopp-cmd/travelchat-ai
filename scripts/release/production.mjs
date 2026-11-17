@@ -7,14 +7,18 @@
 //   rollback -> promote the version recorded by `deploy` again
 // The release commit comes from GRAVITY_RELEASE_SHA (set by the lane) or --sha <sha>.
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { carryPrevious, listFiles, replaceArchive } from "./keep-static.mjs";
 
 const ACCOUNT = "664f242340bcec2f32daaeee15f58bde";
 const SCRIPT = "localley-next";
 const API = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT}/workers/scripts/${SCRIPT}`;
 const RUN_HEAVY = "/home/dev/projects/CyberLink/shared/scripts/run-heavy.sh";
 const STATE = path.resolve(".release");
+const ASSETS = path.resolve(".open-next/assets");
+const STATIC = path.join(ASSETS, "_next/static");
+const OWN_STATIC = path.join(STATE, "static-own");
 
 const stage = process.argv[2];
 const shaFlag = process.argv.indexOf("--sha");
@@ -23,6 +27,14 @@ const sha = (shaFlag > 0 ? process.argv[shaFlag + 1] : process.env.GRAVITY_RELEA
 function fail(message) {
   console.error(`[release] ${message}`);
   process.exit(1);
+}
+
+// The previous live release's /_next/static (keep-static.mjs). Release checkouts are removed after each run, so the
+// archive lives in the repository's shared git dir (one per host repo, never committed).
+function keepDir() {
+  if (process.env.LOCALLEY_KEEP_STATIC_DIR) return path.resolve(process.env.LOCALLEY_KEEP_STATIC_DIR);
+  const git = spawnSync("git", ["rev-parse", "--path-format=absolute", "--git-common-dir"], { encoding: "utf8" });
+  return git.status === 0 ? path.join(git.stdout.trim(), "localley-release-static") : null;
 }
 
 function run(argv, { env = process.env, capture = false } = {}) {
@@ -63,7 +75,20 @@ if (stage === "build") {
     ...Object.fromEntries(PUBLIC_BUILD_ENV.map((name) => [name, process.env[name]])), BUILD_SHA: sha, NEXT_TELEMETRY_DISABLED: "1" };
   for (let attempt = 1; attempt <= 30; attempt++) {
     const result = run(existsSync(RUN_HEAVY) ? [RUN_HEAVY, "npm", "run", "cf:build"] : ["npm", "run", "cf:build"], { env });
-    if (result.status === 0) process.exit(0);
+    if (result.status === 0) {
+      // Keep this build's own chunks for the archive (written after a confirmed promote), then add the live release's.
+      try {
+        rmSync(OWN_STATIC, { recursive: true, force: true });
+        mkdirSync(STATE, { recursive: true });
+        cpSync(STATIC, OWN_STATIC, { recursive: true });
+        const archive = keepDir();
+        const carried = archive ? carryPrevious(archive, STATIC, { assetFiles: listFiles(ASSETS).length }) : { added: 0, skipped: "no-git-dir" };
+        console.log(`[release] previous chunks carried: ${carried.added}${carried.skipped ? ` (${carried.skipped})` : ""}`);
+      } catch (error) {
+        console.warn(`[release] previous chunks not carried: ${error.message}`);
+      }
+      process.exit(0);
+    }
     if (result.status !== 75) fail(`build failed (exit ${result.status})`);
     console.log(`[release] host busy (run-heavy 75), retry ${attempt}/30 in 30 s`);
     await new Promise((resolve) => setTimeout(resolve, 30_000));
@@ -99,6 +124,10 @@ if (stage === "deploy") {
   const after = await activeVersions();
   if (after.length !== 1 || after[0].version_id !== id || after[0].percentage !== 100) fail(`promote not confirmed for ${id}`);
   console.log(`[release] live ${sha.slice(0, 7)} = Worker ${id} (previous ${before[0].version_id})`);
+  const archive = keepDir();
+  if (archive && existsSync(OWN_STATIC)) {
+    try { replaceArchive(OWN_STATIC, archive); } catch (error) { console.warn(`[release] chunk archive not updated: ${error.message}`); }
+  }
   process.exit(0);
 }
 
