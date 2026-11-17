@@ -198,6 +198,7 @@ VITEST_FILES=(
   __tests__/app/planner-ssr-cities.test.tsx
   __tests__/app/templates-free-path.test.tsx
   __tests__/lib/auth-copy.test.ts
+  __tests__/lib/gate-href.test.ts
   __tests__/styles/leaflet-borderless.test.ts
   __tests__/components/itinerary-wizard-template-footer.test.ts
   __tests__/lib/apify-spot-discovery.test.ts
@@ -359,6 +360,7 @@ VITEST_FILES=(
 )
 
 ESLINT_FILES=(
+  lib/auth/gate-href.ts
   lib/blog/posts.ts
   lib/blog/markdown.tsx
   lib/blog/seo.ts

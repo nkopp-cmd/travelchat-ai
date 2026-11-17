@@ -47,4 +47,14 @@ describe("authCopy", () => {
             expect(authCopy("sign-in", target).title).toBe("Welcome Back");
         }
     });
+
+    it("speaks to the spot when a signed-out Save tap sent the visitor (Push AG2)", () => {
+        expect(authCopy("sign-up", "/spots/abc-123")).toEqual({ title: "Save this spot", subtitle: "Create a free account and keep up to 10 spots in your trip list." });
+        expect(authCopy("sign-up", "/spots/abc-123?from=map").title).toBe("Save this spot");
+        expect(authCopy("sign-in", "/spots/abc-123").title).toBe("Sign in to save this spot");
+        expect(JSON.stringify(authCopy("sign-up", "/spots/abc-123"))).not.toMatch(/unlimited|trial/i);
+        for (const target of ["/spots", "/spots/", "/spots/a/b", "/spots/submit", "/spots/submissions", "/spotsx/abc", "//evil.example/spots/abc"]) {
+            expect(authCopy("sign-up", target).title).toBe("Join Localley");
+        }
+    });
 });

@@ -33,6 +33,14 @@ const NAV_COPY: Record<"/chat" | "/itineraries", Record<AuthMode, AuthCopy>> = {
     },
 };
 
+// Spot page Save/Like gates (Push AG1) send /sign-up?redirect_url=/spots/<id>. Free accounts keep 10 saved spots
+// (lib/subscription.ts savedSpotsLimit); the copy promises nothing beyond that.
+const SPOT_COPY: Record<AuthMode, AuthCopy> = {
+    "sign-up": { title: "Save this spot", subtitle: "Create a free account and keep up to 10 spots in your trip list." },
+    "sign-in": { title: "Sign in to save this spot", subtitle: "Your trip list is on the next screen." },
+};
+const SPOT_PAGE = /^\/spots\/(?!submit$|submissions$)[^/]+$/;
+
 const TIER_NAME = { pro: "Pro", premium: "Premium" } as const;
 
 // A pricing plan button sends new visitors here with /pricing?checkout=<tier>-<cycle>; Stripe opens after sign-up.
@@ -57,6 +65,7 @@ export function authCopy(mode: AuthMode, redirectUrl: string | null | undefined)
     if (path === GENERATED_PREVIEW_PATH) return TRIP_COPY.preview[mode];
     if (path === "/itineraries/new") return TRIP_COPY.planner[mode];
     if (path === "/chat" || path === "/itineraries") return NAV_COPY[path][mode];
+    if (path && SPOT_PAGE.test(path)) return SPOT_COPY[mode];
     if (path === "/pricing" && redirectUrl?.includes("?")) return checkoutCopy(mode, redirectUrl.split("#")[0]) ?? DEFAULT_COPY[mode];
     return DEFAULT_COPY[mode];
 }
