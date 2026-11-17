@@ -20,9 +20,55 @@ function request(path: string, init: { method?: string; cookie?: string } = {}) 
 beforeEach(() => { process.env.BETTER_AUTH_SECRET = SECRET; });
 afterEach(() => { delete process.env.BETTER_AUTH_SECRET; });
 
+describe("first-time visitor vs returning visitor (Push AF1)", () => {
+  it.each(["/chat", "/itineraries", "/saved", "/settings?tab=plan"])("sends a first-time visitor on %s to /sign-up with the same continuation", async path => {
+    const response = await middleware(request(path));
+    expect(response.status).toBe(307);
+    const destination = new URL(response.headers.get("location")!);
+    expect(destination.origin).toBe("https://www.localley.io");
+    expect(destination.pathname).toBe("/sign-up");
+    expect(destination.searchParams.get("redirect_url")).toBe(path);
+  });
+
+  it.each(["ll_account=1", "theme=dark; ll_account=1", "__Secure-better-auth.session_data=old", "better-auth.dont_remember=x", "__Secure-better-auth.session_token=expired.sig"])("sends a returning browser (%s) to /sign-in", async cookie => {
+    const response = await middleware(request("/chat", { cookie }));
+    expect(new URL(response.headers.get("location")!).pathname).toBe("/sign-in");
+  });
+
+  it("does not take a look-alike cookie name as a hint", async () => {
+    for (const cookie of ["ll_account_x=1", "xll_account=1", "notbetter-auth.session_token=1"]) {
+      const response = await middleware(request("/chat", { cookie }));
+      expect(new URL(response.headers.get("location")!).pathname).toBe("/sign-up");
+    }
+  });
+
+  it("sets the httpOnly hint once on a signed-in request, never on a signed-out one", async () => {
+    const session = `__Secure-better-auth.session_token=${await signedCookie("tok")}`;
+    const first = await middleware(request("/chat", { cookie: session }));
+    expect(first.status).toBe(200);
+    const set = first.headers.get("set-cookie") ?? "";
+    expect(set).toMatch(/^ll_account=1;/);
+    expect(set).toMatch(/HttpOnly/i);
+    expect(set).toMatch(/Secure/i);
+    expect(set).toMatch(/SameSite=lax/i);
+    expect(set).toMatch(/Max-Age=31536000/);
+    const again = await middleware(request("/chat", { cookie: `${session}; ll_account=1` }));
+    expect(again.headers.get("set-cookie")).toBeNull();
+    const out = await middleware(request("/chat"));
+    expect(out.headers.get("set-cookie")).toBeNull();
+    const pub = await middleware(request("/spots"));
+    expect(pub.headers.get("set-cookie")).toBeNull();
+  });
+
+  it("keeps API 401 for signed-out requests (no redirect to any form)", async () => {
+    const response = await middleware(request("/api/spots/save", { method: "POST" }));
+    expect(response.status).toBe(401);
+  });
+});
+
 describe("local sign-in continuation", () => {
   it.each(["/dashboard?tab=saved", "/settings", "/itineraries/trip-1", "/dashboard?redirect_url=https%3A%2F%2Fexample.invalid"])("keeps %s on the app origin", async path => {
-    const response = await middleware(request(path));
+    const response = await middleware(request(path, { cookie: "ll_account=1" }));
     expect(response.status).toBe(307);
     const destination = new URL(response.headers.get("location")!);
     expect(destination.origin).toBe("https://www.localley.io");

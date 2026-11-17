@@ -20,6 +20,19 @@ const TRIP_COPY: Record<"preview" | "planner", Record<AuthMode, AuthCopy>> = {
     },
 };
 
+// Bottom-nav tabs that need an account (middleware sends signed-out visitors to the auth form with this redirect).
+// Free accounts: 10 chat messages a day, 1 trip a month (lib/subscription.ts); the copy promises nothing beyond that.
+const NAV_COPY: Record<"/chat" | "/itineraries", Record<AuthMode, AuthCopy>> = {
+    "/chat": {
+        "sign-up": { title: "Ask a local", subtitle: "Create a free account to chat about places, food and routes." },
+        "sign-in": { title: "Sign in to chat", subtitle: "Your conversations are on the next screen." },
+    },
+    "/itineraries": {
+        "sign-up": { title: "Your trips in one place", subtitle: "Create a free account and plan your first trip." },
+        "sign-in": { title: "Sign in to see your trips", subtitle: "Your saved trips are on the next screen." },
+    },
+};
+
 const TIER_NAME = { pro: "Pro", premium: "Premium" } as const;
 
 // A pricing plan button sends new visitors here with /pricing?checkout=<tier>-<cycle>; Stripe opens after sign-up.
@@ -43,6 +56,7 @@ export function authCopy(mode: AuthMode, redirectUrl: string | null | undefined)
     const path = pathOf(redirectUrl);
     if (path === GENERATED_PREVIEW_PATH) return TRIP_COPY.preview[mode];
     if (path === "/itineraries/new") return TRIP_COPY.planner[mode];
+    if (path === "/chat" || path === "/itineraries") return NAV_COPY[path][mode];
     if (path === "/pricing" && redirectUrl?.includes("?")) return checkoutCopy(mode, redirectUrl.split("#")[0]) ?? DEFAULT_COPY[mode];
     return DEFAULT_COPY[mode];
 }
