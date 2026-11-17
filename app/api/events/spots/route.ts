@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isCheckTraffic } from "@/lib/check-traffic";
 import { parseFunnelSteps, parseSpotEvents, recordFunnelSteps, recordSpotEvents } from "@/lib/spot-event-store";
 
 // Collector for spot-card events (lib/spot-analytics.ts) and planner funnel steps
@@ -16,6 +17,8 @@ export async function POST(request: NextRequest) {
     const funnel = (body as { funnel?: unknown })?.funnel !== undefined ? parseFunnelSteps(body) : undefined;
     const rows = funnel === undefined ? parseSpotEvents(body) : null;
     if (!funnel && !rows) return new NextResponse(null, { status: 400 });
+    // Own checks and headless agents: same 204, nothing counted (Push AE4).
+    if (isCheckTraffic(request.headers)) return new NextResponse(null, { status: 204, headers: { "Cache-Control": "no-store", "X-Localley-Events": "skipped" } });
     const result = funnel ? await recordFunnelSteps(funnel) : await recordSpotEvents(rows!);
     return new NextResponse(null, { status: 204, headers: { "Cache-Control": "no-store", "X-Localley-Events": result } });
 }
