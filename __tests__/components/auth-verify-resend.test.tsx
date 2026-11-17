@@ -7,7 +7,7 @@ vi.mock("@/lib/auth/auth-client", async () => {
   const { createAuthClient } = await import("better-auth/react");
   return { authClient: createAuthClient({ baseURL: "https://www.localley.io", basePath: "/api/auth", fetchOptions: { customFetchImpl: mocks.fetch } }) };
 });
-import { RESEND_COOLDOWN_SECONDS, SignInForm, SignUpForm } from "@/components/auth/auth-forms";
+import { ResetPasswordForm, RESEND_COOLDOWN_SECONDS, SignInForm, SignUpForm } from "@/components/auth/auth-forms";
 
 const calls = (path: string) => mocks.fetch.mock.calls
   .filter(([url]) => String(url).includes(path))
@@ -84,5 +84,15 @@ describe("sign-in with an unverified email (Push AH4)", () => {
     await passCooldown();
     fireEvent.click(screen.getByRole("button", { name: /Resend link/ }));
     await waitFor(() => expect(calls("/send-verification-email")).toEqual([{ email: "old@preview.localley.test", callbackURL: "/verified?to=%2Fpricing%3Fcheckout%3Dpro-monthly" }]));
+  });
+});
+
+describe("expired reset-password link (Push AI2)", () => {
+  it.each(["error=INVALID_TOKEN", ""])("explains the dead link and offers a new one (%s)", query => {
+    mocks.query = query;
+    render(<ResetPasswordForm />);
+    expect(screen.getByText("This reset link is invalid or expired. Request a new one.")).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Request a new link" }).getAttribute("href")).toBe("/forgot-password");
+    expect((screen.getByRole("button", { name: "Set password" }) as HTMLButtonElement).disabled).toBe(true);
   });
 });

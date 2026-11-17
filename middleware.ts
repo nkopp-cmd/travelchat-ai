@@ -108,7 +108,8 @@ export const writeFreeze = (request: NextRequest) => {
 const VERIFY_LINK_ERRORS = new Set(['TOKEN_EXPIRED', 'INVALID_TOKEN', 'USER_NOT_FOUND', 'INVALID_USER']);
 export const verifyLinkErrorRedirect = (request: NextRequest) => {
     const { pathname, searchParams } = request.nextUrl;
-    if (!['GET', 'HEAD'].includes(request.method) || /^\/(?:api|trpc|sign-in)(?:\/|$)/.test(pathname)) return null;
+    if (!['GET', 'HEAD'].includes(request.method) || /^\/(?:api|trpc|sign-in|reset-password)(?:\/|$)/.test(pathname)) return null;
+    // /reset-password reads its own ?error=INVALID_TOKEN (Better Auth reset link) and offers a new link.
     if (!VERIFY_LINK_ERRORS.has(searchParams.get('error') ?? '')) return null;
     const rest = new URLSearchParams(searchParams);
     rest.delete('error');

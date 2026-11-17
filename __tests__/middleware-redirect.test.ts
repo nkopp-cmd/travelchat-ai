@@ -233,3 +233,11 @@ describe("verify mail URL wrap (Push AI1)", async () => {
     expect(new URL(wrapVerifyMailURL(mail("https://evil.example/x"))).searchParams.get("callbackURL")).toBe("/verified?to=%2Fdashboard");
   });
 });
+
+describe("expired reset-password link (Push AI2)", () => {
+  it.each(["/reset-password?error=INVALID_TOKEN", "/reset-password/?error=INVALID_TOKEN"])("leaves %s to the reset form", async path => {
+    const response = await middleware(new NextRequest(`https://www.localley.io${path}`));
+    expect(response.headers.get("location")).toBeNull();
+    expect(response.status).toBe(200);
+  });
+});
