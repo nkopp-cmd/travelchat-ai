@@ -25,6 +25,13 @@ describe('borderless navigation state',()=>{
  it('lets a signed-out visitor open the planner and the public catalog',()=>{
   state.loaded=true;render(<Navbar/>);expect(screen.getByRole('link',{name:'Start planning'}).getAttribute('href')).toBe('/itineraries/new');expect(screen.getByRole('link',{name:'Explore'}).getAttribute('href')).toBe('/spots');
  });
+ it.each([['/spots','/spots'],['/','/'],['/sign-up','/'],['/sign-in','/'],['/help/japan/menu','/help/japan/menu']])('gives a signed-out visitor on %s a Join free link that returns to %s (Push AF3)',(path,back)=>{
+  state.pathname=path;state.loaded=true;render(<Navbar/>);const join=screen.getByRole('link',{name:'Join free'});
+  expect(join.getAttribute('href')).toBe(`/sign-up?redirect_url=${encodeURIComponent(back)}`);expect(join.className).toContain('sm:hidden');
+ });
+ it('hides Join free while the account loads and for signed-in members',()=>{
+  render(<Navbar/>);expect(screen.queryByRole('link',{name:'Join free'})).toBeNull();
+ });
  it.each(['/','/spots','/pricing','/itineraries/new'])('uses the same main links on %s',path=>{
   state.pathname=path;state.loaded=true;render(<Navbar/>);const nav=screen.getByRole('navigation',{name:'Main pages'});
   expect(within(nav).getAllByRole('link').map(link=>[link.textContent,link.getAttribute('href')])).toEqual([['Explore','/spots'],['My trips','/itineraries'],['Help','/help'],['Pricing','/pricing'],['Profile','/profile']]);
