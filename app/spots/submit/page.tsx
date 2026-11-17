@@ -237,7 +237,7 @@ function SubmitSpotForm() {
     result?.mediaProcessing &&
       !["completed", "not_started", "schema_unavailable"].includes(result.mediaProcessing.state),
   );
-  const signInRedirect = `/sign-in?redirect_url=${encodeURIComponent(
+  const joinHref = `/sign-up?redirect_url=${encodeURIComponent(
     url ? `/spots/submit?url=${encodeURIComponent(url)}` : "/spots/submit",
   )}`;
 
@@ -366,10 +366,10 @@ function SubmitSpotForm() {
               {isLoaded && !isSignedIn ? (
                 <div className="flex flex-col gap-3 rounded-lg bg-primary/10 p-3 sm:flex-row sm:items-center sm:justify-between">
                   <p className="text-sm leading-6 text-foreground">
-                    Sign in to save this post to the community tracker.
+                    Create a free account to save this post to the community tracker.
                   </p>
                   <Button asChild className="h-11 shrink-0 rounded-lg">
-                    <Link href={signInRedirect}>Sign in to submit</Link>
+                    <Link href={joinHref}>Create account to submit</Link>
                   </Button>
                 </div>
               ) : null}

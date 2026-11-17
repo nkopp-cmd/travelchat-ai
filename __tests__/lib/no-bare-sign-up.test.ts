@@ -19,6 +19,14 @@ function sourceFiles(dir: string): string[] {
   });
 }
 
+// Push AE1: a join gate (community, tips, submit, menu help) sends a visitor without an account to /sign-in,
+// a form they cannot use. Gates go to /sign-up?redirect_url=; the sign-up form links to sign-in for members.
+// The middleware fallback for private pages (returning users) stays /sign-in and lives outside app/ + components/.
+const SIGN_IN_GATE = /["'`]\/sign-in\?redirect_url=/;
+export function signInGateFaults(source: string): string[] {
+  return source.split("\n").filter((line) => SIGN_IN_GATE.test(line)).map((line) => line.trim());
+}
+
 export function signUpLinkFaults(source: string): string[] {
   return source.split("\n").filter((line) => BARE.test(line) || WRONG_PARAM.test(line)).map((line) => line.trim());
 }
@@ -33,6 +41,13 @@ describe("sign-up links keep the visitor's place (Push AC2)", () => {
     expect(signUpLinkFaults("href={`/sign-up${suffix}`}")).toHaveLength(0);
   });
 
+  it("detects join gates that send visitors to sign-in", () => {
+    expect(signInGateFaults('redirect("/sign-in?redirect_url=/community")')).toHaveLength(1);
+    expect(signInGateFaults("<Link href={`/sign-in?redirect_url=/help/${slug}/menu`}>")).toHaveLength(1);
+    expect(signInGateFaults('redirect("/sign-up?redirect_url=/community")')).toHaveLength(0);
+    expect(signInGateFaults("href={`/sign-in${suffix}`}")).toHaveLength(0);
+  });
+
   const files = ROOTS.flatMap(sourceFiles);
 
   it("scans the page and component sources", () => {
@@ -41,6 +56,12 @@ describe("sign-up links keep the visitor's place (Push AC2)", () => {
 
   it("finds no bare /sign-up link in app/ or components/", () => {
     const faults = files.flatMap((file) => signUpLinkFaults(readFileSync(file, "utf8")).map((line) => `${file}: ${line}`));
+    expect(faults).toEqual([]);
+  });
+
+  it("finds no join gate to /sign-in in app/ or components/ (Push AE1)", () => {
+    const faults = [...files, join("lib", "community", "access.ts")]
+      .flatMap((file) => signInGateFaults(readFileSync(file, "utf8")).map((line) => `${file}: ${line}`));
     expect(faults).toEqual([]);
   });
 });

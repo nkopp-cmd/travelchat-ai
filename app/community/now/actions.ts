@@ -22,7 +22,7 @@ const back = (form: FormData, extra: Record<string, string> = {}) => {
 
 async function member() {
   const { userId } = await auth();
-  if (!userId) redirect("/sign-in?redirect_url=/community/now");
+  if (!userId) redirect("/sign-up?redirect_url=/community/now");
   if (!canUseCommunity(userId)) redirect("/");
   return userId;
 }

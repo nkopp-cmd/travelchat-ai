@@ -20,7 +20,7 @@ const page = (spotId: string, query = "") => `/spots/${encodeURIComponent(spotId
 
 async function member(spotId: string) {
   const { userId } = await auth();
-  if (!userId) redirect(`/sign-in?redirect_url=${encodeURIComponent(page(spotId))}`);
+  if (!userId) redirect(`/sign-up?redirect_url=${encodeURIComponent(page(spotId))}`);
   if (!canUseCommunity(userId)) redirect(`/spots/${encodeURIComponent(spotId)}`);
   return userId;
 }
