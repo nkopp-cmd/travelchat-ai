@@ -19,7 +19,7 @@ const back = (questionId: string, query = "") => `/community/${encodeURIComponen
 
 async function member() {
   const { userId } = await auth();
-  if (!userId) redirect("/sign-in?redirect_url=/community");
+  if (!userId) redirect("/sign-up?redirect_url=/community");
   if (!canUseCommunity(userId)) redirect("/");
   return userId;
 }

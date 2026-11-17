@@ -27,7 +27,7 @@ describe("community access (COMMUNITY_PUBLIC)", () => {
     vi.stubEnv("COMMUNITY_PUBLIC", "true");
     expect(canUseCommunity("user-1")).toBe(true);
     await expect(requireCommunityPage("user-1", "/community")).resolves.toBe("user-1");
-    await expect(requireCommunityPage(null, async () => "/spots/abc/tips")).rejects.toThrow("redirect /sign-in?redirect_url=%2Fspots%2Fabc%2Ftips");
+    await expect(requireCommunityPage(null, async () => "/spots/abc/tips")).rejects.toThrow("redirect /sign-up?redirect_url=%2Fspots%2Fabc%2Ftips");
     expect(mocks.notFound).not.toHaveBeenCalled();
   });
 

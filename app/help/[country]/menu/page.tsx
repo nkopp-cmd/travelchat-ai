@@ -76,7 +76,7 @@ export default async function HelpMenuPage({ params }: { params: Promise<{ count
         </label>
         <p className="mt-2 text-sm text-muted-foreground">Free with a Localley account, 10 menus a day. We do not keep your photo.</p>
         <p id="menu-signin" hidden className="mt-5 rounded-xl bg-primary/10 p-3 text-sm text-foreground">
-          <Link href={`/sign-in?redirect_url=/help/${country.slug}/menu`} className="font-semibold underline">Sign in</Link> to read menus. It is free.
+          <Link href={`/sign-up?redirect_url=/help/${country.slug}/menu`} className="font-semibold underline">Create a free account</Link> to read menus.
         </p>
         <p id="menu-status" role="status" aria-live="polite" className="mt-5 text-sm text-foreground" />
         <ul id="menu-notes" className="mt-3 flex list-disc flex-col gap-1 pl-5 text-sm text-muted-foreground" />
