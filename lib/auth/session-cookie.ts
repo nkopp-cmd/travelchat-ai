@@ -18,6 +18,23 @@ function readCookie(header: string | null, name: string): string | null {
   return null;
 }
 
+/**
+ * "This browser has signed in before": set by middleware on a signed-in request (value "1", no user data).
+ * The private-page fallback sends visitors with the hint (or a leftover Better Auth cookie) to /sign-in and
+ * everyone else to /sign-up, so a first-time visitor who taps Chat or My trips sees the form that creates an account.
+ */
+export const ACCOUNT_HINT_COOKIE = "ll_account";
+
+export function hasAccountHint(headers: Headers): boolean {
+  const cookie = headers.get("cookie");
+  if (!cookie) return false;
+  return cookie.split(";").some((part) => {
+    const index = part.indexOf("=");
+    const name = (index < 0 ? part : part.slice(0, index)).trim();
+    return name === ACCOUNT_HINT_COOKIE || name.startsWith("__Secure-better-auth.") || name.startsWith("better-auth.");
+  });
+}
+
 export function getSessionCookieValue(headers: Headers): string | null {
   const cookie = headers.get("cookie");
   for (const name of SESSION_COOKIE_NAMES) {

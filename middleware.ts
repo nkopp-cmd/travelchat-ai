@@ -1,5 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { hasValidSessionCookie } from "@/lib/auth/session-cookie";
+import { ACCOUNT_HINT_COOKIE, hasAccountHint, hasValidSessionCookie } from "@/lib/auth/session-cookie";
+
+// About one year (browsers cap cookie lifetime near 400 days). Value "1" only; httpOnly, no user data.
+const ACCOUNT_HINT_OPTIONS = { path: "/", maxAge: 60 * 60 * 24 * 365, httpOnly: true, secure: true, sameSite: "lax" } as const;
 
 // Public routes that don't require authentication. Patterns follow the old Clerk
 // createRouteMatcher list: "(.*)" = any suffix, ":id" = one path segment.
@@ -110,14 +113,20 @@ export default async function middleware(request: NextRequest) {
         });
     }
     if (isPublicRoute(request)) return NextResponse.next();
-    if (await hasValidSessionCookie(request.headers, process.env.BETTER_AUTH_SECRET)) return NextResponse.next();
+    if (await hasValidSessionCookie(request.headers, process.env.BETTER_AUTH_SECRET)) {
+        const next = NextResponse.next();
+        // The hint outlives sign-out (Better Auth clears its own cookies), so a returning visitor still gets the sign-in form.
+        if (!request.cookies.has(ACCOUNT_HINT_COOKIE)) next.cookies.set(ACCOUNT_HINT_COOKIE, "1", ACCOUNT_HINT_OPTIONS);
+        return next;
+    }
 
     if (/^\/(?:api|trpc)(?:\/|$)/.test(request.nextUrl.pathname)) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: { "Cache-Control": "no-store" } });
     }
-    const signIn = new URL('/sign-in', request.url);
-    signIn.searchParams.set('redirect_url', request.nextUrl.pathname + request.nextUrl.search);
-    return NextResponse.redirect(signIn, 307);
+    // First-time visitors get the form that creates an account; browsers that signed in before get sign-in.
+    const form = new URL(hasAccountHint(request.headers) ? '/sign-in' : '/sign-up', request.url);
+    form.searchParams.set('redirect_url', request.nextUrl.pathname + request.nextUrl.search);
+    return NextResponse.redirect(form, 307);
 }
 
 export const config = {
