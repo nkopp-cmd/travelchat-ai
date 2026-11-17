@@ -123,6 +123,8 @@ describe("spots scroll layout", () => {
       { container },
     );
 
+    // Card titles are h3: the result count is the h2 above them (Push AI4, axe heading-order).
+    expect(screen.getByRole("heading", { level: 2, name: "48 spots" })).toBeTruthy();
     const resultsHeader = screen.getByText("48 spots").closest("#spot-results") as HTMLElement;
     resultsHeader.getBoundingClientRect = () =>
       ({ top: 300, right: 500, bottom: 340, left: 0, width: 500, height: 40, x: 0, y: 300, toJSON: () => ({}) });
