@@ -16,6 +16,7 @@ import { auth, currentUser } from "@/lib/auth/server";
 import { isActivePlanStatus, withLifetimePremium } from "@/lib/lifetime-premium";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { redirect } from "next/navigation";
+import { signInGateHref } from "@/lib/auth/gate-href";
 import Link from "next/link";
 import Image from "next/image";
 import { SubscriptionTier, TIER_CONFIGS } from "@/lib/subscription";
@@ -51,7 +52,7 @@ async function getUserProgress(marks: Marks = {}, start = clock()) {
     const { userId } = await timed(marks, start, "auth", auth());
 
     if (!userId) {
-        redirect("/sign-in");
+        redirect(signInGateHref("/profile"));
     }
 
     const supabase = createSupabaseAdmin();
@@ -154,7 +155,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
     const user = await timed(marks, start, "currentUser", currentUser());
 
     if (!user) {
-        redirect("/sign-in");
+        redirect(signInGateHref("/profile"));
     }
 
     const params = await searchParams;

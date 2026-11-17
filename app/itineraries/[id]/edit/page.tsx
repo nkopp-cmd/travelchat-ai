@@ -1,5 +1,6 @@
 import { getFreshUserTier } from "@/lib/usage-tracking";
 import { auth } from "@/lib/auth/server";
+import { signInGateHref } from "@/lib/auth/gate-href";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { createSupabaseAdmin } from "@/lib/supabase";
@@ -32,12 +33,12 @@ export default async function EditItineraryPage({
         </div>;
     }
     const { userId } = await auth();
+    const { id } = await params;
 
     if (!userId) {
-        redirect("/sign-in");
+        redirect(signInGateHref(`/itineraries/${encodeURIComponent(id)}/edit`));
     }
 
-    const { id } = await params;
 
     // Fetch itinerary from database
     const supabase = createSupabaseAdmin();

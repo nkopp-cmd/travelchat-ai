@@ -9,6 +9,7 @@ import { ItineraryList } from "@/components/itineraries/itinerary-list";
 import { isPreviewItineraryListCandidate, previewItineraryList } from "@/lib/app-data/preview-itinerary-list";
 import { AppBackground } from "@/components/layout/app-background";
 import { GradientText } from "@/components/ui/gradient-text";
+import { signInGateHref } from "@/lib/auth/gate-href";
 
 async function getItineraries(): Promise<{ itineraries: Array<{
     id: string;
@@ -25,7 +26,7 @@ async function getItineraries(): Promise<{ itineraries: Array<{
         const { userId } = await auth();
 
         if (!userId) {
-            redirect("/sign-in");
+            redirect(signInGateHref("/itineraries"));
         }
 
         // Use admin client with manual user filtering
@@ -57,7 +58,7 @@ async function getItineraries(): Promise<{ itineraries: Array<{
         // Handle auth failures gracefully
         console.error("[itineraries] Auth or fetch error:", err);
         // If auth fails with network error, redirect to sign-in
-        redirect("/sign-in");
+        redirect(signInGateHref("/itineraries"));
     }
 }
 
@@ -69,7 +70,7 @@ export default async function ItinerariesPage({ searchParams }: {
     const candidate = isPreviewItineraryListCandidate(host, data_candidate);
     const { itineraries, error } = candidate ? await (async () => {
         const { userId } = await auth();
-        if (!userId) redirect("/sign-in");
+        if (!userId) redirect(signInGateHref("/itineraries"));
         return { itineraries: await previewItineraryList(userId), error: null };
     })() : await getItineraries();
 
