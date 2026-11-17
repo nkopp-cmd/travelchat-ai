@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { Loader2 } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
@@ -54,6 +54,51 @@ function GoogleButton({ callbackURL }: { callbackURL: string }) {
 
 const errorText = (message?: string | null) => message || "Something went wrong. Please try again.";
 
+export const RESEND_COOLDOWN_SECONDS = 60;
+
+/**
+ * Shown after an email sign-up (and after a sign-in with an unverified email): our auth mail
+ * can land in Spam, so name the sender, offer a resend with the same callbackURL (the verify
+ * link must still return to the page that sent the visitor here) and a way to fix a typo.
+ */
+export function VerifyEmailHelp({ email, callbackURL, onChangeEmail }: { email: string; callbackURL: string; onChangeEmail?: () => void }) {
+    const [busy, setBusy] = useState(false);
+    // A mail was sent right before this shows (sign-up, or the sign-in resend), so start with the cool-down.
+    const [wait, setWait] = useState(RESEND_COOLDOWN_SECONDS);
+    const [status, setStatus] = useState<{ tone: "error" | "success"; text: string } | null>(null);
+
+    useEffect(() => {
+        if (wait <= 0) return;
+        const timer = setTimeout(() => setWait((value) => value - 1), 1000);
+        return () => clearTimeout(timer);
+    }, [wait]);
+
+    async function resend() {
+        setBusy(true); setStatus(null);
+        const { error: failure } = await authClient.sendVerificationEmail({ email, callbackURL });
+        setBusy(false);
+        if (failure) { setStatus({ tone: "error", text: errorText(failure.message) }); return; }
+        setStatus({ tone: "success", text: `We sent a new link to ${email}.` });
+        setWait(RESEND_COOLDOWN_SECONDS);
+    }
+
+    return (
+        <div className="space-y-3 text-sm text-muted-foreground">
+            <p>The mail comes from <span className="text-foreground">hello@localley.io</span>. Not there after a minute? Check Spam or Promotions.</p>
+            {status ? <Notice tone={status.tone}>{status.text}</Notice> : null}
+            <Button type="button" variant="outline" className={secondaryClass} disabled={busy || wait > 0} onClick={resend}>
+                {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                {wait > 0 ? `Resend link (${wait} s)` : "Resend link"}
+            </Button>
+            {onChangeEmail ? (
+                <button type="button" onClick={onChangeEmail} className="block w-full min-h-11 text-center text-primary hover:text-primary">
+                    Use another email
+                </button>
+            ) : null}
+        </div>
+    );
+}
+
 export function SignInForm({ googleEnabled }: { googleEnabled: boolean }) {
     const params = useSearchParams();
     const redirectTo = safeRedirect(params.get("redirect_url"));
@@ -62,13 +107,15 @@ export function SignInForm({ googleEnabled }: { googleEnabled: boolean }) {
     const [busy, setBusy] = useState<"password" | "link" | null>(null);
     const [error, setError] = useState<string | null>(params.get("error") ? "That link is invalid or expired. Please try again." : null);
     const [info, setInfo] = useState<string | null>(null);
+    const [unverified, setUnverified] = useState(false);
 
     async function onPassword(event: FormEvent) {
         event.preventDefault();
-        setBusy("password"); setError(null); setInfo(null);
+        setBusy("password"); setError(null); setInfo(null); setUnverified(false);
         const { error: failure } = await authClient.signIn.email({ email, password, callbackURL: redirectTo });
         if (failure) {
             setBusy(null);
+            setUnverified(failure.code === "EMAIL_NOT_VERIFIED");
             setError(failure.code === "EMAIL_NOT_VERIFIED"
                 ? "Please confirm your email first. We sent you a new link."
                 : failure.status === 401 ? "Wrong email or password. No password yet? Use the email link below." : errorText(failure.message));
@@ -91,6 +138,7 @@ export function SignInForm({ googleEnabled }: { googleEnabled: boolean }) {
         <div className="space-y-5">
             {error ? <Notice tone="error">{error}</Notice> : null}
             {info ? <Notice tone="success">{info}</Notice> : null}
+            {unverified && email ? <VerifyEmailHelp email={email} callbackURL={redirectTo} /> : null}
             {googleEnabled ? <><GoogleButton callbackURL={redirectTo} /><Divider /></> : null}
             <form onSubmit={onPassword} className="space-y-4">
                 <Field id="email" label="Email">
@@ -152,7 +200,12 @@ export function SignUpForm({ googleEnabled }: { googleEnabled: boolean }) {
     }
 
     if (done) {
-        return <Notice tone="success">Check your inbox. Confirm your email with the link we sent, then you are signed in.</Notice>;
+        return (
+            <div className="space-y-4">
+                <Notice tone="success">Check your inbox. We sent a link to <strong>{email}</strong>. Open it to confirm your email, then you are signed in.</Notice>
+                <VerifyEmailHelp email={email} callbackURL={redirectTo} onChangeEmail={() => { setDone(false); setPassword(""); }} />
+            </div>
+        );
     }
     return (
         <div className="space-y-5">

@@ -160,3 +160,34 @@ describe("landing page method boundary", () => {
     expect(response.headers.get("location")).toBe("https://www.localley.io/?keep=1");
   });
 });
+
+describe("expired or used verify-email link (Push AH3)", () => {
+  it.each([
+    ["/pricing?checkout=pro-monthly&error=TOKEN_EXPIRED", "/pricing?checkout=pro-monthly"],
+    ["/spots/abc?error=INVALID_TOKEN", "/spots/abc"],
+    ["/?error=USER_NOT_FOUND", "/"],
+  ])("sends %s to sign-in with the link notice and the page to return to", async (path, page) => {
+    const response = await middleware(request(path));
+    expect(response.status).toBe(307);
+    const destination = new URL(response.headers.get("location")!);
+    expect(destination.pathname).toBe("/sign-in");
+    expect(destination.searchParams.get("error")).toBe("link");
+    expect(destination.searchParams.get("redirect_url")).toBe(page);
+  });
+
+  it("leaves the default /dashboard target out of the redirect", async () => {
+    const destination = new URL((await middleware(request("/dashboard?error=TOKEN_EXPIRED"))).headers.get("location")!);
+    expect(destination.pathname).toBe("/sign-in");
+    expect(destination.searchParams.has("redirect_url")).toBe(false);
+  });
+
+  it.each(["/pricing?error=something_else", "/sign-in?error=TOKEN_EXPIRED", "/api/cities?error=TOKEN_EXPIRED"])("does not touch %s", async path => {
+    const response = await middleware(request(path));
+    expect(response.headers.get("location") ?? "").not.toContain("error=link");
+  });
+
+  it("ignores POST requests", async () => {
+    const response = await middleware(request("/pricing?error=TOKEN_EXPIRED", { method: "POST" }));
+    expect(response.headers.get("location") ?? "").not.toContain("error=link");
+  });
+});

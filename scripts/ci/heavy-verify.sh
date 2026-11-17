@@ -233,6 +233,7 @@ VITEST_FILES=(
   __tests__/api/itinerary-sanitize.test.ts
   __tests__/hooks/use-place-photo.test.tsx
   __tests__/components/auth-password-redirect.test.tsx
+  __tests__/components/auth-verify-resend.test.tsx
   __tests__/components/auth-client-adapter.test.tsx
   __tests__/components/itinerary-activity-card.test.tsx
   __tests__/api/backfill-photo-coordinate-guard.test.ts
@@ -605,6 +606,7 @@ ESLINT_FILES=(
   components/chat/chat-interface.tsx
   __tests__/app/chat-history-pair.test.tsx
   components/auth/auth-forms.tsx
+  __tests__/components/auth-verify-resend.test.tsx
   __tests__/components/auth-password-redirect.test.tsx
   components/activities/itinerary-activity-card.tsx
   __tests__/components/itinerary-activity-card.test.tsx

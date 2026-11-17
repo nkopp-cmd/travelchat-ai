@@ -100,11 +100,30 @@ export const writeFreeze = (request: NextRequest) => {
     });
 };
 
+// Better Auth's /api/auth/verify-email has no errorCallbackURL: an expired or used link lands on the
+// callbackURL page with ?error=<code>, which no page reads. Send it to sign-in, which explains the
+// expired link, offers a new one and keeps the page to return to.
+const VERIFY_LINK_ERRORS = new Set(['TOKEN_EXPIRED', 'INVALID_TOKEN', 'USER_NOT_FOUND', 'INVALID_USER']);
+export const verifyLinkErrorRedirect = (request: NextRequest) => {
+    const { pathname, searchParams } = request.nextUrl;
+    if (!['GET', 'HEAD'].includes(request.method) || /^\/(?:api|trpc|sign-in)(?:\/|$)/.test(pathname)) return null;
+    if (!VERIFY_LINK_ERRORS.has(searchParams.get('error') ?? '')) return null;
+    const rest = new URLSearchParams(searchParams);
+    rest.delete('error');
+    const page = pathname + (rest.size ? `?${rest}` : '');
+    const target = new URL('/sign-in', request.url);
+    target.searchParams.set('error', 'link');
+    if (page !== '/dashboard') target.searchParams.set('redirect_url', page);
+    return NextResponse.redirect(target, 307);
+};
+
 export default async function middleware(request: NextRequest) {
     const redirect = apexRedirect(request);
     if (redirect) return redirect;
     const frozen = writeFreeze(request);
     if (frozen) return frozen;
+    const verifyError = verifyLinkErrorRedirect(request);
+    if (verifyError) return verifyError;
     // The landing page has no Server Actions or mutation contract. Refuse before
     // Next.js can decode an unsolicited action/form body or enter its renderer.
     if (request.nextUrl.pathname === '/' && !['GET', 'HEAD'].includes(request.method)) {
