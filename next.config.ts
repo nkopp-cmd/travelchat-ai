@@ -22,11 +22,8 @@ const nextConfig: NextConfig = {
   // for every client. Streamed metadata put them ~37 KB into the body, and the edge HTML cache served those
   // bytes to Googlebot and Bingbot too.
   htmlLimitedBots: /.*/,
-  // Home LCP (Push AL3, PSI 2026-11-18): three render-blocking stylesheets cost ~560 ms on mobile before the
-  // preloaded hero could paint. Inline them into the edge-cached HTML; client navigations do not repeat them.
-  experimental: {
-    inlineCss: true,
-  },
+  // No experimental.inlineCss: release a963328 (2026-11-18) showed it doubles the Worker upload (6.4 -> 11.5 MB gzip,
+  // over the 10 MB Cloudflare limit, error 10021) because every route bundle then carries the CSS as a string.
   turbopack: {
     root: projectRoot,
   },
