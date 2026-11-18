@@ -217,6 +217,8 @@ on:
       - 'lib/trips/planner-cities.ts'
       - 'app/layout.tsx'
       - 'scripts/cf-static-public-html.mjs'
+      - 'scripts/cf-defer-scripts.mjs'
+      - '__tests__/cloudflare-defer-scripts.test.ts'
       - 'components/itineraries/wizard/index.tsx'
       - 'components/itineraries/wizard/generating-screen.tsx'
       - 'components/itineraries/wizard/step-*.tsx'
