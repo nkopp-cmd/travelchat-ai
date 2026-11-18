@@ -140,6 +140,7 @@ const routes = [
   "/newsletter/confirm",
   "/newsletter/unsubscribe",
   "/og/pages/[key]",
+  "/og/shared/[shareCode]",
   "/pricing",
   "/privacy",
   "/profile",
