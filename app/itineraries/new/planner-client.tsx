@@ -68,12 +68,10 @@ export function NewItineraryClient({ initialCities }: { initialCities: PlannerCi
   // Build initial data from template if provided
   let initialData: Partial<WizardData> = { ...restored?.data };
   let initialStep = restored ? 3 : 0;
-  let templateApplied = false;
 
   if (templateId) {
     const template = getTemplateById(templateId);
     if (template) {
-      templateApplied = true;
       // Map template focus to interests
       const mappedInterests: string[] = [];
       template.focus.forEach(focus => {
@@ -104,12 +102,9 @@ export function NewItineraryClient({ initialCities }: { initialCities: PlannerCi
   // Pre-select city from URL param (e.g. from mobile dashboard city cards)
   if (cityParam) {
     initialData.city = cityParam;
-    // Dashboard city shortcuts should continue to trip details. Template
-    // shortcuts stay on the compact city step so users can generate in one tap
-    // or quickly change the suggested city.
-    if (!templateApplied) {
-      initialStep = 1;
-    }
+    // A ?city= link (spot "Add to trip", dashboard city cards, templates) stays on the city step with the
+    // city chosen, so the one-tap "Free N-day plan" shows; "Customize" opens the full form (push AJ1:
+    // step 1 of 4 sent spot-page visitors through every step, 0 trip_generated since 11-01).
   }
 
   if (daysParam) {

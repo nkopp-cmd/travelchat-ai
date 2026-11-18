@@ -55,7 +55,7 @@ export function getTemplateGenerateLabel(city: string): string {
 // 4-step form (31 planner_start -> 2 trip_generated). After the city pick, one tap now builds a
 // free plan with the defaults; "Customize" keeps the full form.
 export { QUICK_START_OFFER } from "@/lib/offer-copy";
-import { QUICK_START_OFFER } from "@/lib/offer-copy";
+import { QUICK_START_OFFER, SPOT_QUICK_START_OFFER } from "@/lib/offer-copy";
 
 export function getQuickStartLabel(days: number): string {
   return `Free ${days}-day plan`;
@@ -237,7 +237,7 @@ function WizardContent({
           )}
           {showOffer && (
             <p className="mb-1.5 text-center text-xs font-medium text-foreground sm:mb-2">
-              {QUICK_START_OFFER}
+              {data.selectedSpotId && data.city ? SPOT_QUICK_START_OFFER : QUICK_START_OFFER}
             </p>
           )}
           <div className={getTemplateFooterLayoutClass(compactTemplateFooter)}>

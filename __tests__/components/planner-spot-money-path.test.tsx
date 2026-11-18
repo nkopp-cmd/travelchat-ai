@@ -9,6 +9,7 @@ vi.mock("next/image", () => ({ default: (props: { alt: string }) => <span>{props
 vi.mock("@/lib/funnel-analytics", () => ({ trackFunnelStep: vi.fn(), funnelSource: () => "direct" }));
 import { NewItineraryClient } from "@/app/itineraries/new/planner-client";
 import { getQuickStartLabel } from "@/components/itineraries/wizard";
+import { SPOT_QUICK_START_OFFER, QUICK_START_OFFER } from "@/lib/offer-copy";
 
 const cities = [
   { slug: "seoul", name: "Seoul", emoji: "*", vibe: "Seoul vibe", spotCount: 386, status: "recommended" },
@@ -52,5 +53,26 @@ describe("planner ?spot= reaches the generate body (push AD2)", () => {
       document.body.innerHTML = "";
       vi.unstubAllGlobals();
     }
+  });
+
+  // Push AJ1: the spot page link carries ?city=; one tap must build the plan (no 4-step form).
+  it("spot link with ?city= builds the plan in one tap and names the spot in the offer", async () => {
+    window.history.replaceState(null, "", `/itineraries/new?spot=${SPOT_ID}&city=Tokyo`);
+    const bodies = stubGenerate();
+    render(<NewItineraryClient initialCities={cities} />);
+    expect(await screen.findByText(SPOT_QUICK_START_OFFER)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: getQuickStartLabel(3) }));
+    expect(bodies()).toHaveLength(1);
+    expect(bodies()[0]).toMatchObject({ city: "Tokyo", spotId: SPOT_ID });
+  });
+
+  it("a plain ?city= link also offers the one-tap plan with the generic offer line", async () => {
+    window.history.replaceState(null, "", "/itineraries/new?city=Tokyo");
+    const bodies = stubGenerate();
+    render(<NewItineraryClient initialCities={cities} />);
+    expect(await screen.findByText(QUICK_START_OFFER)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: getQuickStartLabel(3) }));
+    expect(bodies()[0]).toMatchObject({ city: "Tokyo" });
+    expect(bodies()[0]).not.toHaveProperty("spotId");
   });
 });
