@@ -22,6 +22,11 @@ const nextConfig: NextConfig = {
   // for every client. Streamed metadata put them ~37 KB into the body, and the edge HTML cache served those
   // bytes to Googlebot and Bingbot too.
   htmlLimitedBots: /.*/,
+  // Home LCP (Push AL3, PSI 2026-11-18): three render-blocking stylesheets cost ~560 ms on mobile before the
+  // preloaded hero could paint. Inline them into the edge-cached HTML; client navigations do not repeat them.
+  experimental: {
+    inlineCss: true,
+  },
   turbopack: {
     root: projectRoot,
   },

@@ -49,7 +49,8 @@ export function Logo({
           width={config.icon}
           height={config.icon}
           className="object-cover"
-          priority
+          // Eager, but no preload: a high-priority logo competed with the landing hero (LCP) on mobile.
+          loading="eager"
         />
       </div>
       {showText && (
