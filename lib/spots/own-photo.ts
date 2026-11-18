@@ -29,13 +29,20 @@ export function isOwnSpotPhotoPath(src: string): boolean {
 }
 
 /**
+ * Pixel-density cap: a stored copy serves srcset widths up to 1.75x its own width. Without it a 412 px phone at
+ * 1.75x density asked for 750w and got the 171 KB 960 px copy, and a 3x iPhone got the 613 KB full photo
+ * (spot hero LCP 1.8-2.9 s in PSI mobile, Push AL2 2026-11-18). Above ~1.75x the eye gains little detail.
+ */
+export const SPOT_PHOTO_MAX_UPSCALE = 1.75;
+
+/**
  * next/image loader for stored spot photos: the browser picks from srcset widths, and each width maps to the smallest
- * stored copy that covers it (480, 960, else the full photo). Other URLs are returned unchanged.
+ * stored copy that covers it within the density cap (480, 960, else the full photo). Other URLs are returned unchanged.
  */
 export function spotPhotoLoader({ src, width }: { src: string; width: number }): string {
   if (!FULL_SPOT_PHOTO.test(src)) return src;
-  if (width <= SPOT_THUMB_WIDTH) return src.replace(/\.webp$/, `-w${SPOT_THUMB_WIDTH}.webp`);
-  if (width <= SPOT_HERO_WIDTH) return src.replace(/\.webp$/, `-w${SPOT_HERO_WIDTH}.webp`);
+  if (width <= SPOT_THUMB_WIDTH * SPOT_PHOTO_MAX_UPSCALE) return src.replace(/\.webp$/, `-w${SPOT_THUMB_WIDTH}.webp`);
+  if (width <= SPOT_HERO_WIDTH * SPOT_PHOTO_MAX_UPSCALE) return src.replace(/\.webp$/, `-w${SPOT_HERO_WIDTH}.webp`);
   return src;
 }
 
