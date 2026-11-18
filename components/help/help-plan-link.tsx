@@ -24,9 +24,9 @@ export function helpPlanHref(countrySlug: string): string | null {
 export function FreePlanLink({ href = "/itineraries/new", label, testId }: { href?: string; label: string; testId: string }) {
   return (
     <div className="mt-8">
-      <Button asChild variant="secondary" className="h-12 w-full rounded-xl text-base" size="lg">
+      <Button asChild className="h-auto min-h-12 w-full rounded-xl py-3 text-base font-semibold shadow-sm" size="lg">
         <Link href={href} prefetch={false} data-testid={testId}>
-          <span className="truncate">{label}</span>
+          <span className="text-balance text-center leading-snug">{label}</span>
         </Link>
       </Button>
       <p className="mt-2 text-center text-sm text-muted-foreground">{QUICK_START_OFFER}</p>
