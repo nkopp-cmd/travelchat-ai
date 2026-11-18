@@ -8,13 +8,20 @@ describe("preview D1 shared itinerary access", () => {
     vi.stubEnv("SUPABASE_READ_ONLY", "true");
     const path = "/shared/deadbeef?data_candidate=d1";
     expect(isPublicRoute(new NextRequest(`https://localley-next-preview.nkopp.workers.dev${path}`))).toBe(true);
-    expect(isPublicRoute(new NextRequest("https://localley-next-preview.nkopp.workers.dev/shared/deadbeef"))).toBe(false);
-    expect(isPublicRoute(new NextRequest(`https://www.localley.io${path}`))).toBe(false);
-    expect(isPublicRoute(new NextRequest(`https://localley-next-preview.nkopp.workers.dev${path}`, { method: "POST" }))).toBe(false);
-    vi.stubEnv("SUPABASE_READ_ONLY", "false");
-    expect(isPublicRoute(new NextRequest(`https://localley-next-preview.nkopp.workers.dev${path}`))).toBe(false);
     vi.unstubAllEnvs();
   });
+});
+
+describe("shared trip links (AK1)", () => {
+  it.each(["/shared/deadbeef", "/shared/deadbeef/", "/shared/deadbeef?utm_source=whatsapp", "/api/itineraries/it-1/export"])(
+    "opens %s to anonymous visitors", (path) => {
+      expect(isPublicRoute(new NextRequest(`https://www.localley.io${path}`))).toBe(true);
+    });
+
+  it.each(["/shared", "/shared/a/b", "/api/itineraries/it-1", "/api/itineraries/it-1/share", "/api/itineraries/it-1/export/x", "/dashboard", "/itineraries/it-1"])(
+    "keeps %s behind sign-in", (path) => {
+      expect(isPublicRoute(new NextRequest(`https://www.localley.io${path}`))).toBe(false);
+    });
 });
 
 describe("Clerk public route allowlist", () => {
