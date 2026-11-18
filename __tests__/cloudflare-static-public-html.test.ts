@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 // @ts-expect-error -- plain ESM build script without type declarations
-import { assertStaticPrerender, HELP_COUNTRY_SLUGS, inlineCriticalCss, packageStaticPublicHtml, STATIC_PUBLIC_PAGES } from "../scripts/cf-static-public-html.mjs";
+import { assertStaticPrerender, HELP_COUNTRY_SLUGS, inlineCriticalCss, packageStaticPublicHtml, SPOT_CRITICAL_CSS_ASSET, SPOT_TEMPLATE_FIXTURE, spotCriticalCss, STATIC_PUBLIC_PAGES } from "../scripts/cf-static-public-html.mjs";
 import { HELP_COUNTRIES } from "../lib/help/phrases";
 import { BLOG_POSTS } from "../lib/blog/posts";
 
@@ -96,5 +96,34 @@ describe("static public HTML assets", () => {
 
   it("home: a page without stylesheets stays unchanged", async () => {
     expect(await inlineCriticalCss(page, tmpdir())).toBe(page);
+  });
+
+  it("spot: critical rules per home stylesheet, matched against the spot template fixture", async () => {
+    root = await mkdtemp(path.join(tmpdir(), "spot-critical-"));
+    const chunks = path.join(root, "_next", "static", "chunks");
+    await mkdir(chunks, { recursive: true });
+    const filler = Array.from({ length: 400 }, (_, i) => `.unused-${i}{color:red}`).join("");
+    await writeFile(path.join(chunks, "big.css"), `.spot-hero{color:#fff}.home-only{color:red}${filler}`);
+    await writeFile(path.join(chunks, "font.css"), "@font-face{font-family:G;src:url(../media/g.woff2)format(\"woff2\")}");
+    const home = '<!DOCTYPE html><html><head><link rel="stylesheet" href="/_next/static/chunks/big.css" data-precedence="next"/>'
+      + '<link rel="stylesheet" href="/_next/static/chunks/font.css" data-precedence="next"/></head><body class="home-only"></body></html>';
+    const template = '<!DOCTYPE html><html><head><link rel="stylesheet" href="/_next/static/chunks/old.css"/></head>'
+      + '<body><h1 class="spot-hero">Spot</h1></body></html>';
+    const result = await spotCriticalCss(home, template, root);
+    expect(Object.keys(result.css)).toEqual(["/_next/static/chunks/big.css", "/_next/static/chunks/font.css"]);
+    expect(result.css["/_next/static/chunks/big.css"]).toContain(".spot-hero{color:#fff}");
+    expect(result.css["/_next/static/chunks/big.css"]).not.toContain("home-only");
+    expect(result.css["/_next/static/chunks/big.css"]).not.toContain("unused-1");
+    // Inline CSS resolves url() against the page, so relative font paths must become absolute.
+    expect(result.css["/_next/static/chunks/font.css"]).toContain("url(/_next/static/media/g.woff2)");
+    expect(await spotCriticalCss(page, template, root)).toBeNull();
+  });
+
+  it("spot: the committed template fixture is a real spot page with the hero and stylesheet links", async () => {
+    const fixture = await readFile(path.join(process.cwd(), SPOT_TEMPLATE_FIXTURE), "utf8");
+    expect(fixture).toMatch(/<link rel="stylesheet" href="\/_next\/static\/chunks\/[^"]+\.css"/);
+    expect(fixture).toMatch(/<img\b[^>]*fetchPriority="high"/i);
+    expect(fixture).not.toMatch(/<script\b/);
+    expect(SPOT_CRITICAL_CSS_ASSET).toBe("_localley/critical-spot.json");
   });
 });

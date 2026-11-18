@@ -10,6 +10,7 @@
 // @ts-ignore
 import { default as handler } from "../../.open-next/worker.js";
 import { serveWithEdgeCache } from "./edge-html-cache";
+import { loadCriticalCss, withCriticalCss } from "./critical-css";
 import { withHostRobots } from "./robots-host";
 import { runScheduledRoute, type ScheduledController, type ScheduledEnv } from "./cron-routes";
 
@@ -19,6 +20,7 @@ interface WorkerExecutionContext {
 
 interface FetchEnv {
   CF_VERSION_METADATA?: { id: string };
+  ASSETS?: { fetch(request: Request): Promise<Response> };
 }
 
 const worker = {
@@ -29,6 +31,7 @@ const worker = {
       (caches as unknown as { default: Cache }).default,
       (promise) => ctx.waitUntil(promise),
       (forwarded) => handler.fetch(forwarded, env, ctx),
+      async (response) => withCriticalCss(response, await loadCriticalCss(env.ASSETS)),
     ));
   },
   async scheduled(controller: ScheduledController, env: ScheduledEnv, ctx: WorkerExecutionContext) {

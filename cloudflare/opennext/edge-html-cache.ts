@@ -80,6 +80,9 @@ const isSitemap = (pathname: string) => pathname === "/sitemap.xml" || SITEMAP_C
 export const SPOT_MEDIA_PATH = /^\/media\/spot\/[0-9a-f-]{36}\/[0-9a-f]{64}(?:-w960|-w480|-w144)?\.webp$/;
 const SPOT_MEDIA_TTL_SECONDS = 604800;
 
+/** Spot detail HTML (the pages whose cached copy gets the build's critical CSS, critical-css.ts). */
+export const isSpotDetailPath = (pathname: string) => SPOT_DETAIL_PATH.test(pathname);
+
 export function edgeTtlSeconds(pathname: string): number | undefined {
   if (Object.hasOwn(EDGE_HTML_TTL_SECONDS, pathname)) return EDGE_HTML_TTL_SECONDS[pathname];
   if (SPOT_DETAIL_PATH.test(pathname)) return SPOT_DETAIL_TTL_SECONDS;
@@ -200,6 +203,8 @@ export async function serveWithEdgeCache(
   cache: EdgeCache,
   waitUntil: (promise: Promise<unknown>) => void,
   handler: Handler,
+  // Rewrites a fresh spot detail HTML before it is stored and sent (critical CSS); the cached copy keeps the result.
+  rewriteSpotHtml?: (response: Response) => Promise<Response>,
 ): Promise<Response> {
   if (!version || !isEdgeCacheable(request)) return handler(request);
   const key = edgeCacheKey(request, version);
@@ -213,10 +218,11 @@ export async function serveWithEdgeCache(
     return response;
   }
   const url = new URL(request.url);
-  const fresh = await handler(QUERY_FREE_PATHS.has(url.pathname) && url.search
+  const rendered = await handler(QUERY_FREE_PATHS.has(url.pathname) && url.search
     ? new Request(`${url.origin}${url.pathname}`, request)
     : request);
-  if (!storable(request, fresh)) return fresh;
+  if (!storable(request, rendered)) return rendered;
+  const fresh = rewriteSpotHtml && isSpotDetailPath(url.pathname) ? await rewriteSpotHtml(rendered).catch(() => rendered) : rendered;
   const stored = new Response(fresh.clone().body, fresh);
   // The Cache API honours Cache-Control on put; visitors still get Next's own header.
   stored.headers.set(ORIGIN_CACHE_CONTROL, fresh.headers.get("cache-control") ?? "");

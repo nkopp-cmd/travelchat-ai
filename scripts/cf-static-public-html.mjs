@@ -78,6 +78,42 @@ export async function inlineCriticalCss(html, assetsDir) {
   return out;
 }
 
+// Spot detail pages (/spots/<uuid>) render per request on the Worker and are edge-cached for an hour
+// (cloudflare/opennext/edge-html-cache.ts), so the build cannot rewrite their HTML. Instead it writes the critical CSS
+// for the spot template here; the Worker inlines it into each spot HTML on an edge-cache miss
+// (cloudflare/opennext/critical-css.ts). Push AL2: the hero photo loaded in 180 ms, but LCP waited on the same three
+// render-blocking sheets as the home page.
+export const SPOT_CRITICAL_CSS_ASSET = "_localley/critical-spot.json";
+// A live spot page (scripts and preloads removed), the template the rules are matched against. Refresh it after a
+// larger spot page redesign: curl a live /spots/<uuid> and strip <script> and preload tags. A missing class only
+// paints unstyled until the async full sheet arrives; it never breaks the page.
+export const SPOT_TEMPLATE_FIXTURE = "scripts/fixtures/spot-critical.html";
+
+/**
+ * Critical CSS for the spot template, one entry per stylesheet of this build. The spot route uses the same sheets as
+ * "/" (root layout CSS), so their hrefs come from the home prerender; the order can differ between routes, so each
+ * sheet is matched on its own and the Worker emits the entries in the page's own link order (cascade kept).
+ * Returns null when "/" has no stylesheet. The Worker applies the CSS only when a spot page links exactly these sheets.
+ */
+export async function spotCriticalCss(homeHtml, templateHtml, assetsDir) {
+  const head = homeHtml.slice(0, homeHtml.indexOf("</head>")).replace(/<noscript>[\s\S]*?<\/noscript>/g, "");
+  const sheets = [...new Set((head.match(STYLESHEET_LINK) ?? []).map(hrefOf).filter(Boolean))];
+  if (!sheets.length) return null;
+  assert.ok((templateHtml.match(STYLESHEET_LINK) ?? []).length, "the spot template has no stylesheet link");
+  const styleTags = (html) => html.match(/<style\b[^>]*>[\s\S]*?<\/style>/g) ?? [];
+  const css = {};
+  for (const href of sheets) {
+    let first = true;
+    const page = templateHtml.replace(STYLESHEET_LINK, () => (first ? ((first = false), `<link rel="stylesheet" href="${href}" data-precedence="next"/>`) : ""));
+    const before = new Set(styleTags(page));
+    css[href] = styleTags(await inlineCriticalCss(page, assetsDir)).filter((tag) => !before.has(tag))
+      .map((tag) => tag.replace(/^<style\b[^>]*>/, "").replace(/<\/style>$/, "")).join("");
+    assert.doesNotMatch(css[href], /<\/style/i, "critical CSS would close its <style> tag");
+  }
+  assert.ok(Object.values(css).some((rules) => rules.length > 0), "no critical CSS for the spot template");
+  return { css };
+}
+
 export function assertStaticPrerender(route, manifest, html) {
   const entry = manifest.routes?.[route];
   assert.ok(entry, `${route} is not prerendered`);
@@ -104,6 +140,15 @@ export async function packageStaticPublicHtml(root = process.cwd()) {
       await copyFile(source, path.join(assets, file));
       copied.push(`${route} -> ${file}`);
     }
+  }
+  const home = await readFile(path.join(app, STATIC_PUBLIC_PAGES["/"]), "utf8");
+  const critical = (home.match(STYLESHEET_LINK) ?? []).length
+    ? await spotCriticalCss(home, await readFile(path.join(root, SPOT_TEMPLATE_FIXTURE), "utf8"), assets)
+    : null;
+  if (critical) {
+    await mkdir(path.dirname(path.join(assets, SPOT_CRITICAL_CSS_ASSET)), { recursive: true });
+    await writeFile(path.join(assets, SPOT_CRITICAL_CSS_ASSET), JSON.stringify(critical));
+    copied.push(`spot critical CSS -> ${SPOT_CRITICAL_CSS_ASSET} (${Object.values(critical.css).join("").length} B)`);
   }
   return copied;
 }
