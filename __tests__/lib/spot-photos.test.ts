@@ -74,6 +74,14 @@ describe("own spot photos from tips", () => {
     expect(new Uint8Array(await before.arrayBuffer())).toEqual(new Uint8Array(webp(1)));
     objects.set(`spot-photos/${SPOT}/${full}-w480.webp`, webp(7));
     expect(new Uint8Array(await (await get(SPOT, `${full}-w480.webp`)).arrayBuffer())).toEqual(new Uint8Array(webp(7)));
+    // The hero copy (Push AL2): full photo with a one-hour cache until it exists, then the copy itself, immutable.
+    const heroBefore = await get(SPOT, `${full}-w960.webp`);
+    expect(heroBefore.headers.get("Cache-Control")).toBe("public, max-age=3600");
+    expect(new Uint8Array(await heroBefore.arrayBuffer())).toEqual(new Uint8Array(webp(1)));
+    objects.set(`spot-photos/${SPOT}/${full}-w960.webp`, webp(6));
+    const hero = await get(SPOT, `${full}-w960.webp`);
+    expect(hero.headers.get("Cache-Control")).toBe("public, max-age=31536000, immutable");
+    expect(new Uint8Array(await hero.arrayBuffer())).toEqual(new Uint8Array(webp(6)));
     // The old -480/-144 copies hold wrong photos (stale sharp cache): never served, even when the object exists.
     objects.set(`spot-photos/${SPOT}/${full}-480.webp`, webp(9));
     for (const file of [`${full}-w481.webp`, `${"a".repeat(64)}-w480.webp`, `${full}-480.webp`, `${full}-144.webp`]) expect((await get(SPOT, file)).status).toBe(404);

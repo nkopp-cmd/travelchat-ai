@@ -5,9 +5,10 @@ import type { CommunityDb } from "@/lib/community/qa";
 import { spotPhotoByKey } from "@/lib/community/spot-photos";
 
 const SPOT = /^[0-9a-f-]{36}$/;
-// `<sha>.webp` is the full photo; `<sha>-w480.webp` its card copy, `<sha>-w144.webp` its pin copy (scripts/photos/make-thumbs.mjs).
+// `<sha>.webp` is the full photo; `<sha>-w960.webp` its hero copy, `<sha>-w480.webp` its card copy, `<sha>-w144.webp` its pin copy
+// (scripts/photos/make-thumbs.mjs).
 // The old `-480`/`-144` copies show wrong photos (stale sharp cache) and stay unserved.
-const FILE = /^([0-9a-f]{64})(-w480|-w144)?\.webp$/;
+const FILE = /^([0-9a-f]{64})(-w960|-w480|-w144)?\.webp$/;
 const missing = () => new Response(null, { status: 404, headers: { "Cache-Control": "no-store" } });
 
 /** Public spot photos (lib/community/spot-photos.ts): only keys a spot_photos row names. Content-addressed, so immutable. */
