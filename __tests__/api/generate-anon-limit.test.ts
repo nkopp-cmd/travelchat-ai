@@ -36,6 +36,13 @@ describe("POST /api/itineraries/generate anonymous limit", () => {
     expect(json.error.details.signupUrl).toBe("/sign-up");
   });
 
+  it.each(["abc", "NaN", "-5", "0.5", "1e9", ""])("treats a tampered usage cookie %j as the free trip already used", async (value) => {
+    state.anonCookie = value;
+    const { POST } = await import("@/app/api/itineraries/generate/route");
+    const response = await POST(post({ city: "Seoul", days: 2 }));
+    expect(response.status).toBe(401);
+  });
+
   it("does not ask an anonymous visitor to sign up before the free itinerary", async () => {
     const { POST } = await import("@/app/api/itineraries/generate/route");
     const response = await POST(post({}));
