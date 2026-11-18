@@ -67,6 +67,17 @@ const PUBLIC_ROUTES = [
     '/media/spot/:spotId/:file',  // Public own spot photos (R2, rows in spot_photos only)
 ];
 
+// Top-level sections with signed-in pages. A signed-out request there goes to sign-up/sign-in; any other unknown path
+// falls through to Next.js, which answers 404 with app/not-found.tsx (a dead link must not show a sign-up wall, and
+// crawlers must see 404, not a redirect). __tests__/middleware-sections.test.ts fails when a page outside the public
+// routes is not covered here.
+export const PRIVATE_SECTIONS = new Set([
+    'admin', 'challenges', 'chat', 'community', 'dashboard', 'explore', 'guide', 'itineraries', 'leaderboard',
+    'profile', 'settings', 'shared', 'spots', 'users', 'trpc', 'api',
+]);
+
+export const isPrivateSection = (pathname: string) => PRIVATE_SECTIONS.has(pathname.split('/')[1] ?? '');
+
 const toRegExp = (pattern: string) =>
     new RegExp(`^${pattern
         .split("(.*)")
@@ -147,6 +158,8 @@ export default async function middleware(request: NextRequest) {
         return next;
     }
 
+    // Unknown paths: Next.js renders the 404 page (no session needed, nothing private to protect).
+    if (!isPrivateSection(request.nextUrl.pathname)) return NextResponse.next();
     if (/^\/(?:api|trpc)(?:\/|$)/.test(request.nextUrl.pathname)) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: { "Cache-Control": "no-store" } });
     }

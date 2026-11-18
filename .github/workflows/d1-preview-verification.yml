@@ -517,6 +517,8 @@ on:
       - 'middleware.ts'
       - 'lib/auth/session-cookie.ts'
       - '__tests__/middleware-redirect.test.ts'
+      - '__tests__/middleware-sections.test.ts'
+      - 'app/not-found.tsx'
       - '__tests__/api/test-app-data-*.test.ts'
       - '__tests__/api/ai-backgrounds-candidate-route.test.ts'
       - '__tests__/api/story-persist-candidate-route.test.ts'

@@ -21,7 +21,7 @@ beforeEach(() => { process.env.BETTER_AUTH_SECRET = SECRET; });
 afterEach(() => { delete process.env.BETTER_AUTH_SECRET; });
 
 describe("first-time visitor vs returning visitor (Push AF1)", () => {
-  it.each(["/chat", "/itineraries", "/saved", "/settings?tab=plan"])("sends a first-time visitor on %s to /sign-up with the same continuation", async path => {
+  it.each(["/chat", "/itineraries", "/profile", "/settings?tab=plan"])("sends a first-time visitor on %s to /sign-up with the same continuation", async path => {
     const response = await middleware(request(path));
     expect(response.status).toBe(307);
     const destination = new URL(response.headers.get("location")!);

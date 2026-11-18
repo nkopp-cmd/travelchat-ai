@@ -24,6 +24,7 @@ VITEST_FILES=(
   __tests__/components/borderless-navigation.test.tsx
   __tests__/components/lazy-toaster.test.tsx
   __tests__/middleware-redirect.test.ts
+  __tests__/middleware-sections.test.ts
   __tests__/components/map-text-safety.test.tsx
   __tests__/lib/spot-analytics.test.ts
   __tests__/lib/spot-event-store.test.ts
@@ -423,6 +424,8 @@ ESLINT_FILES=(
   scripts/check-borderless.mjs
   scripts/verify-spot-card-routes.mjs
   __tests__/middleware-redirect.test.ts
+  __tests__/middleware-sections.test.ts
+  app/not-found.tsx
   components/ui/google-map.tsx
   components/ui/kakao-map.tsx
   components/ui/leaflet-map.tsx
