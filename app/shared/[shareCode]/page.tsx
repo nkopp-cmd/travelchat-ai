@@ -35,7 +35,7 @@ export async function generateMetadata(
     const itinerary = candidate ? await getPreviewSharedItinerary(shareCode) : await (async () => {
         const supabase = createSupabaseAdmin();
         const { data } = await supabase.from("itineraries")
-            .select("title, city, days, highlights, local_score")
+            .select("title, city, days, highlights")
             .eq("share_code", shareCode).eq("shared", true).single();
         return data;
     })();
@@ -47,13 +47,15 @@ export async function generateMetadata(
     }
 
     const title = `${itinerary.title} | Localley`;
-    const score = "localScore" in itinerary ? itinerary.localScore : itinerary.local_score;
     const description = itinerary.highlights?.length > 0
         ? `${itinerary.days}-day ${itinerary.city} itinerary featuring: ${itinerary.highlights.slice(0, 3).join(", ")}`
         : `Explore ${itinerary.city} with this ${itinerary.days}-day local-approved itinerary.`;
 
     const baseUrl = candidate ? "https://localley-next-preview.nkopp.workers.dev"
         : process.env.NEXT_PUBLIC_APP_URL || "https://localley.io";
+
+    // /api/og needs a session (401 for crawlers); the public card reads only the shared row.
+    const cardUrl = `${baseUrl}/og/shared/${shareCode}`;
 
     return {
         title,
@@ -67,7 +69,7 @@ export async function generateMetadata(
             siteName: "Localley",
             images: [
                 {
-                    url: `${baseUrl}/api/og?title=${encodeURIComponent(itinerary.title)}&city=${encodeURIComponent(itinerary.city)}&days=${itinerary.days}&score=${score || 0}`,
+                    url: cardUrl,
                     width: 1200,
                     height: 630,
                     alt: itinerary.title,
@@ -78,7 +80,7 @@ export async function generateMetadata(
             card: "summary_large_image",
             title,
             description,
-            images: [`${baseUrl}/api/og?title=${encodeURIComponent(itinerary.title)}&city=${encodeURIComponent(itinerary.city)}&days=${itinerary.days}&score=${score || 0}`],
+            images: [cardUrl],
         },
     };
 }
