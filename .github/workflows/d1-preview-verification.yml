@@ -386,6 +386,8 @@ on:
       - 'supabase/migrations/003_weighted_usage_increment.sql'
       - 'lib/usage-tracking.ts'
       - '__tests__/lib/usage-tracking-atomic.test.ts'
+      - '__tests__/lib/quota-math.property.test.ts'
+      - 'lib/subscription.ts'
       - 'lib/stripe.ts'
       - 'config/stripe-live-prices.json'
       - 'app/api/connect/webhook/route.ts'
