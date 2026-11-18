@@ -518,6 +518,7 @@ on:
       - '__tests__/api/subscription-status-candidate-route.test.ts'
       - '__tests__/api/subscription-status-live.test.ts'
       - '__tests__/api/subscription-webhook-candidate-route.test.ts'
+      - '__tests__/api/connect-webhook.test.ts'
       - '__tests__/api/cleanup-stories-candidate-route.test.ts'
       - '__tests__/api/conversations-candidate-route.test.ts'
       - '__tests__/api/conversation-messages-candidate-route.test.ts'
