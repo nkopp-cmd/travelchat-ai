@@ -59,6 +59,8 @@ const PUBLIC_ROUTES = [
     '/og/pages/:key',  // Share cards for home, pricing, templates and help pages (fixed registry, no account data)
     '/templates(.*)',  // Allow browsing templates
     '/itineraries/:id/stories',  // Public stories download page
+    '/shared/:code',  // Shared trip link: the page reads only rows with shared = true (404 otherwise); friends see it without an account
+    '/api/itineraries/:id/export',  // Download on the shared page: GET only; the route enforces owner or shared = true
     '/api/itineraries/:id/story',  // The route enforces owner/public access before rendering.
     '/media/activity/:file',  // Public AI activity thumbnails (R2, hash names only)
     '/media/spot/:spotId/:file',  // Public own spot photos (R2, rows in spot_photos only)
