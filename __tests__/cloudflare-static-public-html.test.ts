@@ -47,7 +47,7 @@ describe("static public HTML assets", () => {
   it("copies the exact prerendered bytes, scripts included", async () => {
     const all = Object.fromEntries(Object.keys(STATIC_PUBLIC_PAGES).map((r) => [r, route(false)]));
     const dir = await buildTree(all);
-    expect(await packageStaticPublicHtml(dir)).toEqual(Object.entries(STATIC_PUBLIC_PAGES).map(([r, f]) => `${r} -> ${f}${r === "/" ? " (critical CSS)" : ""}`));
+    expect(await packageStaticPublicHtml(dir)).toEqual(Object.entries(STATIC_PUBLIC_PAGES).map(([r, f]) => `${r} -> ${f}${r === "/" ? " (critical CSS, JS after hero)" : ""}`));
     for (const file of Object.values(STATIC_PUBLIC_PAGES) as string[]) {
       expect(await readFile(path.join(dir, ".open-next", "assets", file), "utf8")).toBe(page);
     }

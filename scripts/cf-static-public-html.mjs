@@ -18,6 +18,7 @@ import Beasties from "beasties";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { blogSlugs } from "./blog-index.mjs";
+import { deferChunkScripts } from "./cf-defer-scripts.mjs";
 
 // route -> file in .next/server/app and in the asset directory
 // ("/pricing" resolves to pricing.html under the default html_handling).
@@ -134,8 +135,8 @@ export async function packageStaticPublicHtml(root = process.cwd()) {
     assertStaticPrerender(route, manifest, await readFile(source, "utf8"));
     await mkdir(path.dirname(path.join(assets, file)), { recursive: true });
     if (CRITICAL_CSS_PAGES.has(route)) {
-      await writeFile(path.join(assets, file), await inlineCriticalCss(await readFile(source, "utf8"), assets));
-      copied.push(`${route} -> ${file} (critical CSS)`);
+      await writeFile(path.join(assets, file), deferChunkScripts(await inlineCriticalCss(await readFile(source, "utf8"), assets)));
+      copied.push(`${route} -> ${file} (critical CSS, JS after hero)`);
     } else {
       await copyFile(source, path.join(assets, file));
       copied.push(`${route} -> ${file}`);
