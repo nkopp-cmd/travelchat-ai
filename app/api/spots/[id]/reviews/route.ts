@@ -25,6 +25,17 @@ interface ReviewWithUser {
     user_voted?: boolean;
 }
 
+// sort/limit/offset from the query string; null = invalid (400). A bad value used to reach range() and give a 500.
+function parseReviewQuery(q: URLSearchParams): { sort: string; limit: number; offset: number } | null {
+    const sort = q.get("sort") || "recent";
+    const limit = q.get("limit") === null ? 20 : Number(q.get("limit"));
+    const offset = q.get("offset") === null ? 0 : Number(q.get("offset"));
+    if (!/^(recent|helpful|highest|lowest)$/.test(sort)
+        || !Number.isSafeInteger(limit) || limit < 1 || limit > 100
+        || !Number.isSafeInteger(offset) || offset < 0 || offset > 10000) return null;
+    return { sort, limit, offset };
+}
+
 // GET - Fetch reviews for a spot
 export async function GET(
     request: NextRequest,
@@ -33,16 +44,10 @@ export async function GET(
     try {
         const { id: spotId } = await params;
         const { userId } = await auth();
+        const reviewQuery = parseReviewQuery(request.nextUrl.searchParams);
         if (isPreviewSpotReviewCandidate(request)) {
-            const q = request.nextUrl.searchParams;
-            const sort = q.get("sort") || "recent";
-            const limit = q.get("limit") === null ? 20 : Number(q.get("limit"));
-            const offset = q.get("offset") === null ? 0 : Number(q.get("offset"));
-            if (!/^(recent|helpful|highest|lowest)$/.test(sort)
-                || !Number.isSafeInteger(limit) || limit < 1 || limit > 100
-                || !Number.isSafeInteger(offset) || offset < 0 || offset > 10000) {
-                return NextResponse.json({ error: "Invalid review query" }, { status: 400, headers: candidateHeaders });
-            }
+            if (!reviewQuery) return NextResponse.json({ error: "Invalid review query" }, { status: 400, headers: candidateHeaders });
+            const { sort, limit, offset } = reviewQuery;
             try {
                 return NextResponse.json(await previewSpotReviews(spotId, userId, sort, limit, offset),
                     { headers: candidateHeaders });
@@ -55,10 +60,8 @@ export async function GET(
         // Public review output is projected here; raw review tables deny anonymous SELECT.
         const supabase = createSupabaseAdmin();
 
-        const url = new URL(request.url);
-        const sortBy = url.searchParams.get("sort") || "recent";
-        const limit = parseInt(url.searchParams.get("limit") || "20");
-        const offset = parseInt(url.searchParams.get("offset") || "0");
+        if (!reviewQuery) return Errors.validationError("Invalid review query");
+        const { sort: sortBy, limit, offset } = reviewQuery;
 
         // Build query
         let query = supabase

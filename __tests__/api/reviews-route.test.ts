@@ -110,6 +110,15 @@ describe('Review GET schema alignment', () => {
         expect(body.reviews).toBeUndefined();
     });
 
+    it.each(['limit=abc', 'offset=-5', 'limit=0', 'limit=101', 'offset=1.5', 'sort=random'])(
+        'answers 400 to the bad query %s before database access (was a 500)', async (qs) => {
+            const response = await GET(new NextRequest(`https://localley.io/api/spots/spot-1/reviews?${qs}`), {
+                params: Promise.resolve({ id: 'spot-1' }),
+            });
+            expect(response.status).toBe(400);
+            expect(from).not.toHaveBeenCalled();
+        });
+
     it('rejects anonymous writes before database access', async () => {
         const response = await POST(new NextRequest('https://localley.io/api/spots/spot-1/reviews', { method: 'POST' }), {
             params: Promise.resolve({ id: 'spot-1' }),
