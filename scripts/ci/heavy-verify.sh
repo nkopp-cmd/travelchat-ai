@@ -294,6 +294,7 @@ VITEST_FILES=(
   __tests__/api/subscription-status-candidate-route.test.ts
   __tests__/api/subscription-status-live.test.ts
   __tests__/api/subscription-webhook-candidate-route.test.ts
+  __tests__/api/connect-webhook.test.ts
   __tests__/lib/app-data-preview-explore.test.ts
   __tests__/api/places-photos-route.test.ts
   __tests__/components/preview-copy-button.test.tsx
@@ -870,6 +871,7 @@ ESLINT_FILES=(
   __tests__/api/saved-spots-candidate-route.test.ts
   __tests__/api/subscription-status-candidate-route.test.ts
   __tests__/api/subscription-webhook-candidate-route.test.ts
+  __tests__/api/connect-webhook.test.ts
 )
 
 lane_vitest() { npx vitest run "${VITEST_FILES[@]}" --maxWorkers="${VITEST_WORKERS:-2}"; }
