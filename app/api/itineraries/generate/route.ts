@@ -44,7 +44,9 @@ const ANON_LIMIT = 1; // 1 free itinerary without signup
 async function getAnonymousUsage(): Promise<number> {
   const cookieStore = await cookies();
   const usage = cookieStore.get(ANON_COOKIE_NAME);
-  return usage ? parseInt(usage.value, 10) : 0;
+  if (!usage) return 0;
+  // A tampered value ("abc" parsed as NaN, a negative count) must not reopen the free trip: treat it as used up.
+  return /^\d{1,6}$/.test(usage.value) ? Number(usage.value) : ANON_LIMIT;
 }
 
 export async function POST(req: NextRequest) {
