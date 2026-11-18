@@ -28,6 +28,17 @@ describe("deferChunkScripts", () => {
     expect(deferChunkScripts(bare)).toBe(bare);
   });
 
+  it("moves the async full stylesheets into the loader and keeps the noscript copies", () => {
+    const sheet = (h: string) => `<link rel="stylesheet" href="${h}" data-precedence="next" media="print" onload="this.media='all'">`;
+    const html = page(HERO).replace("<head>", `<head><style>.c{}</style>${sheet("/_next/static/css/x.css")}`
+      + `<noscript><link rel="stylesheet" href="/_next/static/css/x.css"></noscript>${sheet("/_next/static/css/y.css")}`);
+    const out: string = deferChunkScripts(html);
+    expect(out).not.toContain('media="print"');
+    expect(out).toContain('<noscript><link rel="stylesheet" href="/_next/static/css/x.css"></noscript>');
+    expect(out).toContain("<style>.c{}</style>");
+    expect(out).toContain('C=["/_next/static/css/x.css","/_next/static/css/y.css"]');
+  });
+
   it("escapes < in chunk urls so the list cannot close the script", () => {
     expect(loaderScript(["/_next/static/x</script>.js"], [])).not.toContain("x</script>");
   });
@@ -44,7 +55,8 @@ describe("loader in the browser", () => {
     document.body.innerHTML = HERO;
     const img = document.querySelector("img")!;
     Object.defineProperty(img, "complete", { value: complete });
-    const code = loaderScript(["/_next/static/chunks/a.js", "/_next/static/chunks/b.js"], ["/_next/static/chunks/lazy.js"])
+    const code = loaderScript(["/_next/static/chunks/a.js", "/_next/static/chunks/b.js"], ["/_next/static/chunks/lazy.js"],
+      ["/_next/static/css/x.css"])
       .replace(/^<script>|<\/script>$/g, "");
     new Function(code)();
     return img;
@@ -60,6 +72,10 @@ describe("loader in the browser", () => {
     vi.advanceTimersByTime(50);
     expect(added()).toEqual(["/_next/static/chunks/a.js", "/_next/static/chunks/b.js"]);
     expect(document.head.querySelector('link[rel="preload"]')?.getAttribute("href")).toBe("/_next/static/chunks/lazy.js");
+    const css = document.head.querySelector('link[rel="stylesheet"]')!;
+    expect(css.getAttribute("href")).toBe("/_next/static/css/x.css");
+    expect(css.getAttribute("data-precedence")).toBe("next");
+    expect(css.compareDocumentPosition(document.head.querySelector("script")!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     window.dispatchEvent(new Event("pointerdown"));
     vi.advanceTimersByTime(DEFER_FALLBACK_MS);
     expect(added()).toHaveLength(2);
