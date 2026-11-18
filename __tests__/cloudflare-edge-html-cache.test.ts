@@ -364,3 +364,43 @@ describe("per-spot share card at the edge", () => {
     expect(other.put).not.toHaveBeenCalled();
   });
 });
+
+describe("stored spot photos at the edge (hero LCP)", () => {
+  const base = "https://www.localley.io/media/spot/01053a4b-458b-4377-bf9d-2b70837b006e/" + "a".repeat(64);
+  const webp = (cacheControl: string, status = 200) => vi.fn(async () => new Response(new Uint8Array([0x52, 0x49, 0x46, 0x46]), {
+    status, headers: { "content-type": "image/webp", "cache-control": cacheControl },
+  }));
+  const immutable = "public, max-age=31536000, immutable";
+
+  it("caches the full photo and its size copies for a week, exact path only", () => {
+    for (const suffix of ["", "-w960", "-w480", "-w144"]) {
+      expect(edgeTtlSeconds(new URL(`${base}${suffix}.webp`).pathname)).toBe(604800);
+      expect(isEdgeCacheable(new Request(`${base}${suffix}.webp`))).toBe(true);
+    }
+    expect(isEdgeCacheable(new Request(`${base}.webp?v=2`))).toBe(false);
+    expect(isEdgeCacheable(new Request(`${base}-480.webp`))).toBe(false);
+    expect(isEdgeCacheable(new Request(`${base}.jpg`))).toBe(false);
+    expect(isEdgeCacheable(new Request(`${base}.webp`, { method: "HEAD" }))).toBe(false);
+  });
+
+  it("serves a hit across deploys: the key has no Worker version", async () => {
+    const cache = memoryCache();
+    const origin = webp(immutable);
+    expect((await serve(new Request(`${base}-w480.webp`), cache, origin, "v1")).headers.get(EDGE_CACHE_HEADER)).toBe("MISS");
+    const hit = await serve(new Request(`${base}-w480.webp`), cache, origin, "v2");
+    expect(hit.headers.get(EDGE_CACHE_HEADER)).toBe("HIT");
+    expect(hit.headers.get("cache-control")).toBe(immutable);
+    expect(hit.headers.get("content-type")).toBe("image/webp");
+    expect(origin).toHaveBeenCalledTimes(1);
+    expect([...cache.store.keys()]).toEqual([`${base}-w480.webp`]);
+  });
+
+  it("never stores a stand-in copy, a 404, a cookie answer or a non-webp body", async () => {
+    const cache = memoryCache();
+    await serve(new Request(`${base}-w144.webp`), cache, webp("public, max-age=3600"));
+    await serve(new Request(`${base}.webp`), cache, webp("no-store", 404));
+    await serve(new Request(`${base}.webp`), cache, async () => new Response("x", { headers: { "content-type": "image/webp", "cache-control": immutable, "set-cookie": "a=1" } }));
+    await serve(new Request(`${base}.webp`), cache, async () => html({ "cache-control": immutable }));
+    expect(cache.put).not.toHaveBeenCalled();
+  });
+});

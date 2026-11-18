@@ -72,12 +72,20 @@ const PIN_CARD_PATH = /^\/api\/spots\/pins\/[0-9a-f-]{8,36}$/;
 const SITEMAP_CHILD_PATH = /^\/sitemaps\/(?:pages|guides|spots-[1-9]\d{0,3})\.xml$/;
 const SITEMAP_TTL_SECONDS = 3600;
 const isSitemap = (pathname: string) => pathname === "/sitemap.xml" || SITEMAP_CHILD_PATH.test(pathname);
+// Stored spot photos (app/media/spot/[spotId]/[file]): content-addressed by sha256, so one URL always has the same bytes.
+// Without the edge copy every request ran the Worker + a D1 lookup + an R2 read (TTFB 220-330 ms, up to 1.8 s): that is
+// the spot hero, the LCP element. The key has no Worker version (a deploy cannot change the bytes), and only the
+// immutable answer is stored: a stand-in copy (max-age=3600, the size copy does not exist yet) is never stored.
+// A week, like the share card; a takedown removes the D1 row and purges the URL (Cache API entries purge by URL).
+export const SPOT_MEDIA_PATH = /^\/media\/spot\/[0-9a-f-]{36}\/[0-9a-f]{64}(?:-w960|-w480|-w144)?\.webp$/;
+const SPOT_MEDIA_TTL_SECONDS = 604800;
 
 export function edgeTtlSeconds(pathname: string): number | undefined {
   if (Object.hasOwn(EDGE_HTML_TTL_SECONDS, pathname)) return EDGE_HTML_TTL_SECONDS[pathname];
   if (SPOT_DETAIL_PATH.test(pathname)) return SPOT_DETAIL_TTL_SECONDS;
   if (SPOT_OG_PATH.test(pathname)) return SPOT_OG_TTL_SECONDS;
   if (isSitemap(pathname)) return SITEMAP_TTL_SECONDS;
+  if (SPOT_MEDIA_PATH.test(pathname)) return SPOT_MEDIA_TTL_SECONDS;
   return VIRAL_EVENT_PATH.test(pathname) || PIN_CARD_PATH.test(pathname) ? LIVE_DETAIL_TTL_SECONDS : undefined;
 }
 
@@ -159,6 +167,7 @@ function cacheableQuery(url: URL): boolean {
 
 export function edgeCacheKey(request: Request, version: string): Request {
   const url = new URL(request.url);
+  if (SPOT_MEDIA_PATH.test(url.pathname)) return new Request(`${url.origin}${url.pathname}`);
   if (QUERY_FREE_PATHS.has(url.pathname)) return new Request(`${url.origin}${url.pathname}?__edge=${encodeURIComponent(version)}`);
   const city = url.searchParams.get("city");
   const view = url.searchParams.get("view");
@@ -172,6 +181,10 @@ export function edgeCacheKey(request: Request, version: string): Request {
 function storable(request: Request, response: Response): boolean {
   const type = response.headers.get("content-type") ?? "";
   const pathname = new URL(request.url).pathname;
+  if (SPOT_MEDIA_PATH.test(pathname)) {
+    return response.status === 200 && !response.headers.has("set-cookie") && type.startsWith("image/webp")
+      && /\bimmutable\b/.test(response.headers.get("cache-control") ?? "");
+  }
   const expected = pathname.startsWith("/api/") ? "application/json"
     : SPOT_OG_PATH.test(pathname) ? "image/png"
     : isSitemap(pathname) ? "application/xml"
