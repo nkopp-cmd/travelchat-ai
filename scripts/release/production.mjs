@@ -132,8 +132,15 @@ if (stage === "deploy") {
   const promote = run(["node", "node_modules/wrangler/bin/wrangler.js", "versions", "deploy", `${id}@100%`, "--env", "production", "--yes",
     "--message", `release ${sha.slice(0, 7)}`], { env });
   if (promote.status !== 0) fail(`promote failed (exit ${promote.status})`);
-  const after = await activeVersions();
-  if (after.length !== 1 || after[0].version_id !== id || after[0].percentage !== 100) fail(`promote not confirmed for ${id}`);
+  // The deployments API can return the previous deployment for a few seconds after a successful promote
+  // (6be284d: wrangler SUCCESS, read stale, release marked failed while live). Re-read before failing.
+  const promoted = (versions) => versions.length === 1 && versions[0].version_id === id && versions[0].percentage === 100;
+  let after = await activeVersions();
+  for (let attempt = 2; attempt <= 6 && !promoted(after); attempt++) {
+    await new Promise((resolve) => setTimeout(resolve, 5_000));
+    after = await activeVersions();
+  }
+  if (!promoted(after)) fail(`promote not confirmed for ${id} after 6 reads (active: ${after.map((v) => `${v.version_id}@${v.percentage}`).join(",")})`);
   console.log(`[release] live ${sha.slice(0, 7)} = Worker ${id} (previous ${before[0].version_id})`);
   // Skew proof: a file only the previous release had must still load from the live site (warning only; the release
   // itself is fine without it). Promotion reaches all edges within seconds, so allow three tries.
