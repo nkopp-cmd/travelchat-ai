@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 vi.mock("next/navigation", () => ({ useRouter: () => ({ prefetch: vi.fn() }) }));
 vi.mock("@/lib/auth/client", () => ({ useUser: () => ({ isSignedIn: false }) }));
 // eslint-disable-next-line @next/next/no-img-element
-vi.mock("next/image", () => ({ default: ({ src, alt }: { src: string; alt: string }) => <img src={src} alt={alt} /> }));
+vi.mock("next/image", () => ({ default: ({ src, alt, loading, fetchPriority }: { src: string; alt: string; loading?: "eager" | "lazy"; fetchPriority?: "low" | "high" | "auto" }) => <img src={src} alt={alt} loading={loading} fetchPriority={fetchPriority} /> }));
 import { Logo } from "@/components/brand/logo";
 
 afterEach(cleanup);
@@ -23,5 +23,12 @@ describe("Logo accessible name", () => {
     render(<Logo showText={false} />);
     expect(screen.getByRole("link", { name: "Localley" })).toBeTruthy();
     expect(screen.getByAltText("Localley")).toBeTruthy();
+  });
+
+  it("loads eagerly but low priority, so React SSR adds no logo preload that competes with the hero (LCP)", () => {
+    const { container } = render(<Logo />);
+    const img = container.querySelector("img");
+    expect(img?.getAttribute("loading")).toBe("eager");
+    expect(img?.getAttribute("fetchpriority")).toBe("low");
   });
 });

@@ -49,8 +49,11 @@ export function Logo({
           width={config.icon}
           height={config.icon}
           className="object-cover"
-          // Eager, but no preload: a high-priority logo competed with the landing hero (LCP) on mobile.
+          // Eager, but no preload: a high-priority logo competed with the landing hero (LCP) on mobile. React's SSR
+          // adds <link rel=preload> for every non-lazy <img> unless fetchPriority is "low" (live HTML of 646b8c5 still
+          // preloaded it with loading="eager" alone).
           loading="eager"
+          fetchPriority="low"
         />
       </div>
       {showText && (
