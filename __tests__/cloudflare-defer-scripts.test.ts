@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 // @ts-expect-error build script without types
-import { DEFER_FALLBACK_MS, deferChunkScripts, loaderScript } from "../scripts/cf-defer-scripts.mjs";
+import { DEFER_FALLBACK_MS, deferChunkScripts, loaderScript, SPOT_HERO } from "../scripts/cf-defer-scripts.mjs";
 
 const HERO = '<img src="/h.webp" fetchpriority="high" class="ll-hero-poster">';
 const page = (body: string) =>
@@ -99,5 +99,34 @@ describe("loader in the browser", () => {
     run(true);
     vi.advanceTimersByTime(50);
     expect(added()).toHaveLength(2);
+  });
+});
+
+describe("spot detail hero (Push AM2)", () => {
+  const SPOT_IMG = '<img alt="Spot" fetchPriority="high" decoding="async" data-nimg="fill" class="object-cover" src="/media/spot/x.webp"/>';
+
+  it("defers behind the next/image hero and leaves a spot without a photo unchanged", () => {
+    const out: string = deferChunkScripts(page(SPOT_IMG), SPOT_HERO);
+    expect(out).not.toMatch(/<script src="\/_next\/static\/chunks\/(a|b)\.js"/);
+    expect(out).toContain('document.querySelector("img[fetchpriority=\\"high\\"]")');
+    const noPhoto = page('<link rel="preload" as="image" fetchPriority="high" href="/x.webp"/><p>no photo</p>');
+    expect(deferChunkScripts(noPhoto, SPOT_HERO)).toBe(noPhoto);
+    expect(deferChunkScripts(page(SPOT_IMG))).toBe(page(SPOT_IMG));
+  });
+
+  it("the loader finds the spot hero in the browser and waits for it", () => {
+    vi.useFakeTimers();
+    document.body.innerHTML = SPOT_IMG;
+    const img = document.querySelector("img")!;
+    Object.defineProperty(img, "complete", { value: false });
+    new Function(loaderScript(["/_next/static/chunks/a.js"], [], [], SPOT_HERO.selector).replace(/^<script>|<\/script>$/g, ""))();
+    vi.advanceTimersByTime(100);
+    expect(document.head.querySelectorAll("script")).toHaveLength(0);
+    img.dispatchEvent(new Event("load"));
+    vi.advanceTimersByTime(50);
+    expect(document.head.querySelectorAll("script")).toHaveLength(1);
+    vi.useRealTimers();
+    document.head.innerHTML = "";
+    document.body.innerHTML = "";
   });
 });

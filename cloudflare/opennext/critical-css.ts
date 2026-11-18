@@ -9,6 +9,8 @@
  *
  * Safe by default: any mismatch (other sheets, already async links, no </head>) leaves the HTML unchanged.
  */
+import { deferChunkScripts, SPOT_HERO } from "../../scripts/cf-defer-scripts.mjs";
+
 export const SPOT_CRITICAL_CSS_PATH = "/_localley/critical-spot.json";
 
 export interface CriticalCss {
@@ -47,6 +49,20 @@ export function applyCriticalCss(html: string, critical: CriticalCss): string | 
   return `${rewritten}<noscript>${links.join("")}</noscript>${html.slice(headEnd)}`;
 }
 
+/**
+ * Push AM2: after critical CSS, the spot page's client chunks (~190 KB gzip) and full sheets start after the hero photo
+ * has painted (scripts/cf-defer-scripts.mjs, the same loader as "/"). Only when critical CSS applied (the sheets are
+ * then async); any failure keeps the critical-CSS HTML.
+ */
+export function deferSpotChunks(html: string | null): string | null {
+  if (html === null) return null;
+  try {
+    return deferChunkScripts(html, SPOT_HERO);
+  } catch {
+    return html;
+  }
+}
+
 interface AssetFetcher {
   fetch(request: Request): Promise<Response>;
 }
@@ -75,5 +91,5 @@ export async function withCriticalCss(response: Response, critical: CriticalCss 
   const html = await response.text();
   const headers = new Headers(response.headers);
   headers.delete("content-length");
-  return new Response(applyCriticalCss(html, critical) ?? html, { status: response.status, statusText: response.statusText, headers });
+  return new Response(deferSpotChunks(applyCriticalCss(html, critical)) ?? html, { status: response.status, statusText: response.statusText, headers });
 }
