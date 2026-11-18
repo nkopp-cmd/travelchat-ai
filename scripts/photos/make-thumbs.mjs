@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Writes the 480 px card copy (`spot-photos/<spot>/<sha>-w480.webp`) and the 144 px pin copy (`<sha>-w144.webp`) of every
+// Writes the 960 px hero copy (`<sha>-w960.webp`), the 480 px card copy (`spot-photos/<spot>/<sha>-w480.webp`) and the 144 px pin copy (`<sha>-w144.webp`) of every
 // spot_photos row that has none yet. Cards and Nearby rows ask for the 480 copy (lib/spots/own-photo.ts
 // spotPhotoThumbPath), map pins for the 144 copy (spotPhotoPinPath); /media/spot serves a larger one until the copy
 // exists. Host script, needs sharp. Idempotent: done keys are kept in <out>/thumbs-done.json (`<key>@w480`, `<key>@w144`).
@@ -28,6 +28,8 @@ const rows = JSON.parse(wrangler("d1", "execute", "localley-app", "--remote", "-
 let made = 0;
 // The pin copy is a centre square: the round pin face crops with object-fit: cover the same way.
 const SIZES = [
+    // Hero copy: a phone hero is 390-430 CSS px at 2-3x; the full photo is often 500-600 KB (Push AL2).
+    { width: 960, mark: (key) => `${key}@w960`, resize: { width: 960, withoutEnlargement: true }, quality: 70 },
     { width: 480, mark: (key) => `${key}@w480`, resize: { width: 480, withoutEnlargement: true }, quality: 72 },
     { width: 144, mark: (key) => `${key}@w144`, resize: { width: 144, height: 144, fit: "cover", withoutEnlargement: true }, quality: 70 },
 ];

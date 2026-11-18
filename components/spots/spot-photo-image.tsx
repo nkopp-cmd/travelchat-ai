@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { pinTone } from "@/lib/spots/pin-clusters";
+import { isOwnSpotPhotoPath, spotPhotoLoader } from "@/lib/spots/own-photo";
 import { TONE_ICONS } from "./category-tone";
 import type { PhotoGalleryResponse } from "@/lib/spots/photo-contract";
 import { earlyHeroScript, getDirectVenuePhotos, type DirectPhotoCredit, useDetailVenuePhotos, useVenuePhotos } from "./venue-photo-provider";
@@ -39,7 +40,10 @@ function PhotoImage({ photo, alt, className, sizes, priority, loading, children,
           <img alt="" hidden suppressHydrationWarning className={cn("absolute inset-0 h-full w-full", className)} />
           <script dangerouslySetInnerHTML={{ __html: earlyHeroScript(earlySpotId) }} />
         </>}
-      </> : <Image key={photo.url} src={photo.url} alt={alt} fill unoptimized sizes={sizes} priority={priority} className={className}
+      </> : <Image key={photo.url} src={photo.url} alt={alt} fill sizes={sizes} preload={priority} fetchPriority={priority ? "high" : undefined} className={className}
+        // Stored spot photos get a srcset of their 480/960/full copies (the full hero was 599 KB on phones, Push AL2);
+        // other sources stay unoptimized, as before.
+        {...(isOwnSpotPhotoPath(photo.url) ? { loader: spotPhotoLoader } : { unoptimized: true })}
         onLoad={() => setImageState({url:photo.url,status:"loaded"})} onError={() => setImageState({url:photo.url,status:"failed"})} />}
       {children}
     </div>

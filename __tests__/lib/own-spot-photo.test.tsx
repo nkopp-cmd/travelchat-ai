@@ -1,5 +1,10 @@
 // @vitest-environment node
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+vi.unmock("next/image");
+import fc from "fast-check";
+import { renderToStaticMarkup } from "react-dom/server";
+import { SpotPhotoImage } from "@/components/spots/spot-photo-image";
+import { SPOT_HERO_WIDTH, SPOT_THUMB_WIDTH, spotPhotoLoader } from "@/lib/spots/own-photo";
 import { CARD_PHOTO_WIDTH, cardGooglePhotoUrl, cardPhotoCredits, cardSpotPhotos, directSpotPhotos, isCardGooglePhotoUrl, ownSpotPhotoPath, parseStoredSpotPhotos, shortAuthor, spotPhotoPinPath, spotPhotoThumbPath, storedGooglePhotoName } from "@/lib/spots/own-photo";
 import { getDirectVenuePhotos } from "@/components/spots/venue-photo-provider";
 
@@ -138,5 +143,35 @@ describe("shortAuthor keeps the name and drops Commons boilerplate", () => {
     const [photo] = parseStoredSpotPhotos(json);
     expect(photo.author).toBe("WAHKEE");
     expect(photo.credit).toBe("WAHKEE · CC BY 4.0 · Wikimedia Commons");
+  });
+});
+
+// Push AL2: the spot hero downloaded the full photo (599 KB) on phones; Lighthouse mobile LCP was 3.3-5.1 s.
+describe("spot photo size loader", () => {
+  const copyWidth = (url: string) => Number(/-w(\d+)\.webp$/.exec(url)?.[1] ?? Infinity);
+  it("maps every requested width to the smallest stored copy that covers it, else the full photo", () => {
+    fc.assert(fc.property(fc.integer({ min: 1, max: 4096 }), (width) => {
+      const url = spotPhotoLoader({ src: own, width });
+      // Never smaller than asked (no blurry hero), and never larger than needed when a copy covers it.
+      expect(copyWidth(url)).toBeGreaterThanOrEqual(width);
+      if (width <= SPOT_THUMB_WIDTH) expect(url).toBe(own.replace(/\.webp$/, "-w480.webp"));
+      else if (width <= SPOT_HERO_WIDTH) expect(url).toBe(own.replace(/\.webp$/, "-w960.webp"));
+      else expect(url).toBe(own);
+    }));
+  });
+  it("leaves every other source unchanged", () => {
+    for (const src of ["/api/places/photo?name=x", own.replace(/\.webp$/, "-w480.webp"), "https://upload.wikimedia.org/a.jpg"]) {
+      expect(spotPhotoLoader({ src, width: 640 })).toBe(src);
+    }
+  });
+  it("server-renders the hero with a 480/960 srcset and high fetch priority; other sources stay plain", () => {
+    const hero = renderToStaticMarkup(<SpotPhotoImage photo={{ id: "p1", url: own, sourceLabel: "Own", attributions: [] }} alt="Hero" sizes="(max-width: 768px) 100vw, 1024px" priority hero />);
+    expect(hero).toMatch(/srcSet="[^"]*-w960\.webp 640w/);
+    expect(hero).toContain('fetchPriority="high"');
+    expect(hero).not.toContain('loading="lazy"');
+    const thumb = renderToStaticMarkup(<SpotPhotoImage photo={{ id: "p2", url: own, sourceLabel: "Own", attributions: [] }} alt="Thumb" sizes="(max-width: 768px) 33vw, 320px" />);
+    expect(thumb).toMatch(/srcSet="[^"]*-w480\.webp 256w/);
+    const google = renderToStaticMarkup(<SpotPhotoImage photo={{ id: "g", url: "/api/places/photo?name=x", sourceLabel: "Google", attributions: [] }} alt="G" sizes="100vw" />);
+    expect(google).not.toContain("srcSet");
   });
 });

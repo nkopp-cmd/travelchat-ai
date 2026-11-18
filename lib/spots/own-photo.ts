@@ -18,6 +18,27 @@ export function spotPhotoThumbPath(src: string): string {
   return /^\/media\/spot\/[0-9a-f-]{36}\/[0-9a-f]{64}\.webp$/.test(src) ? src.replace(/\.webp$/, `-w${SPOT_THUMB_WIDTH}.webp`) : src;
 }
 
+/** Width of the hero copy (`<sha>-w960.webp`). */
+export const SPOT_HERO_WIDTH = 960;
+
+const FULL_SPOT_PHOTO = /^\/media\/spot\/[0-9a-f-]{36}\/[0-9a-f]{64}\.webp$/;
+
+/** True for a stored full spot photo path, the only source the size loader may rewrite. */
+export function isOwnSpotPhotoPath(src: string): boolean {
+  return FULL_SPOT_PHOTO.test(src);
+}
+
+/**
+ * next/image loader for stored spot photos: the browser picks from srcset widths, and each width maps to the smallest
+ * stored copy that covers it (480, 960, else the full photo). Other URLs are returned unchanged.
+ */
+export function spotPhotoLoader({ src, width }: { src: string; width: number }): string {
+  if (!FULL_SPOT_PHOTO.test(src)) return src;
+  if (width <= SPOT_THUMB_WIDTH) return src.replace(/\.webp$/, `-w${SPOT_THUMB_WIDTH}.webp`);
+  if (width <= SPOT_HERO_WIDTH) return src.replace(/\.webp$/, `-w${SPOT_HERO_WIDTH}.webp`);
+  return src;
+}
+
 /** Width of the pin copy (`<sha>-w144.webp`): a pin face is 44 px, so 144 px stays sharp at 3x density. */
 export const SPOT_PIN_WIDTH = 144;
 

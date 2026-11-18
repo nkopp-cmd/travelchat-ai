@@ -133,7 +133,7 @@ VITEST_FILES=(
   __tests__/api/place-photo-fallback.test.ts
   __tests__/lib/hero-card-place.test.ts
   __tests__/lib/spot-photos.test.ts
-  __tests__/lib/own-spot-photo.test.ts
+  __tests__/lib/own-spot-photo.test.tsx
   __tests__/lib/spots-d1-backend.test.ts
   __tests__/api/process-social-submissions-route.test.ts
   __tests__/lib/d1-rpc.test.ts
@@ -463,7 +463,7 @@ ESLINT_FILES=(
   app/api/places/photo/route.ts
   __tests__/api/place-photo-fallback.test.ts
   lib/spots/own-photo.ts
-  __tests__/lib/own-spot-photo.test.ts
+  __tests__/lib/own-spot-photo.test.tsx
   lib/itineraries/grounded-generation.ts
   __tests__/lib/itinerary-grounded-generation.test.ts
   lib/llm/provider-probe.ts
