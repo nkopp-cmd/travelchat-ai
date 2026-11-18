@@ -82,3 +82,9 @@ test("owned audience = confirmed Localley newsletter subscribers, own addresses 
   assert.equal(summarize({ ...base, subscribers: [] }, now).owned_audience, 0);
   assert.equal(summarize({ ...base, subscribers: null }, now).owned_audience, null);
 });
+
+test("notes show the last counted event day; a failed read stays unknown", () => {
+  const out = summarize({ users, sessions: [], subscriptions: [], funnel: [], lastEvent: { funnel: "2026-10-30", cards: null } }, now);
+  assert.match(out.notes, /last counted event day \(UTC; own checks are not counted\): funnel 2026-10-30, spot cards unknown;/);
+  assert.match(summarize({ users, sessions: [], subscriptions: [], funnel: [] }, now).notes, /funnel unknown, spot cards unknown;/);
+});

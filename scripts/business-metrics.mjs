@@ -42,7 +42,7 @@ const at = (value) => {
 const within = (value, from, to) => { const ms = at(value); return ms !== null && ms >= from && ms < to; };
 
 /** Pure: rows from the two databases -> the probe line. */
-export function summarize({ users, sessions, subscriptions, funnel, links = [], ugc = [], rankings = [], viral = null, subscribers = null }, now = Date.now()) {
+export function summarize({ users, sessions, subscriptions, funnel, links = [], ugc = [], rankings = [], viral = null, subscribers = null, lastEvent = null }, now = Date.now()) {
   const from30 = now - 30 * DAY;
   const internal = new Set(users.filter((u) => isInternal(u.email)).map((u) => u.id));
   for (const l of links) if (internal.has(l.authUserId)) internal.add(l.ownerId); // legacy rows carry the owner id
@@ -80,7 +80,10 @@ export function summarize({ users, sessions, subscriptions, funnel, links = [], 
     owned_audience: audience ? audience.confirmed : null,
     in_person_30d: null,
     notes: `paying = active/past_due Pro/Premium Stripe subscriptions now (D1 legacy_subscriptions, own accounts excluded); `
-      + `checkout_paid funnel events 30d: ${paid30}; revenue/prev/repeat null: Stripe key is a Worker secret only and D1 keeps no invoice history; `
+      + `checkout_paid funnel events 30d: ${paid30}; `
+      // Push AN2: the last day the collector counted anything, so "beacons broken" and "no visitors" look different.
+      + `last counted event day (UTC; own checks are not counted): funnel ${lastEvent?.funnel ?? "unknown"}, spot cards ${lastEvent?.cards ?? "unknown"}; `
+      + `revenue/prev/repeat null: Stripe key is a Worker secret only and D1 keeps no invoice history; `
       + `proprietary = ${events ? `${events.length} viral events + ${places} resolved places` : "viral archive missing"} + ${ranked} weekly rankings; `
       + `ugc = questions/answers/reviews/tips/social submissions; owned_audience = ${audience
         ? `confirmed Localley newsletter subscribers, own addresses excluded (${audience.signups30} signups 30d)` : "null: newsletter table unreadable"}; in_person null: no in-person service`,
@@ -106,7 +109,8 @@ async function select(database, sql, auth) {
 
 async function main() {
   const auth = token();
-  const [users, sessions, funnel, subscriptions, links, ugc, rankings, subscribers] = await Promise.all([
+  const lastDay = (table) => select(AUTH_DB, `SELECT max(day) AS day FROM ${table}`, auth).then((r) => r[0]?.day ?? null, () => null);
+  const [users, sessions, funnel, subscriptions, links, ugc, rankings, subscribers, funnelDay, cardsDay] = await Promise.all([
     select(AUTH_DB, "SELECT id, email, createdAt FROM user", auth),
     select(AUTH_DB, "SELECT userId, updatedAt FROM session WHERE updatedAt >= strftime('%Y-%m-%dT%H:%M:%fZ','now','-31 days')", auth),
     select(AUTH_DB, "SELECT day, step, count FROM funnel_events_daily WHERE step = 'checkout_paid'", auth),
@@ -117,9 +121,10 @@ async function main() {
     select(APP_DB, "SELECT created_at FROM weekly_city_spot_rankings", auth),
     // Unknown (null), not zero, when the table is not there yet or the read fails.
     select(APP_DB, "SELECT email, status, created_at FROM newsletter_subscribers", auth).catch(() => null),
+    lastDay("funnel_events_daily"), lastDay("spot_card_events_daily"),
   ]);
   const viral = existsSync(VIRAL_STATE) ? JSON.parse(readFileSync(VIRAL_STATE, "utf8")) : null;
-  process.stdout.write(`${JSON.stringify(summarize({ users, sessions, subscriptions, funnel, links, ugc, rankings, viral, subscribers }))}\n`);
+  process.stdout.write(`${JSON.stringify(summarize({ users, sessions, subscriptions, funnel, links, ugc, rankings, viral, subscribers, lastEvent: { funnel: funnelDay, cards: cardsDay } }))}\n`);
 }
 
 // realpath: the probe also runs through symlinked checkouts, where argv[1] is not the resolved module path.
