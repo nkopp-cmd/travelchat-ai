@@ -9,9 +9,12 @@
 //
 // Only pages with `initialRevalidateSeconds: false` qualify: they change only
 // on deploy, and the HTML ships in the same asset upload as its hashed chunks.
-// The bytes are copied unchanged, scripts included; never transform them.
+// The bytes are copied unchanged, scripts included. The one exception is "/"
+// (CRITICAL_CSS_PAGES): its render-blocking stylesheets are replaced by inlined
+// critical CSS plus async full sheets (inlineCriticalCss below).
 import assert from "node:assert/strict";
-import { copyFile, mkdir, readFile } from "node:fs/promises";
+import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
+import Beasties from "beasties";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { blogSlugs } from "./blog-index.mjs";
@@ -35,6 +38,46 @@ export const STATIC_PUBLIC_PAGES = {
   ...Object.fromEntries(blogSlugs().map((slug) => [`/blog/${slug}`, `blog/${slug}.html`])),
 };
 
+/**
+ * Pages whose HTML gets inlined critical CSS (Push AL3, home LCP). The 25 KB gzip global sheet blocked the first
+ * paint for one extra round trip: Lighthouse mobile LCP 2.1 s with the hero image already at fetchpriority high.
+ * Only "/" for now: it is the landing page and the one measured; other pages keep the exact bytes.
+ */
+export const CRITICAL_CSS_PAGES = new Set(["/"]);
+
+const STYLESHEET_LINK = /<link\b[^>]*\brel="stylesheet"[^>]*>/g;
+const hrefOf = (tag) => /\bhref="([^"]+)"/.exec(tag)?.[1] ?? null;
+const isBlocking = (tag) => !/\bmedia="print"/.test(tag);
+
+/**
+ * Inline the CSS rules the page uses and load every full stylesheet without blocking the first paint
+ * (media="print" + onload, a <noscript> fallback). Sheets under 8 KB are inlined whole: the rule filter drops the
+ * [data-localley-design=borderless] token block on <html>, which left buttons and pills without colours.
+ * Every original stylesheet keeps an async <link> with the same href, so React finds the resource on hydration and
+ * does not insert (and wait for) a blocking copy.
+ */
+export async function inlineCriticalCss(html, assetsDir) {
+  const before = (html.match(STYLESHEET_LINK) ?? []).map(hrefOf).filter(Boolean);
+  if (!before.length) return html;
+  const beasties = new Beasties({
+    path: assetsDir, publicPath: "/", preload: "media", inlineThreshold: 8192, pruneSource: false,
+    reduceInlineStyles: false, mergeStylesheets: true, inlineFonts: false, preloadFonts: false, logLevel: "warn",
+  });
+  // Beasties marks the root it worked on; the attribute is not ours and React would see an extra attribute on <html>.
+  let out = (await beasties.process(html)).replace(/ data-beasties-container(?:="")?/g, "");
+  const head = out.slice(0, out.indexOf("</head>"));
+  const asyncLinks = (head.replace(/<noscript>[\s\S]*?<\/noscript>/g, "").match(STYLESHEET_LINK) ?? []);
+  const missing = before.filter((href) => !asyncLinks.some((tag) => hrefOf(tag) === href));
+  if (missing.length) {
+    const tags = missing.map((href) => `<link rel="stylesheet" href="${href}" data-precedence="next" media="print" onload="this.media='all'">`).join("");
+    out = out.replace("</head>", `${tags}</head>`);
+  }
+  const final = out.slice(0, out.indexOf("</head>")).replace(/<noscript>[\s\S]*?<\/noscript>/g, "").match(STYLESHEET_LINK) ?? [];
+  assert.ok(final.every((tag) => !isBlocking(tag)), "a stylesheet still blocks the first paint");
+  assert.match(out, /<style>[^<]+<\/style>/, "no critical CSS was inlined");
+  return out;
+}
+
 export function assertStaticPrerender(route, manifest, html) {
   const entry = manifest.routes?.[route];
   assert.ok(entry, `${route} is not prerendered`);
@@ -54,8 +97,13 @@ export async function packageStaticPublicHtml(root = process.cwd()) {
     const source = path.join(app, file);
     assertStaticPrerender(route, manifest, await readFile(source, "utf8"));
     await mkdir(path.dirname(path.join(assets, file)), { recursive: true });
-    await copyFile(source, path.join(assets, file));
-    copied.push(`${route} -> ${file}`);
+    if (CRITICAL_CSS_PAGES.has(route)) {
+      await writeFile(path.join(assets, file), await inlineCriticalCss(await readFile(source, "utf8"), assets));
+      copied.push(`${route} -> ${file} (critical CSS)`);
+    } else {
+      await copyFile(source, path.join(assets, file));
+      copied.push(`${route} -> ${file}`);
+    }
   }
   return copied;
 }
