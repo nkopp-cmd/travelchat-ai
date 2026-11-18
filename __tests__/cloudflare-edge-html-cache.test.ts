@@ -1,5 +1,6 @@
+import { readdirSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
-import { EDGE_AUTH_REDIRECTS, EDGE_CACHE_HEADER, edgeTtlSeconds, isEdgeCacheable, serveWithEdgeCache } from "@/cloudflare/opennext/edge-html-cache";
+import { APP_TOP_LEVEL_NAMES, EDGE_AUTH_REDIRECTS, EDGE_CACHE_HEADER, edgeTtlSeconds, isEdgeCacheable, isUnknownPagePath, serveWithEdgeCache } from "@/cloudflare/opennext/edge-html-cache";
 import { GENERATED_PREVIEW_PATH } from "@/lib/trips/generated-preview";
 import { PLANNER_RESUME_PATH } from "@/lib/trips/planner-draft";
 import { checkoutSignUpUrl } from "@/lib/pricing-checkout";
@@ -402,5 +403,74 @@ describe("stored spot photos at the edge (hero LCP)", () => {
     await serve(new Request(`${base}.webp`), cache, async () => new Response("x", { headers: { "content-type": "image/webp", "cache-control": immutable, "set-cookie": "a=1" } }));
     await serve(new Request(`${base}.webp`), cache, async () => html({ "cache-control": immutable }));
     expect(cache.put).not.toHaveBeenCalled();
+  });
+});
+
+describe("unknown paths share one 404 entry (Push AM5)", () => {
+  const notFound = (headers: Record<string, string> = {}) => vi.fn(async () => new Response("<html>404</html>", {
+    status: 404,
+    headers: { "content-type": "text/html; charset=utf-8", "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate", ...headers },
+  }));
+
+  it("lists exactly the top-level names under app/, so no route is mistaken for an unknown path", () => {
+    expect([...APP_TOP_LEVEL_NAMES].sort()).toEqual(readdirSync("app").sort());
+  });
+
+  it("renders the 404 once, then serves every unknown path from the same entry with status 404", async () => {
+    const cache = memoryCache();
+    const handler = notFound();
+    const first = await serve(new Request("https://www.localley.io/nope-xyz"), cache, handler);
+    expect(first.status).toBe(404);
+    expect(first.headers.get(EDGE_CACHE_HEADER)).toBe("MISS");
+    expect(await first.text()).toBe("<html>404</html>");
+    for (const path of ["/nope-xyz", "/wp-login.php", "/cities/seoul", "/a/b/c"]) {
+      const hit = await serve(new Request(`https://www.localley.io${path}`), cache, handler);
+      expect(hit.status).toBe(404);
+      expect(hit.headers.get(EDGE_CACHE_HEADER)).toBe("HIT");
+      expect(hit.headers.get("cache-control")).toBe("private, no-cache, no-store, max-age=0, must-revalidate");
+      expect(hit.headers.has("x-localley-origin-status")).toBe(false);
+      expect(await hit.text()).toBe("<html>404</html>");
+    }
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect([...cache.store.keys()]).toEqual(["https://www.localley.io/__not-found?__edge=v1"]);
+  });
+
+  it("re-renders after a deploy (the key carries the version)", async () => {
+    const cache = memoryCache();
+    const handler = notFound();
+    await serve(new Request("https://www.localley.io/nope"), cache, handler, "v1");
+    await serve(new Request("https://www.localley.io/nope"), cache, handler, "v2");
+    expect(handler).toHaveBeenCalledTimes(2);
+  });
+
+  it("never stores a non-404, a cookie answer or a non-HTML body", async () => {
+    const cache = memoryCache();
+    await serve(new Request("https://www.localley.io/nope"), cache, async () => html());
+    await serve(new Request("https://www.localley.io/nope"), cache, notFound({ "set-cookie": "a=1" }));
+    await serve(new Request("https://www.localley.io/nope"), cache, notFound({ "content-type": "application/json" }));
+    expect(cache.put).not.toHaveBeenCalled();
+  });
+
+  it("leaves app routes, queries, the apex host, sessions, framework paths, RSC and non-GET to the Worker", () => {
+    const req = (url: string, init?: RequestInit) => new Request(url, init);
+    expect(isUnknownPagePath(req("https://www.localley.io/nope-xyz"))).toBe(true);
+    for (const request of [
+      req("https://www.localley.io/"),
+      req("https://www.localley.io/spots/nope"),
+      req("https://www.localley.io/dashboard"),
+      req("https://www.localley.io/blog/x"),
+      req("https://www.localley.io/nope?error=TOKEN_EXPIRED"),
+      req("https://localley.io/nope"),
+      req("https://localley.nkopp.workers.dev/nope"),
+      req("https://www.localley.io/nope", { headers: { cookie: "__Secure-better-auth.session_token=abc.def" } }),
+      req("https://www.localley.io/_next/static/x.js"),
+      req("https://www.localley.io/cdn-cgi/trace"),
+      req("https://www.localley.io/.well-known/x"),
+      req("https://www.localley.io/nope", { headers: { rsc: "1" } }),
+      req("https://www.localley.io/nope", { method: "POST" }),
+    ]) {
+      expect(isUnknownPagePath(request), request.url).toBe(false);
+    }
+    expect(isUnknownPagePath(req("https://www.localley.io/nope", { headers: { cookie: "theme=dark" } }))).toBe(true);
   });
 });

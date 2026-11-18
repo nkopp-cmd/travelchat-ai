@@ -16,6 +16,7 @@
  * pin index ("/api/spots/pins", unfiltered or one enabled city) with its per-pin cards.
  */
 import { ENABLED_CITIES } from "../../lib/cities";
+import { SESSION_COOKIE_NAMES } from "../../lib/auth/session-cookie";
 
 // Seconds each path stays at the edge. Prerenders change only on deploy; the
 // spots catalog is live data, so it refreshes every few minutes.
@@ -197,6 +198,67 @@ function storable(request: Request, response: Response): boolean {
     && type.startsWith(expected);
 }
 
+// Push AM5: unknown paths. Every top-level name under app/ (a route, a metadata file or a non-route file) is listed
+// here; a path whose first segment is not in this set can only render app/not-found.tsx, a static prerender that is
+// the same HTML for every path. So all of them share ONE entry per Worker version (bots cannot grow the key set).
+// Before this the 404 ran the full Worker render on every hit (warm TTFB ~200 ms). A test keeps this set equal to app/.
+export const APP_TOP_LEVEL_NAMES: ReadonlySet<string> = new Set([
+  "admin", "android-chrome-192x192.png", "android-chrome-512x512.png", "api", "apple-icon.png", "apple-touch-icon.png",
+  "blog", "challenges", "chat", "community", "credits", "dashboard", "explore", "favicon-16x16.png", "favicon-32x32.png",
+  "favicon.ico", "forgot-password", "globals.css", "guide", "help", "icon.png", "itineraries", "layout.tsx",
+  "leaderboard", "media", "newsletter", "not-found.tsx", "og", "page.tsx", "pricing", "privacy", "profile",
+  "reset-password", "settings", "shared", "sign-in", "sign-up", "sitemap.xml", "sitemaps", "spots", "templates",
+  "terms", "trending", "users", "verified",
+]);
+const NOT_FOUND_TTL_SECONDS = 86400;
+const ORIGIN_STATUS = "x-localley-origin-status";
+
+/**
+ * A plain GET whose first path segment no app route owns. Excluded, so the middleware still runs for them: queries
+ * (verify-link ?error= redirect), the apex host (301 to www), signed-in visitors (account hint cookie), framework
+ * paths ("_next", "cdn-cgi" and other "_"/dot names) and RSC/prefetch requests.
+ */
+export function isUnknownPagePath(request: Request): boolean {
+  if (request.method !== "GET") return false;
+  const url = new URL(request.url);
+  if (url.search || url.hostname !== "www.localley.io") return false;
+  const segment = url.pathname.split("/")[1] ?? "";
+  if (!segment || APP_TOP_LEVEL_NAMES.has(segment) || /^[_.]|^cdn-cgi$/.test(segment)) return false;
+  if (hasCookie(request, SESSION_COOKIE_NAMES)) return false;
+  for (const name of request.headers.keys()) {
+    if (name === "rsc" || name.startsWith("next-router-")) return false;
+  }
+  return true;
+}
+
+async function serveNotFound(request: Request, version: string, cache: EdgeCache, waitUntil: (promise: Promise<unknown>) => void, handler: Handler) {
+  const key = new Request(`${new URL(request.url).origin}/__not-found?__edge=${encodeURIComponent(version)}`);
+  const hit = await cache.match(key);
+  if (hit) {
+    const headers = new Headers(hit.headers);
+    headers.set("cache-control", headers.get(ORIGIN_CACHE_CONTROL) ?? "no-store");
+    headers.delete(ORIGIN_CACHE_CONTROL);
+    headers.delete(ORIGIN_STATUS);
+    headers.set(EDGE_CACHE_HEADER, "HIT");
+    return new Response(hit.body, { status: 404, headers });
+  }
+  const rendered = await handler(request);
+  // Only the real not-found page: a 404 HTML without cookies. Anything else (a route added without updating the set,
+  // an error page) goes to the visitor as is and is never shared.
+  if (rendered.status !== 404 || rendered.headers.has("set-cookie") || !(rendered.headers.get("content-type") ?? "").startsWith("text/html")) {
+    return rendered;
+  }
+  // Stored as 200 with the real status in a header: the Cache API stays out of status-specific rules.
+  const stored = new Response(rendered.clone().body, { status: 200, headers: rendered.headers });
+  stored.headers.set(ORIGIN_STATUS, "404");
+  stored.headers.set(ORIGIN_CACHE_CONTROL, rendered.headers.get("cache-control") ?? "");
+  stored.headers.set("cache-control", `public, s-maxage=${NOT_FOUND_TTL_SECONDS}`);
+  waitUntil(cache.put(key, stored).catch(() => undefined));
+  const response = new Response(rendered.body, rendered);
+  response.headers.set(EDGE_CACHE_HEADER, "MISS");
+  return response;
+}
+
 export async function serveWithEdgeCache(
   request: Request,
   version: string | undefined,
@@ -206,6 +268,7 @@ export async function serveWithEdgeCache(
   // Rewrites a fresh spot detail HTML before it is stored and sent (critical CSS); the cached copy keeps the result.
   rewriteSpotHtml?: (response: Response) => Promise<Response>,
 ): Promise<Response> {
+  if (version && isUnknownPagePath(request)) return serveNotFound(request, version, cache, waitUntil, handler);
   if (!version || !isEdgeCacheable(request)) return handler(request);
   const key = edgeCacheKey(request, version);
   const hit = await cache.match(key);
