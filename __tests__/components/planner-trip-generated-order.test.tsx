@@ -55,6 +55,18 @@ describe("trip_generated beacon order (AA3)", () => {
     expect(order.indexOf(`beacon:${generated}`)).toBeLessThan(order.indexOf(`push:${GENERATED_PREVIEW_PATH}`));
   });
 
+  it("tags trip_generated with the spots source when the planner was opened from a spot (?spot=)", async () => {
+    window.history.replaceState(null, "", "/itineraries/new?spot=0022dc9c-5f13-41fd-9940-38a190795704&city=Tokyo");
+    try {
+      render(<ItineraryWizard initialCities={cities} />);
+      fireEvent.click(screen.getByRole("button", { name: /Tokyo/ }));
+      fireEvent.click(screen.getByRole("button", { name: getQuickStartLabel(3) }));
+      await waitFor(() => expect(nav.push).toHaveBeenCalledWith(GENERATED_PREVIEW_PATH));
+      const bodies = await Promise.all(beacons.map(async (beacon) => JSON.parse(await beacon.body)));
+      expect(bodies.filter((body) => body.funnel?.[0]?.step === "trip_generated")).toEqual([{ funnel: [{ step: "trip_generated", source: "spots" }] }]);
+    } finally { window.history.replaceState(null, "", "/"); }
+  });
+
   it("falls back to a keepalive fetch, still before the push, when sendBeacon refuses", async () => {
     (navigator.sendBeacon as ReturnType<typeof vi.fn>).mockImplementation(() => false);
     const fetcher = fetch as unknown as ReturnType<typeof vi.fn>;
