@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 // @ts-expect-error -- plain ESM build script without type declarations
-import { assertStaticPrerender, HELP_COUNTRY_SLUGS, packageStaticPublicHtml, STATIC_PUBLIC_PAGES } from "../scripts/cf-static-public-html.mjs";
+import { assertStaticPrerender, HELP_COUNTRY_SLUGS, inlineCriticalCss, packageStaticPublicHtml, STATIC_PUBLIC_PAGES } from "../scripts/cf-static-public-html.mjs";
 import { HELP_COUNTRIES } from "../lib/help/phrases";
 import { BLOG_POSTS } from "../lib/blog/posts";
 
@@ -47,7 +47,7 @@ describe("static public HTML assets", () => {
   it("copies the exact prerendered bytes, scripts included", async () => {
     const all = Object.fromEntries(Object.keys(STATIC_PUBLIC_PAGES).map((r) => [r, route(false)]));
     const dir = await buildTree(all);
-    expect(await packageStaticPublicHtml(dir)).toEqual(Object.entries(STATIC_PUBLIC_PAGES).map(([r, f]) => `${r} -> ${f}`));
+    expect(await packageStaticPublicHtml(dir)).toEqual(Object.entries(STATIC_PUBLIC_PAGES).map(([r, f]) => `${r} -> ${f}${r === "/" ? " (critical CSS)" : ""}`));
     for (const file of Object.values(STATIC_PUBLIC_PAGES) as string[]) {
       expect(await readFile(path.join(dir, ".open-next", "assets", file), "utf8")).toBe(page);
     }
@@ -64,5 +64,37 @@ describe("static public HTML assets", () => {
     const manifest = { routes: { "/": route(false) } };
     expect(() => assertStaticPrerender("/", manifest, page.slice(0, -7))).toThrow(/incomplete/);
     expect(() => assertStaticPrerender("/", manifest, page.replace("<script ", '<script nonce="abc" '))).toThrow(/nonce/);
+  });
+
+  it("home: inlines the used rules and loads every full sheet without blocking the first paint", async () => {
+    root = await mkdtemp(path.join(tmpdir(), "critical-css-"));
+    const chunks = path.join(root, "_next", "static", "chunks");
+    await mkdir(chunks, { recursive: true });
+    // Big sheet (> 8 KB): filtered to used rules. Small sheet: inlined whole, even rules on selectors the filter misses.
+    const filler = Array.from({ length: 400 }, (_, i) => `.unused-${i}{color:red}`).join("");
+    await writeFile(path.join(chunks, "big.css"), `.hero{color:#fff}.not-here{color:red}${filler}`);
+    await writeFile(path.join(chunks, "small.css"), "[data-localley-design=borderless]{--ll-raised:1 2 3}.btn{color:blue}");
+    const html = '<!DOCTYPE html><html lang="en" data-localley-design="borderless"><head>'
+      + '<link rel="stylesheet" href="/_next/static/chunks/big.css" data-precedence="next"/>'
+      + '<link rel="stylesheet" href="/_next/static/chunks/small.css" data-precedence="next"/>'
+      + '<script src="/_next/static/chunks/a.js" async=""></script></head><body><h1 class="hero">Hi</h1><a class="btn">Go</a>'
+      + '<script>self.__next_f.push([1,"x"])</script></body></html>';
+    const out: string = await inlineCriticalCss(html, root);
+    const style = /<style>([\s\S]*?)<\/style>/.exec(out)?.[1] ?? "";
+    expect(style).toContain(".hero{color:#fff}");
+    expect(style).not.toContain("not-here");
+    expect(style).not.toContain("unused-1");
+    expect(style).toContain("--ll-raised:1 2 3");
+    const head = out.slice(0, out.indexOf("</head>")).replace(/<noscript>[\s\S]*?<\/noscript>/g, "");
+    const links = head.match(/<link\b[^>]*rel="stylesheet"[^>]*>/g) ?? [];
+    expect(links.map((l) => /href="([^"]+)"/.exec(l)?.[1]).sort()).toEqual(["/_next/static/chunks/big.css", "/_next/static/chunks/small.css"]);
+    for (const link of links) expect(link).toMatch(/media="print"/);
+    expect(out).toContain('self.__next_f.push([1,"x"])');
+    expect(out).toMatch(/<script src="\/_next\/static\/chunks\/a\.js" async(="")?><\/script>/);
+    expect(out).not.toContain("beasties");
+  });
+
+  it("home: a page without stylesheets stays unchanged", async () => {
+    expect(await inlineCriticalCss(page, tmpdir())).toBe(page);
   });
 });

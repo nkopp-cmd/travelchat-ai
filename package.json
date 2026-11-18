@@ -105,6 +105,7 @@
     "@types/web-push": "^3.6.4",
     "@vitejs/plugin-react": "^5.1.1",
     "autoprefixer": "^10.4.22",
+    "beasties": "^0.5.5",
     "dotenv": "^17.2.3",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
