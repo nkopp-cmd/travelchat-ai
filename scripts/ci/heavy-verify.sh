@@ -155,6 +155,7 @@ VITEST_FILES=(
   __tests__/api/source-owner-readers.test.ts
   __tests__/lib/source-lifetime-authority.test.ts
   __tests__/lib/usage-tracking-atomic.test.ts
+  __tests__/lib/quota-math.property.test.ts
   __tests__/lib/stripe-live-session.test.ts
   __tests__/api/subscription-webhook-live.test.ts
   __tests__/lib/stripe-customer-ownership.test.ts
@@ -495,6 +496,7 @@ ESLINT_FILES=(
   scripts/d1-migration/atomic-usage-proof.mjs
   lib/usage-tracking.ts
   __tests__/lib/usage-tracking-atomic.test.ts
+  __tests__/lib/quota-math.property.test.ts
   __tests__/lib/stripe-live-session.test.ts
   __tests__/api/subscription-webhook-live.test.ts
   lib/stripe.ts

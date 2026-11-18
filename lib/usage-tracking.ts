@@ -41,9 +41,9 @@ const usageTypeConfig: Record<UsageType, { limitKey: keyof typeof TIER_CONFIGS.f
     spots_saved: { limitKey: "savedSpotsLimit", periodType: "monthly" },
 };
 
-// Get period start date based on period type
-function getPeriodStart(periodType: PeriodType): string {
-    const now = new Date();
+// Get period start date based on period type (exported for the quota property tests)
+export function getPeriodStart(periodType: PeriodType, at: Date = new Date()): string {
+    const now = new Date(at.getTime());
 
     switch (periodType) {
         case "daily":
@@ -62,8 +62,8 @@ function getPeriodStart(periodType: PeriodType): string {
 }
 
 // Get period end date (for reset display)
-function getPeriodEnd(periodType: PeriodType): string {
-    const now = new Date();
+export function getPeriodEnd(periodType: PeriodType, at: Date = new Date()): string {
+    const now = new Date(at.getTime());
 
     switch (periodType) {
         case "daily":
@@ -124,7 +124,7 @@ function validUsageInteger(value: number, minimum: number): boolean {
     return Number.isSafeInteger(value) && value >= minimum && value <= 2_147_483_647;
 }
 
-function parseAtomicUsage(data: unknown, limit: number): AtomicUsageResult {
+export function parseAtomicUsage(data: unknown, limit: number): AtomicUsageResult {
     const row = Array.isArray(data) ? (data.length === 1 ? data[0] : null) : data;
     if (!row || typeof row !== "object" || typeof row.allowed !== "boolean"
         || !validUsageInteger(row.new_count, 0) || typeof row.was_at_limit !== "boolean"
