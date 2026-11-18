@@ -174,6 +174,7 @@ VITEST_FILES=(
   __tests__/components/itinerary-edit-candidate-form.test.tsx
   __tests__/api/itinerary-export-candidate.test.ts
   __tests__/api/itinerary-share-d1.test.ts
+  __tests__/api/itinerary-export-d1.test.ts
   __tests__/lib/app-data-preview-itinerary-export.test.ts
   __tests__/app/itinerary-detail-candidate-page.test.tsx
   __tests__/api/generate-v2-stream-route.test.ts
@@ -528,6 +529,7 @@ ESLINT_FILES=(
   __tests__/api/itinerary-export-candidate.test.ts
   "app/api/itineraries/[id]/share/route.ts"
   __tests__/api/itinerary-share-d1.test.ts
+  __tests__/api/itinerary-export-d1.test.ts
   __tests__/lib/app-data-preview-itinerary-export.test.ts
   "app/itineraries/[id]/page.tsx"
   __tests__/app/itinerary-detail-candidate-page.test.tsx

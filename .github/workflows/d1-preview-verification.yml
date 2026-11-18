@@ -427,6 +427,7 @@ on:
       - '__tests__/api/itinerary-export-candidate.test.ts'
       - 'app/api/itineraries/[id]/share/route.ts'
       - '__tests__/api/itinerary-share-d1.test.ts'
+      - '__tests__/api/itinerary-export-d1.test.ts'
       - 'app/api/itineraries/[id]/route.ts'
       - 'app/api/itineraries/save/route.ts'
       - 'app/itineraries/(list)/**'
