@@ -417,7 +417,8 @@ export function ItineraryWizard({ initialData, initialStep, initialCities = null
       throw new Error(errorMessage || (typeof result.error === "string" ? result.error : "Failed to generate itinerary"));
     }
 
-    trackFunnelStep("trip_generated", "direct");
+    // Same coarse source as planner_start (push AJ3: a spot-led plan counted as "direct").
+    trackFunnelStep("trip_generated", funnelSource(document.referrer, location.origin, location.search));
     // Free generation is a full readable browser preview. Saving is a separate paid action.
     if (result.isAnonymous || result.requiresSaveUpgrade) {
       // Same id as the server copy (HttpOnly cookie), so a cold return from sign-up or checkout renders it in HTML.
