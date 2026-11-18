@@ -88,6 +88,10 @@ const EDGE_SPOTS_VIEWS = new Set(["map", "list"]);
 // resume, a pricing plan -> Stripe). The server HTML differs per redirect (headline + form links), so the key
 // carries the exact value; any other redirect stays uncached, which keeps the key set at 2 x 6 entries.
 const AUTH_PATHS = new Set(["/sign-up", "/sign-in"]);
+// Pages whose server HTML ignores the query: the client reads it after hydration (the planner renders step 0
+// for everyone; ?spot=, ?city=, ?template=, ?resume= pick the step in the browser). Every query variant
+// shares the plain-path entry, and a miss renders the plain path, so no query value lands in the shared HTML.
+const QUERY_FREE_PATHS = new Set(["/itineraries/new"]);
 export const EDGE_AUTH_REDIRECTS: ReadonlySet<string> = new Set([
   "/itineraries/preview",
   "/itineraries/new?resume=1",
@@ -134,7 +138,7 @@ export function isEdgeCacheable(request: Request): boolean {
 
 function cacheableQuery(url: URL): boolean {
   if (url.pathname === "/api/cities") return url.search === "?minSpots=1";
-  if (!url.search) return true;
+  if (!url.search || QUERY_FREE_PATHS.has(url.pathname)) return true;
   if (AUTH_PATHS.has(url.pathname)) {
     const keys = [...url.searchParams.keys()];
     return keys.length === 1 && keys[0] === "redirect_url" && EDGE_AUTH_REDIRECTS.has(url.searchParams.get("redirect_url") ?? "");
@@ -155,6 +159,7 @@ function cacheableQuery(url: URL): boolean {
 
 export function edgeCacheKey(request: Request, version: string): Request {
   const url = new URL(request.url);
+  if (QUERY_FREE_PATHS.has(url.pathname)) return new Request(`${url.origin}${url.pathname}?__edge=${encodeURIComponent(version)}`);
   const city = url.searchParams.get("city");
   const view = url.searchParams.get("view");
   const redirect = AUTH_PATHS.has(url.pathname) ? url.searchParams.get("redirect_url") : null;
@@ -194,7 +199,10 @@ export async function serveWithEdgeCache(
     response.headers.delete(ORIGIN_CACHE_CONTROL);
     return response;
   }
-  const fresh = await handler(request);
+  const url = new URL(request.url);
+  const fresh = await handler(QUERY_FREE_PATHS.has(url.pathname) && url.search
+    ? new Request(`${url.origin}${url.pathname}`, request)
+    : request);
   if (!storable(request, fresh)) return fresh;
   const stored = new Response(fresh.clone().body, fresh);
   // The Cache API honours Cache-Control on put; visitors still get Next's own header.

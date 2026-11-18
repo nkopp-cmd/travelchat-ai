@@ -111,7 +111,7 @@ describe("public HTML edge cache", () => {
     expect(isEdgeCacheable(new Request("https://www.localley.io/trending/a/b"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=seoul"))).toBe(true);
     expect(isEdgeCacheable(new Request("https://www.localley.io/itineraries/new"))).toBe(true);
-    expect(isEdgeCacheable(new Request("https://www.localley.io/itineraries/new?city=Seoul"))).toBe(false);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/itineraries/new?city=Seoul"))).toBe(true);
     expect(isEdgeCacheable(new Request("https://www.localley.io/itineraries/preview"))).toBe(true);
     expect(isEdgeCacheable(new Request("https://www.localley.io/itineraries/preview?payment=success"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/itineraries/preview", { headers: { rsc: "1" } }))).toBe(false);
@@ -185,6 +185,30 @@ describe("public HTML edge cache", () => {
       "https://www.localley.io/spots?__edge=v1&city=tokyo",
       "https://www.localley.io/spots?__edge=v1&city=seoul&view=map",
     ]);
+  });
+
+  it("serves every planner query from one plain-path entry and never renders a query into it", async () => {
+    const cache = memoryCache();
+    const handler = vi.fn(async (request: Request) => new Response(`<html>${new URL(request.url).search}</html>`, {
+      status: 200,
+      headers: { "content-type": "text/html", "cache-control": "private, no-store" },
+    }));
+    const spot = "https://www.localley.io/itineraries/new?spot=043c722d-c213-448e-a448-9179d37506a8&city=Tokyo";
+    const first = await serve(new Request(spot), cache, handler);
+    expect(first.headers.get(EDGE_CACHE_HEADER)).toBe("MISS");
+    expect(await first.text()).toBe("<html></html>");
+    expect(new URL(handler.mock.calls[0][0].url).search).toBe("");
+    for (const query of ["", "?city=Seoul", "?resume=1", "?template=x&days=3", "?utm_source=tiktok"]) {
+      const hit = await serve(new Request(`https://www.localley.io/itineraries/new${query}`), cache, handler);
+      expect(hit.headers.get(EDGE_CACHE_HEADER)).toBe("HIT");
+      expect(hit.headers.get("cache-control")).toBe("private, no-store");
+      expect(await hit.text()).toBe("<html></html>");
+    }
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect([...cache.store.keys()]).toEqual(["https://www.localley.io/itineraries/new?__edge=v1"]);
+    const rsc = await serve(new Request(spot, { headers: { rsc: "1" } }), cache, handler);
+    expect(rsc.headers.get(EDGE_CACHE_HEADER)).toBeNull();
+    expect(handler).toHaveBeenCalledTimes(2);
   });
 
   it("caches only the planner's public city list as JSON, for five minutes", async () => {
