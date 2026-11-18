@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { PageEyebrow } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 
 // Root 404 (Push AM1). Unknown paths reach this page instead of a sign-up redirect (middleware.ts PRIVATE_SECTIONS):
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 export default function NotFound() {
   return (
     <section className="mx-auto flex min-h-[60vh] max-w-xl flex-col items-center justify-center gap-6 px-6 py-16 text-center">
-      <p className="text-sm font-semibold uppercase tracking-wide text-violet-300">404</p>
+      <PageEyebrow>Error 404</PageEyebrow>
       <h1 className="text-3xl font-bold">This page does not exist</h1>
       <p className="text-base text-muted-foreground">
         The link may be old or mistyped. You can still plan a trip with local spots in Seoul, Tokyo, Bangkok and more
