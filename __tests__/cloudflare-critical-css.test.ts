@@ -78,3 +78,27 @@ describe("spot critical CSS", () => {
     expect(rewrite).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("spot chunks start after the hero (Push AM2)", () => {
+  const hero = '<img alt="Spot" fetchPriority="high" data-nimg="fill" src="/media/spot/x.webp"/>';
+  const withChunks = (body: string) => spot.replace("<title>", '<script src="/_next/static/chunks/main.js" async=""></script><title>')
+    .replace("</body>", `${body}<script src="/_next/static/chunks/page.js" async=""></script></body>`);
+
+  it("moves the chunks and the async sheets into the post-hero loader after critical CSS", async () => {
+    const out = await (await withCriticalCss(new Response(withChunks(hero), { headers: { "content-type": "text/html" } }), critical)).text();
+    expect(out).toContain("<style>.hero{color:#fff}</style>");
+    expect(out).not.toMatch(/<script src="\/_next\/static\/chunks\/(main|page)\.js"/);
+    expect(out).not.toMatch(/media="print"/);
+    expect(out).toContain(`var S=["/_next/static/chunks/main.js","/_next/static/chunks/page.js"]`);
+    expect(out).toContain(`C=["${B}","${A}"]`);
+    expect(out).toContain(`<noscript><link rel="stylesheet" href="${B}" data-precedence="next"/>`);
+  });
+
+  it("keeps the chunks for a spot without a photo and never defers without critical CSS", async () => {
+    const noPhoto = await (await withCriticalCss(new Response(withChunks("<p>x</p>")), critical)).text();
+    expect(noPhoto).toContain('<script src="/_next/static/chunks/page.js" async=""></script>');
+    expect(noPhoto).toContain("<style>.hero{color:#fff}</style>");
+    const mismatch = withChunks(hero).replace(A, "/x.css");
+    expect(await (await withCriticalCss(new Response(mismatch), critical)).text()).toBe(mismatch);
+  });
+});
