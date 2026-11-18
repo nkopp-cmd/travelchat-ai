@@ -32,6 +32,15 @@ describe("help guide link to the free planner", () => {
     expect(renderToStaticMarkup(<HelpPlanLink countrySlug="laos" />)).toBe("");
   });
 
+  // Push AL1: the planner CTA was a grey button whose long label was cut off on phones.
+  it("renders the planner link as a primary button whose label wraps instead of truncating", () => {
+    const html = renderToStaticMarkup(<HelpPlanLink countrySlug="japan" />);
+    expect(html).toContain("bg-primary");
+    expect(html).not.toContain("bg-secondary");
+    expect(html).not.toContain("truncate");
+    expect(html).toContain("min-h-12");
+  });
+
   // Push X1: index pages in sitemaps/pages.xml had no planner link in server HTML on phones
   // (navbar "Start planning" is client-only and hidden below sm).
   it("puts a server-rendered free-planner link on /help and /trending", async () => {

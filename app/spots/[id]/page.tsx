@@ -838,9 +838,9 @@ export default async function SpotPage({
 // Planner entry (revenue push L1): plain link, add_to_trip event; the first plan is free and needs no account.
 function PlanTripButton({ spotId, href, testId, label }: { spotId: string; href: string; testId: string; label: string }) {
   return (
-    <Button asChild variant="secondary" className="h-12 w-full rounded-xl text-base" size="lg">
+    <Button asChild className="h-auto min-h-12 w-full rounded-xl py-3 text-base font-semibold shadow-sm" size="lg">
       <SpotEventLink spotId={spotId} event="add_to_trip" prefetch={false} data-testid={testId} href={href}>
-        <span className="truncate">{label}</span>
+        <span className="text-balance text-center leading-snug">{label}</span>
       </SpotEventLink>
     </Button>
   );
