@@ -19,6 +19,7 @@ VITEST_FILES=(
   __tests__/api/itinerary-save-candidate.test.ts
   __tests__/api/itinerary-update-candidate.test.ts
   __tests__/api/subscription-checkout-live.test.ts
+  __tests__/api/subscription-portal-live.test.ts
   __tests__/lib/borderless-guard.test.ts
   __tests__/components/borderless-navigation.test.tsx
   __tests__/components/lazy-toaster.test.tsx
@@ -496,6 +497,7 @@ ESLINT_FILES=(
   app/api/subscription/webhook/route.ts
   app/api/connect/webhook/route.ts
   __tests__/api/subscription-checkout-live.test.ts
+  __tests__/api/subscription-portal-live.test.ts
   __tests__/lib/stripe-customer-ownership.test.ts
   __tests__/lib/stripe-webhook-crypto.test.ts
   lib/subscription-mail.ts
