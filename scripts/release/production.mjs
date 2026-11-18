@@ -11,6 +11,7 @@ import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } fr
 import path from "node:path";
 import { carryPrevious, listFiles, replaceArchive } from "./keep-static.mjs";
 import { uploadWithRetry } from "./upload-retry.mjs";
+import { readWithRetry } from "./cf-read.mjs";
 
 const ACCOUNT = "664f242340bcec2f32daaeee15f58bde";
 const SCRIPT = "localley-next";
@@ -49,10 +50,15 @@ function run(argv, { env = process.env, capture = false } = {}) {
 async function cloudflare(pathname) {
   const token = process.env.CLOUDFLARE_API_TOKEN;
   if (!token) fail("CLOUDFLARE_API_TOKEN missing");
-  const response = await fetch(API + pathname, { headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(20_000) });
-  const body = await response.json();
-  if (!response.ok || !body.success) fail(`Cloudflare read failed: ${pathname}`);
-  return body.result;
+  try {
+    return await readWithRetry(async () => {
+      const response = await fetch(API + pathname, { headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(20_000) });
+      const body = await response.json();
+      return response.ok ? body : { success: false };
+    }, { label: pathname });
+  } catch {
+    fail(`Cloudflare read failed: ${pathname}`);
+  }
 }
 
 const activeVersions = async () => (await cloudflare("/deployments")).deployments[0].versions;
