@@ -37,12 +37,12 @@ describe("explicit planner resume", () => {
   it("keeps a card's canonical spot reference when starting a new plan", () => {
     state.query = "city=Seoul&spot=0041A575-C6FD-4A7E-B9C3-56CC50E201D6";
     render(<NewItineraryPage />);
-    expect(props()).toEqual({ initialData: { city: "Seoul", selectedSpotId: saved.selectedSpotId }, initialStep: 1, initialCities: null });
+    expect(props()).toEqual({ initialData: { city: "Seoul", selectedSpotId: saved.selectedSpotId }, initialStep: 0, initialCities: null });
   });
   it("ignores a malformed spot reference without importing it into inputs", () => {
     state.query = "city=Seoul&spot=..%2Fprivate";
     render(<NewItineraryPage />);
-    expect(props()).toEqual({ initialData: { city: "Seoul" }, initialStep: 1, initialCities: null });
+    expect(props()).toEqual({ initialData: { city: "Seoul" }, initialStep: 0, initialCities: null });
   });
   it("restores all saved inputs only on an explicit same-origin resume", () => {
     savePlannerDraft(localStorage, saved);
