@@ -199,6 +199,7 @@ VITEST_FILES=(
   __tests__/cloudflare-robots-host.test.ts
   __tests__/middleware.test.ts
   __tests__/cloudflare-static-public-html.test.ts
+  __tests__/cloudflare-critical-css.test.ts
   __tests__/app/planner-ssr-cities.test.tsx
   __tests__/app/templates-free-path.test.tsx
   __tests__/lib/auth-copy.test.ts
@@ -542,6 +543,8 @@ ESLINT_FILES=(
   cloudflare/opennext/worker.ts
   cloudflare/opennext/edge-html-cache.ts
   cloudflare/opennext/robots-host.ts
+  cloudflare/opennext/critical-css.ts
+  __tests__/cloudflare-critical-css.test.ts
   __tests__/cloudflare-edge-html-cache.test.ts
   __tests__/cloudflare-edge-cache-per-visitor-guard.test.ts
   __tests__/cloudflare-robots-host.test.ts
