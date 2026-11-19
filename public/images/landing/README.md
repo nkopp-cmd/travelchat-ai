@@ -4,7 +4,8 @@ The hero is a poster of the Localley map of Seoul (`seoul-map-v1-*`), not a
 photograph. It was rendered offline on 2026-10-22 with MapLibre GL 5.24 and
 the Localley style (`lib/maps/localley-map-style.ts`) on OpenFreeMap vector
 tiles (OpenMapTiles schema, OpenStreetMap data). Phone: 414x736 CSS px at 2x,
-centre 126.9855,37.570, zoom 11.1 -> `m-828`. Desktop: 1920x1080 at 1x, centre
+centre 126.9855,37.570, zoom 11.1 -> `m-828`, plus `m-720` (same render resized to 720 px,
+AVIF quality 42 effort 8, WebP 72; 2026-11-19, for 1.75x phones). Desktop: 1920x1080 at 1x, centre
 126.951,37.551, zoom 12.55 -> `d-1280`, `d-1920`. AVIF quality 45 and WebP
 quality 72. The pin positions in `components/landing/hero.tsx` are projected
 from the same cameras; re-render both together. Use a new versioned filename
