@@ -4,20 +4,19 @@
  * The original first-100 early adopter premium program has been retired.
  * Non-paid premium access is now limited to explicit lifetime-premium emails.
  *
- * Beta mode remains available as a global override for testing.
+ * Beta mode is retired too (Push AS1): production keeps BETA_MODE as a Worker secret whose value
+ * nobody can read back, and "true" would make every account Premium, so no one could ever pay.
+ * No environment flag grants paid access; paid tiers come only from Stripe or the lifetime list.
  */
 
-/**
- * Check if beta mode is enabled
- * When enabled, all users get premium features for testing
- */
+/** Always false: kept so callers and the status payload shape stay stable. */
 export function isBetaMode(): boolean {
-  return process.env.BETA_MODE === 'true';
+  return false;
 }
 
 /**
  * Get the effective tier for a user
- * Returns 'premium' only when beta mode is on.
+ * Returns the actual tier (beta mode is retired).
  */
 export async function getEffectiveTier(
   _userId: string,

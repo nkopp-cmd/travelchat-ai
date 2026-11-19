@@ -47,9 +47,9 @@ describe("counted preview user tier", () => {
     db.sqlite.exec("UPDATE legacy_subscriptions SET tier='invalid',status='active'");
     await expect(previewUserTier("auth-a")).rejects.toThrow("tier");
   });
-  it("keeps the beta override but requires a complete import", async () => {
+  it("BETA_MODE=true grants nothing (Push AS1) and a complete import is still required", async () => {
     vi.stubEnv("BETA_MODE", "true");
-    expect(await previewUserTier("fresh-auth")).toBe("premium");
+    expect(await previewUserTier("fresh-auth")).toBe("free");
     db.sqlite.exec("DELETE FROM legacy_profile_emails WHERE profileId='profile-a'");
     await expect(previewUserTier("fresh-auth")).rejects.toThrow("incomplete");
   });

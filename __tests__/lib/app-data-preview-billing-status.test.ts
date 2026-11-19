@@ -41,7 +41,7 @@ describe("preview billing status repository", () => {
     expect(bind.mock.calls[1]).toEqual(["owner-id", "auth:owner-id", "2026-09-01", "2026-09-29", "2026-09-28"]);
   });
 
-  it("returns the free default and retains lifetime and beta priority", async () => {
+  it("returns the free default, keeps lifetime priority and ignores BETA_MODE (Push AS1)", async () => {
     process.env = { ...originalEnvironment, BETA_MODE: "false" };
     setup();
     expect(await previewBillingStatus("owner-id", null, now)).toMatchObject({
@@ -55,7 +55,7 @@ describe("preview billing status repository", () => {
     process.env = { ...originalEnvironment, BETA_MODE: "true" };
     setup([{ tier: "free", status: "active" }]);
     expect(await previewBillingStatus("owner-id", null, now)).toMatchObject({
-      tier: "premium", status: "beta", isActive: true,
+      tier: "free", status: "active", isBetaMode: false,
     });
   });
 
