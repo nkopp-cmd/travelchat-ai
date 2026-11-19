@@ -11,6 +11,7 @@ import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } fr
 import path from "node:path";
 import { carryPrevious, listFiles, replaceArchive } from "./keep-static.mjs";
 import { uploadWithRetry } from "./upload-retry.mjs";
+import { promoteWithRetry } from "./promote-retry.mjs";
 import { readWithRetry } from "./cf-read.mjs";
 
 const ACCOUNT = "664f242340bcec2f32daaeee15f58bde";
@@ -129,8 +130,13 @@ if (stage === "deploy") {
   const extra = actual.filter((b) => !expected.includes(b));
   if (missing.length || extra.length) fail(`bindings differ; not promoting ${id}. missing=${missing.join(",")} extra=${extra.join(",")}`);
 
-  const promote = run(["node", "node_modules/wrangler/bin/wrangler.js", "versions", "deploy", `${id}@100%`, "--env", "production", "--yes",
-    "--message", `release ${sha.slice(0, 7)}`], { env });
+  // capture: the retry reads wrangler's error code; stderr is echoed so the lane log keeps it.
+  const promote = await promoteWithRetry(() => {
+    const result = run(["node", "node_modules/wrangler/bin/wrangler.js", "versions", "deploy", `${id}@100%`, "--env", "production", "--yes",
+      "--message", `release ${sha.slice(0, 7)}`], { env, capture: true });
+    process.stderr.write(result.stderr ?? "");
+    return result;
+  });
   if (promote.status !== 0) fail(`promote failed (exit ${promote.status})`);
   // The deployments API can return the previous deployment for a few seconds after a successful promote
   // (6be284d: wrangler SUCCESS, read stale, release marked failed while live). Re-read before failing.
