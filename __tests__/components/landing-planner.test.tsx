@@ -256,6 +256,10 @@ describe("landing map hero", () => {
     expect(doc.querySelectorAll('img[fetchpriority="high"]')).toHaveLength(1);
     expect(image.getAttribute("fetchpriority")).toBe("high");
     expect(image.getAttribute("alt")).toBe("");
+    // AT1: the LCP poster paints in the frame it arrives; 1.75x phones get the 720 px file.
+    expect(image.hasAttribute("decoding")).toBe(false);
+    expect(doc.querySelector('picture > source[type="image/avif"][media]')!.getAttribute("srcset"))
+      .toBe("/images/landing/seoul-map-v1-m-720.avif 720w, /images/landing/seoul-map-v1-m-828.avif 828w");
     expect(html).not.toMatch(/unsplash\.com|background-image|<script/);
   });
 
@@ -306,7 +310,7 @@ describe("landing map hero", () => {
 });
 
 describe("landing map poster variants", () => {
-  it.each([["m", 828, 40_000], ["d", 1280, 45_000], ["d", 1920, 90_000]])("%s %ipx is a real AVIF under %i bytes", async (kind, width, maxBytes) => {
+  it.each([["m", 720, 22_000], ["m", 828, 40_000], ["d", 1280, 45_000], ["d", 1920, 90_000]])("%s %ipx is a real AVIF under %i bytes", async (kind, width, maxBytes) => {
     const file = `public/images/landing/seoul-map-v1-${kind}-${width}.avif`;
     const metadata = await sharp(file).metadata();
     expect(metadata).toMatchObject({ format: "heif", compression: "av1", width });

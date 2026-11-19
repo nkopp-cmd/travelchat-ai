@@ -14,8 +14,9 @@ import { spotPhotoPinPath } from "@/lib/spots/own-photo";
 // mobile 414x736 @2x centre 126.9855,37.570 z11.1; desktop 1920x1080 centre 126.951,37.551 z12.55.
 const DESKTOP_AVIF = "/images/landing/seoul-map-v1-d-1280.avif 1280w, /images/landing/seoul-map-v1-d-1920.avif 1920w";
 const DESKTOP_WEBP = "/images/landing/seoul-map-v1-d-1280.webp 1280w, /images/landing/seoul-map-v1-d-1920.webp 1920w";
-const MOBILE_AVIF = "/images/landing/seoul-map-v1-m-828.avif 828w";
-const MOBILE_WEBP = "/images/landing/seoul-map-v1-m-828.webp 828w";
+// 720w serves 1.75x phones (Lighthouse/PSI mobile, most Android) with 28 % fewer bytes; 828w stays for 2x+.
+const MOBILE_AVIF = "/images/landing/seoul-map-v1-m-720.avif 720w, /images/landing/seoul-map-v1-m-828.avif 828w";
+const MOBILE_WEBP = "/images/landing/seoul-map-v1-m-720.webp 720w, /images/landing/seoul-map-v1-m-828.webp 828w";
 const MOBILE_MEDIA = "(max-width: 767px)";
 const DESKTOP_MEDIA = "(min-width: 768px)";
 
@@ -61,9 +62,10 @@ export function LandingHero() {
                         <source type="image/avif" media={MOBILE_MEDIA} srcSet={MOBILE_AVIF} sizes="100vw" />
                         <source type="image/webp" media={MOBILE_MEDIA} srcSet={MOBILE_WEBP} sizes="100vw" />
                         <source type="image/avif" srcSet={DESKTOP_AVIF} sizes="100vw" />
-                        {/* Pre-sized CDN poster, the LCP image; inside <picture> the img rule does not apply. */}
+                        {/* Pre-sized CDN poster, the LCP image; inside <picture> the img rule does not apply. No
+                            decoding="async": the LCP image must paint in the same frame it arrives (AT1). */}
                         <img src="/images/landing/seoul-map-v1-d-1280.webp" srcSet={DESKTOP_WEBP} sizes="100vw" width={1920} height={1080}
-                            alt="" fetchPriority="high" decoding="async" className="ll-hero-poster" />
+                            alt="" fetchPriority="high" className="ll-hero-poster" />
                     </picture>
                     {HERO_PINS.map((pin, index) => <HeroPinMark key={pin.id} pin={pin} index={index} />)}
                 </div>
