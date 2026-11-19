@@ -1,6 +1,6 @@
 import { readdirSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
-import { APP_TOP_LEVEL_NAMES, EDGE_AUTH_REDIRECTS, EDGE_CACHE_HEADER, edgeTtlSeconds, isEdgeCacheable, isUnknownPagePath, serveWithEdgeCache } from "@/cloudflare/opennext/edge-html-cache";
+import { APP_TOP_LEVEL_NAMES, EDGE_AUTH_REDIRECTS, EDGE_CACHE_HEADER, edgeTtlSeconds, isEdgeCacheable, isUnknownPagePath, serveWithEdgeCache, withoutTracking } from "@/cloudflare/opennext/edge-html-cache";
 import { GENERATED_PREVIEW_PATH } from "@/lib/trips/generated-preview";
 import { PLANNER_RESUME_PATH } from "@/lib/trips/planner-draft";
 import { checkoutSignUpUrl } from "@/lib/pricing-checkout";
@@ -163,6 +163,50 @@ describe("public HTML edge cache", () => {
     expect(handler).toHaveBeenCalledTimes(1);
     expect([...cache.store.keys()]).toEqual([`${path}?__edge=v1`]);
     expect(cache.store.get(`${path}?__edge=v1`)?.headers.get("cache-control")).toBe("public, s-maxage=3600");
+  });
+
+  it("treats ad and social click-tracking keys as the plain page: one entry, rewritten once, no tracking value rendered (Push AV1)", async () => {
+    const cache = memoryCache();
+    const spot = "https://www.localley.io/spots/15614d97-380f-4e8d-8aa6-aa6f43609bcf";
+    const seen: string[] = [];
+    const handler = vi.fn(async (request: Request) => { seen.push(request.url); return html({ "cache-control": "private, no-store" }); });
+    const rewrite = vi.fn(async (response: Response) => new Response("<html>rewritten</html>", response));
+    const pending: Promise<unknown>[] = [];
+    const first = await serveWithEdgeCache(new Request(`${spot}?utm_source=instagram&utm_medium=social&fbclid=IwAR1`), "v1", cache, (p) => pending.push(p), handler, rewrite);
+    await Promise.all(pending);
+    expect(first.headers.get(EDGE_CACHE_HEADER)).toBe("MISS");
+    expect(await first.text()).toBe("<html>rewritten</html>");
+    expect(seen).toEqual([spot]);
+    for (const query of ["", "?ttclid=E.C.P", "?gclid=abc&utm_campaign=seoul", "?igshid=x", "?igsh=y&si=z"]) {
+      const hit = await serve(new Request(`${spot}${query}`), cache, handler);
+      expect(hit.headers.get(EDGE_CACHE_HEADER)).toBe("HIT");
+      expect(await hit.text()).toBe("<html>rewritten</html>");
+    }
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(rewrite).toHaveBeenCalledTimes(1);
+    expect([...cache.store.keys()]).toEqual([`${spot}?__edge=v1`]);
+    // Real keys still decide: a tracking key next to one keeps the old answer for that key.
+    expect(isEdgeCacheable(new Request(`${spot}?data_candidate=d1&utm_source=x`))).toBe(false);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=seoul&utm_source=tiktok"))).toBe(true);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=atlantis&fbclid=1"))).toBe(false);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/?utm_source=newsletter"))).toBe(true);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/sign-up?redirect_url=%2Fdashboard&utm_source=x"))).toBe(false);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/itineraries/preview?payment=success&utm_source=x"))).toBe(false);
+    // Lookalike keys are not tracking keys.
+    expect(withoutTracking(new URL("https://www.localley.io/?utm=x&sid=1&utm_source=a")).search).toBe("?utm=x&sid=1");
+    expect(withoutTracking(new URL("https://www.localley.io/spots?city=seoul&gclid=1")).search).toBe("?city=seoul");
+  });
+
+  it("renders a cacheable /spots city page from the cleaned URL, so a tracking value never lands in shared HTML", async () => {
+    const cache = memoryCache();
+    const handler = vi.fn(async (request: Request) => new Response(`<html>${new URL(request.url).search}</html>`, {
+      status: 200, headers: { "content-type": "text/html" },
+    }));
+    const miss = await serve(new Request("https://www.localley.io/spots?city=seoul&utm_source=tiktok&ttclid=T"), cache, handler);
+    expect(await miss.text()).toBe("<html>?city=seoul</html>");
+    const hit = await serve(new Request("https://www.localley.io/spots?city=seoul"), cache, handler);
+    expect(hit.headers.get(EDGE_CACHE_HEADER)).toBe("HIT");
+    expect(handler).toHaveBeenCalledTimes(1);
   });
 
   it("keeps one entry per enabled city and view on /spots", async () => {

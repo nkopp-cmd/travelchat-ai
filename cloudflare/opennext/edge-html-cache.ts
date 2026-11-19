@@ -142,7 +142,7 @@ function hasCookie(request: Request, names: readonly string[]): boolean {
 
 export function isEdgeCacheable(request: Request): boolean {
   if (request.method !== "GET") return false;
-  const url = new URL(request.url);
+  const url = withoutTracking(new URL(request.url));
   if (edgeTtlSeconds(url.pathname) === undefined || !cacheableQuery(url)) return false;
   const perVisitor = PER_VISITOR_COOKIES[url.pathname];
   if (perVisitor && hasCookie(request, perVisitor)) return false;
@@ -151,6 +151,22 @@ export function isEdgeCacheable(request: Request): boolean {
     if (name === "rsc" || name.startsWith("next-router-")) return false;
   }
   return true;
+}
+
+// Click-tracking keys that ad and social apps append (Instagram/Facebook fbclid + igshid, TikTok ttclid, Google gclid,
+// utm_*). The server HTML never reads them (only the browser does, from location.search: lib/referral-point.ts), so a
+// URL whose query holds nothing else is the plain page: same cache entry, same render, same critical-CSS rewrite.
+// Without this every social/ad click on a spot page missed the cache and got the slow unrewritten HTML (Push AV1).
+const TRACKING_KEY = /^(utm_[a-z_]+|fbclid|gclid|gbraid|wbraid|dclid|msclkid|ttclid|twclid|igshid|igsh|si|mc_cid|mc_eid|_ga|_gl)$/;
+
+export function withoutTracking(url: URL): URL {
+  if (!url.search) return url;
+  const clean = new URL(url);
+  for (const key of [...clean.searchParams.keys()]) {
+    if (TRACKING_KEY.test(key)) clean.searchParams.delete(key);
+  }
+  if (clean.searchParams.size === 0) clean.search = "";
+  return clean;
 }
 
 function cacheableQuery(url: URL): boolean {
@@ -175,7 +191,7 @@ function cacheableQuery(url: URL): boolean {
 }
 
 export function edgeCacheKey(request: Request, version: string): Request {
-  const url = new URL(request.url);
+  const url = withoutTracking(new URL(request.url));
   if (SPOT_MEDIA_PATH.test(url.pathname)) return new Request(`${url.origin}${url.pathname}`);
   if (QUERY_FREE_PATHS.has(url.pathname)) return new Request(`${url.origin}${url.pathname}?__edge=${encodeURIComponent(version)}`);
   const city = url.searchParams.get("city");
@@ -285,10 +301,12 @@ export async function serveWithEdgeCache(
     response.headers.delete(ORIGIN_CACHE_CONTROL);
     return response;
   }
-  const url = new URL(request.url);
+  const asked = new URL(request.url);
+  const url = withoutTracking(asked);
+  // A miss renders the cleaned URL, so no tracking value can land in the shared HTML.
   const rendered = await handler(QUERY_FREE_PATHS.has(url.pathname) && url.search
     ? new Request(`${url.origin}${url.pathname}`, request)
-    : request);
+    : url.search !== asked.search ? new Request(url.toString(), request) : request);
   if (!storable(request, rendered)) return rendered;
   const fresh = rewriteSpotHtml && isSpotDetailPath(url.pathname) ? await rewriteSpotHtml(rendered).catch(() => rendered) : rendered;
   const stored = new Response(fresh.clone().body, fresh);
