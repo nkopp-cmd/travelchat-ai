@@ -265,6 +265,10 @@ describe("public HTML edge cache", () => {
   it("keeps viral events and pin cards at five minutes while spot pages get one hour", () => {
     expect(edgeTtlSeconds("/spots/15614d97-380f-4e8d-8aa6-aa6f43609bcf")).toBe(3600);
     expect(edgeTtlSeconds("/trending/songkran-water-fight")).toBe(300);
+    expect(edgeTtlSeconds("/credits/seoul")).toBe(3600);
+    expect(edgeTtlSeconds("/credits/ho-chi-minh-city")).toBe(3600);
+    expect(edgeTtlSeconds("/credits/Seoul")).toBeUndefined();
+    expect(edgeTtlSeconds("/credits/seoul/x")).toBeUndefined();
     expect(edgeTtlSeconds("/api/spots/pins/15614d97")).toBe(300);
     expect(edgeTtlSeconds("/spots/15614d97-380f-4e8d-8aa6-aa6f43609bcf/edit")).toBeUndefined();
   });

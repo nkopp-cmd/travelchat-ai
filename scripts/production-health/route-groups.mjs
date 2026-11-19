@@ -116,6 +116,7 @@ const routes = [
   "/community/now",
   "/community/[id]",
   "/credits",
+  "/credits/[city]",
   "/dashboard",
   "/explore",
   "/forgot-password",

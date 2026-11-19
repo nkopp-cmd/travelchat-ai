@@ -26,6 +26,7 @@ const PUBLIC_ROUTES = [
     '/privacy',  // Public privacy policy (Google OAuth branding needs it without sign-in)
     '/terms',  // Public terms of use
     '/credits',  // Public photo credits (licence attribution)
+    '/credits/:city',  // Public photo credits of one city (Push AS3)
     '/newsletter(.*)',  // Newsletter sign-up, static answer pages, token button pages (no account data)
     '/api/newsletter/subscribe',  // Double opt-in form post: honeypot + per-IP limit in the route
     '/api/newsletter/confirm',  // Token-only POST from the confirm page
