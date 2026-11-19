@@ -125,7 +125,7 @@ export default function LandingPage() {
 
       <LandingHelpers />
 
-      <section className="bg-surface py-12">
+      <section className="ll-below-fold bg-surface py-12">
         <div className="container mx-auto grid max-w-7xl items-start gap-8 px-4 md:grid-cols-[1fr_420px] md:px-6">
           <div className="max-w-xl">
             <p className="text-sm font-bold uppercase tracking-[0.16em] text-primary">Then plan the day</p>
@@ -142,7 +142,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section data-testid="landing-pro" className="bg-surface py-14">
+      <section data-testid="landing-pro" className="ll-below-fold bg-surface py-14">
         <div className="container mx-auto grid max-w-7xl gap-6 px-4 md:grid-cols-[1fr_0.9fr] md:px-6">
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.16em] text-foreground">Free first, Pro when you go</p>
@@ -177,7 +177,7 @@ export default function LandingPage() {
 
       <WeekendPicks />
 
-      <section className="bg-surface py-14">
+      <section className="ll-below-fold bg-surface py-14">
         <div className="container mx-auto max-w-7xl px-4 md:px-6">
           <div className="max-w-2xl">
             <p className="text-sm font-bold uppercase tracking-[0.16em] text-primary">The useful part</p>
@@ -201,7 +201,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="bg-surface py-14">
+      <section className="ll-below-fold bg-surface py-14">
         <div className="container mx-auto max-w-7xl px-4 md:px-6">
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
             <div>
@@ -254,7 +254,7 @@ export default function LandingPage() {
 
       <GuideSpotLinks spots={homeGuideSpots(spotRows)} hubs={homeHubLinks(spotRows)} />
 
-      <footer className="bg-surface py-8">
+      <footer className="ll-below-fold bg-surface py-8">
         <div className="container mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 md:flex-row md:px-6">
           <Logo size="md" isLanding />
           <p className="text-sm text-muted-foreground">Your local friend in Asia.</p>

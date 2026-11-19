@@ -932,6 +932,15 @@
     .ll-pin-card, .ll-pin-card[data-expanded] { animation: none; }
 }
 
+/* Home sections below the hero (app/page.tsx, Push AT1): the browser skips their style, layout and paint until
+   they come near the viewport, so the first paint only costs the hero (~80 of 630 elements). The auto size keeps
+   the scroll height stable after a section has rendered once. No fixed or sticky children inside (paint containment
+   would clip them). */
+.ll-below-fold {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 720px;
+}
+
 /* Landing hero map poster (components/landing/hero.tsx). The stage covers the
    hero like object-fit: cover, so the image and the % pin positions crop alike. */
 .ll-hero-scene {
