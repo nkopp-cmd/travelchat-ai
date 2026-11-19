@@ -21,6 +21,7 @@ import { PLANNER_RESUME_PATH, savePlannerDraft } from "@/lib/trips/planner-draft
 
 import { GENERATED_PREVIEW_PATH, storeGeneratedPreview } from "@/lib/trips/generated-preview";
 import { funnelSource, trackFunnelStep } from "@/lib/funnel-analytics";
+import { plannerLimitPricingHref } from "@/lib/pricing-checkout";
 
 const PROGRESS_MESSAGES = [
   "Finding hidden gems...",
@@ -404,13 +405,12 @@ export function ItineraryWizard({ initialData, initialStep, initialCities = null
       }
 
       if (errorCode === "limit_exceeded") {
+        // Free accounts get 1 trip a month. Send them to the plans with the reason (push AP1).
         toast({
-          title: "Limit reached",
-          description: errorMessage,
+          title: "Free trip used this month",
+          description: "Pro plans unlimited trips.",
         });
-        if (result.upgrade) {
-          router.push("/pricing");
-        }
+        router.push(plannerLimitPricingHref(result.error?.details?.resetAt));
         return;
       }
 
