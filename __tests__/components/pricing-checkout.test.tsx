@@ -82,3 +82,16 @@ describe("/pricing after a closed Stripe checkout", () => {
     expect(screen.queryByTestId("pricing-checkout-closed")).toBeNull();
   });
 });
+
+describe("/pricing positioning (Push AY1)", () => {
+  it("sells the local-friend promise and shows no internal billing wording", () => {
+    const { container } = render(<PricingPage />);
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Your local friend is free. Pro plans the whole trip.");
+    expect(screen.getByText("Spots locals rate")).toBeTruthy();
+    expect(screen.getByText("Addresses a driver can read")).toBeTruthy();
+    const text = container.textContent ?? "";
+    for (const internal of ["auditable", "payment state", "trip intent", "Richer outputs", "highest-capability"]) {
+      expect(text).not.toContain(internal);
+    }
+  });
+});
