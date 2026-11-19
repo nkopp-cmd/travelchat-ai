@@ -41,7 +41,6 @@ const routes = [
   "/api/cron/discover-spots-with-apify",
   "/api/cron/process-social-submissions",
   "/api/cron/refresh-weekly-social-trends",
-  "/api/early-adopter",
   "/api/friends",
   "/api/gamification/award",
   "/api/geocode",
