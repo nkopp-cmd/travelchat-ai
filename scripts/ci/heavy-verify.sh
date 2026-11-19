@@ -160,6 +160,7 @@ VITEST_FILES=(
   __tests__/lib/source-lifetime-authority.test.ts
   __tests__/lib/usage-tracking-atomic.test.ts
   __tests__/lib/quota-math.property.test.ts
+  __tests__/lib/image-gate.property.test.ts
   __tests__/lib/stripe-live-session.test.ts
   __tests__/api/subscription-webhook-live.test.ts
   __tests__/lib/stripe-customer-ownership.test.ts
@@ -501,6 +502,7 @@ ESLINT_FILES=(
   lib/usage-tracking.ts
   __tests__/lib/usage-tracking-atomic.test.ts
   __tests__/lib/quota-math.property.test.ts
+  __tests__/lib/image-gate.property.test.ts
   __tests__/lib/stripe-live-session.test.ts
   __tests__/api/subscription-webhook-live.test.ts
   lib/stripe.ts
