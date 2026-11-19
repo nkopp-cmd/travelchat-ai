@@ -51,23 +51,45 @@ function unavailable(status = 200, message = "Listing photos are unavailable.") 
     return NextResponse.json({ status: "unavailable", photos: [], message } satisfies PhotoGalleryResponse, { status, headers });
 }
 
+// Push AQ2: one outcome line per request, so a 200 "unavailable" (no log before) splits into its cause and we learn how
+// often a real visitor gets the empty hero tile. Fixed codes and the public spot id only; never headers or provider data.
+type PhotoOutcome = { reason?: string };
+
 export async function GET(req: NextRequest, context: { params: Promise<{ id: string }> }) {
+    const started = Date.now();
+    const outcome: PhotoOutcome = {};
+    const response = await photoGallery(req, context, outcome);
+    const { id } = await context.params;
+    console.log("[spot-photos] outcome", JSON.stringify({
+        status: response.status,
+        result: response.status === 200 && outcome.reason === "ok" ? "available" : "unavailable",
+        reason: outcome.reason ?? "unknown",
+        ms: Date.now() - started,
+        ...(z.uuid().safeParse(id).success ? { spotId: id } : {}),
+    }));
+    return response;
+}
+
+async function photoGallery(req: NextRequest, context: { params: Promise<{ id: string }> }, outcome: PhotoOutcome) {
     const candidate = isPreviewSpotPhotosCandidate(req);
     const withSource = (response: NextResponse) => {
         if (candidate) response.headers.set("X-Localley-Data-Source", "d1-preview");
         return response;
     };
-    const unavailableForRequest = (status = 200, message = "Listing photos are unavailable.") =>
-        withSource(unavailable(status, message));
+    const unavailableForRequest = (status = 200, message = "Listing photos are unavailable.", reason?: string) => {
+        if (reason) outcome.reason = reason;
+        return withSource(unavailable(status, message));
+    };
     const { id } = await context.params;
-    if (!z.uuid().safeParse(id).success) return unavailableForRequest(400);
+    if (!z.uuid().safeParse(id).success) return unavailableForRequest(400, undefined, "invalid_id");
     // Bots, Lighthouse and prefetches never cost a billed Places call.
-    if (isAutomatedPlacesRequest(req.headers)) return unavailableForRequest();
+    if (isAutomatedPlacesRequest(req.headers)) return unavailableForRequest(200, undefined, "automated");
     // Public source identity and fixed codes only: never log provider bodies,
     // photo references, request headers, account identities or exception text.
     let conflictKey: Request | undefined;
     let pending: Promise<unknown> | undefined;
     const failureForRequest = (status: 502 | 503 | 504, reason: string, upstreamStatus?: number) => {
+        outcome.reason = reason;
         console.error(`[spot-photos] ${JSON.stringify({ spotId: id, reason, status,
             ...(upstreamStatus === undefined ? {} : { upstreamStatus }) })}`);
         if (conflictKey && IDENTITY_CONFLICTS.has(reason)) {
@@ -86,10 +108,10 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
         if (process.env.NODE_ENV === "production") {
             const verdict = await strictPlatformLimit(req, 40, "venue_photos_v2");
             if (verdict === "unavailable") return failureForRequest(503, "rate_limit_unavailable");
-            if (verdict === "limited") return unavailableForRequest(429, "Too many requests. Please try again later.");
+            if (verdict === "limited") return unavailableForRequest(429, "Too many requests. Please try again later.", "rate_limited");
         } else {
             const limited = await developmentLimit(new NextRequest(new URL("/api/spots/photos", req.url), { headers: req.headers }));
-            if (limited) return unavailableForRequest(limited.status);
+            if (limited) return unavailableForRequest(limited.status, undefined, "rate_limited");
         }
         let spot: RawSpot | null;
         if (candidate) {
@@ -113,15 +135,15 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
         if (!spot || !shouldShowPublicSpot({
             name: spot.name, address: spot.address, location: spot.location,
             photos: spot.photos, google_place_id: spot.google_place_id,
-        })) return unavailableForRequest(404);
+        })) return unavailableForRequest(404, undefined, "not_public");
         const photos = normalizeSpotPhotos(spot.photos, spot.category, 1600);
         const placeId = getTrustedSpotGooglePlaceId({ photos, storedGooglePlaceId: spot.google_place_id });
-        if (!placeId || !/^[A-Za-z0-9_-]{1,256}$/.test(placeId)) return unavailableForRequest();
-        if (getGooglePlaceIdsFromSpotPhotos(photos).some(photoPlaceId => photoPlaceId !== placeId)) return unavailableForRequest();
+        if (!placeId || !/^[A-Za-z0-9_-]{1,256}$/.test(placeId)) return unavailableForRequest(200, undefined, "no_place_id");
+        if (getGooglePlaceIdsFromSpotPhotos(photos).some(photoPlaceId => photoPlaceId !== placeId)) return unavailableForRequest(200, undefined, "mixed_place_ids");
         const stored = parseSpotCoordinates(spot.location);
         conflictKey = new Request(`https://spot-photo-verdict.localley.internal/v1/${id}/${placeId}/${stored ? `${stored.lat},${stored.lng}` : "none"}`);
         try {
-            if (await verdictCache()?.match(conflictKey)) return unavailableForRequest();
+            if (await verdictCache()?.match(conflictKey)) return unavailableForRequest(200, undefined, "cached_conflict");
         } catch { /* A cache fault only costs one Details call. */ }
         const apiKey = getGooglePlacesApiKey();
         if (!apiKey) return failureForRequest(503, "provider_key_missing");
@@ -204,11 +226,12 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
             gallery.push({ id: photo.name, url: `/api/places/photo?${params}`, sourceLabel: "Google listing photo", attributions });
             if (gallery.length === 4) break;
         }
+        outcome.reason = gallery.length ? "ok" : "no_provider_photos";
         return gallery.length
             // Only the visitor's browser may reuse the gallery briefly ("private": never the edge), so a repeat view
             // asks for the same photo URLs and gets them from the browser cache instead of new Places calls.
             ? withSource(NextResponse.json({ status: "available", photos: gallery } satisfies PhotoGalleryResponse, { headers: { ...headers, "Cache-Control": "private, max-age=600" } }))
-            : unavailableForRequest();
+            : unavailableForRequest(200, undefined, "no_provider_photos");
     } catch {
         return failureForRequest(controller.signal.aborted ? 504 : 502, controller.signal.aborted ? "request_timeout" : exceptionReason);
     } finally {
