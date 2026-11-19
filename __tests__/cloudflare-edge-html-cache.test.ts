@@ -1,6 +1,6 @@
 import { readdirSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
-import { APP_TOP_LEVEL_NAMES, EDGE_AUTH_REDIRECTS, EDGE_CACHE_HEADER, edgeTtlSeconds, isEdgeCacheable, isUnknownPagePath, serveWithEdgeCache, withoutTracking } from "@/cloudflare/opennext/edge-html-cache";
+import { APP_TOP_LEVEL_NAMES, EDGE_AUTH_REDIRECTS, EDGE_CACHE_HEADER, EDGE_STALE_SECONDS, edgeTtlSeconds, isEdgeCacheable, isUnknownPagePath, serveWithEdgeCache, withoutTracking } from "@/cloudflare/opennext/edge-html-cache";
 import { GENERATED_PREVIEW_PATH } from "@/lib/trips/generated-preview";
 import { PLANNER_RESUME_PATH } from "@/lib/trips/planner-draft";
 import { checkoutSignUpUrl } from "@/lib/pricing-checkout";
@@ -11,6 +11,7 @@ function memoryCache() {
     store,
     match: vi.fn(async (request: Request) => store.get(request.url)?.clone()),
     put: vi.fn(async (request: Request, response: Response) => { store.set(request.url, response); }),
+    delete: vi.fn(async (request: Request) => store.delete(request.url)),
   };
 }
 
@@ -19,10 +20,11 @@ const html = (headers: Record<string, string> = {}) => new Response("<html>home<
   headers: { "content-type": "text/html; charset=utf-8", "cache-control": "s-maxage=31536000", ...headers },
 });
 
-async function serve(request: Request, cache: ReturnType<typeof memoryCache>, handler: (r: Request) => Promise<Response>, version: string | undefined = "v1") {
+async function serve(request: Request, cache: ReturnType<typeof memoryCache>, handler: (r: Request) => Promise<Response>, version: string | undefined = "v1", now: () => number = Date.now) {
   const pending: Promise<unknown>[] = [];
-  const response = await serveWithEdgeCache(request, version, cache, (p) => pending.push(p), handler);
-  await Promise.all(pending);
+  const response = await serveWithEdgeCache(request, version, cache, (p) => pending.push(p), handler, undefined, now);
+  // A stale refresh stores its copy from inside its own waitUntil: drain until nothing new is queued.
+  for (let done = 0; done < pending.length; done = pending.length) await Promise.all(pending.slice(done));
   return response;
 }
 
@@ -55,8 +57,8 @@ describe("public HTML edge cache", () => {
     await serve(new Request("https://www.localley.io/spots"), cache, async () => html({ "cache-control": "private, no-store" }));
     await serve(new Request("https://www.localley.io/"), cache, async () => html());
     const stored = [...cache.store.entries()];
-    expect(stored.find(([url]) => url.includes("/spots?"))?.[1].headers.get("cache-control")).toBe("public, s-maxage=300");
-    expect(stored.find(([url]) => url.startsWith("https://www.localley.io/?"))?.[1].headers.get("cache-control")).toBe("public, s-maxage=86400");
+    expect(stored.find(([url]) => url.includes("/spots?"))?.[1].headers.get("cache-control")).toBe(`public, s-maxage=${300 + EDGE_STALE_SECONDS}`);
+    expect(stored.find(([url]) => url.startsWith("https://www.localley.io/?"))?.[1].headers.get("cache-control")).toBe(`public, s-maxage=${86400 + EDGE_STALE_SECONDS}`);
     const hit = await serve(new Request("https://www.localley.io/spots"), cache, async () => html());
     expect(hit.headers.get("cache-control")).toBe("private, no-store");
   });
@@ -149,7 +151,7 @@ describe("public HTML edge cache", () => {
     const cache = memoryCache();
     await serve(new Request("https://www.localley.io/templates"), cache, async () => html());
     const stored = [...cache.store.entries()];
-    expect(stored.find(([url]) => url.includes("/templates?"))?.[1].headers.get("cache-control")).toBe("public, s-maxage=86400");
+    expect(stored.find(([url]) => url.includes("/templates?"))?.[1].headers.get("cache-control")).toBe(`public, s-maxage=${86400 + EDGE_STALE_SECONDS}`);
   });
 
   it("keeps a spot detail page for one hour under its own path", async () => {
@@ -162,7 +164,7 @@ describe("public HTML edge cache", () => {
     expect(hit.headers.get("cache-control")).toBe("private, no-store");
     expect(handler).toHaveBeenCalledTimes(1);
     expect([...cache.store.keys()]).toEqual([`${path}?__edge=v1`]);
-    expect(cache.store.get(`${path}?__edge=v1`)?.headers.get("cache-control")).toBe("public, s-maxage=3600");
+    expect(cache.store.get(`${path}?__edge=v1`)?.headers.get("cache-control")).toBe(`public, s-maxage=${3600 + EDGE_STALE_SECONDS}`);
   });
 
   it("treats ad and social click-tracking keys as the plain page: one entry, rewritten once, no tracking value rendered (Push AV1)", async () => {
@@ -266,7 +268,7 @@ describe("public HTML edge cache", () => {
     expect(hit.headers.get(EDGE_CACHE_HEADER)).toBe("HIT");
     expect(await hit.text()).toBe('{"success":true,"cities":[]}');
     expect(handler).toHaveBeenCalledTimes(1);
-    expect([...cache.store.values()][0].headers.get("cache-control")).toBe("public, s-maxage=300");
+    expect([...cache.store.values()][0].headers.get("cache-control")).toBe(`public, s-maxage=${300 + EDGE_STALE_SECONDS}`);
     for (const other of ["/api/cities", "/api/cities?minSpots=0", "/api/cities?minSpots=1&data_candidate=d1", "/api/cities?minSpots=1&noCache=true", "/api/conditions"]) {
       expect(isEdgeCacheable(new Request(`https://www.localley.io${other}`)), other).toBe(false);
     }
@@ -520,5 +522,73 @@ describe("unknown paths share one 404 entry (Push AM5)", () => {
       expect(isUnknownPagePath(request), request.url).toBe(false);
     }
     expect(isUnknownPagePath(req("https://www.localley.io/nope", { headers: { cookie: "theme=dark" } }))).toBe(true);
+  });
+});
+
+describe("stale-while-revalidate (Push AW1)", () => {
+  const spot = "https://www.localley.io/spots/0022dc9c-5f13-41fd-9940-38a190795704";
+  const page = (body: string) => async () => new Response(body, { status: 200, headers: { "content-type": "text/html; charset=utf-8" } });
+
+  it("serves a fresh copy as HIT, an expired copy at once as STALE, and stores one background render", async () => {
+    const cache = memoryCache();
+    let clock = 1_000_000;
+    const now = () => clock;
+    let n = 0;
+    const handler = vi.fn(async () => page(`<html>v${++n}</html>`)());
+    const first = await serve(new Request(spot), cache, handler, "v1", now);
+    expect(first.headers.get(EDGE_CACHE_HEADER)).toBe("MISS");
+    clock += 3599_000;
+    const fresh = await serve(new Request(spot), cache, handler, "v1", now);
+    expect(fresh.headers.get(EDGE_CACHE_HEADER)).toBe("HIT");
+    expect(fresh.headers.has("x-localley-stored-at")).toBe(false);
+    expect(handler).toHaveBeenCalledTimes(1);
+    clock += 2_000;
+    const stale = await serve(new Request(spot), cache, handler, "v1", now);
+    expect(stale.headers.get(EDGE_CACHE_HEADER)).toBe("STALE");
+    expect(await stale.text()).toBe("<html>v1</html>");
+    expect(handler).toHaveBeenCalledTimes(2);
+    const after = await serve(new Request(spot), cache, handler, "v1", now);
+    expect(after.headers.get(EDGE_CACHE_HEADER)).toBe("HIT");
+    expect(await after.text()).toBe("<html>v2</html>");
+    expect(handler).toHaveBeenCalledTimes(2);
+    expect(cache.store.size).toBe(1);
+  });
+
+  it("drops the stale copy when the page is gone, and a new version never reads the old copy", async () => {
+    const cache = memoryCache();
+    let clock = 1_000_000;
+    const now = () => clock;
+    const handler = vi.fn(async () => page("<html>spot</html>")());
+    await serve(new Request(spot), cache, handler, "v1", now);
+    clock += 3601_000;
+    const gone = vi.fn(async () => new Response("missing", { status: 404, headers: { "content-type": "text/html" } }));
+    expect((await serve(new Request(spot), cache, gone, "v1", now)).headers.get(EDGE_CACHE_HEADER)).toBe("STALE");
+    expect(gone).toHaveBeenCalledTimes(1);
+    expect(cache.store.size).toBe(0);
+    expect((await serve(new Request(spot), cache, gone, "v1", now)).status).toBe(404);
+    await serve(new Request(spot), cache, handler, "v1", now);
+    const next = await serve(new Request(spot), cache, handler, "v2", now);
+    expect(next.headers.get(EDGE_CACHE_HEADER)).toBe("MISS");
+  });
+
+  it("keeps entries without a stored time (written before this change) as plain hits", async () => {
+    const cache = memoryCache();
+    cache.store.set(`${spot}?__edge=v1`, new Response("<html>old</html>", { headers: { "content-type": "text/html" } }));
+    const handler = vi.fn(async () => page("<html>new</html>")());
+    const res = await serve(new Request(spot), cache, handler, "v1", () => 9e15);
+    expect(res.headers.get(EDGE_CACHE_HEADER)).toBe("HIT");
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it("refreshes a tracking-query visit under the plain URL", async () => {
+    const cache = memoryCache();
+    let clock = 1_000_000;
+    const seen: string[] = [];
+    const handler = vi.fn(async (r: Request) => { seen.push(r.url); return page("<html>s</html>")(); });
+    await serve(new Request(spot), cache, handler, "v1", () => clock);
+    clock += 3601_000;
+    expect((await serve(new Request(`${spot}?utm_source=tiktok&ttclid=abc`), cache, handler, "v1", () => clock)).headers.get(EDGE_CACHE_HEADER)).toBe("STALE");
+    expect(seen).toEqual([spot, spot]);
+    expect(cache.store.size).toBe(1);
   });
 });
