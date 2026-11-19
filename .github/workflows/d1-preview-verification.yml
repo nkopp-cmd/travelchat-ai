@@ -671,6 +671,7 @@ on:
       - '__tests__/components/review-form-a11y.test.tsx'
       - '__tests__/components/planner-a11y-names.test.tsx'
       - '__tests__/components/planner-limit-pricing.test.tsx'
+      - '__tests__/components/planner-generate-errors.test.tsx'
       - 'components/ui/slider.tsx'
       - 'components/itineraries/wizard/wizard-progress.tsx'
       - 'components/spots/review-form.tsx'
