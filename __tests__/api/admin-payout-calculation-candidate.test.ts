@@ -56,7 +56,16 @@ describe("admin payout calculation candidate boundary", () => {
         expect(r.status).toBe(200); expect((await r.json()).revenuePool).toBe(3.5); expect(mocks.invoices).toHaveBeenCalledTimes(2);
         expect(mocks.rpc).toHaveBeenCalledWith("calculate_monthly_earnings", { p_month: "2026-03-01", p_subscription_revenue: 7, p_revenue_share_percent: 50 });
     });
-    it("retains normal invalid-date refusal before provider or source calls", async () => {
-        expect((await POST(request(host, "", '{"month":"invalid"}'))).status).toBe(500); noFinancialCalls();
+    it("refuses an invalid month with 400 before provider or source calls", async () => {
+        const r = await POST(request(host, "", '{"month":"invalid"}'));
+        expect(r.status).toBe(400); expect(await r.json()).toEqual({ error: "Invalid request", field: "month" }); noFinancialCalls();
+    });
+    it.each([
+        ['{"revenueSharePercent":200}', "revenueSharePercent"], ['{"revenueSharePercent":0}', "revenueSharePercent"],
+        ['{"revenueSharePercent":"20"}', "revenueSharePercent"], ['{"subscriptionRevenue":-5}', "subscriptionRevenue"],
+        ['{"subscriptionRevenue":"1000000"}', "subscriptionRevenue"], ["null", "body"],
+    ])("refuses body %s with 400 on %s before provider or source calls", async (body, field) => {
+        const r = await POST(request(host, "", body));
+        expect(r.status).toBe(400); expect(await r.json()).toEqual({ error: "Invalid request", field }); noFinancialCalls();
     });
 });

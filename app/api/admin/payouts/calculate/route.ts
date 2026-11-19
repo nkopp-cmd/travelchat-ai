@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { requireAdmin } from "@/lib/admin-auth";
 import { STRIPE_PRICE_IDS, stripe } from "@/lib/stripe";
+import { parseCalculateBody } from "@/lib/payout-calculate-input";
 
 const LOCALLEY_PRICE_IDS = new Set(
     Object.values(STRIPE_PRICE_IDS)
@@ -24,7 +25,8 @@ function isLocalleySubscriptionInvoice(invoice: Stripe.Invoice) {
  * POST /api/admin/payouts/calculate
  *
  * Admin-only: Calculate monthly earnings for all guides.
- * Body: { month?: "2026-03-01" } — defaults to previous month
+ * Body: { month?: "2026-03-01", subscriptionRevenue?: number >= 0, revenueSharePercent?: (0, 50] }
+ * — month defaults to previous month, share to 20; an invalid field gives 400 { field }
  *
  * Steps:
  * 1. Get total subscription revenue for the month from Stripe
@@ -39,14 +41,16 @@ export async function POST(req: NextRequest) {
     if (candidate) return candidate;
 
     try {
-        const body = await req.json().catch(() => ({}));
+        const parsed = parseCalculateBody(await req.json().catch(() => ({})));
+        if (!parsed.ok) {
+            return NextResponse.json({ error: "Invalid request", field: parsed.field }, { status: 400 });
+        }
+        const input = parsed.value;
 
         // Default to previous month
         const now = new Date();
         const defaultMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-        const targetMonth = body.month
-            ? new Date(body.month)
-            : defaultMonth;
+        const targetMonth = input.month ?? defaultMonth;
 
         const monthStr = targetMonth.toISOString().split("T")[0];
 
@@ -91,11 +95,11 @@ export async function POST(req: NextRequest) {
         }
 
         // Allow manual override for testing
-        if (body.subscriptionRevenue !== undefined) {
-            subscriptionRevenue = body.subscriptionRevenue;
+        if (input.subscriptionRevenue !== undefined) {
+            subscriptionRevenue = input.subscriptionRevenue;
         }
 
-        const revenueSharePercent = body.revenueSharePercent || 20.0;
+        const revenueSharePercent = input.revenueSharePercent;
 
         // Run the calculation in the database
         const supabase = createSupabaseAdmin();
