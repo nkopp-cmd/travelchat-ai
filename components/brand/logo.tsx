@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { IntentLink } from "@/components/navigation/intent-link";
 import { useUser } from "@/lib/auth/client";
-import { cn } from "@/lib/utils";
+import { clsx as cn } from "clsx";
 
 interface LogoProps {
   size?: "sm" | "md" | "lg";

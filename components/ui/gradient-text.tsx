@@ -1,5 +1,5 @@
-"use client";
-
+// Push AS4: no "use client". This has no state or effects; as a client module it shipped cn/tailwind-merge
+// (~8 KB gzip) to every public page that renders PageHeader. Client components that import it still bundle it.
 import * as React from "react";
 import { cn } from "@/lib/utils";
 

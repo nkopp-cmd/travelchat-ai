@@ -204,6 +204,7 @@ on:
       - '__tests__/lib/credits.test.ts'
       - 'lib/credits.ts'
       - 'app/credits/**'
+      - '__tests__/layout-chrome-bundle.test.ts'
       - '__tests__/cloudflare-robots-host.test.ts'
       - 'cloudflare/opennext/robots-host.ts'
       - 'cloudflare/opennext/critical-css.ts'
