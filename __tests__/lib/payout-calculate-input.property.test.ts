@@ -52,6 +52,15 @@ describe("parseCalculateBody", () => {
         expect(r.ok && r.value.revenueSharePercent).toBe(50);
     });
 
+    it("a huge accepted revenue keeps a finite pool (fast-check counterexample, seed -1155056072)", () => {
+        const r = parseCalculateBody({ subscriptionRevenue: 8.98846567431158e306 });
+        expect(r.ok).toBe(true);
+        if (!r.ok || r.value.subscriptionRevenue === undefined) return;
+        const pool = r.value.subscriptionRevenue * (r.value.revenueSharePercent / 100);
+        expect(Number.isFinite(pool)).toBe(true);
+        expect(pool).toBeLessThanOrEqual(r.value.subscriptionRevenue);
+    });
+
     it("an accepted body never gives a share outside (0, 50], a negative or non-finite revenue, or a non-first month", () => {
         fc.assert(
             fc.property(anyValue, anyValue, anyValue, (month, subscriptionRevenue, revenueSharePercent) => {
@@ -67,8 +76,10 @@ describe("parseCalculateBody", () => {
                 if (value.subscriptionRevenue !== undefined) {
                     expect(Number.isFinite(value.subscriptionRevenue)).toBe(true);
                     expect(value.subscriptionRevenue).toBeGreaterThanOrEqual(0);
-                    // pool can never exceed the revenue it comes from
-                    expect((value.subscriptionRevenue * value.revenueSharePercent) / 100).toBeLessThanOrEqual(value.subscriptionRevenue);
+                    // pool (computed as the route does: revenue * (share / 100)) is finite and never exceeds the revenue
+                    const pool = value.subscriptionRevenue * (value.revenueSharePercent / 100);
+                    expect(Number.isFinite(pool)).toBe(true);
+                    expect(pool).toBeLessThanOrEqual(value.subscriptionRevenue);
                 }
                 if (value.month !== undefined) expect(value.month.getUTCDate()).toBe(1);
                 if (revenueSharePercent === undefined) expect(value.revenueSharePercent).toBe(20);
