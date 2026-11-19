@@ -41,6 +41,9 @@ export function WizardProgress() {
             <button
               onClick={() => index < currentStep && goToStep(index)}
               disabled={index > currentStep}
+              // A finished step shows only a check icon: name it like the mobile dots (axe button-name).
+              aria-label={`Step ${index + 1}: ${step.label}`}
+              aria-current={index === currentStep ? "step" : undefined}
               className={cn(
                 "flex items-center justify-center w-10 h-10 rounded-full transition-all",
                 "text-sm font-semibold",
