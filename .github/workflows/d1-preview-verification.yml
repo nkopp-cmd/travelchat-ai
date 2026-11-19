@@ -309,6 +309,7 @@ on:
       - 'app/challenges/page.tsx'
       - 'app/templates/page.tsx'
       - '__tests__/app/templates-free-path.test.tsx'
+      - '__tests__/app/newsletter-placement.test.tsx'
       - 'components/ui/badge.tsx'
       - 'components/activities/viator-suggestions.tsx'
       - '__tests__/components/viator-suggestions-lazy.test.tsx'
