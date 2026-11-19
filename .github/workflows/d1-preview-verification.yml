@@ -512,6 +512,7 @@ on:
       - 'app/api/admin/payouts/execute/route.ts'
       - 'app/api/admin/payouts/calculate/route.ts'
       - '__tests__/api/admin-payout-calculation-candidate.test.ts'
+      - '__tests__/api/admin-payout-revenue.property.test.ts'
       - '__tests__/api/admin-payout-execution-candidate.test.ts'
       - 'app/api/connect/status/route.ts'
       - 'app/api/connect/dashboard/route.ts'

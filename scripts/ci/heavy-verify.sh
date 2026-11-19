@@ -228,6 +228,7 @@ VITEST_FILES=(
   __tests__/api/connect-dashboard-candidate.test.ts
   __tests__/api/admin-payout-execution-candidate.test.ts
   __tests__/api/admin-payout-calculation-candidate.test.ts
+  __tests__/api/admin-payout-revenue.property.test.ts
   __tests__/lib/app-data-preview-profile.test.ts
   __tests__/pages/profile-candidate.test.tsx
   __tests__/components/preview-email-preferences.test.tsx
@@ -598,6 +599,7 @@ ESLINT_FILES=(
   __tests__/api/admin-payout-execution-candidate.test.ts
   app/api/admin/payouts/calculate/route.ts
   __tests__/api/admin-payout-calculation-candidate.test.ts
+  __tests__/api/admin-payout-revenue.property.test.ts
   lib/app-data/preview-profile.ts
   components/profile/preview-profile.tsx
   app/profile/page.tsx
