@@ -16,7 +16,8 @@ export function parsePlannerSpotId(value: unknown): string | undefined {
   return typeof value === "string" && value.length === 36 && /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(value)
     ? value.toLowerCase() : undefined;
 }
-const slug = /^[a-z0-9-]{1,80}$/;
+// Same rule as the corridor destinationSlug in lib/validations.ts.
+const slug = /^(?=.{1,64}$)[a-z0-9]+(?:-[a-z0-9]+)*$/;
 function record(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
@@ -31,22 +32,23 @@ function choice(value: unknown, options: string[]): value is string {
 }
 function validInputs(value: unknown): value is WizardData {
   if (!record(value) || Object.keys(value).some(key => !fields.has(key))) return false;
-  if (!text(value.city, 120) || !integer(value.days, 1, 21)
+  if (!text(value.city, 100) || !integer(value.days, 1, 21)
     || !choice(value.budget, ["cheap", "moderate", "splurge"])
     || !choice(value.pace, ["relaxed", "moderate", "active", "packed"])
     || !choice(value.groupType, ["solo", "couple", "friends", "family", "business"])
     || !integer(value.localnessLevel, 1, 5)) return false;
   if (!Array.isArray(value.interests) || value.interests.length > 10
-    || !value.interests.every(item => text(item, 80, 1))) return false;
+    || !value.interests.every(item => text(item, 50, 1))) return false;
   if (!Array.isArray(value.citySlugs) || value.citySlugs.length > 5
     || !value.citySlugs.every(item => typeof item === "string" && slug.test(item))) return false;
   if (!record(value.cityNameBySlug) || Object.keys(value.cityNameBySlug).length > 5
     || !Object.entries(value.cityNameBySlug).every(([key, name]) => slug.test(key) && text(name, 120))) return false;
-  if (value.templatePrompt !== undefined && !text(value.templatePrompt, 4096)) return false;
+  if (value.templatePrompt !== undefined && !text(value.templatePrompt, 2000)) return false;
   if (value.templateName !== undefined && !text(value.templateName, 160)) return false;
   if (value.startDate !== undefined && (!text(value.startDate, 10) || !tripEndDate(value.startDate, value.days))) return false;
   if (value.selectedSpotId !== undefined && !parsePlannerSpotId(value.selectedSpotId)) return false;
-  return value.tripMode === "multi" ? value.citySlugs.length >= 2
+  // Limits match lib/validations.ts: a restored draft must pass the generate schema (push AO2).
+  return value.tripMode === "multi" ? value.citySlugs.length >= 2 && value.days >= 3
     : value.tripMode === "single" && value.city.trim().length > 0 && value.days <= 7;
 }
 

@@ -39,6 +39,7 @@ VITEST_FILES=(
   __tests__/components/planner-dates.test.tsx
   __tests__/lib/planner-draft.test.ts
   __tests__/components/planner-resume.test.tsx
+  __tests__/lib/planner-query.property.test.ts
   __tests__/components/planner-quick-start-money-path.test.tsx
   __tests__/components/planner-spot-money-path.test.tsx
   __tests__/components/planner-trip-generated-order.test.tsx

@@ -63,6 +63,11 @@ describe("explicit planner resume", () => {
     render(<NewItineraryPage />);
     expect(props().initialData).toMatchObject({ city: "Tokyo", days: 2, groupType: "couple", interests: saved.interests });
   });
+  it("drops an unknown ?group= value that the generate schema would reject with 400 (push AO1)", () => {
+    state.query = "city=Seoul&group=bachelor-party";
+    render(<NewItineraryPage />);
+    expect(props().initialData).toEqual({ city: "Seoul" });
+  });
   it("does not restore an expired plan", () => {
     savePlannerDraft(localStorage, saved, Date.now() - PLANNER_DRAFT_TTL);
     state.query = "resume=1";

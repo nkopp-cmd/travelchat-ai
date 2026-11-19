@@ -49,6 +49,14 @@ async function getAnonymousUsage(): Promise<number> {
   return /^\d{1,6}$/.test(usage.value) ? Number(usage.value) : ANON_LIMIT;
 }
 
+
+// Push AO1: the only real planner request on 2026-11-15 got 400 and the Worker log did not say why.
+// Log field paths and zod codes only, never the submitted values (city text, prompts).
+function logRejectedInput(kind: "single" | "corridor" | "body", issues: ReadonlyArray<{ path: ReadonlyArray<PropertyKey>; code: string }>) {
+  const fields = issues.slice(0, 10).map((issue) => `${issue.path.map(String).join(".") || "(root)"}:${issue.code}`);
+  console.warn(`[generate] rejected ${kind} input: ${fields.join(", ")}`);
+}
+
 export async function POST(req: NextRequest) {
   try {
     const limited = await rateLimiters.strict(req);
@@ -79,6 +87,7 @@ export async function POST(req: NextRequest) {
     try {
       rawBody = await req.json();
     } catch {
+      logRejectedInput("body", [{ path: [], code: "invalid_json" }]);
       return Errors.validationError("Request body must be valid JSON");
     }
 
@@ -88,6 +97,7 @@ export async function POST(req: NextRequest) {
         const errors = corridorValidation.error.issues
           .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
           .join(", ");
+        logRejectedInput("corridor", corridorValidation.error.issues);
         return Errors.validationError(errors || "Invalid request body");
       }
       const { corridor, ...preferences } = corridorValidation.data;
@@ -115,6 +125,7 @@ export async function POST(req: NextRequest) {
       const errors = validation.error.issues
         .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
         .join(", ");
+      logRejectedInput("single", validation.error.issues);
       return Errors.validationError(errors || "Invalid request body");
     }
 
@@ -137,6 +148,7 @@ export async function POST(req: NextRequest) {
     // Validate city is supported
     const cityValidation = validateCityForItinerary(city);
     if (!cityValidation.valid) {
+      logRejectedInput("single", [{ path: ["city"], code: "unsupported_city" }]);
       return Errors.validationError(cityValidation.error!);
     }
     const cityConfig = cityValidation.city!;
