@@ -201,6 +201,8 @@ on:
       - '__tests__/styles/home-below-fold.test.ts'
       - 'cloudflare/opennext/edge-html-cache.ts'
       - '__tests__/cloudflare-edge-cache-per-visitor-guard.test.ts'
+      - 'cloudflare/opennext/signed-out-redirect.ts'
+      - '__tests__/cloudflare-signed-out-redirect.test.ts'
       - '__tests__/cloudflare-edge-html-cache.test.ts'
       - '__tests__/lib/credits.test.ts'
       - 'lib/credits.ts'

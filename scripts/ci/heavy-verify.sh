@@ -207,6 +207,7 @@ VITEST_FILES=(
   __tests__/cloudflare-edge-html-cache.test.ts
   __tests__/lib/credits.test.ts
   __tests__/cloudflare-edge-cache-per-visitor-guard.test.ts
+  __tests__/cloudflare-signed-out-redirect.test.ts
   __tests__/cloudflare-robots-host.test.ts
   __tests__/middleware.test.ts
   __tests__/cloudflare-static-public-html.test.ts
@@ -578,6 +579,8 @@ ESLINT_FILES=(
   __tests__/cloudflare-critical-css.test.ts
   __tests__/cloudflare-edge-html-cache.test.ts
   __tests__/cloudflare-edge-cache-per-visitor-guard.test.ts
+  cloudflare/opennext/signed-out-redirect.ts
+  __tests__/cloudflare-signed-out-redirect.test.ts
   __tests__/cloudflare-robots-host.test.ts
   app/privacy/page.tsx
   app/terms/page.tsx

@@ -12,6 +12,7 @@ import { default as handler } from "../../.open-next/worker.js";
 import { serveWithEdgeCache } from "./edge-html-cache";
 import { loadCriticalCss, withCriticalCss } from "./critical-css";
 import { withHostRobots } from "./robots-host";
+import { signedOutRedirect } from "./signed-out-redirect";
 import { runScheduledRoute, type ScheduledController, type ScheduledEnv } from "./cron-routes";
 
 interface WorkerExecutionContext {
@@ -25,6 +26,8 @@ interface FetchEnv {
 
 const worker = {
   async fetch(request: Request, env: FetchEnv, ctx: WorkerExecutionContext) {
+    const redirect = signedOutRedirect(request);
+    if (redirect) return redirect;
     return withHostRobots(request, await serveWithEdgeCache(
       request,
       env.CF_VERSION_METADATA?.id,
