@@ -9,6 +9,7 @@ set -uo pipefail
 cd "$(dirname "$0")/../.."
 
 VITEST_FILES=(
+  __tests__/layout-chrome-bundle.test.ts
   __tests__/providers/query-provider-scope.test.ts
   __tests__/components/generated-preview.test.tsx
   __tests__/lib/paid-return.test.ts
@@ -383,6 +384,12 @@ ESLINT_FILES=(
   app/credits/page.tsx
   app/credits/[city]/page.tsx
   __tests__/lib/credits.test.ts
+  __tests__/layout-chrome-bundle.test.ts
+  components/ui/button-variants.ts
+  components/ui/gradient-text.tsx
+  components/ui/button.tsx
+  components/layout/mobile-bottom-nav.tsx
+  components/brand/logo.tsx
   lib/auth/gate-href.ts
   lib/blog/posts.ts
   lib/blog/markdown.tsx

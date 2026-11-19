@@ -1,7 +1,6 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
 import { isMobileBottomNavHidden } from "@/lib/layout/mobile-chrome";
 
 interface MainContentShellProps {
@@ -15,10 +14,7 @@ export function MainContentShell({ children }: MainContentShellProps) {
   return (
     <main
       id="main-content"
-      className={cn(
-        "flex-1 min-w-0",
-        reserveBottomNavSpace && "pb-[var(--ll-nav-clearance)]",
-      )}
+      className={reserveBottomNavSpace ? "flex-1 min-w-0 pb-[var(--ll-nav-clearance)]" : "flex-1 min-w-0"}
       tabIndex={-1}
     >
       {children}
