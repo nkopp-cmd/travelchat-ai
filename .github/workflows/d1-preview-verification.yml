@@ -388,6 +388,7 @@ on:
       - '__tests__/lib/usage-tracking-atomic.test.ts'
       - '__tests__/lib/quota-math.property.test.ts'
       - '__tests__/lib/image-gate.property.test.ts'
+      - '__tests__/lib/stripe-tier.property.test.ts'
       - 'lib/subscription.ts'
       - 'lib/stripe.ts'
       - 'config/stripe-live-prices.json'

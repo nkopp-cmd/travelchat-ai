@@ -31,18 +31,15 @@ export const STRIPE_PRICE_IDS = {
     },
 };
 
-// Map Stripe price IDs to tiers
+// Map Stripe price IDs to tiers. An empty input or an empty (unset) configured id never matches:
+// without this guard "" === "" turned a subscription with no price into Premium when an env was missing.
 export function getTierFromPriceId(priceId: string): SubscriptionTier {
-    if (
-        priceId === STRIPE_PRICE_IDS.premium.monthly ||
-        priceId === STRIPE_PRICE_IDS.premium.yearly
-    ) {
+    if (!priceId) return "free";
+    const matches = (...ids: string[]) => ids.some((id) => id !== "" && id === priceId);
+    if (matches(STRIPE_PRICE_IDS.premium.monthly, STRIPE_PRICE_IDS.premium.yearly)) {
         return "premium";
     }
-    if (
-        priceId === STRIPE_PRICE_IDS.pro.monthly ||
-        priceId === STRIPE_PRICE_IDS.pro.yearly
-    ) {
+    if (matches(STRIPE_PRICE_IDS.pro.monthly, STRIPE_PRICE_IDS.pro.yearly)) {
         return "pro";
     }
     return "free";
