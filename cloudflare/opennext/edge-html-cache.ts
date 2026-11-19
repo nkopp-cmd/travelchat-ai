@@ -122,6 +122,7 @@ type Handler = (request: Request) => Promise<Response>;
 interface EdgeCache {
   match(request: Request): Promise<Response | undefined>;
   put(request: Request, response: Response): Promise<void>;
+  delete?(request: Request): Promise<boolean>;
 }
 
 // Cookies that make a cached path render per visitor. Such a request never reads or writes the shared entry:
@@ -280,6 +281,13 @@ async function serveNotFound(request: Request, version: string, cache: EdgeCache
   return response;
 }
 
+// Stale-while-revalidate (Push AW1). An entry stays in the Cache API for its TTL plus this window; past the TTL a
+// visitor gets the stored copy at once (STALE) and this request renders a fresh copy in waitUntil. One refresh per
+// stale request, triggered only by a visitor: no timer, no cron, no self-scheduling. Before this, with little real
+// traffic, most visitors of spot/city/planner pages got the cold render (0.5-2.6 s TTFB) after a 5-60 min expiry.
+export const EDGE_STALE_SECONDS = 86400;
+const STORED_AT = "x-localley-stored-at";
+
 export async function serveWithEdgeCache(
   request: Request,
   version: string | undefined,
@@ -288,33 +296,60 @@ export async function serveWithEdgeCache(
   handler: Handler,
   // Rewrites a fresh spot detail HTML before it is stored and sent (critical CSS); the cached copy keeps the result.
   rewriteSpotHtml?: (response: Response) => Promise<Response>,
+  now: () => number = Date.now,
 ): Promise<Response> {
   if (version && isUnknownPagePath(request)) return serveNotFound(request, version, cache, waitUntil, handler);
   if (!version || !isEdgeCacheable(request)) return handler(request);
   const key = edgeCacheKey(request, version);
+  const ttl = edgeTtlSeconds(withoutTracking(new URL(request.url)).pathname) ?? 0;
   const hit = await cache.match(key);
   if (hit) {
+    const storedAt = Number(hit.headers.get(STORED_AT));
+    const stale = storedAt > 0 && now() - storedAt > ttl * 1000;
     const response = new Response(hit.body, hit);
-    response.headers.set(EDGE_CACHE_HEADER, "HIT");
+    response.headers.set(EDGE_CACHE_HEADER, stale ? "STALE" : "HIT");
     const origin = response.headers.get(ORIGIN_CACHE_CONTROL);
     if (origin) response.headers.set("cache-control", origin);
     response.headers.delete(ORIGIN_CACHE_CONTROL);
+    response.headers.delete(STORED_AT);
+    if (stale) {
+      // The refresh replaces the entry; a page that is gone now (404, error, cookie) drops it, so a removed spot
+      // is never served stale for the rest of the window.
+      waitUntil(renderAndStore(request, key, ttl, cache, waitUntil, handler, rewriteSpotHtml, now)
+        .then((result) => (result.stored ? undefined : cache.delete?.(key)))
+        .then(() => undefined, () => undefined));
+    }
     return response;
   }
+  const { response } = await renderAndStore(request, key, ttl, cache, waitUntil, handler, rewriteSpotHtml, now);
+  return response;
+}
+
+async function renderAndStore(
+  request: Request,
+  key: Request,
+  ttl: number,
+  cache: EdgeCache,
+  waitUntil: (promise: Promise<unknown>) => void,
+  handler: Handler,
+  rewriteSpotHtml: ((response: Response) => Promise<Response>) | undefined,
+  now: () => number,
+): Promise<{ response: Response; stored: boolean }> {
   const asked = new URL(request.url);
   const url = withoutTracking(asked);
   // A miss renders the cleaned URL, so no tracking value can land in the shared HTML.
   const rendered = await handler(QUERY_FREE_PATHS.has(url.pathname) && url.search
     ? new Request(`${url.origin}${url.pathname}`, request)
     : url.search !== asked.search ? new Request(url.toString(), request) : request);
-  if (!storable(request, rendered)) return rendered;
+  if (!storable(request, rendered)) return { response: rendered, stored: false };
   const fresh = rewriteSpotHtml && isSpotDetailPath(url.pathname) ? await rewriteSpotHtml(rendered).catch(() => rendered) : rendered;
   const stored = new Response(fresh.clone().body, fresh);
   // The Cache API honours Cache-Control on put; visitors still get Next's own header.
   stored.headers.set(ORIGIN_CACHE_CONTROL, fresh.headers.get("cache-control") ?? "");
-  stored.headers.set("cache-control", `public, s-maxage=${edgeTtlSeconds(new URL(request.url).pathname)}`);
+  stored.headers.set("cache-control", `public, s-maxage=${ttl + EDGE_STALE_SECONDS}`);
+  stored.headers.set(STORED_AT, String(now()));
   waitUntil(cache.put(key, stored).catch(() => undefined));
   const response = new Response(fresh.body, fresh);
   response.headers.set(EDGE_CACHE_HEADER, "MISS");
-  return response;
+  return { response, stored: true };
 }
