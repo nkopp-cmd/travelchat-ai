@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => ({ reader: vi.fn() }));
 vi.mock("@/lib/app-data/preview-db", () => ({ previewAppDataReader: mocks.reader }));
 
 import { previewStoryTier } from "@/lib/app-data/preview-story-tier";
+import { getEffectiveTier, isBetaMode } from "@/lib/early-adopters";
 
 const originalEnvironment = process.env;
 afterEach(() => { process.env = originalEnvironment; vi.clearAllMocks(); });
@@ -35,9 +36,11 @@ describe("preview story retention tier", () => {
     expect(await previewStoryTier("owner-id", null)).toBe("free");
   });
 
-  it("keeps beta and lifetime premium overrides without a subscription read", async () => {
+  it("keeps the lifetime premium override without a subscription read; BETA_MODE grants nothing (Push AS1)", async () => {
     process.env = { ...originalEnvironment, BETA_MODE: "true" };
-    expect(await previewStoryTier("owner-id", null)).toBe("premium");
+    rows([]);
+    expect(await previewStoryTier("owner-id", null)).toBe("free");
+    vi.clearAllMocks();
     process.env = { ...originalEnvironment, BETA_MODE: "false" };
     expect(await previewStoryTier("owner-id", "hello@localley.io")).toBe("premium");
     expect(mocks.reader).not.toHaveBeenCalled();
@@ -49,5 +52,13 @@ describe("preview story retention tier", () => {
     await expect(previewStoryTier("owner-id", null)).rejects.toThrow("Ambiguous");
     rows([{ tier: "unknown", status: "active" }]);
     await expect(previewStoryTier("owner-id", null)).rejects.toThrow("Invalid");
+  });
+});
+
+describe("retired beta mode (Push AS1)", () => {
+  it.each(["true", "TRUE", "1", "false", undefined])("BETA_MODE=%s never upgrades a tier", async (value) => {
+    process.env = { ...originalEnvironment, BETA_MODE: value };
+    expect(isBetaMode()).toBe(false);
+    for (const tier of ["free", "pro", "premium"] as const) expect(await getEffectiveTier("owner-id", tier)).toBe(tier);
   });
 });
