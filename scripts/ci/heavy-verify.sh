@@ -217,6 +217,7 @@ VITEST_FILES=(
   __tests__/lib/auth-copy.test.ts
   __tests__/lib/gate-href.test.ts
   __tests__/styles/leaflet-borderless.test.ts
+  __tests__/styles/home-below-fold.test.ts
   __tests__/components/itinerary-wizard-template-footer.test.ts
   __tests__/lib/apify-spot-discovery.test.ts
   __tests__/lib/apify-discovery-collection.test.ts

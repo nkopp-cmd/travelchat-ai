@@ -5,7 +5,7 @@ import type { HomeSpotLink } from "@/lib/seo/home-links";
 export function GuideSpotLinks({ spots, hubs }: { spots: HomeSpotLink[]; hubs: { name: string; href: string }[] }) {
   if (!spots.length && !hubs.length) return null;
   return (
-    <section id="guide-spots" className="bg-surface py-14">
+    <section id="guide-spots" className="ll-below-fold bg-surface py-14">
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
         {spots.length > 0 && (
           <>

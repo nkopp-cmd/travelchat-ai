@@ -54,7 +54,7 @@ export function HeroHelperLinks() {
 export function LandingHelpers() {
     const others = HELP_COUNTRIES.filter((country) => country.slug !== "korea").map((country) => country.name);
     return (
-        <section aria-labelledby="landing-helpers" className="bg-background py-12">
+        <section aria-labelledby="landing-helpers" className="ll-below-fold bg-background py-12">
             <div className="container mx-auto max-w-7xl px-4 md:px-6">
                 <div className="max-w-2xl">
                     <p className="text-sm font-bold uppercase tracking-[0.16em] text-primary">On the street</p>

@@ -28,7 +28,7 @@ const SIZES = "(min-width: 640px) 560px, 100vw";
 
 export function WeekendPicks() {
     return (
-        <section className="bg-background py-12" aria-labelledby="weekend-picks-title">
+        <section className="ll-below-fold bg-background py-12" aria-labelledby="weekend-picks-title">
             <div className="container mx-auto max-w-xl px-4 text-center">
                 <p className="text-xs font-bold uppercase tracking-[0.22em] text-muted-foreground">Choose your</p>
                 <h2 id="weekend-picks-title" className="mt-1 text-3xl font-black uppercase tracking-wide text-primary md:text-4xl">

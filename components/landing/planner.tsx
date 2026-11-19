@@ -240,7 +240,7 @@ export function LandingTripBuilder() {
 export function LandingPresets() {
   const { applyPreset } = usePlanner();
   return (
-    <section className="bg-surface py-8">
+    <section className="ll-below-fold bg-surface py-8">
       <div className="container mx-auto grid max-w-7xl gap-3 px-4 md:grid-cols-3 md:px-6">
         {QUICK_PRESETS.map((preset) => (
           <button

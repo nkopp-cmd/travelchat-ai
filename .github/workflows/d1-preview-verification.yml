@@ -198,6 +198,7 @@ on:
       - 'cloudflare/opennext/cron-routes.ts'
       - 'cloudflare/opennext/worker.ts'
       - '__tests__/styles/leaflet-borderless.test.ts'
+      - '__tests__/styles/home-below-fold.test.ts'
       - 'cloudflare/opennext/edge-html-cache.ts'
       - '__tests__/cloudflare-edge-cache-per-visitor-guard.test.ts'
       - '__tests__/cloudflare-edge-html-cache.test.ts'
