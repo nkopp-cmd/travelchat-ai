@@ -22,3 +22,30 @@ export function withoutCheckoutParam(href: string): string {
     url.searchParams.delete("checkout");
     return `${url.pathname}${url.search}${url.hash}`;
 }
+
+// Planner -> /pricing when a signed-in free account used its monthly trip (push AP1, 2026-11-19).
+// Before: the wizard waited for a `result.upgrade` flag that Errors.limitExceeded never sends, so the
+// visitor only saw a "Limit reached" toast and stayed on the planner.
+const DAY = /^\d{4}-\d{2}-\d{2}$/;
+
+/** /pricing?limit=itineraries[&resets=YYYY-MM-DD]; a missing or bad reset time is left out. */
+export function plannerLimitPricingHref(resetAt?: unknown): string {
+    const day = typeof resetAt === "string" ? resetAt.slice(0, 10) : "";
+    const valid = DAY.test(day) && !Number.isNaN(Date.parse(`${day}T00:00:00Z`));
+    return valid ? `/pricing?limit=itineraries&resets=${day}` : "/pricing?limit=itineraries";
+}
+
+export type PlannerLimitNotice = { resets: string | null };
+
+/** Reads ?limit=itineraries[&resets=]; any other value is null. The day is shown, never trusted for access. */
+export function parsePlannerLimit(search: string): PlannerLimitNotice | null {
+    const params = new URLSearchParams(search);
+    if (params.get("limit") !== "itineraries") return null;
+    const resets = params.get("resets") ?? "";
+    return { resets: DAY.test(resets) && !Number.isNaN(Date.parse(`${resets}T00:00:00Z`)) ? resets : null };
+}
+
+/** "December 1" style day for the notice (UTC, so the server day does not shift by time zone). */
+export function formatResetDay(day: string): string {
+    return new Date(`${day}T00:00:00Z`).toLocaleDateString("en-US", { month: "long", day: "numeric", timeZone: "UTC" });
+}

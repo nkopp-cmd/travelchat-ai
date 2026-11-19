@@ -22,7 +22,7 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { useToast } from "@/hooks/use-toast";
 import { TIER_CONFIGS } from "@/lib/subscription";
 import { cn } from "@/lib/utils";
-import { checkoutSignUpUrl, parseCheckoutIntent, withoutCheckoutParam } from "@/lib/pricing-checkout";
+import { checkoutSignUpUrl, formatResetDay, parseCheckoutIntent, parsePlannerLimit, withoutCheckoutParam, type PlannerLimitNotice } from "@/lib/pricing-checkout";
 import { currentPagePath, signInGateHref } from "@/lib/auth/gate-href";
 
 type PaidTier = "pro" | "premium";
@@ -123,6 +123,12 @@ export default function PricingPage() {
         setCheckoutClosed(true);
     }, []);
 
+    // From the planner after the free monthly trip (?limit=itineraries): say why the visitor is here.
+    const [plannerLimit, setPlannerLimit] = useState<PlannerLimitNotice | null>(null);
+    useEffect(() => {
+        setPlannerLimit(parsePlannerLimit(window.location.search));
+    }, []);
+
     // Back from sign-up with ?checkout=<tier>-<cycle>: start Stripe once, then drop the parameter.
     const autoCheckoutStarted = useRef(false);
     useEffect(() => {
@@ -185,6 +191,15 @@ export default function PricingPage() {
                 </header>
 
                 <div className="flex flex-1 flex-col">
+                    {plannerLimit && (
+                        <div role="status" data-testid="pricing-planner-limit" className="mt-4 rounded-lg bg-raised px-4 py-3 text-sm text-foreground">
+                            <p>
+                                You have used your free trip for this month.{" "}
+                                {plannerLimit.resets ? `Your next free trip opens on ${formatResetDay(plannerLimit.resets)}. ` : ""}
+                                Pro plans unlimited trips and saves them to your account.
+                            </p>
+                        </div>
+                    )}
                     {checkoutClosed && (
                         <div role="status" data-testid="pricing-checkout-closed" className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-raised px-4 py-3 text-sm text-foreground">
                             <p>Checkout closed. You were not charged. Pick a plan below when you are ready.</p>
