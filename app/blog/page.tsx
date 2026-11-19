@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { LocalleySignup } from "@/components/newsletter/localley-signup";
 import { PageHeader } from "@/components/layout/page-header";
 import { Newspaper } from "@/components/ui/icons";
 import { BLOG_DESCRIPTION, BLOG_POSTS, BLOG_TITLE, BLOG_URL, formatPostDate } from "@/lib/blog/posts";
@@ -39,6 +40,7 @@ export default function BlogIndexPage() {
         Going soon? <Link href="/itineraries/new" className="font-semibold text-primary underline underline-offset-2">Plan a free day with local spots</Link> or
         {" "}<Link href="/help" className="font-semibold text-primary underline underline-offset-2">open the phrase cards</Link>.
       </p>
+      <LocalleySignup source="blog-index" className="mt-10" />
     </div>
   );
 }

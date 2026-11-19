@@ -6,6 +6,7 @@ import Link from "next/link";
 import { PageHeader } from "@/components/layout/page-header";
 import { Languages } from "@/components/ui/icons";
 import { HELP_COUNTRIES } from "@/lib/help/phrases";
+import { LocalleySignup } from "@/components/newsletter/localley-signup";
 import { FreePlanLink } from "@/components/help/help-plan-link";
 
 export const metadata: Metadata = pageMeta({
@@ -36,6 +37,7 @@ export default function HelpPage() {
         ))}
       </ul>
       <FreePlanLink label="Plan a free trip" testId="help-index-plan-trip" />
+      <LocalleySignup source="help-index" className="mt-10" />
     </div>
   );
 }

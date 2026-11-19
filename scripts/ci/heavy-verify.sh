@@ -214,6 +214,7 @@ VITEST_FILES=(
   __tests__/cloudflare-defer-scripts.test.ts
   __tests__/app/planner-ssr-cities.test.tsx
   __tests__/app/templates-free-path.test.tsx
+  __tests__/app/newsletter-placement.test.tsx
   __tests__/lib/auth-copy.test.ts
   __tests__/lib/gate-href.test.ts
   __tests__/styles/leaflet-borderless.test.ts

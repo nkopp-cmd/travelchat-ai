@@ -20,6 +20,7 @@ import { LandingHero } from "@/components/landing/hero";
 import { HeroHelperLinks, LandingHelpers } from "@/components/landing/helpers";
 import { WeekendPicks } from "@/components/landing/weekend-picks";
 import { GuideSpotLinks } from "@/components/landing/guide-spot-links";
+import { LocalleySignup } from "@/components/newsletter/localley-signup";
 import { homeLinkRows } from "@/lib/seo/home-links-snapshot";
 import { homeGuideSpots, homeHubLinks } from "@/lib/seo/home-links";
 
@@ -249,6 +250,7 @@ export default function LandingPage() {
               );
             })}
           </div>
+          <LocalleySignup source="home" className="mx-auto mt-10 max-w-2xl" />
         </div>
       </section>
 
