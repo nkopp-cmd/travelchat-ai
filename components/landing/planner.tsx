@@ -22,10 +22,16 @@ import {
   Sparkles,
   Utensils,
 } from "@/components/ui/icons";
-import { Button } from "@/components/ui/button";
 import { CityImageAvatar } from "@/components/ui/city-image";
 import { LandingPresetPhoto } from "@/components/landing/preset-photo";
-import { cn } from "@/lib/utils";
+import { clsx } from "clsx";
+
+// Push AT3: the home planner is the only client module on "/" that pulled Button -> cn -> tailwind-merge (~8 KB
+// gzip). These are the exact strings twMerge(buttonVariants(...)) produced for the three buttons, so the look is
+// unchanged; the button bundle guard test (__tests__/layout-chrome-bundle.test.ts) keeps it that way.
+const SEARCH_BUTTON = "inline-flex items-center justify-center gap-2 whitespace-normal text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 bg-primary text-primary-foreground hover:bg-primary/90 min-h-11 px-6 has-[>svg]:px-4 h-12 rounded-lg";
+const START_BUTTON = "inline-flex items-center justify-center gap-2 whitespace-normal text-sm transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 min-h-11 px-6 has-[>svg]:px-4 h-12 rounded-lg bg-primary font-bold text-primary-foreground hover:bg-primary/90";
+const BROWSE_BUTTON = "inline-flex items-center justify-center gap-2 whitespace-normal text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 hover:text-accent-foreground min-h-11 px-6 has-[>svg]:px-4 h-12 rounded-lg bg-raised text-foreground hover:bg-overlay";
 
 type CityOption = { name: string; slug: string; vibe?: string };
 const VIBE_OPTIONS = [
@@ -197,13 +203,9 @@ export function LandingSearch() {
           className="w-full bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
         />
       </div>
-      <Button
-        type="submit"
-        size="lg"
-        className="h-12 rounded-lg"
-      >
+      <button type="submit" data-slot="button" className={SEARCH_BUTTON}>
         Search
-      </Button>
+      </button>
     </form>
   );
 }
@@ -320,7 +322,7 @@ function TripBuilder({
                   type="button"
                   onClick={() => setSelectedCity(city.name)}
                   aria-pressed={isSelected}
-                  className={cn(
+                  className={clsx(
                     "flex min-h-12 items-center gap-2 rounded-lg px-2 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     isSelected
                       ? " bg-primary/15 text-foreground"
@@ -362,7 +364,7 @@ function TripBuilder({
                 type="button"
                 onClick={() => setDays(option)}
                 aria-pressed={days === option}
-                className={cn(
+                className={clsx(
                   "min-h-11 rounded-lg text-sm font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                   days === option
                     ? " bg-primary/15 text-foreground"
@@ -390,7 +392,7 @@ function TripBuilder({
                   type="button"
                   onClick={() => toggleInterest(vibe.id)}
                   aria-pressed={isSelected}
-                  className={cn(
+                  className={clsx(
                     "flex min-h-12 items-center justify-between rounded-lg px-3 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     isSelected
                       ? " bg-primary/15 text-foreground"
@@ -430,26 +432,13 @@ function TripBuilder({
 
         <p data-testid="landing-free-offer" className="text-sm font-semibold text-foreground">{QUICK_START_OFFER}</p>
         <div className="grid gap-2 sm:grid-cols-2">
-          <Button
-            asChild
-            size="lg"
-            className="h-12 rounded-lg bg-primary font-bold text-primary-foreground hover:bg-primary/90"
-          >
-            <Link prefetch={false} href={itineraryHref}>
-              Start planning
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
-          <Button
-            asChild
-            variant="outline"
-            size="lg"
-            className="h-12 rounded-lg bg-raised text-foreground hover:bg-overlay"
-          >
-            <Link prefetch={false} href={exploreHref}>
-              Browse spots
-            </Link>
-          </Button>
+          <Link prefetch={false} href={itineraryHref} data-slot="button" className={START_BUTTON}>
+            Start planning
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+          <Link prefetch={false} href={exploreHref} data-slot="button" className={BROWSE_BUTTON}>
+            Browse spots
+          </Link>
         </div>
       </div>
     </div>
