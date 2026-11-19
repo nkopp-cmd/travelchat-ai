@@ -31,7 +31,7 @@ const PLAN_COPY = {
     pro: {
         title: "Pro",
         eyebrow: "For real trips",
-        description: "Daily planning, local routes, full addresses, exports, and richer itinerary support.",
+        description: "Unlimited day plans around spots locals rate, with full addresses for the taxi and exports.",
         badge: "Most useful",
         accent: "violet",
         icon: Sparkles,
@@ -47,7 +47,7 @@ const PLAN_COPY = {
     premium: {
         title: "Premium",
         eyebrow: "For power planning",
-        description: "The highest-capability Localley plan for heavy travelers, teams, and collaborative planning.",
+        description: "Everything in Pro, plus shared trips for your travel group, map pins with directions and unlimited chat.",
         badge: "Full access",
         accent: "indigo",
         icon: Crown,
@@ -213,10 +213,10 @@ export default function PricingPage() {
                                 Secure subscription through Stripe
                             </div>
                             <h1 className="max-w-3xl text-4xl font-semibold leading-tight tracking-normal text-foreground sm:text-5xl lg:text-6xl">
-                                Plan your first trip free. Upgrade when you need more.
+                                Your local friend is free. Pro plans the whole trip.
                             </h1>
                             <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
-                                Your first plan costs nothing and needs no account. Pro adds unlimited plans, full addresses and exports. Premium adds shared trips and richer maps.
+                                Phrases, menus, paying and taxi help cost nothing. Your first trip plan is free too, no account needed. Pro plans every day around the spots locals rate, with full addresses and exports.
                             </p>
                             <Button asChild className="mt-6 min-h-12 px-5 font-semibold">
                                 <Link href="/itineraries/new" data-testid="pricing-free-plan">Plan a free trip</Link>
@@ -324,18 +324,18 @@ export default function PricingPage() {
                     <section className="grid gap-4 py-8 md:grid-cols-3">
                         <ProofBlock
                             icon={Map}
-                            title="Built around trip intent"
-                            text="Plans unlock the route builder, local spot intelligence, and saved trip workflows."
+                            title="Spots locals rate"
+                            text="Plans use the restaurants, cafes, markets and neighborhoods you would normally only hear about after you land."
                         />
                         <ProofBlock
                             icon={Sparkles}
-                            title="Richer outputs"
-                            text="Paid plans support better images, exports, addresses, and trip context across devices."
+                            title="Addresses a driver can read"
+                            text="Pro shows the full address of every stop. Each spot card shows it in the local script, so a taxi takes you to the door."
                         />
                         <ProofBlock
                             icon={ShieldCheck}
-                            title="Simple billing"
-                            text="Checkout and plan changes stay in Stripe so payment state remains clean and auditable."
+                            title="Cancel anytime"
+                            text="Pay securely through Stripe. Change or cancel your plan yourself in the billing portal."
                         />
                     </section>
 

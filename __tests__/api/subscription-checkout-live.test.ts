@@ -35,6 +35,18 @@ describe("live checkout preserves billing state", () => {
   it("rejects a product ID in a price field before billing writes", async () => {
     m.price.mockReturnValue("prod_wrong"); expect((await POST(request())).status).toBe(400); expect(m.read).not.toHaveBeenCalled(); expect(m.customer).not.toHaveBeenCalled();
   });
+  it("refuses a signed-out request before any billing read or provider call (Push AY4)", async () => {
+    m.auth.mockResolvedValue({ userId: null });
+    expect((await POST(request())).status).toBe(401); expect(m.read).not.toHaveBeenCalled(); expect(m.customer).not.toHaveBeenCalled(); expect(m.checkout).not.toHaveBeenCalled();
+  });
+  it.each([{ tier: "free" }, { tier: "enterprise" }, {}, { tier: "pro", billingCycle: "weekly" }, { tier: "premium", billingCycle: "" }])("rejects tier/cycle %j with 400 before any billing read (Push AY4)", async body => {
+    const res = await POST(new NextRequest("https://www.localley.io/api/subscription/checkout", { method: "POST", body: JSON.stringify(body) }));
+    expect(res.status).toBe(400); expect(m.price).not.toHaveBeenCalled(); expect(m.read).not.toHaveBeenCalled(); expect(m.checkout).not.toHaveBeenCalled();
+  });
+  it.each(["active", "trialing", "past_due"])("answers 409 for a paid plan in status %s and opens no second checkout (Push AY4)", async status => {
+    m.read.mockResolvedValue({ data: { stripe_customer_id: "cus_owned", stripe_subscription_id: "sub_1", tier: "premium", status }, error: null });
+    expect((await POST(request())).status).toBe(409); expect(m.customer).not.toHaveBeenCalled(); expect(m.checkout).not.toHaveBeenCalled();
+  });
   it.each([{ id: "a", emailVerified: false }, { id: "b", emailVerified: true }])("refuses an unverified or changed actor %j", async user => {
     m.user.mockResolvedValue(user); expect((await POST(request())).status).toBe(403); expect(m.customer).not.toHaveBeenCalled(); expect(m.read).not.toHaveBeenCalled();
   });
