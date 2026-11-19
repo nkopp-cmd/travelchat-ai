@@ -102,6 +102,104 @@ describe("loader in the browser", () => {
   });
 });
 
+describe("loader waits for the hero's own LCP entry (Push AT1 attempt 3)", () => {
+  type Entry = { element: Element | null; size: number };
+  let report: (entries: Entry[]) => void = () => {};
+  class FakeObserver {
+    static supportedEntryTypes = ["largest-contentful-paint", "paint"];
+    constructor(cb: (list: { getEntries: () => Entry[] }) => void) { report = (entries) => cb({ getEntries: () => entries }); }
+    observe() {}
+  }
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+    document.head.innerHTML = "";
+    document.body.innerHTML = "";
+  });
+  const run = (complete = false) => {
+    vi.useFakeTimers();
+    vi.stubGlobal("PerformanceObserver", FakeObserver);
+    document.body.innerHTML = `${HERO}<h1>Title</h1>`;
+    const img = document.querySelector("img")!;
+    Object.defineProperty(img, "complete", { value: complete });
+    img.getBoundingClientRect = () => ({ left: 0, top: 0, right: 400, bottom: 300, width: 400, height: 300, x: 0, y: 0, toJSON() {} });
+    new Function(loaderScript(["/_next/static/chunks/a.js"], [], ["/_next/static/css/x.css"]).replace(/^<script>|<\/script>$/g, ""))();
+    return img;
+  };
+  const started = () => document.head.querySelectorAll("script,link").length;
+
+  it("holds the CSS and chunks after the hero load until the hero's LCP entry, then starts exactly once", () => {
+    const img = run();
+    report([{ element: document.querySelector("h1"), size: 5000 }]);
+    img.dispatchEvent(new Event("load"));
+    vi.advanceTimersByTime(100);
+    expect(started()).toBe(0);
+    report([{ element: img, size: 120000 }]);
+    vi.advanceTimersByTime(50);
+    expect(document.head.querySelectorAll("script")).toHaveLength(1);
+    expect(document.head.querySelectorAll('link[rel="stylesheet"]')).toHaveLength(1);
+    report([{ element: img, size: 120000 }]);
+    window.dispatchEvent(new Event("pointerdown"));
+    vi.advanceTimersByTime(DEFER_FALLBACK_MS);
+    expect(document.head.querySelectorAll("script")).toHaveLength(1);
+  });
+
+  it("an LCP entry for the hero before its load event still waits for the load", () => {
+    const img = run();
+    report([{ element: img, size: 120000 }]);
+    vi.advanceTimersByTime(100);
+    expect(started()).toBe(0);
+    img.dispatchEvent(new Event("load"));
+    vi.advanceTimersByTime(50);
+    expect(started()).toBe(2);
+  });
+
+  it("starts after the hero load when a larger element is the LCP (the hero can never be it)", () => {
+    const img = run();
+    report([{ element: document.querySelector("h1"), size: 400 * 300 + 1 }]);
+    img.dispatchEvent(new Event("load"));
+    vi.advanceTimersByTime(50);
+    expect(started()).toBe(2);
+  });
+
+  it("a cached hero still waits for its LCP entry", () => {
+    const img = run(true);
+    vi.advanceTimersByTime(100);
+    expect(started()).toBe(0);
+    report([{ element: img, size: 120000 }]);
+    vi.advanceTimersByTime(50);
+    expect(started()).toBe(2);
+  });
+
+  it("a hero error starts the chunks without an LCP entry", () => {
+    const img = run();
+    img.dispatchEvent(new Event("error"));
+    vi.advanceTimersByTime(50);
+    expect(started()).toBe(2);
+  });
+
+  it("without an LCP entry (background tab) the input or the fallback still starts the chunks", () => {
+    const img = run();
+    img.dispatchEvent(new Event("load"));
+    vi.advanceTimersByTime(DEFER_FALLBACK_MS - 1);
+    expect(started()).toBe(0);
+    vi.advanceTimersByTime(1);
+    expect(started()).toBe(2);
+  });
+
+  it("without largest-contentful-paint support it starts after the hero load as before", () => {
+    vi.useFakeTimers();
+    vi.stubGlobal("PerformanceObserver", class { static supportedEntryTypes = ["paint"]; observe() {} });
+    document.body.innerHTML = HERO;
+    const img = document.querySelector("img")!;
+    Object.defineProperty(img, "complete", { value: false });
+    new Function(loaderScript(["/_next/static/chunks/a.js"], []).replace(/^<script>|<\/script>$/g, ""))();
+    img.dispatchEvent(new Event("load"));
+    vi.advanceTimersByTime(50);
+    expect(started()).toBe(1);
+  });
+});
+
 describe("spot detail hero (Push AM2)", () => {
   const SPOT_IMG = '<img alt="Spot" fetchPriority="high" decoding="async" data-nimg="fill" class="object-cover" src="/media/spot/x.webp"/>';
 
