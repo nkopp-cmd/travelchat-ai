@@ -21,6 +21,8 @@ const ALLOWED_INTERESTS = new Set([
 
 const ALLOWED_BUDGETS = new Set<WizardData["budget"]>(["cheap", "moderate", "splurge"]);
 const ALLOWED_PACES = new Set<WizardData["pace"]>(["relaxed", "moderate", "active", "packed"]);
+// Push AO1: ?group= went to the server unchecked; the generate schema's enum then answered 400.
+const ALLOWED_GROUPS = new Set(["solo", "couple", "friends", "family", "business"]);
 
 function parseNumberParam(value: string | null, min: number, max: number) {
   if (!value) return undefined;
@@ -129,7 +131,7 @@ export function NewItineraryClient({ initialCities }: { initialCities: PlannerCi
     initialData.pace = paceParam;
   }
 
-  if (groupParam) {
+  if (groupParam && ALLOWED_GROUPS.has(groupParam)) {
     initialData.groupType = groupParam;
   }
   if (selectedSpotId) initialData.selectedSpotId = selectedSpotId;

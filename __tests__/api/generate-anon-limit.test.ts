@@ -48,4 +48,26 @@ describe("POST /api/itineraries/generate anonymous limit", () => {
     const response = await POST(post({}));
     expect(response.status).not.toBe(401);
   });
+
+  it("logs which field failed, never the submitted value (push AO1)", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { POST } = await import("@/app/api/itineraries/generate/route");
+    const response = await POST(post({ city: "Seoul", days: 2, groupType: "secret-group-value" }));
+    expect(response.status).toBe(400);
+    const line = warn.mock.calls.map((call) => String(call[0])).find((text) => text.startsWith("[generate] rejected"));
+    expect(line).toBe("[generate] rejected single input: groupType:invalid_value");
+    expect(line).not.toContain("secret-group-value");
+    warn.mockRestore();
+  });
+
+  it("logs an unsupported city as a reason without the city text", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { POST } = await import("@/app/api/itineraries/generate/route");
+    const response = await POST(post({ city: "Atlantis-private-text", days: 2 }));
+    expect(response.status).toBe(400);
+    const lines = warn.mock.calls.map((call) => String(call[0]));
+    expect(lines).toContain("[generate] rejected single input: city:unsupported_city");
+    expect(lines.join("\n")).not.toContain("Atlantis");
+    warn.mockRestore();
+  });
 });
