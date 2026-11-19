@@ -86,10 +86,15 @@ describe("POST /api/itineraries/generate anonymous success contract", () => {
   });
 
   it("returns the preview fields the wizard routes on, keeps the draft and spends the one free plan", async () => {
+    const info = vi.spyOn(console, "info").mockImplementation(() => {});
     const { POST } = await import("@/app/api/itineraries/generate/route");
     const response = await POST(post({ city: "Seoul", days: 2 }));
     expect(response.status).toBe(200);
     const json = await response.json();
+    // Push AP2: the success line names the provider and the tier class, never the city or plan text.
+    const outcome = info.mock.calls.filter((call) => call[0] === "[generate] outcome").map((call) => call[1]);
+    expect(outcome).toEqual([{ status: 200, tier: "anon", ms: expect.any(Number), provider: "glm", reason: "ok" }]);
+    info.mockRestore();
 
     expect(json.success).toBe(true);
     expect(json.isAnonymous).toBe(true);

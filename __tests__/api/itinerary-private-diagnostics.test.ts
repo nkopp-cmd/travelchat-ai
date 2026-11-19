@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { logItineraryFormatFailure, parsePrivateItineraryJSON, logItineraryRequestFailure } from '@/app/api/itineraries/generate/diagnostics';
+import { logGenerateOutcome, logItineraryFormatFailure, parsePrivateItineraryJSON, logItineraryRequestFailure } from '@/app/api/itineraries/generate/diagnostics';
 
 describe('private itinerary diagnostics', () => {
   it('never logs raw model text, URLs, credentials or syntax error fragments', () => {
@@ -37,6 +37,15 @@ describe('private itinerary diagnostics', () => {
     const logger = { error: vi.fn() };
     logItineraryRequestFailure(logger);
     expect(logger.error.mock.calls).toEqual([['Error generating itinerary:', { reason: 'generation_request_failed' }]]);
+  });
+  it('logs the generate outcome with fixed labels, a rounded duration and ok/other fallbacks', () => {
+    const logger = { info: vi.fn() };
+    logGenerateOutcome(200, { tier: 'paid', provider: 'openai' }, 12345.6, logger);
+    logGenerateOutcome(503, { tier: 'unknown' }, -3, logger);
+    expect(logger.info.mock.calls).toEqual([
+      ['[generate] outcome', { status: 200, tier: 'paid', ms: 12346, provider: 'openai', reason: 'ok' }],
+      ['[generate] outcome', { status: 503, tier: 'unknown', ms: 0, provider: 'none', reason: 'other' }],
+    ]);
   });
   it('preserves valid JSON exactly without rewriting provider output', () => {
     const itinerary = { title: 'Seoul', dailyPlans: [{ day: 1, activities: [{ name: 'Market' }] }] };

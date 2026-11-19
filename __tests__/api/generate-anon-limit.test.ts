@@ -36,6 +36,23 @@ describe("POST /api/itineraries/generate anonymous limit", () => {
     expect(json.error.details.signupUrl).toBe("/sign-up");
   });
 
+  it("logs one outcome line per POST: status, tier class, reason, no input values (push AP2)", async () => {
+    const info = vi.spyOn(console, "info").mockImplementation(() => {});
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { POST } = await import("@/app/api/itineraries/generate/route");
+    state.anonCookie = "1";
+    await POST(post({ city: "Seoul", days: 2 }));
+    state.anonCookie = undefined;
+    await POST(post({ city: "Atlantis-private-text", days: 2 }));
+    const lines = info.mock.calls.filter((call) => call[0] === "[generate] outcome").map((call) => call[1]);
+    expect(lines).toEqual([
+      { status: 401, tier: "anon", ms: expect.any(Number), provider: "none", reason: "anon_limit" },
+      { status: 400, tier: "anon", ms: expect.any(Number), provider: "none", reason: "invalid_input" },
+    ]);
+    expect(JSON.stringify(lines)).not.toMatch(/Seoul|Atlantis/);
+    vi.restoreAllMocks();
+  });
+
   it.each(["abc", "NaN", "-5", "0.5", "1e9", ""])("treats a tampered usage cookie %j as the free trip already used", async (value) => {
     state.anonCookie = value;
     const { POST } = await import("@/app/api/itineraries/generate/route");
