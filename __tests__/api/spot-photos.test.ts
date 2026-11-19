@@ -291,4 +291,35 @@ describe("public spot photo gallery", () => {
         expect(mocks.limit).not.toHaveBeenCalled();
         expect(fetch).not.toHaveBeenCalled();
     });
+    describe("outcome log (push AQ2)", () => {
+        const outcomes = (log: ReturnType<typeof vi.spyOn>) => log.mock.calls
+            .filter(([tag]) => tag === "[spot-photos] outcome").map(([, json]) => JSON.parse(String(json)));
+        const bot = (spotId = id) => GET(new NextRequest(`https://localley.io/api/spots/${spotId}/photos`, { headers: { "user-agent": "Googlebot/2.1" } }),
+            { params: Promise.resolve({ id: spotId }) });
+
+        it.each([
+            ["available", () => call(), { status: 200, result: "available", reason: "ok", spotId: id }],
+            ["automated", () => bot(), { status: 200, result: "unavailable", reason: "automated", spotId: id }],
+            ["invalid id", () => call("not-a-uuid"), { status: 400, result: "unavailable", reason: "invalid_id" }],
+            ["no place id", () => { mocks.single.mockResolvedValue({ data: { ...spot, google_place_id: null, photos: ["https://localley.io/uploads/listing.jpg"] } }); return call(); },
+                { status: 200, result: "unavailable", reason: "no_place_id", spotId: id }],
+            ["not public", () => { mocks.single.mockResolvedValue({ data: null, error: null }); return call(); },
+                { status: 404, result: "unavailable", reason: "not_public", spotId: id }],
+            ["database failure", () => { mocks.single.mockResolvedValue({ data: null, error: { message: "private SQL" } }); return call(); },
+                { status: 503, result: "unavailable", reason: "source_unavailable", spotId: id }],
+            ["no provider photos", () => { vi.mocked(fetch).mockImplementation(async () => Response.json({ ...details(), photos: [] })); return call(); },
+                { status: 200, result: "unavailable", reason: "no_provider_photos", spotId: id }],
+        ])("writes one line with a fixed reason: %s", async (_name, run, expected) => {
+            const log = vi.spyOn(console, "log").mockImplementation(() => {});
+            vi.spyOn(console, "error").mockImplementation(() => {});
+            await run();
+            const lines = outcomes(log);
+            expect(lines).toHaveLength(1);
+            expect(lines[0]).toMatchObject(expected);
+            expect(Object.keys(lines[0]).sort()).toEqual(["ms", "reason", "result", "status", ...("spotId" in expected ? ["spotId"] : [])].sort());
+            expect(lines[0].ms).toBeGreaterThanOrEqual(0);
+            expect(JSON.stringify(lines[0])).not.toMatch(/Googlebot|Mozilla|private SQL|places\//);
+            log.mockRestore();
+        });
+    });
 });
