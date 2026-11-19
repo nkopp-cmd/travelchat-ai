@@ -1,5 +1,5 @@
 import { rateLimiters } from "@/lib/rate-limit";
-import { logItineraryFormatFailure, logItineraryRequestFailure } from "./diagnostics";
+import { logGenerateOutcome, logItineraryFormatFailure, logItineraryRequestFailure, type GenerateOutcome } from "./diagnostics";
 import { DRAFT_COOKIE, draftCookieOptions, keepServerDraft } from "@/lib/trips/preview-draft-store";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
@@ -58,11 +58,20 @@ function logRejectedInput(kind: "single" | "corridor" | "body", issues: Readonly
 }
 
 export async function POST(req: NextRequest) {
+  const started = Date.now();
+  const outcome: GenerateOutcome = { tier: "unknown" };
+  const response = await generate(req, outcome);
+  logGenerateOutcome(response.status, outcome, Date.now() - started);
+  return response;
+}
+
+async function generate(req: NextRequest, outcome: GenerateOutcome) {
   try {
     const limited = await rateLimiters.strict(req);
-    if (limited) return limited;
+    if (limited) { outcome.reason = "rate_limited"; return limited; }
     const { userId } = await auth();
     const isAnonymous = !userId;
+    outcome.tier = isAnonymous ? "anon" : "free";
     let tier: SubscriptionTier = "free";
 
     // Handle anonymous users
@@ -70,6 +79,7 @@ export async function POST(req: NextRequest) {
       const anonUsage = await getAnonymousUsage();
 
       if (anonUsage >= ANON_LIMIT) {
+        outcome.reason = "anon_limit";
         return apiError(ErrorCodes.UNAUTHORIZED, "Create an account and choose a plan to keep building itineraries.", {
           benefits: [
             "Save and access all your itineraries",
@@ -88,6 +98,7 @@ export async function POST(req: NextRequest) {
       rawBody = await req.json();
     } catch {
       logRejectedInput("body", [{ path: [], code: "invalid_json" }]);
+      outcome.reason = "invalid_input";
       return Errors.validationError("Request body must be valid JSON");
     }
 
@@ -98,6 +109,7 @@ export async function POST(req: NextRequest) {
           .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
           .join(", ");
         logRejectedInput("corridor", corridorValidation.error.issues);
+        outcome.reason = "invalid_input";
         return Errors.validationError(errors || "Invalid request body");
       }
       const { corridor, ...preferences } = corridorValidation.data;
@@ -117,6 +129,7 @@ export async function POST(req: NextRequest) {
           maxAge: 60 * 60 * 24 * 30, // 30 days
         });
       }
+      outcome.reason = corridorResponse.status < 400 ? undefined : "corridor";
       return corridorResponse;
     }
 
@@ -126,14 +139,17 @@ export async function POST(req: NextRequest) {
         .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
         .join(", ");
       logRejectedInput("single", validation.error.issues);
+      outcome.reason = "invalid_input";
       return Errors.validationError(errors || "Invalid request body");
     }
 
     // Load tier without consuming quota while candidate coverage is validated.
     if (!isAnonymous) {
       tier = await getUserTier(userId!);
+      outcome.tier = tier === "free" ? "free" : "paid";
       const allowance = await checkUsageLimit(userId!, "itineraries_created", tier);
       if (!allowance.allowed) {
+        outcome.reason = "monthly_limit";
         return Errors.limitExceeded(
           "itineraries",
           allowance.currentUsage,
@@ -149,6 +165,7 @@ export async function POST(req: NextRequest) {
     const cityValidation = validateCityForItinerary(city);
     if (!cityValidation.valid) {
       logRejectedInput("single", [{ path: ["city"], code: "unsupported_city" }]);
+      outcome.reason = "invalid_input";
       return Errors.validationError(cityValidation.error!);
     }
     const cityConfig = cityValidation.city!;
@@ -174,6 +191,7 @@ export async function POST(req: NextRequest) {
     );
 
     if (!hasGroundingCoverage) {
+      outcome.reason = "no_spots";
       return NextResponse.json({
         error: "insufficient_verified_spots",
         message: `Localley does not yet have enough verified, photographed ${normalizedCity} spots for this exact pace and interest mix. Try fewer days, a slower pace, or broader interests.`,
@@ -186,8 +204,10 @@ export async function POST(req: NextRequest) {
     if (!isAnonymous) {
       const { allowed, usage, tier: userTier } = await checkAndIncrementUsage(userId!, "itineraries_created");
       tier = userTier;
+      outcome.tier = tier === "free" ? "free" : "paid";
 
       if (!allowed) {
+        outcome.reason = "monthly_limit";
         return Errors.limitExceeded(
           "itineraries",
           usage.currentUsage,
@@ -232,6 +252,7 @@ Respect the pace, keep each day geographically coherent, avoid repeated categori
     );
     let rawContent = aiResponse.rawContent;
     let aiProvider = aiResponse.provider;
+    outcome.provider = aiProvider;
     let aiModel = aiResponse.model;
     let fallbackUsed = aiResponse.fallbackUsed;
     let fallbackReason = aiResponse.fallbackReason;
@@ -269,6 +290,7 @@ Respect the pace, keep each day geographically coherent, avoid repeated categori
         !day.activities || day.activities.length < paceStops.min || day.activities.length > paceStops.max
       )
     ) {
+      outcome.reason = "no_spots";
       return NextResponse.json({
         error: "insufficient_verified_spots",
         message: `Localley could not build a full ${normalizedCity} plan from its verified spots for this mix. Try fewer days, a slower pace, or broader interests.`,
@@ -359,6 +381,7 @@ Respect the pace, keep each day geographically coherent, avoid repeated categori
     }
 
     // Build response
+    outcome.provider = aiProvider;
     const itinerary = { id: savedItinerary?.id, ...itineraryData, city: normalizedCity, days };
     // Anonymous and free plans open as a preview; keep a server copy so the preview page renders it in HTML.
     const preview = isAnonymous || tier === "free" ? await keepServerDraft(itinerary) : null;
@@ -408,6 +431,7 @@ Respect the pace, keep each day geographically coherent, avoid repeated categori
     return response;
   } catch {
     logItineraryRequestFailure();
+    outcome.reason = "error";
     return Errors.internalError();
   }
 }

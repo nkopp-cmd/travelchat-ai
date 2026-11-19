@@ -23,3 +23,23 @@ export function parsePrivateItineraryJSON(rawContent: string) {
 export function logItineraryRequestFailure(logger: Pick<Console, 'error'> = console) {
   logger.error('Error generating itinerary:', { reason: 'generation_request_failed' });
 }
+
+export type GenerateTierClass = 'anon' | 'free' | 'paid' | 'unknown';
+export type GenerateReason = 'rate_limited' | 'anon_limit' | 'monthly_limit' | 'invalid_input' | 'no_spots' | 'corridor' | 'error';
+export type GenerateOutcome = { tier: GenerateTierClass; provider?: 'glm' | 'openai'; reason?: GenerateReason };
+
+/** One line per POST: fixed labels and numbers only, never input values, user ids or model text. */
+export function logGenerateOutcome(
+  status: number,
+  outcome: GenerateOutcome,
+  durationMs: number,
+  logger: Pick<Console, 'info'> = console,
+) {
+  logger.info('[generate] outcome', {
+    status,
+    tier: outcome.tier,
+    ms: Math.max(0, Math.round(durationMs)),
+    provider: outcome.provider ?? 'none',
+    reason: outcome.reason ?? (status < 400 ? 'ok' : 'other'),
+  });
+}
