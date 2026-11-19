@@ -162,6 +162,7 @@ VITEST_FILES=(
   __tests__/lib/quota-math.property.test.ts
   __tests__/lib/image-gate.property.test.ts
   __tests__/lib/stripe-tier.property.test.ts
+  __tests__/lib/payout-calculate-input.property.test.ts
   __tests__/lib/stripe-live-session.test.ts
   __tests__/api/subscription-webhook-live.test.ts
   __tests__/lib/stripe-customer-ownership.test.ts
@@ -506,6 +507,7 @@ ESLINT_FILES=(
   __tests__/lib/quota-math.property.test.ts
   __tests__/lib/image-gate.property.test.ts
   __tests__/lib/stripe-tier.property.test.ts
+  __tests__/lib/payout-calculate-input.property.test.ts
   __tests__/lib/stripe-live-session.test.ts
   __tests__/api/subscription-webhook-live.test.ts
   lib/stripe.ts
@@ -598,6 +600,7 @@ ESLINT_FILES=(
   app/api/admin/payouts/execute/route.ts
   __tests__/api/admin-payout-execution-candidate.test.ts
   app/api/admin/payouts/calculate/route.ts
+  lib/payout-calculate-input.ts
   __tests__/api/admin-payout-calculation-candidate.test.ts
   __tests__/api/admin-payout-revenue.property.test.ts
   lib/app-data/preview-profile.ts
