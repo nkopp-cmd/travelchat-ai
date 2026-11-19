@@ -204,6 +204,7 @@ VITEST_FILES=(
   __tests__/lib/social-spot-submissions.test.ts
   __tests__/cloudflare-cron-routes.test.ts
   __tests__/cloudflare-edge-html-cache.test.ts
+  __tests__/lib/credits.test.ts
   __tests__/cloudflare-edge-cache-per-visitor-guard.test.ts
   __tests__/cloudflare-robots-host.test.ts
   __tests__/middleware.test.ts
@@ -378,6 +379,10 @@ VITEST_FILES=(
 )
 
 ESLINT_FILES=(
+  lib/credits.ts
+  app/credits/page.tsx
+  app/credits/[city]/page.tsx
+  __tests__/lib/credits.test.ts
   lib/auth/gate-href.ts
   lib/blog/posts.ts
   lib/blog/markdown.tsx

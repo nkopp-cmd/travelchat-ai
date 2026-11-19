@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { pageMeta } from "@/lib/seo/meta";
-import Link from "next/link";
 import { PageHeader } from "@/components/layout/page-header";
 import { Camera } from "@/components/ui/icons";
-import { d1PhotoCredits, type D1PhotoCredit } from "@/lib/spots/d1-queries";
+import { d1PhotoCredits } from "@/lib/spots/d1-queries";
+import { groupCreditsByCity } from "@/lib/credits";
 
 export const metadata: Metadata = {
   ...pageMeta({
@@ -17,20 +17,8 @@ export const metadata: Metadata = {
 // Live public data, edge-cached for an hour (cloudflare/opennext/edge-html-cache.ts).
 export const dynamic = "force-dynamic";
 
-function spotName(name: D1PhotoCredit["spotName"]): string {
-  if (name && typeof name === "object") return name.en || Object.values(name)[0] || "";
-  return typeof name === "string" ? name : "";
-}
-
 export default async function CreditsPage() {
-  const credits = await d1PhotoCredits();
-  const byCity = new Map<string, Map<string, { name: string; photos: D1PhotoCredit[] }>>();
-  for (const credit of credits) {
-    const city = credit.city || "More places";
-    const spots = byCity.get(city) ?? byCity.set(city, new Map()).get(city)!;
-    const spot = spots.get(credit.spotId) ?? spots.set(credit.spotId, { name: spotName(credit.spotName), photos: [] }).get(credit.spotId)!;
-    spot.photos.push(credit);
-  }
+  const cities = groupCreditsByCity(await d1PhotoCredits());
   return (
     <div className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
       <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Photo credits", url: "/credits" }]} />
@@ -42,30 +30,22 @@ export default async function CreditsPage() {
           <p>
             Wikimedia Commons (CC0, public domain, CC BY and CC BY-SA licences), the Korea Tourism Organization (KOGL Type 1),
             the Taiwan Tourism Administration (Open Government Data License v1.0, OGDL-Taiwan-1.0), Pexels, and photos that travellers share with us. Google listing photos appear with Google&apos;s own attribution.
-            Each photo below links to its source page with the full licence.
+            Each city page lists every place photo with a link to its source page and the full licence.
           </p>
         </section>
-        {[...byCity].map(([city, spots]) => (
-          <section key={city}>
-            <h2>{city}</h2>
-            <ul className="space-y-1 text-sm leading-6">
-              {[...spots].map(([id, spot]) => (
-                <li key={id}>
-                  <Link prefetch={false} href={`/spots/${id}`} className="font-medium text-foreground underline-offset-2 hover:underline">{spot.name}</Link>
-                  {": "}
-                  {spot.photos.map((photo, index) => (
-                    <span key={photo.src}>
-                      {index > 0 ? "; " : null}
-                      {photo.sourceUrl
-                        ? <a href={photo.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline-offset-2 hover:underline">{photo.credit}</a>
-                        : photo.credit}
-                    </span>
-                  ))}
+        {cities.length > 0 ? (
+          <section>
+            <h2>Credits by city</h2>
+            <ul className="grid gap-x-6 gap-y-1 text-sm leading-6 sm:grid-cols-2 [&_a]:font-medium [&_a]:text-foreground [&_a]:underline-offset-2 hover:[&_a]:underline">
+              {cities.map((city) => (
+                <li key={city.slug}>
+                  <a href={`/credits/${city.slug}`}>{city.city}</a>
+                  {` · ${city.spots.length} ${city.spots.length === 1 ? "place" : "places"}, ${city.photoCount} ${city.photoCount === 1 ? "photo" : "photos"}`}
                 </li>
               ))}
             </ul>
           </section>
-        ))}
+        ) : null}
         <p className="text-sm">To correct or remove a credit, write to hello@localley.io.</p>
       </div>
     </div>
