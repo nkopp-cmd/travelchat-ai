@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { trackSpotEvent } from "@/lib/spot-analytics";
 import { currentPagePath, signUpGateHref } from "@/lib/auth/gate-href";
-import { claimContinue, saveSpotAction, withContinue } from "@/lib/auth/resume-action";
+import { claimContinue, dropUnclaimedContinue, SAVE_SPOT_PREFIX, saveSpotAction, withContinue } from "@/lib/auth/resume-action";
 
 interface SaveSpotButtonProps {
     spotId: string;
@@ -27,6 +27,8 @@ export function SaveSpotButton({ spotId, spotName, className, size = "icon" }: S
 
     // Check if spot is saved on mount
     useEffect(() => {
+        // Runs after every claim of this render; drops a save-spot value that no card on the page owns.
+        if (isLoaded) dropUnclaimedContinue(SAVE_SPOT_PREFIX);
         if (!isLoaded || !isSignedIn) return;
 
         // Back from the sign-up gate for this spot: save it once (POST is idempotent), else read the saved state.
