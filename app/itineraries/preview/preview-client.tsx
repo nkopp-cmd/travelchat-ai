@@ -6,7 +6,7 @@ import { useUser } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { LocalleySignup } from "@/components/newsletter/localley-signup";
 import { trackFunnelStep } from "@/lib/funnel-analytics";
-import { dropPaymentParam, waitForPaidTier } from "@/lib/trips/paid-return";
+import { dropPaymentParam, dropQueryParam, waitForPaidTier } from "@/lib/trips/paid-return";
 import { GENERATED_PREVIEW_KEY, GENERATED_PREVIEW_PATH, type GeneratedPreview, parseGeneratedPreview, generatedPreviewSnapshot, generatedPreviewServerSnapshot, subscribeGeneratedPreview } from "@/lib/trips/generated-preview";
 
 function Preview({ initialDraft }: { initialDraft: GeneratedPreview | null }) {
@@ -30,7 +30,7 @@ function Preview({ initialDraft }: { initialDraft: GeneratedPreview | null }) {
   }, [search]);
   async function save() {
     if (!draft || busy) return;
-    if (!isSignedIn) { router.push(`/sign-up?redirect_url=${encodeURIComponent(GENERATED_PREVIEW_PATH)}`); return; }
+    if (!isSignedIn) { router.push(`/sign-up?redirect_url=${encodeURIComponent(`${GENERATED_PREVIEW_PATH}?continue=save`)}`); return; }
     setBusy(true); setError("");
     try {
       // Always ask the server. A checkout URL or browser draft never grants paid access.
@@ -65,6 +65,15 @@ function Preview({ initialDraft }: { initialDraft: GeneratedPreview | null }) {
       await save();
     })();
     // The return is deliberately consumed once for this loaded draft.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft, isLoaded, isSignedIn, search]);
+  // Back from sign-up/sign-in after a signed-out Save: run that same save once (paid -> saved trip, free -> checkout).
+  const resumed = useRef(false);
+  useEffect(() => {
+    if (!draft || !isLoaded || !isSignedIn || search.get("continue") !== "save" || search.has("payment") || resumed.current) return;
+    resumed.current = true;
+    dropQueryParam("continue");
+    void save();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [draft, isLoaded, isSignedIn, search]);
   if (!draft) return <section className="mx-auto max-w-xl space-y-5 p-6"><h1 className="text-2xl font-semibold">Start with a trip idea</h1><p>This browser has no current itinerary preview. Unsaved previews last 24 hours.</p><Button asChild><Link href="/itineraries/new">Start planning</Link></Button></section>;
