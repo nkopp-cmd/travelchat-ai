@@ -81,4 +81,11 @@ describe("spot city context", () => {
             })
         ).toBeNull();
     });
+
+    it("maps short and accented city names to registry slugs (BF3 orphans)", () => {
+        expect(inferSpotContextCitySlug({ name: "Banh mi stall", address: "Quận 1, Thành phố Hồ Chí Minh, Vietnam" })).toBe("ho-chi-minh");
+        expect(inferSpotContextCitySlug({ name: "Rice terrace cafe", address: "Jl. Raya", lat: -8.5, lng: 115.26 })).toBe("bali-ubud");
+        expect(inferSpotContextCitySlug({ name: "Surf bar", address: "Jl. Pantai", lat: -8.65, lng: 115.13 })).toBe("bali-canggu");
+        expect(inferSpotContextCitySlug({ name: "Khao soi shop", address: "Road 1001", lat: 18.8, lng: 98.99 })).toBe("chiang-mai");
+    });
 });

@@ -107,6 +107,8 @@ on:
       - 'lib/spots/city-directory.ts'
       - 'lib/spots/city-directory-store.ts'
       - 'components/spots/city-spot-directory.tsx'
+      - '__tests__/lib/spot-city-context.test.ts'
+      - 'lib/spots/city-context.ts'
       - 'scripts/seo/**'
       - '__tests__/app/site-url-fallback.test.ts'
       - '__tests__/middleware.test.ts'

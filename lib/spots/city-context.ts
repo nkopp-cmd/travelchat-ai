@@ -24,6 +24,7 @@ const KNOWN_CITY_COORDS: Array<{ city: string; lat: [number, number]; lng: [numb
     { city: "Ho Chi Minh", lat: [10.6, 11], lng: [106.45, 106.95] },
     { city: "Kuala Lumpur", lat: [2.95, 3.35], lng: [101.5, 101.85] },
     { city: "Bali", lat: [-8.9, -8.05], lng: [114.85, 115.65] },
+    { city: "Chiang Mai", lat: [18.6, 19.05], lng: [98.8, 99.15] },
 ];
 
 const LOCATION_KEYWORDS: Array<{ city: string; terms: string[] }> = [
@@ -38,7 +39,8 @@ const LOCATION_KEYWORDS: Array<{ city: string; terms: string[] }> = [
 ];
 
 export function inferSpotContextCity(input: SpotCityContextInput): string | null {
-    const haystack = `${input.name} ${input.address}`.toLowerCase();
+    // Strip diacritics so "Thành phố Hồ Chí Minh" matches "ho chi minh".
+    const haystack = `${input.name} ${input.address}`.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/gi, "d").toLowerCase();
     const textMatch = KNOWN_CITY_COORDS.find(({ city }) => haystack.includes(city.toLowerCase()));
     if (textMatch) return textMatch.city;
 
@@ -63,5 +65,11 @@ export function inferSpotContextCitySlug(input: SpotCityContextInput): string | 
     const cityName = inferSpotContextCity(input);
     if (!cityName) return null;
 
+    // Short context names map to the city config names, so the spot page gets its city hub and Nearby block.
+    if (cityName === "Ho Chi Minh") return "ho-chi-minh";
+    if (cityName === "Bali") {
+        // Ubud sits inland east of 115.2; Canggu and the south-west coast lie west of it.
+        return typeof input.lng === "number" && input.lng < 115.2 ? "bali-canggu" : "bali-ubud";
+    }
     return getCityByName(cityName)?.slug ?? null;
 }
