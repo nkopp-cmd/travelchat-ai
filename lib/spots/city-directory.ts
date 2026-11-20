@@ -71,6 +71,16 @@ export function nearestEntries(
   return withDistance.sort((a, b) => a.distanceKm - b.distanceKm).slice(0, limit);
 }
 
+/**
+ * The entry after `id` in the A-Z list, wrapping at the end (Push BF3b). Every spot page links its successor, so the
+ * directory forms one ring and every spot gets at least one body link, even an outlier no neighbour lists as nearest.
+ */
+export function nextInDirectory(entries: CityDirectoryEntry[], id: string): CityDirectoryEntry | null {
+  if (entries.length < 2) return null;
+  const index = entries.findIndex((entry) => entry.id.toLowerCase() === id.toLowerCase());
+  return index < 0 ? null : entries[(index + 1) % entries.length];
+}
+
 /** A-Z groups for the hub list: "A".."Z", then "#" for names that start with anything else. */
 export function groupByInitial(entries: CityDirectoryEntry[]): { letter: string; entries: CityDirectoryEntry[] }[] {
   const groups = new Map<string, CityDirectoryEntry[]>();
