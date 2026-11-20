@@ -131,3 +131,48 @@ describe.each([
   });
 });
 
+
+describe("sign-up error paths (Push BC4)", () => {
+  function submit() {
+    fireEvent.change(screen.getByLabelText("Email"), { target: { value: "taken@preview.localley.test" } });
+    fireEvent.change(screen.getByLabelText("Password (8+ characters)"), { target: { value: "unit-password" } });
+    fireEvent.click(screen.getByRole("button", { name: "Create account" }));
+  }
+
+  for (const code of ["USER_ALREADY_EXISTS", "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL"]) {
+    it(`${code}: says the account exists and the Sign in link keeps the checkout redirect`, async () => {
+      mocks.query = "redirect_url=%2Fpricing%3Fcheckout%3Dpro-monthly";
+      mocks.fetch.mockImplementation(async () => Response.json({ code, message: "User already exists" }, { status: 422 }));
+      render(<SignUpForm googleEnabled={false} />);
+      submit();
+      await screen.findByText("An account with this email exists. Sign in, or use Forgot password.");
+      expect(screen.queryByText(/Check your inbox/)).toBeNull();
+      expect(screen.getByRole("link", { name: "Sign in" }).getAttribute("href")).toBe("/sign-in?redirect_url=%2Fpricing%3Fcheckout%3Dpro-monthly");
+      expect((screen.getByRole("button", { name: "Create account" }) as HTMLButtonElement).disabled).toBe(false);
+    });
+  }
+
+  it("shows the server message for any other failure, and a fallback when there is none", async () => {
+    mocks.fetch.mockImplementationOnce(async () => Response.json({ code: "PASSWORD_TOO_SHORT", message: "Password too short" }, { status: 400 }));
+    render(<SignUpForm googleEnabled={false} />);
+    submit();
+    await screen.findByText("Password too short");
+    mocks.fetch.mockImplementationOnce(async () => new Response(null, { status: 500 }));
+    fireEvent.click(screen.getByRole("button", { name: "Create account" }));
+    await screen.findByText("Something went wrong. Please try again.");
+    expect(screen.queryByText("Password too short")).toBeNull();
+  });
+
+  it("disables Create account while the request runs, so a double click sends one sign-up", async () => {
+    let release: (r: Response) => void = () => {};
+    mocks.fetch.mockImplementation(() => new Promise<Response>((resolve) => { release = resolve; }));
+    render(<SignUpForm googleEnabled={false} />);
+    submit();
+    const button = screen.getByRole("button", { name: "Create account" }) as HTMLButtonElement;
+    await waitFor(() => expect(button.disabled).toBe(true));
+    fireEvent.click(button);
+    expect(mocks.fetch.mock.calls.filter(([url]) => String(url).includes("/sign-up/email"))).toHaveLength(1);
+    await act(async () => { release(Response.json({ status: true, token: null, user: { id: "unit-user" } })); });
+    await screen.findByText(/Check your inbox/);
+  });
+});
