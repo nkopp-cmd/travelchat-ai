@@ -13,11 +13,19 @@ vi.mock('@/components/brand/logo', () => ({Logo:()=> <span>Localley</span>}));
 vi.mock('@/hooks/use-scroll-direction', () => ({useScrollDirection:()=> 'up'}));
 import { Navbar } from '@/components/layout/navbar';
 import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav';
-beforeEach(()=>{state.pathname='/spots';state.loaded=false;state.signedIn=false;});
+beforeEach(()=>{state.pathname='/spots';state.loaded=false;state.signedIn=false;localStorage.clear();});
 describe('borderless navigation state',()=>{
- it('waits for account resolution before showing sign-in or account controls',()=>{
-  render(<Navbar/>);expect(screen.getByRole('status',{name:'Checking account'})).not.toBeNull();
+ it('a browser that had a signed-in header waits for account resolution before showing sign-in or account controls',()=>{
+  localStorage.setItem('localley:account-hint','1');render(<Navbar/>);expect(screen.getByRole('status',{name:'Checking account'})).not.toBeNull();
   expect(screen.queryByRole('link',{name:'Sign in'})).toBeNull();expect(screen.queryByRole('button',{name:'Account menu'})).toBeNull();
+ });
+ it('a new visitor sees Sign in and Join free before the session returns (Push BE1)',()=>{
+  state.pathname='/pricing';render(<Navbar/>);expect(screen.queryByRole('status',{name:'Checking account'})).toBeNull();
+  expect(screen.getByRole('link',{name:'Sign in'}).getAttribute('href')).toBe('/sign-in');expect(screen.getByRole('link',{name:'Join free'}).getAttribute('href')).toBe('/sign-up?redirect_url=%2Fpricing');
+ });
+ it('sets the hint after a signed-in render and clears it after a signed-out one (Push BE1)',async()=>{
+  state.loaded=true;state.signedIn=true;const view=render(<Navbar/>);await waitFor(()=>expect(localStorage.getItem('localley:account-hint')).toBe('1'));view.unmount();
+  state.signedIn=false;render(<Navbar/>);await waitFor(()=>expect(localStorage.getItem('localley:account-hint')).toBeNull());
  });
  it('shows the settled account and notification controls',async()=>{
   state.loaded=true;state.signedIn=true;render(<Navbar/>);expect(await screen.findByRole('button',{name:'Account menu'})).not.toBeNull();expect(screen.queryByRole('link',{name:'Sign in'})).toBeNull();
@@ -29,8 +37,9 @@ describe('borderless navigation state',()=>{
   state.pathname=path;state.loaded=true;render(<Navbar/>);const join=screen.getByRole('link',{name:'Join free'});
   expect(join.getAttribute('href')).toBe(`/sign-up?redirect_url=${encodeURIComponent(back)}`);expect(join.className).toContain('sm:hidden');
  });
- it('hides Join free while the account loads and for signed-in members',()=>{
-  render(<Navbar/>);expect(screen.queryByRole('link',{name:'Join free'})).toBeNull();
+ it('hides Join free while a known member account loads and for signed-in members',()=>{
+  localStorage.setItem('localley:account-hint','1');const view=render(<Navbar/>);expect(screen.queryByRole('link',{name:'Join free'})).toBeNull();view.unmount();
+  state.loaded=true;state.signedIn=true;render(<Navbar/>);expect(screen.queryByRole('link',{name:'Join free'})).toBeNull();
  });
  it.each(['/','/spots','/pricing','/itineraries/new'])('uses the same main links on %s',path=>{
   state.pathname=path;state.loaded=true;render(<Navbar/>);const nav=screen.getByRole('navigation',{name:'Main pages'});
