@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { AppBackground } from "@/components/layout/app-background";
+import { LocalleySignup } from "@/components/newsletter/localley-signup";
 import { useSubscription } from "@/hooks/use-subscription";
 import { useToast } from "@/hooks/use-toast";
 import { TIER_CONFIGS } from "@/lib/subscription";
@@ -346,6 +347,9 @@ export default function PricingPage() {
                             <p>Refund requests are handled within 14 days of the first payment when the product is not a fit.</p>
                         </div>
                     </section>
+
+                    {/* Push BD1: a visitor who is not ready to pay can still leave an email (plain form, 0 KB JS). */}
+                    <LocalleySignup source="pricing" heading="Not ready yet? Get the Localley newsletter" className="mb-4" />
                 </div>
             </div>
         </AppBackground>

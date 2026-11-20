@@ -38,4 +38,10 @@ describe("newsletter form placement", () => {
     expect(page.match(/<LocalleySignup\b[^>]*>/g)).toEqual([expect.stringContaining('source="home"')]);
     expect(cleanSource("home")).toBe("home");
   });
+
+  it("pricing renders the form once with source pricing (Push BD1)", () => {
+    const page = readFileSync(path.join(process.cwd(), "app/pricing/page.tsx"), "utf8");
+    expect(page.match(/<LocalleySignup\b[^>]*>/g)).toEqual([expect.stringContaining('source="pricing"')]);
+    expect(cleanSource("pricing")).toBe("pricing");
+  });
 });
