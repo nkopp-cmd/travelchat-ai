@@ -31,6 +31,7 @@ VITEST_FILES=(
   __tests__/lib/spot-event-store.test.ts
   __tests__/lib/check-traffic.test.ts
   __tests__/lib/referral-point.test.ts
+  __tests__/lib/referral-point.property.test.ts
   __tests__/lib/funnel-analytics.test.ts
   __tests__/components/save-spot-button.test.tsx
   __tests__/components/city-quick-filters.test.tsx
@@ -451,6 +452,7 @@ ESLINT_FILES=(
   lib/referral-point.ts
   app/api/events/referral/route.ts
   __tests__/lib/referral-point.test.ts
+  __tests__/lib/referral-point.property.test.ts
   app/itineraries/preview/page.tsx
   app/itineraries/preview/preview-client.tsx
   app/pricing/page.tsx
