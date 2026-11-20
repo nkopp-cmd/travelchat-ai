@@ -103,7 +103,8 @@ const EDGE_SPOTS_CITIES = new Set(ENABLED_CITIES.map((city) => city.slug));
 const EDGE_SPOTS_VIEWS = new Set(["map", "list"]);
 // Auth pages: besides the plain path, only the money-path returns (Save on the free-trip preview, the planner
 // resume, a pricing plan -> Stripe). The server HTML differs per redirect (headline + form links), so the key
-// carries the exact value; any other redirect stays uncached, which keeps the key set at 2 x 6 entries.
+// carries the exact value; any other redirect stays uncached, which keeps the key set bounded (2 x 12 entries with
+// the walls below).
 const AUTH_PATHS = new Set(["/sign-up", "/sign-in"]);
 // Pages whose server HTML ignores the query: the client reads it after hydration (the planner renders step 0
 // for everyone; ?spot=, ?city=, ?template=, ?resume= pick the step in the browser). Every query variant
@@ -114,6 +115,14 @@ export const EDGE_AUTH_REDIRECTS: ReadonlySet<string> = new Set([
   "/itineraries/new?resume=1",
   ...["pro", "premium"].flatMap((tier) => ["monthly", "yearly"].map((cycle) => `/pricing?checkout=${tier}-${cycle}`)),
 ]);
+// Push BC3: the fixed signed-out walls (middleware sends /<section> -> /sign-up?redirect_url=/<section>) and the
+// account email links (/sign-in?redirect_url=/settings, Push BB1). Their HTML is the same for every visitor
+// (lib/auth/auth-copy.ts headline + form links), so each gets its own key: 2 x 6 more entries, still bounded.
+// /community/<id> and /users/<id> stay uncached (open-ended values).
+export const EDGE_AUTH_WALL_REDIRECTS: ReadonlySet<string> = new Set([
+  "/dashboard", "/settings", "/community", "/explore", "/leaderboard", "/challenges",
+]);
+const isEdgeAuthRedirect = (redirect: string) => EDGE_AUTH_REDIRECTS.has(redirect) || EDGE_AUTH_WALL_REDIRECTS.has(redirect);
 export const EDGE_CACHE_HEADER = "x-localley-edge-cache";
 const ORIGIN_CACHE_CONTROL = "x-localley-origin-cache-control";
 
@@ -179,7 +188,7 @@ function cacheableQuery(url: URL): boolean {
   if (!url.search || QUERY_FREE_PATHS.has(url.pathname)) return true;
   if (AUTH_PATHS.has(url.pathname)) {
     const keys = [...url.searchParams.keys()];
-    return keys.length === 1 && keys[0] === "redirect_url" && EDGE_AUTH_REDIRECTS.has(url.searchParams.get("redirect_url") ?? "");
+    return keys.length === 1 && keys[0] === "redirect_url" && isEdgeAuthRedirect(url.searchParams.get("redirect_url") ?? "");
   }
   if (url.pathname === "/api/spots/pins") {
     // Only one enabled city; other filters are open-ended text and stay uncached at the edge.
