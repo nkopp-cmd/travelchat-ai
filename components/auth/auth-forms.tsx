@@ -214,14 +214,15 @@ export function SignUpForm({ googleEnabled }: { googleEnabled: boolean }) {
             {error ? <Notice tone="error">{error}</Notice> : null}
             {googleEnabled ? <><GoogleButton callbackURL={redirectTo} /><Divider /></> : null}
             <form onSubmit={onSubmit} className="space-y-4">
-                <Field id="name" label="Name">
-                    <Input id="name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} />
-                </Field>
                 <Field id="email" label="Email">
                     <Input id="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
                 </Field>
                 <Field id="password" label="Password (8+ characters)">
                     <Input id="password" type="password" autoComplete="new-password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
+                </Field>
+                {/* Optional and last (Push BC1): an empty name falls back to the email prefix. */}
+                <Field id="name" label="Name (optional)">
+                    <Input id="name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} />
                 </Field>
                 <Button type="submit" className={primaryClass} disabled={busy}>
                     {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}

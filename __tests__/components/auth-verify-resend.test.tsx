@@ -37,6 +37,34 @@ async function passCooldown() {
   for (let i = 0; i <= RESEND_COOLDOWN_SECONDS; i++) await act(async () => { vi.advanceTimersByTime(1000); });
 }
 
+describe("sign-up form fields (Push BC1)", () => {
+  it("asks for email and password first and marks the name as optional", () => {
+    render(<SignUpForm googleEnabled={false} />);
+    const ids = Array.from(document.querySelectorAll("form input")).map(i => i.id);
+    expect(ids).toEqual(["email", "password", "name"]);
+    expect((screen.getByLabelText("Name (optional)") as HTMLInputElement).required).toBe(false);
+    expect((screen.getByLabelText("Email") as HTMLInputElement).required).toBe(true);
+    expect((screen.getByLabelText("Password (8+ characters)") as HTMLInputElement).required).toBe(true);
+  });
+
+  it("signs up without a name: the email prefix becomes the name", async () => {
+    await signUp();
+    const body = calls("/sign-up/email")[0];
+    expect(body).toMatchObject({ email: "new@preview.localley.test", name: "new" });
+    expect(body.firstName).toBeUndefined();
+  });
+
+  it("splits a typed name into first and last name", async () => {
+    render(<SignUpForm googleEnabled={false} />);
+    fireEvent.change(screen.getByLabelText("Name (optional)"), { target: { value: "  Ana  de Souza " } });
+    fireEvent.change(screen.getByLabelText("Email"), { target: { value: "ana@preview.localley.test" } });
+    fireEvent.change(screen.getByLabelText("Password (8+ characters)"), { target: { value: "unit-password" } });
+    fireEvent.click(screen.getByRole("button", { name: "Create account" }));
+    await screen.findByText(/Check your inbox/);
+    expect(calls("/sign-up/email")[0]).toMatchObject({ name: "Ana  de Souza", firstName: "Ana", lastName: "de Souza" });
+  });
+});
+
 describe("sign-up check-inbox screen (Push AH1/AH2)", () => {
   it("sends the checkout page as callbackURL so the verify link returns the new user to checkout", async () => {
     mocks.query = "redirect_url=%2Fpricing%3Fcheckout%3Dpro-monthly";
