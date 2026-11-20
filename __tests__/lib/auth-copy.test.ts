@@ -1,7 +1,22 @@
 import { describe, expect, it } from "vitest";
-import { authCopy } from "@/lib/auth/auth-copy";
+import { authCopy, FREE_ACCOUNT_SUBTITLE } from "@/lib/auth/auth-copy";
+import { TIER_CONFIGS } from "@/lib/subscription";
 
 describe("authCopy", () => {
+    it("names the real free limits on the plain Join free form (Push BG1)", () => {
+        const free = TIER_CONFIGS.free.limits;
+        const copy = authCopy("sign-up", null);
+        expect(copy.title).toBe("Join Localley");
+        expect(copy.subtitle).toBe(FREE_ACCOUNT_SUBTITLE);
+        // Numbers come from the tier config, so copy and limits cannot drift.
+        expect(copy.subtitle).toContain(`save ${free.savedSpotsLimit} spot`);
+        expect(copy.subtitle).toContain(`plan ${free.itinerariesPerMonth} trip`);
+        expect(copy.subtitle).toContain(`${free.chatMessagesPerDay} question`);
+        expect(copy.subtitle).toBe("Free, no card: save 10 spots, plan 1 trip a month and ask a local 10 questions a day.");
+        // Free accounts get no paid features: never promise Pro, a trial or images.
+        expect(copy.subtitle).not.toMatch(/pro|trial|image/i);
+    });
+
     it("speaks to the saved trip when sign-up comes from the free-trip preview", () => {
         expect(authCopy("sign-up", "/itineraries/preview").title).toBe("Create an account to save your trip");
         expect(authCopy("sign-up", "/itineraries/preview?payment=canceled").title).toBe("Create an account to save your trip");

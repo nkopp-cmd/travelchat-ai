@@ -1,12 +1,20 @@
 import { GENERATED_PREVIEW_PATH } from "@/lib/trips/generated-preview";
 import { parseCheckoutIntent } from "@/lib/pricing-checkout";
 import { CONTINUE_PARAM } from "@/lib/auth/resume-action";
+import { TIER_CONFIGS } from "@/lib/subscription";
 
 export type AuthMode = "sign-up" | "sign-in";
 export type AuthCopy = { title: string; subtitle: string };
 
+// Push BG1: the plain "Join free" form names what a free account gets, built from the real free limits.
+const FREE = TIER_CONFIGS.free.limits;
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
+export const FREE_ACCOUNT_SUBTITLE =
+    `Free, no card: save ${plural(FREE.savedSpotsLimit, "spot")}, plan ${plural(FREE.itinerariesPerMonth, "trip")} a month ` +
+    `and ask a local ${plural(FREE.chatMessagesPerDay, "question")} a day.`;
+
 const DEFAULT_COPY: Record<AuthMode, AuthCopy> = {
-    "sign-up": { title: "Join Localley", subtitle: "Start discovering hidden gems like a local" },
+    "sign-up": { title: "Join Localley", subtitle: FREE_ACCOUNT_SUBTITLE },
     "sign-in": { title: "Welcome Back", subtitle: "Sign in to continue your local adventures" },
 };
 
