@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { trackSpotEvent } from "@/lib/spot-analytics";
 import { currentPagePath, signUpGateHref } from "@/lib/auth/gate-href";
+import { claimContinue, saveSpotAction, withContinue } from "@/lib/auth/resume-action";
 
 interface SaveSpotButtonProps {
     spotId: string;
@@ -28,6 +29,23 @@ export function SaveSpotButton({ spotId, spotName, className, size = "icon" }: S
     useEffect(() => {
         if (!isLoaded || !isSignedIn) return;
 
+        // Back from the sign-up gate for this spot: save it once (POST is idempotent), else read the saved state.
+        if (claimContinue(saveSpotAction(spotId))) {
+            void (async () => {
+                try {
+                    const response = await fetch("/api/spots/save", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ spotId }) });
+                    const data = await response.json().catch(() => ({}));
+                    if (!response.ok || data.saved !== true) throw new Error(data.error?.message || "Could not save this spot.");
+                    setIsSaved(true);
+                    trackSpotEvent("save", spotId);
+                    toast({ title: "Spot saved!", description: "Added to your saved spots +50 XP" });
+                } catch (error) {
+                    toast({ title: "Spot not saved", description: error instanceof Error ? error.message : "Could not save this spot.", variant: "destructive" });
+                }
+            })();
+            return;
+        }
+
         const checkSavedStatus = async () => {
             try {
                 const response = await fetch(`/api/spots/save?spotId=${spotId}`);
@@ -40,6 +58,8 @@ export function SaveSpotButton({ spotId, spotName, className, size = "icon" }: S
             }
         };
         checkSavedStatus();
+        // toast is stable; the resume runs once per spot.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isLoaded, isSignedIn, spotId]);
 
     const handleToggleSave = async (e: React.MouseEvent) => {
@@ -51,7 +71,7 @@ export function SaveSpotButton({ spotId, spotName, className, size = "icon" }: S
                 title: "Create a free account to save spots",
                 description: "Keep your favorite places in one trip list.",
             });
-            router.push(signUpGateHref(currentPagePath()));
+            router.push(signUpGateHref(withContinue(currentPagePath(), saveSpotAction(spotId))));
             return;
         }
 

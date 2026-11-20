@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@/lib/auth/client";
 import { useToast } from "@/hooks/use-toast";
 import { currentPagePath, signUpGateHref } from "@/lib/auth/gate-href";
+import { claimContinue, saveSpotAction, withContinue } from "@/lib/auth/resume-action";
 
 interface SpotInteractionsProps {
     spotId: string;
@@ -29,21 +30,30 @@ export function SpotInteractions({ spotId, spotName }: SpotInteractionsProps) {
             return;
         }
 
+        // Back from the sign-up gate for this spot: save it once (POST is idempotent), else read the saved state.
+        const resume = claimContinue(saveSpotAction(spotId));
         const checkSavedStatus = async () => {
             setIsLoading(true);
             try {
-                const response = await fetch(`/api/spots/save?spotId=${spotId}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    setIsLiked(data.saved);
+                const response = resume
+                    ? await fetch("/api/spots/save", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ spotId }) })
+                    : await fetch(`/api/spots/save?spotId=${spotId}`);
+                const data = await response.json().catch(() => ({}));
+                if (response.ok) setIsLiked(data.saved === true);
+                if (resume) {
+                    if (response.ok && data.saved === true) toast({ title: "Spot saved!", description: `${spotName} added to your saved spots` });
+                    else toast({ title: "Spot not saved", description: data.error?.message || "Could not save this spot. Please try again.", variant: "destructive" });
                 }
             } catch {
-                // Silently fail - user just won't see saved state
+                // Status read: fail silently. A resumed save must say it did not happen.
+                if (resume) toast({ title: "Spot not saved", description: "Could not save this spot. Please try again.", variant: "destructive" });
             } finally {
                 setIsLoading(false);
             }
         };
         checkSavedStatus();
+        // toast/spotName are display-only; the resume runs once per spot.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isLoaded, isSignedIn, spotId]);
 
     const handleShare = async () => {
@@ -96,7 +106,7 @@ export function SpotInteractions({ spotId, spotName }: SpotInteractionsProps) {
                 title: "Create a free account to save spots",
                 description: `Save ${spotName} to your trip list.`,
             });
-            router.push(signUpGateHref(currentPagePath()));
+            router.push(signUpGateHref(withContinue(currentPagePath(), saveSpotAction(spotId))));
             return;
         }
 
