@@ -88,7 +88,7 @@ function wallOf(path: string): keyof typeof WALL_COPY | null {
 // Spot page Save/Like gates (Push AG1) send /sign-up?redirect_url=/spots/<id>. Free accounts keep 10 saved spots
 // (lib/subscription.ts savedSpotsLimit); the copy promises nothing beyond that.
 const SPOT_COPY: Record<AuthMode, AuthCopy> = {
-    "sign-up": { title: "Save this spot", subtitle: "Create a free account and keep up to 10 spots in your trip list." },
+    "sign-up": { title: "Save this spot", subtitle: `Create a free account and keep up to ${plural(FREE.savedSpotsLimit, "spot")} in your trip list.` },
     "sign-in": { title: "Sign in to save this spot", subtitle: "Your trip list is on the next screen." },
 };
 const SPOT_PAGE = /^\/spots\/(?!submit$|submissions$)[^/]+$/;

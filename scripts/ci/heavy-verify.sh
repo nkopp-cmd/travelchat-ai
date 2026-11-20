@@ -452,6 +452,7 @@ ESLINT_FILES=(
   __tests__/lib/referral-point.test.ts
   app/itineraries/preview/page.tsx
   app/itineraries/preview/preview-client.tsx
+  app/pricing/page.tsx
   lib/trips/preview-draft-store.ts
   app/itineraries/preview/layout.tsx
   lib/trips/generated-preview.ts
