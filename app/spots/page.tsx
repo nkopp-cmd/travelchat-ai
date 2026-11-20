@@ -224,6 +224,18 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
 
                     {/* City chips render in the first HTML: a streamed fallback of another height shifted the page (PSI mobile CLS 0.39). */}
                     <CityQuickFilters cities={filterOptions.cities} totalSpots={totalSpots} />
+                    {/* Push BF2: body links to the template and viral-spot hubs (both had 0 contextual inbound links). */}
+                    <p data-testid="hub-more-links" className="text-sm leading-6 text-muted-foreground">
+                        Short on time?{" "}
+                        <IntentLink href="/templates" className="font-semibold text-foreground underline underline-offset-2">
+                            Start from a ready-made itinerary template
+                        </IntentLink>
+                        {" "}or{" "}
+                        <IntentLink href="/trending" className="font-semibold text-foreground underline underline-offset-2">
+                            see the viral spots in the news this month
+                        </IntentLink>
+                        .
+                    </p>
                 </div>
 
                 {/* Main Content: no key, so a filter change keeps the current view (and the mounted map) until new results arrive. */}
