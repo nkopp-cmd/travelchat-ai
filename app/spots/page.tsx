@@ -1,3 +1,4 @@
+import { PricingLineLink } from "@/components/seo/pricing-line";
 import { Suspense } from "react";
 import { LocalleySignup } from "@/components/newsletter/localley-signup";
 import { IntentLink } from "@/components/navigation/intent-link";
@@ -196,6 +197,7 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
                             <p className="text-[15px] leading-6 text-muted-foreground">
                                 {heading.intro}
                             </p>
+                            {hub.city ? <PricingLineLink pageKey={hub.city.slug} className="mt-2 text-sm leading-6 text-muted-foreground" /> : null}
                             <Button asChild className="mt-4 min-h-11">
                                 <IntentLink href={hub.city ? `/itineraries/new?${new URLSearchParams({ city: hub.city.name })}` : "/itineraries/new"} data-testid="hub-plan-trip">
                                     {hub.city ? `Plan a free ${hub.city.name} trip` : "Plan a free trip"}

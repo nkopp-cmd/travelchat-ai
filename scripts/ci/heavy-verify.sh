@@ -116,6 +116,7 @@ VITEST_FILES=(
   __tests__/lib/seo-sitemap.test.ts
   __tests__/lib/seo-spot-indexable.test.ts
   __tests__/lib/seo-home-links.test.ts
+  __tests__/lib/seo-pricing-line.test.ts
   __tests__/lib/seo-spot-intro.test.ts
   __tests__/lib/seo-spot-card.test.ts
   __tests__/lib/seo-page-card.test.ts
@@ -385,6 +386,8 @@ VITEST_FILES=(
 )
 
 ESLINT_FILES=(
+  lib/seo/pricing-line.ts
+  components/seo/pricing-line.tsx
   lib/credits.ts
   app/credits/page.tsx
   app/credits/[city]/page.tsx
@@ -427,6 +430,7 @@ ESLINT_FILES=(
   __tests__/lib/seo-sitemap.test.ts
   __tests__/lib/seo-spot-indexable.test.ts
   __tests__/lib/seo-home-links.test.ts
+  __tests__/lib/seo-pricing-line.test.ts
   __tests__/lib/seo-spot-intro.test.ts
   __tests__/lib/seo-spot-card.test.ts
   __tests__/api/spot-og-card.test.ts
