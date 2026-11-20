@@ -177,7 +177,37 @@ describe("SaveSpotButton", () => {
         render(<><SpotInteractions spotId="spot-ladrio" spotName="LADRIO" /><SaveSpotButton spotId="spot-ladrio" spotName="LADRIO" /></>);
         await new Promise((r) => setTimeout(r, 20));
         expect(posts(fetchMock)).toHaveLength(0);
-        expect(window.location.search).toBe(query);
+        // A save-spot value that no card claimed is dropped (BA3); other actions belong to other pages and stay.
+        expect(window.location.search).toBe(query.includes("save-spot") ? "" : query);
+      } finally { window.history.replaceState(null, "", "/"); }
+    });
+
+    it("stale card resume: a list without the spot drops the param after the first render and saves nothing", async () => {
+      mockUseUser.mockReturnValue({ isLoaded: true, isSignedIn: true });
+      back("?city=seoul&continue=save-spot%3Agone-spot#top");
+      const fetchMock = vi.spyOn(global, "fetch").mockResolvedValue(new Response(JSON.stringify({ saved: false }), { status: 200 }));
+      try {
+        render(<><SaveSpotButton spotId="spot-ladrio" spotName="LADRIO" /><SaveSpotButton spotId="spot-kissa" spotName="Kissa You" /></>);
+        await waitFor(() => expect(window.location.search).toBe("?city=seoul"));
+        expect(window.location.hash).toBe("#top");
+        await new Promise((r) => setTimeout(r, 20));
+        expect(posts(fetchMock)).toHaveLength(0);
+      } finally { window.history.replaceState(null, "", "/"); }
+    });
+
+    it("waits for the session: the param stays while auth loads, then the matching card still saves once", async () => {
+      mockUseUser.mockReturnValue({ isLoaded: false, isSignedIn: false });
+      back("?continue=save-spot%3Aspot-ladrio");
+      const fetchMock = vi.spyOn(global, "fetch").mockResolvedValue(new Response(JSON.stringify({ saved: true }), { status: 200 }));
+      try {
+        const view = render(<><SaveSpotButton spotId="spot-kissa" spotName="Kissa You" /><SaveSpotButton spotId="spot-ladrio" spotName="LADRIO" /></>);
+        await new Promise((r) => setTimeout(r, 20));
+        expect(window.location.search).toBe("?continue=save-spot%3Aspot-ladrio");
+        mockUseUser.mockReturnValue({ isLoaded: true, isSignedIn: true });
+        view.rerender(<><SaveSpotButton spotId="spot-kissa" spotName="Kissa You" /><SaveSpotButton spotId="spot-ladrio" spotName="LADRIO" /></>);
+        await waitFor(() => expect(posts(fetchMock)).toHaveLength(1));
+        expect(JSON.parse(String((posts(fetchMock)[0][1] as RequestInit).body))).toEqual({ spotId: "spot-ladrio" });
+        expect(window.location.search).toBe("");
       } finally { window.history.replaceState(null, "", "/"); }
     });
   });

@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@/lib/auth/client";
 import { useToast } from "@/hooks/use-toast";
 import { currentPagePath, signUpGateHref } from "@/lib/auth/gate-href";
-import { claimContinue, saveSpotAction, withContinue } from "@/lib/auth/resume-action";
+import { claimContinue, dropUnclaimedContinue, SAVE_SPOT_PREFIX, saveSpotAction, withContinue } from "@/lib/auth/resume-action";
 
 interface SpotInteractionsProps {
     spotId: string;
@@ -25,6 +25,8 @@ export function SpotInteractions({ spotId, spotName }: SpotInteractionsProps) {
 
     // Check if spot is already saved on mount
     useEffect(() => {
+        // Runs after every claim of this render; drops a save-spot value that no card on the page owns.
+        if (isLoaded) dropUnclaimedContinue(SAVE_SPOT_PREFIX);
         if (!isLoaded || !isSignedIn) {
             setIsLoading(false);
             return;

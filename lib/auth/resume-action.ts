@@ -5,9 +5,12 @@
  */
 export const CONTINUE_PARAM = "continue";
 
+/** Prefix of every spot save resume value. */
+export const SAVE_SPOT_PREFIX = "save-spot:";
+
 /** Spot save resume value; the spot id keeps a list of cards from saving every card. */
 export function saveSpotAction(spotId: string): string {
-  return `save-spot:${spotId}`;
+  return `${SAVE_SPOT_PREFIX}${spotId}`;
 }
 
 /** Same-origin path with ?continue=<action> set (replaces an older value). */
@@ -25,4 +28,23 @@ export function claimContinue(action: string): boolean {
   url.searchParams.delete(CONTINUE_PARAM);
   window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
   return true;
+}
+
+let sweepPending = false;
+
+/**
+ * Browser-only (Push BA3): after the current render's effects had their chance to claim, drop a ?continue=<prefix...>
+ * value that no component claimed (card gone, list re-ordered, signed-out visitor on a shared link). Without this the
+ * value stays in the address bar, is copied into shared links and could save a spot for the next person who signs in.
+ */
+export function dropUnclaimedContinue(prefix: string): void {
+  if (typeof window === "undefined" || sweepPending) return;
+  sweepPending = true;
+  setTimeout(() => {
+    sweepPending = false;
+    const url = new URL(window.location.href);
+    if (!url.searchParams.get(CONTINUE_PARAM)?.startsWith(prefix)) return;
+    url.searchParams.delete(CONTINUE_PARAM);
+    window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+  }, 0);
 }
