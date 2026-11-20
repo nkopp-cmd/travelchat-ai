@@ -1,9 +1,10 @@
 import { readdirSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
-import { APP_TOP_LEVEL_NAMES, EDGE_AUTH_REDIRECTS, EDGE_CACHE_HEADER, EDGE_STALE_SECONDS, edgeTtlSeconds, isEdgeCacheable, isUnknownPagePath, serveWithEdgeCache, withoutTracking } from "@/cloudflare/opennext/edge-html-cache";
+import { APP_TOP_LEVEL_NAMES, EDGE_AUTH_REDIRECTS, EDGE_AUTH_WALL_REDIRECTS, EDGE_CACHE_HEADER, EDGE_STALE_SECONDS, edgeTtlSeconds, isEdgeCacheable, isUnknownPagePath, serveWithEdgeCache, withoutTracking } from "@/cloudflare/opennext/edge-html-cache";
 import { GENERATED_PREVIEW_PATH } from "@/lib/trips/generated-preview";
 import { PLANNER_RESUME_PATH } from "@/lib/trips/planner-draft";
 import { checkoutSignUpUrl } from "@/lib/pricing-checkout";
+import { authCopy } from "@/lib/auth/auth-copy";
 
 function memoryCache() {
   const store = new Map<string, Response>();
@@ -121,7 +122,7 @@ describe("public HTML edge cache", () => {
     expect(isEdgeCacheable(new Request("https://www.localley.io/itineraries/abc"))).toBe(false);
     for (const path of ["/sign-in", "/sign-up", "/forgot-password"]) {
       expect(isEdgeCacheable(new Request(`https://www.localley.io${path}`))).toBe(true);
-      expect(isEdgeCacheable(new Request(`https://www.localley.io${path}?redirect_url=%2Fdashboard`))).toBe(false);
+      expect(isEdgeCacheable(new Request(`https://www.localley.io${path}?redirect_url=%2Fusers%2Fx`))).toBe(false);
     }
     // Push BB1: a signed-in visitor must reach the page, which redirects them on; a cached form would stop them.
     for (const path of ["/sign-in", "/sign-up", "/sign-up?redirect_url=%2Fitineraries%2Fpreview"]) {
@@ -199,7 +200,7 @@ describe("public HTML edge cache", () => {
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=seoul&utm_source=tiktok"))).toBe(true);
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=atlantis&fbclid=1"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/?utm_source=newsletter"))).toBe(true);
-    expect(isEdgeCacheable(new Request("https://www.localley.io/sign-up?redirect_url=%2Fdashboard&utm_source=x"))).toBe(false);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/sign-up?redirect_url=%2Fusers%2Fx&utm_source=x"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/itineraries/preview?payment=success&utm_source=x"))).toBe(false);
     // Lookalike keys are not tracking keys.
     expect(withoutTracking(new URL("https://www.localley.io/?utm=x&sid=1&utm_source=a")).search).toBe("?utm=x&sid=1");
@@ -356,7 +357,7 @@ describe("auth pages on the money-path redirects", () => {
     }
     expect(cache.store.size).toBe(2 * moneyRedirects.length);
     for (const search of [
-      "?redirect_url=%2Fdashboard",
+      "?redirect_url=%2Fusers%2Fx",
       "?redirect_url=%2Fpricing%3Fcheckout%3Dgold-monthly",
       "?redirect_url=%2F%2Fevil.example%2Fitineraries%2Fpreview",
       "?redirect_url=%2Fitineraries%2Fpreview&redirect_url=%2Fdashboard",
@@ -597,5 +598,38 @@ describe("stale-while-revalidate (Push AW1)", () => {
     expect((await serve(new Request(`${spot}?utm_source=tiktok&ttclid=abc`), cache, handler, "v1", () => clock)).headers.get(EDGE_CACHE_HEADER)).toBe("STALE");
     expect(seen).toEqual([spot, spot]);
     expect(cache.store.size).toBe(1);
+  });
+});
+
+describe("auth pages on the signed-out walls (Push BC3)", () => {
+  const origin = "https://www.localley.io";
+  it("caches each wall and email-link redirect under its own key, never a query or sub-path variant", async () => {
+    const cache = memoryCache();
+    for (const path of ["/sign-up", "/sign-in"]) {
+      for (const redirect of EDGE_AUTH_WALL_REDIRECTS) {
+        const url = `${origin}${path}?redirect_url=${encodeURIComponent(redirect)}`;
+        expect(isEdgeCacheable(new Request(url))).toBe(true);
+        const handler = vi.fn(async () => new Response(`<html>${path} ${redirect}</html>`, { status: 200, headers: { "content-type": "text/html" } }));
+        await serve(new Request(url), cache, handler);
+        const hit = await serve(new Request(url), cache, handler);
+        expect(hit.headers.get(EDGE_CACHE_HEADER)).toBe("HIT");
+        expect(await hit.text()).toBe(`<html>${path} ${redirect}</html>`);
+        expect(handler).toHaveBeenCalledTimes(1);
+        // A session still skips the cache: the page forwards a signed-in visitor (Push BB1).
+        expect(isEdgeCacheable(new Request(url, { headers: { cookie: "__Secure-better-auth.session_token=t.s" } }))).toBe(false);
+      }
+    }
+    expect(cache.store.size).toBe(2 * EDGE_AUTH_WALL_REDIRECTS.size);
+    for (const redirect of ["/community/abc", "/users/x", "/leaderboard?tab=week", "/explore/", "/settings/billing"]) {
+      expect(isEdgeCacheable(new Request(`${origin}/sign-up?redirect_url=${encodeURIComponent(redirect)}`))).toBe(false);
+    }
+  });
+
+  it("lists only redirects with their own fixed heading (no visitor data in the cached HTML)", () => {
+    for (const redirect of EDGE_AUTH_WALL_REDIRECTS) {
+      for (const mode of ["sign-up", "sign-in"] as const) {
+        expect(authCopy(mode, redirect).title).not.toBe(authCopy(mode, null).title);
+      }
+    }
   });
 });
