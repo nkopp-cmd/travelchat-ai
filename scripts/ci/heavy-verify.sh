@@ -959,7 +959,7 @@ lane_node() {
   node --test scripts/photos/taiwan-opendata-lib.test.mjs
   node --test scripts/photos/commons-harvest-lib.test.mjs
   node --test scripts/photos/pexels-harvest-lib.test.mjs
-  node --test scripts/release/keep-static.test.mjs scripts/release/upload-retry.test.mjs scripts/release/promote-retry.test.mjs scripts/release/cf-read.test.mjs
+  node --test scripts/release/keep-static.test.mjs scripts/release/upload-retry.test.mjs scripts/release/promote-retry.test.mjs scripts/release/cf-read.test.mjs scripts/release/warm-up.test.mjs
   node --check scripts/release/production.mjs
   node --check scripts/check-production-health.mjs
   node --test scripts/production-health/*.test.mjs
