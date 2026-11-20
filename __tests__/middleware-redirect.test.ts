@@ -189,6 +189,8 @@ describe("expired or used verify-email link (Push AH3)", () => {
   it.each([
     ["/verified?to=%2Fpricing%3Fcheckout%3Dpro-monthly&error=TOKEN_EXPIRED", "/pricing?checkout=pro-monthly"],
     ["/verified?to=%2F%2Fevil.example&error=INVALID_TOKEN", null],
+    ["/verified?to=%2Fitineraries%2Fpreview%3Fcontinue%3Dsave&error=TOKEN_EXPIRED", "/itineraries/preview?continue=save"],
+    ["/verified?to=%2Fspots%2Fabc%3Fcontinue%3Dsave-spot%253Aabc&error=TOKEN_EXPIRED", "/spots/abc?continue=save-spot%3Aabc"],
   ])("unwraps the verify-mail hop %s to the page behind it", async (path, page) => {
     const destination = new URL((await middleware(request(path))).headers.get("location")!);
     expect(destination.pathname).toBe("/sign-in");
@@ -206,6 +208,14 @@ describe("expired or used verify-email link (Push AH3)", () => {
     expect(new URL(GET(request("/verified?to=https%3A%2F%2Fevil.example")).headers.get("location")!).href).toBe(new URL("/dashboard", hop.headers.get("location")!).href);
   });
 
+  it.each(["/itineraries/preview?continue=save", "/spots/abc?continue=save-spot%3Aabc"])("a good verify link returns to the resume page %s with its continue param (Push AZ3)", async page => {
+    const { GET } = await import("@/app/verified/route");
+    const path = `/verified?to=${encodeURIComponent(page)}`;
+    expect((await middleware(request(path))).headers.get("location")).toBeNull();
+    const location = new URL(GET(request(path)).headers.get("location")!);
+    expect(location.pathname + location.search).toBe(page);
+  });
+
   it("ignores POST requests", async () => {
     const response = await middleware(request("/pricing?error=TOKEN_EXPIRED", { method: "POST" }));
     expect(response.headers.get("location") ?? "").not.toContain("error=link");
@@ -220,6 +230,10 @@ describe("verify mail URL wrap (Push AI1)", async () => {
     const u = new URL(wrapVerifyMailURL(mail("/pricing?checkout=pro-monthly")));
     expect(u.searchParams.get("token")).toBe("abc.def");
     expect(u.searchParams.get("callbackURL")).toBe("/verified?to=%2Fpricing%3Fcheckout%3Dpro-monthly");
+  });
+
+  it("keeps a resume page in the sign-in verify mail (Push AZ3)", () => {
+    expect(new URL(wrapVerifyMailURL(mail("/itineraries/preview?continue=save"))).searchParams.get("callbackURL")).toBe("/verified?to=%2Fitineraries%2Fpreview%3Fcontinue%3Dsave");
   });
 
   it("does not wrap twice", () => {

@@ -96,3 +96,38 @@ describe("expired reset-password link (Push AI2)", () => {
     expect((screen.getByRole("button", { name: "Set password" }) as HTMLButtonElement).disabled).toBe(true);
   });
 });
+
+// Push AZ3: the resume actions of AZ1 (/itineraries/preview?continue=save) and AZ2 (/spots/<id>?continue=save-spot:<id>)
+// survive every way back: sign-up <-> sign-in links, the sign-in submit, the verify mail and its resend.
+describe.each([
+  ["/itineraries/preview?continue=save"],
+  ["/spots/abc?continue=save-spot%3Aabc"],
+])("resume target %s (Push AZ3)", (page) => {
+  const query = `redirect_url=${encodeURIComponent(page)}`;
+  const linkTarget = (name: string) => new URL(screen.getByRole("link", { name }).getAttribute("href")!, "https://www.localley.io").searchParams.get("redirect_url");
+
+  it("sign-up keeps it in the 'Sign in' link and in the verify mail", async () => {
+    mocks.query = query;
+    render(<SignUpForm googleEnabled={false} />);
+    expect(linkTarget("Sign in")).toBe(page);
+    fireEvent.change(screen.getByLabelText("Email"), { target: { value: "new@preview.localley.test" } });
+    fireEvent.change(screen.getByLabelText("Password (8+ characters)"), { target: { value: "unit-password" } });
+    fireEvent.click(screen.getByRole("button", { name: "Create account" }));
+    await screen.findByText(/Check your inbox/);
+    expect(calls("/sign-up/email")[0].callbackURL).toBe(`/verified?to=${encodeURIComponent(page)}`);
+    await passCooldown();
+    fireEvent.click(screen.getByRole("button", { name: /Resend link/ }));
+    await waitFor(() => expect(calls("/send-verification-email")[0]?.callbackURL).toBe(`/verified?to=${encodeURIComponent(page)}`));
+  });
+
+  it("sign-in keeps it in the 'Sign up' link and as the sign-in callbackURL", async () => {
+    mocks.query = query;
+    render(<SignInForm googleEnabled={false} />);
+    expect(linkTarget("Sign up")).toBe(page);
+    fireEvent.change(screen.getByLabelText("Email"), { target: { value: "member@preview.localley.test" } });
+    fireEvent.change(screen.getByLabelText("Password"), { target: { value: "unit-password" } });
+    fireEvent.click(screen.getByRole("button", { name: "Sign in", exact: true }));
+    await waitFor(() => expect(calls("/sign-in/email")[0]?.callbackURL).toBe(page));
+  });
+});
+
