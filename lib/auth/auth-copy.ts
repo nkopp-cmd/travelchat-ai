@@ -42,6 +42,41 @@ const NAV_COPY: Record<"/chat" | "/itineraries" | "/profile" | "/settings", Reco
     },
 };
 
+// Other signed-out walls (Push BB2): old or shared links into these sections reach the form with this redirect.
+// None of them needs a paid plan, so the copy offers a free account and promises nothing beyond what it opens.
+const WALL_COPY: Record<"/dashboard" | "/community" | "/explore" | "/leaderboard" | "/challenges" | "/users", Record<AuthMode, AuthCopy>> = {
+    "/dashboard": {
+        "sign-up": { title: "Your Localley home", subtitle: "Create a free account to keep your trips, spots and chats in one place." },
+        "sign-in": { title: "Sign in to your dashboard", subtitle: "Your trips and spots are on the next screen." },
+    },
+    "/community": {
+        "sign-up": { title: "Ask travellers and locals", subtitle: "Create a free account to read answers and ask your own question." },
+        "sign-in": { title: "Sign in to the community", subtitle: "The questions and answers are on the next screen." },
+    },
+    "/explore": {
+        "sign-up": { title: "Explore trips by travellers", subtitle: "Create a free account to browse trips that others planned." },
+        "sign-in": { title: "Sign in to explore trips", subtitle: "Trips by other travellers are on the next screen." },
+    },
+    "/leaderboard": {
+        "sign-up": { title: "See the top explorers", subtitle: "Create a free account to see the ranks and earn your own points." },
+        "sign-in": { title: "Sign in to see the leaderboard", subtitle: "The ranks are on the next screen." },
+    },
+    "/challenges": {
+        "sign-up": { title: "Take a travel challenge", subtitle: "Create a free account to join challenges and earn points." },
+        "sign-in": { title: "Sign in to your challenges", subtitle: "Your challenges are on the next screen." },
+    },
+    "/users": {
+        "sign-up": { title: "See this traveller's profile", subtitle: "Create a free account to see their trips and spots." },
+        "sign-in": { title: "Sign in to see this profile", subtitle: "The profile is on the next screen." },
+    },
+};
+function wallOf(path: string): keyof typeof WALL_COPY | null {
+    if (path === "/dashboard" || path === "/explore" || path === "/leaderboard" || path === "/challenges") return path;
+    if (path === "/community" || path.startsWith("/community/")) return "/community";
+    if (/^\/users\/[^/]+$/.test(path)) return "/users";
+    return null;
+}
+
 // Spot page Save/Like gates (Push AG1) send /sign-up?redirect_url=/spots/<id>. Free accounts keep 10 saved spots
 // (lib/subscription.ts savedSpotsLimit); the copy promises nothing beyond that.
 const SPOT_COPY: Record<AuthMode, AuthCopy> = {
@@ -80,6 +115,8 @@ export function authCopy(mode: AuthMode, redirectUrl: string | null | undefined)
     if (path === GENERATED_PREVIEW_PATH) return TRIP_COPY.preview[mode];
     if (path === "/itineraries/new") return TRIP_COPY.planner[mode];
     if (path === "/chat" || path === "/itineraries" || path === "/profile" || path === "/settings") return NAV_COPY[path][mode];
+    const wall = path ? wallOf(path) : null;
+    if (wall) return WALL_COPY[wall][mode];
     if (path && (SPOT_PAGE.test(path) || isSpotSaveResume(redirectUrl!))) return SPOT_COPY[mode];
     if (path === "/pricing" && redirectUrl?.includes("?")) return checkoutCopy(mode, redirectUrl.split("#")[0]) ?? DEFAULT_COPY[mode];
     return DEFAULT_COPY[mode];

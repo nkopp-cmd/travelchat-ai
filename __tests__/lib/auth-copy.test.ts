@@ -42,7 +42,7 @@ describe("authCopy", () => {
     });
 
     it("keeps the generic copy for other, missing or foreign redirects", () => {
-        for (const target of [undefined, null, "", "/dashboard", "//evil.example/itineraries/preview", "https://evil.example/itineraries/preview", "/itineraries/preview-x"]) {
+        for (const target of [undefined, null, "", "/", "/trending", "//evil.example/itineraries/preview", "https://evil.example/itineraries/preview", "/itineraries/preview-x"]) {
             expect(authCopy("sign-up", target).title).toBe("Join Localley");
             expect(authCopy("sign-in", target).title).toBe("Welcome Back");
         }
@@ -77,6 +77,32 @@ describe("authCopy", () => {
             expect(JSON.stringify(authCopy(mode, path))).not.toMatch(/unlimited|trial|pro\b|premium/i);
         }
         for (const target of ["/profilex", "/profile/edit", "/settings/billing", "//evil.example/profile"]) {
+            expect(authCopy("sign-up", target).title).toBe("Join Localley");
+        }
+    });
+
+    it("speaks to the other signed-out walls (Push BB2)", () => {
+        const want: Record<string, [string, string]> = {
+            "/dashboard": ["Your Localley home", "Sign in to your dashboard"],
+            "/community": ["Ask travellers and locals", "Sign in to the community"],
+            "/community/ask": ["Ask travellers and locals", "Sign in to the community"],
+            "/community/now?city=seoul": ["Ask travellers and locals", "Sign in to the community"],
+            "/community/q-123": ["Ask travellers and locals", "Sign in to the community"],
+            "/explore?city=tokyo": ["Explore trips by travellers", "Sign in to explore trips"],
+            "/leaderboard": ["See the top explorers", "Sign in to see the leaderboard"],
+            "/challenges": ["Take a travel challenge", "Sign in to your challenges"],
+            "/users/mina": ["See this traveller's profile", "Sign in to see this profile"],
+        };
+        for (const [target, [up, inTitle]] of Object.entries(want)) {
+            expect(authCopy("sign-up", target).title).toBe(up);
+            expect(authCopy("sign-in", target).title).toBe(inTitle);
+            // These sections are free: never promise a paid feature or a trial.
+            for (const mode of ["sign-up", "sign-in"] as const) {
+                expect(JSON.stringify(authCopy(mode, target))).not.toMatch(/unlimited|trial|pro\b|premium/i);
+            }
+            expect(authCopy("sign-up", target).subtitle).toMatch(/free account/);
+        }
+        for (const target of ["/dashboardx", "/communityx", "/explore/abc", "/users", "/users/a/b", "/challenges/1", "//evil.example/dashboard"]) {
             expect(authCopy("sign-up", target).title).toBe("Join Localley");
         }
     });
