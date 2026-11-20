@@ -10,6 +10,7 @@ on:
       - 'lib/auth/auth-copy.ts'
       - '__tests__/lib/gate-href.test.ts'
       - 'lib/auth/gate-href.ts'
+      - 'lib/auth/resume-action.ts'
       - 'components/spots/save-spot-button.tsx'
       - 'components/spots/spot-interactions.tsx'
       - 'app/explore/explore-content.tsx'
