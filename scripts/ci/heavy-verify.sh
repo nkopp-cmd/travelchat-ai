@@ -217,6 +217,8 @@ VITEST_FILES=(
   __tests__/app/templates-free-path.test.tsx
   __tests__/app/newsletter-placement.test.tsx
   __tests__/lib/auth-copy.test.ts
+  __tests__/lib/email-links.test.ts
+  __tests__/app/auth-pages-signed-in.test.tsx
   __tests__/lib/gate-href.test.ts
   __tests__/styles/leaflet-borderless.test.ts
   __tests__/styles/home-below-fold.test.ts
@@ -534,6 +536,9 @@ ESLINT_FILES=(
   __tests__/lib/stripe-customer-ownership.test.ts
   __tests__/lib/stripe-webhook-crypto.test.ts
   lib/subscription-mail.ts
+  emails/links.ts
+  __tests__/lib/email-links.test.ts
+  __tests__/app/auth-pages-signed-in.test.tsx
   __tests__/lib/subscription-mail.test.ts
   components/spots/preview-save-spot-button.tsx
   lib/app-data/preview-saved-spot-actor.ts

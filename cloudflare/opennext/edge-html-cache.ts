@@ -130,6 +130,10 @@ interface EdgeCache {
 // stored under the shared key and served to every visitor. The key ignores cookies, so the request must bypass.
 export const PER_VISITOR_COOKIES: Record<string, readonly string[]> = {
   "/itineraries/preview": ["lly_draft"],
+  // Push BB1: the auth pages send a signed-in visitor straight to redirect_url (a 307, never stored). A cached
+  // form would hide that from a visitor with a session, so a session cookie skips the shared entry.
+  "/sign-in": SESSION_COOKIE_NAMES,
+  "/sign-up": SESSION_COOKIE_NAMES,
 };
 
 function hasCookie(request: Request, names: readonly string[]): boolean {

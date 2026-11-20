@@ -1,6 +1,7 @@
 import "server-only";
 import { render } from "@react-email/components";
 import SubscriptionEmail from "@/emails/subscription-email";
+import { accountEmailLink } from "@/emails/links";
 import { authMailMode, sendCloudflareMail, type AuthEmailBinding } from "@/lib/auth/mail";
 
 export type SubscriptionMailEvent = "upgrade" | "cancelled";
@@ -9,7 +10,7 @@ interface AuthUserDatabase {
   prepare(query: string): { bind(...values: unknown[]): { first<T>(): Promise<T | null> } };
 }
 
-const MANAGE_URL = "https://www.localley.io/settings";
+const MANAGE_URL = accountEmailLink("/settings");
 const SUBJECTS: Record<SubscriptionMailEvent, (tier: string) => string> = {
   upgrade: (tier) => `Your Localley ${tier} plan is active`,
   cancelled: () => "Your Localley subscription is cancelled",

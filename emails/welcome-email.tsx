@@ -12,6 +12,7 @@ import {
     Section,
     Text,
 } from "@react-email/components";
+import { accountEmailLink } from "./links";
 
 interface WelcomeEmailProps {
     userName?: string;
@@ -101,7 +102,7 @@ export function WelcomeEmail({ userName, verifyUrl }: WelcomeEmailProps) {
                     {/* CTA */}
                     <Section style={ctaSection}>
                         <Text style={ctaText}>Ready to start exploring?</Text>
-                        <Button href={verifyUrl || "https://localley.io/dashboard"} style={ctaButton}>
+                        <Button href={verifyUrl || accountEmailLink("/dashboard")} style={ctaButton}>
                             Create Your First Itinerary
                         </Button>
                     </Section>
@@ -121,11 +122,11 @@ export function WelcomeEmail({ userName, verifyUrl }: WelcomeEmailProps) {
                             Made with 💜 by Localley
                         </Text>
                         <Text style={footerLinks}>
-                            <Link href="https://localley.io" style={footerLink}>Website</Link>
+                            <Link href="https://www.localley.io" style={footerLink}>Website</Link>
                             {" • "}
-                            <Link href="https://localley.io/spots" style={footerLink}>Browse Spots</Link>
+                            <Link href="https://www.localley.io/spots" style={footerLink}>Browse Spots</Link>
                             {" • "}
-                            <Link href="https://localley.io/templates" style={footerLink}>Itinerary Templates</Link>
+                            <Link href="https://www.localley.io/templates" style={footerLink}>Itinerary Templates</Link>
                         </Text>
                         <Text style={footerSubtext}>
                             You're receiving this because you signed up for Localley.
