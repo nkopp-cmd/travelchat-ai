@@ -1,3 +1,6 @@
+/brand/logo-v1-*
+  Cache-Control: public, max-age=31536000, immutable
+
 /images/landing/seoul-preset-v1-*
   Cache-Control: public, max-age=31536000, immutable
 

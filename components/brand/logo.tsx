@@ -1,81 +1,17 @@
 "use client";
 
-import Image from "next/image";
 import { IntentLink } from "@/components/navigation/intent-link";
 import { useUser } from "@/lib/auth/client";
-import { clsx as cn } from "clsx";
+import { LOGO_LINK_CLASS, LogoMark, type LogoMarkProps } from "@/components/brand/logo-mark";
 
-interface LogoProps {
-  size?: "sm" | "md" | "lg";
-  showText?: boolean;
-  className?: string;
+interface LogoProps extends LogoMarkProps {
   href?: string;
-  isLanding?: boolean;
 }
 
-const sizeConfig = {
-  sm: { icon: 28, text: "text-lg" },
-  md: { icon: 36, text: "text-xl" },
-  lg: { icon: 48, text: "text-2xl" },
-};
-
-export function Logo({
-  size = "md",
-  showText = true,
-  className,
-  href,
-  isLanding = false,
-}: LogoProps) {
+/** Header logo: links to the dashboard when signed in. Server pages that link to "/" use LogoMark in a Link instead. */
+export function Logo({ href, ...mark }: LogoProps) {
   const { isSignedIn } = useUser();
-  const config = sizeConfig[size];
-
   // Default href: dashboard if signed in, landing page if not
   const resolvedHref = href ?? (isSignedIn ? "/dashboard" : "/");
-
-  const content = (
-    <div className={cn("flex items-center gap-2 group", className)}>
-      <div
-        className={cn(
-          "relative flex-shrink-0 rounded-full overflow-hidden",
-          "shadow-lg shadow-violet-500/30",
-          "transition-all group-hover:scale-110 group-hover:shadow-violet-500/40"
-        )}
-        style={{ width: config.icon, height: config.icon }}
-      >
-        <Image
-          src="/icons/android-chrome-192x192.png"
-          // Decorative next to the "Localley" text (axe image-redundant-alt); names the link alone.
-          alt={showText ? "" : "Localley"}
-          width={config.icon}
-          height={config.icon}
-          className="object-cover"
-          // Eager, but no preload: a high-priority logo competed with the landing hero (LCP) on mobile. React's SSR
-          // adds <link rel=preload> for every non-lazy <img> unless fetchPriority is "low" (live HTML of 646b8c5 still
-          // preloaded it with loading="eager" alone).
-          loading="eager"
-          fetchPriority="low"
-        />
-      </div>
-      {showText && (
-        <span
-          className={cn(
-            config.text,
-            // sr-only below sm keeps the link's name "Localley" for screen readers on mobile.
-            "font-bold transition-colors sr-only sm:not-sr-only sm:inline-block",
-            isLanding
-              ? "text-white"
-              : "bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-indigo-600"
-          )}
-        >
-          Localley
-        </span>
-      )}
-    </div>
-  );
-
-  if (resolvedHref) {
-    return <IntentLink href={resolvedHref} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full">{content}</IntentLink>;
-  }
-
-  return content;
+  return <IntentLink href={resolvedHref} className={LOGO_LINK_CLASS}><LogoMark {...mark} /></IntentLink>;
 }

@@ -8,7 +8,7 @@ import {
   Search,
   Star,
 } from "@/components/ui/icons";
-import { Logo } from "@/components/brand/logo";
+import { LOGO_LINK_CLASS, LogoMark } from "@/components/brand/logo-mark";
 import { Button } from "@/components/ui/button";
 import { ENABLED_CITIES } from "@/lib/cities";
 import type { Metadata } from "next";
@@ -258,7 +258,7 @@ export default function LandingPage() {
 
       <footer className="ll-below-fold bg-surface py-8">
         <div className="container mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 md:flex-row md:px-6">
-          <Logo size="md" isLanding />
+          <Link href="/" prefetch={false} className={LOGO_LINK_CLASS}><LogoMark size="md" isLanding /></Link>
           <p className="text-sm text-muted-foreground">Your local friend in Asia.</p>
           <nav aria-label="Footer" className="flex gap-4 text-sm text-muted-foreground">
             <Link href="/blog" className="hover:text-foreground">Journal</Link>
