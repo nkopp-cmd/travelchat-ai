@@ -625,6 +625,16 @@ describe("auth pages on the signed-out walls (Push BC3)", () => {
     }
   });
 
+  it("caches the bottom-nav tab walls too (Push BG2)", () => {
+    for (const redirect of ["/chat", "/itineraries", "/profile"]) {
+      expect(EDGE_AUTH_WALL_REDIRECTS.has(redirect)).toBe(true);
+      expect(isEdgeCacheable(new Request(`${origin}/sign-up?redirect_url=${encodeURIComponent(redirect)}`))).toBe(true);
+    }
+    for (const redirect of ["/chat/abc", "/itineraries/123", "/profile?tab=x"]) {
+      expect(isEdgeCacheable(new Request(`${origin}/sign-up?redirect_url=${encodeURIComponent(redirect)}`))).toBe(false);
+    }
+  });
+
   it("lists only redirects with their own fixed heading (no visitor data in the cached HTML)", () => {
     for (const redirect of EDGE_AUTH_WALL_REDIRECTS) {
       for (const mode of ["sign-up", "sign-in"] as const) {

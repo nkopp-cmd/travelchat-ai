@@ -119,8 +119,11 @@ export const EDGE_AUTH_REDIRECTS: ReadonlySet<string> = new Set([
 // account email links (/sign-in?redirect_url=/settings, Push BB1). Their HTML is the same for every visitor
 // (lib/auth/auth-copy.ts headline + form links), so each gets its own key: 2 x 6 more entries, still bounded.
 // /community/<id> and /users/<id> stay uncached (open-ended values).
+// Push BG2: the bottom-nav tab walls (/chat, /itineraries, /profile; auth-copy NAV_COPY) were missing and
+// rendered at the origin on every visit (0.6-2.2 s TTFB on /sign-up?redirect_url=/chat).
 export const EDGE_AUTH_WALL_REDIRECTS: ReadonlySet<string> = new Set([
   "/dashboard", "/settings", "/community", "/explore", "/leaderboard", "/challenges",
+  "/chat", "/itineraries", "/profile",
 ]);
 const isEdgeAuthRedirect = (redirect: string) => EDGE_AUTH_REDIRECTS.has(redirect) || EDGE_AUTH_WALL_REDIRECTS.has(redirect);
 export const EDGE_CACHE_HEADER = "x-localley-edge-cache";
