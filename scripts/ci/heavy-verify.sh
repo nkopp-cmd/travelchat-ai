@@ -208,6 +208,7 @@ VITEST_FILES=(
   __tests__/lib/social-spot-submissions.test.ts
   __tests__/cloudflare-cron-routes.test.ts
   __tests__/cloudflare-edge-html-cache.test.ts
+  __tests__/gravity-release-smoke.test.ts
   __tests__/lib/credits.test.ts
   __tests__/cloudflare-edge-cache-per-visitor-guard.test.ts
   __tests__/cloudflare-signed-out-redirect.test.ts
@@ -593,6 +594,7 @@ ESLINT_FILES=(
   cloudflare/opennext/critical-css.ts
   __tests__/cloudflare-critical-css.test.ts
   __tests__/cloudflare-edge-html-cache.test.ts
+  __tests__/gravity-release-smoke.test.ts
   __tests__/cloudflare-edge-cache-per-visitor-guard.test.ts
   cloudflare/opennext/signed-out-redirect.ts
   __tests__/cloudflare-signed-out-redirect.test.ts

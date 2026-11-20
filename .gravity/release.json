@@ -8,7 +8,10 @@
   ],
   "smoke": [
     { "url": "https://www.localley.io/api/version", "contains": "{sha}" },
-    { "url": "https://www.localley.io/", "status": 200 }
+    { "url": "https://www.localley.io/", "status": 200 },
+    { "url": "https://www.localley.io/pricing", "contains": "data-testid=\"pricing-free-plan\"" },
+    { "url": "https://www.localley.io/itineraries/new", "contains": "Step 1: Destination" },
+    { "url": "https://www.localley.io/sign-up?redirect_url=%2Fitineraries%2Fpreview%3Fcontinue%3Dsave", "contains": "data-testid=\"auth-back\"" }
   ],
   "rollback": { "run": ["node", "scripts/release/production.mjs", "rollback"], "secrets": true },
   "timeoutSeconds": 1800
