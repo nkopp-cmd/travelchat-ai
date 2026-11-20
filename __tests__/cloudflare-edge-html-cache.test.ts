@@ -1,4 +1,4 @@
-import { readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
 import { APP_TOP_LEVEL_NAMES, EDGE_AUTH_REDIRECTS, EDGE_AUTH_WALL_REDIRECTS, EDGE_CACHE_HEADER, EDGE_STALE_SECONDS, edgeTtlSeconds, isEdgeCacheable, isUnknownPagePath, serveWithEdgeCache, withoutTracking } from "@/cloudflare/opennext/edge-html-cache";
 import { GENERATED_PREVIEW_PATH } from "@/lib/trips/generated-preview";
@@ -332,10 +332,19 @@ describe("auth pages on the money-path redirects", () => {
   const origin = "https://www.localley.io";
   const moneyRedirects = [
     GENERATED_PREVIEW_PATH,
+    `${GENERATED_PREVIEW_PATH}?continue=save`,
     PLANNER_RESUME_PATH,
     ...(["pro", "premium"] as const).flatMap((tier) => (["monthly", "yearly"] as const).map((cycle) =>
       new URL(checkoutSignUpUrl(tier, cycle), origin).searchParams.get("redirect_url")!)),
   ];
+
+  it("lists the redirect the preview Save button really sends (Push BH4)", () => {
+    const client = readFileSync("app/itineraries/preview/preview-client.tsx", "utf8");
+    expect(client).toContain("/sign-up?redirect_url=${encodeURIComponent(`${GENERATED_PREVIEW_PATH}?continue=save`)}");
+    expect(EDGE_AUTH_REDIRECTS.has(`${GENERATED_PREVIEW_PATH}?continue=save`)).toBe(true);
+    expect(isEdgeCacheable(new Request(`${origin}/sign-up?redirect_url=${encodeURIComponent(`${GENERATED_PREVIEW_PATH}?continue=save`)}`))).toBe(true);
+    expect(isEdgeCacheable(new Request(`${origin}/sign-up?redirect_url=${encodeURIComponent(`${GENERATED_PREVIEW_PATH}?continue=edit`)}`))).toBe(false);
+  });
 
   it("lists exactly the redirects the app sends to sign-up", () => {
     expect([...EDGE_AUTH_REDIRECTS].sort()).toEqual([...moneyRedirects].sort());

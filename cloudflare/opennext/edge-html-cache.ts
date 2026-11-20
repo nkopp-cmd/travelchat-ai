@@ -112,6 +112,9 @@ const AUTH_PATHS = new Set(["/sign-up", "/sign-in"]);
 const QUERY_FREE_PATHS = new Set(["/itineraries/new"]);
 export const EDGE_AUTH_REDIRECTS: ReadonlySet<string> = new Set([
   "/itineraries/preview",
+  // Push BH4: the preview Save button sends this exact value (preview-client.tsx); without it the money-path
+  // sign-up rendered at the origin on every visit (cold 467 ms, warm 103 ms vs 79 ms on the cached plain page).
+  "/itineraries/preview?continue=save",
   "/itineraries/new?resume=1",
   ...["pro", "premium"].flatMap((tier) => ["monthly", "yearly"].map((cycle) => `/pricing?checkout=${tier}-${cycle}`)),
 ]);
