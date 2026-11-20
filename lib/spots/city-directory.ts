@@ -74,10 +74,19 @@ export function nearestEntries(
 /**
  * The entry after `id` in the A-Z list, wrapping at the end (Push BF3b). Every spot page links its successor, so the
  * directory forms one ring and every spot gets at least one body link, even an outlier no neighbour lists as nearest.
+ * `indexable` (sitemap ids): an indexable spot links the next indexable spot, so the ring never passes through a
+ * `noindex` page (graph 8b49cfb: the 5 Busan/Hanoi orphans' predecessors were all noindex). Other spots keep the
+ * full-list successor.
  */
-export function nextInDirectory(entries: CityDirectoryEntry[], id: string): CityDirectoryEntry | null {
+export function nextInDirectory(entries: CityDirectoryEntry[], id: string, indexable?: ReadonlySet<string>): CityDirectoryEntry | null {
+  const key = id.toLowerCase();
+  if (indexable?.has(key)) {
+    const ring = entries.filter((entry) => indexable.has(entry.id.toLowerCase()));
+    const index = ring.findIndex((entry) => entry.id.toLowerCase() === key);
+    if (ring.length >= 2 && index >= 0) return ring[(index + 1) % ring.length];
+  }
   if (entries.length < 2) return null;
-  const index = entries.findIndex((entry) => entry.id.toLowerCase() === id.toLowerCase());
+  const index = entries.findIndex((entry) => entry.id.toLowerCase() === key);
   return index < 0 ? null : entries[(index + 1) % entries.length];
 }
 

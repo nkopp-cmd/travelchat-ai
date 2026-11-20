@@ -105,6 +105,23 @@ describe("scoreCounts", () => {
 });
 
 describe("nextInDirectory (Push BF3b)", () => {
+
+  it("indexable spots ring over indexable spots only: each indexable spot gets exactly 1 link from an indexable one", () => {
+    fc.assert(fc.property(fc.integer({ min: 2, max: 40 }), fc.array(fc.boolean(), { minLength: 40, maxLength: 40 }), (n, flags) => {
+      const entries = toDirectoryEntries(Array.from({ length: n }, (_, i) => ({ id: `ID-${i}`, name: `Spot ${String.fromCharCode(65 + (i * 7) % 26)}${i}` })));
+      const indexable = new Set(entries.filter((_, i) => flags[i]).map((entry) => entry.id.toLowerCase()));
+      const inbound = new Map([...indexable].map((id) => [id, 0]));
+      for (const entry of entries) {
+        const next = nextInDirectory(entries, entry.id, indexable);
+        expect(next?.id).not.toBe(entry.id);
+        if (indexable.has(entry.id.toLowerCase()) && indexable.size >= 2) {
+          expect(indexable.has(next!.id.toLowerCase())).toBe(true);
+          inbound.set(next!.id.toLowerCase(), inbound.get(next!.id.toLowerCase())! + 1);
+        }
+      }
+      if (indexable.size >= 2) expect([...inbound.values()].every((count) => count === 1)).toBe(true);
+    }));
+  });
   it("links every spot exactly once across the city ring, outliers included", () => {
     for (const n of [2, 3, 7, 54]) {
       const entries = toDirectoryEntries(Array.from({ length: n }, (_, i) => ({ id: `id-${i}`, name: `Spot ${String.fromCharCode(65 + (i * 7) % 26)}${i}` })));
