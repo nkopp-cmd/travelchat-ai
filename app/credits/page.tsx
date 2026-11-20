@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { pageMeta } from "@/lib/seo/meta";
 import { PageHeader } from "@/components/layout/page-header";
 import { Camera } from "@/components/ui/icons";
 import { d1PhotoCredits } from "@/lib/spots/d1-queries";
 import { groupCreditsByCity } from "@/lib/credits";
+import { LocalleySignup } from "@/components/newsletter/localley-signup";
 
 export const metadata: Metadata = {
   ...pageMeta({
@@ -47,7 +49,11 @@ export default async function CreditsPage() {
           </section>
         ) : null}
         <p className="text-sm">To correct or remove a credit, write to hello@localley.io.</p>
+        <p>
+          <Link href="/itineraries/new" data-testid="credits-plan" className="inline-flex min-h-11 items-center font-semibold text-primary underline-offset-4 hover:underline">Plan a free trip</Link>
+        </p>
       </div>
+      <LocalleySignup source="credits" className="mt-10" />
     </div>
   );
 }
