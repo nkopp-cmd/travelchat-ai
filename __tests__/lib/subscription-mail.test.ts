@@ -23,9 +23,22 @@ describe("subscription confirmation mail", () => {
     expect(await sendSubscriptionMail("verified-1", "upgrade", "premium")).toEqual({ sent: true, emailId: "msg-1" });
     const message = send.mock.calls[0][0];
     expect(message).toMatchObject({ to: "mina@example.com", from: { email: "hello@localley.io" }, subject: "Your Localley Premium plan is active" });
-    expect(message.html).toContain("https://localley.io/settings");
-    expect(message.html).toContain("https://localley.io/dashboard");
-    expect(message.text.length).toBeGreaterThan(20);
+    // Account links go through sign-in (a payer on another device must not land on "Join Localley"), on www (no 301).
+    for (const part of [message.html, message.text]) {
+      expect(part).toContain("https://www.localley.io/sign-in?redirect_url=%2Fsettings");
+      expect(part).toContain("https://www.localley.io/sign-in?redirect_url=%2Fdashboard");
+      expect(part).not.toMatch(/https?:\/\/localley\.(io|app)/);
+    }
+  });
+
+  it("the cancellation confirmation links to pricing and settings on www", async () => {
+    await sendSubscriptionMail("verified-1", "cancelled", "pro");
+    const message = send.mock.calls[0][0];
+    for (const part of [message.html, message.text]) {
+      expect(part).toContain("https://www.localley.io/pricing");
+      expect(part).toContain("https://www.localley.io/sign-in?redirect_url=%2Fsettings");
+      expect(part).not.toMatch(/https?:\/\/localley\.(io|app)/);
+    }
   });
 
   it("never mails an unverified or unknown account, and preview stays silent", async () => {

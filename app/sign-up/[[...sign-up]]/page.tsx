@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { SignUpForm } from "@/components/auth/auth-forms";
-import { isGoogleSignInEnabled } from "@/lib/auth/server";
+import { redirect } from "next/navigation";
+import { auth, isGoogleSignInEnabled } from "@/lib/auth/server";
+import { safeRedirect } from "@/lib/auth/redirect";
 import { authCopy } from "@/lib/auth/auth-copy";
 
 export const dynamic = "force-dynamic";
@@ -13,8 +15,12 @@ export const metadata: Metadata = { robots: { index: false, follow: false } };
 type Props = { searchParams: Promise<{ redirect_url?: string | string[] }> };
 
 export default async function SignUpPage({ searchParams }: Props) {
-    const redirect = (await searchParams).redirect_url;
-    const copy = authCopy("sign-up", Array.isArray(redirect) ? redirect[0] : redirect);
+    const param = (await searchParams).redirect_url;
+    const target = Array.isArray(param) ? param[0] : param;
+    // A visitor who is already signed in (an account link from an email, an old tab) goes straight on. The 307 is
+    // never stored by the edge HTML cache (200 only), and auth() reads the real session, so /dashboard agrees.
+    if ((await auth()).userId) redirect(safeRedirect(target));
+    const copy = authCopy("sign-up", target);
     return (
         <AuthShell title={copy.title} subtitle={copy.subtitle}>
             <Suspense>

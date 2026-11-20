@@ -11,6 +11,7 @@ import {
     Section,
     Text,
 } from "@react-email/components";
+import { accountEmailLink } from "./links";
 
 interface SpotHighlight {
     name: string;
@@ -144,7 +145,7 @@ export function WeeklyDigestEmail({
                                 </Section>
                             ))}
 
-                            <Button href="https://localley.io/spots" style={secondaryButton}>
+                            <Button href="https://www.localley.io/spots" style={secondaryButton}>
                                 Explore More Spots
                             </Button>
                         </Section>
@@ -182,7 +183,7 @@ export function WeeklyDigestEmail({
                     {/* CTA */}
                     <Section style={ctaSection}>
                         <Text style={ctaText}>Ready for your next adventure?</Text>
-                        <Button href="https://localley.io/dashboard" style={ctaButton}>
+                        <Button href={accountEmailLink("/dashboard")} style={ctaButton}>
                             Plan a New Trip
                         </Button>
                     </Section>
@@ -193,9 +194,9 @@ export function WeeklyDigestEmail({
                             Made with 💜 by Localley
                         </Text>
                         <Text style={footerLinks}>
-                            <Link href="https://localley.io" style={footerLink}>Website</Link>
+                            <Link href="https://www.localley.io" style={footerLink}>Website</Link>
                             {" • "}
-                            <Link href="https://localley.io/settings" style={footerLink}>Settings</Link>
+                            <Link href={accountEmailLink("/settings")} style={footerLink}>Settings</Link>
                             {unsubscribeUrl && (
                                 <>
                                     {" • "}

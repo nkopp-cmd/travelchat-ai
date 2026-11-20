@@ -11,6 +11,7 @@ import {
     Section,
     Text,
 } from "@react-email/components";
+import { accountEmailLink } from "./links";
 
 type SubscriptionEventType =
     | "upgrade"
@@ -46,7 +47,7 @@ const eventConfig: Record<SubscriptionEventType, {
         message: (props) =>
             `Congratulations! You're now on the ${props.newTier} plan. Get ready to unlock even more local discoveries and premium features.`,
         ctaText: "Explore Your New Features",
-        ctaUrl: () => "https://localley.io/dashboard",
+        ctaUrl: () => accountEmailLink("/dashboard"),
     },
     downgrade: {
         subject: "Your plan has been changed",
@@ -55,7 +56,7 @@ const eventConfig: Record<SubscriptionEventType, {
         message: (props) =>
             `Your subscription has been changed from ${props.oldTier} to ${props.newTier}. This change will take effect at the end of your current billing period.`,
         ctaText: "View Plan Details",
-        ctaUrl: (props) => props.manageUrl || "https://localley.io/settings",
+        ctaUrl: (props) => props.manageUrl || accountEmailLink("/settings"),
     },
     cancelled: {
         subject: "We're sad to see you go 😢",
@@ -64,7 +65,7 @@ const eventConfig: Record<SubscriptionEventType, {
         message: () =>
             "Your subscription has been cancelled. You'll still have access to your premium features until the end of your current billing period. We hope to see you again soon!",
         ctaText: "Reactivate Subscription",
-        ctaUrl: () => "https://localley.io/pricing",
+        ctaUrl: () => "https://www.localley.io/pricing",
     },
     renewed: {
         subject: "Your subscription has been renewed ✨",
@@ -73,7 +74,7 @@ const eventConfig: Record<SubscriptionEventType, {
         message: (props) =>
             `Your ${props.newTier} subscription has been renewed successfully. Thank you for being part of the Localley community!`,
         ctaText: "Continue Exploring",
-        ctaUrl: () => "https://localley.io/dashboard",
+        ctaUrl: () => accountEmailLink("/dashboard"),
     },
     trial_ending: {
         subject: "Your trial ends soon ⏰",
@@ -82,7 +83,7 @@ const eventConfig: Record<SubscriptionEventType, {
         message: (props) =>
             `Your free trial ends on ${props.trialEndDate}. Upgrade now to keep all your premium features and continue discovering hidden gems.`,
         ctaText: "Upgrade Now",
-        ctaUrl: () => "https://localley.io/pricing",
+        ctaUrl: () => "https://www.localley.io/pricing",
     },
     payment_failed: {
         subject: "Payment failed - Action required",
@@ -91,7 +92,7 @@ const eventConfig: Record<SubscriptionEventType, {
         message: () =>
             "We couldn't process your payment. Please update your payment method to keep your subscription active.",
         ctaText: "Update Payment Method",
-        ctaUrl: (props) => props.manageUrl || "https://localley.io/settings",
+        ctaUrl: (props) => props.manageUrl || accountEmailLink("/settings"),
     },
 };
 
@@ -189,11 +190,11 @@ export function SubscriptionEmail(props: SubscriptionEmailProps) {
                             Made with 💜 by Localley
                         </Text>
                         <Text style={footerSubtext}>
-                            <Link href="https://localley.io/settings" style={footerLink}>
+                            <Link href={accountEmailLink("/settings")} style={footerLink}>
                                 Manage subscription
                             </Link>
                             {" • "}
-                            <Link href="https://localley.io" style={footerLink}>
+                            <Link href="https://www.localley.io" style={footerLink}>
                                 localley.io
                             </Link>
                         </Text>

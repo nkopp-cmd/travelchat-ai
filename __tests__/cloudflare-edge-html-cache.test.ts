@@ -123,6 +123,13 @@ describe("public HTML edge cache", () => {
       expect(isEdgeCacheable(new Request(`https://www.localley.io${path}`))).toBe(true);
       expect(isEdgeCacheable(new Request(`https://www.localley.io${path}?redirect_url=%2Fdashboard`))).toBe(false);
     }
+    // Push BB1: a signed-in visitor must reach the page, which redirects them on; a cached form would stop them.
+    for (const path of ["/sign-in", "/sign-up", "/sign-up?redirect_url=%2Fitineraries%2Fpreview"]) {
+      for (const cookie of ["__Secure-better-auth.session_token=t.s", "better-auth.session_token=t.s"]) {
+        expect(isEdgeCacheable(new Request(`https://www.localley.io${path}`, { headers: { cookie } }))).toBe(false);
+      }
+      expect(isEdgeCacheable(new Request(`https://www.localley.io${path}`, { headers: { cookie: "lly_hint=1" } }))).toBe(true);
+    }
     expect(isEdgeCacheable(new Request("https://www.localley.io/reset-password"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=atlantis"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=seoul&category=Food"))).toBe(false);

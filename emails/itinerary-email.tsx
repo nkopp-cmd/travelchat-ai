@@ -158,7 +158,7 @@ export function ItineraryEmail({
                         <Text style={footerSubtext}>
                             Discover hidden gems. Explore like a local.
                         </Text>
-                        <Link href="https://localley.io" style={footerLink}>
+                        <Link href="https://www.localley.io" style={footerLink}>
                             localley.io
                         </Link>
                     </Section>
