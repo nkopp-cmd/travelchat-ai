@@ -2,13 +2,15 @@
 title: How to pay in Seoul as a visitor: cards, cash, T-money and ATMs
 description: What works at the counter in Seoul in 2026, which ATMs take foreign cards, how much cash to carry and the five Korean phrases for paying.
 published: 2026-11-02
-updated: 2026-11-04
+updated: 2026-11-20
 photo: /media/spot/0d120515-c856-48cf-8621-7efad0e59568/8344c77eee82a6b933b39c70075c9bb9ca0f6784f27f6cdd95317d396ebdf64d.webp
 photoAlt: Shoppers between the stalls of Namdaemun Market in Seoul, where many vendors still prefer cash
 photoSize: 1280x853
 photoCredit: Korea Tourism Organization / 니오타니 스튜디오 (KOGL Type 1)
 ---
 Seoul is one of the easiest cities in Asia to pay in. A foreign Visa or Mastercard works in most shops, cafés, convenience stores and taxis. A few places still need cash, and the transit card is a separate step. This guide tells you what to carry, where cash still matters and what to say at the counter.
+
+Cash matters most at markets: before you go, browse [Localley's Seoul spot guide](/spots?city=seoul) or open a market page such as [Mangwon Market](/spots/aee0ec5d-577b-4e3a-ab5e-d92c4b743202), [Songpa-dong Traditional Market](/spots/b95aa4bc-1f50-4ff1-a0e5-9c3dcc6a047d), [Jegi-dong Herbal Medicine Market](/spots/96bcfa8e-f46d-4fd8-b140-12db5d5678e8) or [Dongdaemun Design Plaza Night Market](/spots/60585537-cdae-491f-a518-6b75c231927e).
 
 ## Cards: your main way to pay
 

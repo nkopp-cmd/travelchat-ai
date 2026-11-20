@@ -2,13 +2,15 @@
 title: How to pay in Bangkok as a visitor: cards, cash, transit cards and ATMs
 description: Plan how to pay around Bangkok with cards, baht cash, Rabbit and contactless transit, ATMs, tourist QR options and practical tips for first-time visitors.
 published: 2026-11-09
-updated: 2026-11-09
+updated: 2026-11-20
 photo: /media/spot/c9f18f80-3b4d-4bb7-84b6-6972508be155/967676813ca12b0e4995808cdf605cbe9c164356ab8da0a854bbde9c33041401.webp
 photoAlt: Flower and vegetable stalls along the street at Pak Khlong Talat, Bangkok
 photoSize: 1600x1200
 photoCredit: Sry85 · CC BY-SA 4.0 · Wikimedia Commons
 ---
 For a first trip to Bangkok, use a foreign card at hotels, malls and larger restaurants, and carry baht for street stalls, markets and local transport. For transit, use Rabbit on the BTS, contactless bank cards on the MRT Blue and Purple lines, and a bank card on the Airport Rail Link; keep cash for the places and journeys where cards may not work.
+
+Markets are where baht matters most: before you go, browse [Localley's Bangkok spot guide](/spots?city=bangkok) or open a market page such as [Chatuchak Weekend Market](/spots/a4f571b1-dafa-464e-8a20-927e2943eb9a), [Khlong Toei Fresh Market](/spots/a1197aa1-3563-45b9-8673-55ed1047d613), [Pratunam Market](/spots/e209dcec-c9cf-4bbc-a7bf-8470044279c3) or [Asiatique Night Market](/spots/93082bd7-4148-40a7-9b41-0047b520de38).
 
 ## Where can I pay by card?
 
