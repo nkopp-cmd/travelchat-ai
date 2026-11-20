@@ -446,6 +446,7 @@ on:
       - '__tests__/app/story-gallery-candidate.test.tsx'
       - 'lib/itinerary-mail-limit.ts'
       - '__tests__/lib/itinerary-mail-limit.test.ts'
+      - '__tests__/lib/itinerary-mail-limit.property.test.ts'
       - 'migrations/auth/**'
       - '__tests__/lib/story-mail-cloudflare.test.ts'
       - 'lib/story-mail.ts'

@@ -233,6 +233,7 @@ VITEST_FILES=(
   __tests__/api/story-mail-cloudflare.test.ts
   __tests__/lib/story-mail-cloudflare.test.ts
   __tests__/lib/itinerary-mail-limit.test.ts
+  __tests__/lib/itinerary-mail-limit.property.test.ts
   __tests__/lib/itinerary-mail.test.ts
   __tests__/lib/auth-mail.test.ts
   __tests__/api/itinerary-mail-candidate.test.ts
@@ -624,6 +625,7 @@ ESLINT_FILES=(
   __tests__/lib/apify-discovery-collection.test.ts
   lib/itinerary-mail-limit.ts
   __tests__/lib/itinerary-mail-limit.test.ts
+  __tests__/lib/itinerary-mail-limit.property.test.ts
   lib/itinerary-mail.ts
   lib/auth/mail.ts
   "app/api/itineraries/[id]/email/route.ts"
