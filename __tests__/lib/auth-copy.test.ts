@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { authCopy, FREE_ACCOUNT_SUBTITLE } from "@/lib/auth/auth-copy";
 import { TIER_CONFIGS } from "@/lib/subscription";
@@ -120,5 +121,17 @@ describe("authCopy", () => {
         for (const target of ["/dashboardx", "/communityx", "/explore/abc", "/users", "/users/a/b", "/challenges/1", "//evil.example/dashboard"]) {
             expect(authCopy("sign-up", target).title).toBe("Join Localley");
         }
+    });
+
+    it("prints limits and prices only from TIER_CONFIGS, never as hard-coded numbers (Push BG3)", () => {
+        const { free, pro } = TIER_CONFIGS;
+        expect(authCopy("sign-up", "/spots/abc-123").subtitle).toContain(`up to ${free.limits.savedSpotsLimit} spots`);
+        // Copy strings in these files must not carry a limit or price as a literal number.
+        const literal = /["'`>][^"'`<]*?(\b\d+ (saved )?spots?\b|\b\d+ (chat )?(messages|questions)\b|\b\d+ trips? (a|per) month|\$\d+\/month)/;
+        for (const file of ["lib/auth/auth-copy.ts", "app/pricing/page.tsx", "app/itineraries/preview/preview-client.tsx"]) {
+            const code = readFileSync(file, "utf8").split("\n").filter((line) => !/^\s*(\/\/|\*|\{\/\*)/.test(line)).join("\n");
+            expect(code.match(literal)?.[0], file).toBeUndefined();
+        }
+        expect(pro.limits.chatMessagesPerDay).toBeGreaterThan(free.limits.chatMessagesPerDay);
     });
 });

@@ -25,6 +25,7 @@ import { TIER_CONFIGS } from "@/lib/subscription";
 import { cn } from "@/lib/utils";
 import { checkoutSignUpUrl, formatResetDay, parseCheckoutIntent, parsePlannerLimit, withoutCheckoutParam, type PlannerLimitNotice } from "@/lib/pricing-checkout";
 import { currentPagePath, signInGateHref } from "@/lib/auth/gate-href";
+import { FREE_ACCOUNT_SUBTITLE } from "@/lib/auth/auth-copy";
 
 type PaidTier = "pro" | "premium";
 
@@ -38,7 +39,7 @@ const PLAN_COPY = {
         icon: Sparkles,
         features: [
             "Unlimited itinerary generation",
-            "100 chat messages per day",
+            `${TIER_CONFIGS.pro.limits.chatMessagesPerDay} chat messages per day`,
             "Local-first route planning",
             "Full addresses and cleaner exports",
             "Weather-aware planning",
@@ -222,6 +223,8 @@ export default function PricingPage() {
                             <Button asChild className="mt-6 min-h-12 px-5 font-semibold">
                                 <Link href="/itineraries/new" data-testid="pricing-free-plan">Plan a free trip</Link>
                             </Button>
+                            {/* Push BG3: the same free-account offer as /sign-up, built from TIER_CONFIGS.free.limits. */}
+                            <p className="mt-3 text-sm text-muted-foreground" data-testid="pricing-free-account">{FREE_ACCOUNT_SUBTITLE}</p>
                         </div>
 
                         <div className="rounded-lg bg-raised p-4">
