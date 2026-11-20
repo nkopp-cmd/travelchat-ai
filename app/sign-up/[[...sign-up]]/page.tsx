@@ -5,7 +5,7 @@ import { SignUpForm } from "@/components/auth/auth-forms";
 import { redirect } from "next/navigation";
 import { auth, isGoogleSignInEnabled } from "@/lib/auth/server";
 import { safeRedirect } from "@/lib/auth/redirect";
-import { authCopy } from "@/lib/auth/auth-copy";
+import { authBackLink, authCopy } from "@/lib/auth/auth-copy";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +22,7 @@ export default async function SignUpPage({ searchParams }: Props) {
     if ((await auth()).userId) redirect(safeRedirect(target));
     const copy = authCopy("sign-up", target);
     return (
-        <AuthShell title={copy.title} subtitle={copy.subtitle}>
+        <AuthShell title={copy.title} subtitle={copy.subtitle} back={authBackLink(target)}>
             <Suspense>
                 <SignUpForm googleEnabled={isGoogleSignInEnabled()} />
             </Suspense>
