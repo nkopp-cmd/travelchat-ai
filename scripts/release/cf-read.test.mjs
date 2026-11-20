@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readWithRetry } from "./cf-read.mjs";
+import { READ_RETRIES, readWithRetry, retryDelay } from "./cf-read.mjs";
 
 const quiet = { wait: async () => {}, log: () => {} };
 
@@ -22,4 +22,14 @@ test("the loop stops after the retry limit and throws", async () => {
   let calls = 0;
   await assert.rejects(readWithRetry(async () => { calls++; return { success: false }; }, { ...quiet, retries: 3, label: "/x" }), /Cloudflare read failed: \/x/);
   assert.equal(calls, 4);
+});
+
+test("pauses grow 5, 10, 20, 30 s and stay at 30 s; the default budget covers several minutes but stays bounded", async () => {
+  assert.deepEqual([1, 2, 3, 4, 5].map((n) => retryDelay(n)), [5_000, 10_000, 20_000, 30_000, 30_000]);
+  const pauses = [];
+  let calls = 0;
+  await assert.rejects(readWithRetry(async () => { calls++; return { success: false }; }, { wait: async (ms) => { pauses.push(ms); }, log: () => {} }));
+  assert.equal(calls, READ_RETRIES + 1);
+  const total = pauses.reduce((sum, ms) => sum + ms, 0);
+  assert.ok(total >= 180_000 && total <= 300_000, `total pause ${total} ms`);
 });
