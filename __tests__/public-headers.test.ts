@@ -18,4 +18,9 @@ describe("public/_headers", () => {
       expect(headers).toContain(`/images/picks/${city}-pick-v1-*\n  Cache-Control: public, max-age=31536000, immutable`);
     }
   });
+
+  it("caches the versioned logo files as immutable (Push BE3)", async () => {
+    const headers = await readFile(resolve("public/_headers"), "utf8");
+    expect(headers).toContain("/brand/logo-v1-*\n  Cache-Control: public, max-age=31536000, immutable");
+  });
 });

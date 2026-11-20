@@ -17,7 +17,6 @@ const HOME = [
   "components/landing/planner.tsx",
   "components/landing/hero-card-placer.tsx",
   "components/landing/pick-conditions.tsx",
-  "components/brand/logo.tsx",
 ];
 // Loaded only after an intent or for a signed-in visitor (next/dynamic with ssr: false, or an awaited import).
 const LAZY = new Set([
@@ -46,7 +45,7 @@ function eagerGraph(roots: string[] = CHROME): Map<string, string> {
       ...source.matchAll(/import\("([^"]+)"\)/g),
     ].map((match) => match[1]);
     for (const spec of specs) {
-      if (spec === "tailwind-merge") seen.set("tailwind-merge", file);
+      if (spec === "tailwind-merge" || spec === "next/image") seen.set(spec, file);
       const next = resolve(spec, file);
       if (next && !LAZY.has(next)) visit(next, file);
     }
@@ -65,6 +64,11 @@ describe("public layout chrome bundle (Push AS4)", () => {
   it("keeps tailwind-merge, cn and Button out of the eager chrome graph", () => {
     const hits = [...eagerGraph()].filter(([file]) => FORBIDDEN.has(file)).map(([file, by]) => `${file} <- ${by}`);
     expect(hits).toEqual([]);
+  });
+
+  it("keeps next/image out of the eager chrome graph (Push BE3: the logo is a static <img>)", () => {
+    const graph = eagerGraph();
+    expect(graph.get("next/image")).toBeUndefined();
   });
 
   it("keeps the shared page header server-only, so its cn call never ships to the browser", () => {
