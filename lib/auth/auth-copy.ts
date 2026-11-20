@@ -129,3 +129,14 @@ export function authCopy(mode: AuthMode, redirectUrl: string | null | undefined)
     if (path === "/pricing" && redirectUrl?.includes("?")) return checkoutCopy(mode, redirectUrl.split("#")[0]) ?? DEFAULT_COPY[mode];
     return DEFAULT_COPY[mode];
 }
+
+// Push BH2: the auth form had no way back (the logo has no link). A visitor who came from a trip, the planner or a
+// spot page gets one link back to that page. The link drops the query, so it never replays continue=save or checkout.
+export type AuthBackLink = { href: string; label: string };
+export function authBackLink(redirectUrl: string | null | undefined): AuthBackLink | null {
+    const path = pathOf(redirectUrl);
+    if (path === GENERATED_PREVIEW_PATH) return { href: GENERATED_PREVIEW_PATH, label: "Back to your trip" };
+    if (path === "/itineraries/new") return { href: "/itineraries/new", label: "Back to the planner" };
+    if (path && SPOT_PAGE.test(path)) return { href: path, label: "Back to the spot" };
+    return null;
+}

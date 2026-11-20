@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { authCopy, FREE_ACCOUNT_SUBTITLE } from "@/lib/auth/auth-copy";
+import { authBackLink, authCopy, FREE_ACCOUNT_SUBTITLE } from "@/lib/auth/auth-copy";
 import { TIER_CONFIGS } from "@/lib/subscription";
 
 describe("authCopy", () => {
@@ -133,5 +133,23 @@ describe("authCopy", () => {
             expect(code.match(literal)?.[0], file).toBeUndefined();
         }
         expect(pro.limits.chatMessagesPerDay).toBeGreaterThan(free.limits.chatMessagesPerDay);
+    });
+});
+
+describe("authBackLink (Push BH2)", () => {
+    it("links back to the trip, the planner or the spot, without the resume query", () => {
+        expect(authBackLink("/itineraries/preview?continue=save")).toEqual({ href: "/itineraries/preview", label: "Back to your trip" });
+        expect(authBackLink("/itineraries/new?city=seoul")).toEqual({ href: "/itineraries/new", label: "Back to the planner" });
+        expect(authBackLink("/spots/08b64783?continue=save-spot:08b64783")).toEqual({ href: "/spots/08b64783", label: "Back to the spot" });
+    });
+    it("shows no link for the plain form, other paths or unsafe redirects", () => {
+        for (const value of [undefined, null, "", "/dashboard", "/pricing?checkout=pro-monthly", "/spots/submit", "//evil.example/itineraries/preview", "https://evil.example/itineraries/preview"]) {
+            expect(authBackLink(value), String(value)).toBeNull();
+        }
+    });
+    it("is wired into both auth pages", () => {
+        for (const file of ["app/sign-up/[[...sign-up]]/page.tsx", "app/sign-in/[[...sign-in]]/page.tsx"]) {
+            expect(readFileSync(file, "utf8"), file).toContain("back={authBackLink(target)}");
+        }
     });
 });

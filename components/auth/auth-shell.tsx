@@ -1,16 +1,24 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
+import type { AuthBackLink } from "@/lib/auth/auth-copy";
 import { Logo } from "@/components/brand/logo";
 import { AppBackground } from "@/components/layout/app-background";
 
-export function AuthShell({ title, subtitle, children, footer }: {
+export function AuthShell({ title, subtitle, children, footer, back }: {
     title: string;
     subtitle: string;
     children: ReactNode;
     footer?: ReactNode;
+    back?: AuthBackLink | null;
 }) {
     return (
         <AppBackground ambient className="min-h-dvh" contentClassName="flex min-h-dvh items-center justify-center p-4">
             <div className="relative z-10 w-full max-w-md">
+                {back && (
+                    <Link href={back.href} data-testid="auth-back" className="mb-4 inline-flex min-h-11 items-center text-sm text-muted-foreground hover:text-foreground">
+                        <span aria-hidden="true">←&nbsp;</span>{back.label}
+                    </Link>
+                )}
                 <div className="flex justify-center mb-6">
                     <Logo size="lg" showText={false} href={undefined} />
                 </div>
