@@ -4,7 +4,7 @@ import { IntentLink } from "@/components/navigation/intent-link";
 import { usePathname } from "next/navigation";
 import { useUser } from "@/lib/auth/client";
 import dynamic from "next/dynamic";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { prefetchInbox } from "@/lib/notifications/inbox-prefetch";
 import { Menu } from "@/components/ui/icons";
 import { routes } from "@/components/layout/navbar-routes";
@@ -23,9 +23,20 @@ const preloadDrawer = () => { void loadDrawer(); };
 const NavbarDrawer = dynamic(() => loadDrawer().then((module) => module.NavbarDrawer), { ssr: false });
 
 
+// Push BE1: the session call takes 0.5-1 s on phones. A browser that never rendered a signed-in header shows
+// Sign in + Join free at once (the edge HTML already has them); only a browser with this hint waits for the session.
+export const ACCOUNT_HINT_KEY = "localley:account-hint";
+const noSubscribe = () => () => {};
+const readAccountHint = () => { try { return localStorage.getItem(ACCOUNT_HINT_KEY) === "1"; } catch { return false; } };
+
 export function Navbar() {
   const pathname = usePathname();
   const { isLoaded, isSignedIn, user } = useUser();
+  const accountHint = useSyncExternalStore(noSubscribe, readAccountHint, () => false);
+  useEffect(() => {
+    if (!isLoaded) return;
+    try { if (isSignedIn) localStorage.setItem(ACCOUNT_HINT_KEY, "1"); else localStorage.removeItem(ACCOUNT_HINT_KEY); } catch { /* Storage off: keep the signed-out default. */ }
+  }, [isLoaded, isSignedIn]);
   // Start the inbox's first page with the session, not after the lazy account chunk.
   const inboxOwner = isSignedIn && user?.emailVerified ? user.id : null;
   useEffect(() => { if (inboxOwner) prefetchInbox(inboxOwner); }, [inboxOwner]);
@@ -50,7 +61,7 @@ export function Navbar() {
         return <IntentLink key={route.href} href={route.href} aria-current={active ? 'page' : undefined} className={`flex min-h-11 items-center gap-2 rounded-xl px-3 py-2 lg:px-4 text-sm hover:bg-raised hover:text-foreground ${active ? "bg-raised font-semibold text-foreground" : "text-muted-foreground"}`}><route.icon className="hidden size-4 lg:block" />{route.label}</IntentLink>;
       })}</nav>
       <div className="flex min-h-11 items-center gap-2 sm:gap-4">
-        {!isLoaded ? <div role="status" aria-label="Checking account" className="h-11 w-20 rounded-xl bg-raised"><span className="sr-only">Checking account</span></div> : isSignedIn ? <NavbarAccount /> : <><IntentLink data-slot="button" className={buttonVariants({ variant: "ghost", size: "sm" })} href="/sign-in">Sign in</IntentLink><IntentLink data-slot="button" className={`${buttonVariants({ size: "sm" })} sm:hidden`} href={`/sign-up?redirect_url=${encodeURIComponent(joinTarget)}`}>Join free</IntentLink><IntentLink data-slot="button" className={`${buttonVariants({ size: "sm" }).replace("inline-flex ", "")} hidden sm:inline-flex`} href="/itineraries/new">Start planning</IntentLink></>}
+        {!isLoaded && accountHint ? <div role="status" aria-label="Checking account" className="h-11 w-20 rounded-xl bg-raised"><span className="sr-only">Checking account</span></div> : isSignedIn ? <NavbarAccount /> : <><IntentLink data-slot="button" className={buttonVariants({ variant: "ghost", size: "sm" })} href="/sign-in">Sign in</IntentLink><IntentLink data-slot="button" className={`${buttonVariants({ size: "sm" })} sm:hidden`} href={`/sign-up?redirect_url=${encodeURIComponent(joinTarget)}`}>Join free</IntentLink><IntentLink data-slot="button" className={`${buttonVariants({ size: "sm" }).replace("inline-flex ", "")} hidden sm:inline-flex`} href="/itineraries/new">Start planning</IntentLink></>}
       </div>
     </div>
   </header>;
