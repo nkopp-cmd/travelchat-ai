@@ -129,6 +129,7 @@ VITEST_FILES=(
   __tests__/lib/weekly-post-draft.test.ts
   __tests__/lib/weekly-post-gates.test.ts
   __tests__/lib/weekly-post-publish.test.ts
+  __tests__/lib/indexnow-changed.test.ts
   __tests__/api/help-open.test.ts
   __tests__/api/spots-near.test.ts
   __tests__/lib/driver-card.test.ts
@@ -411,6 +412,7 @@ ESLINT_FILES=(
   scripts/weekly-post-draft.mjs
   scripts/weekly-post-gates.mjs
   scripts/weekly-post-publish.mjs
+  scripts/indexnow-changed.mjs
   lib/seo/sitemap.ts
   lib/seo/sitemap-spots.ts
   lib/seo/spot-indexable.ts
@@ -444,6 +446,7 @@ ESLINT_FILES=(
   __tests__/lib/weekly-post-draft.test.ts
   __tests__/lib/weekly-post-gates.test.ts
   __tests__/lib/weekly-post-publish.test.ts
+  __tests__/lib/indexnow-changed.test.ts
   lib/referral-point.ts
   app/api/events/referral/route.ts
   __tests__/lib/referral-point.test.ts
