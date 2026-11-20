@@ -56,6 +56,7 @@ import { readSpotGuide } from "@/lib/spots/guide-store";
 import { isSpotIndexable } from "@/lib/seo/spot-indexable";
 import { cityDirectory } from "@/lib/spots/city-directory-store";
 import { nearestEntries, nextInDirectory } from "@/lib/spots/city-directory";
+import { sitemapSpotRows } from "@/lib/seo/sitemap-spots";
 import { spotIntro } from "@/lib/seo/spot-intro";
 import { cache } from "react";
 import { fetchSpotViralMentions } from "@/lib/viral/events";
@@ -559,17 +560,19 @@ export default async function SpotPage({
   const citySlug = inferSpotCitySlug(spot);
   const knownCity = citySlug ? city : null; // address fallback is not a planner city
   const primaryArea = getPrimaryArea(spot.location.address, city);
-  const [relatedSpots, guide, viralMentions, directory] = await Promise.all([
+  const [relatedSpots, guide, viralMentions, directory, indexableRows] = await Promise.all([
     candidate ? Promise.resolve([] as RelatedSpot[]) : getRelatedSpots(spot, city),
     candidate ? Promise.resolve(null) : spotGuide(spot.id),
     candidate ? Promise.resolve([]) : fetchSpotViralMentions(spot.id).catch(() => []),
     candidate ? Promise.resolve([]) : cityDirectory(citySlug),
+    candidate ? Promise.resolve([]) : sitemapSpotRows().catch(() => []),
   ]);
   // Six closest spots of the same city hub as plain links: every spot page links its neighbours, so no spot is an
   // orphan even outside the hub's first page (weekend sprint L3).
   const nearbyLinks = nearestEntries(directory, spot.location, [spot.id, ...relatedSpots.map((related) => related.id)], 6);
   // Ring link: nearest-6 never reaches an outlier spot (graph: 5 orphans in Busan/Hanoi), the A-Z successor always does.
-  const nextSpot = nextInDirectory(directory, spot.id);
+  // Indexable spots ring over sitemap spots only, so each gets a link from an indexable page (BF3b attempt 2).
+  const nextSpot = nextInDirectory(directory, spot.id, new Set(indexableRows.map((row) => row.id.toLowerCase())));
   // Own-data lead (sprint-2 L8): score, hub rank and the closest neighbours make each spot page's opening unique.
   const intro = candidate ? null : spotIntro({
     id: spot.id, name: spot.name, category: spot.category, score: spot.localleyScore, area: primaryArea, city,
