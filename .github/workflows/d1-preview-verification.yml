@@ -218,6 +218,8 @@ on:
       - 'cloudflare/opennext/signed-out-redirect.ts'
       - '__tests__/cloudflare-signed-out-redirect.test.ts'
       - '__tests__/cloudflare-edge-html-cache.test.ts'
+      - '__tests__/gravity-release-smoke.test.ts'
+      - '.gravity/release.json'
       - '__tests__/lib/credits.test.ts'
       - 'lib/credits.ts'
       - 'app/credits/**'
