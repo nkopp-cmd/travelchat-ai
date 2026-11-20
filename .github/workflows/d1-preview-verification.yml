@@ -140,6 +140,8 @@ on:
       - '__tests__/lib/weekly-post-gates.test.ts'
       - 'scripts/weekly-post-publish.mjs'
       - '__tests__/lib/weekly-post-publish.test.ts'
+      - 'scripts/indexnow-changed.mjs'
+      - '__tests__/lib/indexnow-changed.test.ts'
       - '__tests__/api/help-open.test.ts'
       - '__tests__/api/spots-near.test.ts'
       - 'app/api/spots/near/**'

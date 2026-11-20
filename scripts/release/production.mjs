@@ -13,6 +13,7 @@ import { carryPrevious, listFiles, replaceArchive } from "./keep-static.mjs";
 import { uploadWithRetry } from "./upload-retry.mjs";
 import { promoteWithRetry } from "./promote-retry.mjs";
 import { readWithRetry } from "./cf-read.mjs";
+import { runIndexNow } from "../indexnow-changed.mjs";
 
 const ACCOUNT = "664f242340bcec2f32daaeee15f58bde";
 const SCRIPT = "localley-next";
@@ -163,6 +164,10 @@ if (stage === "deploy") {
   if (archive && existsSync(OWN_STATIC)) {
     try { replaceArchive(OWN_STATIC, archive); } catch (error) { console.warn(`[release] chunk archive not updated: ${error.message}`); }
   }
+  // Push BF4: tell IndexNow about new / changed sitemap URLs (max 1 POST). Warning only, 60 s cap: never fails a release.
+  const indexnow = await Promise.race([runIndexNow(),
+    new Promise((resolve) => setTimeout(() => resolve({ error: "timeout after 60 s" }), 60_000).unref())]);
+  console.log(`[release] indexnow ${JSON.stringify(indexnow)}`);
   process.exit(0);
 }
 
