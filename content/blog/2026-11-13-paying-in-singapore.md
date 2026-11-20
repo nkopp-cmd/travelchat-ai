@@ -2,13 +2,15 @@
 title: How to pay in Singapore as a visitor: cards, cash, transit cards and ATMs
 description: Plan how to pay in Singapore with cards, cash, transit cards, QR wallets and ATMs, including practical tips for first-time visitors.
 published: 2026-11-13
-updated: 2026-11-13
+updated: 2026-11-20
 photo: /media/spot/d402183b-98b8-4eca-af50-823eeabad221/538c6a69504502d9d057a22b75f0645cc84e45732eec2f3df88bf4319f0f4d89.webp
 photoAlt: Clothing and gift stalls with price signs in Singapore dollars at Geylang Serai Market
 photoSize: 1600x1200
 photoCredit: Chainwit. · CC BY 4.0 · Wikimedia Commons
 ---
 Foreign Visa and Mastercard work widely in Singapore shops and restaurants, while some stalls and taxis may still need cash. For buses and MRT, tap a foreign Visa or Mastercard, or use an EZ-Link card; as of 2026-10, foreign cards incur a daily transit fee, with an Amex exception described below.
+
+Hawker centres are where cash and QR wallets matter most: before you go, browse [Localley's Singapore spot guide](/spots?city=singapore) or open a hawker page such as [Maxwell Food Centre](/spots/7cfbc9c5-d71a-48f6-aa40-c16bbd3ad763), [Lau Pa Sat Festival Market](/spots/8472321a-2ee7-47bb-b243-c85252fc96dd), [Tekka Centre](/spots/6b0b6946-31be-4d8e-b279-290c21974200) or [Tiong Bahru Market](/spots/95268f57-8d63-4cea-9e72-f3332b48df2e).
 
 ## Which cards can I use in shops and restaurants?
 
