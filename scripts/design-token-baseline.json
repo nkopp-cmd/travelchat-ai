@@ -87,7 +87,7 @@
     "palette": 5,
     "colored-shadow": 1
   },
-  "components/brand/logo.tsx": {
+  "components/brand/logo-mark.tsx": {
     "gradient": 2,
     "colored-shadow": 2,
     "gradient-text": 1
