@@ -57,4 +57,27 @@ describe("authCopy", () => {
             expect(authCopy("sign-up", target).title).toBe("Join Localley");
         }
     });
+
+    it("speaks to the spot when a spot CARD Save on a list page sent the visitor (Push BA1)", () => {
+        for (const target of ["/spots?continue=save-spot%3Aabc-123", "/spots?continue=save-spot:abc-123", "/cities/seoul?tab=spots&continue=save-spot%3Aabc", "/guides/seoul-food?continue=save-spot%3Aabc#top", "/spots/abc-123?continue=save-spot%3Aabc-123"]) {
+            expect(authCopy("sign-up", target).title).toBe("Save this spot");
+            expect(authCopy("sign-in", target).title).toBe("Sign in to save this spot");
+        }
+        for (const target of ["/spots?continue=save", "/spots?continue=other%3Aabc", "/spots?next=save-spot%3Aabc", "/spots#continue=save-spot:abc", "//evil.example/spots?continue=save-spot%3Aabc"]) {
+            expect(authCopy("sign-up", target).title).toBe("Join Localley");
+        }
+    });
+
+    it("speaks to the account tabs that sent a signed-out visitor (Push BA1)", () => {
+        expect(authCopy("sign-up", "/profile").title).toBe("Your Localley profile");
+        expect(authCopy("sign-in", "/profile").title).toBe("Sign in to your profile");
+        expect(authCopy("sign-up", "/settings?subscription=success").title).toBe("Your account settings");
+        expect(authCopy("sign-in", "/settings").title).toBe("Sign in to your settings");
+        for (const path of ["/profile", "/settings"]) for (const mode of ["sign-up", "sign-in"] as const) {
+            expect(JSON.stringify(authCopy(mode, path))).not.toMatch(/unlimited|trial|pro\b|premium/i);
+        }
+        for (const target of ["/profilex", "/profile/edit", "/settings/billing", "//evil.example/profile"]) {
+            expect(authCopy("sign-up", target).title).toBe("Join Localley");
+        }
+    });
 });

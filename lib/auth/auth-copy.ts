@@ -1,5 +1,6 @@
 import { GENERATED_PREVIEW_PATH } from "@/lib/trips/generated-preview";
 import { parseCheckoutIntent } from "@/lib/pricing-checkout";
+import { CONTINUE_PARAM } from "@/lib/auth/resume-action";
 
 export type AuthMode = "sign-up" | "sign-in";
 export type AuthCopy = { title: string; subtitle: string };
@@ -22,7 +23,7 @@ const TRIP_COPY: Record<"preview" | "planner", Record<AuthMode, AuthCopy>> = {
 
 // Bottom-nav tabs that need an account (middleware sends signed-out visitors to the auth form with this redirect).
 // Free accounts: 10 chat messages a day, 1 trip a month (lib/subscription.ts); the copy promises nothing beyond that.
-const NAV_COPY: Record<"/chat" | "/itineraries", Record<AuthMode, AuthCopy>> = {
+const NAV_COPY: Record<"/chat" | "/itineraries" | "/profile" | "/settings", Record<AuthMode, AuthCopy>> = {
     "/chat": {
         "sign-up": { title: "Ask a local", subtitle: "Create a free account to chat about places, food and routes." },
         "sign-in": { title: "Sign in to chat", subtitle: "Your conversations are on the next screen." },
@@ -30,6 +31,14 @@ const NAV_COPY: Record<"/chat" | "/itineraries", Record<AuthMode, AuthCopy>> = {
     "/itineraries": {
         "sign-up": { title: "Your trips in one place", subtitle: "Create a free account and plan your first trip." },
         "sign-in": { title: "Sign in to see your trips", subtitle: "Your saved trips are on the next screen." },
+    },
+    "/profile": {
+        "sign-up": { title: "Your Localley profile", subtitle: "Create a free account to keep your saved spots and trips together." },
+        "sign-in": { title: "Sign in to your profile", subtitle: "Your profile is on the next screen." },
+    },
+    "/settings": {
+        "sign-up": { title: "Your account settings", subtitle: "Create a free account to manage your plan and emails." },
+        "sign-in": { title: "Sign in to your settings", subtitle: "Your settings are on the next screen." },
     },
 };
 
@@ -40,6 +49,12 @@ const SPOT_COPY: Record<AuthMode, AuthCopy> = {
     "sign-in": { title: "Sign in to save this spot", subtitle: "Your trip list is on the next screen." },
 };
 const SPOT_PAGE = /^\/spots\/(?!submit$|submissions$)[^/]+$/;
+// A spot CARD Save on a list page (Push AZ2) returns to that page with ?continue=save-spot:<id> (Push BA1).
+function isSpotSaveResume(redirectUrl: string): boolean {
+    const q = redirectUrl.indexOf("?");
+    if (q < 0) return false;
+    return new URLSearchParams(redirectUrl.slice(q + 1).split("#")[0]).get(CONTINUE_PARAM)?.startsWith("save-spot:") ?? false;
+}
 
 const TIER_NAME = { pro: "Pro", premium: "Premium" } as const;
 
@@ -64,8 +79,8 @@ export function authCopy(mode: AuthMode, redirectUrl: string | null | undefined)
     const path = pathOf(redirectUrl);
     if (path === GENERATED_PREVIEW_PATH) return TRIP_COPY.preview[mode];
     if (path === "/itineraries/new") return TRIP_COPY.planner[mode];
-    if (path === "/chat" || path === "/itineraries") return NAV_COPY[path][mode];
-    if (path && SPOT_PAGE.test(path)) return SPOT_COPY[mode];
+    if (path === "/chat" || path === "/itineraries" || path === "/profile" || path === "/settings") return NAV_COPY[path][mode];
+    if (path && (SPOT_PAGE.test(path) || isSpotSaveResume(redirectUrl!))) return SPOT_COPY[mode];
     if (path === "/pricing" && redirectUrl?.includes("?")) return checkoutCopy(mode, redirectUrl.split("#")[0]) ?? DEFAULT_COPY[mode];
     return DEFAULT_COPY[mode];
 }
