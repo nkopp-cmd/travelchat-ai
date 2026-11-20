@@ -62,6 +62,7 @@ import { fetchSpotViralMentions } from "@/lib/viral/events";
 import { viralMentionMonth } from "@/lib/viral/feed";
 import type { Metadata } from "next";
 import { LocalleySignup } from "@/components/newsletter/localley-signup";
+import { PricingLineLink } from "@/components/seo/pricing-line";
 import { PreviewSaveSpotButton } from "@/components/spots/preview-save-spot-button";
 import { previewSavedSpotActor } from "@/lib/app-data/preview-saved-spot-actor";
 import { previewSpotPageData } from "@/lib/app-data/preview-spot-page";
@@ -684,6 +685,7 @@ export default async function SpotPage({
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-3 lg:gap-6">
           <div className="space-y-5 lg:col-span-2">
             {intro && <p data-testid="spot-intro" className="text-base font-medium leading-7 text-foreground">{intro}</p>}
+            {!candidate && <PricingLineLink pageKey={spot.id} />}
             {(guide?.guide || description.text) && (
               <section data-testid="spot-guide" className={`${LIQUID_CARD} space-y-3 p-4 sm:p-6`}>
                 {(guide?.guide || description.text).split(/\n{2,}/).map((paragraph, index) => (
