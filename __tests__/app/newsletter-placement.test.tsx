@@ -44,4 +44,11 @@ describe("newsletter form placement", () => {
     expect(page.match(/<LocalleySignup\b[^>]*>/g)).toEqual([expect.stringContaining('source="pricing"')]);
     expect(cleanSource("pricing")).toBe("pricing");
   });
+
+  it("credits renders the form once with source credits and a planner link (Push BE2)", () => {
+    const page = readFileSync(path.join(process.cwd(), "app/credits/page.tsx"), "utf8");
+    expect(page.match(/<LocalleySignup\b[^>]*>/g)).toEqual([expect.stringContaining('source="credits"')]);
+    expect(page).toContain('href="/itineraries/new"');
+    expect(cleanSource("credits")).toBe("credits");
+  });
 });
