@@ -23,6 +23,7 @@ on:
       - 'app/explore/explore-content.tsx'
       - 'app/sign-up/**'
       - 'app/sign-in/**'
+      - 'app/itineraries/preview/**'
       - 'providers/**'
       - 'lib/query-client.tsx'
       - 'components/layout/navbar-account.tsx'
