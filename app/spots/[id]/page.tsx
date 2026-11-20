@@ -55,7 +55,7 @@ import { splitDescriptionLinks } from "@/lib/spots/description-links";
 import { readSpotGuide } from "@/lib/spots/guide-store";
 import { isSpotIndexable } from "@/lib/seo/spot-indexable";
 import { cityDirectory } from "@/lib/spots/city-directory-store";
-import { nearestEntries } from "@/lib/spots/city-directory";
+import { nearestEntries, nextInDirectory } from "@/lib/spots/city-directory";
 import { spotIntro } from "@/lib/seo/spot-intro";
 import { cache } from "react";
 import { fetchSpotViralMentions } from "@/lib/viral/events";
@@ -568,6 +568,8 @@ export default async function SpotPage({
   // Six closest spots of the same city hub as plain links: every spot page links its neighbours, so no spot is an
   // orphan even outside the hub's first page (weekend sprint L3).
   const nearbyLinks = nearestEntries(directory, spot.location, [spot.id, ...relatedSpots.map((related) => related.id)], 6);
+  // Ring link: nearest-6 never reaches an outlier spot (graph: 5 orphans in Busan/Hanoi), the A-Z successor always does.
+  const nextSpot = nextInDirectory(directory, spot.id);
   // Own-data lead (sprint-2 L8): score, hub rank and the closest neighbours make each spot page's opening unique.
   const intro = candidate ? null : spotIntro({
     id: spot.id, name: spot.name, category: spot.category, score: spot.localleyScore, area: primaryArea, city,
@@ -743,7 +745,7 @@ export default async function SpotPage({
 
         {!candidate && <SpotActivities spotId={spot.id} city={city} spotName={spot.name} />}
 
-        {(relatedSpots.length > 0 || nearbyLinks.length > 0) && (
+        {(relatedSpots.length > 0 || nearbyLinks.length > 0 || nextSpot) && (
           <section className="space-y-3" aria-label="Nearby">
             <div className="flex items-end justify-between gap-3">
               <h2 className="text-xl font-bold text-foreground">Nearby</h2>
@@ -780,6 +782,12 @@ export default async function SpotPage({
                   ))}
                 </ul>
               </div>
+            ) : null}
+            {nextSpot && knownCity ? (
+              <p className="text-sm text-muted-foreground" data-testid="spot-next-in-city">
+                Next in the {knownCity} A-Z list:{" "}
+                <Link href={`/spots/${nextSpot.id}`} prefetch={false} className="text-foreground underline underline-offset-2">{nextSpot.name}</Link>
+              </p>
             ) : null}
           </section>
         )}
@@ -827,7 +835,7 @@ export default async function SpotPage({
             </p>
           )}
           {"photoCredits" in spot && (spot.photoCredits?.length ?? 0) > 0 && (
-            <p data-testid="spot-photo-credits"><a href="/credits" className="underline-offset-2 hover:underline">Photo credits</a></p>
+            <p data-testid="spot-photo-credits"><Link href="/credits" prefetch={false} className="underline-offset-2 hover:underline">Photo credits</Link></p>
           )}
           {updated && <p>Last updated {updated}</p>}
         </footer>

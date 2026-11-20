@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import fc from "fast-check";
-import { groupByInitial, nearestEntries, scoreCounts, toDirectoryEntries, topPicks } from "@/lib/spots/city-directory";
+import { groupByInitial, nearestEntries, scoreCounts, toDirectoryEntries, topPicks, nextInDirectory } from "@/lib/spots/city-directory";
 
 const rows = [
   { id: "1", name: { en: "Zen Cafe" }, category: "Cafe", latitude: 37.57, longitude: 126.98 },
@@ -101,5 +101,28 @@ describe("scoreCounts", () => {
       expect(counts.reduce((sum, c) => sum + c.count, 0)).toBe(valid);
       expect(entries.every((e) => e.score === null || (e.score >= 1 && e.score <= 6))).toBe(true);
     }));
+  });
+});
+
+describe("nextInDirectory (Push BF3b)", () => {
+  it("links every spot exactly once across the city ring, outliers included", () => {
+    for (const n of [2, 3, 7, 54]) {
+      const entries = toDirectoryEntries(Array.from({ length: n }, (_, i) => ({ id: `id-${i}`, name: `Spot ${String.fromCharCode(65 + (i * 7) % 26)}${i}` })));
+      const inbound = new Map(entries.map((entry) => [entry.id, 0]));
+      for (const entry of entries) {
+        const next = nextInDirectory(entries, entry.id);
+        expect(next?.id).not.toBe(entry.id);
+        inbound.set(next!.id, inbound.get(next!.id)! + 1);
+      }
+      expect([...inbound.values()].every((count) => count === 1)).toBe(true);
+    }
+  });
+
+  it("returns null for a single-spot city or an id outside the list", () => {
+    const one = toDirectoryEntries([{ id: "a", name: "Only" }]);
+    expect(nextInDirectory(one, "a")).toBeNull();
+    const two = toDirectoryEntries([{ id: "a", name: "A" }, { id: "b", name: "B" }]);
+    expect(nextInDirectory(two, "zzz")).toBeNull();
+    expect(nextInDirectory(two, "B")?.id).toBe("a");
   });
 });
