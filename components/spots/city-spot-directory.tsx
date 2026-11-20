@@ -95,7 +95,7 @@ export async function CitySpotDirectory({ citySlug, cityName }: { citySlug: stri
           <h2 id="city-spot-directory" className="inline text-xl font-bold text-foreground">All {entries.length} spots in {cityName}, A–Z</h2>
           <span className="ml-2 text-sm text-muted-foreground">Show list</span>
         </summary>
-        <nav aria-label={`Every spot in ${cityName}`} className="mt-4 space-y-4">
+        <div className="mt-4 space-y-4">
           {groups.map((group) => (
             <div key={group.letter}>
               <h3 className="text-sm font-semibold text-muted-foreground">{group.letter}</h3>
@@ -109,7 +109,7 @@ export async function CitySpotDirectory({ citySlug, cityName }: { citySlug: stri
               </ul>
             </div>
           ))}
-        </nav>
+        </div>
       </details>
     </section>
     </>
