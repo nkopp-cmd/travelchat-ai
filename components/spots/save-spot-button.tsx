@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/lib/auth/client";
-import { Button } from "@/components/ui/button";
 import { Heart } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -15,10 +14,9 @@ interface SaveSpotButtonProps {
     spotId: string;
     spotName?: string;
     className?: string;
-    size?: "sm" | "default" | "lg" | "icon";
 }
 
-export function SaveSpotButton({ spotId, spotName, className, size = "icon" }: SaveSpotButtonProps) {
+export function SaveSpotButton({ spotId, spotName, className }: SaveSpotButtonProps) {
     const [isSaved, setIsSaved] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const { toast } = useToast();
@@ -113,16 +111,11 @@ export function SaveSpotButton({ spotId, spotName, className, size = "icon" }: S
     const accessibleSpotName = spotName?.trim() || spotId;
 
     return (
-        <Button
+        <button
             type="button"
-            variant="ghost"
-            size={size}
             onClick={handleToggleSave}
             disabled={isLoading || !isLoaded}
-            className={cn(
-                "relative rounded-full bg-background/80 backdrop-blur-sm hover:bg-background/90 after:pointer-events-none after:absolute after:left-1/2 after:top-1/2 after:size-11 after:-translate-x-1/2 after:-translate-y-1/2 after:content-['']",
-                className
-            )}
+            className={cn("spot-save", className)}
             aria-label={isSaved
                 ? `Remove ${accessibleSpotName} from saved spots`
                 : `Save ${accessibleSpotName}`}
@@ -136,6 +129,6 @@ export function SaveSpotButton({ spotId, spotName, className, size = "icon" }: S
                     isLoading && "animate-pulse"
                 )}
             />
-        </Button>
+        </button>
     );
 }

@@ -106,7 +106,8 @@ describe("SaveSpotButton", () => {
     );
 
     const button = screen.getByRole("button", { name: "Save LADRIO" });
-    expect(button.className).toContain("after:size-11");
+    expect(button.className).toContain("spot-save"); // .spot-save carries the after:size-11 hit area (app/globals.css)
+    expect(button.className).not.toMatch(/inline-flex|\[&_svg\]/);
     expect(button.className).toContain("h-7");
     expect(button.className).toContain("w-7");
   });

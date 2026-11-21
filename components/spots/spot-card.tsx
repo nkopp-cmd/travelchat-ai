@@ -48,7 +48,7 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
           {spot.category}
         </span>
         <div className="absolute right-3 top-3">
-          <SaveSpotButton spotId={spot.id} spotName={spot.name} className="size-11 bg-overlay text-foreground shadow-raised hover:bg-raised" />
+          <SaveSpotButton spotId={spot.id} spotName={spot.name} />
         </div>
       </div>
       <div className="flex min-w-0 flex-1 flex-col gap-3 p-4">
