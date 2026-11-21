@@ -124,3 +124,21 @@ describe("SpotCard", () => {
     expect(trackSpotEvent).toHaveBeenCalledExactlyOnceWith(event, baseSpot.id);
   });
 });
+
+// Push BZ1/BZ2: a city list renders 68 cards and every byte of a card goes out twice (HTML + RSC payload).
+describe("SpotCard byte budget", () => {
+  beforeEach(() => vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ status: "unavailable", photos: [] }) })));
+  afterEach(() => vi.unstubAllGlobals());
+  it("styles the CTA links with the short spot-cta classes, not the buttonVariants utility string", () => {
+    render(<SpotCard spot={baseSpot} />);
+    const add = screen.getByRole("link", { name: `Add to trip: ${baseSpot.name}` });
+    const details = screen.getByRole("link", { name: `Details: ${baseSpot.name}` });
+    expect(add.className).toBe("spot-cta spot-cta-primary");
+    expect(details.className).toBe("spot-cta spot-cta-secondary");
+  });
+  it("keeps a full card under 5 KB of HTML", () => {
+    const { container } = render(<SpotCard spot={{ ...baseSpot, description: `${baseSpot.description} ${"More source text. ".repeat(20)}` }} />);
+    expect(container.innerHTML).not.toMatch(/\[&_svg\]|aria-invalid:ring/);
+    expect(container.innerHTML.length).toBeLessThanOrEqual(5_000);
+  });
+});
