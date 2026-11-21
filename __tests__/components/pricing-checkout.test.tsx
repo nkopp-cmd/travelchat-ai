@@ -1,9 +1,10 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, renderHook, screen, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import fc from "fast-check";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({ signedIn: false, authLoaded: true, subLoading: false, tier: "free", openCheckout: vi.fn(), toast: vi.fn(), track: vi.fn() }));
 vi.mock("@/lib/funnel-analytics", () => ({ trackFunnelStep: mocks.track }));
-vi.mock("@/lib/auth/client", () => ({ useAuth: () => ({ isLoaded: mocks.authLoaded, isSignedIn: mocks.signedIn }) }));
+vi.mock("@/lib/auth/client", () => ({ useAuth: () => ({ isLoaded: mocks.authLoaded, isSignedIn: mocks.signedIn }), useUser: () => ({ isLoaded: mocks.authLoaded, isSignedIn: mocks.signedIn }) }));
 vi.mock("@/hooks/use-toast", () => ({ useToast: () => ({ toast: mocks.toast }) }));
 vi.mock("@/hooks/use-subscription", () => ({ useSubscription: () => ({
   tier: mocks.tier, isLoading: mocks.subLoading, openCheckout: mocks.openCheckout, openBillingPortal: vi.fn(), hasBillingPortal: false,
@@ -61,7 +62,7 @@ describe("/pricing subscribe flow", () => {
     expect(screen.queryByRole("link", { name: /Subscribe to/ })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Subscribe to Pro" }));
     await waitFor(() => expect(mocks.openCheckout).toHaveBeenCalledWith("pro", "monthly"));
-    expect(mocks.track.mock.calls).toEqual([["checkout_start", "pricing"]]); // Push BW1
+    expect(mocks.track).not.toHaveBeenCalled(); // the hook counts checkout_start (source pricing by default), never the page too
   });
   it("starts Stripe once after sign-up and removes the parameter", async () => {
     mocks.signedIn = true;
@@ -73,7 +74,7 @@ describe("/pricing subscribe flow", () => {
     expect(window.location.search).toBe("");
     rerender(<PricingPage />);
     expect(mocks.openCheckout).toHaveBeenCalledTimes(1);
-    expect(mocks.track.mock.calls).toEqual([["checkout_start", "pricing"]]); // Push BW1: once, like Stripe
+    expect(mocks.track).not.toHaveBeenCalled(); // counted inside openCheckout only
   });
   it("does not start a second subscription for a paying member", async () => {
     mocks.signedIn = true; mocks.tier = "pro";
@@ -139,7 +140,28 @@ describe("limit modal checkout start (Push BW1)", () => {
   it("counts checkout_start with source other before Stripe opens", async () => {
     render(<LimitExceededModal open onOpenChange={() => {}} limitType="itineraries" currentUsage={1} limit={1} resetAt="2026-12-01T00:00:00Z" />);
     fireEvent.click(screen.getAllByRole("button", { name: /Upgrade to pro/i }).at(-1)!);
-    await waitFor(() => expect(mocks.openCheckout).toHaveBeenCalledWith("pro"));
+    await waitFor(() => expect(mocks.openCheckout).toHaveBeenCalledWith("pro", "monthly", "other"));
+    expect(mocks.track).not.toHaveBeenCalled(); // counted inside openCheckout only
+  });
+});
+
+describe("openCheckout counts each Stripe checkout once (Push BW1 fix)", () => {
+  async function run(...args: [("pro" | "premium"), ("monthly" | "yearly")?, ("pricing" | "other")?]) {
+    mocks.signedIn = true;
+    const fetchMock = vi.fn(async (url: string) => new Response(JSON.stringify(url.includes("checkout") ? {} : { tier: "free" }), { status: 200, headers: { "content-type": "application/json" } }));
+    vi.stubGlobal("fetch", fetchMock);
+    const { useSubscription } = await vi.importActual<typeof import("@/hooks/use-subscription")>("@/hooks/use-subscription");
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const { result } = renderHook(() => useSubscription(), { wrapper: ({ children }) => <QueryClientProvider client={client}>{children}</QueryClientProvider> });
+    await result.current.openCheckout(...args);
+    return fetchMock.mock.calls.filter(([url]) => String(url).includes("/api/subscription/checkout")).length;
+  }
+  it("default source is pricing, one event per checkout request", async () => {
+    expect(await run("pro", "monthly")).toBe(1);
+    expect(mocks.track.mock.calls).toEqual([["checkout_start", "pricing"]]);
+  });
+  it("the limit modal source is kept", async () => {
+    expect(await run("premium", "monthly", "other")).toBe(1);
     expect(mocks.track.mock.calls).toEqual([["checkout_start", "other"]]);
   });
 });
