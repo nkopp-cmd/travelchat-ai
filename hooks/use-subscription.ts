@@ -5,7 +5,7 @@ import { useUser } from "@/lib/auth/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SubscriptionTier, TIER_CONFIGS, hasFeature, isWithinLimit } from "@/lib/subscription";
 import { queryKeys } from "@/hooks/query-keys";
-import { trackFunnelStep } from "@/lib/funnel-analytics";
+import { trackFunnelStep, type FunnelSource } from "@/lib/funnel-analytics";
 
 async function readErrorMessage(response: Response, fallback: string): Promise<string> {
     const contentType = response.headers.get("content-type") || "";
@@ -85,7 +85,7 @@ interface UseSubscriptionReturn {
     canUseFeature: (feature: keyof typeof TIER_CONFIGS.free.features) => boolean;
     isWithinLimit: (limitType: keyof typeof TIER_CONFIGS.free.limits) => boolean;
     refetch: () => Promise<void>;
-    openCheckout: (tier: "pro" | "premium", billingCycle?: "monthly" | "yearly") => Promise<void>;
+    openCheckout: (tier: "pro" | "premium", billingCycle?: "monthly" | "yearly", source?: FunnelSource) => Promise<void>;
     openBillingPortal: () => Promise<void>;
 }
 
@@ -127,11 +127,14 @@ export function useSubscription(): UseSubscriptionReturn {
         mutationFn: async ({
             tier,
             billingCycle,
+            source,
         }: {
             tier: "pro" | "premium";
             billingCycle: "monthly" | "yearly";
+            source: FunnelSource;
         }) => {
-            trackFunnelStep("checkout_start", "pricing");
+            // The one checkout_start for every Stripe checkout opened through this hook (Push BW1 fix: callers pass the source).
+            trackFunnelStep("checkout_start", source);
             const response = await fetch("/api/subscription/checkout", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -212,8 +215,8 @@ export function useSubscription(): UseSubscriptionReturn {
     }, [isSignedIn, queryRefetch]);
 
     const openCheckout = useCallback(
-        async (checkoutTier: "pro" | "premium", billingCycle: "monthly" | "yearly" = "monthly") => {
-            await checkoutMutation.mutateAsync({ tier: checkoutTier, billingCycle });
+        async (checkoutTier: "pro" | "premium", billingCycle: "monthly" | "yearly" = "monthly", source: FunnelSource = "pricing") => {
+            await checkoutMutation.mutateAsync({ tier: checkoutTier, billingCycle, source });
         },
         [checkoutMutation]
     );

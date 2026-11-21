@@ -25,7 +25,6 @@ import { cn } from "@/lib/utils";
 import { checkoutSignUpUrl, formatResetDay, parseCheckoutIntent, parsePlannerLimit, withoutCheckoutParam, type PlannerLimitNotice } from "@/lib/pricing-checkout";
 import { currentPagePath, signInGateHref } from "@/lib/auth/gate-href";
 import { FREE_ACCOUNT_SUBTITLE } from "@/lib/auth/auth-copy";
-import { trackFunnelStep } from "@/lib/funnel-analytics";
 
 type PaidTier = "pro" | "premium";
 
@@ -97,8 +96,6 @@ export default function PricingPage() {
                 return;
             }
 
-            // Push BW1: the 2026-11-19 /pricing change is judged on checkout_start (source pricing).
-            trackFunnelStep("checkout_start", "pricing");
             await openCheckout(tier, isYearly ? "yearly" : "monthly");
         } catch (error) {
             toast({
@@ -138,7 +135,6 @@ export default function PricingPage() {
         if (hasPaidSubscription) return;
         setIsYearly(intent.cycle === "yearly");
         setLoadingTier(intent.tier);
-        trackFunnelStep("checkout_start", "pricing");
         openCheckout(intent.tier, intent.cycle)
             .catch((error) => toast({
                 title: "Checkout error",
