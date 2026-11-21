@@ -26,7 +26,19 @@ export function homeGuideSpots(rows: readonly SitemapSpotRow[], limit = 12): Hom
   return out;
 }
 
-/** City hubs the home page links to: the same set the sitemap lists. */
+/** City hubs the home page links to: the same set the sitemap lists, each with its A-Z list page (Push CC2). */
 export function homeHubLinks(rows: readonly SitemapSpotRow[]) {
-  return ENABLED_CITIES.filter((city) => hubIndexable(rows, city.name)).map(({ name, slug }) => ({ name, href: `/spots?city=${slug}` }));
+  return ENABLED_CITIES.filter((city) => hubIndexable(rows, city.name))
+    .map(({ name, slug }) => ({ name, href: `/spots?city=${slug}`, azHref: `/spots/a-z/${encodeURIComponent(slug)}` }));
+}
+
+export type HomePostLink = { href: string; title: string };
+
+/**
+ * Push CC2: the newest journal posts, linked from the home body (Google indexed only "/" on 2026-11-21, and the
+ * posts were one footer hop away through /blog). Newest published first, ties by slug. Deterministic.
+ */
+export function homeJournalLinks(posts: readonly { slug: string; title: string; published: string }[], limit = 3): HomePostLink[] {
+  return [...posts].sort((a, b) => b.published.localeCompare(a.published) || a.slug.localeCompare(b.slug))
+    .slice(0, limit).map((p) => ({ href: `/blog/${p.slug}`, title: p.title }));
 }
