@@ -49,7 +49,7 @@ function Preview({ initialDraft }: { initialDraft: GeneratedPreview | null }) {
       if (response.status === 402) {
         if (paidReturn.current) throw new Error("Payment confirmation is still processing. Try saving again shortly; no new checkout is needed.");
         trackFunnelStep("checkout_start", "preview");
-        const checkout = await fetch("/api/subscription/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tier: "pro", billingCycle: "monthly", returnTo: "itinerary-preview" }) });
+        const checkout = await fetch("/api/subscription/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tier: "pro", billingCycle: "monthly", returnTo: "itinerary-preview", source: "preview" }) });
         const result = await checkout.json();
         if (!checkout.ok || !result.url) throw new Error(result.error?.message || "Checkout is unavailable. Your itinerary is still here.");
         const target = new URL(result.url); if (target.protocol !== "https:" || target.hostname !== "checkout.stripe.com") throw new Error("Unexpected checkout address.");

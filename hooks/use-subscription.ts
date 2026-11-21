@@ -6,6 +6,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SubscriptionTier, TIER_CONFIGS, hasFeature, isWithinLimit } from "@/lib/subscription";
 import { queryKeys } from "@/hooks/query-keys";
 import { trackFunnelStep, type FunnelSource } from "@/lib/funnel-analytics";
+import { isCheckoutSource } from "@/lib/checkout-source";
 
 async function readErrorMessage(response: Response, fallback: string): Promise<string> {
     const contentType = response.headers.get("content-type") || "";
@@ -138,7 +139,9 @@ export function useSubscription(): UseSubscriptionReturn {
             const response = await fetch("/api/subscription/checkout", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ tier, billingCycle }),
+                // Push BX2: the start page goes to Stripe metadata, so checkout_paid is counted per source.
+                // Only sources the server accepts are sent; any other value would be rejected with 400.
+                body: JSON.stringify({ tier, billingCycle, ...(isCheckoutSource(source) ? { source } : {}) }),
             });
 
             if (!response.ok) {
