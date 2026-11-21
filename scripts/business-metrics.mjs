@@ -8,6 +8,7 @@ import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { indexNote } from "./seo/index-status-lib.mjs";
 
 const ACCOUNT = "664f242340bcec2f32daaeee15f58bde";
 const APP_DB = "f1cc916b-5606-443f-9c4f-695c4ccc4a63"; // localley-app (production)
@@ -21,6 +22,8 @@ const INTERNAL_EMAIL_SHA256 = new Set(["97e25833e1476659d6dba1fa5cb00c02f846a267
 const PAID_TIERS = new Set(["pro", "premium"]);
 const PAYING_STATUS = new Set(["active", "past_due"]); // trialing has not paid yet
 const VIRAL_STATE = join(homedir(), ".local/state/localley/viral-scout.json"); // private scout archive (host only)
+// Push CC3: weekly Google URL Inspection of the money/entry pages (scripts/seo/index-status.mjs).
+const INDEX_STATE = join(homedir(), "projects/CyberLink/claude-work/localley-index-status.json");
 const RESOLVED = new Set(["matched", "created"]);
 // User content rows: [table, user column, time column]. private_notes has no timestamp, so it is not counted.
 const UGC_TABLES = [
@@ -42,7 +45,7 @@ const at = (value) => {
 const within = (value, from, to) => { const ms = at(value); return ms !== null && ms >= from && ms < to; };
 
 /** Pure: rows from the two databases -> the probe line. */
-export function summarize({ users, sessions, subscriptions, funnel, links = [], ugc = [], rankings = [], viral = null, subscribers = null, lastEvent = null }, now = Date.now()) {
+export function summarize({ users, sessions, subscriptions, funnel, links = [], ugc = [], rankings = [], viral = null, subscribers = null, lastEvent = null, indexStatus = null }, now = Date.now()) {
   const from30 = now - 30 * DAY;
   const internal = new Set(users.filter((u) => isInternal(u.email)).map((u) => u.id));
   for (const l of links) if (internal.has(l.authUserId)) internal.add(l.ownerId); // legacy rows carry the owner id
@@ -94,6 +97,7 @@ export function summarize({ users, sessions, subscriptions, funnel, links = [], 
       + `checkout_start funnel events 30d: ${bySource("checkout_start", "other")}; `
       // Push AN2: the last day the collector counted anything, so "beacons broken" and "no visitors" look different.
       + `last counted event day (UTC; own checks are not counted): funnel ${lastEvent?.funnel ?? "unknown"}, spot cards ${lastEvent?.cards ?? "unknown"}; `
+      + `${indexNote(indexStatus, now)}; `
       + `revenue/prev/repeat null: Stripe key is a Worker secret only and D1 keeps no invoice history; `
       + `proprietary = ${events ? `${events.length} viral events + ${places} resolved places` : "viral archive missing"} + ${ranked} weekly rankings; `
       + `ugc = questions/answers/reviews/tips/social submissions; owned_audience = ${audience
@@ -135,7 +139,9 @@ async function main() {
     lastDay("funnel_events_daily"), lastDay("spot_card_events_daily"),
   ]);
   const viral = existsSync(VIRAL_STATE) ? JSON.parse(readFileSync(VIRAL_STATE, "utf8")) : null;
-  process.stdout.write(`${JSON.stringify(summarize({ users, sessions, subscriptions, funnel, links, ugc, rankings, viral, subscribers, lastEvent: { funnel: funnelDay, cards: cardsDay } }))}\n`);
+  let indexStatus = null;
+  try { indexStatus = JSON.parse(readFileSync(INDEX_STATE, "utf8")); } catch { /* no run yet: the note says unknown */ }
+  process.stdout.write(`${JSON.stringify(summarize({ users, sessions, subscriptions, funnel, links, ugc, rankings, viral, subscribers, lastEvent: { funnel: funnelDay, cards: cardsDay }, indexStatus }))}\n`);
 }
 
 // realpath: the probe also runs through symlinked checkouts, where argv[1] is not the resolved module path.
