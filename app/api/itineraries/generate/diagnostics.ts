@@ -26,7 +26,7 @@ export function logItineraryRequestFailure(logger: Pick<Console, 'error'> = cons
 
 export type GenerateTierClass = 'anon' | 'free' | 'paid' | 'unknown';
 export type GenerateReason = 'rate_limited' | 'anon_limit' | 'monthly_limit' | 'invalid_input' | 'no_spots' | 'corridor' | 'error';
-export type GenerateOutcome = { tier: GenerateTierClass; provider?: 'glm' | 'openai'; reason?: GenerateReason };
+export type GenerateOutcome = { tier: GenerateTierClass; provider?: 'glm' | 'openai'; reason?: GenerateReason; cache?: 'hit' | 'miss' };
 
 /** One line per POST: fixed labels and numbers only, never input values, user ids or model text. */
 export function logGenerateOutcome(
@@ -41,5 +41,6 @@ export function logGenerateOutcome(
     ms: Math.max(0, Math.round(durationMs)),
     provider: outcome.provider ?? 'none',
     reason: outcome.reason ?? (status < 400 ? 'ok' : 'other'),
+    ...(outcome.cache && { cache: outcome.cache }),
   });
 }

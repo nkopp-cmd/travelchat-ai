@@ -1,6 +1,7 @@
 import { rateLimiters } from "@/lib/rate-limit";
 import { logGenerateOutcome, logItineraryFormatFailure, logItineraryRequestFailure, type GenerateOutcome } from "./diagnostics";
-import { DRAFT_COOKIE, draftCookieOptions, keepServerDraft } from "@/lib/trips/preview-draft-store";
+import { DRAFT_COOKIE, draftCookieOptions, keepServerDraft, previewDraftKv } from "@/lib/trips/preview-draft-store";
+import { planCacheKey, readCachedPlan, writeCachedPlan } from "@/lib/trips/plan-cache";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseAdmin } from '@/lib/supabase';
@@ -171,6 +172,94 @@ async function generate(req: NextRequest, outcome: GenerateOutcome) {
     const cityConfig = cityValidation.city!;
     const normalizedCity = cityConfig.name;
 
+    // Signed-in plans spend one of the month's trips, also when the plan comes from the cache.
+    let quotaSpent = false;
+    const consumeQuota = async () => {
+      if (isAnonymous || quotaSpent) return null;
+      quotaSpent = true;
+      const { allowed, usage, tier: userTier } = await checkAndIncrementUsage(userId!, "itineraries_created");
+      tier = userTier;
+      outcome.tier = tier === "free" ? "free" : "paid";
+      if (!allowed) {
+        outcome.reason = "monthly_limit";
+        return Errors.limitExceeded(
+          "itineraries",
+          usage.currentUsage,
+          usage.limit,
+          usage.periodResetAt
+        );
+      }
+      return null;
+    };
+
+    // One response shape for a generated plan and a cached one (Push BL1).
+    const previewResponse = async (
+      itineraryData: Record<string, unknown> & { dailyPlans: unknown[] },
+      savedId: string | undefined,
+      meta: Record<string, unknown>,
+    ) => {
+      const itinerary = { id: savedId, ...itineraryData, city: normalizedCity, days };
+      // Anonymous and free plans open as a preview; keep a server copy so the preview page renders it in HTML.
+      const preview = isAnonymous || tier === "free" ? await keepServerDraft(itinerary) : null;
+      const response = NextResponse.json({
+        success: true,
+        isAnonymous,
+        requiresSaveUpgrade: tier === "free",
+        itinerary,
+        ...(preview && { preview: { id: preview.id } }),
+        meta,
+        // For anonymous users, prompt them to sign up to save
+        ...(isAnonymous && {
+          signupPrompt: {
+            message: "Sign up to save this itinerary and create more!",
+            benefits: [
+              "Save and access your itineraries anytime",
+              "Choose Pro or Premium for ongoing trip planning",
+              "Chat with Alley for personalized tips",
+              "Export to PDF and share with friends",
+            ],
+            signupUrl: "/sign-up",
+          },
+        }),
+      });
+
+      if (preview) response.cookies.set(DRAFT_COOKIE, preview.id, draftCookieOptions());
+
+      // Set anonymous usage cookie for anonymous users
+      if (isAnonymous) {
+        const currentUsage = await getAnonymousUsage();
+        response.cookies.set(ANON_COOKIE_NAME, String(currentUsage + 1), {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 60 * 60 * 24 * 30, // 30 days
+        });
+      }
+
+      return response;
+    };
+
+    // Push BL1: the same anonymous/free inputs return the plan kept from an earlier request (lib/trips/plan-cache.ts),
+    // skipping the spot query and the 10-30 s model call. Paid tiers always generate (AI images, saved row).
+    const planKv = isAnonymous || tier === "free" ? previewDraftKv() : null;
+    const planKey = planKv
+      ? await planCacheKey({ city: normalizedCity, days, interests, budget, localnessLevel, pace, groupType, templatePrompt, spotId })
+      : null;
+    const cachedPlan = planKey ? await readCachedPlan(planKey, days, planKv) : null;
+    if (planKv) outcome.cache = cachedPlan ? "hit" : "miss";
+    if (cachedPlan) {
+      const quotaDeniedForCache = await consumeQuota();
+      if (quotaDeniedForCache) return quotaDeniedForCache;
+      if (tier === "free" || isAnonymous) {
+        outcome.provider = cachedPlan.provider;
+        return await previewResponse(structuredClone(cachedPlan.itineraryData), undefined, {
+          provider: cachedPlan.provider, model: cachedPlan.model, fallbackUsed: false, fallbackReason: undefined,
+          primaryProvider: cachedPlan.provider, primaryModel: cachedPlan.model, primaryConfigured: true, cached: true,
+        });
+      }
+      // The account turned paid between the two reads: generate the full plan below (quota already spent).
+    }
+
     // Fetch spots from the city to include in recommendations
     const supabase = createSupabaseAdmin();
     const spotsQuery = itinerarySpotPoolQuery(supabase, normalizedCity);
@@ -201,21 +290,8 @@ async function generate(req: NextRequest, outcome: GenerateOutcome) {
     const groundedCandidateSpots = groundingSpots;
 
     // Consume quota only after the request can be fulfilled with grounded spots.
-    if (!isAnonymous) {
-      const { allowed, usage, tier: userTier } = await checkAndIncrementUsage(userId!, "itineraries_created");
-      tier = userTier;
-      outcome.tier = tier === "free" ? "free" : "paid";
-
-      if (!allowed) {
-        outcome.reason = "monthly_limit";
-        return Errors.limitExceeded(
-          "itineraries",
-          usage.currentUsage,
-          usage.limit,
-          usage.periodResetAt
-        );
-      }
-    }
+    const quotaDenied = await consumeQuota();
+    if (quotaDenied) return quotaDenied;
 
     const spotsContext = groundedCandidateSpots.length > 0
       ? `\n\nVERIFIED CANDIDATES — choose ONLY from this list and return the exact spotId for every activity:\n${buildItinerarySpotContext(groundedCandidateSpots)}`
@@ -323,6 +399,9 @@ Respect the pace, keep each day geographically coherent, avoid repeated categori
     }
 
     itineraryData.dailyPlans = dailyPlansWithImages;
+    if (planKey && planKv && (isAnonymous || tier === "free")) {
+      await writeCachedPlan(planKey, { itineraryData, provider: aiProvider, model: aiModel }, planKv);
+    }
 
     let savedItinerary = null;
 
@@ -382,53 +461,15 @@ Respect the pace, keep each day geographically coherent, avoid repeated categori
 
     // Build response
     outcome.provider = aiProvider;
-    const itinerary = { id: savedItinerary?.id, ...itineraryData, city: normalizedCity, days };
-    // Anonymous and free plans open as a preview; keep a server copy so the preview page renders it in HTML.
-    const preview = isAnonymous || tier === "free" ? await keepServerDraft(itinerary) : null;
-    const response = NextResponse.json({
-      success: true,
-      isAnonymous,
-      requiresSaveUpgrade: tier === "free",
-      itinerary,
-      ...(preview && { preview: { id: preview.id } }),
-      meta: {
-        provider: aiProvider,
-        model: aiModel,
-        fallbackUsed,
-        fallbackReason,
-        primaryProvider: aiResponse.primaryProvider,
-        primaryModel: aiResponse.primaryModel,
-        primaryConfigured: aiResponse.primaryConfigured,
-      },
-      // For anonymous users, prompt them to sign up to save
-      ...(isAnonymous && {
-        signupPrompt: {
-          message: "Sign up to save this itinerary and create more!",
-          benefits: [
-            "Save and access your itineraries anytime",
-            "Choose Pro or Premium for ongoing trip planning",
-            "Chat with Alley for personalized tips",
-            "Export to PDF and share with friends",
-          ],
-          signupUrl: "/sign-up",
-        },
-      }),
+    return await previewResponse(itineraryData, savedItinerary?.id, {
+      provider: aiProvider,
+      model: aiModel,
+      fallbackUsed,
+      fallbackReason,
+      primaryProvider: aiResponse.primaryProvider,
+      primaryModel: aiResponse.primaryModel,
+      primaryConfigured: aiResponse.primaryConfigured,
     });
-
-    if (preview) response.cookies.set(DRAFT_COOKIE, preview.id, draftCookieOptions());
-
-    // Set anonymous usage cookie for anonymous users
-    if (isAnonymous) {
-      const currentUsage = await getAnonymousUsage();
-      response.cookies.set(ANON_COOKIE_NAME, String(currentUsage + 1), {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 60 * 60 * 24 * 30, // 30 days
-      });
-    }
-
-    return response;
   } catch {
     logItineraryRequestFailure();
     outcome.reason = "error";
