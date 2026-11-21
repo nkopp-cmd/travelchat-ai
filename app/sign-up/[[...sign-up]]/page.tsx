@@ -6,6 +6,8 @@ import { redirect } from "next/navigation";
 import { auth, isGoogleSignInEnabled } from "@/lib/auth/server";
 import { safeRedirect } from "@/lib/auth/redirect";
 import { authBackLink, authCopy } from "@/lib/auth/auth-copy";
+import { KeptTripLine } from "@/components/auth/kept-trip-line";
+import { GENERATED_PREVIEW_PATH } from "@/lib/trips/generated-preview";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +25,7 @@ export default async function SignUpPage({ searchParams }: Props) {
     const copy = authCopy("sign-up", target);
     return (
         <AuthShell title={copy.title} subtitle={copy.subtitle} back={authBackLink(target)}>
+            {target?.split(/[?#]/)[0] === GENERATED_PREVIEW_PATH && <KeptTripLine />}
             <Suspense>
                 <SignUpForm googleEnabled={isGoogleSignInEnabled()} />
             </Suspense>
