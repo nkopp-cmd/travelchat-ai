@@ -32,4 +32,12 @@ describe("city quick filters", () => {
     const target = new URL(push.mock.calls[0][0], "https://www.localley.io");
     expect(Object.fromEntries(target.searchParams)).toEqual({ view: "list", category: "Food" });
   });
+  it("styles chips with the short city-chip classes, not the Badge utility string (Push BZ4)", () => {
+    const { container } = render(<CityQuickFilters cities={cities} totalSpots={5555} />);
+    const seoul = screen.getByRole("button", { name: "Seoul 1,234 spots" });
+    expect(seoul.className).toBe("city-chip-btn group");
+    expect(seoul.firstElementChild?.className).toBe("city-chip city-chip-on");
+    expect(screen.getByRole("button", { name: "Tokyo 4,321 spots" }).firstElementChild?.className).toBe("city-chip city-chip-off");
+    expect(container.innerHTML).not.toMatch(/aria-invalid:ring|\[&amp;&gt;svg\]|ring-offset-\[#100b1c\]/);
+  });
 });
