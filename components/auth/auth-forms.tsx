@@ -31,7 +31,7 @@ export function PasswordInput({ className, ...props }: PasswordInputProps) {
         <div className="relative">
             <Input {...props} type={shown ? "text" : "password"} className={`pr-16 ${className ?? ""}`} />
             <button type="button" data-password-toggle aria-controls={props.id} aria-label={shown ? "Hide password" : "Show password"} onClick={() => setShown((value) => !value)}
-                className="absolute inset-y-0 right-0 flex min-h-11 min-w-11 items-center justify-center px-3 text-sm font-medium text-primary">
+                className="absolute inset-y-0 right-0 flex min-h-11 min-w-11 items-center justify-center px-3 text-sm font-semibold text-field-foreground underline underline-offset-2">
                 {shown ? "Hide" : "Show"}
             </button>
         </div>
