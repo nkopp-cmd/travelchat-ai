@@ -6,7 +6,7 @@ import { ArrowLeft } from "@/components/ui/icons";
 import { LocalleySignup } from "@/components/newsletter/localley-signup";
 import { BlogMarkdown } from "@/lib/blog/markdown";
 import { BLOG_POSTS, blogPost, formatPostDate, plannerHref } from "@/lib/blog/posts";
-import { spotPhotoThumbPath } from "@/lib/spots/own-photo";
+import { spotPhotoSrcSet } from "@/lib/spots/own-photo";
 import { blogPostingJsonLd, jsonLdHtml, postImage, postUrl } from "@/lib/blog/seo";
 
 export const dynamic = "force-static";
@@ -48,10 +48,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         <p className="mt-3 text-lg leading-7 text-muted-foreground">{post.description}</p>
         {post.photo && (
           <figure className="mt-6">
-            {/* eslint-disable-next-line @next/next/no-img-element -- own immutable R2 WebP with its own 480 px copy; no image optimizer */}
+            {/* eslint-disable-next-line @next/next/no-img-element -- own immutable R2 WebP with its 480/960 px copies; no image optimizer */}
             <img
               src={post.photo.src}
-              srcSet={`${spotPhotoThumbPath(post.photo.src)} 480w, ${post.photo.src} ${post.photo.width}w`}
+              srcSet={spotPhotoSrcSet(post.photo.src, post.photo.width)}
               sizes="(min-width: 768px) 720px, 100vw"
               width={post.photo.width}
               height={post.photo.height}

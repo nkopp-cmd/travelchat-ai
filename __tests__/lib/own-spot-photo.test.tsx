@@ -4,7 +4,8 @@ vi.unmock("next/image");
 import fc from "fast-check";
 import { renderToStaticMarkup } from "react-dom/server";
 import { SpotPhotoImage } from "@/components/spots/spot-photo-image";
-import { SPOT_HERO_WIDTH, SPOT_PHOTO_MAX_UPSCALE, SPOT_THUMB_WIDTH, spotPhotoLoader } from "@/lib/spots/own-photo";
+import { SPOT_HERO_WIDTH, SPOT_PHOTO_MAX_UPSCALE, SPOT_THUMB_WIDTH, spotPhotoLoader, spotPhotoSrcSet } from "@/lib/spots/own-photo";
+import { BLOG_POSTS } from "@/lib/blog/posts";
 import { CARD_PHOTO_WIDTH, cardGooglePhotoUrl, cardPhotoCredits, cardSpotPhotos, directSpotPhotos, isCardGooglePhotoUrl, ownSpotPhotoPath, parseStoredSpotPhotos, shortAuthor, spotPhotoPinPath, spotPhotoThumbPath, storedGooglePhotoName } from "@/lib/spots/own-photo";
 import { getDirectVenuePhotos } from "@/components/spots/venue-photo-provider";
 
@@ -178,5 +179,33 @@ describe("spot photo size loader", () => {
     expect(thumb).toMatch(/srcSet="[^"]*-w480\.webp 256w/);
     const google = renderToStaticMarkup(<SpotPhotoImage photo={{ id: "g", url: "/api/places/photo?name=x", sourceLabel: "Google", attributions: [] }} alt="G" sizes="100vw" />);
     expect(google).not.toContain("srcSet");
+  });
+});
+
+// Push CA1: the blog post photo listed 480w + the full 1280 px photo; a 412 px phone at 1.75x loaded the 178 KB full file.
+describe("spot photo srcset for raw <img>", () => {
+  const pick = (srcset: string, need: number) => {
+    const list = srcset.split(", ").map((entry) => { const [url, w] = entry.split(" "); return { url, w: Number(w.replace("w", "")) }; }).sort((a, b) => a.w - b.w);
+    return (list.find((c) => c.w >= need) ?? list[list.length - 1]).url;
+  };
+  it("lets the browser pick the same copy as spotPhotoLoader for every needed width", () => {
+    fc.assert(fc.property(fc.integer({ min: SPOT_HERO_WIDTH + 1, max: 6000 }), fc.integer({ min: 1, max: 6000 }), (full, need) => {
+      expect(pick(spotPhotoSrcSet(own, full), need)).toBe(spotPhotoLoader({ src: own, width: need }));
+    }));
+  });
+  it("gives a 412 px phone at 1.75x the 480 copy and a 720 px desktop column at 2x the 960 copy", () => {
+    const srcset = spotPhotoSrcSet(own, 1280);
+    expect(pick(srcset, 721)).toBe(own.replace(/\.webp$/, "-w480.webp"));
+    expect(pick(srcset, 1440)).toBe(own.replace(/\.webp$/, "-w960.webp"));
+  });
+  it("keeps small photos and other sources as one plain entry", () => {
+    expect(spotPhotoSrcSet(own, 400)).toBe(`${own} 400w`);
+    expect(spotPhotoSrcSet("https://upload.wikimedia.org/a.jpg", 1280)).toBe("https://upload.wikimedia.org/a.jpg 1280w");
+  });
+  it("lists the 960 copy for every blog post photo wider than 960 px", () => {
+    for (const post of BLOG_POSTS) {
+      if (!post.photo || post.photo.width <= SPOT_HERO_WIDTH) continue;
+      expect(spotPhotoSrcSet(post.photo.src, post.photo.width)).toContain("-w960.webp 1680w");
+    }
   });
 });
