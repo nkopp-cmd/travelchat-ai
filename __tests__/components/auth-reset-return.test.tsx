@@ -11,6 +11,7 @@ const state = vi.hoisted(() => ({
 vi.mock("next/navigation", () => ({ useSearchParams: () => new URLSearchParams(state.query) }));
 vi.mock("next/link", () => ({ default: (props: ComponentProps<"a">) => <a {...props} /> }));
 vi.mock("@/lib/auth/auth-client", () => ({ authClient: { requestPasswordReset: state.requestPasswordReset, resetPassword: state.resetPassword, signIn: { social: state.social, magicLink: state.magicLink } } }));
+import { readFileSync } from "node:fs";
 import { appendQueryParams } from "@better-auth/core/utils/url";
 import { ForgotPasswordForm, ResetPasswordForm, SignInForm, SignUpForm, withReturn } from "@/components/auth/auth-forms";
 
@@ -120,6 +121,53 @@ describe("failed Google and email-link sign-in keep the return path", () => {
     state.query = "error=INVALID_TOKEN";
     render(<SignInForm googleEnabled={false} />);
     expect(screen.getByText("That link is invalid or expired. Please try again.")).toBeTruthy();
+  });
+});
+
+// Push BQ3: a new link or callback in auth-forms must keep the return page, or a visitor from a trip, the
+// planner or a checkout lands on /dashboard. The source scan catches a bare literal; the render checks the result.
+describe("every auth-forms link and callback keeps the return path", () => {
+  const source = readFileSync("components/auth/auth-forms.tsx", "utf8");
+  const AUTH_PATH = /"\/(sign-in|sign-up|forgot-password|reset-password)\b/g;
+
+  it("never uses a bare string for href, callbackURL, errorCallbackURL or redirectTo", () => {
+    expect(source.match(/\bhref\s*=\s*\{?\s*["'`]|\b(callbackURL|errorCallbackURL|redirectTo)\s*:\s*["'`]/g) ?? []).toEqual([]);
+  });
+
+  it("builds every auth path through withReturn", () => {
+    const bare = [...source.matchAll(AUTH_PATH)].filter(m => !source.slice(Math.max(0, m.index! - 11), m.index).endsWith("withReturn(")).map(m => m[0]);
+    expect(bare).toEqual([]);
+    expect([...source.matchAll(AUTH_PATH)].length).toBeGreaterThanOrEqual(9);
+  });
+
+  const authLinks = () => screen.getAllByRole("link").map(a => at(a.getAttribute("href"))).filter(u => /^\/(sign-in|sign-up|forgot-password|reset-password)$/.test(u.pathname));
+  const forms = [
+    ["sign-in", () => render(<SignInForm googleEnabled />), 2],
+    ["sign-up", () => render(<SignUpForm googleEnabled />), 1],
+    ["forgot", (to: string) => render(<ForgotPasswordForm redirectTo={to} />), 1],
+    ["reset", () => render(<ResetPasswordForm />), 1],
+  ] as const;
+
+  it.each(forms)("%s form: every auth link carries a safe redirect_url", (_, show, count) => {
+    for (const target of TARGETS) {
+      state.query = new URLSearchParams({ redirect_url: target, token: "t1" }).toString();
+      const view = show(target);
+      const links = authLinks();
+      expect(links).toHaveLength(count);
+      for (const link of links) expect(link.searchParams.get("redirect_url")).toBe(target);
+      view.unmount();
+    }
+  });
+
+  it.each(forms)("%s form: a foreign or default return adds no redirect_url", (_, show, count) => {
+    for (const target of ["//example.invalid", "https://example.invalid/x", "/\\example.invalid", "/dashboard"]) {
+      state.query = new URLSearchParams({ redirect_url: target, token: "t1" }).toString();
+      const view = show(target);
+      const links = authLinks();
+      expect(links).toHaveLength(count);
+      for (const link of links) expect(link.searchParams.has("redirect_url")).toBe(false);
+      view.unmount();
+    }
   });
 });
 
