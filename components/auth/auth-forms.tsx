@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth/auth-client";
 import { safeRedirect } from "@/lib/auth/client";
 import { verifiedCallbackURL } from "@/lib/auth/redirect";
+import { emailTypoFix } from "@/lib/auth/email-typo";
 import { useInAppBrowser } from "@/lib/in-app-browser";
 
 const primaryClass = "w-full";
@@ -43,6 +44,24 @@ function Field({ id, label, children }: { id: string; label: string; children: R
             <Label htmlFor={id} className="text-muted-foreground">{label}</Label>
             {children}
         </div>
+    );
+}
+
+/** Push BT2: "Did you mean name@gmail.com?" under the email field; one tap fixes it. */
+export function EmailTypoHint({ email, onFix }: { email: string; onFix: (fixed: string) => void }) {
+    const fixed = emailTypoFix(email);
+    return (
+        <p aria-live="polite" className={fixed ? "text-sm text-muted-foreground" : "sr-only"}>
+            {fixed && (
+                <>
+                    Did you mean{" "}
+                    <button type="button" data-email-fix onClick={() => onFix(fixed)} className="min-h-11 font-medium text-primary underline underline-offset-2">
+                        {fixed}
+                    </button>
+                    ?
+                </>
+            )}
+        </p>
     );
 }
 
@@ -181,6 +200,7 @@ export function SignInForm({ googleEnabled }: { googleEnabled: boolean }) {
             <form onSubmit={onPassword} className="space-y-4">
                 <Field id="email" label="Email">
                     <Input id="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+                    <EmailTypoHint email={email} onFix={setEmail} />
                 </Field>
                 <Field id="password" label="Password">
                     <PasswordInput id="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
@@ -265,6 +285,7 @@ export function SignUpForm({ googleEnabled }: { googleEnabled: boolean }) {
             <form onSubmit={onSubmit} className="space-y-4">
                 <Field id="email" label="Email">
                     <Input id="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+                    <EmailTypoHint email={email} onFix={setEmail} />
                 </Field>
                 <Field id="password" label="Password (8+ characters)">
                     <PasswordInput id="password" autoComplete="new-password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
