@@ -16,7 +16,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { AppBackground } from "@/components/layout/app-background";
 import { LocalleySignup } from "@/components/newsletter/localley-signup";
 import { useSubscription } from "@/hooks/use-subscription";
@@ -230,24 +229,29 @@ export default function PricingPage() {
                                 </div>
                             </div>
                             <div className="flex items-center justify-between rounded-lg bg-black/25 p-3">
-                                <Label
-                                    htmlFor="billing-toggle"
-                                    className={cn("text-sm", !isYearly ? "font-semibold text-foreground" : "text-muted-foreground")}
+                                {/* Push BU3: each word sets its own cycle (a label for the switch only toggled it). */}
+                                <button
+                                    type="button"
+                                    onClick={() => setIsYearly(false)}
+                                    aria-pressed={!isYearly}
+                                    className={cn("min-h-11 rounded-md px-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300", !isYearly ? "font-semibold text-foreground" : "text-muted-foreground")}
                                 >
                                     Monthly
-                                </Label>
+                                </button>
                                 <Switch
                                     id="billing-toggle"
                                     checked={isYearly}
                                     onCheckedChange={setIsYearly}
                                     aria-label="Toggle yearly billing"
                                 />
-                                <Label
-                                    htmlFor="billing-toggle"
-                                    className={cn("text-sm", isYearly ? "font-semibold text-foreground" : "text-muted-foreground")}
+                                <button
+                                    type="button"
+                                    onClick={() => setIsYearly(true)}
+                                    aria-pressed={isYearly}
+                                    className={cn("min-h-11 rounded-md px-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300", isYearly ? "font-semibold text-foreground" : "text-muted-foreground")}
                                 >
                                     Yearly
-                                </Label>
+                                </button>
                             </div>
                             <p className="mt-3 text-sm text-foreground">Yearly plans save up to 30%.</p>
                         </div>
