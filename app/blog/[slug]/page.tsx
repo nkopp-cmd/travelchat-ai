@@ -65,7 +65,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             </figcaption>
           </figure>
         )}
-        <BlogMarkdown source={post.body} />
+        <BlogMarkdown source={post.body} returnPath={`/blog/${post.slug}`} />
         <p className="mt-10 text-sm text-muted-foreground">
           Last updated <time dateTime={post.updated}>{formatPostDate(post.updated)}</time>
         </p>

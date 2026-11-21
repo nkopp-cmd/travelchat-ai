@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 // @ts-expect-error -- plain ESM build script without type declarations
 import { BLOG_BUNDLE, blogSlugs, renderBundle } from "../../scripts/blog-index.mjs";
-import { BlogMarkdown, parseBlocks } from "../../lib/blog/markdown";
+import { authReturnHref, BlogMarkdown, parseBlocks } from "../../lib/blog/markdown";
 import { BLOG_POSTS, blogPlannerCities, blogPost, parsePost, plannerHref, postPlannerCity } from "../../lib/blog/posts";
 import { blogPostingJsonLd, blogRss, jsonLdHtml } from "../../lib/blog/seo";
 
@@ -124,3 +124,32 @@ describe("blog SEO", () => {
   });
 });
 
+
+describe("blog auth links return to the post (Push BR3)", () => {
+  it("adds redirect_url only to auth form links without their own target", () => {
+    expect(authReturnHref("/sign-up", "/blog/x")).toBe("/sign-up?redirect_url=%2Fblog%2Fx");
+    expect(authReturnHref("/sign-in?mode=a#f", "/blog/x")).toBe("/sign-in?mode=a&redirect_url=%2Fblog%2Fx#f");
+    expect(authReturnHref("/sign-up?redirect_url=%2Fpricing", "/blog/x")).toBe("/sign-up?redirect_url=%2Fpricing");
+    expect(authReturnHref("/sign-upper", "/blog/x")).toBe("/sign-upper");
+    expect(authReturnHref("/pricing", "/blog/x")).toBe("/pricing");
+    expect(authReturnHref("/sign-up")).toBe("/sign-up");
+  });
+
+  it("renders auth links in paragraphs, lists, tables and bold text with the post path and nofollow", () => {
+    const html = renderToStaticMarkup(BlogMarkdown({ returnPath: "/blog/x", source: "Go [join](/sign-up).\n\n- **[in](/sign-in)**\n\n| A |\n| --- |\n| [t](/sign-up) |\n\n[plan](/itineraries/new)\n" }));
+    const links = [...html.matchAll(/<a ([^>]*)>/g)].map((m) => m[1]);
+    const auth = links.filter((a) => /href="\/sign-/.test(a));
+    expect(auth.map((a) => /href="([^"]*)"/.exec(a)![1])).toEqual(["/sign-up?redirect_url=%2Fblog%2Fx", "/sign-in?redirect_url=%2Fblog%2Fx", "/sign-up?redirect_url=%2Fblog%2Fx"]);
+    expect(auth.every((a) => a.includes('rel="nofollow"'))).toBe(true);
+    expect(links.find((a) => a.includes('href="/itineraries/new"'))).not.toContain("nofollow");
+    expect(html).not.toMatch(/href="\/sign-(?:up|in)"/);
+  });
+
+  it("every live post's auth links carry its own path", () => {
+    for (const p of BLOG_POSTS) {
+      const html = renderToStaticMarkup(BlogMarkdown({ source: p.body, returnPath: `/blog/${p.slug}` }));
+      for (const [, href] of html.matchAll(/href="(\/sign-(?:up|in)[^"]*)"/g)) expect(href).toContain(`redirect_url=${encodeURIComponent(`/blog/${p.slug}`)}`);
+    }
+    expect(readFileSync("app/blog/[slug]/page.tsx", "utf8")).toContain("returnPath={`/blog/${post.slug}`}");
+  });
+});
