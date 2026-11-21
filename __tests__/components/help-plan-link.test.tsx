@@ -50,4 +50,11 @@ describe("help guide link to the free planner", () => {
       expect(html).toContain("First plan free · no sign-up");
     }
   });
+
+  it("gives the indexed /help page crawl paths to the Ring-1 city hubs and the templates", () => {
+    const html = renderToStaticMarkup(<HelpPage />);
+    for (const href of ["/spots?city=seoul", "/spots?city=tokyo", "/spots?city=bangkok", "/spots?city=singapore", "/templates"]) {
+      expect(html).toContain(`href="${href}"`);
+    }
+  });
 });

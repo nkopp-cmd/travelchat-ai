@@ -9,6 +9,15 @@ import { HELP_COUNTRIES } from "@/lib/help/phrases";
 import { LocalleySignup } from "@/components/newsletter/localley-signup";
 import { FreePlanLink } from "@/components/help/help-plan-link";
 
+// /help is one of the two pages Google indexes (GSC 2026-11-21): give it crawl paths to the Ring-1 city hubs and
+// the template picker, the entry pages of the planner (Push BK3).
+const HELP_HUB_LINKS = [
+  { href: "/spots?city=seoul", label: "Seoul" },
+  { href: "/spots?city=tokyo", label: "Tokyo" },
+  { href: "/spots?city=bangkok", label: "Bangkok" },
+  { href: "/spots?city=singapore", label: "Singapore" },
+] as const;
+
 export const metadata: Metadata = pageMeta({
   title: "Help me say this",
   description: "Show-to-staff phrase cards in Korean, Japanese, Thai, Vietnamese and Chinese for travellers in Asia.",
@@ -36,6 +45,25 @@ export default function HelpPage() {
           </li>
         ))}
       </ul>
+      <section aria-labelledby="help-hubs" className="mt-8">
+        <h2 id="help-hubs" className="text-lg font-semibold text-foreground">Local places by city</h2>
+        <ul className="mt-3 flex flex-wrap gap-2">
+          {HELP_HUB_LINKS.map((hub) => (
+            <li key={hub.href}>
+              <Link href={hub.href}
+                className="inline-flex min-h-11 items-center rounded-full bg-surface px-4 text-sm font-medium text-foreground shadow-surface transition-colors hover:bg-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+                {hub.label}
+              </Link>
+            </li>
+          ))}
+          <li>
+            <Link href="/templates"
+              className="inline-flex min-h-11 items-center rounded-full bg-surface px-4 text-sm font-medium text-foreground shadow-surface transition-colors hover:bg-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+              Trip templates
+            </Link>
+          </li>
+        </ul>
+      </section>
       <FreePlanLink label="Plan a free trip" testId="help-index-plan-trip" />
       <LocalleySignup source="help-index" className="mt-10" />
     </div>
