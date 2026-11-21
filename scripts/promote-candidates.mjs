@@ -116,7 +116,8 @@ category: one of ${CATEGORIES.join(", ")}. subcategories: 2-3 short tags. tipsEn
 12 words, no invented facts (no prices, hours or menu items you do not know). bestTimesEn: e.g. "Morning" or "Evening".
 addressEn: the street address romanized, from most to least specific, with the house number, ending exactly with
 ", <city>, <country>" as given, e.g. "91 Sri Poom Rd, Si Phum, Chiang Mai, Thailand". If the input has no street and
-house number, return addressEn "". localPercentage: 30-80, your estimate of local guests.
+house number, return addressEn "". Japan has no street names: romanize a Japanese address and keep all its parts
+(area with chōme, block/house numbers, ward, postcode), e.g. "京橋一丁目 7-2, 中央区, Tokyo, Japan" -> "Kyobashi 1-7-2, Chuo, Tokyo, Japan". localPercentage: 30-80, your estimate of local guests.
 
 Spots (${items.length}):
 ${lines.join("\n")}`;

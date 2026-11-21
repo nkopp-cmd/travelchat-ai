@@ -61,9 +61,23 @@ export function kindOf(tags) {
   return null;
 }
 
-/** Local street address from OSM addr:* tags, or "" without house number + street. */
+/** Japanese address (no street names): "<chōme area> <block>-<house>, <ward>, <postcode>, <city>, Japan". Needs a numbered
+ * area (house/block number or a chōme number) or a postcode; the map pin itself uses the exact OSM coordinates. */
+export function japanAddress({ area, block, house, ward, postcode }, city) {
+  area = str(area); ward = str(ward); postcode = /-0000$/.test(str(postcode)) ? "" : str(postcode); // "xxx-0000" = a whole city
+  const nums = [str(block), str(house)].filter(Boolean).join("-");
+  if (!area || (!nums && !postcode)) return "";
+  const first = !nums ? area : /\d$/.test(area) ? `${area}-${nums}` : `${area} ${nums}`;
+  return [first, ward !== city.name ? ward : "", postcode, city.name, city.country].filter(Boolean).join(", ");
+}
+
+/** Local street address from OSM addr:* tags, or "" without house number + street (Japan: see japanAddress). */
 export function osmAddress(tags, city) {
   const hn = str(tags["addr:housenumber"]), street = str(tags["addr:street"]);
+  if (city.countryCode === "JP" && !street) {
+    return japanAddress({ area: tags["addr:quarter"] || tags["addr:neighbourhood"], block: tags["addr:block_number"], house: hn,
+      ward: tags["addr:suburb"] || tags["addr:district"] || tags["addr:city"], postcode: tags["addr:postcode"] }, city);
+  }
   if (!hn || !street) return "";
   const area = str(tags["addr:subdistrict"] || tags["addr:district"] || tags["addr:suburb"]);
   return [`${hn} ${street}`, area, city.name, city.country].filter(Boolean).join(", ");
@@ -120,6 +134,10 @@ export function isListed(c, spots) {
 export function reverseAddress(data, city) {
   const a = data?.address ?? {};
   const hn = str(a.house_number), road = str(a.road || a.pedestrian || a.footway);
+  if (city.countryCode === "JP" && !(hn && road)) {
+    return japanAddress({ area: a.administrative || a.quarter || a.neighbourhood, house: hn,
+      ward: a.suburb || a.city_district || a.city, postcode: a.postcode }, city);
+  }
   if (!hn || !road) return "";
   const area = str(a.suburb || a.city_district || a.quarter || a.neighbourhood);
   return [`${hn} ${road}`, area, city.name, city.country].filter(Boolean).join(", ");

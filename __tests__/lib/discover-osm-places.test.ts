@@ -61,6 +61,23 @@ describe("discover-osm-places", () => {
             .toBe("991 Rama I Road, Pathum Wan, Bangkok, Thailand");
     });
 
+    it("accepts a Japanese address without a street (chōme + numbers or postcode)", () => {
+        const tokyo = list.tokyo, kyoto = list.kyoto;
+        // Nominatim 2026-11-21, Sensō-ji area and Kinkaku-ji
+        expect(reverseAddress({ address: { house_number: "1", administrative: "Asakusa 2", quarter: "Asakusa", city: "Taito", postcode: "111-0032", country_code: "jp" } }, tokyo))
+            .toBe("Asakusa 2-1, Taito, 111-0032, Tokyo, Japan");
+        expect(reverseAddress({ address: { amenity: "Kinkaku-ji", neighbourhood: "Kinkakuji-chō", suburb: "Kita Ward", city: "Kyoto", postcode: "603-8361" } }, kyoto))
+            .toBe("Kinkakuji-chō, Kita Ward, 603-8361, Kyoto, Japan");
+        expect(osmAddress({ "addr:quarter": "Ginza 4", "addr:block_number": "6", "addr:housenumber": "16", "addr:suburb": "Chuo" }, tokyo))
+            .toBe("Ginza 4-6-16, Chuo, Tokyo, Japan");
+        // no numbered area and no postcode, or no area at all: still not exact
+        expect(reverseAddress({ address: { neighbourhood: "Kinkakuji-chō", city: "Kyoto" } }, kyoto)).toBe("");
+        expect(reverseAddress({ address: { house_number: "3", postcode: "603-8361" } }, kyoto)).toBe("");
+        expect(osmAddress({ "addr:quarter": "Kichijoji Honcho", "addr:postcode": "180-0000" }, tokyo)).toBe("");
+        // outside Japan the street rule stays
+        expect(reverseAddress({ address: { house_number: "1", administrative: "Asakusa 2", postcode: "111-0032" } }, bkk)).toBe("");
+    });
+
     it("keeps variety: places of worship are capped and come last", () => {
         const mk = (id: number, kind: string) => ({ placeId: `osm:node/${id}`, categories: [kind, "wikipedia"] });
         const temples = Array.from({ length: 20 }, (_, i) => mk(i, "place_of_worship"));
