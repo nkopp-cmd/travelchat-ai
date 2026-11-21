@@ -1,7 +1,9 @@
 import type { ComponentProps } from "react";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 vi.mock("next/navigation", () => ({ useSearchParams: () => new URLSearchParams("") }));
+const signUpEmail = vi.hoisted(() => vi.fn(async () => ({ error: null })));
+vi.mock("@/lib/auth/auth-client", () => ({ authClient: { signUp: { email: signUpEmail }, signIn: { social: vi.fn(), email: vi.fn() } } }));
 vi.mock("next/link", () => ({ default: (props: ComponentProps<"a">) => <a {...props} /> }));
 import { SignInForm, SignUpForm } from "@/components/auth/auth-forms";
 import { isInAppBrowser } from "@/lib/in-app-browser";
@@ -53,5 +55,25 @@ describe("Google option on the account forms", () => {
     render(<SignUpForm googleEnabled={false} />);
     expect(screen.queryByTestId("auth-inapp-hint")).toBeNull();
     expect(screen.queryByRole("button", { name: "Continue with Google" })).toBeNull();
+  });
+});
+
+describe("sign-up inbox notice", () => {
+  afterEach(() => vi.restoreAllMocks());
+  const submit = async (ua: string) => {
+    vi.spyOn(window.navigator, "userAgent", "get").mockReturnValue(ua);
+    render(<SignUpForm googleEnabled={false} />);
+    fireEvent.change(screen.getByLabelText("Email"), { target: { value: "a@b.co" } });
+    fireEvent.change(screen.getByLabelText("Password (8+ characters)"), { target: { value: "longenough1" } });
+    fireEvent.submit(screen.getByLabelText("Email").closest("form")!);
+    await screen.findByText(/Check your inbox/);
+  };
+  it("inside Instagram says the link opens the phone browser and to come back here", async () => {
+    await submit(IN_APP.instagram);
+    expect(screen.getByTestId("auth-inapp-verify-note").textContent).toBe("The link opens in your phone's browser. Then come back to this app and sign in with your password.");
+  });
+  it("in Safari shows no extra note", async () => {
+    await submit(BROWSERS.iosSafari);
+    expect(screen.queryByTestId("auth-inapp-verify-note")).toBeNull();
   });
 });
