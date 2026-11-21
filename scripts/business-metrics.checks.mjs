@@ -115,3 +115,10 @@ test("Push BX3: checkout_paid 30d by start page; none -> plain 0", () => {
   assert.match(summarize({ users, sessions: [], subscriptions: [], funnel: [] }, now).notes,
     /checkout_paid funnel events 30d: 0; checkout_start funnel events 30d: 0;/);
 });
+
+test("Push CC3: notes carry the Google index count, or unknown without a run", () => {
+  const base = { users, sessions: [], subscriptions: [], funnel: [] };
+  assert.match(summarize(base, now).notes, /google index of money\/entry pages: unknown \(no index-status run\);/);
+  const indexStatus = { summary: { at: "2026-10-27T06:40:00Z", line: "indexed 14/20" } };
+  assert.match(summarize({ ...base, indexStatus }, now).notes, /google index of money\/entry pages: indexed 14\/20 \(URL Inspection 2026-10-27\);/);
+});
