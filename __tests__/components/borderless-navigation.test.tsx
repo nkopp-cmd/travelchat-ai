@@ -21,7 +21,7 @@ describe('borderless navigation state',()=>{
  });
  it('a new visitor sees Sign in and Join free before the session returns (Push BE1)',()=>{
   state.pathname='/pricing';render(<Navbar/>);expect(screen.queryByRole('status',{name:'Checking account'})).toBeNull();
-  expect(screen.getByRole('link',{name:'Sign in'}).getAttribute('href')).toBe('/sign-in');expect(screen.getByRole('link',{name:'Join free'}).getAttribute('href')).toBe('/sign-up?redirect_url=%2Fpricing');
+  expect(screen.getByRole('link',{name:'Sign in'}).getAttribute('href')).toBe('/sign-in?redirect_url=%2Fpricing');expect(screen.getByRole('link',{name:'Join free'}).getAttribute('href')).toBe('/sign-up?redirect_url=%2Fpricing');
  });
  it('sets the hint after a signed-in render and clears it after a signed-out one (Push BE1)',async()=>{
   state.loaded=true;state.signedIn=true;const view=render(<Navbar/>);await waitFor(()=>expect(localStorage.getItem('localley:account-hint')).toBe('1'));view.unmount();
@@ -36,6 +36,9 @@ describe('borderless navigation state',()=>{
  it.each([['/spots','/spots'],['/','/'],['/sign-up','/'],['/sign-in','/'],['/help/japan/menu','/help/japan/menu']])('gives a signed-out visitor on %s a Join free link that returns to %s (Push AF3)',(path,back)=>{
   state.pathname=path;state.loaded=true;render(<Navbar/>);const join=screen.getByRole('link',{name:'Join free'});
   expect(join.getAttribute('href')).toBe(`/sign-up?redirect_url=${encodeURIComponent(back)}`);expect(join.className).toContain('sm:hidden');
+ });
+ it.each([['/pricing','/sign-in?redirect_url=%2Fpricing'],['/itineraries/abc','/sign-in?redirect_url=%2Fitineraries%2Fabc'],['/','/sign-in'],['/sign-in','/sign-in'],['/sign-up/verify','/sign-in']])('gives a signed-out visitor on %s a Sign in link %s (Push BR1)',(path,href)=>{
+  state.pathname=path;state.loaded=true;render(<Navbar/>);expect(screen.getByRole('link',{name:'Sign in'}).getAttribute('href')).toBe(href);
  });
  it('hides Join free while a known member account loads and for signed-in members',()=>{
   localStorage.setItem('localley:account-hint','1');const view=render(<Navbar/>);expect(screen.queryByRole('link',{name:'Join free'})).toBeNull();view.unmount();
