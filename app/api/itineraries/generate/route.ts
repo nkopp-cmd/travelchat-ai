@@ -1,7 +1,7 @@
 import { rateLimiters } from "@/lib/rate-limit";
 import { logGenerateOutcome, logItineraryFormatFailure, logItineraryRequestFailure, type GenerateOutcome } from "./diagnostics";
 import { DRAFT_COOKIE, draftCookieOptions, keepServerDraft, previewDraftKv } from "@/lib/trips/preview-draft-store";
-import { planCacheKey, readCachedPlan, writeCachedPlan } from "@/lib/trips/plan-cache";
+import { isPresetPlanInput, planCacheKey, readCachedPlan, writeCachedPlan } from "@/lib/trips/plan-cache";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { createSupabaseAdmin } from '@/lib/supabase';
@@ -242,9 +242,8 @@ async function generate(req: NextRequest, outcome: GenerateOutcome) {
     // Push BL1: the same anonymous/free inputs return the plan kept from an earlier request (lib/trips/plan-cache.ts),
     // skipping the spot query and the 10-30 s model call. Paid tiers always generate (AI images, saved row).
     const planKv = isAnonymous || tier === "free" ? previewDraftKv() : null;
-    const planKey = planKv
-      ? await planCacheKey({ city: normalizedCity, days, interests, budget, localnessLevel, pace, groupType, templatePrompt, spotId })
-      : null;
+    const planInput = { city: normalizedCity, days, interests, budget, localnessLevel, pace, groupType, templatePrompt, spotId };
+    const planKey = planKv ? await planCacheKey(planInput) : null;
     const cachedPlan = planKey ? await readCachedPlan(planKey, days, planKv) : null;
     if (planKv) outcome.cache = cachedPlan ? "hit" : "miss";
     if (cachedPlan) {
@@ -400,7 +399,7 @@ Respect the pace, keep each day geographically coherent, avoid repeated categori
 
     itineraryData.dailyPlans = dailyPlansWithImages;
     if (planKey && planKv && (isAnonymous || tier === "free")) {
-      await writeCachedPlan(planKey, { itineraryData, provider: aiProvider, model: aiModel }, planKv);
+      await writeCachedPlan(planKey, { itineraryData, provider: aiProvider, model: aiModel }, planKv, { preset: isPresetPlanInput(planInput) });
     }
 
     let savedItinerary = null;

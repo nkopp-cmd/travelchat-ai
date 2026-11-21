@@ -13,6 +13,7 @@ const state = vi.hoisted(() => ({
   userId: null as string | null,
   tier: "free" as string,
   kv: new Map<string, string>(),
+  kvTtls: [] as Array<number | undefined>,
   kvReads: 0,
 }));
 
@@ -56,7 +57,10 @@ vi.mock("@/lib/trips/preview-draft-store", async (importOriginal) => ({
   }),
   previewDraftKv: () => ({
     get: async (key: string) => { state.kvReads += 1; return state.kv.get(key) ?? null; },
-    put: async (key: string, value: string) => { state.kv.set(key, value); },
+    put: async (key: string, value: string, options?: { expirationTtl?: number }) => {
+      state.kv.set(key, value);
+      state.kvTtls.push(options?.expirationTtl);
+    },
     delete: async (key: string) => { state.kv.delete(key); },
   }),
 }));
@@ -109,6 +113,7 @@ describe("POST /api/itineraries/generate plan cache", () => {
     state.userId = null;
     state.tier = "free";
     state.kv.clear();
+    state.kvTtls = [];
     state.kvReads = 0;
     vi.mocked(generateItineraryTextWithFallback).mockClear();
     vi.mocked(itinerarySpotPoolQuery).mockClear();
@@ -136,6 +141,18 @@ describe("POST /api/itineraries/generate plan cache", () => {
     expect(state.kept).toHaveLength(2);
     expect(second.cookies.get("lly_draft")?.value).toBe(DRAFT_ID);
     expect(second.cookies.get("localley_anon_usage")?.value).toBe("1");
+  });
+
+  it("keeps the wizard preset 8 d and a custom request 24 h (Push BM1)", async () => {
+    const info = vi.spyOn(console, "info").mockImplementation(() => {});
+    const { POST } = await import("@/app/api/itineraries/generate/route");
+    const preset = { city: "Tokyo", days: 3, interests: [], budget: "moderate", localnessLevel: 3, pace: "moderate", groupType: "solo" };
+    const threeDays = { ...(await vi.mocked(generateItineraryTextWithFallback).getMockImplementation()!({} as never)), rawContent: modelJson(3) };
+    vi.mocked(generateItineraryTextWithFallback).mockResolvedValueOnce(threeDays).mockResolvedValueOnce(threeDays);
+    expect((await POST(post(preset))).status).toBe(200);
+    expect((await POST(post({ ...preset, groupType: "couple" }))).status).toBe(200);
+    info.mockRestore();
+    expect(state.kvTtls.filter((ttl) => ttl === 8 * 86_400 || ttl === 86_400)).toEqual([8 * 86_400, 86_400]);
   });
 
   it("still spends a signed-in free user's monthly plan on a cache hit", async () => {
