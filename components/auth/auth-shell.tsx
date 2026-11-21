@@ -4,6 +4,11 @@ import type { AuthBackLink } from "@/lib/auth/auth-copy";
 import { Logo } from "@/components/brand/logo";
 import { AppBackground } from "@/components/layout/app-background";
 
+// Push BS1: the terms are readable from the form. A new tab keeps what the visitor already typed.
+function LegalLink({ href, children }: { href: string; children: ReactNode }) {
+    return <a href={href} target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-foreground">{children}</a>;
+}
+
 export function AuthShell({ title, subtitle, children, footer, back }: {
     title: string;
     subtitle: string;
@@ -31,7 +36,7 @@ export function AuthShell({ title, subtitle, children, footer, back }: {
                 </div>
                 {footer ?? (
                     <p className="text-center text-sm text-muted-foreground mt-6">
-                        By continuing, you agree to our Terms of Service and Privacy Policy
+                        By continuing, you agree to our <LegalLink href="/terms">Terms of Service</LegalLink> and <LegalLink href="/privacy">Privacy Policy</LegalLink>
                     </p>
                 )}
             </div>

@@ -16,6 +16,7 @@ on:
       - 'emails/story-ready-email.tsx'
       - '__tests__/lib/email-links.test.ts'
       - '__tests__/app/auth-pages-signed-in.test.tsx'
+      - '__tests__/components/auth-shell-legal.test.tsx'
       - '__tests__/lib/gate-href.test.ts'
       - 'lib/auth/gate-href.ts'
       - 'lib/auth/resume-action.ts'

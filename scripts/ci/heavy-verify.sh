@@ -234,6 +234,7 @@ VITEST_FILES=(
   __tests__/lib/auth-wall-copy.test.ts
   __tests__/lib/email-links.test.ts
   __tests__/app/auth-pages-signed-in.test.tsx
+  __tests__/components/auth-shell-legal.test.tsx
   __tests__/lib/gate-href.test.ts
   __tests__/styles/leaflet-borderless.test.ts
   __tests__/styles/home-below-fold.test.ts
@@ -574,6 +575,7 @@ ESLINT_FILES=(
   emails/links.ts
   __tests__/lib/email-links.test.ts
   __tests__/app/auth-pages-signed-in.test.tsx
+  __tests__/components/auth-shell-legal.test.tsx
   __tests__/lib/subscription-mail.test.ts
   components/spots/preview-save-spot-button.tsx
   lib/app-data/preview-saved-spot-actor.ts
