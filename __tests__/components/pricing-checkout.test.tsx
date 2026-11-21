@@ -1,14 +1,17 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import fc from "fast-check";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-const mocks = vi.hoisted(() => ({ signedIn: false, authLoaded: true, subLoading: false, tier: "free", openCheckout: vi.fn(), toast: vi.fn() }));
+const mocks = vi.hoisted(() => ({ signedIn: false, authLoaded: true, subLoading: false, tier: "free", openCheckout: vi.fn(), toast: vi.fn(), track: vi.fn() }));
+vi.mock("@/lib/funnel-analytics", () => ({ trackFunnelStep: mocks.track }));
 vi.mock("@/lib/auth/client", () => ({ useAuth: () => ({ isLoaded: mocks.authLoaded, isSignedIn: mocks.signedIn }) }));
 vi.mock("@/hooks/use-toast", () => ({ useToast: () => ({ toast: mocks.toast }) }));
 vi.mock("@/hooks/use-subscription", () => ({ useSubscription: () => ({
   tier: mocks.tier, isLoading: mocks.subLoading, openCheckout: mocks.openCheckout, openBillingPortal: vi.fn(), hasBillingPortal: false,
 }) }));
 vi.mock("@/components/layout/app-background", () => ({ AppBackground: ({ children }: { children: React.ReactNode }) => children }));
+vi.mock("@/providers/subscription-provider", () => ({ useSubscriptionContext: () => ({ openCheckout: mocks.openCheckout, tier: mocks.tier }) }));
 import PricingPage from "@/app/pricing/page";
+import { LimitExceededModal } from "@/components/subscription/limit-exceeded-modal";
 import { checkoutSignUpUrl, parseCheckoutIntent, withoutCheckoutParam } from "@/lib/pricing-checkout";
 
 const setUrl = (path: string) => window.history.replaceState(null, "", path);
@@ -50,6 +53,7 @@ describe("/pricing subscribe flow", () => {
     expect(screen.getByRole("link", { name: "Subscribe to Premium" }).getAttribute("href")).toBe(checkoutSignUpUrl("premium", "yearly"));
     expect(mocks.openCheckout).not.toHaveBeenCalled();
     expect(mocks.toast).not.toHaveBeenCalled();
+    expect(mocks.track).not.toHaveBeenCalled(); // counted once on the resume after sign-up, not twice
   });
   it("signed in: the plan is a button that opens Stripe checkout", async () => {
     mocks.signedIn = true;
@@ -57,6 +61,7 @@ describe("/pricing subscribe flow", () => {
     expect(screen.queryByRole("link", { name: /Subscribe to/ })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Subscribe to Pro" }));
     await waitFor(() => expect(mocks.openCheckout).toHaveBeenCalledWith("pro", "monthly"));
+    expect(mocks.track.mock.calls).toEqual([["checkout_start", "pricing"]]); // Push BW1
   });
   it("starts Stripe once after sign-up and removes the parameter", async () => {
     mocks.signedIn = true;
@@ -68,6 +73,7 @@ describe("/pricing subscribe flow", () => {
     expect(window.location.search).toBe("");
     rerender(<PricingPage />);
     expect(mocks.openCheckout).toHaveBeenCalledTimes(1);
+    expect(mocks.track.mock.calls).toEqual([["checkout_start", "pricing"]]); // Push BW1: once, like Stripe
   });
   it("does not start a second subscription for a paying member", async () => {
     mocks.signedIn = true; mocks.tier = "pro";
@@ -75,6 +81,7 @@ describe("/pricing subscribe flow", () => {
     render(<PricingPage />);
     await waitFor(() => expect(window.location.search).toBe(""));
     expect(mocks.openCheckout).not.toHaveBeenCalled();
+    expect(mocks.track).not.toHaveBeenCalled(); // Push BW1: no checkout start without a checkout
   });
 });
 
@@ -125,5 +132,14 @@ describe("/pricing billing cycle words (Push BU3)", () => {
     fireEvent.click(monthly);
     expect(toggle.getAttribute("aria-checked")).toBe("false");
     expect(monthly.getAttribute("aria-pressed")).toBe("true");
+  });
+});
+
+describe("limit modal checkout start (Push BW1)", () => {
+  it("counts checkout_start with source other before Stripe opens", async () => {
+    render(<LimitExceededModal open onOpenChange={() => {}} limitType="itineraries" currentUsage={1} limit={1} resetAt="2026-12-01T00:00:00Z" />);
+    fireEvent.click(screen.getAllByRole("button", { name: /Upgrade to pro/i }).at(-1)!);
+    await waitFor(() => expect(mocks.openCheckout).toHaveBeenCalledWith("pro"));
+    expect(mocks.track.mock.calls).toEqual([["checkout_start", "other"]]);
   });
 });
