@@ -1,5 +1,5 @@
 import React from "react";
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({ fetch: vi.fn(), query: "" }));
 vi.mock("next/navigation", () => ({ useSearchParams: () => new URLSearchParams(mocks.query) }));
@@ -173,12 +173,28 @@ describe("sign-up error paths (Push BC4)", () => {
       mocks.fetch.mockImplementation(async () => Response.json({ code, message: "User already exists" }, { status: 422 }));
       render(<SignUpForm googleEnabled={false} />);
       submit();
-      await screen.findByText("An account with this email exists. Sign in, or use Forgot password.");
+      // Push BT3: the error itself links to sign-in and to the reset page, both with the same return target.
+      const alert = await screen.findByRole("alert");
+      expect(alert.textContent).toBe("An account with this email exists. Sign in or reset your password.");
       expect(screen.queryByText(/Check your inbox/)).toBeNull();
-      expect(screen.getByRole("link", { name: "Sign in" }).getAttribute("href")).toBe("/sign-in?redirect_url=%2Fpricing%3Fcheckout%3Dpro-monthly");
+      expect(within(alert).getByRole("link", { name: "Sign in" }).getAttribute("href")).toBe("/sign-in?redirect_url=%2Fpricing%3Fcheckout%3Dpro-monthly");
+      expect(within(alert).getByRole("link", { name: "reset your password" }).getAttribute("href")).toBe("/forgot-password?redirect_url=%2Fpricing%3Fcheckout%3Dpro-monthly");
       expect((screen.getByRole("button", { name: "Create account" }) as HTMLButtonElement).disabled).toBe(false);
     });
   }
+
+  it("Push BT3: with no return page the exists links carry no redirect_url, and a retry clears the error", async () => {
+    mocks.fetch.mockImplementationOnce(async () => Response.json({ code: "USER_ALREADY_EXISTS", message: "User already exists" }, { status: 422 }));
+    render(<SignUpForm googleEnabled={false} />);
+    submit();
+    const alert = await screen.findByRole("alert");
+    expect(within(alert).getByRole("link", { name: "Sign in" }).getAttribute("href")).toBe("/sign-in");
+    expect(within(alert).getByRole("link", { name: "reset your password" }).getAttribute("href")).toBe("/forgot-password");
+    mocks.fetch.mockImplementationOnce(async () => Response.json({ status: true, token: null, user: { id: "unit-user" } }));
+    fireEvent.click(screen.getByRole("button", { name: "Create account" }));
+    await screen.findByText(/Check your inbox/);
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
 
   it("shows the server message for any other failure, and a fallback when there is none", async () => {
     mocks.fetch.mockImplementationOnce(async () => Response.json({ code: "PASSWORD_TOO_SHORT", message: "Password too short" }, { status: 400 }));
