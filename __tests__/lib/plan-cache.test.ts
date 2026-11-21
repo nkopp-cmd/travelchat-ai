@@ -3,7 +3,10 @@
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
-import { planCacheKey, readCachedPlan, writeCachedPlan, PLAN_CACHE_TTL_SECONDS } from "@/lib/trips/plan-cache";
+import {
+  isPresetPlanInput, planCacheKey, readCachedPlan, writeCachedPlan,
+  PLAN_CACHE_TTL_SECONDS, PLAN_PRESET, PRESET_PLAN_FRESH_MS, PRESET_PLAN_TTL_SECONDS,
+} from "@/lib/trips/plan-cache";
 import type { DraftKv } from "@/lib/trips/preview-draft-store";
 
 const memoryKv = () => {
@@ -47,7 +50,28 @@ describe("readCachedPlan / writeCachedPlan", () => {
     await writeCachedPlan("plan:v1:x", plan, kv);
     expect(puts).toEqual([{ key: "plan:v1:x", ttl: PLAN_CACHE_TTL_SECONDS }]);
     expect(PLAN_CACHE_TTL_SECONDS).toBe(86_400);
-    expect(await readCachedPlan("plan:v1:x", 2, kv)).toEqual(plan);
+    expect(await readCachedPlan("plan:v1:x", 2, kv)).toMatchObject(plan);
+  });
+
+  it("keeps the preset 8 d, fresh for 7 d, then reads it as a miss while KV still holds it (Push BM1)", async () => {
+    const { kv, puts, store } = memoryKv();
+    const t0 = Date.UTC(2026, 10, 21);
+    await writeCachedPlan("p", plan, kv, { preset: true, now: t0 });
+    expect(puts).toEqual([{ key: "p", ttl: PRESET_PLAN_TTL_SECONDS }]);
+    expect(PRESET_PLAN_TTL_SECONDS).toBe(8 * 86_400);
+    expect(await readCachedPlan("p", 2, kv, t0 + PRESET_PLAN_FRESH_MS)).toMatchObject(plan);
+    expect(await readCachedPlan("p", 2, kv, t0 + PRESET_PLAN_FRESH_MS + 1)).toBeNull();
+    expect(store.has("p")).toBe(true);
+  });
+
+  it("other inputs stay fresh 24 h only; BL1 entries without freshUntil still serve", async () => {
+    const { kv, store } = memoryKv();
+    const t0 = Date.UTC(2026, 10, 21);
+    await writeCachedPlan("o", plan, kv, { now: t0 });
+    expect(await readCachedPlan("o", 2, kv, t0 + 86_400_000)).toMatchObject(plan);
+    expect(await readCachedPlan("o", 2, kv, t0 + 86_400_001)).toBeNull();
+    store.set("old", JSON.stringify(plan));
+    expect(await readCachedPlan("old", 2, kv)).toEqual(plan);
   });
 
   it("reads a wrong shape, a wrong day count or bad JSON as a miss", async () => {
@@ -75,5 +99,21 @@ describe("readCachedPlan / writeCachedPlan", () => {
     expect(await readCachedPlan("k", 2, broken)).toBeNull();
     await expect(writeCachedPlan("k", plan, broken)).resolves.toBeUndefined();
     error.mockRestore();
+  });
+});
+
+describe("isPresetPlanInput", () => {
+  const preset = { city: "Tokyo", interests: [] as string[], ...PLAN_PRESET };
+
+  it("matches the wizard's untouched Free 3-day plan inputs for any city", () => {
+    expect(isPresetPlanInput(preset)).toBe(true);
+    expect(isPresetPlanInput({ ...preset, city: "Seoul", interests: undefined })).toBe(true);
+  });
+
+  it("rejects any changed input", () => {
+    for (const change of [
+      { days: 2 }, { interests: ["food"] }, { budget: "luxury" }, { localnessLevel: 4 }, { pace: "relaxed" },
+      { groupType: "couple" }, { templatePrompt: "Foodie tour" }, { spotId: "abc" }, { budget: undefined },
+    ]) expect(isPresetPlanInput({ ...preset, ...change })).toBe(false);
   });
 });

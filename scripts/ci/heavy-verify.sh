@@ -200,6 +200,7 @@ VITEST_FILES=(
   __tests__/api/generate-anon-success.test.ts
   __tests__/api/generate-plan-cache.test.ts
   __tests__/lib/plan-cache.test.ts
+  __tests__/scripts/warm-free-plans.test.ts
   __tests__/lib/chat-provider-fallback.test.ts
   __tests__/lib/chat-readiness.test.ts
   __tests__/lib/itinerary-provider-meta.test.ts
@@ -465,6 +466,8 @@ ESLINT_FILES=(
   lib/trips/plan-cache.ts
   __tests__/lib/plan-cache.test.ts
   __tests__/api/generate-plan-cache.test.ts
+  __tests__/scripts/warm-free-plans.test.ts
+  scripts/warm-free-plans.mjs
   app/itineraries/preview/layout.tsx
   lib/trips/generated-preview.ts
   lib/trips/paid-return.ts

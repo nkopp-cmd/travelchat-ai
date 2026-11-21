@@ -683,6 +683,8 @@ on:
       - '__tests__/api/generate-anon-success.test.ts'
       - '__tests__/api/generate-plan-cache.test.ts'
       - '__tests__/lib/plan-cache.test.ts'
+      - '__tests__/scripts/warm-free-plans.test.ts'
+      - 'scripts/warm-free-plans.mjs'
       - 'lib/llm/**'
       - 'lib/imagen.ts'
       - 'lib/model-credits.ts'
