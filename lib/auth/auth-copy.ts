@@ -92,6 +92,13 @@ const SPOT_COPY: Record<AuthMode, AuthCopy> = {
     "sign-in": { title: "Sign in to save this spot", subtitle: "Your trip list is on the next screen." },
 };
 const SPOT_PAGE = /^\/spots\/(?!submit$|submissions$)[^/]+$/;
+// Push BP1: every spot page links "Traveller tips and photos" to /spots/<id>/tips, which needs an account
+// (lib/community/access requireCommunityPage). Reading and adding tips is free.
+const TIPS_COPY: Record<AuthMode, AuthCopy> = {
+    "sign-up": { title: "Read traveller tips", subtitle: "Create a free account to read tips and see photos from travellers, and add your own." },
+    "sign-in": { title: "Sign in to read traveller tips", subtitle: "The tips for this spot are on the next screen." },
+};
+const TIPS_PAGE = /^\/spots\/(?!(?:submit|submissions)\/)([^/]+)\/tips$/;
 // A spot CARD Save on a list page (Push AZ2) returns to that page with ?continue=save-spot:<id> (Push BA1).
 function isSpotSaveResume(redirectUrl: string): boolean {
     const q = redirectUrl.indexOf("?");
@@ -125,6 +132,7 @@ export function authCopy(mode: AuthMode, redirectUrl: string | null | undefined)
     if (path === "/chat" || path === "/itineraries" || path === "/profile" || path === "/settings") return NAV_COPY[path][mode];
     const wall = path ? wallOf(path) : null;
     if (wall) return WALL_COPY[wall][mode];
+    if (path && TIPS_PAGE.test(path)) return TIPS_COPY[mode];
     if (path && (SPOT_PAGE.test(path) || isSpotSaveResume(redirectUrl!))) return SPOT_COPY[mode];
     if (path === "/pricing" && redirectUrl?.includes("?")) return checkoutCopy(mode, redirectUrl.split("#")[0]) ?? DEFAULT_COPY[mode];
     return DEFAULT_COPY[mode];
@@ -138,5 +146,7 @@ export function authBackLink(redirectUrl: string | null | undefined): AuthBackLi
     if (path === GENERATED_PREVIEW_PATH) return { href: GENERATED_PREVIEW_PATH, label: "Back to your trip" };
     if (path === "/itineraries/new") return { href: "/itineraries/new", label: "Back to the planner" };
     if (path && SPOT_PAGE.test(path)) return { href: path, label: "Back to the spot" };
+    const tips = path ? TIPS_PAGE.exec(path) : null;
+    if (tips) return { href: `/spots/${tips[1]}`, label: "Back to the spot" };
     return null;
 }

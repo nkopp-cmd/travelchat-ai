@@ -136,6 +136,23 @@ describe("authCopy", () => {
     });
 });
 
+describe("tips wall copy (Push BP1)", () => {
+    it("names the traveller tips for the spot page tips link, in both modes", () => {
+        expect(authCopy("sign-up", "/spots/abc-123/tips")).toEqual({ title: "Read traveller tips", subtitle: "Create a free account to read tips and see photos from travellers, and add your own." });
+        expect(authCopy("sign-in", "/spots/abc-123/tips").title).toBe("Sign in to read traveller tips");
+        expect(authCopy("sign-up", "/spots/abc-123/tips?reported=1").title).toBe("Read traveller tips");
+    });
+    it("links back to the spot itself", () => {
+        expect(authBackLink("/spots/abc-123/tips")).toEqual({ href: "/spots/abc-123", label: "Back to the spot" });
+    });
+    it("leaves other spot paths alone", () => {
+        for (const target of ["/spots/submit/tips", "/spots/abc/tips/extra", "/spots//tips", "//evil.example/spots/a/tips"]) {
+            expect(authCopy("sign-up", target).title, target).not.toBe("Read traveller tips");
+            expect(authBackLink(target), target).toBeNull();
+        }
+    });
+});
+
 describe("authBackLink (Push BH2)", () => {
     it("links back to the trip, the planner or the spot, without the resume query", () => {
         expect(authBackLink("/itineraries/preview?continue=save")).toEqual({ href: "/itineraries/preview", label: "Back to your trip" });
