@@ -13,6 +13,7 @@ import { serveWithEdgeCache } from "./edge-html-cache";
 import { loadCriticalCss, withCriticalCss } from "./critical-css";
 import { withHostRobots } from "./robots-host";
 import { signedOutRedirect } from "./signed-out-redirect";
+import { versionResponse } from "./version-route";
 import { runScheduledRoute, type ScheduledController, type ScheduledEnv } from "./cron-routes";
 
 interface WorkerExecutionContext {
@@ -21,11 +22,14 @@ interface WorkerExecutionContext {
 
 interface FetchEnv {
   CF_VERSION_METADATA?: { id: string };
+  BUILD_SHA?: string;
   ASSETS?: { fetch(request: Request): Promise<Response> };
 }
 
 const worker = {
   async fetch(request: Request, env: FetchEnv, ctx: WorkerExecutionContext) {
+    const version = versionResponse(request, env.BUILD_SHA);
+    if (version) return withHostRobots(request, version);
     const redirect = signedOutRedirect(request);
     if (redirect) return redirect;
     return withHostRobots(request, await serveWithEdgeCache(
