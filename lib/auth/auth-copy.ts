@@ -99,6 +99,19 @@ const TIPS_COPY: Record<AuthMode, AuthCopy> = {
     "sign-in": { title: "Sign in to read traveller tips", subtitle: "The tips for this spot are on the next screen." },
 };
 const TIPS_PAGE = /^\/spots\/(?!(?:submit|submissions)\/)([^/]+)\/tips$/;
+
+// Push BP3: the last walls that still showed the generic form. A saved trip link (/itineraries/<id>, .../edit) is
+// private to its owner; /guide/dashboard holds a guide's earnings. __tests__/lib/auth-wall-copy.test.ts fails when a
+// new signed-out wall gets the default copy.
+const SAVED_TRIP_COPY: Record<AuthMode, AuthCopy> = {
+    "sign-up": { title: "Open your saved trip", subtitle: "Saved trips are private. Create a free account, or sign in with the account that saved this trip." },
+    "sign-in": { title: "Sign in to open your trip", subtitle: "Your trip is on the next screen." },
+};
+const SAVED_TRIP_PAGE = /^\/itineraries\/(?!(?:new|preview)(?:\/|$))[^/]+(?:\/edit)?$/;
+const GUIDE_COPY: Record<AuthMode, AuthCopy> = {
+    "sign-up": { title: "Become a Localley guide", subtitle: "Create a free account to apply as a local guide and follow your earnings." },
+    "sign-in": { title: "Sign in to your guide dashboard", subtitle: "Your earnings and payouts are on the next screen." },
+};
 // A spot CARD Save on a list page (Push AZ2) returns to that page with ?continue=save-spot:<id> (Push BA1).
 function isSpotSaveResume(redirectUrl: string): boolean {
     const q = redirectUrl.indexOf("?");
@@ -133,6 +146,8 @@ export function authCopy(mode: AuthMode, redirectUrl: string | null | undefined)
     const wall = path ? wallOf(path) : null;
     if (wall) return WALL_COPY[wall][mode];
     if (path && TIPS_PAGE.test(path)) return TIPS_COPY[mode];
+    if (path && SAVED_TRIP_PAGE.test(path)) return SAVED_TRIP_COPY[mode];
+    if (path === "/guide/dashboard" || path === "/guide/apply") return GUIDE_COPY[mode];
     if (path && (SPOT_PAGE.test(path) || isSpotSaveResume(redirectUrl!))) return SPOT_COPY[mode];
     if (path === "/pricing" && redirectUrl?.includes("?")) return checkoutCopy(mode, redirectUrl.split("#")[0]) ?? DEFAULT_COPY[mode];
     return DEFAULT_COPY[mode];

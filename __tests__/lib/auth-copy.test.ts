@@ -58,10 +58,12 @@ describe("authCopy", () => {
     });
 
     it("keeps the generic copy for other, missing or foreign redirects", () => {
-        for (const target of [undefined, null, "", "/", "/trending", "//evil.example/itineraries/preview", "https://evil.example/itineraries/preview", "/itineraries/preview-x"]) {
+        for (const target of [undefined, null, "", "/", "/trending", "//evil.example/itineraries/preview", "https://evil.example/itineraries/preview"]) {
             expect(authCopy("sign-up", target).title).toBe("Join Localley");
             expect(authCopy("sign-in", target).title).toBe("Welcome Back");
         }
+        // An id path is a saved trip (Push BP3), never the browser preview copy.
+        expect(authCopy("sign-up", "/itineraries/preview-x").title).toBe("Open your saved trip");
     });
 
     it("speaks to the spot when a signed-out Save tap sent the visitor (Push AG2)", () => {

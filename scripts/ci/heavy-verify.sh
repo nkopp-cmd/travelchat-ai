@@ -230,6 +230,7 @@ VITEST_FILES=(
   __tests__/app/templates-free-path.test.tsx
   __tests__/app/newsletter-placement.test.tsx
   __tests__/lib/auth-copy.test.ts
+  __tests__/lib/auth-wall-copy.test.ts
   __tests__/lib/email-links.test.ts
   __tests__/app/auth-pages-signed-in.test.tsx
   __tests__/lib/gate-href.test.ts
