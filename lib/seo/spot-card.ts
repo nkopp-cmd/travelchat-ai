@@ -8,6 +8,19 @@ export function scoreLabel(score: number): string {
   return "Popular Spot";
 }
 
+// Push CC1: the spot page <title>. People search "<place> <city>", so the title names the city once and the
+// task ("local tips and map"); the score tier stays on the page, not in the title. pageMeta adds " | Localley",
+// so the result fits in `max` chars. The city survives a long name: the name is cut, never the city.
+export function spotPageTitle(name: string, city: string | null, max = 54): string {
+  const place = name.replace(/\s+/g, " ").trim();
+  const fold = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  const suffix = city && !fold(place).includes(fold(city)) ? `, ${city}` : "";
+  for (const text of [`${place}${suffix}: local tips and map`, `${place}${suffix}`]) {
+    if (text.length <= max) return text;
+  }
+  return `${clean(place, max - suffix.length)}${suffix}`;
+}
+
 // The bundled OG font covers Latin only; other scripts would render as empty boxes.
 const LATIN_ONLY = /^[\p{Script=Latin}\p{N}\p{P}\p{Zs}\p{S}]+$/u;
 

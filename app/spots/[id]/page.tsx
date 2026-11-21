@@ -20,7 +20,7 @@ import { VenuePhotoProvider, type DirectPhotoCredit } from "@/components/spots/v
 import { SpotDetailMap } from "@/components/spots/spot-detail-map";
 import { SpotJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { clip, pageMeta, shareImage } from "@/lib/seo/meta";
-import { scoreLabel } from "@/lib/seo/spot-card";
+import { spotPageTitle } from "@/lib/seo/spot-card";
 import { normalizeSpotPhotos } from "@/lib/spots/transform";
 import { summarizeSpotPhotos } from "@/lib/place-images";
 import {
@@ -503,7 +503,6 @@ export async function generateMetadata({
   // a missing spot answers HTTP 404 with noindex instead of a 200 "Spot Not Found" page.
   if (!spot) notFound();
 
-  const label = scoreLabel(spot.localleyScore);
   const text = splitDescriptionLinks(spot.description).text;
   const place = spot.location.address.split(",").slice(0, 2).join(",").trim();
   const description = clip(
@@ -522,8 +521,8 @@ export async function generateMetadata({
 
   return {
     ...pageMeta({
-      // pageMeta adds " | Localley" (11 chars); keep the full title within 65 chars.
-      title: clip(`${spot.name} - ${label}`, 54),
+      // pageMeta adds " | Localley" (11 chars); keep the full title within 65 chars (Push CC1: city, no tier).
+      title: spotPageTitle(spot.name, inferSpotCity(spot)),
       socialTitle: spot.name,
       description: description.length >= 50 ? description : clip(`${description} Local tips, opening times and photos on Localley.`, 165),
       path: `/spots/${id}`,

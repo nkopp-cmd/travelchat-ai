@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { headlineSize, scoreLabel, spotCardText } from "@/lib/seo/spot-card";
+import { headlineSize, scoreLabel, spotCardText, spotPageTitle } from "@/lib/seo/spot-card";
 
 describe("per-spot share card text", () => {
   it("uses the spot name, score label and city", () => {
@@ -28,5 +28,37 @@ describe("per-spot share card text", () => {
 
   it("maps scores to the same labels as the page title", () => {
     expect([6, 5, 4, 3, 0].map(scoreLabel)).toEqual(["Legendary Local Spot", "Hidden Gem", "Local Favorite", "Popular Spot", "Popular Spot"]);
+  });
+});
+
+describe("spot page title (Push CC1)", () => {
+  it("names the city once and the task, never the score tier", () => {
+    expect(spotPageTitle("Nipponbashi Denden Town", "Osaka")).toBe("Nipponbashi Denden Town, Osaka: local tips and map");
+    for (const tier of ["Local Favorite", "Hidden Gem", "Legendary", "Popular Spot"]) {
+      expect(spotPageTitle("Cafe Onion Anguk", "Seoul")).not.toContain(tier);
+    }
+  });
+
+  it("does not repeat a city the name already holds (accents folded)", () => {
+    expect(spotPageTitle("Seoul Forest", "Seoul")).toBe("Seoul Forest: local tips and map");
+    expect(spotPageTitle("Chợ Bến Thành Ho Chi Minh", "Ho Chi Minh")).toBe("Chợ Bến Thành Ho Chi Minh: local tips and map");
+  });
+
+  it("drops the task, then cuts the name, but keeps the city within 54 chars", () => {
+    expect(spotPageTitle("Gwangjang Traditional Market Food Alley", "Seoul")).toBe("Gwangjang Traditional Market Food Alley, Seoul");
+    const long = spotPageTitle("The Very Long Name Of A Rooftop Bar Above The River Terminal", "Bangkok");
+    expect(long.length).toBeLessThanOrEqual(54);
+    expect(long.endsWith("…, Bangkok")).toBe(true);
+  });
+
+  it("works without a known city", () => {
+    expect(spotPageTitle("  Blue   Door  ", null)).toBe("Blue Door: local tips and map");
+  });
+
+  it("never exceeds the limit for any name and city", () => {
+    const names = ["A", "Namsan Seoul Tower", "x".repeat(80), "Café — No. 9", "익선동 한옥거리 골목 카페 거리"];
+    for (const name of names) for (const city of [null, "Seoul", "Kuala Lumpur", "Ho Chi Minh"]) {
+      expect(spotPageTitle(name, city).length).toBeLessThanOrEqual(54);
+    }
   });
 });
