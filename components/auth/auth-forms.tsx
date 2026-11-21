@@ -186,6 +186,7 @@ export function SignUpForm({ googleEnabled }: { googleEnabled: boolean }) {
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [done, setDone] = useState(false);
+    const inApp = useInAppBrowser();
 
     async function onSubmit(event: FormEvent) {
         event.preventDefault();
@@ -214,6 +215,8 @@ export function SignUpForm({ googleEnabled }: { googleEnabled: boolean }) {
         return (
             <div className="space-y-4">
                 <Notice tone="success">Check your inbox. We sent a link to <strong>{email}</strong>. Open it to confirm your email, then you are signed in.</Notice>
+                {/* Push BO2: in a social-app WebView the link opens the phone's browser, not this one. */}
+                {inApp ? <p data-testid="auth-inapp-verify-note" className="rounded-md bg-raised px-3 py-2 text-sm text-foreground">The link opens in your phone&apos;s browser. Then come back to this app and sign in with your password.</p> : null}
                 <VerifyEmailHelp email={email} callbackURL={redirectTo} onChangeEmail={() => { setDone(false); setPassword(""); }} />
             </div>
         );
