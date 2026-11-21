@@ -197,12 +197,14 @@ export function SignUpForm({ googleEnabled }: { googleEnabled: boolean }) {
     const [password, setPassword] = useState("");
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    // Push BT3: the "account exists" error carries one-tap links to sign-in and reset, with the same return page.
+    const [exists, setExists] = useState(false);
     const [done, setDone] = useState(false);
     const inApp = useInAppBrowser();
 
     async function onSubmit(event: FormEvent) {
         event.preventDefault();
-        setBusy(true); setError(null);
+        setBusy(true); setError(null); setExists(false);
         const [firstName, ...rest] = name.trim().split(/\s+/);
         const { error: failure } = await authClient.signUp.email({
             name: name.trim() || email.split("@")[0],
@@ -215,9 +217,8 @@ export function SignUpForm({ googleEnabled }: { googleEnabled: boolean }) {
         });
         setBusy(false);
         if (failure) {
-            setError(failure.code === "USER_ALREADY_EXISTS" || failure.code === "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL"
-                ? "An account with this email exists. Sign in, or use Forgot password."
-                : errorText(failure.message));
+            if (failure.code === "USER_ALREADY_EXISTS" || failure.code === "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL") setExists(true);
+            else setError(errorText(failure.message));
             return;
         }
         setDone(true);
@@ -236,6 +237,14 @@ export function SignUpForm({ googleEnabled }: { googleEnabled: boolean }) {
     return (
         <div className="space-y-5">
             {error ? <Notice tone="error">{error}</Notice> : null}
+            {exists ? (
+                <Notice tone="error">
+                    An account with this email exists.{" "}
+                    <Link data-exists-sign-in href={withReturn("/sign-in", redirectTo)} className="font-medium text-primary underline underline-offset-2">Sign in</Link>
+                    {" "}or{" "}
+                    <Link data-exists-forgot href={withReturn("/forgot-password", redirectTo)} className="font-medium text-primary underline underline-offset-2">reset your password</Link>.
+                </Notice>
+            ) : null}
             <GoogleOption enabled={googleEnabled} callbackURL={redirectTo} />
             <form onSubmit={onSubmit} className="space-y-4">
                 <Field id="email" label="Email">
