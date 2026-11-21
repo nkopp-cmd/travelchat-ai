@@ -3,7 +3,6 @@ import { VenueCardPhoto } from "./spot-photo-image";
 import { cardPhotoCredits, cardSpotPhotos } from "@/lib/spots/own-photo";
 import { SaveSpotButton } from "./save-spot-button";
 import { Card } from "@/components/ui/card";
-import { buttonVariants } from "@/components/ui/button";
 import { splitDescriptionLinks } from "@/lib/spots/description-links";
 import { cn } from "@/lib/utils";
 
@@ -75,8 +74,8 @@ export function SpotCard({ spot, compact = false, priority = false }: SpotCardPr
           {spot.communitySubmitted && <p aria-label="Community submitted spot" className="py-2">Community suggestion</p>}
         </div>}
         <div className="mt-auto grid grid-cols-2 items-stretch gap-2 pt-1">
-          <a data-slot="button" href={`/itineraries/new?${planner}`} data-spot-event="add_to_trip" data-spot-id={spot.id} className={cn(buttonVariants(), "min-w-0 px-2 text-sm")}>Add to trip<span className="sr-only">: {spot.name}</span></a>
-          <a data-slot="button" href={detail} data-spot-event="open_detail" data-spot-id={spot.id} className={cn(buttonVariants({ variant: "secondary" }), "min-w-0 px-2 text-sm")}>Details<span className="sr-only">: {spot.name}</span></a>
+          <a data-slot="button" href={`/itineraries/new?${planner}`} data-spot-event="add_to_trip" data-spot-id={spot.id} className="spot-cta spot-cta-primary">Add to trip<span className="sr-only">: {spot.name}</span></a>
+          <a data-slot="button" href={detail} data-spot-event="open_detail" data-spot-id={spot.id} className="spot-cta spot-cta-secondary">Details<span className="sr-only">: {spot.name}</span></a>
         </div>
       </div>
     </Card>

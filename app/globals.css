@@ -237,6 +237,20 @@
     @apply bg-surface/60;
   }
 
+  /* Push BZ1: spot card CTA links. Same look as buttonVariants default/secondary, but one short class per card
+     instead of a 500-byte utility string repeated in the HTML and the RSC payload of every card (68 on a city list). */
+  .spot-cta {
+    @apply inline-flex min-h-11 min-w-0 items-center justify-center gap-2 whitespace-normal rounded-md px-2 py-2 text-sm font-medium outline-none transition-all focus-visible:ring-[3px] focus-visible:ring-ring/50;
+  }
+
+  .spot-cta-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90;
+  }
+
+  .spot-cta-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
+  }
+
   .violet-focus {
     @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300;
   }
