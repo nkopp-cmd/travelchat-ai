@@ -810,6 +810,7 @@ export default async function SpotPage({
             {!candidate && communityPublic() && (
               <Link
                 href={`/spots/${spot.id}/tips`}
+                rel="nofollow"
                 className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary/10 px-3 text-sm font-semibold text-foreground transition-colors hover:bg-primary/15"
               >
                 Traveller tips and photos
