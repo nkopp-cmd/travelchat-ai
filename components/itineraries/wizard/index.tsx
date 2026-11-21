@@ -19,7 +19,7 @@ import { StepPreferences } from "./step-preferences";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PLANNER_RESUME_PATH, savePlannerDraft } from "@/lib/trips/planner-draft";
 
-import { GENERATED_PREVIEW_PATH, storeGeneratedPreview } from "@/lib/trips/generated-preview";
+import { GENERATED_PREVIEW_PATH, generatedPreviewSnapshot, parseGeneratedPreview, storeGeneratedPreview } from "@/lib/trips/generated-preview";
 import { funnelSource, trackFunnelStep } from "@/lib/funnel-analytics";
 import { plannerLimitPricingHref } from "@/lib/pricing-checkout";
 
@@ -396,6 +396,17 @@ export function ItineraryWizard({ initialData, initialStep, initialCities = null
         : typeof result.error?.message === "string" ? result.error.message : undefined;
       // Handle specific error types
       if (errorCode === "signup_required" || errorCode === "unauthorized") {
+        // Push BL3: the free plan from the last 24 h is still in this browser. Open it (Save -> sign-up/checkout)
+        // instead of a bare sign-up wall, so the visitor sees what they get before the account step.
+        const kept = parseGeneratedPreview(generatedPreviewSnapshot());
+        if (kept) {
+          toast({
+            title: "Your free plan is ready",
+            description: `Save your ${kept.itinerary.city} plan to keep it and build more trips.`,
+          });
+          router.push(GENERATED_PREVIEW_PATH);
+          return;
+        }
         toast({
           title: "Sign up to continue",
           description: errorMessage,

@@ -13,6 +13,7 @@ vi.mock("@/lib/funnel-analytics", () => ({ trackFunnelStep: vi.fn(), funnelSourc
 vi.mock("@/hooks/use-toast", () => ({ useToast: () => ({ toast: nav.toast, dismiss: vi.fn(), toasts: [] }), toast: nav.toast }));
 import { GENERATE_FAILED_MESSAGE, ItineraryWizard, getQuickStartLabel } from "@/components/itineraries/wizard";
 import { Errors, apiError, ErrorCodes } from "@/lib/api-errors";
+import { GENERATED_PREVIEW_PATH, storeGeneratedPreview } from "@/lib/trips/generated-preview";
 
 const cities = [
   { slug: "tokyo", name: "Tokyo", emoji: "*", vibe: "Tokyo vibe", spotCount: 429, status: "recommended" },
@@ -37,6 +38,17 @@ const ROUTES: Array<[string, Answer, { to: RegExp } | { retry: RegExp }]> = [
 describe("planner: every generate failure has a next step (push AP3)", () => {
   beforeEach(() => { localStorage.clear(); nav.push.mockReset(); nav.toast.mockReset(); Element.prototype.scrollTo = () => {}; });
   afterEach(() => { vi.unstubAllGlobals(); });
+
+  it("401 with a kept free plan opens that preview instead of the sign-up wall (push BL3)", async () => {
+    storeGeneratedPreview(localStorage, { title: "Tokyo day", city: "Tokyo", days: 1, dailyPlans: [{ day: 1, activities: [] }] });
+    vi.stubGlobal("fetch", vi.fn(ROUTES[0][1]));
+    render(<ItineraryWizard initialCities={cities} />);
+    fireEvent.click(screen.getByRole("button", { name: /Tokyo/ }));
+    await act(async () => { fireEvent.click(screen.getByRole("button", { name: getQuickStartLabel(3) })); });
+    await waitFor(() => expect(nav.push).toHaveBeenCalledTimes(1));
+    expect(nav.push.mock.calls[0][0]).toBe(GENERATED_PREVIEW_PATH);
+    expect(nav.toast.mock.calls.at(-1)![0].description).toMatch(/Tokyo plan/);
+  });
 
   it.each(ROUTES)("%s", async (_name, answer, expected) => {
     vi.stubGlobal("fetch", vi.fn(answer));
