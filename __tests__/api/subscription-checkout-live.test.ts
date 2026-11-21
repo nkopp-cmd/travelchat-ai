@@ -73,3 +73,18 @@ it.each(["pricing", "https://evil.example/x", "itinerary-preview-x", 1])("refuse
   const response = await POST(new NextRequest("https://www.localley.io/api/subscription/checkout", { method: "POST", body: JSON.stringify({ tier: "pro", billingCycle: "monthly", returnTo }) }));
   expect(response.status).toBe(400); expect(m.customer).not.toHaveBeenCalled(); expect(m.checkout).not.toHaveBeenCalled();
 });
+describe("checkout source for checkout_paid per page (Push BX1)", () => {
+  const post = (extra: Record<string, unknown>) => POST(new NextRequest("https://www.localley.io/api/subscription/checkout", { method: "POST", body: JSON.stringify({ tier: "pro", billingCycle: "monthly", ...extra }) }));
+  it.each(["pricing", "preview", "other"])("passes source %s to the Stripe session", async (source) => {
+    expect((await post({ source })).status).toBe(200);
+    expect(m.checkout.mock.calls[0][0].funnelSource).toBe(source);
+  });
+  it("sends no source when the body has none", async () => {
+    expect((await post({})).status).toBe(200);
+    expect(m.checkout.mock.calls[0][0].funnelSource).toBeUndefined();
+  });
+  it.each(["stripe", "home", "PRICING", "", 1, null])("refuses source %j before any billing call", async (source) => {
+    expect((await post({ source })).status).toBe(400);
+    expect(m.read).not.toHaveBeenCalled(); expect(m.customer).not.toHaveBeenCalled(); expect(m.checkout).not.toHaveBeenCalled();
+  });
+});

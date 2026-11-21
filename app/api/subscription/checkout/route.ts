@@ -11,6 +11,7 @@ import {
     isStripeConfigured,
 } from "@/lib/stripe";
 import { Errors, handleApiError, apiError, ErrorCodes } from "@/lib/api-errors";
+import { isCheckoutSource } from "@/lib/checkout-source";
 
 export async function POST(req: NextRequest) {
     try {
@@ -40,8 +41,10 @@ export async function POST(req: NextRequest) {
 
         // Parse request body
         const body = await req.json();
-        const { tier, billingCycle = "monthly", returnTo } = body;
+        const { tier, billingCycle = "monthly", returnTo, source } = body;
         if (returnTo !== undefined && returnTo !== "itinerary-preview") return Errors.validationError("Invalid checkout return destination");
+        // Push BX1: the starting page, for checkout_paid per source. Optional; an unknown value is refused.
+        if (source !== undefined && !isCheckoutSource(source)) return Errors.validationError("Invalid checkout source");
 
         // Validate tier
         if (!tier || !["pro", "premium"].includes(tier)) {
@@ -111,6 +114,7 @@ export async function POST(req: NextRequest) {
             clerkUserId: userId,
             successUrl,
             cancelUrl,
+            funnelSource: source,
         });
 
         if (!session) {

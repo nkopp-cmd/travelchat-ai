@@ -427,6 +427,7 @@ on:
       - 'lib/payout-calculate-input.ts'
       - 'lib/subscription.ts'
       - 'lib/stripe.ts'
+      - 'lib/checkout-source.ts'
       - 'config/stripe-live-prices.json'
       - 'app/api/connect/webhook/route.ts'
       - '__tests__/api/subscription-checkout-live.test.ts'

@@ -30,6 +30,11 @@ describe("live subscription webhook compatibility", () => {
     expect((await post(request())).status).toBe(200);
     expect(m.funnel.mock.calls).toEqual([[[{ step: "checkout_paid", source: "stripe", count: 1 }]]]);
   });
+  it.each([["pricing", "pricing"], ["preview", "preview"], ["other", "other"], ["home", "stripe"], [undefined, "stripe"]])("Push BX1: metadata funnel_source %s records checkout_paid source %s", async (stored, source) => {
+    m.verify.mockResolvedValue(event("checkout.session.completed", { metadata: { clerk_user_id: "a", ...(stored ? { funnel_source: stored } : {}) }, customer: "cus_owned", subscription: "sub_owned" }));
+    expect((await post(request())).status).toBe(200);
+    expect(m.funnel.mock.calls).toEqual([[[{ step: "checkout_paid", source, count: 1 }]]]);
+  });
   it.each(["customer.subscription.created", "customer.subscription.updated", "customer.subscription.deleted", "invoice.paid", "invoice.payment_succeeded", "invoice.payment_failed"])("records no funnel step for %s", async type => {
     m.verify.mockResolvedValue(event(type, type.startsWith("invoice") ? { subscription: "sub_owned" } : sub));
     expect((await post(request())).status).toBe(200); expect(m.funnel).not.toHaveBeenCalled();
