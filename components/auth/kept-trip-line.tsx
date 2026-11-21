@@ -26,7 +26,7 @@ export function KeptTripLine() {
   const trip = keptTripLabel(parseGeneratedPreview(raw));
   if (!trip) return null;
   return (
-    <p data-testid="kept-trip" className="mb-6 rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-foreground">
+    <p data-testid="kept-trip" className="mb-6 rounded-xl bg-muted/60 px-4 py-3 text-sm text-foreground">
       Saving <strong className="font-semibold">{trip.title}</strong> <span className="text-muted-foreground">({trip.detail})</span>
     </p>
   );
