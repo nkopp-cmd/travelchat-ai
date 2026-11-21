@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { GENERATED_PREVIEW_PATH } from "@/lib/trips/generated-preview";
+import { checkoutSignUpUrl } from "@/lib/pricing-checkout";
 
 // Push BI1: the Gravity release lane smoke-checks the money path (pricing -> planner -> sign-up from
 // the preview Save button) and rolls back when a page loses its marker. A marker renamed in the source
@@ -18,10 +19,13 @@ describe("Gravity release smoke (Push BI1)", () => {
     expect(byPath.get("/api/version")?.contains).toBe("{sha}");
   });
 
-  it("checks the pricing page by a marker the pricing page renders", () => {
+  // Push BU2: the marker is the signed-out Pro subscribe link, so a release that kills the paid button rolls back.
+  it("checks the pricing page by the signed-out Pro subscribe link the page renders", () => {
     const marker = byPath.get("/pricing")?.contains;
-    expect(marker).toBe('data-testid="pricing-free-plan"');
-    expect(read("app/pricing/page.tsx")).toContain(marker);
+    expect(marker).toBe(`href="${checkoutSignUpUrl("pro", "monthly")}"`);
+    const page = read("app/pricing/page.tsx");
+    expect(page).toContain('href={checkoutSignUpUrl(tier, isYearly ? "yearly" : "monthly")}');
+    expect(page).toContain("useState(false)"); // isYearly starts monthly in the edge HTML
   });
 
   it("checks the planner by the first wizard step label", () => {

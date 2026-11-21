@@ -1,18 +1,18 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import fc from "fast-check";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-const mocks = vi.hoisted(() => ({ signedIn: false, tier: "free", openCheckout: vi.fn(), toast: vi.fn() }));
-vi.mock("@/lib/auth/client", () => ({ useAuth: () => ({ isLoaded: true, isSignedIn: mocks.signedIn }) }));
+const mocks = vi.hoisted(() => ({ signedIn: false, authLoaded: true, subLoading: false, tier: "free", openCheckout: vi.fn(), toast: vi.fn() }));
+vi.mock("@/lib/auth/client", () => ({ useAuth: () => ({ isLoaded: mocks.authLoaded, isSignedIn: mocks.signedIn }) }));
 vi.mock("@/hooks/use-toast", () => ({ useToast: () => ({ toast: mocks.toast }) }));
 vi.mock("@/hooks/use-subscription", () => ({ useSubscription: () => ({
-  tier: mocks.tier, isLoading: false, openCheckout: mocks.openCheckout, openBillingPortal: vi.fn(), hasBillingPortal: false,
+  tier: mocks.tier, isLoading: mocks.subLoading, openCheckout: mocks.openCheckout, openBillingPortal: vi.fn(), hasBillingPortal: false,
 }) }));
 vi.mock("@/components/layout/app-background", () => ({ AppBackground: ({ children }: { children: React.ReactNode }) => children }));
 import PricingPage from "@/app/pricing/page";
 import { checkoutSignUpUrl, parseCheckoutIntent, withoutCheckoutParam } from "@/lib/pricing-checkout";
 
 const setUrl = (path: string) => window.history.replaceState(null, "", path);
-beforeEach(() => { mocks.signedIn = false; mocks.tier = "free"; mocks.openCheckout.mockResolvedValue(undefined); setUrl("/pricing"); });
+beforeEach(() => { mocks.signedIn = false; mocks.authLoaded = true; mocks.subLoading = false; mocks.tier = "free"; mocks.openCheckout.mockResolvedValue(undefined); setUrl("/pricing"); });
 afterEach(() => { cleanup(); vi.resetAllMocks(); vi.unstubAllGlobals(); });
 
 describe("pricing checkout intent", () => {
@@ -36,13 +36,27 @@ describe("pricing checkout intent", () => {
 });
 
 describe("/pricing subscribe flow", () => {
-  it("sends a signed-out visitor to sign-up with the plan kept and no error toast", () => {
+  // Push BU1: signed out (or the session check still running) the paid buttons are real links, never disabled.
+  it.each([[true], [false]])("signed out (session loaded %s): each plan is a sign-up link with the plan and cycle kept", (loaded) => {
+    mocks.authLoaded = loaded; mocks.subLoading = !loaded;
     render(<PricingPage />);
-    const location = { href: "" };
-    vi.stubGlobal("location", location);
-    fireEvent.click(screen.getByRole("button", { name: "Subscribe to Pro" }));
-    expect(location.href).toBe("/sign-up?redirect_url=%2Fpricing%3Fcheckout%3Dpro-monthly");
+    for (const [tier, name] of [["pro", "Pro"], ["premium", "Premium"]] as const) {
+      const link = screen.getByRole("link", { name: `Subscribe to ${name}` });
+      expect(link.getAttribute("href")).toBe(checkoutSignUpUrl(tier, "monthly"));
+      expect(link.hasAttribute("disabled")).toBe(false);
+    }
+    expect(screen.queryByRole("button", { name: /Subscribe to/ })).toBeNull();
+    fireEvent.click(screen.getByRole("switch", { name: "Toggle yearly billing" }));
+    expect(screen.getByRole("link", { name: "Subscribe to Premium" }).getAttribute("href")).toBe(checkoutSignUpUrl("premium", "yearly"));
+    expect(mocks.openCheckout).not.toHaveBeenCalled();
     expect(mocks.toast).not.toHaveBeenCalled();
+  });
+  it("signed in: the plan is a button that opens Stripe checkout", async () => {
+    mocks.signedIn = true;
+    render(<PricingPage />);
+    expect(screen.queryByRole("link", { name: /Subscribe to/ })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Subscribe to Pro" }));
+    await waitFor(() => expect(mocks.openCheckout).toHaveBeenCalledWith("pro", "monthly"));
   });
   it("starts Stripe once after sign-up and removes the parameter", async () => {
     mocks.signedIn = true;

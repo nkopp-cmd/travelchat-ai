@@ -9,7 +9,7 @@
   "smoke": [
     { "url": "https://www.localley.io/api/version", "contains": "{sha}" },
     { "url": "https://www.localley.io/", "status": 200 },
-    { "url": "https://www.localley.io/pricing", "contains": "data-testid=\"pricing-free-plan\"" },
+    { "url": "https://www.localley.io/pricing", "contains": "href=\"/sign-up?redirect_url=%2Fpricing%3Fcheckout%3Dpro-monthly\"" },
     { "url": "https://www.localley.io/itineraries/new", "contains": "Step 1: Destination" },
     { "url": "https://www.localley.io/sign-up?redirect_url=%2Fitineraries%2Fpreview%3Fcontinue%3Dsave", "contains": "data-testid=\"auth-back\"" }
   ],
