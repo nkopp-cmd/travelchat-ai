@@ -8,8 +8,8 @@ vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
 vi.mock("@/lib/auth/server", () => ({ auth: mocks.auth, isGoogleSignInEnabled: () => false }));
 vi.mock("@/components/auth/auth-forms", () => ({ SignInForm: () => null, SignUpForm: () => null }));
 vi.mock("@/components/auth/auth-shell", () => ({ AuthShell: (props: { title: string }) => React.createElement("div", props) }));
-import SignInPage from "@/app/sign-in/[[...sign-in]]/page";
-import SignUpPage from "@/app/sign-up/[[...sign-up]]/page";
+import SignInPage, { metadata as signInMeta } from "@/app/sign-in/[[...sign-in]]/page";
+import SignUpPage, { metadata as signUpMeta } from "@/app/sign-up/[[...sign-up]]/page";
 
 const pages = { "sign-in": SignInPage, "sign-up": SignUpPage } as const;
 const render = (page: keyof typeof pages, redirect_url?: string | string[]) =>
@@ -39,4 +39,12 @@ describe("auth pages forward a signed-in visitor (Push BB1)", () => {
       expect(typeof element.props.title).toBe("string");
     });
   }
+});
+
+describe("auth page tab titles (Push BS3)", () => {
+    it("names the form, stays noindex", () => {
+        expect(signUpMeta.title).toBe("Join Localley free");
+        expect(signInMeta.title).toBe("Sign in");
+        for (const meta of [signUpMeta, signInMeta]) expect(meta.robots).toEqual({ index: false, follow: false });
+    });
 });
