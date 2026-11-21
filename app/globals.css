@@ -259,6 +259,12 @@
     padding-bottom: calc(7rem + env(safe-area-inset-bottom, 0px));
   }
 
+  /* Push BZ3: spot card save heart. Same look as Button ghost/icon + the card overrides, as one short class:
+     a city list renders 68 cards and the 700-byte utility string went out twice per card (HTML + RSC payload). */
+  .spot-save {
+    @apply relative inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-overlay text-foreground shadow-raised outline-none backdrop-blur-sm transition-all hover:bg-raised focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 after:pointer-events-none after:absolute after:left-1/2 after:top-1/2 after:size-11 after:-translate-x-1/2 after:-translate-y-1/2 after:content-[''];
+  }
+
   /* Premium glow effects */
   .glow-violet {
     box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
