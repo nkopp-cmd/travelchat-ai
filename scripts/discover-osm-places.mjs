@@ -61,13 +61,14 @@ export function kindOf(tags) {
   return null;
 }
 
-/** Japanese address (no street names): "<chōme area> <block>-<house>, <ward>, <postcode>, <city>, Japan". Needs a numbered
- * area (house/block number or a chōme number) or a postcode; the map pin itself uses the exact OSM coordinates. */
+/** Japanese address (no street names): "<chōme area> <block>-<house>, <ward>, <postcode>, <city>, Japan". Needs a
+ * block or house number: the promoter's copy step blanks an area + postcode only address (2026-11-21 run: all 37
+ * inexact_address rejects were postcode-only, every address with numbers passed), so those would only waste slots. */
 export function japanAddress({ area, block, house, ward, postcode }, city) {
   area = str(area); ward = str(ward); postcode = /-0000$/.test(str(postcode)) ? "" : str(postcode); // "xxx-0000" = a whole city
   const nums = [str(block), str(house)].filter(Boolean).join("-");
-  if (!area || (!nums && !postcode)) return "";
-  const first = !nums ? area : /\d$/.test(area) ? `${area}-${nums}` : `${area} ${nums}`;
+  if (!area || !nums) return "";
+  const first = /\d$/.test(area) ? `${area}-${nums}` : `${area} ${nums}`;
   return [first, ward !== city.name ? ward : "", postcode, city.name, city.country].filter(Boolean).join(", ");
 }
 
