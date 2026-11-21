@@ -38,6 +38,7 @@ VITEST_FILES=(
   __tests__/components/template-card.test.tsx
   __tests__/components/city-quick-filters.test.tsx
   __tests__/components/auth-form-return.test.tsx
+  __tests__/components/auth-in-app-browser.test.tsx
   __tests__/components/review-form-a11y.test.tsx
   __tests__/components/planner-a11y-names.test.tsx
   __tests__/components/planner-limit-pricing.test.tsx
@@ -697,6 +698,8 @@ ESLINT_FILES=(
   components/chat/chat-interface.tsx
   __tests__/app/chat-history-pair.test.tsx
   components/auth/auth-forms.tsx
+  lib/in-app-browser.ts
+  __tests__/components/auth-in-app-browser.test.tsx
   __tests__/components/auth-verify-resend.test.tsx
   __tests__/components/auth-password-redirect.test.tsx
   components/activities/itinerary-activity-card.tsx
