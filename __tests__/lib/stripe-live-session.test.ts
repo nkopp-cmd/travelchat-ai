@@ -17,4 +17,13 @@ describe("live checkout provider subscription guard", () => {
     expect(m.list).toHaveBeenCalledWith({ customer: "cus_owned", status: "all", limit: 100 });
     expect(m.create.mock.calls[0][0]).toMatchObject({ customer: "cus_owned", mode: "subscription", line_items: [{ price: "price_owned", quantity: 1 }], metadata: { clerk_user_id: "a" } });
   });
+  it("keeps the funnel source only on the session metadata (Push BX1)", async () => {
+    await create({ ...params, funnelSource: "preview" });
+    expect(m.create.mock.calls[0][0].metadata).toEqual({ clerk_user_id: "a", funnel_source: "preview" });
+    expect(m.create.mock.calls[0][0].subscription_data.metadata).toEqual({ clerk_user_id: "a" });
+  });
+  it("adds no funnel_source key without a source", async () => {
+    await create(params);
+    expect(m.create.mock.calls[0][0].metadata).toEqual({ clerk_user_id: "a" });
+  });
 });

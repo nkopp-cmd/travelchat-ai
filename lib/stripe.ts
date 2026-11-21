@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import { SubscriptionTier } from "./subscription";
+import type { CheckoutSource } from "@/lib/checkout-source";
 
 // Server-side Stripe client
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
@@ -95,6 +96,7 @@ export async function createCheckoutSession({
     successUrl,
     cancelUrl,
     trialDays,
+    funnelSource,
 }: {
     customerId: string;
     priceId: string;
@@ -102,6 +104,7 @@ export async function createCheckoutSession({
     successUrl: string;
     cancelUrl: string;
     trialDays?: number;
+    funnelSource?: CheckoutSource;
 }): Promise<Stripe.Checkout.Session | null> {
     if (!stripe) return null;
 
@@ -125,6 +128,8 @@ export async function createCheckoutSession({
         cancel_url: cancelUrl,
         metadata: {
             clerk_user_id: clerkUserId,
+            // Push BX1: analytics only (checkout_paid per source); never read for access.
+            ...(funnelSource ? { funnel_source: funnelSource } : {}),
         },
         subscription_data: {
             metadata: {
