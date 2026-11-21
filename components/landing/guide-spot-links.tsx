@@ -1,9 +1,12 @@
 import Link from "next/link";
-import type { HomeSpotLink } from "@/lib/seo/home-links";
+import type { HomePostLink, HomeSpotLink } from "@/lib/seo/home-links";
 
 /** Server HTML only: plain links to guide spots and city hubs (no client JS). */
-export function GuideSpotLinks({ spots, hubs }: { spots: HomeSpotLink[]; hubs: { name: string; href: string }[] }) {
-  if (!spots.length && !hubs.length) return null;
+export function GuideSpotLinks({ spots, hubs, posts = [] }: {
+  spots: HomeSpotLink[]; hubs: { name: string; href: string; azHref?: string }[]; posts?: HomePostLink[];
+}) {
+  if (!spots.length && !hubs.length && !posts.length) return null;
+  const lists = hubs.filter((hub) => hub.azHref);
   return (
     <section id="guide-spots" className="ll-below-fold bg-surface py-14">
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
@@ -33,6 +36,33 @@ export function GuideSpotLinks({ spots, hubs }: { spots: HomeSpotLink[]; hubs: {
               </Link>
             ))}
           </nav>
+        )}
+        {lists.length > 0 && (
+          <nav aria-label="Every spot by city" className="mt-6 text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">Every spot, A–Z: </span>
+            {lists.map((hub, i) => (
+              <span key={hub.azHref}>
+                {i > 0 && " · "}
+                <Link prefetch={false} href={hub.azHref!} className="underline-offset-2 hover:text-foreground hover:underline">{hub.name}</Link>
+              </span>
+            ))}
+          </nav>
+        )}
+        {posts.length > 0 && (
+          <div className="mt-10">
+            <h2 className="text-2xl font-black text-foreground">Before you go</h2>
+            <p className="mt-2 text-muted-foreground">How to pay as a visitor: cards, cash, transit cards and ATMs, city by city.</p>
+            <ul className="mt-4 grid gap-2 md:grid-cols-3">
+              {posts.map((post) => (
+                <li key={post.href}>
+                  <Link prefetch={false} href={post.href}
+                    className="flex min-h-11 items-center rounded-lg bg-raised px-4 py-3 font-semibold text-foreground transition hover:bg-overlay">
+                    {post.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
     </section>

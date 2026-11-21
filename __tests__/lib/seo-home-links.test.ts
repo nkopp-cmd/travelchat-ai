@@ -2,7 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 import fc from "fast-check";
 
 vi.mock("server-only", () => ({}));
-import { homeGuideSpots, homeHubLinks } from "@/lib/seo/home-links";
+import { homeGuideSpots, homeHubLinks, homeJournalLinks } from "@/lib/seo/home-links";
+import { BLOG_POSTS } from "@/lib/blog/posts";
 import { ENABLED_CITIES } from "@/lib/cities";
 import { homeLinkRows } from "@/lib/seo/home-links-snapshot";
 import { readFileSync } from "node:fs";
@@ -71,5 +72,32 @@ describe("static home snapshot (release: '/' must stay a static prerender)", () 
     const id = "e2230c5a-e857-4f8c-8917-770d9edf12d4";
     const html = `<a class="x" href="/spots/${id}">Dad&#x27;s &amp; Co</a><a href="/spots/00000000-0000-4000-8000-000000000000">Not in sitemap</a>`;
     expect(hubRows(html, "Seoul", new Map([[id, "2026-11-14"]]))).toEqual([{ id, name: "Dad's & Co", hub: "Seoul", lastmod: "2026-11-14" }]);
+  });
+});
+
+describe("home journal and A-Z links (Push CC2)", () => {
+  it("links the newest posts first, limit 3, ties by slug", () => {
+    const posts = [
+      { slug: "a", title: "A", published: "2026-11-02" }, { slug: "c", title: "C", published: "2026-11-13" },
+      { slug: "b", title: "B", published: "2026-11-13" }, { slug: "d", title: "D", published: "2026-11-09" },
+    ];
+    expect(homeJournalLinks(posts).map((p) => p.href)).toEqual(["/blog/b", "/blog/c", "/blog/d"]);
+    expect(homeJournalLinks([])).toEqual([]);
+  });
+
+  it("the real journal gives 3 links to existing posts, paying-in-seoul included", () => {
+    const links = homeJournalLinks(BLOG_POSTS);
+    expect(links).toHaveLength(Math.min(3, BLOG_POSTS.length));
+    for (const l of links) expect(BLOG_POSTS.some((p) => `/blog/${p.slug}` === l.href && p.title === l.title)).toBe(true);
+    expect(links.map((l) => l.href)).toContain("/blog/paying-in-seoul");
+  });
+
+  it("every linked hub also links its A-Z page (same path as the hub page's own link)", () => {
+    for (const hub of homeHubLinks([])) {
+      const slug = new URL(hub.href, "https://x").searchParams.get("city")!;
+      expect(hub.azHref).toBe(`/spots/a-z/${slug}`);
+    }
+    const linked = homeHubLinks([]).map((h) => h.azHref);
+    expect(linked).toEqual(expect.arrayContaining(["/spots/a-z/seoul", "/spots/a-z/tokyo"]));
   });
 });
