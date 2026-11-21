@@ -712,6 +712,8 @@ on:
       - 'tsconfig.json'
       - 'eslint.config.mjs'
       - '__tests__/components/auth-form-return.test.tsx'
+      - '__tests__/components/auth-in-app-browser.test.tsx'
+      - 'lib/in-app-browser.ts'
       - '__tests__/components/review-form-a11y.test.tsx'
       - '__tests__/components/planner-a11y-names.test.tsx'
       - '__tests__/components/planner-limit-pricing.test.tsx'

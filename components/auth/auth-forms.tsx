@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth/auth-client";
 import { safeRedirect } from "@/lib/auth/client";
 import { verifiedCallbackURL } from "@/lib/auth/redirect";
+import { useInAppBrowser } from "@/lib/in-app-browser";
 
 const primaryClass = "w-full";
 const secondaryClass = "w-full bg-raised text-foreground hover:bg-raised";
@@ -51,6 +52,14 @@ function GoogleButton({ callbackURL }: { callbackURL: string }) {
             Continue with Google
         </Button>
     );
+}
+
+// Push BN1: Google blocks OAuth inside social-app WebViews, so show the email path there instead of a dead button.
+export function GoogleOption({ enabled, callbackURL }: { enabled: boolean; callbackURL: string }) {
+    const inApp = useInAppBrowser();
+    if (!enabled) return null;
+    if (inApp) return <p data-testid="auth-inapp-hint" className="rounded-md bg-raised px-3 py-2 text-sm text-foreground">Google sign-in does not work in this app&apos;s browser. Use your email below, or open this page in Safari or Chrome.</p>;
+    return <><GoogleButton callbackURL={callbackURL} /><Divider /></>;
 }
 
 const errorText = (message?: string | null) => message || "Something went wrong. Please try again.";
@@ -140,7 +149,7 @@ export function SignInForm({ googleEnabled }: { googleEnabled: boolean }) {
             {error ? <Notice tone="error">{error}</Notice> : null}
             {info ? <Notice tone="success">{info}</Notice> : null}
             {unverified && email ? <VerifyEmailHelp email={email} callbackURL={redirectTo} /> : null}
-            {googleEnabled ? <><GoogleButton callbackURL={redirectTo} /><Divider /></> : null}
+            <GoogleOption enabled={googleEnabled} callbackURL={redirectTo} />
             <form onSubmit={onPassword} className="space-y-4">
                 <Field id="email" label="Email">
                     <Input id="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -212,7 +221,7 @@ export function SignUpForm({ googleEnabled }: { googleEnabled: boolean }) {
     return (
         <div className="space-y-5">
             {error ? <Notice tone="error">{error}</Notice> : null}
-            {googleEnabled ? <><GoogleButton callbackURL={redirectTo} /><Divider /></> : null}
+            <GoogleOption enabled={googleEnabled} callbackURL={redirectTo} />
             <form onSubmit={onSubmit} className="space-y-4">
                 <Field id="email" label="Email">
                     <Input id="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
