@@ -3,7 +3,7 @@ import Link from "next/link";
 import { LocalleySignup } from "@/components/newsletter/localley-signup";
 import { PageHeader } from "@/components/layout/page-header";
 import { Newspaper } from "@/components/ui/icons";
-import { BLOG_DESCRIPTION, BLOG_POSTS, BLOG_TITLE, BLOG_URL, formatPostDate } from "@/lib/blog/posts";
+import { BLOG_DESCRIPTION, BLOG_POSTS, BLOG_TITLE, BLOG_URL, blogPlannerCities, formatPostDate, plannerHref } from "@/lib/blog/posts";
 import { blogJsonLd, DEFAULT_BLOG_IMAGE, jsonLdHtml, postImage } from "@/lib/blog/seo";
 
 // Share image: the first post's photo, else the default.
@@ -18,6 +18,9 @@ export const metadata: Metadata = {
 };
 
 export const dynamic = "force-static";
+
+// Push BL2: one planner link per city the posts cover, so the tap lands on that city's trip-length step.
+const PLANNER_CITIES = blogPlannerCities();
 
 export default function BlogIndexPage() {
   return (
@@ -37,8 +40,14 @@ export default function BlogIndexPage() {
         ))}
       </ul>
       <p className="mt-8 text-base leading-7 text-foreground">
-        Going soon? <Link href="/itineraries/new" className="font-semibold text-primary underline underline-offset-2">Plan a free day with local spots</Link> or
-        {" "}<Link href="/help" className="font-semibold text-primary underline underline-offset-2">open the phrase cards</Link>.
+        Going soon? Plan a free day with local spots in{" "}
+        {PLANNER_CITIES.map((city, i) => (
+          <span key={city}>
+            {i > 0 && (i === PLANNER_CITIES.length - 1 ? " or " : ", ")}
+            <Link href={plannerHref(city)} className="font-semibold text-primary underline underline-offset-2">{city}</Link>
+          </span>
+        ))}
+        , or <Link href="/help" className="font-semibold text-primary underline underline-offset-2">open the phrase cards</Link>.
       </p>
       <LocalleySignup source="blog-index" className="mt-10" />
     </div>

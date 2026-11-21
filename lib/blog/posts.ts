@@ -11,7 +11,22 @@ export type BlogPost = {
   image?: string;
   photo?: BlogPhoto;
   body: string;
+  /** City of the post's own planner link (`/itineraries/new?city=<City>`), for the planner button under the post. */
+  plannerCity?: string;
 };
+
+const PLANNER_CITY = /\(\/itineraries\/new\?city=([A-Z][A-Za-z]*(?:%20[A-Z][A-Za-z]*)*)\)/;
+
+/** Push BL2: the first planner link in the body names the post's city; none -> undefined. */
+export function postPlannerCity(body: string): string | undefined {
+  const match = PLANNER_CITY.exec(body);
+  return match ? decodeURIComponent(match[1]) : undefined;
+}
+
+/** Planner URL for one city (the planner reads ?city= and opens at the trip-length step). */
+export function plannerHref(city: string): string {
+  return `/itineraries/new?city=${encodeURIComponent(city)}`;
+}
 
 /** One own place photo (R2, /media/spot) at the top of a post, with its credit line. */
 export type BlogPhoto = { src: string; alt: string; credit: string; width: number; height: number };
@@ -50,6 +65,7 @@ export function parsePost(file: string, source: string): BlogPost {
   return {
     slug: name[2], file, title: meta.title, description: meta.description,
     published: meta.published, updated: meta.updated, image: meta.image || undefined, photo: parsePhoto(file, meta), body: match[2].trim(),
+    plannerCity: postPlannerCity(match[2]),
   };
 }
 
@@ -66,4 +82,9 @@ export const BLOG_DESCRIPTION = "Practical guides for travellers in Seoul and As
 
 export function formatPostDate(date: string): string {
   return new Date(`${date}T00:00:00Z`).toLocaleDateString("en", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+}
+
+/** Cities the posts plan for, newest post first, each once. */
+export function blogPlannerCities(posts: readonly BlogPost[] = BLOG_POSTS): string[] {
+  return [...new Set(posts.flatMap((p) => (p.plannerCity ? [p.plannerCity] : [])))];
 }

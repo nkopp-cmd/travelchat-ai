@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "@/components/ui/icons";
 import { LocalleySignup } from "@/components/newsletter/localley-signup";
 import { BlogMarkdown } from "@/lib/blog/markdown";
-import { BLOG_POSTS, blogPost, formatPostDate } from "@/lib/blog/posts";
+import { BLOG_POSTS, blogPost, formatPostDate, plannerHref } from "@/lib/blog/posts";
 import { spotPhotoThumbPath } from "@/lib/spots/own-photo";
 import { blogPostingJsonLd, jsonLdHtml, postImage, postUrl } from "@/lib/blog/seo";
 
@@ -70,6 +70,18 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           Last updated <time dateTime={post.updated}>{formatPostDate(post.updated)}</time>
         </p>
       </article>
+      {post.plannerCity && (
+        <section className="mt-10 rounded-2xl bg-surface p-5 shadow-surface">
+          <h2 className="text-xl font-semibold text-foreground">Plan your {post.plannerCity} days</h2>
+          <p className="mt-2 text-base leading-7 text-muted-foreground">
+            Get a free day-by-day {post.plannerCity} plan built from spots locals rate. Your first plan needs no account.
+          </p>
+          <Link href={plannerHref(post.plannerCity)}
+            className="mt-4 inline-flex min-h-11 items-center rounded-full bg-primary px-5 text-base font-semibold text-primary-foreground hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+            Plan a free {post.plannerCity} trip
+          </Link>
+        </section>
+      )}
       <LocalleySignup source="blog" className="mt-10" />
     </div>
   );
