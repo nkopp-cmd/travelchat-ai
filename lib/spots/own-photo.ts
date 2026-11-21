@@ -46,6 +46,22 @@ export function spotPhotoLoader({ src, width }: { src: string; width: number }):
   return src;
 }
 
+/**
+ * srcset for a raw <img> of a stored spot photo with the same density cap as spotPhotoLoader: each copy is declared at
+ * 1.75x its own width, so a 412 px phone at 1.75x (721 px) takes the 480 copy, not the full photo. The blog post photo
+ * listed only 480w + the 1280 px full photo and phones loaded the 178 KB full file (LCP 3 s host LH, Push CA1).
+ * `width` is the full photo's width. Other URLs get a plain `<src> <width>w`.
+ */
+export function spotPhotoSrcSet(src: string, width: number): string {
+  if (!FULL_SPOT_PHOTO.test(src) || width <= SPOT_THUMB_WIDTH) return `${src} ${width}w`;
+  const cap = (w: number) => Math.round(w * SPOT_PHOTO_MAX_UPSCALE);
+  const entries = [`${src.replace(/\.webp$/, `-w${SPOT_THUMB_WIDTH}.webp`)} ${cap(SPOT_THUMB_WIDTH)}w`];
+  if (width > SPOT_HERO_WIDTH) entries.push(`${src.replace(/\.webp$/, `-w${SPOT_HERO_WIDTH}.webp`)} ${cap(SPOT_HERO_WIDTH)}w`);
+  const fullAt = cap(width);
+  if (width <= SPOT_HERO_WIDTH || fullAt > cap(SPOT_HERO_WIDTH)) entries.push(`${src} ${fullAt}w`);
+  return entries.join(", ");
+}
+
 /** Width of the pin copy (`<sha>-w144.webp`): a pin face is 44 px, so 144 px stays sharp at 3x density. */
 export const SPOT_PIN_WIDTH = 144;
 
