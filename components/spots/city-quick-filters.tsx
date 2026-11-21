@@ -2,7 +2,6 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useTransition } from "react";
-import { Badge } from "@/components/ui/badge";
 import { CityOption } from "@/lib/spots/types";
 import { Sparkles, Loader2 } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
@@ -61,15 +60,12 @@ export function CityQuickFilters({ cities, totalSpots }: CityQuickFiltersProps) 
                         aria-pressed={isActive}
                         onClick={() => handleCityClick(city.slug)}
                         disabled={isPending}
-                        className="group min-h-11 min-w-11 max-w-full rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#100b1c]"
+                        className="city-chip-btn group"
                     >
-                        <Badge
-                            variant={isActive ? "default" : "secondary"}
+                        <span
                             className={cn(
-                                "min-h-11 max-w-full cursor-pointer flex-wrap gap-2 whitespace-normal rounded-full py-1.5 pl-1.5 pr-3 text-sm transition-all duration-200",
-                                isActive
-                                    ? "bg-violet-600 text-white hover:bg-violet-700"
-                                    : "bg-[#100b1c] text-violet-50/85 hover:bg-violet-400/10 hover:text-white",
+                                "city-chip",
+                                isActive ? "city-chip-on" : "city-chip-off",
                                 isPending && "opacity-60"
                             )}
                         >
@@ -85,7 +81,7 @@ export function CityQuickFilters({ cities, totalSpots }: CityQuickFiltersProps) 
                             >
                                 {city.count.toLocaleString("en-US")} spots
                             </span>
-                        </Badge>
+                        </span>
                     </button>
                 );
             })}
