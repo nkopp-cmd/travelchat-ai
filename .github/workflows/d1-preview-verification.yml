@@ -363,6 +363,7 @@ on:
       - '__tests__/lib/weekly-social-trends.test.ts'
       - 'components/spots/city-quick-filters.tsx'
       - '__tests__/components/city-quick-filters.test.tsx'
+      - '__tests__/components/city-image-avatar.test.tsx'
       - 'e2e/spots-layout.spec.ts'
       - 'e2e/spots-locate.spec.ts'
       - 'e2e/spot-detail.ts'
