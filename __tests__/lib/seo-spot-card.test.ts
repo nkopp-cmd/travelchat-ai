@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { headlineSize, scoreLabel, spotCardText, spotPageTitle } from "@/lib/seo/spot-card";
+import { headlineSize, scoreLabel, spotCardText, spotMetaDescription, SPOT_META_TAIL, spotPageTitle } from "@/lib/seo/spot-card";
 
 describe("per-spot share card text", () => {
   it("uses the spot name, score label and city", () => {
@@ -59,6 +59,41 @@ describe("spot page title (Push CC1)", () => {
     const names = ["A", "Namsan Seoul Tower", "x".repeat(80), "Café — No. 9", "익선동 한옥거리 골목 카페 거리"];
     for (const name of names) for (const city of [null, "Seoul", "Kuala Lumpur", "Ho Chi Minh"]) {
       expect(spotPageTitle(name, city).length).toBeLessThanOrEqual(54);
+    }
+  });
+});
+
+describe("spot page meta description (Push CD1)", () => {
+  it("names the place and city, keeps the local note and ends with the planner", () => {
+    expect(spotMetaDescription({ name: "Bedok Mall", category: "Shopping", city: "Singapore", text: "East side neighborhood mall. Above MRT." }))
+      .toBe("Bedok Mall, Singapore: East side neighborhood mall. Above MRT. Local tips, map and a free trip planner.");
+  });
+
+  it("never shows the internal score", () => {
+    const text = spotMetaDescription({ name: "Changi Beach Park", category: "Nature", city: "Singapore", text: "Quiet beach in far east" });
+    expect(text).not.toMatch(/Localley Score|\/6/);
+    expect(text).toBe("Changi Beach Park, Singapore: Quiet beach in far east. Local tips, map and a free trip planner.");
+  });
+
+  it("does not repeat a city already in the name and has a fallback without a note", () => {
+    expect(spotMetaDescription({ name: "Seoul Forest", category: "Park", city: "Seoul", text: "" }))
+      .toBe("Seoul Forest: a park spot that locals recommend. Local tips, map and a free trip planner.");
+    expect(spotMetaDescription({ name: "Wat Pho", category: "Temple", city: null, text: "" }))
+      .toBe("Wat Pho: a temple spot that locals recommend. Local tips, map and a free trip planner.");
+  });
+
+  it("clips a long note but keeps the planner tail within 160 chars", () => {
+    const text = spotMetaDescription({ name: "Nipponbashi Denden Town", category: "Shopping", city: "Osaka", text: "word ".repeat(80) });
+    expect(text.length).toBeLessThanOrEqual(160);
+    expect(text.endsWith(`… ${SPOT_META_TAIL}`)).toBe(true);
+    expect(text.startsWith("Nipponbashi Denden Town, Osaka: word")).toBe(true);
+  });
+
+  it("stays within 160 chars for any input", () => {
+    for (let n = 0; n < 300; n += 7) {
+      const out = spotMetaDescription({ name: "N".repeat(n % 90 + 1), category: "Cafe", city: "Tokyo", text: "a ".repeat(n) });
+      expect(out.length).toBeLessThanOrEqual(160);
+      expect(out.endsWith(SPOT_META_TAIL)).toBe(true);
     }
   });
 });

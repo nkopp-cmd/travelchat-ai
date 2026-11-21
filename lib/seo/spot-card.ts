@@ -21,6 +21,31 @@ export function spotPageTitle(name: string, city: string | null, max = 54): stri
   return `${clean(place, max - suffix.length)}${suffix}`;
 }
 
+// Push CD1: the spot page meta description. Google shows these pages at position 7-12 for "<place> <city>"
+// searches with 0 clicks; the old text ended in "Localley Score 5/6" (internal jargon). The snippet now names the
+// place and city, keeps the local "why" note, and ends with what the page gives plus the free planner. The tail
+// is never cut: only the head is clipped, so the result fits in `max` chars.
+export const SPOT_META_TAIL = "Local tips, map and a free trip planner.";
+
+export function spotMetaDescription(
+  input: { name: string; category: string; city: string | null; text: string },
+  max = 160,
+): string {
+  const fold = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  const name = input.name.replace(/\s+/g, " ").trim();
+  const city = input.city?.trim() || "";
+  const label = city && !fold(name).includes(fold(city)) ? `${name}, ${city}` : name;
+  const note = input.text.replace(/\s+/g, " ").trim();
+  const category = (input.category || "local").trim().toLowerCase();
+  const body = note ? `${label}: ${note}` : `${label}: a ${category} spot that locals recommend`;
+  const head = /[.!?…]$/.test(body) ? body : `${body}.`;
+  const room = max - SPOT_META_TAIL.length - 1;
+  if (head.length <= room) return `${head} ${SPOT_META_TAIL}`;
+  const cut = head.slice(0, room - 1);
+  const space = cut.lastIndexOf(" ");
+  return `${(space > room * 0.6 ? cut.slice(0, space) : cut).replace(/[\s,.;:–—-]+$/, "")}… ${SPOT_META_TAIL}`;
+}
+
 // The bundled OG font covers Latin only; other scripts would render as empty boxes.
 const LATIN_ONLY = /^[\p{Script=Latin}\p{N}\p{P}\p{Zs}\p{S}]+$/u;
 
