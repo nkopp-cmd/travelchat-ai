@@ -43,6 +43,7 @@ VITEST_FILES=(
   __tests__/components/review-form-a11y.test.tsx
   __tests__/components/planner-a11y-names.test.tsx
   __tests__/components/planner-limit-pricing.test.tsx
+  __tests__/components/planner-paid-return.test.tsx
   __tests__/components/planner-generate-errors.test.tsx
   __tests__/lib/trip-date-range.test.ts
   __tests__/components/planner-dates.test.tsx
@@ -404,6 +405,7 @@ VITEST_FILES=(
 )
 
 ESLINT_FILES=(
+  components/itineraries/planner-paid-return.tsx
   lib/seo/pricing-line.ts
   components/seo/pricing-line.tsx
   lib/credits.ts

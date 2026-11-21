@@ -64,6 +64,13 @@ describe("/pricing subscribe flow", () => {
     await waitFor(() => expect(mocks.openCheckout).toHaveBeenCalledWith("pro", "monthly"));
     expect(mocks.track).not.toHaveBeenCalled(); // the hook counts checkout_start (source pricing by default), never the page too
   });
+  it("opened from the planner limit: the checkout returns to the planner (Push BY1)", async () => {
+    mocks.signedIn = true;
+    setUrl("/pricing?limit=itineraries&resets=2026-12-01#plans");
+    render(<PricingPage />);
+    fireEvent.click(await screen.findByRole("button", { name: "Subscribe to Pro" }));
+    await waitFor(() => expect(mocks.openCheckout).toHaveBeenCalledWith("pro", "monthly", "pricing", "planner"));
+  });
   it("starts Stripe once after sign-up and removes the parameter", async () => {
     mocks.signedIn = true;
     setUrl("/pricing?checkout=premium-yearly");
@@ -146,7 +153,7 @@ describe("limit modal checkout start (Push BW1)", () => {
 });
 
 describe("openCheckout counts each Stripe checkout once (Push BW1 fix)", () => {
-  async function run(...args: [("pro" | "premium"), ("monthly" | "yearly")?, ("pricing" | "other")?]) {
+  async function run(...args: [("pro" | "premium"), ("monthly" | "yearly")?, ("pricing" | "other")?, "planner"?]) {
     mocks.signedIn = true;
     const fetchMock = vi.fn(async (url: string) => new Response(JSON.stringify(url.includes("checkout") ? {} : { tier: "free" }), { status: 200, headers: { "content-type": "application/json" } }));
     vi.stubGlobal("fetch", fetchMock);
@@ -168,6 +175,10 @@ describe("openCheckout counts each Stripe checkout once (Push BW1 fix)", () => {
     expect(count).toBe(1);
     expect(body).toEqual({ tier: "premium", billingCycle: "monthly", source: "other" });
     expect(mocks.track.mock.calls).toEqual([["checkout_start", "other"]]);
+  });
+  it("sends returnTo planner only when asked (Push BY1)", async () => {
+    expect((await run("pro", "monthly", "pricing", "planner")).body).toEqual({ tier: "pro", billingCycle: "monthly", source: "pricing", returnTo: "planner" });
+    expect((await run("pro", "monthly")).body).not.toHaveProperty("returnTo");
   });
   it("a funnel source the server does not accept is left out of the body (no 400)", async () => {
     const { body } = await run("pro", "yearly", "home" as "other");

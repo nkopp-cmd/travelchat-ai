@@ -69,7 +69,20 @@ it("returns a /pricing checkout to settings on success and to the /pricing close
   expect(new URL(cancelUrl).pathname + new URL(cancelUrl).search).toBe("/pricing?canceled=true");
   expect(new URL(cancelUrl).origin).toBe(new URL(successUrl).origin);
 });
-it.each(["pricing", "https://evil.example/x", "itinerary-preview-x", 1])("refuses any other return destination %j before billing", async (returnTo) => {
+// Push BY2: each allowed returnTo has its own fixed success and cancel page.
+it.each([
+  [undefined, "/settings?subscription=success", "/pricing?canceled=true"],
+  ["itinerary-preview", "/itineraries/preview?payment=success", "/itineraries/preview?payment=canceled"],
+  ["planner", "/itineraries/new?payment=success", "/pricing?canceled=true"],
+])("returnTo %j returns to its own success and cancel pages", async (returnTo, success, cancel) => {
+  const response = await POST(new NextRequest("https://www.localley.io/api/subscription/checkout", { method: "POST", body: JSON.stringify({ tier: "pro", billingCycle: "monthly", returnTo }) }));
+  expect(response.status).toBe(200);
+  const { successUrl, cancelUrl } = m.checkout.mock.calls[0][0];
+  expect(new URL(successUrl).pathname + new URL(successUrl).search).toBe(success);
+  expect(new URL(cancelUrl).pathname + new URL(cancelUrl).search).toBe(cancel);
+  expect(new URL(cancelUrl).origin).toBe(new URL(successUrl).origin);
+});
+it.each(["pricing", "https://evil.example/x", "itinerary-preview-x", 1, "Planner", "planner/", "constructor", "__proto__", "toString", null, ""])("refuses any other return destination %j before billing", async (returnTo) => {
   const response = await POST(new NextRequest("https://www.localley.io/api/subscription/checkout", { method: "POST", body: JSON.stringify({ tier: "pro", billingCycle: "monthly", returnTo }) }));
   expect(response.status).toBe(400); expect(m.customer).not.toHaveBeenCalled(); expect(m.checkout).not.toHaveBeenCalled();
 });
