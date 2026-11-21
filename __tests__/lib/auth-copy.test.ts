@@ -153,3 +153,13 @@ describe("authBackLink (Push BH2)", () => {
         }
     });
 });
+
+// Push BP2: the tips page needs an account, so crawlers that follow the spot page link only reach a 307 to the
+// noindex auth form. The link carries rel="nofollow"; visitors still use it.
+describe("spot page tips link (Push BP2)", () => {
+    it("is nofollow", () => {
+        const source = readFileSync("app/spots/[id]/page.tsx", "utf8");
+        const link = source.slice(source.indexOf("href={`/spots/${spot.id}/tips`}"), source.indexOf("Traveller tips and photos"));
+        expect(link).toContain('rel="nofollow"');
+    });
+});
