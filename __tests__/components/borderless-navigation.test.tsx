@@ -40,6 +40,18 @@ describe('borderless navigation state',()=>{
  it.each([['/pricing','/sign-in?redirect_url=%2Fpricing'],['/itineraries/abc','/sign-in?redirect_url=%2Fitineraries%2Fabc'],['/','/sign-in'],['/sign-in','/sign-in'],['/sign-up/verify','/sign-in']])('gives a signed-out visitor on %s a Sign in link %s (Push BR1)',(path,href)=>{
   state.pathname=path;state.loaded=true;render(<Navbar/>);expect(screen.getByRole('link',{name:'Sign in'}).getAttribute('href')).toBe(href);
  });
+ it('keeps the query on Join free and Sign in after intent, and drops it after a navigation (Push BR2)',()=>{
+  window.history.replaceState(null,'','/spots?city=tokyo');state.pathname='/spots';state.loaded=true;const view=render(<Navbar/>);
+  const join=screen.getByRole('link',{name:'Join free'});const signIn=screen.getByRole('link',{name:'Sign in'});
+  expect(join.getAttribute('href')).toBe('/sign-up?redirect_url=%2Fspots');
+  fireEvent.pointerDown(join);expect(join.getAttribute('href')).toBe('/sign-up?redirect_url=%2Fspots%3Fcity%3Dtokyo');
+  expect(signIn.getAttribute('href')).toBe('/sign-in?redirect_url=%2Fspots%3Fcity%3Dtokyo');
+  window.history.replaceState(null,'','/pricing');state.pathname='/pricing';view.rerender(<Navbar/>);
+  expect(screen.getByRole('link',{name:'Sign in'}).getAttribute('href')).toBe('/sign-in?redirect_url=%2Fpricing');
+  window.history.replaceState(null,'','/?ref=x');state.pathname='/';view.rerender(<Navbar/>);fireEvent.focus(screen.getByRole('link',{name:'Sign in'}));
+  expect(screen.getByRole('link',{name:'Sign in'}).getAttribute('href')).toBe('/sign-in');expect(screen.getByRole('link',{name:'Join free'}).getAttribute('href')).toBe('/sign-up?redirect_url=%2F');
+  window.history.replaceState(null,'','/');
+ });
  it('hides Join free while a known member account loads and for signed-in members',()=>{
   localStorage.setItem('localley:account-hint','1');const view=render(<Navbar/>);expect(screen.queryByRole('link',{name:'Join free'})).toBeNull();view.unmount();
   state.loaded=true;state.signedIn=true;render(<Navbar/>);expect(screen.queryByRole('link',{name:'Join free'})).toBeNull();
