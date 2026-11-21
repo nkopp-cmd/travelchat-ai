@@ -12,7 +12,8 @@ import { GENERATED_PREVIEW_PATH } from "@/lib/trips/generated-preview";
 export const dynamic = "force-dynamic";
 
 // Auth pages are not search results (indexing diagnosis F6).
-export const metadata: Metadata = { robots: { index: false, follow: false } };
+// Push BS3: the tab names the form.
+export const metadata: Metadata = { title: "Sign in", robots: { index: false, follow: false } };
 
 type Props = { searchParams: Promise<{ redirect_url?: string | string[] }> };
 
