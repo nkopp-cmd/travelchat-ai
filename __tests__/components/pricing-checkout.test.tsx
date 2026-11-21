@@ -154,14 +154,24 @@ describe("openCheckout counts each Stripe checkout once (Push BW1 fix)", () => {
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     const { result } = renderHook(() => useSubscription(), { wrapper: ({ children }) => <QueryClientProvider client={client}>{children}</QueryClientProvider> });
     await result.current.openCheckout(...args);
-    return fetchMock.mock.calls.filter(([url]) => String(url).includes("/api/subscription/checkout")).length;
+    const calls = fetchMock.mock.calls.filter(([url]) => String(url).includes("/api/subscription/checkout")) as unknown as [string, RequestInit][];
+    return { count: calls.length, body: calls.length ? JSON.parse(String(calls[0][1].body)) : null };
   }
-  it("default source is pricing, one event per checkout request", async () => {
-    expect(await run("pro", "monthly")).toBe(1);
+  it("default source is pricing, one event per checkout request, source in the body (Push BX2)", async () => {
+    const { count, body } = await run("pro", "monthly");
+    expect(count).toBe(1);
+    expect(body).toEqual({ tier: "pro", billingCycle: "monthly", source: "pricing" });
     expect(mocks.track.mock.calls).toEqual([["checkout_start", "pricing"]]);
   });
-  it("the limit modal source is kept", async () => {
-    expect(await run("premium", "monthly", "other")).toBe(1);
+  it("the limit modal source is kept in the event and the body", async () => {
+    const { count, body } = await run("premium", "monthly", "other");
+    expect(count).toBe(1);
+    expect(body).toEqual({ tier: "premium", billingCycle: "monthly", source: "other" });
     expect(mocks.track.mock.calls).toEqual([["checkout_start", "other"]]);
+  });
+  it("a funnel source the server does not accept is left out of the body (no 400)", async () => {
+    const { body } = await run("pro", "yearly", "home" as "other");
+    expect(body).toEqual({ tier: "pro", billingCycle: "yearly" });
+    expect(mocks.track.mock.calls).toEqual([["checkout_start", "home"]]);
   });
 });
