@@ -251,6 +251,37 @@
     @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
   }
 
+  /* Push BZ5: spot card shell, category label, why text and native toggles. The live cascade gave the card
+     bg-surface + shadow-surface (twMerge kept both Card defaults and overrides), so these classes copy that result.
+     One short class per element instead of long utility strings sent twice per card (HTML + RSC payload). */
+  .spot-card {
+    @apply flex h-full min-w-0 flex-col overflow-hidden rounded-2xl bg-surface text-foreground shadow-surface;
+  }
+
+  .spot-card-compact {
+    @apply lg:grid lg:grid-cols-[20rem_minmax(0,1fr)];
+  }
+
+  .spot-card-list {
+    @apply lg:[[data-spot-view=list]_&]:grid lg:[[data-spot-view=list]_&]:grid-cols-[20rem_minmax(0,1fr)];
+  }
+
+  .spot-card-chip {
+    @apply pointer-events-none absolute left-3 top-3 max-w-[calc(100%_-_5rem)] rounded-full bg-overlay px-3 py-1.5 text-[13px] font-medium text-foreground;
+  }
+
+  .spot-card-title {
+    @apply break-words text-[17px] font-semibold leading-snug tracking-tight;
+  }
+
+  .spot-card-why {
+    @apply text-[15px] leading-6 text-muted-foreground [&:has(details[open])>p]:hidden;
+  }
+
+  .spot-toggle {
+    @apply flex min-h-11 w-fit cursor-pointer list-none items-center rounded-md pr-4 font-medium [&::-webkit-details-marker]:hidden;
+  }
+
   .violet-focus {
     @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300;
   }
