@@ -96,7 +96,9 @@ export default function PricingPage() {
                 return;
             }
 
-            await openCheckout(tier, isYearly ? "yearly" : "monthly");
+            const cycle = isYearly ? "yearly" : "monthly";
+            // Push BY1: opened from the planner limit, a paid checkout returns to the planner, not settings.
+            await (plannerLimit ? openCheckout(tier, cycle, "pricing", "planner") : openCheckout(tier, cycle));
         } catch (error) {
             toast({
                 title: "Checkout error",

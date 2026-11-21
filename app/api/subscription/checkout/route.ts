@@ -11,7 +11,7 @@ import {
     isStripeConfigured,
 } from "@/lib/stripe";
 import { Errors, handleApiError, apiError, ErrorCodes } from "@/lib/api-errors";
-import { isCheckoutSource } from "@/lib/checkout-source";
+import { checkoutReturnPaths, isCheckoutSource } from "@/lib/checkout-source";
 
 export async function POST(req: NextRequest) {
     try {
@@ -42,7 +42,9 @@ export async function POST(req: NextRequest) {
         // Parse request body
         const body = await req.json();
         const { tier, billingCycle = "monthly", returnTo, source } = body;
-        if (returnTo !== undefined && returnTo !== "itinerary-preview") return Errors.validationError("Invalid checkout return destination");
+        // Fixed return pages only (Push BY1 adds the planner); never a caller-supplied URL.
+        const returnUrls = checkoutReturnPaths(returnTo);
+        if (!returnUrls) return Errors.validationError("Invalid checkout return destination");
         // Push BX1: the starting page, for checkout_paid per source. Optional; an unknown value is refused.
         if (source !== undefined && !isCheckoutSource(source)) return Errors.validationError("Invalid checkout source");
 
@@ -104,8 +106,8 @@ export async function POST(req: NextRequest) {
 
         // Build success and cancel URLs
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL || req.nextUrl.origin;
-        const successUrl = returnTo === "itinerary-preview" ? `${baseUrl}/itineraries/preview?payment=success` : `${baseUrl}/settings?subscription=success`;
-        const cancelUrl = returnTo === "itinerary-preview" ? `${baseUrl}/itineraries/preview?payment=canceled` : `${baseUrl}/pricing?canceled=true`;
+        const successUrl = `${baseUrl}${returnUrls.success}`;
+        const cancelUrl = `${baseUrl}${returnUrls.cancel}`;
 
         // Create checkout session
         const session = await createCheckoutSession({

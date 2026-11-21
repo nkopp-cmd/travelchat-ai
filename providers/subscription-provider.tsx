@@ -2,6 +2,7 @@
 
 import { createContext, useContext, ReactNode } from "react";
 import type { FunnelSource } from "@/lib/funnel-analytics";
+import type { CheckoutReturnTo } from "@/lib/checkout-source";
 import { useSubscription, SubscriptionStatus, getCurrentUsage } from "@/hooks/use-subscription";
 import { SubscriptionTier, TIER_CONFIGS } from "@/lib/subscription";
 
@@ -18,7 +19,7 @@ interface SubscriptionContextValue {
     isWithinLimit: (limitType: keyof typeof TIER_CONFIGS.free.limits) => boolean;
     getRemainingUsage: (limitType: keyof typeof TIER_CONFIGS.free.limits) => number;
     refetch: () => Promise<void>;
-    openCheckout: (tier: "pro" | "premium", billingCycle?: "monthly" | "yearly", source?: FunnelSource) => Promise<void>;
+    openCheckout: (tier: "pro" | "premium", billingCycle?: "monthly" | "yearly", source?: FunnelSource, returnTo?: CheckoutReturnTo) => Promise<void>;
     openBillingPortal: () => Promise<void>;
 }
 
