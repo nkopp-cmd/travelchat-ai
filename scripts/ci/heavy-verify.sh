@@ -224,6 +224,7 @@ VITEST_FILES=(
   __tests__/cloudflare-edge-cache-per-visitor-guard.test.ts
   __tests__/cloudflare-signed-out-redirect.test.ts
   __tests__/cloudflare-robots-host.test.ts
+  __tests__/cloudflare-version-route.test.ts
   __tests__/middleware.test.ts
   __tests__/cloudflare-static-public-html.test.ts
   __tests__/cloudflare-critical-css.test.ts
@@ -621,6 +622,7 @@ ESLINT_FILES=(
   cloudflare/opennext/worker.ts
   cloudflare/opennext/edge-html-cache.ts
   cloudflare/opennext/robots-host.ts
+  cloudflare/opennext/version-route.ts
   cloudflare/opennext/critical-css.ts
   __tests__/cloudflare-critical-css.test.ts
   __tests__/cloudflare-edge-html-cache.test.ts
@@ -629,6 +631,7 @@ ESLINT_FILES=(
   cloudflare/opennext/signed-out-redirect.ts
   __tests__/cloudflare-signed-out-redirect.test.ts
   __tests__/cloudflare-robots-host.test.ts
+  __tests__/cloudflare-version-route.test.ts
   app/privacy/page.tsx
   app/terms/page.tsx
   lib/spots/public-quality.ts

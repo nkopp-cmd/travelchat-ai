@@ -234,6 +234,8 @@ on:
       - '__tests__/layout-chrome-bundle.test.ts'
       - '__tests__/cloudflare-robots-host.test.ts'
       - 'cloudflare/opennext/robots-host.ts'
+      - '__tests__/cloudflare-version-route.test.ts'
+      - 'cloudflare/opennext/version-route.ts'
       - 'cloudflare/opennext/critical-css.ts'
       - '__tests__/cloudflare-critical-css.test.ts'
       - 'scripts/fixtures/spot-critical.html'
