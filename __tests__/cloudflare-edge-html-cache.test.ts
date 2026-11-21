@@ -323,6 +323,11 @@ describe("public HTML edge cache", () => {
     expect(edgeTtlSeconds("/credits/ho-chi-minh-city")).toBe(3600);
     expect(edgeTtlSeconds("/credits/Seoul")).toBeUndefined();
     expect(edgeTtlSeconds("/credits/seoul/x")).toBeUndefined();
+    // Push CB2: the city A-Z list page.
+    expect(edgeTtlSeconds("/spots/a-z/seoul")).toBe(3600);
+    expect(edgeTtlSeconds("/spots/a-z/hong-kong")).toBe(3600);
+    expect(edgeTtlSeconds("/spots/a-z/Seoul")).toBeUndefined();
+    expect(edgeTtlSeconds("/spots/a-z/seoul/x")).toBeUndefined();
     expect(edgeTtlSeconds("/api/spots/pins/15614d97")).toBe(300);
     expect(edgeTtlSeconds("/spots/15614d97-380f-4e8d-8aa6-aa6f43609bcf/edit")).toBeUndefined();
   });

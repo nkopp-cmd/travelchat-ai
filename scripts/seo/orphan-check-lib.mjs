@@ -23,6 +23,11 @@ export function linkedSpotIds(html) {
   return ids;
 }
 
+/** City A-Z list pages (/spots/a-z/<slug>, Push CB2) that a hub links: the hubs moved their full list there. */
+export function azListPaths(html) {
+  return new Set([...html.matchAll(/href="\/spots\/a-z\/([a-z0-9-]+)"/g)].map((m) => `/spots/a-z/${m[1]}`));
+}
+
 /** Sitemap spot ids that no crawled page links to, sorted. */
 export function findOrphans(sitemapIds, linkedIds) {
   return [...sitemapIds].filter((id) => !linkedIds.has(id)).sort();

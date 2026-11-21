@@ -4,9 +4,12 @@ import { groupByInitial, scoreCounts, topPicks, type CityDirectoryEntry } from "
 import { SCORE_LABELS } from "@/lib/spots/types";
 
 /**
- * Every spot of a city hub as an A-Z link list (server HTML, collapsed by default). The paged card grid links only
- * page 1, so without this list most spot pages had no internal link (weekend sprint L3).
+ * Every spot of a city hub as an A-Z link list. The paged card grid links only page 1, so without this list most spot
+ * pages had no internal link (weekend sprint L3). The list lives on its own page (/spots/a-z/<city>, Push CB2): on the
+ * hub it was 1 of every 3 compressed HTML bytes (each spot UUID twice, HTML + RSC payload) inside a closed <details>,
+ * and the hub's mobile first paint waits for the whole HTML. The hub links the list page.
  */
+export const cityAzPath = (citySlug: string) => `/spots/a-z/${encodeURIComponent(citySlug)}`;
 // Money queries 6-8 of docs/reach.md ("hidden gem <city> cafe", "local cafes <city>", "hidden gems <city> food").
 const PICK_BLOCKS = [
   { category: "Cafe", title: (city: string) => `Hidden-gem cafes in ${city}`, more: "All cafes",
@@ -68,7 +71,6 @@ function ScoreMethod({ entries, cityName }: { entries: CityDirectoryEntry[]; cit
 export async function CitySpotDirectory({ citySlug, cityName }: { citySlug: string; cityName: string }) {
   const entries = await cityDirectory(citySlug);
   if (entries.length === 0) return null;
-  const groups = groupByInitial(entries);
   const blocks = PICK_BLOCKS.map((block) => ({ ...block, picks: topPicks(entries, block.category, 6) })).filter((block) => block.picks.length >= MIN_PICKS);
   return (
     <>
@@ -90,28 +92,33 @@ export async function CitySpotDirectory({ citySlug, cityName }: { citySlug: stri
     ) : null}
     <ScoreMethod entries={entries} cityName={cityName} />
     <section aria-labelledby="city-spot-directory" className="mt-10 rounded-2xl bg-surface p-5 shadow-surface md:p-7">
-      <details>
-        <summary className="cursor-pointer list-none">
-          <h2 id="city-spot-directory" className="inline text-xl font-bold text-foreground">All {entries.length} spots in {cityName}, A–Z</h2>
-          <span className="ml-2 text-sm text-muted-foreground">Show list</span>
-        </summary>
-        <div className="mt-4 space-y-4">
-          {groups.map((group) => (
-            <div key={group.letter}>
-              <h3 className="text-sm font-semibold text-muted-foreground">{group.letter}</h3>
-              <ul className="mt-1 grid gap-x-6 gap-y-1 text-sm sm:grid-cols-2 lg:grid-cols-3">
-                {group.entries.map((entry) => (
-                  <li key={entry.id} className="truncate">
-                    <Link href={`/spots/${entry.id}`} prefetch={false} className="text-foreground underline-offset-2 hover:underline">{entry.name}</Link>
-                    {entry.category ? <span className="text-muted-foreground"> · {entry.category}</span> : null}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </details>
+      <h2 id="city-spot-directory" className="text-xl font-bold text-foreground">All {entries.length} spots in {cityName}, A–Z</h2>
+      <Link href={cityAzPath(citySlug)} prefetch={false} className="mt-1 inline-flex min-h-11 items-center text-sm font-semibold text-primary underline-offset-2 hover:underline">
+        Open the full list →
+      </Link>
     </section>
     </>
+  );
+}
+
+/** The A-Z list of /spots/a-z/<city>: one short class on the wrapper styles every row (no per-row class strings). */
+export function CitySpotAzList({ entries }: { entries: CityDirectoryEntry[] }) {
+  return (
+    <div className="spot-az mt-6 space-y-6">
+      {groupByInitial(entries).map((group) => (
+        <section key={group.letter} aria-label={group.letter}>
+          <h2 className="text-sm font-semibold text-muted-foreground">{group.letter}</h2>
+          <ul className="mt-1 grid gap-x-6 gap-y-1 text-sm sm:grid-cols-2 lg:grid-cols-3">
+            {group.entries.map((entry, index) => (
+              // Index keys: the list is static server HTML, and a UUID key added one more UUID per row to the payload.
+              <li key={index}>
+                <a href={`/spots/${entry.id}`}>{entry.name}</a>
+                {entry.category ? <span> · {entry.category}</span> : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
   );
 }

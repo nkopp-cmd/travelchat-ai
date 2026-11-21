@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 // Orphan check (L3, weekend-sprint-20261114): every spot URL in the live sitemap must be linked from a crawlable page.
 // Usage: node scripts/seo/orphan-check.mjs [--base https://www.localley.io] [--deep]
-//   default: crawl /, /spots and every /spots?city=<slug> hub found on those pages or in the sitemap.
+//   default: crawl /, /spots, every /spots?city=<slug> hub found on those pages or in the sitemap, and the
+//            /spots/a-z/<slug> list pages those hubs link (Push CB2).
 //   --deep:  also crawl the spot pages themselves (nearby links) for ids the hubs miss.
 // Exit 0 with "orphans=0", else exit 1 and print the orphan ids.
-import { findOrphans, linkedSpotIds, sitemapLocs, spotIdsFromUrls } from "./orphan-check-lib.mjs";
+import { azListPaths, findOrphans, linkedSpotIds, sitemapLocs, spotIdsFromUrls } from "./orphan-check-lib.mjs";
 
 const args = process.argv.slice(2);
 const base = (args.includes("--base") ? args[args.indexOf("--base") + 1] : "https://www.localley.io").replace(/\/$/, "");
@@ -34,7 +35,14 @@ for (const m of seed.matchAll(/href="\/spots\?city=([a-z-]+)"/g)) hubPaths.add(`
 
 const linked = new Set();
 let pages = 0;
-await pool([...hubPaths], 4, async (path) => { for (const id of linkedSpotIds(await get(base + path))) linked.add(id); pages++; });
+const azPaths = new Set();
+await pool([...hubPaths], 4, async (path) => {
+  const html = await get(base + path);
+  for (const id of linkedSpotIds(html)) linked.add(id);
+  for (const az of azListPaths(html)) azPaths.add(az);
+  pages++;
+});
+await pool([...azPaths], 4, async (path) => { for (const id of linkedSpotIds(await get(base + path))) linked.add(id); pages++; });
 let orphans = findOrphans(sitemapIds, linked);
 console.log(`sitemap_spots=${sitemapIds.size} hubs=${pages} linked_from_hubs=${linked.size} orphans_after_hubs=${orphans.length}`);
 

@@ -113,6 +113,8 @@ on:
       - '__tests__/api/shared-og-card.test.ts'
       - 'app/og/**'
       - '__tests__/lib/spots-city-directory.test.ts'
+      - '__tests__/components/city-spot-directory-payload.test.tsx'
+      - 'app/spots/a-z/**'
       - 'lib/spots/city-directory.ts'
       - 'lib/spots/city-directory-store.ts'
       - 'components/spots/city-spot-directory.tsx'

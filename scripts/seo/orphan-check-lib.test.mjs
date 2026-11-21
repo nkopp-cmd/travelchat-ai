@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { findOrphans, linkedSpotIds, sitemapLocs, spotIdsFromUrls } from "./orphan-check-lib.mjs";
+import { azListPaths, findOrphans, linkedSpotIds, sitemapLocs, spotIdsFromUrls } from "./orphan-check-lib.mjs";
 
 const A = "f242e187-56ee-4cc8-9736-52f4ea46aebc";
 const B = "5e0839c7-5725-4c7b-b696-3d4c015d12bc";
@@ -24,4 +24,9 @@ test("linkedSpotIds reads relative and absolute hrefs, ignores text mentions", (
 test("findOrphans lists unlinked sitemap ids only", () => {
   assert.deepEqual(findOrphans(new Set([A, B, C]), new Set([B])), [A, C].sort());
   assert.deepEqual(findOrphans(new Set([A]), new Set([A, B])), []);
+});
+
+test("azListPaths reads the hub's link to its A-Z list page", () => {
+  const html = `<a href="/spots/a-z/seoul">All</a><a href="/spots/a-z/hong-kong">x</a><a href="/spots/a-z/seoul">again</a><p>/spots/a-z/tokyo</p>`;
+  assert.deepEqual([...azListPaths(html)].sort(), ["/spots/a-z/hong-kong", "/spots/a-z/seoul"]);
 });
