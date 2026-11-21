@@ -14,6 +14,8 @@ export const metadata: Metadata = {
     description: "The photographers and archives behind the place photos on Localley, with each licence.",
     path: "/credits",
   }),
+  // A licence list, not a landing page: keep it out of the index, follow its links (Push BK2).
+  robots: { index: false, follow: true },
 };
 
 // Live public data, edge-cached for an hour (cloudflare/opennext/edge-html-cache.ts).

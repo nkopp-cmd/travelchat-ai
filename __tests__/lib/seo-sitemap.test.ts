@@ -37,7 +37,8 @@ describe("sitemap index", () => {
     expect(at("/spots?city=tokyo")?.lastmod).toBe("2026-10-04T00:00:00+00:00");
     expect(at("/spots?city=busan")).toBeUndefined();
     expect(at("/spots")?.lastmod).toBe("2026-11-15T00:00:00+00:00");
-    for (const path of ["", "/pricing", "/terms"]) expect(at(path)?.lastmod).toBeUndefined();
+    for (const path of ["", "/pricing", "/templates"]) expect(at(path)?.lastmod).toBeUndefined();
+    for (const path of ["/credits", "/privacy", "/terms"]) expect(at(path)).toBeUndefined();
     expect(renderIndex(hubRows)).toContain("<loc>https://www.localley.io/sitemaps/pages.xml</loc><lastmod>2026-11-15T00:00:00+00:00</lastmod>");
   });
 

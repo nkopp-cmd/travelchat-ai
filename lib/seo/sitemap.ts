@@ -21,6 +21,8 @@ const latest = (dates: (string | undefined)[]) => dates.filter((d): d is string 
  * Static pages plus every city hub with enough indexable spots (`spotRows` omitted = all hubs, e.g. in tests).
  * A hub's lastmod is the newest date of the spots it lists, /spots the newest of all (reach R5 loop 1: Google left
  * the hubs "Discovered - currently not indexed" with no lastmod to tell it they changed). Static pages stay without.
+ * /credits, /privacy and /terms stay out (Push BK2, diagnosis RC2): Google indexes few Localley URLs, so the sitemap
+ * names only money and entry pages; the footer still links the legal pages.
  */
 export function pageEntries(spotRows: readonly SitemapSpotRow[] = []): SitemapEntry[] {
   const newest = (rows: readonly SitemapSpotRow[]) => latest(rows.map((row) => row.lastmod ?? undefined));
@@ -29,7 +31,7 @@ export function pageEntries(spotRows: readonly SitemapSpotRow[] = []): SitemapEn
   }));
   return [
     { loc: SITE }, { loc: `${SITE}/spots`, lastmod: newest(spotRows) }, ...cities, { loc: `${SITE}/trending` }, { loc: `${SITE}/templates` },
-    { loc: `${SITE}/pricing` }, { loc: `${SITE}/credits` }, { loc: `${SITE}/privacy` }, { loc: `${SITE}/terms` },
+    { loc: `${SITE}/pricing` },
   ];
 }
 
