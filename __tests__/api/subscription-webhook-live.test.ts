@@ -1,10 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
-const m = vi.hoisted(() => ({ verify: vi.fn(), upsert: vi.fn(), update: vi.fn(), write: vi.fn(), retrieve: vi.fn(), tier: vi.fn(), eq: vi.fn(), owner: vi.fn(), source: vi.fn(), previous: vi.fn(), mail: vi.fn() }));
+const m = vi.hoisted(() => ({ verify: vi.fn(), upsert: vi.fn(), update: vi.fn(), write: vi.fn(), retrieve: vi.fn(), tier: vi.fn(), eq: vi.fn(), owner: vi.fn(), source: vi.fn(), previous: vi.fn(), mail: vi.fn(), funnel: vi.fn() }));
 vi.mock("@/lib/stripe", () => ({ stripe: { subscriptions: { retrieve: m.retrieve } }, constructWebhookEvent: m.verify, getTierFromPriceId: m.tier }));
 vi.mock("@/lib/subscription-mail", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/subscription-mail")>()), sendSubscriptionMail: m.mail,
 }));
+vi.mock("@/lib/spot-event-store", () => ({ recordFunnelSteps: m.funnel }));
 vi.mock("@/lib/cache", () => ({ invalidateUserCache: vi.fn() }));
 vi.mock("@/lib/supabase", () => ({ createSupabaseAdmin: m.source }));
 vi.mock("next/headers", () => ({ headers: async () => new Headers({ "stripe-signature": "signature" }) }));
@@ -23,6 +24,19 @@ beforeEach(async () => {
 });
 afterEach(() => vi.unstubAllEnvs());
 describe("live subscription webhook compatibility", () => {
+  // Push BW3: paying_30d's partner number. One paid step per completed checkout, none for renewals or plan updates.
+  it("records exactly one checkout_paid (source stripe) for a completed checkout", async () => {
+    m.verify.mockResolvedValue(event("checkout.session.completed", { metadata: { clerk_user_id: "a" }, customer: "cus_owned", subscription: "sub_owned" }));
+    expect((await post(request())).status).toBe(200);
+    expect(m.funnel.mock.calls).toEqual([[[{ step: "checkout_paid", source: "stripe", count: 1 }]]]);
+  });
+  it.each(["customer.subscription.created", "customer.subscription.updated", "customer.subscription.deleted", "invoice.paid", "invoice.payment_succeeded", "invoice.payment_failed"])("records no funnel step for %s", async type => {
+    m.verify.mockResolvedValue(event(type, type.startsWith("invoice") ? { subscription: "sub_owned" } : sub));
+    expect((await post(request())).status).toBe(200); expect(m.funnel).not.toHaveBeenCalled();
+  });
+  it("records no paid step when the signature fails", async () => {
+    m.verify.mockResolvedValue(null); expect((await post(request())).status).toBe(400); expect(m.funnel).not.toHaveBeenCalled();
+  });
   it("awaits signature verification before touching Source", async () => {
     m.verify.mockResolvedValue(null); expect((await post(request())).status).toBe(400); expect(m.source).not.toHaveBeenCalled();
   });
