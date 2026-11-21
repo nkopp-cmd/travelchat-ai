@@ -126,6 +126,7 @@ VITEST_FILES=(
   __tests__/lib/seo-pricing-line.test.ts
   __tests__/lib/seo-spot-intro.test.ts
   __tests__/lib/seo-spot-card.test.ts
+  __tests__/lib/seo-hub-meta.test.ts
   __tests__/lib/seo-page-card.test.ts
   __tests__/lib/spot-city-context.test.ts
   __tests__/api/spot-og-card.test.ts
