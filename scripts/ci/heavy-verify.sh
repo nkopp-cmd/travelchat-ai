@@ -37,6 +37,7 @@ VITEST_FILES=(
   __tests__/components/template-picker.test.tsx
   __tests__/components/template-card.test.tsx
   __tests__/components/city-quick-filters.test.tsx
+  __tests__/components/city-image-avatar.test.tsx
   __tests__/components/auth-form-return.test.tsx
   __tests__/components/auth-reset-return.test.tsx
   __tests__/components/auth-in-app-browser.test.tsx
@@ -504,6 +505,8 @@ ESLINT_FILES=(
   __tests__/components/template-card.test.tsx
   components/spots/city-quick-filters.tsx
   __tests__/components/city-quick-filters.test.tsx
+  components/ui/city-image.tsx
+  __tests__/components/city-image-avatar.test.tsx
   e2e/spots-layout.spec.ts
   e2e/spots-locate.spec.ts
   components/spots/use-locate.ts
