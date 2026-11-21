@@ -1,4 +1,5 @@
 import { PricingLineLink } from "@/components/seo/pricing-line";
+import { cityHubDescription, SPOTS_INDEX_DESCRIPTION } from "@/lib/seo/hub-meta";
 import { Suspense } from "react";
 import { LocalleySignup } from "@/components/newsletter/localley-signup";
 import { IntentLink } from "@/components/navigation/intent-link";
@@ -51,7 +52,7 @@ export async function generateMetadata({ searchParams }: SpotsPageProps): Promis
         ? {
             ...pageMeta({
                 title: `Hidden gems in ${city.name}: local spots`,
-                description: `Hidden gems in ${city.name}, ${city.country}: cafes, food, bars and sights rated by locals with the Localley Score. Filter by area, category and what is open now.`,
+                description: cityHubDescription(city.name, city.country),
                 path,
                 image: city.heroImage,
             }),
@@ -59,7 +60,7 @@ export async function generateMetadata({ searchParams }: SpotsPageProps): Promis
         }
         : pageMeta({
             title: "Discover hidden gems and local spots",
-            description: "Local favorites in Seoul, Tokyo, Bangkok, Singapore and more Asian cities. Cafes, food, bars and sights rated by locals with the Localley Score.",
+            description: SPOTS_INDEX_DESCRIPTION,
             path,
         });
 }

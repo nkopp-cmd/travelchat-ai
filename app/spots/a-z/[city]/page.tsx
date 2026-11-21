@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cityAzDescription } from "@/lib/seo/hub-meta";
 import { cache } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -37,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     ...pageMeta({
       title: `All ${entries.length} spots in ${city.name}, A–Z`,
-      description: `Every local spot Localley lists in ${city.name}, ${city.country}, from A to Z, with its category. Open a spot for the Localley Score, tips and the map.`,
+      description: cityAzDescription(city.name, city.country),
       path: cityAzPath(city.slug),
     }),
     ...(thin ? { robots: { index: false, follow: true } } : {}),
