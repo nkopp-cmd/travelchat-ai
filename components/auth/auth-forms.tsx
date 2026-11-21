@@ -15,6 +15,12 @@ import { useInAppBrowser } from "@/lib/in-app-browser";
 const primaryClass = "w-full";
 const secondaryClass = "w-full bg-raised text-foreground hover:bg-raised";
 
+/** `path` with the return page as redirect_url; the default /dashboard return adds nothing. */
+export function withReturn(path: string, redirectTo: string): string {
+    const to = safeRedirect(redirectTo);
+    return to === "/dashboard" ? path : `${path}${path.includes("?") ? "&" : "?"}redirect_url=${encodeURIComponent(to)}`;
+}
+
 function Field({ id, label, children }: { id: string; label: string; children: ReactNode }) {
     return (
         <div className="space-y-2">
@@ -158,7 +164,7 @@ export function SignInForm({ googleEnabled }: { googleEnabled: boolean }) {
                     <Input id="password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
                 </Field>
                 <div className="flex justify-end">
-                    <Link href="/forgot-password" className="text-sm text-primary hover:text-primary">Forgot password?</Link>
+                    <Link href={withReturn("/forgot-password", redirectTo)} className="text-sm text-primary hover:text-primary">Forgot password?</Link>
                 </div>
                 <Button type="submit" className={primaryClass} disabled={busy !== null || !password}>
                     {busy === "password" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -171,7 +177,7 @@ export function SignInForm({ googleEnabled }: { googleEnabled: boolean }) {
                 Email me a sign-in link
             </Button>
             <p className="text-center text-sm text-muted-foreground">
-                No account? <Link href={`/sign-up${redirectTo !== "/dashboard" ? `?redirect_url=${encodeURIComponent(redirectTo)}` : ""}`} className="text-primary hover:text-primary">Sign up</Link>
+                No account? <Link href={withReturn("/sign-up", redirectTo)} className="text-primary hover:text-primary">Sign up</Link>
             </p>
         </div>
     );
@@ -242,13 +248,13 @@ export function SignUpForm({ googleEnabled }: { googleEnabled: boolean }) {
                 </Button>
             </form>
             <p className="text-center text-sm text-muted-foreground">
-                Have an account? <Link href={`/sign-in${redirectTo !== "/dashboard" ? `?redirect_url=${encodeURIComponent(redirectTo)}` : ""}`} className="text-primary hover:text-primary">Sign in</Link>
+                Have an account? <Link href={withReturn("/sign-in", redirectTo)} className="text-primary hover:text-primary">Sign in</Link>
             </p>
         </div>
     );
 }
 
-export function ForgotPasswordForm() {
+export function ForgotPasswordForm({ redirectTo = "/dashboard" }: { redirectTo?: string }) {
     const [email, setEmail] = useState("");
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -257,7 +263,7 @@ export function ForgotPasswordForm() {
     async function onSubmit(event: FormEvent) {
         event.preventDefault();
         setBusy(true); setError(null);
-        const { error: failure } = await authClient.requestPasswordReset({ email, redirectTo: "/reset-password" });
+        const { error: failure } = await authClient.requestPasswordReset({ email, redirectTo: withReturn("/reset-password", redirectTo) });
         setBusy(false);
         if (failure) { setError(errorText(failure.message)); return; }
         setDone(true);
@@ -274,7 +280,7 @@ export function ForgotPasswordForm() {
                 {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 Send reset link
             </Button>
-            <p className="text-center text-sm text-muted-foreground"><Link href="/sign-in" className="text-primary hover:text-primary">Back to sign in</Link></p>
+            <p className="text-center text-sm text-muted-foreground"><Link href={withReturn("/sign-in", redirectTo)} className="text-primary hover:text-primary">Back to sign in</Link></p>
         </form>
     );
 }
@@ -282,6 +288,7 @@ export function ForgotPasswordForm() {
 export function ResetPasswordForm() {
     const params = useSearchParams();
     const token = params.get("token");
+    const redirectTo = safeRedirect(params.get("redirect_url"));
     const [password, setPassword] = useState("");
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(params.get("error") || !token ? "This reset link is invalid or expired. Request a new one." : null);
@@ -301,7 +308,7 @@ export function ResetPasswordForm() {
         return (
             <div className="space-y-4">
                 <Notice tone="success">Your password is set.</Notice>
-                <Button asChild className={primaryClass}><Link href="/sign-in">Sign in</Link></Button>
+                <Button asChild className={primaryClass}><Link href={withReturn("/sign-in", redirectTo)}>Sign in</Link></Button>
             </div>
         );
     }
@@ -315,7 +322,7 @@ export function ResetPasswordForm() {
                 {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 Set password
             </Button>
-            <p className="text-center text-sm text-muted-foreground"><Link href="/forgot-password" className="text-primary hover:text-primary">Request a new link</Link></p>
+            <p className="text-center text-sm text-muted-foreground"><Link href={withReturn("/forgot-password", redirectTo)} className="text-primary hover:text-primary">Request a new link</Link></p>
         </form>
     );
 }

@@ -38,6 +38,7 @@ VITEST_FILES=(
   __tests__/components/template-card.test.tsx
   __tests__/components/city-quick-filters.test.tsx
   __tests__/components/auth-form-return.test.tsx
+  __tests__/components/auth-reset-return.test.tsx
   __tests__/components/auth-in-app-browser.test.tsx
   __tests__/components/review-form-a11y.test.tsx
   __tests__/components/planner-a11y-names.test.tsx
@@ -702,6 +703,8 @@ ESLINT_FILES=(
   lib/in-app-browser.ts
   __tests__/components/auth-in-app-browser.test.tsx
   __tests__/components/auth-verify-resend.test.tsx
+  app/forgot-password/page.tsx
+  __tests__/components/auth-reset-return.test.tsx
   __tests__/components/auth-password-redirect.test.tsx
   components/activities/itinerary-activity-card.tsx
   __tests__/components/itinerary-activity-card.test.tsx
