@@ -89,12 +89,6 @@ export default function PricingPage() {
     };
 
     const handleSubscribe = async (tier: PaidTier) => {
-        if (!isSignedIn) {
-            // New visitors have no account: sign up, then come back here and go straight to Stripe.
-            window.location.href = checkoutSignUpUrl(tier, isYearly ? "yearly" : "monthly");
-            return;
-        }
-
         try {
             setLoadingTier(tier);
 
@@ -299,6 +293,15 @@ export default function PricingPage() {
                                         ) : isCurrent ? (
                                             <Button className="h-12 w-full rounded-lg" variant="outline" disabled>
                                                 {hasIncludedAccess ? "Included access" : "Current plan"}
+                                            </Button>
+                                        ) : !isSignedIn ? (
+                                            // Push BU1: signed out (or the session check still running) -> a real link in the edge
+                                            // HTML, tappable before hydration. Sign-up returns to /pricing?checkout -> Stripe, and
+                                            // sends an already signed-in visitor straight on.
+                                            <Button asChild className="h-12 w-full rounded-lg bg-primary text-base font-semibold text-primary-foreground hover:bg-primary/90">
+                                                <a href={checkoutSignUpUrl(tier, isYearly ? "yearly" : "monthly")} data-testid={`pricing-subscribe-${tier}`}>
+                                                    {`Subscribe to ${plan.title}`}
+                                                </a>
                                             </Button>
                                         ) : (
                                             <Button
