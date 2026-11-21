@@ -41,6 +41,7 @@ test("counts paying, active and sign-ups; unknown money stays null", () => {
   assert.equal(out.paying_prev_30d, null);
   assert.equal(out.paid_path_live_since, PAID_PATH_LIVE_SINCE);
   assert.match(out.notes, /checkout_paid funnel events 30d: 1;/);
+  assert.match(out.notes, /checkout_start funnel events 30d: 0;/);
   assert.doesNotMatch(JSON.stringify(out), /@|sub_|u1|house/);
 });
 
@@ -87,4 +88,17 @@ test("notes show the last counted event day; a failed read stays unknown", () =>
   const out = summarize({ users, sessions: [], subscriptions: [], funnel: [], lastEvent: { funnel: "2026-10-30", cards: null } }, now);
   assert.match(out.notes, /last counted event day \(UTC; own checks are not counted\): funnel 2026-10-30, spot cards unknown;/);
   assert.match(summarize({ users, sessions: [], subscriptions: [], funnel: [] }, now).notes, /funnel unknown, spot cards unknown;/);
+});
+
+test("Push BW2: checkout starts 30d by source next to checkout_paid", () => {
+  const funnel = [
+    { day: "2026-10-25", step: "checkout_paid", source: "stripe", count: 1 },
+    { day: "2026-10-20", step: "checkout_start", source: "pricing", count: 3 },
+    { day: "2026-10-21", step: "checkout_start", source: "pricing", count: 2 },
+    { day: "2026-10-22", step: "checkout_start", source: "preview", count: 1 },
+    { day: "2026-09-01", step: "checkout_start", source: "pricing", count: 9 }, // older than 30 days
+    { day: "2026-10-23", step: "preview_view", source: "preview", count: 7 },
+  ];
+  const out = summarize({ users, sessions: [], subscriptions: [], funnel }, now);
+  assert.match(out.notes, /checkout_paid funnel events 30d: 1; checkout_start funnel events 30d: 6 \(preview 1, pricing 5\);/);
 });
