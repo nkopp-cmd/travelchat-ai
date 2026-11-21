@@ -687,6 +687,8 @@ on:
       - 'scripts/warm-free-plans.mjs'
       - '__tests__/lib/hub-city.test.tsx'
       - 'lib/spots/hub-city.ts'
+      - '__tests__/components/kept-trip-line.test.tsx'
+      - 'components/auth/kept-trip-line.tsx'
       - 'lib/llm/**'
       - 'lib/imagen.ts'
       - 'lib/model-credits.ts'
