@@ -95,3 +95,21 @@ describe("/pricing positioning (Push AY1)", () => {
     }
   });
 });
+
+describe("/pricing billing cycle words (Push BU3)", () => {
+  it("Monthly and Yearly each set their own cycle, tapping the active one keeps it", () => {
+    render(<PricingPage />);
+    const toggle = screen.getByRole("switch", { name: "Toggle yearly billing" });
+    const yearly = screen.getByRole("button", { name: "Yearly" });
+    const monthly = screen.getByRole("button", { name: "Monthly" });
+    fireEvent.click(yearly);
+    expect(toggle.getAttribute("aria-checked")).toBe("true");
+    fireEvent.click(yearly);
+    expect(toggle.getAttribute("aria-checked")).toBe("true");
+    expect(yearly.getAttribute("aria-pressed")).toBe("true");
+    fireEvent.click(monthly);
+    fireEvent.click(monthly);
+    expect(toggle.getAttribute("aria-checked")).toBe("false");
+    expect(monthly.getAttribute("aria-pressed")).toBe("true");
+  });
+});
