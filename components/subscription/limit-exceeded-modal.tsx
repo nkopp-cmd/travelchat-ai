@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/icons";
 import { TIER_CONFIGS } from "@/lib/subscription";
 import { useSubscriptionContext } from "@/providers/subscription-provider";
+import { trackFunnelStep } from "@/lib/funnel-analytics";
 
 export type LimitType =
     | "itineraries"
@@ -100,6 +101,7 @@ export function LimitExceededModal({
     const handleUpgrade = async (targetTier: "pro" | "premium") => {
         setIsLoading(true);
         try {
+            trackFunnelStep("checkout_start", "other");
             await openCheckout(targetTier);
         } finally {
             setIsLoading(false);
