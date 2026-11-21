@@ -113,7 +113,7 @@ export function TemplatePicker({ templates }: TemplatePickerProps) {
               key={template.id}
               template={template}
               isSelected={selectedTemplate.id === template.id}
-              primaryHref={getTemplateUrl(template)}
+              actionHref={getTemplateUrl(template)}
               onSelect={() => setSelectedId(template.id)}
             />
           ))}

@@ -112,8 +112,8 @@ describe("TemplatePicker", () => {
       "/itineraries/new?template=local-authentic&city=Tokyo",
     );
 
-    fireEvent.click(
-      screen.getByRole("button", { name: /Active Weekend/ }),
+    fireEvent.focus(
+      screen.getByRole("link", { name: /Active Weekend/ }),
     );
 
     expect(mobileCta.textContent).toContain("Active Weekend");
@@ -122,5 +122,22 @@ describe("TemplatePicker", () => {
     ).toBe(
       "/itineraries/new?template=active-weekend&city=Tokyo",
     );
+  });
+
+  it("makes every template card a direct planner link (one tap, no JS needed)", () => {
+    render(<TemplatePicker templates={templates} />);
+
+    const cardLinks = screen
+      .getAllByRole("link")
+      .map((link) => link.getAttribute("href"))
+      .filter((href): href is string => Boolean(href?.startsWith("/itineraries/new?template=")));
+
+    for (const t of templates) {
+      expect(cardLinks).toContain(getTemplateUrl(t));
+    }
+    expect(screen.queryByRole("button", { name: /Food Crawl/ })).toBeNull();
+    expect(
+      screen.getByRole("link", { name: /Food Crawl/ }).getAttribute("href"),
+    ).toBe("/itineraries/new?template=foodie&city=Tokyo");
   });
 });
