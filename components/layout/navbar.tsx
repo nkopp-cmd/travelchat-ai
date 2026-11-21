@@ -10,6 +10,7 @@ import { Menu } from "@/components/ui/icons";
 import { routes } from "@/components/layout/navbar-routes";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { Logo } from "@/components/brand/logo";
+import { signInGateHref } from "@/lib/auth/gate-href";
 import { useScrollDirection } from "@/hooks/use-scroll-direction";
 
 const NavbarAccount = dynamic(() => import("@/components/layout/navbar-account").then((module) => module.NavbarAccount), {
@@ -45,7 +46,7 @@ export function Navbar() {
   // Push AF3: phones show "Join free" (only one action fits next to Sign in); the visitor returns to this page after sign-up.
   const joinTarget = !pathname || /^\/(?:sign-in|sign-up)(?:\/|$)/.test(pathname) ? "/" : pathname;
   // Push BR1: a returning member who signs in from /pricing or a trip comes back there; "/" keeps the /dashboard default.
-  const signInHref = joinTarget === "/" ? "/sign-in" : `/sign-in?redirect_url=${encodeURIComponent(joinTarget)}`;
+  const signInHref = joinTarget === "/" ? "/sign-in" : signInGateHref(joinTarget);
   const isHidden = !isLanding && scrollDirection === "down";
   const [menuOpen, setMenuOpen] = useState(false);
   // Stays mounted after the first open so Radix can animate the close and restore focus.
