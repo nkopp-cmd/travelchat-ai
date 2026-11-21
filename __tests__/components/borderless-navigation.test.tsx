@@ -56,6 +56,14 @@ describe('borderless navigation state',()=>{
   localStorage.setItem('localley:account-hint','1');const view=render(<Navbar/>);expect(screen.queryByRole('link',{name:'Join free'})).toBeNull();view.unmount();
   state.loaded=true;state.signedIn=true;render(<Navbar/>);expect(screen.queryByRole('link',{name:'Join free'})).toBeNull();
  });
+ it.each(['/pricing','/spots','/itineraries/abc','/blog/paying-in-seoul'])('header auth links on %s carry a same-origin redirect_url to that page (Push BR4)',path=>{
+  state.pathname=path;state.loaded=true;render(<Navbar/>);const q=encodeURIComponent(path);
+  expect(screen.getByRole('link',{name:'Sign in'}).getAttribute('href')).toBe(`/sign-in?redirect_url=${q}`);expect(screen.getByRole('link',{name:'Join free'}).getAttribute('href')).toBe(`/sign-up?redirect_url=${q}`);
+ });
+ it.each(['/','/sign-in','/sign-up','//evil.example','/\\evil.example'])('header auth links on %s carry no return target (Push BR4)',path=>{
+  state.pathname=path;state.loaded=true;render(<Navbar/>);
+  expect(screen.getByRole('link',{name:'Sign in'}).getAttribute('href')).toBe('/sign-in');expect(screen.getByRole('link',{name:'Join free'}).getAttribute('href')).toBe('/sign-up?redirect_url=%2F');
+ });
  it.each(['/','/spots','/pricing','/itineraries/new'])('uses the same main links on %s',path=>{
   state.pathname=path;state.loaded=true;render(<Navbar/>);const nav=screen.getByRole('navigation',{name:'Main pages'});
   expect(within(nav).getAllByRole('link').map(link=>[link.textContent,link.getAttribute('href')])).toEqual([['Explore','/spots'],['My trips','/itineraries'],['Help','/help'],['Pricing','/pricing'],['Profile','/profile']]);

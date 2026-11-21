@@ -10,7 +10,7 @@ import { Menu } from "@/components/ui/icons";
 import { routes } from "@/components/layout/navbar-routes";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { Logo } from "@/components/brand/logo";
-import { signInGateHref } from "@/lib/auth/gate-href";
+import { returnPath, signInGateHref, signUpGateHref } from "@/lib/auth/gate-href";
 import { useScrollDirection } from "@/hooks/use-scroll-direction";
 
 const NavbarAccount = dynamic(() => import("@/components/layout/navbar-account").then((module) => module.NavbarAccount), {
@@ -49,10 +49,10 @@ export function Navbar() {
   // useSearchParams bailout). It counts only for the path it was read on; a stale query never follows a navigation.
   const [seenQuery, setSeenQuery] = useState<{ path: string; search: string } | null>(null);
   const readQuery = () => { const { pathname: path, search } = window.location; if (seenQuery?.path !== path || seenQuery.search !== search) setSeenQuery({ path, search }); };
-  const returnTo = joinTarget === "/" ? "/" : `${joinTarget}${seenQuery?.path === pathname ? seenQuery.search : ""}`;
+  const returnTo = returnPath(joinTarget === "/" ? "/" : `${joinTarget}${seenQuery?.path === pathname ? seenQuery.search : ""}`);
   // Push BR1: a returning member who signs in from /pricing or a trip comes back there; "/" keeps the /dashboard default.
   const signInHref = returnTo === "/" ? "/sign-in" : signInGateHref(returnTo);
-  const joinHref = `/sign-up?redirect_url=${encodeURIComponent(returnTo)}`;
+  const joinHref = signUpGateHref(returnTo);
   const authIntent = { onPointerEnter: readQuery, onPointerDown: readQuery, onFocus: readQuery, onTouchStart: readQuery };
   const isHidden = !isLanding && scrollDirection === "down";
   const [menuOpen, setMenuOpen] = useState(false);
