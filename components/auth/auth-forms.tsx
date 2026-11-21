@@ -51,7 +51,7 @@ function GoogleButton({ callbackURL }: { callbackURL: string }) {
         <Button type="button" variant="outline" className={secondaryClass} disabled={busy}
             onClick={async () => {
                 setBusy(true);
-                await authClient.signIn.social({ provider: "google", callbackURL, errorCallbackURL: "/sign-in?error=google" });
+                await authClient.signIn.social({ provider: "google", callbackURL, errorCallbackURL: withReturn("/sign-in?error=google", callbackURL) });
                 setBusy(false);
             }}>
             {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -66,6 +66,12 @@ export function GoogleOption({ enabled, callbackURL }: { enabled: boolean; callb
     if (!enabled) return null;
     if (inApp) return <p data-testid="auth-inapp-hint" className="rounded-md bg-raised px-3 py-2 text-sm text-foreground">Google sign-in does not work in this app&apos;s browser. Use your email below, or open this page in Safari or Chrome.</p>;
     return <><GoogleButton callbackURL={callbackURL} /><Divider /></>;
+}
+
+// ?error=google (first param wins; Better Auth may append its own code) -> Google wording; any other error -> the link wording.
+function signInErrorText(code: string | null): string | null {
+    if (!code) return null;
+    return code === "google" ? "Google sign-in did not finish. Please try again, or use your email below." : "That link is invalid or expired. Please try again.";
 }
 
 const errorText = (message?: string | null) => message || "Something went wrong. Please try again.";
@@ -121,7 +127,7 @@ export function SignInForm({ googleEnabled }: { googleEnabled: boolean }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [busy, setBusy] = useState<"password" | "link" | null>(null);
-    const [error, setError] = useState<string | null>(params.get("error") ? "That link is invalid or expired. Please try again." : null);
+    const [error, setError] = useState<string | null>(signInErrorText(params.get("error")));
     const [info, setInfo] = useState<string | null>(null);
     const [unverified, setUnverified] = useState(false);
 
@@ -144,7 +150,7 @@ export function SignInForm({ googleEnabled }: { googleEnabled: boolean }) {
     async function onMagicLink() {
         if (!email) { setError("Enter your email first."); return; }
         setBusy("link"); setError(null); setInfo(null);
-        const { error: failure } = await authClient.signIn.magicLink({ email, callbackURL: redirectTo, errorCallbackURL: "/sign-in?error=link" });
+        const { error: failure } = await authClient.signIn.magicLink({ email, callbackURL: redirectTo, errorCallbackURL: withReturn("/sign-in?error=link", redirectTo) });
         setBusy(null);
         if (failure) { setError(errorText(failure.message)); return; }
         setInfo("Check your inbox. We sent you a sign-in link.");
