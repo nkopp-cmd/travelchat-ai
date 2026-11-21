@@ -9,6 +9,7 @@ import { SpotCardSkeleton } from "@/components/ui/skeleton";
 import { CityQuickFilters } from "@/components/spots/city-quick-filters";
 import { CityConditions } from "@/components/spots/city-conditions";
 import { getCityBySlug } from "@/lib/cities";
+import { withHubCity } from "@/lib/spots/hub-city";
 import { hubIndexable, spotsHubHeading } from "@/lib/seo/spot-indexable";
 import { sitemapSpotRows } from "@/lib/seo/sitemap-spots";
 import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
@@ -107,13 +108,14 @@ async function SpotsContent({
 
     const city = filters.city ? getCityBySlug(filters.city) : undefined;
     // Weather comes from the edge cache or one capped MET request, in parallel with the spots.
-    const [spotsData, filterOptions, weeklyTrending, viral, weather] = await Promise.all([
+    const [spotsResult, filterOptions, weeklyTrending, viral, weather] = await Promise.all([
         fetchFilteredSpots(filters),
         fetchFilterOptions(),
         fetchWeeklyTrendingSpots(filters.city),
         fetchViralSpots(filters.city ?? null),
         city ? getWeather({ lat: city.center.lat, lng: city.center.lng, timeZone: city.timezone }) : null,
     ]);
+    const spotsData = { ...spotsResult, spots: withHubCity(spotsResult.spots, city) };
 
     return (
         <>

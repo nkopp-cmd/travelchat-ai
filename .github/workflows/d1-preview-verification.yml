@@ -685,6 +685,8 @@ on:
       - '__tests__/lib/plan-cache.test.ts'
       - '__tests__/scripts/warm-free-plans.test.ts'
       - 'scripts/warm-free-plans.mjs'
+      - '__tests__/lib/hub-city.test.tsx'
+      - 'lib/spots/hub-city.ts'
       - 'lib/llm/**'
       - 'lib/imagen.ts'
       - 'lib/model-credits.ts'
