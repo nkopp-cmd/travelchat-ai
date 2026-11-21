@@ -156,6 +156,7 @@ export function authCopy(mode: AuthMode, redirectUrl: string | null | undefined)
 // Push BH2: the auth form had no way back (the logo has no link). A visitor who came from a trip, the planner or a
 // spot page gets one link back to that page. The link drops the query, so it never replays continue=save or checkout.
 export type AuthBackLink = { href: string; label: string };
+const BLOG_POST = /^\/blog\/[a-z0-9-]+$/;
 export function authBackLink(redirectUrl: string | null | undefined): AuthBackLink | null {
     const path = pathOf(redirectUrl);
     if (path === GENERATED_PREVIEW_PATH) return { href: GENERATED_PREVIEW_PATH, label: "Back to your trip" };
@@ -163,5 +164,11 @@ export function authBackLink(redirectUrl: string | null | undefined): AuthBackLi
     if (path && SPOT_PAGE.test(path)) return { href: path, label: "Back to the spot" };
     const tips = path ? TIPS_PAGE.exec(path) : null;
     if (tips) return { href: `/spots/${tips[1]}`, label: "Back to the spot" };
+    // Push BS2: the header's Sign in / Join free now carry the page (BR2), so a visitor from a public page gets a way
+    // back too. Only public pages: a link back to a signed-in wall would show this form again.
+    if (path === "/pricing") return { href: "/pricing", label: "Back to pricing" };
+    if (path === "/spots" || path === "/explore") return { href: path, label: "Back to Explore" };
+    if (path === "/blog") return { href: "/blog", label: "Back to the blog" };
+    if (path && BLOG_POST.test(path)) return { href: path, label: "Back to the article" };
     return null;
 }

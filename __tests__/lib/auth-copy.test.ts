@@ -162,7 +162,7 @@ describe("authBackLink (Push BH2)", () => {
         expect(authBackLink("/spots/08b64783?continue=save-spot:08b64783")).toEqual({ href: "/spots/08b64783", label: "Back to the spot" });
     });
     it("shows no link for the plain form, other paths or unsafe redirects", () => {
-        for (const value of [undefined, null, "", "/dashboard", "/pricing?checkout=pro-monthly", "/spots/submit", "//evil.example/itineraries/preview", "https://evil.example/itineraries/preview"]) {
+        for (const value of [undefined, null, "", "/", "/dashboard", "/sign-in", "/sign-up", "/blog/a/b", "/blog/x\\evil.example", "/spots/submit", "//evil.example/itineraries/preview", "https://evil.example/itineraries/preview"]) {
             expect(authBackLink(value), String(value)).toBeNull();
         }
     });
@@ -181,4 +181,23 @@ describe("spot page tips link (Push BP2)", () => {
         const link = source.slice(source.indexOf("href={`/spots/${spot.id}/tips`}"), source.indexOf("Traveller tips and photos"));
         expect(link).toContain('rel="nofollow"');
     });
+});
+
+describe("authBackLink (Push BS2 + BS4)", () => {
+    it.each([
+        ["/pricing", "/pricing", "Back to pricing"],
+        ["/pricing?checkout=pro-monthly", "/pricing", "Back to pricing"],
+        ["/spots?city=tokyo&category=cafe", "/spots", "Back to Explore"],
+        ["/explore", "/explore", "Back to Explore"],
+        ["/blog", "/blog", "Back to the blog"],
+        ["/blog/paying-in-seoul#tips", "/blog/paying-in-seoul", "Back to the article"],
+    ])("links %s back to %s without the query", (target, href, label) => {
+        expect(authBackLink(target)).toEqual({ href, label });
+    });
+    it.each(["/pricing", "/spots?city=tokyo", "/blog/paying-in-seoul", "/itineraries/preview?continue=save", "/spots/abc?continue=save-spot:abc", "/spots/abc/tips"])(
+        "keeps %s same-origin and query-free", (target) => {
+            const back = authBackLink(target);
+            expect(back).not.toBeNull();
+            expect(back!.href).toMatch(/^\/(?![/\\])[^?#]*$/);
+        });
 });
