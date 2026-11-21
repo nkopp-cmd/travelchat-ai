@@ -17,14 +17,23 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ spo
     const name = FILE.exec(file);
     if (!SPOT.test(spotId) || !name) return missing();
     const key = `spot-photos/${spotId}/${name[1]}.webp`;
-    const row = await spotPhotoByKey(appDataDb() as unknown as CommunityDb, key).catch(() => null);
-    if (!row || row.spot_id !== spotId) return missing();
     const bucket = photoBucket();
-    const exact = name[2] ? await bucket?.get(`spot-photos/${spotId}/${file}`).catch(() => null) : null;
-    // No pin copy yet: the card copy is the next smallest. Any stand-in is cached for an hour only, until the copy exists.
+    // Push CA4: the D1 check and the first R2 read run in parallel. On an edge miss (a cold colo far from the WEUR
+    // database) they ran one after the other, two long round trips before the first byte of the LCP photo.
+    // The bytes go out only when the row exists, so a takedown (row deleted + URL purged) still answers 404.
+    const [row, exact] = await Promise.all([
+        spotPhotoByKey(appDataDb() as unknown as CommunityDb, key).catch(() => null),
+        (bucket?.get(name[2] ? `spot-photos/${spotId}/${file}` : key) ?? Promise.resolve(null)).catch(() => null),
+    ]);
+    if (!row || row.spot_id !== spotId) {
+        await exact?.body.cancel().catch(() => undefined);
+        return missing();
+    }
+    // No size copy yet: the pin copy falls back to the card copy (the next smallest), every copy to the full photo.
+    // Any stand-in is cached for an hour only, until the copy exists.
     const object = exact
         ?? (name[2] === "-w144" ? await bucket?.get(`spot-photos/${spotId}/${name[1]}-w480.webp`).catch(() => null) : null)
-        ?? await bucket?.get(key).catch(() => null);
+        ?? (name[2] ? await bucket?.get(key).catch(() => null) : null);
     if (!object) return missing();
     const cache = name[2] && !exact ? "public, max-age=3600" : "public, max-age=31536000, immutable";
     return new Response(object.body, {

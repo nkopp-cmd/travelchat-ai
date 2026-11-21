@@ -114,4 +114,30 @@ describe("own spot photos from tips", () => {
       expect(response.headers.get("Cache-Control")).toBe("no-store");
     }
   });
+  it("starts the R2 read before the D1 check answers, and still sends no bytes without a row (Push CA4)", async () => {
+    await promoteTipPhoto(db, bucket(), "t1", "admin-1");
+    const full = sha(webp(1));
+    const order: string[] = [];
+    const real = db.prepare.bind(db);
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => { release = resolve; });
+    mocks.db = { prepare: (sql: string) => {
+      const statement = real(sql);
+      return { bind: (...v: unknown[]) => ({ first: async <T>() => { order.push("d1"); await gate; return statement.bind(...v).first<T>(); } }) };
+    } };
+    const get0 = (mocks.bucket as { get: (key: string) => Promise<unknown> }).get;
+    (mocks.bucket as { get: unknown }).get = vi.fn(async (key: string) => { order.push("r2"); return get0(key); });
+    const pending = get(SPOT, `${full}.webp`);
+    await vi.waitFor(() => expect(order).toEqual(["d1", "r2"]));
+    release();
+    expect((await pending).status).toBe(200);
+
+    // A takedown removes the row: the object still exists in R2, the answer is 404 and its stream is cancelled.
+    await db.prepare("DELETE FROM spot_photos WHERE spot_id = ?").bind(SPOT).run();
+    const cancel = vi.fn(async () => undefined);
+    (mocks.bucket as { get: unknown }).get = vi.fn(async () => ({ body: { cancel } }));
+    const gone = await get(SPOT, `${full}.webp`);
+    expect(gone.status).toBe(404);
+    expect(cancel).toHaveBeenCalledOnce();
+  });
 });
