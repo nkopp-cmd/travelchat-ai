@@ -307,6 +307,10 @@
   .city-chip-on { @apply bg-violet-600 text-white hover:bg-violet-700; }
   .city-chip-off { @apply bg-[#100b1c] text-violet-50/85 hover:bg-violet-400/10 hover:text-white; }
 
+  /* Push CB2: rows of the city A-Z list (/spots/a-z/<city>), styled from one wrapper class instead of per-row classes. */
+  .spot-az li { @apply truncate text-muted-foreground; }
+  .spot-az li > a { @apply text-foreground underline-offset-2 hover:underline; }
+
   /* Premium glow effects */
   .glow-violet {
     box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);

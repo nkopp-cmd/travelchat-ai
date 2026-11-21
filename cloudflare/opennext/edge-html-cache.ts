@@ -69,6 +69,9 @@ const VIRAL_EVENT_PATH = /^\/trending\/[a-z0-9][a-z0-9-]{2,95}$/;
 // and never stored (only 200 HTML is cached).
 const CREDITS_CITY_PATH = /^\/credits\/[a-z0-9][a-z0-9-]{0,63}$/;
 const CREDITS_TTL_SECONDS = 3600;
+// A-Z list of one city hub (app/spots/a-z/[city], Push CB2): an hour, as its data cache (city-directory-store
+// revalidate 3600). Unknown or empty cities are 404s and never stored.
+const SPOTS_AZ_PATH = /^\/spots\/a-z\/[a-z0-9][a-z0-9-]{0,63}$/;
 // One map pin card ("/api/spots/pins/<id prefix>"), no query.
 const PIN_CARD_PATH = /^\/api\/spots\/pins\/[0-9a-f-]{8,36}$/;
 // Sitemaps (route handlers app/sitemap.xml and app/sitemaps/[file], same names as parseSitemapFile), kept out of the
@@ -94,7 +97,7 @@ export function edgeTtlSeconds(pathname: string): number | undefined {
   if (SPOT_OG_PATH.test(pathname)) return SPOT_OG_TTL_SECONDS;
   if (isSitemap(pathname)) return SITEMAP_TTL_SECONDS;
   if (SPOT_MEDIA_PATH.test(pathname)) return SPOT_MEDIA_TTL_SECONDS;
-  if (CREDITS_CITY_PATH.test(pathname)) return CREDITS_TTL_SECONDS;
+  if (CREDITS_CITY_PATH.test(pathname) || SPOTS_AZ_PATH.test(pathname)) return CREDITS_TTL_SECONDS;
   return VIRAL_EVENT_PATH.test(pathname) || PIN_CARD_PATH.test(pathname) ? LIVE_DETAIL_TTL_SECONDS : undefined;
 }
 
