@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useState, type ComponentProps, type FormEvent, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { Loader2 } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,22 @@ const secondaryClass = "w-full bg-raised text-foreground hover:bg-raised";
 export function withReturn(path: string, redirectTo: string): string {
     const to = safeRedirect(redirectTo);
     return to === "/dashboard" ? path : `${path}${path.includes("?") ? "&" : "?"}redirect_url=${encodeURIComponent(to)}`;
+}
+
+// Push BT1: phones hide what was typed; a mistyped password lost the sign-up. One tap shows it.
+// The name changes ("Show password" / "Hide password"), as in the GOV.UK pattern, so no aria-pressed.
+type PasswordInputProps = Omit<ComponentProps<typeof Input>, "type">;
+export function PasswordInput({ className, ...props }: PasswordInputProps) {
+    const [shown, setShown] = useState(false);
+    return (
+        <div className="relative">
+            <Input {...props} type={shown ? "text" : "password"} className={`pr-16 ${className ?? ""}`} />
+            <button type="button" data-password-toggle aria-controls={props.id} aria-label={shown ? "Hide password" : "Show password"} onClick={() => setShown((value) => !value)}
+                className="absolute inset-y-0 right-0 flex min-h-11 min-w-11 items-center justify-center px-3 text-sm font-medium text-primary">
+                {shown ? "Hide" : "Show"}
+            </button>
+        </div>
+    );
 }
 
 function Field({ id, label, children }: { id: string; label: string; children: ReactNode }) {
@@ -167,7 +183,7 @@ export function SignInForm({ googleEnabled }: { googleEnabled: boolean }) {
                     <Input id="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
                 </Field>
                 <Field id="password" label="Password">
-                    <Input id="password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                    <PasswordInput id="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
                 </Field>
                 <div className="flex justify-end">
                     <Link href={withReturn("/forgot-password", redirectTo)} className="text-sm text-primary hover:text-primary">Forgot password?</Link>
@@ -242,7 +258,7 @@ export function SignUpForm({ googleEnabled }: { googleEnabled: boolean }) {
                     <Input id="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
                 </Field>
                 <Field id="password" label="Password (8+ characters)">
-                    <Input id="password" type="password" autoComplete="new-password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
+                    <PasswordInput id="password" autoComplete="new-password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
                 </Field>
                 {/* Optional and last (Push BC1): an empty name falls back to the email prefix. */}
                 <Field id="name" label="Name (optional)">
@@ -322,7 +338,7 @@ export function ResetPasswordForm() {
         <form onSubmit={onSubmit} className="space-y-4">
             {error ? <Notice tone="error">{error}</Notice> : null}
             <Field id="password" label="New password (8+ characters)">
-                <Input id="password" type="password" autoComplete="new-password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} disabled={!token} />
+                <PasswordInput id="password" autoComplete="new-password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} disabled={!token} />
             </Field>
             <Button type="submit" className={primaryClass} disabled={busy || !token}>
                 {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}

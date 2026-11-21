@@ -273,6 +273,7 @@ VITEST_FILES=(
   __tests__/api/itinerary-sanitize.test.ts
   __tests__/hooks/use-place-photo.test.tsx
   __tests__/components/auth-password-redirect.test.tsx
+  __tests__/components/auth-password-toggle.test.tsx
   __tests__/components/auth-verify-resend.test.tsx
   __tests__/components/auth-client-adapter.test.tsx
   __tests__/components/itinerary-activity-card.test.tsx
@@ -708,6 +709,7 @@ ESLINT_FILES=(
   app/forgot-password/page.tsx
   __tests__/components/auth-reset-return.test.tsx
   __tests__/components/auth-password-redirect.test.tsx
+  __tests__/components/auth-password-toggle.test.tsx
   components/activities/itinerary-activity-card.tsx
   __tests__/components/itinerary-activity-card.test.tsx
   app/api/admin/spots/backfill-photos/route.ts
