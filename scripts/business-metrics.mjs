@@ -62,17 +62,18 @@ export function summarize({ users, sessions, subscriptions, funnel, links = [], 
   const events = viral ? recent(Object.values(viral.events ?? {}), "firstSeen") : null;
   const places = events ? events.reduce((n, e) => n + Object.values(e.places ?? {}).filter((p) => RESOLVED.has(p.status)).length, 0) : null;
   const ranked = recent(rankings, "created_at").length;
-  const paid30 = funnel.filter((f) => f.step === "checkout_paid" && within(`${f.day}T00:00:00Z`, from30, now + DAY))
-    .reduce((sum, f) => sum + Number(f.count || 0), 0);
-  // Push BW2: checkout starts by source, so an offer change (localley-decisions.md) can read start -> paid.
-  const starts = {};
-  for (const f of funnel) {
-    if (f.step !== "checkout_start" || !within(`${f.day}T00:00:00Z`, from30, now + DAY)) continue;
-    const source = f.source || "other";
-    starts[source] = (starts[source] ?? 0) + Number(f.count || 0);
-  }
-  const startTotal = Object.values(starts).reduce((a, b) => a + b, 0);
-  const startBySource = Object.keys(starts).sort().map((k) => `${k} ${starts[k]}`).join(", ");
+  // Push BW2/BX3: starts and payments by source, so an offer change (localley-decisions.md) can read start -> paid.
+  // checkout_paid source = the page the checkout started on (Push BX1), "stripe" for older or unknown sessions.
+  const bySource = (step, fallback) => {
+    const counts = {};
+    for (const f of funnel) {
+      if (f.step !== step || !within(`${f.day}T00:00:00Z`, from30, now + DAY)) continue;
+      const source = f.source || fallback;
+      counts[source] = (counts[source] ?? 0) + Number(f.count || 0);
+    }
+    const total = Object.values(counts).reduce((a, b) => a + b, 0);
+    return `${total}${total ? ` (${Object.keys(counts).sort().map((k) => `${k} ${counts[k]}`).join(", ")})` : ""}`;
+  };
   return {
     app: "Localley",
     currency: "usd",
@@ -89,8 +90,8 @@ export function summarize({ users, sessions, subscriptions, funnel, links = [], 
     owned_audience: audience ? audience.confirmed : null,
     in_person_30d: null,
     notes: `paying = active/past_due Pro/Premium Stripe subscriptions now (D1 legacy_subscriptions, own accounts excluded); `
-      + `checkout_paid funnel events 30d: ${paid30}; `
-      + `checkout_start funnel events 30d: ${startTotal}${startTotal ? ` (${startBySource})` : ""}; `
+      + `checkout_paid funnel events 30d: ${bySource("checkout_paid", "stripe")}; `
+      + `checkout_start funnel events 30d: ${bySource("checkout_start", "other")}; `
       // Push AN2: the last day the collector counted anything, so "beacons broken" and "no visitors" look different.
       + `last counted event day (UTC; own checks are not counted): funnel ${lastEvent?.funnel ?? "unknown"}, spot cards ${lastEvent?.cards ?? "unknown"}; `
       + `revenue/prev/repeat null: Stripe key is a Worker secret only and D1 keeps no invoice history; `
