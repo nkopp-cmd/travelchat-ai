@@ -198,6 +198,8 @@ VITEST_FILES=(
   __tests__/api/generate-v2-stream-route.test.ts
   __tests__/api/generate-anon-limit.test.ts
   __tests__/api/generate-anon-success.test.ts
+  __tests__/api/generate-plan-cache.test.ts
+  __tests__/lib/plan-cache.test.ts
   __tests__/lib/chat-provider-fallback.test.ts
   __tests__/lib/chat-readiness.test.ts
   __tests__/lib/itinerary-provider-meta.test.ts
@@ -460,6 +462,9 @@ ESLINT_FILES=(
   app/itineraries/preview/preview-client.tsx
   app/pricing/page.tsx
   lib/trips/preview-draft-store.ts
+  lib/trips/plan-cache.ts
+  __tests__/lib/plan-cache.test.ts
+  __tests__/api/generate-plan-cache.test.ts
   app/itineraries/preview/layout.tsx
   lib/trips/generated-preview.ts
   lib/trips/paid-return.ts
