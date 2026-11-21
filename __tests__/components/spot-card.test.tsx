@@ -141,4 +141,20 @@ describe("SpotCard byte budget", () => {
     expect(container.innerHTML).not.toMatch(/\[&_svg\]|aria-invalid:ring/);
     expect(container.innerHTML.length).toBeLessThanOrEqual(5_000);
   });
+  it("styles the card shell, chip, title, why text and toggles with short spot-card classes", () => {
+    const { container } = render(<SpotCard spot={{ ...baseSpot, description: `${baseSpot.description} ${"More source text. ".repeat(20)}` }} />);
+    const card = screen.getByTestId("spot-card");
+    expect(card.className).toBe("spot-card spot-card-list");
+    expect(card.dataset.slot).toBe("card");
+    expect(screen.getByTestId("spot-category-chip").className).toBe("spot-card-chip");
+    expect(screen.getByTestId("spot-card-title").className).toBe("spot-card-title");
+    expect(container.querySelector("[data-spot-card-why]")?.className).toBe("spot-card-why");
+    expect(container.querySelector("summary")?.className).toBe("spot-toggle text-sm text-primary");
+    expect(container.innerHTML).not.toMatch(/data-spot-view=list|webkit-details-marker|has\(details/);
+    expect(container.innerHTML.length).toBeLessThanOrEqual(3_500);
+  });
+  it("uses the compact list grid class for compact cards", () => {
+    render(<SpotCard spot={baseSpot} compact />);
+    expect(screen.getByTestId("spot-card").className).toBe("spot-card spot-card-compact");
+  });
 });
