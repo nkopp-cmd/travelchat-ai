@@ -157,6 +157,7 @@ const routes = [
   "/spots/[id]",
   "/spots/[id]/og",
   "/spots/[id]/tips",
+  "/spots/a-z/[city]",
   "/spots/submissions",
   "/spots/submit",
   "/templates",
