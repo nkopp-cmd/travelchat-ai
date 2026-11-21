@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 // @ts-expect-error -- plain ESM build script without type declarations
 import { BLOG_BUNDLE, blogSlugs, renderBundle } from "../../scripts/blog-index.mjs";
 import { BlogMarkdown, parseBlocks } from "../../lib/blog/markdown";
-import { BLOG_POSTS, blogPost, parsePost } from "../../lib/blog/posts";
+import { BLOG_POSTS, blogPlannerCities, blogPost, parsePost, plannerHref, postPlannerCity } from "../../lib/blog/posts";
 import { blogPostingJsonLd, blogRss, jsonLdHtml } from "../../lib/blog/seo";
 
 const post = (meta: string, body = "Hello.") => `---\n${meta}\n---\n${body}\n`;
@@ -42,6 +42,21 @@ describe("blog posts", () => {
       expect(() => renderToStaticMarkup(BlogMarkdown({ source: p.body }))).not.toThrow();
       expect(p.body).not.toMatch(/<[a-z]/i);
     }
+  });
+});
+
+describe("blog planner city (Push BL2)", () => {
+  it("reads the city from the first planner link in the body", () => {
+    expect(postPlannerCity("Go [plan](/itineraries/new?city=Seoul) and [Bangkok](/itineraries/new?city=Bangkok).")).toBe("Seoul");
+    expect(postPlannerCity("[Kuala Lumpur](/itineraries/new?city=Kuala%20Lumpur)")).toBe("Kuala Lumpur");
+    expect(postPlannerCity("[plan](/itineraries/new) only")).toBeUndefined();
+    expect(plannerHref("Kuala Lumpur")).toBe("/itineraries/new?city=Kuala%20Lumpur");
+  });
+
+  it("the index lists each post city once", () => {
+    const cities = blogPlannerCities();
+    expect(new Set(cities).size).toBe(cities.length);
+    expect(cities).toEqual(expect.arrayContaining(["Seoul", "Bangkok", "Singapore"]));
   });
 });
 
