@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 // @ts-expect-error -- plain ESM build script without type declarations
 import { BLOG_BUNDLE, blogSlugs, renderBundle } from "../../scripts/blog-index.mjs";
 import { authReturnHref, BlogMarkdown, parseBlocks } from "../../lib/blog/markdown";
-import { BLOG_POSTS, blogPlannerCities, blogPost, parsePost, plannerHref, postPlannerCity } from "../../lib/blog/posts";
+import { BLOG_POSTS, blogPlannerCities, blogPost, parsePost, plannerHref, postPlannerCity, splitLead } from "../../lib/blog/posts";
 import { blogPostingJsonLd, blogRss, jsonLdHtml } from "../../lib/blog/seo";
 
 const post = (meta: string, body = "Hello.") => `---\n${meta}\n---\n${body}\n`;
@@ -151,5 +151,30 @@ describe("blog auth links return to the post (Push BR3)", () => {
       for (const [, href] of html.matchAll(/href="(\/sign-(?:up|in)[^"]*)"/g)) expect(href).toContain(`redirect_url=${encodeURIComponent(`/blog/${p.slug}`)}`);
     }
     expect(readFileSync("app/blog/[slug]/page.tsx", "utf8")).toContain("returnPath={`/blog/${post.slug}`}");
+  });
+});
+
+describe("Push CA4: answer before the photo", () => {
+  it("splits the lead paragraphs from the first ## section", () => {
+    expect(splitLead("Lead one.\n\nLead two.\n\n## A\n\nText")).toEqual({ lead: "Lead one.\n\nLead two.", rest: "## A\n\nText" });
+    expect(splitLead("Only text.")).toEqual({ lead: "Only text.", rest: "" });
+    expect(splitLead("## A\n\nText")).toEqual({ lead: "", rest: "## A\n\nText" });
+    expect(splitLead("Lead with ### deeper and a ##tag.\n\n### Sub\n\n## Real")).toEqual({ lead: "Lead with ### deeper and a ##tag.\n\n### Sub", rest: "## Real" });
+  });
+
+  it("every real post has a lead and keeps all of its text", () => {
+    for (const p of BLOG_POSTS) {
+      const { lead, rest } = splitLead(p.body);
+      expect(lead.length).toBeGreaterThan(80);
+      expect(rest.startsWith("## ")).toBe(true);
+      expect(`${lead}\n\n${rest}`.replace(/\s+/g, " ")).toBe(p.body.replace(/\s+/g, " "));
+    }
+  });
+
+  it("the page renders the lead before the photo and does not preload the photo", () => {
+    const page = readFileSync("app/blog/[slug]/page.tsx", "utf8");
+    expect(page.indexOf("source={lead}")).toBeLessThan(page.indexOf("<figure"));
+    expect(page.indexOf("<figure")).toBeLessThan(page.indexOf("source={rest}"));
+    expect(page).not.toContain('fetchPriority="high"');
   });
 });

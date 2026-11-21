@@ -17,6 +17,17 @@ export type BlogPost = {
 
 const PLANNER_CITY = /\(\/itineraries\/new\?city=([A-Z][A-Za-z]*(?:%20[A-Z][A-Za-z]*)*)\)/;
 
+/**
+ * Push CA4: the lead paragraphs (the answer) come before the photo, the rest after it (content first). On a phone the
+ * photo then starts near the fold, so the first paint already shows the answer and the photo does not hold up LCP.
+ * No "## " section -> the whole body is the lead.
+ */
+export function splitLead(body: string): { lead: string; rest: string } {
+  const at = body.search(/^## /m);
+  if (at <= 0) return at === 0 ? { lead: "", rest: body } : { lead: body, rest: "" };
+  return { lead: body.slice(0, at).trimEnd(), rest: body.slice(at) };
+}
+
 /** Push BL2: the first planner link in the body names the post's city; none -> undefined. */
 export function postPlannerCity(body: string): string | undefined {
   const match = PLANNER_CITY.exec(body);
