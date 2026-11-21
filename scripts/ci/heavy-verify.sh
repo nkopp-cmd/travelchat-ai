@@ -34,6 +34,8 @@ VITEST_FILES=(
   __tests__/lib/referral-point.property.test.ts
   __tests__/lib/funnel-analytics.test.ts
   __tests__/components/save-spot-button.test.tsx
+  __tests__/components/template-picker.test.tsx
+  __tests__/components/template-card.test.tsx
   __tests__/components/city-quick-filters.test.tsx
   __tests__/components/auth-form-return.test.tsx
   __tests__/components/review-form-a11y.test.tsx
@@ -475,6 +477,8 @@ ESLINT_FILES=(
   components/spots/save-spot-button.tsx
   __tests__/lib/spot-analytics.test.ts
   __tests__/components/save-spot-button.test.tsx
+  __tests__/components/template-picker.test.tsx
+  __tests__/components/template-card.test.tsx
   components/spots/city-quick-filters.tsx
   __tests__/components/city-quick-filters.test.tsx
   e2e/spots-layout.spec.ts
