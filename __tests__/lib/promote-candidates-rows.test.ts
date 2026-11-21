@@ -68,6 +68,7 @@ describe("candidate promoter", () => {
         expect(exactAddress("Tapdong-ro, Jeju, South Korea", jeju)).toBe("");
         expect(exactAddress("Jeju, South Korea", jeju)).toBe("");
         expect(exactAddress("20 Tapdong-ro, Seogwipo, South Korea", jeju)).toBe("");
+        expect(exactAddress("Asakusa 2-1, Taito, 111-0032, Tokyo, Japan", cities.tokyo)).toBe("Asakusa 2-1, Taito, 111-0032, Tokyo, Japan");
         const items = [{ c: { ...candidate, city_slug: "jeju" }, city: jeju }];
         const copyOf = parseCopy(JSON.stringify({ spots: [{ ...copy, key: "cand-1", addressEn: "20 Tapdong-ro, Jeju" }] }), items).get("cand-1");
         expect(copyOf).toMatchObject({ exactAddress: true, addressEn: "20 Tapdong-ro, Jeju, South Korea" });
