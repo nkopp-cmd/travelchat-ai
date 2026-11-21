@@ -64,6 +64,15 @@ export function summarize({ users, sessions, subscriptions, funnel, links = [], 
   const ranked = recent(rankings, "created_at").length;
   const paid30 = funnel.filter((f) => f.step === "checkout_paid" && within(`${f.day}T00:00:00Z`, from30, now + DAY))
     .reduce((sum, f) => sum + Number(f.count || 0), 0);
+  // Push BW2: checkout starts by source, so an offer change (localley-decisions.md) can read start -> paid.
+  const starts = {};
+  for (const f of funnel) {
+    if (f.step !== "checkout_start" || !within(`${f.day}T00:00:00Z`, from30, now + DAY)) continue;
+    const source = f.source || "other";
+    starts[source] = (starts[source] ?? 0) + Number(f.count || 0);
+  }
+  const startTotal = Object.values(starts).reduce((a, b) => a + b, 0);
+  const startBySource = Object.keys(starts).sort().map((k) => `${k} ${starts[k]}`).join(", ");
   return {
     app: "Localley",
     currency: "usd",
@@ -81,6 +90,7 @@ export function summarize({ users, sessions, subscriptions, funnel, links = [], 
     in_person_30d: null,
     notes: `paying = active/past_due Pro/Premium Stripe subscriptions now (D1 legacy_subscriptions, own accounts excluded); `
       + `checkout_paid funnel events 30d: ${paid30}; `
+      + `checkout_start funnel events 30d: ${startTotal}${startTotal ? ` (${startBySource})` : ""}; `
       // Push AN2: the last day the collector counted anything, so "beacons broken" and "no visitors" look different.
       + `last counted event day (UTC; own checks are not counted): funnel ${lastEvent?.funnel ?? "unknown"}, spot cards ${lastEvent?.cards ?? "unknown"}; `
       + `revenue/prev/repeat null: Stripe key is a Worker secret only and D1 keeps no invoice history; `
@@ -113,7 +123,7 @@ async function main() {
   const [users, sessions, funnel, subscriptions, links, ugc, rankings, subscribers, funnelDay, cardsDay] = await Promise.all([
     select(AUTH_DB, "SELECT id, email, createdAt FROM user", auth),
     select(AUTH_DB, "SELECT userId, updatedAt FROM session WHERE updatedAt >= strftime('%Y-%m-%dT%H:%M:%fZ','now','-31 days')", auth),
-    select(AUTH_DB, "SELECT day, step, count FROM funnel_events_daily WHERE step = 'checkout_paid'", auth),
+    select(AUTH_DB, "SELECT day, step, source, count FROM funnel_events_daily WHERE step IN ('checkout_paid', 'checkout_start')", auth),
     select(APP_DB, `SELECT l.authUserId, s.tier, s.status, s.stripeSubscriptionId FROM legacy_subscriptions s
       LEFT JOIN identity_links l ON l.ownerId = s.ownerId`, auth),
     select(APP_DB, "SELECT authUserId, ownerId FROM identity_links", auth),
