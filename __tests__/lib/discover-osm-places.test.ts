@@ -9,7 +9,7 @@ import { ewkbPoint } from "@/lib/app-data/ewkb";
 import { listingPlaceFor } from "@/lib/spots/listing-place";
 import { getPublicSpotQualityIssue } from "@/lib/spots/public-quality";
 // @ts-expect-error plain ESM script without types
-import { isListed, wikidataId, MAX_CONSIDER, MAX_WORSHIP_PER_CITY, normalizeOsm, osmAddress, overpassQuery, pickCities, rankCandidates, reverseAddress, SOURCE_TYPE, INSERT_CANDIDATE_SQL, candidateParams } from "../../scripts/discover-osm-places.mjs";
+import { isListed, kakaoAddress, wikidataAddress, wikidataId, MAX_CONSIDER, MAX_WORSHIP_PER_CITY, normalizeOsm, osmAddress, overpassQuery, pickCities, rankCandidates, reverseAddress, SOURCE_TYPE, INSERT_CANDIDATE_SQL, candidateParams } from "../../scripts/discover-osm-places.mjs";
 // @ts-expect-error plain ESM script without types
 import { buildCandidateRows, candidateStatements, gateCandidate, parseCities } from "../../scripts/promote-candidates.mjs";
 // @ts-expect-error plain ESM script without types
@@ -77,6 +77,25 @@ describe("discover-osm-places", () => {
         expect(osmAddress({ "addr:quarter": "Kichijoji Honcho", "addr:postcode": "180-0000" }, tokyo)).toBe("");
         // outside Japan the street rule stays
         expect(reverseAddress({ address: { house_number: "1", administrative: "Asakusa 2", postcode: "111-0032" } }, bkk)).toBe("");
+    });
+
+    it("falls back to the Wikidata street address in Japan and to Kakao in Korea", () => {
+        const kyoto = list.kyoto, tokyo = list.tokyo, busan = list.busan;
+        // Wikidata P6375 values, 2026-11-22 (full-width digits, postcode, building note)
+        expect(wikidataAddress("京都府京都市下京区烏丸七条下ル東塩小路町721-1", kyoto)).toBe("下京区烏丸七条下ル東塩小路町721-1, Kyoto, Japan");
+        expect(wikidataAddress("京都府京都市下京区御幸町通仏光寺下る橘町４３７", kyoto)).toBe("下京区御幸町通仏光寺下る橘町437, Kyoto, Japan");
+        expect(wikidataAddress("〒600-8468   京都府京都市下京区堀川通新花屋町下る(井筒左女牛ビル5階)", kyoto)).toBe("");
+        expect(wikidataAddress("〒603-8143　京都府京都市北区小山上総町", kyoto)).toBe("");
+        expect(wikidataAddress("東京都台東区浅草2丁目3-1", tokyo)).toBe("台東区浅草2丁目3-1, Tokyo, Japan");
+        expect(wikidataAddress(undefined, kyoto)).toBe("");
+        expect(wikidataAddress("京都市北区1-2", busan)).toBe("");
+        expect(kakaoAddress({ documents: [{ road_address: { address_name: "부산 해운대구 해운대해변로 264" }, address: { address_name: "부산 해운대구 우동 1411" } }] }, busan))
+            .toBe("부산 해운대구 해운대해변로 264, Busan, South Korea");
+        expect(kakaoAddress({ documents: [{ road_address: null, address: { address_name: "부산 중구 남포동6가 117" } }] }, busan))
+            .toBe("부산 중구 남포동6가 117, Busan, South Korea");
+        expect(kakaoAddress({ documents: [{ road_address: null, address: { address_name: "부산 중구 남포동" } }] }, busan)).toBe("");
+        expect(kakaoAddress({ documents: [] }, busan)).toBe("");
+        expect(kakaoAddress({ documents: [{ address: { address_name: "부산 중구 1" } }] }, kyoto)).toBe("");
     });
 
     it("keeps variety: places of worship are capped and come last", () => {
