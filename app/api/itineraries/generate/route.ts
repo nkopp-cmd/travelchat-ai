@@ -261,7 +261,7 @@ async function generate(req: NextRequest, outcome: GenerateOutcome) {
 
     // Fetch spots from the city to include in recommendations
     const supabase = createSupabaseAdmin();
-    const spotsQuery = itinerarySpotPoolQuery(supabase, normalizedCity);
+    const spotsQuery = itinerarySpotPoolQuery(supabase, normalizedCity, spotId);
 
     const { data: spots, error: spotsError } = await spotsQuery;
     if (spotsError) {

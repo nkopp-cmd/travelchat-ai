@@ -49,6 +49,16 @@ describe("grounded itinerary generation", () => {
     expect(ranked.map((candidate) => candidate.id)).toEqual(["2"]);
   });
 
+  it("keeps unverified public spots and ranks verified ones first at equal quality", () => {
+    const ranked = rankItineraryGroundingSpots([
+      spot("1", "Unverified Noodle Bar", "Food", { verified: false }),
+      spot("2", "Verified Noodle Bar", "Food"),
+      spot("3", "Unverified Short Text", "Food", { verified: false, description: { en: "Too short." } }),
+    ], { days: 1, interests: [], localnessLevel: 3, pace: "moderate" });
+
+    expect(ranked.map((candidate) => candidate.id)).toEqual(["2", "1"]);
+  });
+
   it("enforces relaxed pacing, category diversity, and real spot hydration", () => {
     const candidates = [
       spot("1", "Mangwon Food Alley", "Market"),
