@@ -37,7 +37,6 @@ export function preloadLaterSteps() {
 import { getErrorMessage } from "@/lib/error-utils";
 import { PLANNER_RESUME_PATH, savePlannerDraft } from "@/lib/trips/planner-draft";
 
-import { GENERATED_PREVIEW_PATH, generatedPreviewSnapshot, parseGeneratedPreview, storeGeneratedPreview } from "@/lib/trips/generated-preview";
 import { funnelSource, trackFunnelStep } from "@/lib/funnel-analytics";
 import { plannerLimitPricingHref } from "@/lib/pricing-checkout";
 
@@ -472,6 +471,8 @@ export function ItineraryWizard({ initialData, initialStep, initialCities = null
       if (errorCode === "signup_required" || errorCode === "unauthorized") {
         // Push BL3: the free plan from the last 24 h is still in this browser. Open it (Save -> sign-up/checkout)
         // instead of a bare sign-up wall, so the visitor sees what they get before the account step.
+        // Loaded on demand (push CH1): generated-preview is only needed after a generate call.
+        const { GENERATED_PREVIEW_PATH, generatedPreviewSnapshot, parseGeneratedPreview } = await import("@/lib/trips/generated-preview");
         const kept = parseGeneratedPreview(generatedPreviewSnapshot());
         if (kept) {
           toast({
@@ -512,6 +513,7 @@ export function ItineraryWizard({ initialData, initialStep, initialCities = null
     if (result.isAnonymous || result.requiresSaveUpgrade) {
       // Same id as the server copy (HttpOnly cookie), so a cold return from sign-up or checkout renders it in HTML.
       const serverId = typeof result.preview?.id === "string" && /^[0-9a-f-]{36}$/.test(result.preview.id) ? result.preview.id : undefined;
+      const { GENERATED_PREVIEW_PATH, storeGeneratedPreview } = await import("@/lib/trips/generated-preview");
       storeGeneratedPreview(localStorage, { ...result.itinerary, city: result.itinerary.city || data.city, days: data.days }, Date.now(), serverId);
       router.push(GENERATED_PREVIEW_PATH);
     } else {
