@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 // @ts-expect-error -- plain ESM build script without type declarations
-import { assertStaticPrerender, HELP_COUNTRY_SLUGS, inlineCriticalCss, packageStaticPublicHtml, SPOT_CRITICAL_CSS_ASSET, SPOT_TEMPLATE_FIXTURE, spotCriticalCss, STATIC_PUBLIC_PAGES } from "../scripts/cf-static-public-html.mjs";
+import { assertStaticPrerender, CRITICAL_CSS_PAGES, HELP_COUNTRY_SLUGS, inlineCriticalCss, packageStaticPublicHtml, SPOT_CRITICAL_CSS_ASSET, SPOT_TEMPLATE_FIXTURE, spotCriticalCss, STATIC_PUBLIC_PAGES } from "../scripts/cf-static-public-html.mjs";
 import { HELP_COUNTRIES } from "../lib/help/phrases";
 import { BLOG_POSTS } from "../lib/blog/posts";
 
@@ -40,6 +40,10 @@ describe("static public HTML assets", () => {
     expect(STATIC_PUBLIC_PAGES["/help/korea"]).toBe("help/korea.html");
   });
 
+  it("push CI1: every journal post gets critical CSS; the journal index and other pages keep their bytes", () => {
+    expect([...CRITICAL_CSS_PAGES]).toEqual(["/", ...BLOG_POSTS.map((p) => `/blog/${p.slug}`)]);
+  });
+
   it("lists every help country page", () => {
     expect(HELP_COUNTRY_SLUGS).toEqual(HELP_COUNTRIES.map((c) => c.slug));
   });
@@ -47,7 +51,7 @@ describe("static public HTML assets", () => {
   it("copies the exact prerendered bytes, scripts included", async () => {
     const all = Object.fromEntries(Object.keys(STATIC_PUBLIC_PAGES).map((r) => [r, route(false)]));
     const dir = await buildTree(all);
-    expect(await packageStaticPublicHtml(dir)).toEqual(Object.entries(STATIC_PUBLIC_PAGES).map(([r, f]) => `${r} -> ${f}${r === "/" ? " (critical CSS, JS after hero)" : ""}`));
+    expect(await packageStaticPublicHtml(dir)).toEqual(Object.entries(STATIC_PUBLIC_PAGES).map(([r, f]) => `${r} -> ${f}${r === "/" ? " (critical CSS, JS after hero)" : r.startsWith("/blog/") ? " (critical CSS)" : ""}`));
     for (const file of Object.values(STATIC_PUBLIC_PAGES) as string[]) {
       expect(await readFile(path.join(dir, ".open-next", "assets", file), "utf8")).toBe(page);
     }
