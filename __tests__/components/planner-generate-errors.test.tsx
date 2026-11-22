@@ -11,7 +11,7 @@ vi.mock("next/navigation", () => ({ useRouter: () => ({ push: nav.push, replace:
 vi.mock("next/image", () => ({ default: (props: { alt: string }) => <span>{props.alt}</span> }));
 vi.mock("@/lib/funnel-analytics", () => ({ trackFunnelStep: vi.fn(), funnelSource: () => "direct" }));
 vi.mock("@/hooks/use-toast", () => ({ useToast: () => ({ toast: nav.toast, dismiss: vi.fn(), toasts: [] }), toast: nav.toast }));
-import { GENERATE_FAILED_MESSAGE, ItineraryWizard, getQuickStartLabel, parsePlanSuggestion, planSuggestionLabel } from "@/components/itineraries/wizard";
+import { GENERATE_FAILED_MESSAGE, ItineraryWizard, PICK_CITY_LABEL, getQuickStartLabel, parsePlanSuggestion, planSuggestionLabel } from "@/components/itineraries/wizard";
 import { Errors, apiError, ErrorCodes } from "@/lib/api-errors";
 import { GENERATED_PREVIEW_PATH, storeGeneratedPreview } from "@/lib/trips/generated-preview";
 
@@ -27,7 +27,8 @@ const ROUTES: Array<[string, Answer, { to: RegExp } | { retry: RegExp }]> = [
   ["401 unauthorized (anon free trip used)", json(apiError(ErrorCodes.UNAUTHORIZED, "Create an account and choose a plan to keep building itineraries.", { signupUrl: "/sign-up" })), { to: /^\/sign-up\?redirect_url=/ }],
   ["429 limit_exceeded (free monthly trip used)", json(Errors.limitExceeded("itineraries", 1, 1, "2026-12-01T00:00:00.000Z")), { to: /^\/pricing\?limit=itineraries&resets=2026-12-01$/ }],
   ["400 validation_error", json(Errors.validationError("days: Expected number")), { retry: /days/ }],
-  ["422 insufficient_verified_spots", json(NextResponse.json({ error: "insufficient_verified_spots", message: "Localley does not yet have enough verified, photographed Tokyo spots for this exact pace and interest mix. Try fewer days, a slower pace, or broader interests." }, { status: 422 })), { retry: /Try fewer days/ }],
+  ["422 insufficient_verified_spots (post-model, no pickCity)", json(NextResponse.json({ error: "insufficient_verified_spots", message: "Localley could not build a full Tokyo plan from its verified spots for this mix. Try fewer days, a slower pace, or broader interests." }, { status: 422 })), { retry: /Try fewer days/ }],
+  ["422 insufficient_verified_spots (no mix works: pickCity)", json(NextResponse.json({ error: "insufficient_verified_spots", message: "Localley cannot plan Tokyo yet. Pick another city to get your free plan now.", pickCity: true }, { status: 422 })), { retry: /Pick another city/ }],
   ["429 rate limiter (lib/rate-limit body)", json(NextResponse.json({ error: "Too many requests", message: "Rate limit exceeded. Please try again later.", retryAfter: 30 }, { status: 429 })), { retry: /try again later/i }],
   ["429 rate_limited (api-errors body)", json(Errors.rateLimited(30)), { retry: /try again later/i }],
   ["500 internal_error", json(Errors.internalError()), { retry: /try again/i }],
@@ -95,6 +96,29 @@ describe("planner: every generate failure has a next step (push AP3)", () => {
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
     const sent = JSON.parse((fetchMock.mock.calls[1] as unknown as [string, RequestInit])[1].body as string);
     expect(sent).toMatchObject({ city: "Tokyo", days: 2, pace: "moderate", interests: [] });
+    expect(nav.push).not.toHaveBeenCalled();
+  });
+});
+
+describe("planner: a city with no working mix offers a city change (push CH3)", () => {
+  beforeEach(() => { localStorage.clear(); nav.push.mockReset(); nav.toast.mockReset(); Element.prototype.scrollTo = () => {}; });
+  afterEach(() => { vi.unstubAllGlobals(); });
+
+  it("the toast action clears the city and opens the city step, with no second request", async () => {
+    const fetchMock = vi.fn(json(NextResponse.json({ error: "insufficient_verified_spots", message: "Localley cannot plan Tokyo yet. Pick another city to get your free plan now.", pickCity: true }, { status: 422 })));
+    vi.stubGlobal("fetch", fetchMock);
+    render(<ItineraryWizard initialCities={cities} />);
+    fireEvent.click(screen.getByRole("button", { name: /Tokyo/ }));
+    await act(async () => { fireEvent.click(screen.getByRole("button", { name: getQuickStartLabel(3) })); });
+    await waitFor(() => expect(nav.toast).toHaveBeenCalled());
+    const shown = nav.toast.mock.calls.at(-1)![0] as { title: string; action: { props: { onClick: () => void; children: string } } };
+    expect(shown.title).toBe(PICK_CITY_LABEL);
+    expect(shown.action.props.children).toBe(PICK_CITY_LABEL);
+    await act(async () => { shown.action.props.onClick(); });
+    // City cleared: the one-tap start for Tokyo is gone until a city is picked again.
+    await waitFor(() => expect(screen.queryByRole("button", { name: getQuickStartLabel(3) })).toBeNull());
+    expect(screen.getByRole("button", { name: /Tokyo/ })).toBeTruthy();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(nav.push).not.toHaveBeenCalled();
   });
 });

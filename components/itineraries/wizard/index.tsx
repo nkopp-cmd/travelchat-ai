@@ -48,6 +48,10 @@ export class PlanSuggestionError extends Error {
   }
 }
 
+/** Push CH3: no mix in this city passes coverage (no suggestion); the toast offers a one-tap city change. */
+export class NoPlanCityError extends Error {}
+export const PICK_CITY_LABEL = "Pick another city";
+
 const WIZARD_PACES: ReadonlyArray<WizardData["pace"]> = ["relaxed", "moderate", "active", "packed"];
 
 export function parsePlanSuggestion(value: unknown): PlanSuggestionError["patch"] | null {
@@ -179,6 +183,16 @@ function WizardContent({
           variant: "destructive",
           // Applies the mix the server checked, keeps it in the form, and sends it at once.
           action: <LazyToastAction altText={label} onClick={() => { setData(error.patch); void runGenerate(next); }}>{label}</LazyToastAction>,
+        });
+        return;
+      }
+      if (error instanceof NoPlanCityError) {
+        toast({
+          title: PICK_CITY_LABEL,
+          description: error.message,
+          variant: "destructive",
+          // Clears the city (and a pinned spot of that city) and opens the city step.
+          action: <LazyToastAction altText={PICK_CITY_LABEL} onClick={() => { setData({ city: "", selectedSpotId: undefined }); goToStep(0); }}>{PICK_CITY_LABEL}</LazyToastAction>,
         });
         return;
       }
@@ -465,6 +479,7 @@ export function ItineraryWizard({ initialData, initialStep, initialCities = null
 
       const suggestion = errorCode === "insufficient_verified_spots" ? parsePlanSuggestion(result.suggestion) : null;
       if (suggestion && errorMessage) throw new PlanSuggestionError(errorMessage, suggestion);
+      if (errorCode === "insufficient_verified_spots" && result.pickCity === true && errorMessage) throw new NoPlanCityError(errorMessage);
 
       throw new Error(errorMessage || (typeof result.error === "string" ? result.error : "Failed to generate itinerary"));
     }
