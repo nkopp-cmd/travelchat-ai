@@ -454,6 +454,17 @@ describe("stored spot photos at the edge (hero LCP)", () => {
     expect(isEdgeCacheable(new Request(`${base}-480.webp`))).toBe(false);
     expect(isEdgeCacheable(new Request(`${base}.jpg`))).toBe(false);
     expect(isEdgeCacheable(new Request(`${base}.webp`, { method: "HEAD" }))).toBe(false);
+    for (const suffix of ["", "-w960", "-w480"]) expect(isEdgeCacheable(new Request(`${base}${suffix}.avif`))).toBe(true);
+    expect(isEdgeCacheable(new Request(`${base}-w144.avif`))).toBe(false);
+  });
+
+  it("stores an AVIF twin only as image/avif, never its one-hour WebP stand-in (Push CI2)", async () => {
+    const cache = memoryCache();
+    await serve(new Request(`${base}-w480.avif`), cache, webp("public, max-age=3600"));
+    await serve(new Request(`${base}-w480.avif`), cache, webp(immutable));
+    expect(cache.put).not.toHaveBeenCalled();
+    await serve(new Request(`${base}-w480.avif`), cache, async () => new Response(new Uint8Array([0]), { headers: { "content-type": "image/avif", "cache-control": immutable } }));
+    expect([...cache.store.keys()]).toEqual([`${base}-w480.avif`]);
   });
 
   it("serves a hit across deploys: the key has no Worker version", async () => {

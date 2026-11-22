@@ -93,6 +93,20 @@ describe("own spot photos from tips", () => {
     const pin = await get(SPOT, `${full}-w144.webp`);
     expect(pin.headers.get("Cache-Control")).toBe("public, max-age=31536000, immutable");
     expect(new Uint8Array(await pin.arrayBuffer())).toEqual(new Uint8Array(webp(8)));
+    // AVIF twins (Push CI2): until one exists its WebP copy stands in (WebP type, one hour), then the AVIF itself.
+    for (const [file, stand] of [[`${full}-w480.avif`, webp(7)], [`${full}-w960.avif`, webp(6)], [`${full}.avif`, webp(1)]] as const) {
+      const before = await get(SPOT, file);
+      expect(before.headers.get("Content-Type")).toBe("image/webp");
+      expect(before.headers.get("Cache-Control")).toBe("public, max-age=3600");
+      expect(new Uint8Array(await before.arrayBuffer())).toEqual(new Uint8Array(stand));
+      objects.set(`spot-photos/${SPOT}/${file}`, webp(5));
+      const after = await get(SPOT, file);
+      expect(after.headers.get("Content-Type")).toBe("image/avif");
+      expect(after.headers.get("Cache-Control")).toBe("public, max-age=31536000, immutable");
+      expect(new Uint8Array(await after.arrayBuffer())).toEqual(new Uint8Array(webp(5)));
+    }
+    // No AVIF pin copy, and an AVIF twin of an unlisted photo is 404 like its WebP.
+    for (const file of [`${full}-w144.avif`, `${"a".repeat(64)}-w480.avif`, `${full}-w480.avif.webp`]) expect((await get(SPOT, file)).status).toBe(404);
   });
 
   it("a new choice leads and keeps the earlier photos; unknown, malformed or unlisted keys are 404 no-store", async () => {

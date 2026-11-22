@@ -85,7 +85,7 @@ const isSitemap = (pathname: string) => pathname === "/sitemap.xml" || SITEMAP_C
 // the spot hero, the LCP element. The key has no Worker version (a deploy cannot change the bytes), and only the
 // immutable answer is stored: a stand-in copy (max-age=3600, the size copy does not exist yet) is never stored.
 // A week, like the share card; a takedown removes the D1 row and purges the URL (Cache API entries purge by URL).
-export const SPOT_MEDIA_PATH = /^\/media\/spot\/[0-9a-f-]{36}\/[0-9a-f]{64}(?:-w960|-w480|-w144)?\.webp$/;
+export const SPOT_MEDIA_PATH = /^\/media\/spot\/[0-9a-f-]{36}\/[0-9a-f]{64}(?:(?:-w960|-w480|-w144)?\.webp|(?:-w960|-w480)?\.avif)$/;
 const SPOT_MEDIA_TTL_SECONDS = 604800;
 
 /** Spot detail HTML (the pages whose cached copy gets the build's critical CSS, critical-css.ts). */
@@ -230,7 +230,7 @@ function storable(request: Request, response: Response): boolean {
   const type = response.headers.get("content-type") ?? "";
   const pathname = new URL(request.url).pathname;
   if (SPOT_MEDIA_PATH.test(pathname)) {
-    return response.status === 200 && !response.headers.has("set-cookie") && type.startsWith("image/webp")
+    return response.status === 200 && !response.headers.has("set-cookie") && (type.startsWith(pathname.endsWith(".avif") ? "image/avif" : "image/webp"))
       && /\bimmutable\b/.test(response.headers.get("cache-control") ?? "");
   }
   const expected = pathname.startsWith("/api/") ? "application/json"

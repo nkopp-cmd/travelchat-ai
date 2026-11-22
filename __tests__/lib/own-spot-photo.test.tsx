@@ -2,9 +2,9 @@
 import { describe, expect, it, vi } from "vitest";
 vi.unmock("next/image");
 import fc from "fast-check";
-import { renderToStaticMarkup } from "react-dom/server";
+import { renderToStaticMarkup, renderToString } from "react-dom/server";
 import { SpotPhotoImage } from "@/components/spots/spot-photo-image";
-import { SPOT_HERO_WIDTH, SPOT_PHOTO_MAX_UPSCALE, SPOT_THUMB_WIDTH, spotPhotoLoader, spotPhotoSrcSet } from "@/lib/spots/own-photo";
+import { SPOT_HERO_WIDTH, SPOT_PHOTO_MAX_UPSCALE, SPOT_THUMB_WIDTH, spotPhotoAvifLoader, spotPhotoLoader, spotPhotoSrcSet } from "@/lib/spots/own-photo";
 import { BLOG_POSTS } from "@/lib/blog/posts";
 import { CARD_PHOTO_WIDTH, cardGooglePhotoUrl, cardPhotoCredits, cardSpotPhotos, directSpotPhotos, isCardGooglePhotoUrl, ownSpotPhotoPath, parseStoredSpotPhotos, shortAuthor, spotPhotoPinPath, spotPhotoThumbPath, storedGooglePhotoName } from "@/lib/spots/own-photo";
 import { getDirectVenuePhotos } from "@/components/spots/venue-photo-provider";
@@ -179,6 +179,32 @@ describe("spot photo size loader", () => {
     expect(thumb).toMatch(/srcSet="[^"]*-w480\.webp 256w/);
     const google = renderToStaticMarkup(<SpotPhotoImage photo={{ id: "g", url: "/api/places/photo?name=x", sourceLabel: "Google", attributions: [] }} alt="G" sizes="100vw" />);
     expect(google).not.toContain("srcSet");
+    expect(google).not.toContain("<picture");
+  });
+
+  // Push CI2: the phone hero (spot page LCP) was a 31.7 KB WebP; its AVIF twin is about half.
+  it("the AVIF loader picks the same copy as the WebP loader, as .avif; other sources stay unchanged", () => {
+    fc.assert(fc.property(fc.integer({ min: 1, max: 4000 }), (width) => {
+      expect(spotPhotoAvifLoader({ src: own, width })).toBe(spotPhotoLoader({ src: own, width }).replace(/\.webp$/, ".avif"));
+    }));
+    expect(spotPhotoAvifLoader({ src: "/api/places/photo?name=x", width: 640 })).toBe("/api/places/photo?name=x");
+  });
+
+  it("server-renders a stored photo as <picture> with the AVIF source first and preloads only the AVIF hero", () => {
+    const html = renderToString(<SpotPhotoImage photo={{ id: "p1", url: own, sourceLabel: "Own", attributions: [] }} alt="Hero" sizes="(max-width: 768px) 100vw, 1024px" priority hero />);
+    const source = /<source type="image\/avif" srcSet="([^"]+)"/.exec(html);
+    expect(source?.[1]).toMatch(/-w480\.avif 828w/);
+    expect(source?.[1]).toMatch(/-w960\.avif 1200w/);
+    expect(source?.[1]).not.toContain(".webp");
+    expect(html.indexOf("<source")).toBeLessThan(html.indexOf("<img"));
+    const links = html.match(/<link [^>]*rel="preload"[^>]*>/g) ?? [];
+    expect(links).toHaveLength(1);
+    expect(links[0]).toContain('type="image/avif"');
+    expect(links[0]).toMatch(/imageSrcSet="[^"]*-w480\.avif 828w/);
+    expect(links[0]).not.toContain(".webp");
+    const thumb = renderToString(<SpotPhotoImage photo={{ id: "p2", url: own, sourceLabel: "Own", attributions: [] }} alt="Thumb" sizes="(max-width: 768px) 33vw, 320px" />);
+    expect(thumb).toContain('<source type="image/avif"');
+    expect(thumb).not.toContain('rel="preload"');
   });
 });
 

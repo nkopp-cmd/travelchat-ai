@@ -47,6 +47,16 @@ export function spotPhotoLoader({ src, width }: { src: string; width: number }):
 }
 
 /**
+ * The AVIF twin of spotPhotoLoader's copy (`<sha>-w480.avif`, `-w960.avif`, `<sha>.avif`; scripts/photos/make-thumbs.mjs).
+ * At the same size AVIF is about half the WebP bytes (spot 9566d583 w480: 31.7 KB WebP -> 15.8 KB AVIF), and the
+ * phone hero is the spot page LCP (Push CI2). /media/spot serves the WebP copy until the AVIF copy exists.
+ */
+export function spotPhotoAvifLoader({ src, width }: { src: string; width: number }): string {
+  const url = spotPhotoLoader({ src, width });
+  return FULL_SPOT_PHOTO.test(src) ? url.replace(/\.webp$/, ".avif") : url;
+}
+
+/**
  * srcset for a raw <img> of a stored spot photo with the same density cap as spotPhotoLoader: each copy is declared at
  * 1.75x its own width, so a 412 px phone at 1.75x (721 px) takes the 480 copy, not the full photo. The blog post photo
  * listed only 480w + the 1280 px full photo and phones loaded the 178 KB full file (LCP 3 s host LH, Push CA1).
