@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  describeCoverageSuggestion,
+  suggestCoverageFallback,
   groundGeneratedDailyPlans,
   hasItineraryGroundingCoverage,
   ensurePinnedSpot,
@@ -346,5 +348,40 @@ describe("add-to-trip pinned spot", () => {
       expect(result[0].activities?.some((activity) => activity.spotId === String(chosen))).toBe(true);
       expect(result[0].activities).toHaveLength(3);
     }
+  });
+});
+
+describe("suggestCoverageFallback (push CG3)", () => {
+  it("keeps the trip length first: broader interests, then relaxed pace", () => {
+    const seen: string[] = [];
+    const result = suggestCoverageFallback({ days: 3, pace: "moderate", interests: ["food"] }, (p) => {
+      seen.push(`${p.days}/${p.pace}/${(p.interests ?? []).join(",")}`);
+      return p.pace === "relaxed" && (p.interests ?? []).length === 1;
+    });
+    expect(result).toEqual({ days: 3, pace: "relaxed", interests: ["food"] });
+    expect(seen).toEqual(["3/moderate/", "3/relaxed/food"]);
+  });
+
+  it("falls back to the largest number of days that passes", () => {
+    const result = suggestCoverageFallback({ days: 5, pace: "relaxed", interests: [] }, (p) => p.days <= 2);
+    expect(result).toEqual({ days: 2, pace: "relaxed", interests: [] });
+  });
+
+  it("returns null when nothing passes and stops after a fixed number of checks", () => {
+    let checks = 0;
+    const result = suggestCoverageFallback({ days: 14, pace: "packed", interests: ["food", "culture"] }, () => { checks += 1; return false; });
+    expect(result).toBeNull();
+    expect(checks).toBeLessThanOrEqual(12);
+  });
+
+  it("never suggests the same mix that just failed", () => {
+    const prefs = { days: 1, pace: "relaxed", interests: [] as string[] };
+    expect(suggestCoverageFallback(prefs, () => true)).toBeNull();
+  });
+
+  it("describes the suggestion in plain words", () => {
+    expect(describeCoverageSuggestion({ days: 2, pace: "relaxed", interests: [] }, ["food"])).toBe("2-day relaxed plan with all interests");
+    expect(describeCoverageSuggestion({ days: 2, pace: "relaxed", interests: [] }, [])).toBe("2-day relaxed plan");
+    expect(describeCoverageSuggestion({ days: 3, pace: "moderate", interests: ["food"] })).toBe("3-day plan");
   });
 });

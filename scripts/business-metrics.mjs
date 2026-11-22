@@ -69,6 +69,28 @@ export function generateCallsNote(events) {
   return `${real} (ok ${ok}, own checks ${own}, verified bots ${bots} excluded)${capped}`;
 }
 
+/**
+ * Pure (push CG3): "[generate] outcome" log lines with status 422 no_spots -> planner errors per city, most first.
+ * Own checks carry `check` (x-localley-check header or a check user agent); lines from before CG3 have no city.
+ * The 2026-12-19 offer check reads where planner_start does not reach trip_generated from this.
+ */
+export function plannerErrorsNote(events) {
+  if (!Array.isArray(events)) return "unknown: Worker log unreadable";
+  const byCity = new Map();
+  let total = 0, suggested = 0, own = 0;
+  for (const e of events) {
+    const line = e?.source;
+    if (line?.message !== "[generate] outcome" || Number(line.status) !== 422 || line.reason !== "no_spots") continue;
+    if (line.check) { own += 1; continue; }
+    total += 1;
+    if (line.suggestion === true) suggested += 1;
+    const city = typeof line.city === "string" && /^[a-z0-9-]{1,40}$/.test(line.city) ? line.city : "unknown";
+    byCity.set(city, (byCity.get(city) ?? 0) + 1);
+  }
+  const cities = [...byCity].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([c, n]) => `${c} ${n}`).join(", ");
+  return `${total}${cities ? ` (${cities})` : ""}, smaller plan offered ${suggested}, own checks ${own} excluded`;
+}
+
 /** Pure: rows from the two databases -> the probe line. */
 export function summarize({ users, sessions, subscriptions, funnel, links = [], ugc = [], rankings = [], viral = null, subscribers = null, lastEvent = null, indexStatus = null, generateLog = undefined }, now = Date.now()) {
   const from30 = now - 30 * DAY;
@@ -124,7 +146,7 @@ export function summarize({ users, sessions, subscriptions, funnel, links = [], 
       + `last counted event day (UTC; own checks are not counted): funnel ${lastEvent?.funnel ?? "unknown"}, spot cards ${lastEvent?.cards ?? "unknown"}; `
       + `${indexNote(indexStatus, now)}; `
       // Push CE3: tells "no visitors" from "visitors who stop" (no funnel step needed, so no D1 migration).
-      + (generateLog === undefined ? "" : `real trip generate calls 7d (Worker log): ${generateCallsNote(generateLog)}; `)
+      + (generateLog === undefined ? "" : `real trip generate calls 7d (Worker log): ${generateCallsNote(generateLog)}; planner no-spots errors 7d by city: ${plannerErrorsNote(generateLog)}; `)
       + `revenue/prev/repeat null: Stripe key is a Worker secret only and D1 keeps no invoice history; `
       + `proprietary = ${events ? `${events.length} viral events + ${places} resolved places` : "viral archive missing"} + ${ranked} weekly rankings; `
       + `ugc = questions/answers/reviews/tips/social submissions; owned_audience = ${audience

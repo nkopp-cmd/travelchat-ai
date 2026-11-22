@@ -11,7 +11,7 @@ vi.mock("next/navigation", () => ({ useRouter: () => ({ push: nav.push, replace:
 vi.mock("next/image", () => ({ default: (props: { alt: string }) => <span>{props.alt}</span> }));
 vi.mock("@/lib/funnel-analytics", () => ({ trackFunnelStep: vi.fn(), funnelSource: () => "direct" }));
 vi.mock("@/hooks/use-toast", () => ({ useToast: () => ({ toast: nav.toast, dismiss: vi.fn(), toasts: [] }), toast: nav.toast }));
-import { GENERATE_FAILED_MESSAGE, ItineraryWizard, getQuickStartLabel } from "@/components/itineraries/wizard";
+import { GENERATE_FAILED_MESSAGE, ItineraryWizard, getQuickStartLabel, parsePlanSuggestion, planSuggestionLabel } from "@/components/itineraries/wizard";
 import { Errors, apiError, ErrorCodes } from "@/lib/api-errors";
 import { GENERATED_PREVIEW_PATH, storeGeneratedPreview } from "@/lib/trips/generated-preview";
 
@@ -71,5 +71,40 @@ describe("planner: every generate failure has a next step (push AP3)", () => {
     expect(shown.action).toBeTruthy();
     // The button is usable again, so "Try again" or a changed choice can re-send.
     await waitFor(() => expect((screen.getByRole("button", { name: getQuickStartLabel(3) }) as HTMLButtonElement).disabled).toBe(false));
+  });
+
+  it("422 with a suggestion offers one tap that re-sends the checked mix (push CG3)", async () => {
+    const answers = [
+      json(NextResponse.json({
+        error: "insufficient_verified_spots",
+        message: "Localley cannot fill this exact Tokyo mix yet. A 2-day plan works now.",
+        suggestion: { days: 2, pace: "moderate", interests: [] },
+      }, { status: 422 })),
+      json(NextResponse.json({ error: "internal_error", message: "Second answer" }, { status: 500 })),
+    ];
+    const fetchMock = vi.fn(() => answers[fetchMock.mock.calls.length - 1]());
+    vi.stubGlobal("fetch", fetchMock);
+    render(<ItineraryWizard initialCities={cities} />);
+    fireEvent.click(screen.getByRole("button", { name: /Tokyo/ }));
+    await act(async () => { fireEvent.click(screen.getByRole("button", { name: getQuickStartLabel(3) })); });
+    await waitFor(() => expect(nav.toast).toHaveBeenCalled());
+    const shown = nav.toast.mock.calls.at(-1)![0] as { description: string; action: { props: { onClick: () => void; children: string } } };
+    expect(shown.description).toMatch(/2-day plan works now/);
+    expect(shown.action.props.children).toBe(planSuggestionLabel({ days: 2, pace: "moderate", interests: [] }));
+    await act(async () => { shown.action.props.onClick(); });
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    const sent = JSON.parse((fetchMock.mock.calls[1] as unknown as [string, RequestInit])[1].body as string);
+    expect(sent).toMatchObject({ city: "Tokyo", days: 2, pace: "moderate", interests: [] });
+    expect(nav.push).not.toHaveBeenCalled();
+  });
+});
+
+describe("parsePlanSuggestion (push CG3)", () => {
+  it("accepts only a valid days/pace/interests mix", () => {
+    expect(parsePlanSuggestion({ days: 2, pace: "relaxed", interests: ["food"] })).toEqual({ days: 2, pace: "relaxed", interests: ["food"] });
+    for (const bad of [null, "x", { days: 0, pace: "relaxed", interests: [] }, { days: 15, pace: "relaxed", interests: [] },
+      { days: 2.5, pace: "relaxed", interests: [] }, { days: 2, pace: "slow", interests: [] }, { days: 2, pace: "relaxed", interests: [1] }]) {
+      expect(parsePlanSuggestion(bad)).toBeNull();
+    }
   });
 });

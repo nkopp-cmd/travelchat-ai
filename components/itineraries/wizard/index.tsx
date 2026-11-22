@@ -41,6 +41,28 @@ export function generateFailureText(error: unknown): string {
   return getErrorMessage(error) || GENERATE_FAILED_MESSAGE;
 }
 
+/** Push CG3: a 422 carries one mix that passes coverage; the toast offers it as one tap. */
+export class PlanSuggestionError extends Error {
+  constructor(message: string, readonly patch: Pick<WizardData, "days" | "pace" | "interests">) {
+    super(message);
+  }
+}
+
+const WIZARD_PACES: ReadonlyArray<WizardData["pace"]> = ["relaxed", "moderate", "active", "packed"];
+
+export function parsePlanSuggestion(value: unknown): PlanSuggestionError["patch"] | null {
+  if (!value || typeof value !== "object") return null;
+  const { days, pace, interests } = value as Record<string, unknown>;
+  if (typeof days !== "number" || !Number.isInteger(days) || days < 1 || days > 14) return null;
+  if (!WIZARD_PACES.includes(pace as WizardData["pace"])) return null;
+  if (!Array.isArray(interests) || !interests.every((item) => typeof item === "string")) return null;
+  return { days, pace: pace as WizardData["pace"], interests };
+}
+
+export function planSuggestionLabel(patch: PlanSuggestionError["patch"]): string {
+  return `Plan ${patch.days} ${patch.days === 1 ? "day" : "days"}`;
+}
+
 export function getTemplateFooterCityLabel(city: string): string {
   return city ? `Confirm city: ${city}` : "Pick a city";
 }
@@ -102,7 +124,7 @@ function WizardContent({
 }: {
   onGenerate: (data: WizardData) => Promise<void>;
 }) {
-  const { currentStep, totalSteps, data, canProceed, nextStep, prevStep, goToStep } = useWizard();
+  const { currentStep, totalSteps, data, canProceed, nextStep, prevStep, goToStep, setData } = useWizard();
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
   const [progressMessage, setProgressMessage] = useState("");
@@ -143,22 +165,38 @@ function WizardContent({
     stepScrollRef.current?.scrollTo({ top: 0, behavior: "auto" });
   }, [currentStep]);
 
+  const runGenerate = async (input: WizardData) => {
+    setIsGenerating(true);
+    try {
+      await onGenerate(input);
+    } catch (error) {
+      if (error instanceof PlanSuggestionError) {
+        const next = { ...input, ...error.patch };
+        const label = planSuggestionLabel(error.patch);
+        toast({
+          title: "Try a smaller plan",
+          description: error.message,
+          variant: "destructive",
+          // Applies the mix the server checked, keeps it in the form, and sends it at once.
+          action: <ToastAction altText={label} onClick={() => { setData(error.patch); void runGenerate(next); }}>{label}</ToastAction>,
+        });
+        return;
+      }
+      toast({
+        title: "Generation failed",
+        description: generateFailureText(error),
+        variant: "destructive",
+        // Re-sends the same inputs through this path (progress state included).
+        action: <ToastAction altText="Try again" onClick={() => void runGenerate(input)}>Try again</ToastAction>,
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const handleNext = async () => {
     if (isLastStep || canGenerateNow) {
-      setIsGenerating(true);
-      try {
-        await onGenerate(data);
-      } catch (error) {
-        toast({
-          title: "Generation failed",
-          description: generateFailureText(error),
-          variant: "destructive",
-          // Re-sends the same inputs through this path (progress state included).
-          action: <ToastAction altText="Try again" onClick={() => void handleNext()}>Try again</ToastAction>,
-        });
-      } finally {
-        setIsGenerating(false);
-      }
+      await runGenerate(data);
     } else {
       nextStep();
     }
@@ -424,6 +462,9 @@ export function ItineraryWizard({ initialData, initialStep, initialCities = null
         router.push(plannerLimitPricingHref(result.error?.details?.resetAt));
         return;
       }
+
+      const suggestion = errorCode === "insufficient_verified_spots" ? parsePlanSuggestion(result.suggestion) : null;
+      if (suggestion && errorMessage) throw new PlanSuggestionError(errorMessage, suggestion);
 
       throw new Error(errorMessage || (typeof result.error === "string" ? result.error : "Failed to generate itinerary"));
     }
