@@ -1,7 +1,7 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import type { WizardData } from "@/components/itineraries/wizard/wizard-context";
-import { templates } from "@/lib/templates";
+import { getTemplateById, templates } from "@/lib/templates";
 import { PLANNER_DRAFT_TTL } from "@/lib/trips/planner-draft";
 import { plannerStartFromQuery } from "@/lib/trips/planner-query";
 import { generateCorridorItinerarySchema, generateItinerarySchema } from "@/lib/validations";
@@ -29,7 +29,7 @@ function body(data: WizardData) {
 }
 
 function expectAccepted(search: string, draft: string | null = null) {
-  const start = plannerStartFromQuery(search, draft, NOW);
+  const start = plannerStartFromQuery(search, draft, NOW, getTemplateById);
   const data = { ...defaults, ...start.initialData };
   const request = body(data);
   const parsed = request.multi ? generateCorridorItinerarySchema.safeParse(request.value) : generateItinerarySchema.safeParse(request.value);

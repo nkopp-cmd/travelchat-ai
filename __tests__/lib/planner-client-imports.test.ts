@@ -13,6 +13,13 @@ describe("planner client bundle stays free of zod and manifests", () => {
   it.each([...wizard, "app/itineraries/new/planner-client.tsx", "app/itineraries/preview/preview-client.tsx", "lib/trips/generated-preview.ts", "lib/trips/planner-query.ts", "lib/trips/corridor-select.ts"])("%s", file => {
     expect(importsOf(read(file)).filter(spec => banned.test(spec))).toEqual([]);
   });
+  // Push CH1: template data (~3 KB gzip) loads only for ?template= links, through import().
+  it.each(["app/itineraries/new/planner-client.tsx", "lib/trips/planner-query.ts", ...wizard])("%s does not import lib/templates statically", file => {
+    expect(importsOf(read(file))).not.toContain("@/lib/templates");
+  });
+  it("planner client loads templates on demand", () => {
+    expect(read("app/itineraries/new/planner-client.tsx")).toMatch(/import\("@\/lib\/templates"\)/);
+  });
   it("corridor-select has no imports at all", () => {
     expect(importsOf(read("lib/trips/corridor-select.ts"))).toEqual([]);
   });

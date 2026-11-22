@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { ItineraryWizard } from "@/components/itineraries/wizard";
 import type { PlannerCity } from "@/lib/cities-catalog";
 import { plannerDraftSnapshot, plannerDraftServerSnapshot, subscribePlannerDraft } from "@/lib/trips/planner-draft";
-import { plannerStartFromQuery } from "@/lib/trips/planner-query";
+import { plannerStartFromQuery, plannerTemplateId, type TemplateLookup } from "@/lib/trips/planner-query";
 import { PlannerPaidReturn } from "@/components/itineraries/planner-paid-return";
 
 // The query is read in the browser only: the server renders the plain planner (step 0 with
@@ -22,13 +22,24 @@ export function NewItineraryClient({ initialCities }: { initialCities: PlannerCi
   // ?payment= is read by PlannerPaidReturn and then dropped; it must not remount the wizard.
   const wizardKey = useMemo(() => { const p = new URLSearchParams(search); p.delete("payment"); return p.toString(); }, [search]);
   const rawDraft = useSyncExternalStore(subscribePlannerDraft, plannerDraftSnapshot, plannerDraftServerSnapshot);
-  const { resume, restored, initialData, initialStep } = useMemo(() => plannerStartFromQuery(search, rawDraft), [search, rawDraft]);
+  // Template data loads only for ?template= links (push CH1: ~3 KB gzip off the first screen).
+  const templateId = plannerTemplateId(search);
+  const [findTemplate, setFindTemplate] = useState<TemplateLookup | null>(null);
+  useEffect(() => {
+    if (!templateId || findTemplate) return;
+    let live = true;
+    import("@/lib/templates").then((m) => { if (live) setFindTemplate(() => m.getTemplateById); });
+    return () => { live = false; };
+  }, [templateId, findTemplate]);
+  const templatePending = Boolean(templateId) && !findTemplate;
+  const { resume, restored, initialData, initialStep } = useMemo(
+    () => plannerStartFromQuery(search, rawDraft, Date.now(), findTemplate ?? undefined), [search, rawDraft, findTemplate]);
 
   return <>
     <PlannerPaidReturn />
     {resume && <p role="status" className="px-4 py-3 text-sm text-muted-foreground">
       {restored ? "Your trip inputs are restored. Review them before continuing." : "No current saved inputs. Start a new plan."}
     </p>}
-    <ItineraryWizard key={`${restored?.savedAt ?? "new"}${wizardKey}`} initialData={initialData} initialStep={initialStep} initialCities={initialCities} />
+    {templatePending ? <div className="min-h-[60vh]" aria-busy="true" /> : <ItineraryWizard key={`${restored?.savedAt ?? "new"}${wizardKey}`} initialData={initialData} initialStep={initialStep} initialCities={initialCities} />}
   </>;
 }

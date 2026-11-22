@@ -1,5 +1,5 @@
 import type { WizardData } from "@/components/itineraries/wizard/wizard-context";
-import { getTemplateById } from "@/lib/templates";
+import type { ItineraryTemplate } from "@/lib/templates";
 import { parsePlannerDraft, parsePlannerSpotId } from "./planner-draft";
 import { MIN_CORRIDOR_DAYS } from "./wizard-corridor";
 
@@ -62,7 +62,16 @@ export type PlannerStart = {
   initialStep: number;
 };
 
-export function plannerStartFromQuery(search: string, rawDraft: string | null, now = Date.now()): PlannerStart {
+// Template data (~3 KB gzip) is not imported here: only ?template= links need it, so the planner
+// client loads lib/templates on demand and passes the lookup in (push CH1).
+export type TemplateLookup = (id: string) => ItineraryTemplate | undefined;
+
+/** The ?template= id, or null. The client loads the template data only when this is set. */
+export function plannerTemplateId(search: string): string | null {
+  return new URLSearchParams(search).get("template") || null;
+}
+
+export function plannerStartFromQuery(search: string, rawDraft: string | null, now = Date.now(), findTemplate?: TemplateLookup): PlannerStart {
   const params = new URLSearchParams(search);
   const resume = params.get("resume") === "1";
   const restored = resume ? parsePlannerDraft(rawDraft, now) : null;
@@ -70,7 +79,7 @@ export function plannerStartFromQuery(search: string, rawDraft: string | null, n
   let initialStep = restored ? 3 : 0;
 
   const templateId = params.get("template");
-  const template = templateId ? getTemplateById(templateId) : undefined;
+  const template = templateId ? findTemplate?.(templateId) : undefined;
   if (template) {
     initialData = {
       days: Math.min(PLANNER_URL_DAYS_MAX, Math.max(1, template.days)),
