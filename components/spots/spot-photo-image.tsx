@@ -50,14 +50,15 @@ function PhotoImage({ photo, alt, className, sizes, priority, loading, children,
   </figure>;
 }
 
-export function VenueHeroPhoto({ name, children }: { name: string; children?: ReactNode }) {
+export function VenueHeroPhoto({ name, category, children }: { name: string; category?: string; children?: ReactNode }) {
   const { data, loading, spotId } = useDetailVenuePhotos();
   // No photo known at first render: no hero block (content-first rule 2), the page starts with the guide. A box first
   // shown while loading keeps its space as the tone tile when the answer is "unavailable": removing it moved the whole
   // page up 311 px (mobile PSI CLS 0.308 on spot f242e187; the photos API always says unavailable to automated agents).
+  // Same height either way (a shrink after the answer is a layout shift); the tile shows the spot's category tone.
   const [shownWhileLoading] = useState(loading);
   if (!loading && !data?.photos[0] && !shownWhileLoading) return null;
-  return <SpotPhotoImage key={spotId} photo={data?.photos[0]} alt={name} sizes="(max-width: 768px) 100vw, 1024px" priority loading={loading} hero earlySpotId={spotId} frameClassName="relative aspect-[4/3] min-h-60 w-full overflow-hidden rounded-lg shadow-2xl shadow-violet-950/30 sm:aspect-[16/10] sm:min-h-0 md:aspect-[21/9]">{children}</SpotPhotoImage>;
+  return <SpotPhotoImage key={spotId} photo={data?.photos[0]} alt={name} sizes="(max-width: 768px) 100vw, 1024px" priority loading={loading} hero earlySpotId={spotId} category={category} frameClassName="relative aspect-[4/3] min-h-60 w-full overflow-hidden rounded-lg shadow-2xl shadow-violet-950/30 sm:aspect-[16/10] sm:min-h-0 md:aspect-[21/9]">{children}</SpotPhotoImage>;
 }
 
 export function VenuePhotoThumbnails({ name }: { name: string }) {

@@ -90,10 +90,13 @@ describe("venue photos", () => {
 
   it("keeps the hero box as a tone tile when photos turn out unavailable after loading (no layout shift)", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response([])));
-    render(<VenuePhotoProvider spotId="hero-none"><VenueHeroPhoto name="Venue" /></VenuePhotoProvider>);
+    render(<VenuePhotoProvider spotId="hero-none"><VenueHeroPhoto name="Venue" category="Nature" /></VenuePhotoProvider>);
     expect(screen.getByTestId("photo-placeholder")).toBeTruthy();
     await waitFor(() => expect(screen.getByTestId("photo-placeholder").dataset.state).toBe("unavailable"));
     expect(screen.queryByRole("img")).toBeNull();
+    // The tile shows the spot's category tone, not the plain pin, and keeps the hero frame height.
+    expect(screen.getByTestId("photo-placeholder").dataset.tone).toBe("outdoor");
+    expect(screen.getByTestId("spot-detail-hero").className).toContain("aspect-[4/3]");
   });
 
   it("ignores stale metadata after spot identity changes", async () => {
