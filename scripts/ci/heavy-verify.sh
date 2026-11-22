@@ -181,6 +181,7 @@ VITEST_FILES=(
   __tests__/lib/payout-calculate-input.property.test.ts
   __tests__/lib/stripe-live-session.test.ts
   __tests__/api/subscription-webhook-live.test.ts
+  __tests__/api/subscription-webhook-signed.test.ts
   __tests__/lib/stripe-customer-ownership.test.ts
   __tests__/lib/stripe-webhook-crypto.test.ts
   __tests__/components/preview-save-spot-button.test.tsx
@@ -580,6 +581,7 @@ ESLINT_FILES=(
   __tests__/lib/payout-calculate-input.property.test.ts
   __tests__/lib/stripe-live-session.test.ts
   __tests__/api/subscription-webhook-live.test.ts
+  __tests__/api/subscription-webhook-signed.test.ts
   lib/stripe.ts
   app/api/subscription/checkout/route.ts
   app/api/subscription/webhook/route.ts

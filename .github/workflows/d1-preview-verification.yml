@@ -450,6 +450,7 @@ on:
       - '__tests__/api/subscription-checkout-live.test.ts'
       - '__tests__/api/subscription-portal-live.test.ts'
       - '__tests__/api/subscription-webhook-live.test.ts'
+      - '__tests__/api/subscription-webhook-signed.test.ts'
       - 'lib/subscription-mail.ts'
       - 'emails/subscription-email.tsx'
       - '__tests__/lib/subscription-mail.test.ts'
