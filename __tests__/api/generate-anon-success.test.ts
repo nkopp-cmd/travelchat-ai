@@ -93,7 +93,7 @@ describe("POST /api/itineraries/generate anonymous success contract", () => {
     const json = await response.json();
     // Push AP2: the success line names the provider and the tier class, never the city or plan text.
     const outcome = info.mock.calls.filter((call) => call[0] === "[generate] outcome").map((call) => call[1]);
-    expect(outcome).toEqual([{ status: 200, tier: "anon", ms: expect.any(Number), provider: "glm", reason: "ok" }]);
+    expect(outcome).toEqual([{ status: 200, tier: "anon", city: "seoul", ms: expect.any(Number), provider: "glm", reason: "ok" }]);
     info.mockRestore();
 
     expect(json.success).toBe(true);

@@ -551,8 +551,9 @@ export function groundGeneratedDailyPlans(
 /**
  * "Add to trip" on a spot card or spot page opens the planner with ?spot=<id>. Move that spot to the top of the
  * ranked pool so it is in the model's candidate list (only the first 30 are sent). A twin row (same name, other id)
- * that won the name dedupe stands in for it. Returns the pinned id, or undefined when the spot cannot ground a trip
- * (other city, hidden, no photo/coordinates, below the localness threshold).
+ * that won the name dedupe stands in for it. A chosen spot that the ranking dropped only for its short description or
+ * localness score is pinned from the pool. Returns the pinned id, or undefined when the spot cannot ground a trip
+ * (other city, hidden, no photo/coordinates).
  */
 export function pinSelectedSpot(
   rankedSpots: ItineraryGroundingSpot[],
@@ -565,6 +566,11 @@ export function pinSelectedSpot(
     const source = pool.find((spot) => spot.id === spotId);
     const name = source ? normalizedName(localizedText(source.name)) : "";
     pinned = name ? rankedSpots.find((spot) => normalizedName(localizedText(spot.name)) === name) : undefined;
+    // The visitor chose this spot, so a short description or a low localness score does not drop it. It still
+    // needs a real photo and coordinates to render and route the stop.
+    if (!pinned && name && getFirstRealDisplaySpotPhoto(source?.photos) && parseSpotCoordinates(source?.location)) {
+      pinned = source;
+    }
   }
   if (!pinned) return { spots: rankedSpots };
   return { spots: [pinned, ...rankedSpots.filter((spot) => spot !== pinned)], pinnedId: pinned.id };
@@ -606,4 +612,49 @@ export function ensurePinnedSpot(
     activities: (day.activities || []).map((activity, index) => index !== target.index ? activity
       : hydrateActivity({ name: localizedText(pinned.name), time, type, duration, cost }, pinned)),
   });
+}
+
+export interface CoverageSuggestion {
+  days: number;
+  pace: string;
+  interests: string[];
+}
+
+const SUGGESTION_PACE = "relaxed";
+const MAX_SUGGESTION_CHECKS = 12;
+
+/**
+ * Push CG3: a 422 told the visitor "try fewer days, a slower pace, or broader interests" without
+ * saying which one works. This walks the smallest changes first (keep the trip length) and returns
+ * the first mix the deterministic coverage check accepts, or null. `covers` runs the same
+ * rank + pin + coverage steps as the route, so the suggestion is never a second 422.
+ * At most MAX_SUGGESTION_CHECKS checks run, so a 14-day request stays cheap.
+ */
+export function suggestCoverageFallback(
+  preferences: ItineraryGroundingPreferences,
+  covers: (preferences: ItineraryGroundingPreferences) => boolean,
+): CoverageSuggestion | null {
+  const pace = preferences.pace || "moderate";
+  const interests = preferences.interests ?? [];
+  const candidates: CoverageSuggestion[] = [];
+  if (interests.length > 0) candidates.push({ days: preferences.days, pace, interests: [] });
+  if (pace !== SUGGESTION_PACE) candidates.push({ days: preferences.days, pace: SUGGESTION_PACE, interests });
+  if (interests.length > 0 && pace !== SUGGESTION_PACE) {
+    candidates.push({ days: preferences.days, pace: SUGGESTION_PACE, interests: [] });
+  }
+  for (let days = preferences.days - 1; days >= 1; days -= 1) {
+    candidates.push({ days, pace, interests });
+    if (pace !== SUGGESTION_PACE) candidates.push({ days, pace: SUGGESTION_PACE, interests: [] });
+  }
+  for (const candidate of candidates.slice(0, MAX_SUGGESTION_CHECKS)) {
+    if (covers({ ...preferences, ...candidate })) return candidate;
+  }
+  return null;
+}
+
+export function describeCoverageSuggestion(suggestion: CoverageSuggestion, requestedInterests: string[] = []): string {
+  const parts = [`${suggestion.days}-day`];
+  if (suggestion.pace === SUGGESTION_PACE) parts.push("relaxed");
+  const label = `${parts.join(" ")} plan`;
+  return requestedInterests.length > 0 && suggestion.interests.length === 0 ? `${label} with all interests` : label;
 }

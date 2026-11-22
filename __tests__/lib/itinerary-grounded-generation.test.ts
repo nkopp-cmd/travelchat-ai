@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  describeCoverageSuggestion,
+  suggestCoverageFallback,
   groundGeneratedDailyPlans,
   hasItineraryGroundingCoverage,
   ensurePinnedSpot,
@@ -297,6 +299,23 @@ describe("add-to-trip pinned spot", () => {
     expect(pinSelectedSpot(ranked, pool, "9").pinnedId).toBe("2");
   });
 
+  it("pins a chosen spot that the ranking dropped for a short description (Push CG1, HK Sing Kee)", () => {
+    const ranked = [spot("1", "One", "Food"), spot("2", "Two", "Nightlife")];
+    const short = spot("5", "Sing Kee", "Food", { description: { en: "Dai pai dong with wok hei." }, localley_score: 2 });
+    expect(rankItineraryGroundingSpots([...ranked, short], { days: 1, localnessLevel: 3 }).map((s) => s.id)).not.toContain("5");
+    const result = pinSelectedSpot(ranked, [...ranked, short], "5");
+    expect(result.pinnedId).toBe("5");
+    expect(result.spots.map((candidate) => candidate.id)).toEqual(["5", "1", "2"]);
+  });
+
+  it("does not pin a chosen spot without a photo or coordinates", () => {
+    const ranked = [spot("1", "One", "Food")];
+    const noPhoto = spot("6", "No Photo", "Food", { photos: [] });
+    const noPlace = spot("7", "No Place", "Food", { location: null as unknown as string });
+    expect(pinSelectedSpot(ranked, [...ranked, noPhoto, noPlace], "6")).toEqual({ spots: ranked });
+    expect(pinSelectedSpot(ranked, [...ranked, noPhoto, noPlace], "7")).toEqual({ spots: ranked });
+  });
+
   it("changes nothing for an unknown or other-city spot", () => {
     const ranked = [spot("1", "One", "Food"), spot("2", "Two", "Nightlife")];
     expect(pinSelectedSpot(ranked, ranked, "77")).toEqual({ spots: ranked });
@@ -346,5 +365,40 @@ describe("add-to-trip pinned spot", () => {
       expect(result[0].activities?.some((activity) => activity.spotId === String(chosen))).toBe(true);
       expect(result[0].activities).toHaveLength(3);
     }
+  });
+});
+
+describe("suggestCoverageFallback (push CG3)", () => {
+  it("keeps the trip length first: broader interests, then relaxed pace", () => {
+    const seen: string[] = [];
+    const result = suggestCoverageFallback({ days: 3, pace: "moderate", interests: ["food"] }, (p) => {
+      seen.push(`${p.days}/${p.pace}/${(p.interests ?? []).join(",")}`);
+      return p.pace === "relaxed" && (p.interests ?? []).length === 1;
+    });
+    expect(result).toEqual({ days: 3, pace: "relaxed", interests: ["food"] });
+    expect(seen).toEqual(["3/moderate/", "3/relaxed/food"]);
+  });
+
+  it("falls back to the largest number of days that passes", () => {
+    const result = suggestCoverageFallback({ days: 5, pace: "relaxed", interests: [] }, (p) => p.days <= 2);
+    expect(result).toEqual({ days: 2, pace: "relaxed", interests: [] });
+  });
+
+  it("returns null when nothing passes and stops after a fixed number of checks", () => {
+    let checks = 0;
+    const result = suggestCoverageFallback({ days: 14, pace: "packed", interests: ["food", "culture"] }, () => { checks += 1; return false; });
+    expect(result).toBeNull();
+    expect(checks).toBeLessThanOrEqual(12);
+  });
+
+  it("never suggests the same mix that just failed", () => {
+    const prefs = { days: 1, pace: "relaxed", interests: [] as string[] };
+    expect(suggestCoverageFallback(prefs, () => true)).toBeNull();
+  });
+
+  it("describes the suggestion in plain words", () => {
+    expect(describeCoverageSuggestion({ days: 2, pace: "relaxed", interests: [] }, ["food"])).toBe("2-day relaxed plan with all interests");
+    expect(describeCoverageSuggestion({ days: 2, pace: "relaxed", interests: [] }, [])).toBe("2-day relaxed plan");
+    expect(describeCoverageSuggestion({ days: 3, pace: "moderate", interests: ["food"] })).toBe("3-day plan");
   });
 });

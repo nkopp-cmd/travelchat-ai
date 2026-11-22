@@ -1,7 +1,7 @@
 // node --test scripts/business-metrics.checks.mjs — pure parts of the business-loop money + moat probe (no network).
 import assert from "node:assert/strict";
 import test from "node:test";
-import { PAID_PATH_LIVE_SINCE, generateCallsNote, isInternal, summarize } from "./business-metrics.mjs";
+import { PAID_PATH_LIVE_SINCE, generateCallsNote, isInternal, plannerErrorsNote, summarize } from "./business-metrics.mjs";
 
 const now = Date.parse("2026-11-01T12:00:00Z");
 const users = [
@@ -145,4 +145,23 @@ test("the generate note is in the probe only when the log was read", () => {
   assert.doesNotMatch(summarize(base, now).notes, /generate calls/);
   assert.match(summarize({ ...base, generateLog: [] }, now).notes, /real trip generate calls 7d \(Worker log\): 0 \(ok 0/);
   assert.match(summarize({ ...base, generateLog: null }, now).notes, /generate calls 7d \(Worker log\): unknown/);
+});
+
+test("planner no-spots errors count per city, own checks apart (push CG3)", () => {
+  const line = (source) => ({ source: { message: "[generate] outcome", ...source }, $workers: { event: { request: { method: "POST" } } } });
+  const note = plannerErrorsNote([
+    line({ status: 422, reason: "no_spots", city: "canggu", suggestion: true }),
+    line({ status: 422, reason: "no_spots", city: "canggu", suggestion: false }),
+    line({ status: 422, reason: "no_spots", city: "taipei", suggestion: true }),
+    line({ status: 422, reason: "no_spots", city: "tokyo", check: true }),
+    line({ status: 422, reason: "no_spots" }), // before CG3: no city
+    line({ status: 422, reason: "no_spots", city: "<script>" }),
+    line({ status: 422, reason: "invalid_input", city: "seoul" }),
+    line({ status: 200, reason: "ok", city: "seoul" }),
+    { source: { message: "other", status: 422, reason: "no_spots", city: "x" } },
+    { $workers: { event: { request: { method: "POST", cf: {} } } } },
+  ]);
+  assert.equal(note, "5 (canggu 2, unknown 2, taipei 1), smaller plan offered 2, own checks 1 excluded");
+  assert.equal(plannerErrorsNote(null), "unknown: Worker log unreadable");
+  assert.equal(plannerErrorsNote([]), "0, smaller plan offered 0, own checks 0 excluded");
 });

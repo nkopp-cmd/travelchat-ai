@@ -47,6 +47,15 @@ describe('private itinerary diagnostics', () => {
       ['[generate] outcome', { status: 503, tier: 'unknown', ms: 0, provider: 'none', reason: 'other' }],
     ]);
   });
+  it('names the city slug, own checks and the smaller-plan offer on a no_spots answer (push CG3)', () => {
+    const logger = { info: vi.fn() };
+    logGenerateOutcome(422, { tier: 'anon', reason: 'no_spots', city: 'canggu', suggestion: true }, 10, logger);
+    logGenerateOutcome(422, { tier: 'anon', reason: 'no_spots', city: 'taipei', check: true, suggestion: false }, 10, logger);
+    expect(logger.info.mock.calls).toEqual([
+      ['[generate] outcome', { status: 422, tier: 'anon', ms: 10, provider: 'none', reason: 'no_spots', city: 'canggu', suggestion: true }],
+      ['[generate] outcome', { status: 422, tier: 'anon', ms: 10, provider: 'none', reason: 'no_spots', city: 'taipei', check: true, suggestion: false }],
+    ]);
+  });
   it('preserves valid JSON exactly without rewriting provider output', () => {
     const itinerary = { title: 'Seoul', dailyPlans: [{ day: 1, activities: [{ name: 'Market' }] }] };
     expect(parsePrivateItineraryJSON(JSON.stringify(itinerary))).toEqual(itinerary);
