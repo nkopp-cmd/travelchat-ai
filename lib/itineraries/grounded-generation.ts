@@ -607,3 +607,48 @@ export function ensurePinnedSpot(
       : hydrateActivity({ name: localizedText(pinned.name), time, type, duration, cost }, pinned)),
   });
 }
+
+export interface CoverageSuggestion {
+  days: number;
+  pace: string;
+  interests: string[];
+}
+
+const SUGGESTION_PACE = "relaxed";
+const MAX_SUGGESTION_CHECKS = 12;
+
+/**
+ * Push CG3: a 422 told the visitor "try fewer days, a slower pace, or broader interests" without
+ * saying which one works. This walks the smallest changes first (keep the trip length) and returns
+ * the first mix the deterministic coverage check accepts, or null. `covers` runs the same
+ * rank + pin + coverage steps as the route, so the suggestion is never a second 422.
+ * At most MAX_SUGGESTION_CHECKS checks run, so a 14-day request stays cheap.
+ */
+export function suggestCoverageFallback(
+  preferences: ItineraryGroundingPreferences,
+  covers: (preferences: ItineraryGroundingPreferences) => boolean,
+): CoverageSuggestion | null {
+  const pace = preferences.pace || "moderate";
+  const interests = preferences.interests ?? [];
+  const candidates: CoverageSuggestion[] = [];
+  if (interests.length > 0) candidates.push({ days: preferences.days, pace, interests: [] });
+  if (pace !== SUGGESTION_PACE) candidates.push({ days: preferences.days, pace: SUGGESTION_PACE, interests });
+  if (interests.length > 0 && pace !== SUGGESTION_PACE) {
+    candidates.push({ days: preferences.days, pace: SUGGESTION_PACE, interests: [] });
+  }
+  for (let days = preferences.days - 1; days >= 1; days -= 1) {
+    candidates.push({ days, pace, interests });
+    if (pace !== SUGGESTION_PACE) candidates.push({ days, pace: SUGGESTION_PACE, interests: [] });
+  }
+  for (const candidate of candidates.slice(0, MAX_SUGGESTION_CHECKS)) {
+    if (covers({ ...preferences, ...candidate })) return candidate;
+  }
+  return null;
+}
+
+export function describeCoverageSuggestion(suggestion: CoverageSuggestion, requestedInterests: string[] = []): string {
+  const parts = [`${suggestion.days}-day`];
+  if (suggestion.pace === SUGGESTION_PACE) parts.push("relaxed");
+  const label = `${parts.join(" ")} plan`;
+  return requestedInterests.length > 0 && suggestion.interests.length === 0 ? `${label} with all interests` : label;
+}

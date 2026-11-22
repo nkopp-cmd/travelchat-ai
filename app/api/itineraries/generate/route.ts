@@ -24,7 +24,10 @@ import {
   hasItineraryGroundingCoverage,
   rankItineraryGroundingSpots,
   pinSelectedSpot,
+  suggestCoverageFallback,
+  describeCoverageSuggestion,
   ensurePinnedSpot,
+  type ItineraryGroundingPreferences,
   type ItineraryGroundingSpot,
 } from '@/lib/itineraries/grounded-generation';
 import { handleCorridorGeneration } from './corridor-generation';
@@ -268,11 +271,12 @@ async function generate(req: NextRequest, outcome: GenerateOutcome) {
       throw new Error(`Could not load verified itinerary spots: ${spotsError.message}`);
     }
     const visibleSpots = (spots || []).filter((spot) => shouldShowPublicSpot(spot));
-    const { spots: groundingSpots, pinnedId } = pinSelectedSpot(
-      rankItineraryGroundingSpots(visibleSpots as ItineraryGroundingSpot[], { days, interests, localnessLevel, pace }),
+    const groundFor = (preferences: ItineraryGroundingPreferences) => pinSelectedSpot(
+      rankItineraryGroundingSpots(visibleSpots as ItineraryGroundingSpot[], preferences),
       visibleSpots as ItineraryGroundingSpot[],
       spotId,
     );
+    const { spots: groundingSpots, pinnedId } = groundFor({ days, interests, localnessLevel, pace });
     const hasGroundingCoverage = hasItineraryGroundingCoverage(
       groundingSpots,
       { days, interests, localnessLevel, pace },
@@ -280,9 +284,17 @@ async function generate(req: NextRequest, outcome: GenerateOutcome) {
 
     if (!hasGroundingCoverage) {
       outcome.reason = "no_spots";
+      // Push CG3: name one mix that passes the same check, so the planner can offer it as one tap.
+      const suggestion = suggestCoverageFallback(
+        { days, interests, localnessLevel, pace },
+        (preferences) => hasItineraryGroundingCoverage(groundFor(preferences).spots, preferences),
+      );
       return NextResponse.json({
         error: "insufficient_verified_spots",
-        message: `Localley does not yet have enough verified, photographed ${normalizedCity} spots for this exact pace and interest mix. Try fewer days, a slower pace, or broader interests.`,
+        message: suggestion
+          ? `Localley cannot fill this exact ${normalizedCity} mix yet. A ${describeCoverageSuggestion(suggestion, interests ?? [])} works now.`
+          : `Localley does not yet have enough verified, photographed ${normalizedCity} spots for this exact pace and interest mix. Try fewer days, a slower pace, or broader interests.`,
+        ...(suggestion && { suggestion }),
       }, { status: 422 });
     }
 
