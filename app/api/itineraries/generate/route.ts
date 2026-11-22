@@ -10,6 +10,7 @@ import { hasFeature, SubscriptionTier } from '@/lib/subscription';
 import { generateCorridorItinerarySchema, generateItinerarySchema } from '@/lib/validations';
 import { checkAndIncrementUsage, checkUsageLimit, getUserTier } from '@/lib/usage-tracking';
 import { validateCityForItinerary } from '@/lib/cities';
+import { isCheckTraffic } from '@/lib/check-traffic';
 import { cookies } from 'next/headers';
 import { Errors, apiError, ErrorCodes } from '@/lib/api-errors';
 import { geocodeItineraryActivities } from '@/lib/geocoding';
@@ -63,7 +64,7 @@ function logRejectedInput(kind: "single" | "corridor" | "body", issues: Readonly
 
 export async function POST(req: NextRequest) {
   const started = Date.now();
-  const outcome: GenerateOutcome = { tier: "unknown" };
+  const outcome: GenerateOutcome = { tier: "unknown", ...(isCheckTraffic(req.headers) && { check: true }) };
   const response = await generate(req, outcome);
   logGenerateOutcome(response.status, outcome, Date.now() - started);
   return response;
@@ -173,6 +174,7 @@ async function generate(req: NextRequest, outcome: GenerateOutcome) {
       return Errors.validationError(cityValidation.error!);
     }
     const cityConfig = cityValidation.city!;
+    outcome.city = cityConfig.slug;
     const normalizedCity = cityConfig.name;
 
     // Signed-in plans spend one of the month's trips, also when the plan comes from the cache.
@@ -289,6 +291,7 @@ async function generate(req: NextRequest, outcome: GenerateOutcome) {
         { days, interests, localnessLevel, pace },
         (preferences) => hasItineraryGroundingCoverage(groundFor(preferences).spots, preferences),
       );
+      outcome.suggestion = suggestion !== null;
       return NextResponse.json({
         error: "insufficient_verified_spots",
         message: suggestion
