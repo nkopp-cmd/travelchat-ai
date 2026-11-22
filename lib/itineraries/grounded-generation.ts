@@ -201,7 +201,7 @@ export function rankItineraryGroundingSpots(
   for (const spot of spots) {
     const name = localizedText(spot.name);
     const description = localizedText(spot.description);
-    if (!name || spot.localley_score < threshold || !spot.verified) continue;
+    if (!name || spot.localley_score < threshold) continue;
     if (description.length < 60) continue;
     if (!getFirstRealDisplaySpotPhoto(spot.photos)) continue;
     if (!parseSpotCoordinates(spot.location)) continue;
