@@ -130,6 +130,7 @@ on:
       - 'lib/spots/city-context.ts'
       - 'scripts/seo/**'
       - '__tests__/app/site-url-fallback.test.ts'
+      - 'public/robots.txt'
       - '__tests__/middleware.test.ts'
       - 'lib/help/**'
       - 'app/api/help/**'
