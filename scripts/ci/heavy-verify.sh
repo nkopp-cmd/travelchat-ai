@@ -39,6 +39,7 @@ VITEST_FILES=(
   __tests__/components/city-quick-filters.test.tsx
   __tests__/components/city-image-avatar.test.tsx
   __tests__/components/auth-form-return.test.tsx
+  __tests__/components/auth-checkout-resume.test.tsx
   __tests__/components/auth-reset-return.test.tsx
   __tests__/components/auth-in-app-browser.test.tsx
   __tests__/components/review-form-a11y.test.tsx
