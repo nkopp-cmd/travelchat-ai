@@ -65,6 +65,8 @@ describe("spot hand-off name (push CL1)", () => {
     rememberHandoffSpot(SPOT, "Dotonbori Canal");
     planner(`?spot=${SPOT}&city=Tokyo`);
     expect(screen.getByText("Dotonbori Canal is in your Tokyo plan")).toBeTruthy();
+    // 390 px: the line wraps, so the city stays visible (truncate cut it live).
+    expect(screen.getByText("Dotonbori Canal is in your Tokyo plan").className).not.toMatch(/\btruncate\b/);
     expect(screen.getByText(spotOfferLine("Dotonbori Canal"))).toBeTruthy();
   });
 
