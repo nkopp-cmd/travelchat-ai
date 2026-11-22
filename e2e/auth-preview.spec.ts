@@ -32,17 +32,16 @@ test("sign-up -> verify -> protected page -> sign-out -> password sign-in -> mag
   const email = `e2e-${Date.now()}@${TEST_DOMAIN}`;
   const password = `E2e-${Math.random().toString(36).slice(2)}-pw`;
 
-  // Signed out: protected page redirects to sign-in with a local continuation.
+  // Signed out: a protected page opens the sign-up wall with a local continuation (Push AG1).
   await page.goto("/dashboard");
-  await expect(page).toHaveURL(/\/sign-in\?redirect_url=%2Fdashboard/);
+  await expect(page).toHaveURL(/\/sign-up\?redirect_url=%2Fdashboard/);
   const api = await page.request.post("/api/spots/save", { data: { spotId: "x" } });
   expect(api.status()).toBe(401);
 
-  // Sign up.
-  await page.goto("/sign-up");
+  // Sign up on that wall: email + password first, name last (Push BC1).
   await page.getByLabel("Name").fill("E2E Tester");
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel(/Password/).fill(password);
+  await page.getByLabel("Email", { exact: true }).fill(email);
+  await page.getByLabel("Password (8+ characters)", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Create account" }).click();
   await expect(page.getByText(/Check your inbox/)).toBeVisible();
 
@@ -51,6 +50,9 @@ test("sign-up -> verify -> protected page -> sign-out -> password sign-in -> mag
   await page.goto("/dashboard");
   await expect(page).toHaveURL(/\/dashboard/);
   await expect(page.getByRole("button", { name: "Account menu" })).toBeVisible();
+  // The new account's dashboard renders, not the route error boundary.
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(page.getByText(/Something went wrong/)).toHaveCount(0);
   const session = await page.request.get("/api/auth/get-session");
   const body = await session.json();
   expect(body.user.email).toBe(email);
@@ -62,11 +64,12 @@ test("sign-up -> verify -> protected page -> sign-out -> password sign-in -> mag
   await page.getByRole("menuitem", { name: "Sign out" }).click();
   await page.waitForURL((url) => url.pathname === "/");
   await page.goto("/settings");
-  await expect(page).toHaveURL(/\/sign-in\?redirect_url=%2Fsettings/);
+  await expect(page).toHaveURL(/\/sign-(in|up)\?redirect_url=%2Fsettings/);
 
   // Password sign-in returns to the requested page.
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill(password);
+  await page.goto("/sign-in?redirect_url=%2Fsettings");
+  await page.getByLabel("Email", { exact: true }).fill(email);
+  await page.getByLabel("Password", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await page.waitForURL(/\/settings/);
   await page.screenshot({ path: "test-results/auth-preview-settings.png", fullPage: false });
@@ -74,7 +77,7 @@ test("sign-up -> verify -> protected page -> sign-out -> password sign-in -> mag
   // Magic link sign-in after clearing cookies.
   await page.context().clearCookies();
   await page.goto("/sign-in");
-  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Email", { exact: true }).fill(email);
   await page.getByRole("button", { name: "Email me a sign-in link" }).click();
   await expect(page.getByText(/sent you a sign-in link/)).toBeVisible();
   await page.goto(await latestLink(page, email, "magic-link"));
