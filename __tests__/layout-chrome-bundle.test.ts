@@ -137,4 +137,12 @@ describe("planner first-screen bundle (Push CH1)", () => {
     expect(eager).toEqual([]);
     expect([...graph.keys()].filter((spec) => spec.startsWith("@radix-ui/react-slider"))).toEqual([]);
   });
+
+  it("keeps tailwind-merge, Sentry, next/image and the city image table off the planner first screen", () => {
+    const planner = staticGraph(["app/itineraries/layout.tsx", "app/itineraries/error.tsx", "app/itineraries/new/page.tsx"]);
+    const hits = [...planner]
+      .filter(([spec]) => /^tailwind-merge$|^@sentry\/nextjs$|^next\/image$|^lib\/city-images\.ts$|^lib\/utils\.ts$|^@radix-ui\/react-slot$/.test(spec))
+      .map(([spec, by]) => `${spec} <- ${by}`);
+    expect(hits).toEqual([]);
+  });
 });

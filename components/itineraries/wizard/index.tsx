@@ -3,8 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { clsx } from "clsx";
 import { useToast } from "@/hooks/use-toast";
 import { LazyToastAction } from "@/components/ui/toast-action-lazy";
 import { ArrowLeft, ArrowRight, MapPin, Sparkles } from "@/components/ui/icons";
@@ -25,6 +24,13 @@ const StepDuration = dynamic(loadDuration);
 const StepInterests = dynamic(loadInterests);
 const StepPreferences = dynamic(loadPreferences);
 const GeneratingScreen = dynamic(loadGenerating);
+
+// Push CH1: the footer used <Button> (cn -> tailwind-merge, ~8 KB gzip + Radix Slot) on the planner first screen.
+// These are the twMerge results of buttonVariants + the old className overrides, written out without conflicts.
+const FOOTER_BASE =
+  "items-center justify-center gap-2 whitespace-normal rounded-md font-medium transition-all disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px] min-h-11 py-2 has-[>svg]:px-3";
+const FOOTER_OUTLINE = `${FOOTER_BASE} h-10 sm:h-11 disabled:opacity-50 bg-secondary text-foreground hover:bg-raised hover:text-accent-foreground`;
+
 export function preloadLaterSteps() {
   return Promise.all([loadDuration(), loadInterests(), loadPreferences(), loadGenerating()]);
 }
@@ -316,50 +322,49 @@ function WizardContent({
             )}
             <div className={getTemplateFooterControlsClass(compactTemplateFooter)}>
             {quickStart && (
-              <Button
+              <button
                 type="button"
-                variant="outline"
                 onClick={nextStep}
-                className="h-10 shrink-0 px-3 text-foreground hover:bg-raised sm:h-11"
+                className={clsx(FOOTER_OUTLINE, "inline-flex shrink-0 px-3 text-sm")}
               >
                 Customize
-              </Button>
+              </button>
             )}
             {currentStep > 0 && (
-              <Button
-                variant="outline"
+              <button
+                type="button"
                 onClick={prevStep}
-                className="h-10 flex-1 text-foreground hover:bg-raised sm:h-11"
+                className={clsx(FOOTER_OUTLINE, "inline-flex flex-1 px-4 text-sm")}
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back
-              </Button>
+              </button>
             )}
             {canGenerateFromTemplate && (
-              <Button
+              <button
                 type="button"
-                variant="outline"
                 onClick={handleCustomizeTemplate}
-                className="hidden h-10 shrink-0 px-2 text-xs text-foreground hover:bg-raised sm:inline-flex sm:h-11 sm:px-3 sm:text-sm"
+                className={clsx(FOOTER_OUTLINE, "hidden shrink-0 px-2 text-xs sm:inline-flex sm:px-3 sm:text-sm")}
               >
                 <ArrowRight className="mr-1.5 h-4 w-4" />
                 Customize
-              </Button>
+              </button>
             )}
-            <Button
+            <button
+              type="button"
               onClick={handleNext}
               disabled={!canProceed}
-              className={cn(
-                "h-10 min-w-0 flex-1 text-foreground sm:h-11",
-                currentStep === 0 && !compactTemplateFooter && !quickStart && "w-full",
-                compactTemplateFooter && "w-full px-3 sm:w-auto sm:min-w-[8.5rem] sm:shrink-0",
-                canGenerateFromTemplate && "sm:min-w-[9.25rem] sm:max-w-[9.75rem]",
-                "bg-primary text-primary-foreground",
-                "",
-                "",
-                "disabled:opacity-50 disabled:cursor-not-allowed",
+              className={clsx(
+                FOOTER_BASE,
+                "inline-flex h-10 min-w-0 flex-1 text-sm sm:h-11 bg-primary text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed",
+                compactTemplateFooter ? "px-3" : "px-4",
+                ((currentStep === 0 && !compactTemplateFooter && !quickStart) || compactTemplateFooter) && "w-full",
+                compactTemplateFooter && "sm:w-auto sm:shrink-0",
+                canGenerateFromTemplate
+                  ? "sm:min-w-[9.25rem] sm:max-w-[9.75rem]"
+                  : compactTemplateFooter && "sm:min-w-[8.5rem]",
                 // Before the city tap: an opaque, readable hint instead of a see-through "Next" bar.
-                awaitingCity && "disabled:bg-raised disabled:text-foreground disabled:opacity-100",
+                awaitingCity ? "disabled:bg-raised disabled:text-foreground disabled:opacity-100" : "disabled:opacity-50",
               )}
             >
               {isLastStep || canGenerateNow ? (
@@ -373,17 +378,16 @@ function WizardContent({
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </>
               )}
-            </Button>
+            </button>
             {compactTemplateFooter && data.city && (
-              <Button
+              <button
                 type="button"
-                variant="outline"
                 onClick={handleChangeTemplateCity}
-                className="h-10 shrink-0 px-2 text-xs text-foreground hover:bg-raised sm:hidden"
+                className={clsx(FOOTER_OUTLINE, "inline-flex shrink-0 px-2 text-xs sm:hidden")}
               >
                 <MapPin className="mr-1 h-3.5 w-3.5" />
                 Change
-              </Button>
+              </button>
             )}
             </div>
           </div>

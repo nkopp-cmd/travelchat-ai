@@ -2,10 +2,10 @@
 
 import { Card } from "@/components/ui/card";
 import {
-  getTemplateImageUrl,
   getTemplateSampleCity,
   ItineraryTemplate,
 } from "@/lib/templates";
+import { getTemplateImageUrl } from "@/lib/template-images";
 import { ArrowRight, Check, Clock } from "@/components/ui/icons";
 import Image from "next/image";
 import Link from "next/link";

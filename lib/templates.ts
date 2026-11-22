@@ -1,4 +1,3 @@
-import { getCityImageUrl } from "@/lib/city-images";
 
 export interface ItineraryTemplate {
   id: string;
@@ -220,26 +219,6 @@ export const getTemplateById = (id: string): ItineraryTemplate | undefined => {
 
 export function getTemplateSampleCity(template: ItineraryTemplate): string {
   return TEMPLATE_SAMPLE_CITIES[template.id] || "Tokyo";
-}
-
-export function getTemplateImageUrl(
-  template: ItineraryTemplate,
-  options: { width?: number; height?: number; quality?: number } = {}
-): string {
-  const city = getTemplateSampleCity(template);
-  return (
-    getCityImageUrl(city, {
-      width: options.width || 480,
-      height: options.height || 360,
-      quality: options.quality || 88,
-    }) ||
-    getCityImageUrl("Tokyo", {
-      width: options.width || 480,
-      height: options.height || 360,
-      quality: options.quality || 88,
-    }) ||
-    "/images/placeholders/default.svg"
-  );
 }
 
 export const getTemplatesByPace = (pace: 'relaxed' | 'moderate' | 'active'): ItineraryTemplate[] => {

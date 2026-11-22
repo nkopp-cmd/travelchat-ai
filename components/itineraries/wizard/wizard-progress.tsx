@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { clsx as cn } from "clsx";
 import { useWizard } from "./wizard-context";
 import { Check } from "@/components/ui/icons";
 
@@ -24,8 +24,8 @@ export function WizardProgress() {
             onClick={() => index < currentStep && goToStep(index)}
             disabled={index > currentStep}
             className={cn(
-              "w-2.5 h-2.5 rounded-full transition-all",
-              index === currentStep && "w-8 bg-primary",
+              "h-2.5 rounded-full transition-all",
+              index === currentStep ? "w-8 bg-primary" : "w-2.5",
               index < currentStep && "bg-primary/60",
               index > currentStep && "bg-raised"
             )}
