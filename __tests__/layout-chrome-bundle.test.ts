@@ -95,3 +95,37 @@ describe("home page client bundle (Push AT3)", () => {
     expect(hits).toEqual([]);
   });
 });
+
+// Push CH1: the planner's first screen. Static imports only (next/dynamic and import() load later).
+// Radix Toast arrives with the first toast; React Query is not used by the planner or the preview.
+function staticGraph(roots: string[]): Map<string, string> {
+  const seen = new Map<string, string>();
+  const visit = (file: string, from: string) => {
+    if (seen.has(file)) return;
+    seen.set(file, from);
+    const source = readFileSync(file, "utf8");
+    for (const match of source.matchAll(/^(?:import|export)\s+(?!type\b)[^;]*?from\s+"([^"]+)"/gm)) {
+      const spec = match[1];
+      const next = resolve(spec, file);
+      if (next) visit(next, file);
+      else if (!spec.startsWith(".") && !spec.startsWith("@/")) seen.set(spec, file);
+    }
+  };
+  for (const file of roots) visit(file, "entry");
+  return seen;
+}
+
+describe("planner first-screen bundle (Push CH1)", () => {
+  const roots = ["app/itineraries/layout.tsx", "app/itineraries/new/page.tsx", "app/itineraries/preview/page.tsx"];
+
+  it("walks the real wizard", () => {
+    expect(staticGraph(roots).has("components/itineraries/wizard/step-destination.tsx")).toBe(true);
+  });
+
+  it("keeps Radix Toast and React Query out of the planner and preview first screen", () => {
+    const hits = [...staticGraph(roots)]
+      .filter(([spec]) => /^@radix-ui\/react-toast$|^@tanstack\/react-query$|^lib\/query-client\.tsx$|^components\/ui\/toast\.tsx$/.test(spec))
+      .map(([spec, by]) => `${spec} <- ${by}`);
+    expect(hits).toEqual([]);
+  });
+});
