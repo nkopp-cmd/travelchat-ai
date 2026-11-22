@@ -1,10 +1,11 @@
 "use client";
 
-import Image from "next/image";
+import Image, { getImageProps } from "next/image";
 import { useState, type ReactNode } from "react";
+import { preload } from "react-dom";
 import { cn } from "@/lib/utils";
 import { pinTone } from "@/lib/spots/pin-clusters";
-import { isOwnSpotPhotoPath, spotPhotoLoader } from "@/lib/spots/own-photo";
+import { isOwnSpotPhotoPath, spotPhotoAvifLoader, spotPhotoLoader } from "@/lib/spots/own-photo";
 import { TONE_ICONS } from "./category-tone";
 import type { PhotoGalleryResponse } from "@/lib/spots/photo-contract";
 import { earlyHeroScript, getDirectVenuePhotos, type DirectPhotoCredit, useDetailVenuePhotos, useVenuePhotos } from "./venue-photo-provider";
@@ -40,14 +41,30 @@ function PhotoImage({ photo, alt, className, sizes, priority, loading, children,
           <img alt="" hidden suppressHydrationWarning className={cn("absolute inset-0 h-full w-full", className)} />
           <script dangerouslySetInnerHTML={{ __html: earlyHeroScript(earlySpotId) }} />
         </>}
-      </> : <Image key={photo.url} src={photo.url} alt={alt} fill sizes={sizes} preload={priority} fetchPriority={priority ? "high" : undefined} className={className}
-        // Stored spot photos get a srcset of their 480/960/full copies (the full hero was 599 KB on phones, Push AL2);
-        // other sources stay unoptimized, as before.
-        {...(isOwnSpotPhotoPath(photo.url) ? { loader: spotPhotoLoader } : { unoptimized: true })}
+      </> : isOwnSpotPhotoPath(photo.url) ? <OwnSpotPicture key={photo.url} src={photo.url} alt={alt} sizes={sizes} priority={priority} className={className}
+        onLoad={() => setImageState({url:photo.url,status:"loaded"})} onError={() => setImageState({url:photo.url,status:"failed"})} />
+        : <Image key={photo.url} src={photo.url} alt={alt} fill sizes={sizes} preload={priority} fetchPriority={priority ? "high" : undefined} className={className} unoptimized
         onLoad={() => setImageState({url:photo.url,status:"loaded"})} onError={() => setImageState({url:photo.url,status:"failed"})} />}
       {children}
     </div>
   </figure>;
+}
+
+/**
+ * A stored spot photo: srcset of its 480/960/full copies (the full hero was 599 KB on phones, Push AL2), with an AVIF
+ * source first (about half the WebP bytes; the phone hero is the spot page LCP, Push CI2). The preload carries
+ * type=image/avif, so a browser without AVIF skips it and loads the WebP <img> instead of fetching both.
+ */
+function OwnSpotPicture({ src, alt, sizes, priority, className, onLoad, onError }: {
+  src: string; alt: string; sizes: string; priority: boolean; className: string; onLoad: () => void; onError: () => void;
+}) {
+  const avif = getImageProps({ src, alt: "", fill: true, sizes, loader: spotPhotoAvifLoader }).props;
+  if (priority && avif.srcSet) preload(avif.src, { as: "image", imageSrcSet: avif.srcSet, imageSizes: sizes, fetchPriority: "high", type: "image/avif" });
+  return <picture>
+    <source type="image/avif" srcSet={avif.srcSet} sizes={sizes} />
+    <Image src={src} alt={alt} fill sizes={sizes} fetchPriority={priority ? "high" : undefined} loading={priority ? "eager" : undefined} className={className}
+      loader={spotPhotoLoader} onLoad={onLoad} onError={onError} />
+  </picture>;
 }
 
 export function VenueHeroPhoto({ name, category, children }: { name: string; category?: string; children?: ReactNode }) {
