@@ -94,6 +94,11 @@ describe("home page client bundle (Push AT3)", () => {
     const hits = [...graph].filter(([file]) => FORBIDDEN.has(file)).map(([file, by]) => `${file} <- ${by}`);
     expect(hits).toEqual([]);
   });
+
+  it("keeps the itineraries error boundary to plain markup (it loads on every planner first screen)", () => {
+    const deps = [...staticGraph(["app/itineraries/error.tsx"]).keys()].filter((spec) => spec !== "app/itineraries/error.tsx");
+    expect(deps.filter((spec) => !/^react$/.test(spec))).toEqual([]);
+  });
 });
 
 // Push CH1: the planner's first screen. Static imports only (next/dynamic and import() load later).

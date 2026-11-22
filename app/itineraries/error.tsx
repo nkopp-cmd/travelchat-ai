@@ -1,11 +1,10 @@
 "use client";
 
-import { buttonVariants } from "@/components/ui/button-variants";
-import { AlertCircle, RefreshCw, Home } from "@/components/ui/icons";
 import { useEffect } from "react";
 
-// Push CH1: this boundary sits on the planner first screen (/itineraries/new). A static @sentry/nextjs import and the
-// tailwind-merge Button put ~6 KB gzip into its first-load JS; Sentry now loads only when an error really happens.
+// Push CH1: this boundary loads on every /itineraries/new first screen (Next fetches route error boundaries up front).
+// Keep it plain markup: no Sentry import (loads only when an error happens), no buttonVariants/cva, no icon module.
+const button = "inline-flex min-h-11 items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors";
 
 export default function ItinerariesError({
     error,
@@ -19,32 +18,17 @@ export default function ItinerariesError({
     }, [error]);
 
     return (
-        <div className="max-w-2xl mx-auto p-8 text-center space-y-6">
-            <div className="flex justify-center">
-                <div className="h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
-                    <AlertCircle className="h-8 w-8 text-red-600 dark:text-red-400" />
-                </div>
-            </div>
-
+        <div role="alert" className="max-w-2xl mx-auto p-8 text-center space-y-6">
             <div className="space-y-2">
                 <h2 className="text-2xl font-bold">Unable to load itineraries</h2>
-                <p className="text-muted-foreground">
-                    We encountered an error while loading your itineraries.
-                </p>
-                {error.digest && (
-                    <p className="text-xs text-muted-foreground">
-                        Error ID: {error.digest}
-                    </p>
-                )}
+                <p className="text-muted-foreground">We encountered an error while loading your itineraries.</p>
+                {error.digest && <p className="text-xs text-muted-foreground">Error ID: {error.digest}</p>}
             </div>
-
             <div className="flex gap-4 justify-center">
-                <button type="button" onClick={reset} className={buttonVariants({ variant: "default" })}>
-                    <RefreshCw className="mr-2 h-4 w-4" />
+                <button type="button" onClick={reset} className={`${button} bg-primary text-primary-foreground hover:bg-primary/90`}>
                     Try Again
                 </button>
-                <a href="/dashboard" className={buttonVariants({ variant: "outline" })}>
-                    <Home className="mr-2 h-4 w-4" />
+                <a href="/dashboard" className={`${button} bg-secondary text-secondary-foreground hover:bg-accent`}>
                     Dashboard
                 </a>
             </div>
