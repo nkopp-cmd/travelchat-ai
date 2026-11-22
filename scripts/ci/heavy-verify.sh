@@ -153,6 +153,7 @@ VITEST_FILES=(
   __tests__/lib/spot-photos.test.ts
   __tests__/lib/own-spot-photo.test.tsx
   __tests__/lib/spots-d1-backend.test.ts
+  __tests__/lib/cities.test.ts
   __tests__/api/process-social-submissions-route.test.ts
   __tests__/lib/d1-rpc.test.ts
   __tests__/lib/d1-rpc-social.test.ts

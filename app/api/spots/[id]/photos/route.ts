@@ -6,7 +6,7 @@ import { createSupabaseAdmin } from "@/lib/supabase";
 import { dataBackend } from "@/lib/app-data/backend";
 import { d1SpotSource } from "@/lib/spots/d1-queries";
 import { rateLimit, strictPlatformLimit } from "@/lib/rate-limit";
-import { inferCityFromAddress } from "@/lib/cities";
+import { spotCityCandidates } from "@/lib/cities";
 import { distanceKm } from "@/lib/geocoding";
 import { getGooglePlaceIdsFromSpotPhotos, getGooglePlacesApiKey, getPlacePhotoMatchQuality } from "@/lib/place-images";
 import { shouldShowPublicSpot } from "@/lib/spots/public-quality";
@@ -113,7 +113,7 @@ async function photoGallery(req: NextRequest, context: { params: Promise<{ id: s
             const limited = await developmentLimit(new NextRequest(new URL("/api/spots/photos", req.url), { headers: req.headers }));
             if (limited) return unavailableForRequest(limited.status, undefined, "rate_limited");
         }
-        let spot: RawSpot | null;
+        let spot: (RawSpot & { city?: unknown }) | null;
         if (candidate) {
             try {
                 spot = await previewSpotPhotoSource(id);
@@ -141,7 +141,7 @@ async function photoGallery(req: NextRequest, context: { params: Promise<{ id: s
         if (!placeId || !/^[A-Za-z0-9_-]{1,256}$/.test(placeId)) return unavailableForRequest(200, undefined, "no_place_id");
         if (getGooglePlaceIdsFromSpotPhotos(photos).some(photoPlaceId => photoPlaceId !== placeId)) return unavailableForRequest(200, undefined, "mixed_place_ids");
         const stored = parseSpotCoordinates(spot.location);
-        conflictKey = new Request(`https://spot-photo-verdict.localley.internal/v1/${id}/${placeId}/${stored ? `${stored.lat},${stored.lng}` : "none"}`);
+        conflictKey = new Request(`https://spot-photo-verdict.localley.internal/v2/${id}/${placeId}/${stored ? `${stored.lat},${stored.lng}` : "none"}`);
         try {
             if (await verdictCache()?.match(conflictKey)) return unavailableForRequest(200, undefined, "cached_conflict");
         } catch { /* A cache fault only costs one Details call. */ }
@@ -189,10 +189,12 @@ async function photoGallery(req: NextRequest, context: { params: Promise<{ id: s
         if (details.failure) return details.failure;
         const place = details.place;
         const address = getLocalizedText(spot.address);
-        const city = inferCityFromAddress(address);
-        // City identity from the listing's coordinates (Essentials) instead of its address text (Pro).
-        if (!city || !place.location ||
-            distanceKm(city.center.lat, city.center.lng, place.location.latitude, place.location.longitude) > 100) return failureForRequest(502, "listing_city_conflict");
+        // City identity from the listing's coordinates (Essentials) instead of its address text (Pro). The stored city
+        // (spots.city) counts as well as the address text: "Tung Choi Street, Mong Kok, Kowloon" names no city, and
+        // "Thành phố Hồ Chí Minh" is not "Ho Chi Minh City" (11 of 13 city conflicts 2026-11-15..22 were such spots).
+        const cities = spotCityCandidates(spot.city, address);
+        if (!cities.length || !place.location || !cities.some(city =>
+            distanceKm(city.center.lat, city.center.lng, place.location!.latitude, place.location!.longitude) <= 100)) return failureForRequest(502, "listing_city_conflict");
         const coordinates = stored;
         // Coordinates corroborate listing identity, not an entrance or photo verification.
         // Do not reject a Korean display name merely because the saved name is English.

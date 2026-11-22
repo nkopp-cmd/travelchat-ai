@@ -827,6 +827,16 @@ export function getCityTargets(slug: string): CityConfig['targets'] | undefined 
  * Infer city from address string
  * Used when spots don't have explicit city field
  */
+/**
+ * The cities a spot may belong to: its stored city (spots.city, when it names a known city) and the city its address
+ * text names. A listing check passes when it lies near either one.
+ */
+export function spotCityCandidates(storedCity: unknown, address: string): CityConfig[] {
+    const stored = typeof storedCity === "string" && storedCity.trim() ? getCityByName(storedCity.trim()) : undefined;
+    const inferred = inferCityFromAddress(address);
+    return [...new Set([stored, inferred].filter((city): city is CityConfig => Boolean(city)))];
+}
+
 export function inferCityFromAddress(address: string): CityConfig | undefined {
     const lowerAddress = address.toLowerCase();
 

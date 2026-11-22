@@ -144,6 +144,14 @@ describe("spot detail sources on D1", () => {
     expect(await d1SpotSource(id(77))).toBeNull();
   });
 
+  it("adds the curated spots.city when the imported payload has none", async () => {
+    db.sqlite.prepare("UPDATE spots SET city = 'Hong Kong' WHERE id IN (?, ?)").run(id(1), id(2));
+    source(1);
+    source(2, { city: "Busan" });
+    expect((await d1SpotSource(id(1)))!.city).toBe("Hong Kong");
+    expect((await d1SpotSource(id(2)))!.city).toBe("Busan");
+  });
+
   it("finds the oldest direct submission, else one whose research created the spot", async () => {
     expect(await d1CommunitySubmission(id(6))).toMatchObject({ platform: "instagram", status: "spot_created", contributor_credit: "A" });
     db.sqlite.prepare(`INSERT INTO social_spot_submissions (contributor_id, source_url, canonical_url, platform, status, contributor_credit, research, created_at)
