@@ -20,6 +20,14 @@ describe("planner client bundle stays free of zod and manifests", () => {
   it("planner client loads templates on demand", () => {
     expect(read("app/itineraries/new/planner-client.tsx")).toMatch(/import\("@\/lib\/templates"\)/);
   });
+  // Push CH1: the generate result store and the Stripe return notice load on demand too.
+  it.each(["app/itineraries/new/planner-client.tsx", ...wizard])("%s does not import generated-preview or the paid-return notice statically", file => {
+    expect(importsOf(read(file)).filter(spec => /generated-preview|planner-paid-return|paid-return$/.test(spec))).toEqual([]);
+  });
+  it("wizard and planner client load them through import()", () => {
+    expect(read("components/itineraries/wizard/index.tsx")).toMatch(/await import\("@\/lib\/trips\/generated-preview"\)/);
+    expect(read("app/itineraries/new/planner-client.tsx")).toMatch(/import\("@\/components\/itineraries\/planner-paid-return"\)/);
+  });
   it("corridor-select has no imports at all", () => {
     expect(importsOf(read("lib/trips/corridor-select.ts"))).toEqual([]);
   });

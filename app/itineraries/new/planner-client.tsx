@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore, type ComponentType } from "react";
 import { ItineraryWizard } from "@/components/itineraries/wizard";
 import type { PlannerCity } from "@/lib/cities-catalog";
 import { plannerDraftSnapshot, plannerDraftServerSnapshot, subscribePlannerDraft } from "@/lib/trips/planner-draft";
 import { plannerStartFromQuery, plannerTemplateId, type TemplateLookup } from "@/lib/trips/planner-query";
-import { PlannerPaidReturn } from "@/components/itineraries/planner-paid-return";
 
 // The query is read in the browser only: the server renders the plain planner (step 0 with
 // the city list) once for everyone, and hydration sees the same empty query. Links with
@@ -31,12 +30,21 @@ export function NewItineraryClient({ initialCities }: { initialCities: PlannerCi
     import("@/lib/templates").then((m) => { if (live) setFindTemplate(() => m.getTemplateById); });
     return () => { live = false; };
   }, [templateId, findTemplate]);
+  // The Stripe return notice loads only for ?payment=success (push CH1). Latched: it drops the param itself.
+  const [PaidReturn, setPaidReturn] = useState<ComponentType | null>(null);
+  const paymentReturn = new URLSearchParams(search).get("payment") === "success";
+  useEffect(() => {
+    if (!paymentReturn || PaidReturn) return;
+    let live = true;
+    import("@/components/itineraries/planner-paid-return").then((m) => { if (live) setPaidReturn(() => m.PlannerPaidReturn); });
+    return () => { live = false; };
+  }, [paymentReturn, PaidReturn]);
   const templatePending = Boolean(templateId) && !findTemplate;
   const { resume, restored, initialData, initialStep } = useMemo(
     () => plannerStartFromQuery(search, rawDraft, Date.now(), findTemplate ?? undefined), [search, rawDraft, findTemplate]);
 
   return <>
-    <PlannerPaidReturn />
+    {PaidReturn && <PaidReturn />}
     {resume && <p role="status" className="px-4 py-3 text-sm text-muted-foreground">
       {restored ? "Your trip inputs are restored. Review them before continuing." : "No current saved inputs. Start a new plan."}
     </p>}
