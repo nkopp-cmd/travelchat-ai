@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { applyCriticalCss, isCriticalCss, loadCriticalCss, SPOT_CRITICAL_CSS_PATH, withCriticalCss } from "@/cloudflare/opennext/critical-css";
+import { applyCriticalCss, isCriticalCss, loadCriticalCss, SPOT_CRITICAL_CSS_PATH, withCriticalCss, withoutSheetPreloads } from "@/cloudflare/opennext/critical-css";
 import { EDGE_CACHE_HEADER, serveWithEdgeCache } from "@/cloudflare/opennext/edge-html-cache";
 // @ts-expect-error -- plain ESM build script without type declarations
 import { SPOT_CRITICAL_CSS_ASSET } from "../scripts/cf-static-public-html.mjs";
@@ -56,6 +56,21 @@ describe("spot critical CSS", () => {
     const mismatch = await withCriticalCss(res(), critical);
     expect(await mismatch.text()).toBe(spot.replace(A, "/x.css"));
     expect(mismatch.headers.has("content-length")).toBe(false);
+  });
+
+  it("push CI2: drops the build sheets' preload Link entries once the sheets are async, keeps other entries", async () => {
+    // Live shape from Next.js on /spots/<id> (2026-11-22).
+    const live = `</>; rel=preconnect; crossorigin="", <${B}>; rel=preload; as="style", <${A}>; rel=preload; as="style", </_next/static/chunks/other.css>; rel=preload; as="style"`;
+    const page = (body: string, link: string) => new Response(body, { headers: { "content-type": "text/html", link } });
+    const out = await withCriticalCss(page(spot, live), critical);
+    expect(await out.text()).toContain("<style>.hero{color:#fff}</style>");
+    expect(out.headers.get("link")).toBe(`</>; rel=preconnect; crossorigin="", </_next/static/chunks/other.css>; rel=preload; as="style"`);
+    const only = await withCriticalCss(page(spot, `<${A}>; rel=preload; as="style", <${B}>; rel=preload; as=style`), critical);
+    expect(only.headers.has("link")).toBe(false);
+    // Blocking sheets (no rewrite) keep their preloads.
+    const mismatch = await withCriticalCss(page(spot.replace(A, "/x.css"), live), critical);
+    expect(mismatch.headers.get("link")).toBe(live);
+    expect(withoutSheetPreloads(`<${A}>; rel=preload; as="font"`, critical)).toBe(`<${A}>; rel=preload; as="font"`);
   });
 
   it("edge cache: a spot MISS stores and serves the rewritten HTML; other pages are not rewritten", async () => {

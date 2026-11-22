@@ -85,11 +85,33 @@ export function loadCriticalCss(assets: AssetFetcher | undefined): Promise<Criti
   return loaded;
 }
 
+/**
+ * Push CI2: Next.js also sends `Link: <sheet>; rel=preload; as="style"` for every stylesheet of a dynamic page. The
+ * browser fetched those 29 KB at VeryHigh priority before the hero photo (PSI mobile: sheets at +7 ms after the
+ * document, hero at +12 ms; image LCP 1.2 s on every photo spot page while text spots were 0.93 s), which undid the
+ * async sheets above. When the sheets are made async, their preload entries leave the header; other entries stay.
+ */
+export function withoutSheetPreloads(link: string, critical: CriticalCss): string {
+  return link.split(/,\s*(?=<)/)
+    .filter((entry) => {
+      const href = /^<([^>]*)>/.exec(entry.trim())?.[1];
+      return !(href && Object.hasOwn(critical.css, href) && /;\s*rel="?preload"?/i.test(entry) && /;\s*as="?style"?/i.test(entry));
+    })
+    .join(", ");
+}
+
 /** Response with critical CSS applied; the original bytes when the build has none or the page does not match. */
 export async function withCriticalCss(response: Response, critical: CriticalCss | null): Promise<Response> {
   if (!critical) return response;
   const html = await response.text();
   const headers = new Headers(response.headers);
   headers.delete("content-length");
-  return new Response(deferSpotChunks(applyCriticalCss(html, critical)) ?? html, { status: response.status, statusText: response.statusText, headers });
+  const rewritten = deferSpotChunks(applyCriticalCss(html, critical));
+  const link = headers.get("link");
+  if (rewritten !== null && link) {
+    const kept = withoutSheetPreloads(link, critical);
+    if (kept) headers.set("link", kept);
+    else headers.delete("link");
+  }
+  return new Response(rewritten ?? html, { status: response.status, statusText: response.statusText, headers });
 }
