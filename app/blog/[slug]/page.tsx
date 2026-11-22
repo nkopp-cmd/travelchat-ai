@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "@/components/ui/icons";
 import { LocalleySignup } from "@/components/newsletter/localley-signup";
 import { BlogMarkdown } from "@/lib/blog/markdown";
-import { BLOG_POSTS, blogPost, formatPostDate, plannerHref, splitLead } from "@/lib/blog/posts";
+import { BLOG_POSTS, blogPost, formatPostDate, plannerHref, splitFirstSection, splitLead } from "@/lib/blog/posts";
 import { spotPhotoSrcSet } from "@/lib/spots/own-photo";
 import { blogPostingJsonLd, jsonLdHtml, postImage, postUrl } from "@/lib/blog/seo";
 
@@ -38,6 +38,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const post = blogPost((await params).slug);
   if (!post) notFound();
   const { lead, rest } = splitLead(post.body);
+  // Push CI1: lead + first section come before the photo, so the phone LCP is text (the lazy photo starts below the fold).
+  const { first, after } = splitFirstSection(rest);
   return (
     <div className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(blogPostingJsonLd(post)) }} />
@@ -48,6 +50,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         <h1 className="text-3xl font-bold leading-tight text-foreground sm:text-4xl">{post.title}</h1>
         <p className="mt-3 text-lg leading-7 text-muted-foreground">{post.description}</p>
         {lead && <BlogMarkdown source={lead} returnPath={`/blog/${post.slug}`} />}
+        {first && <BlogMarkdown source={first} returnPath={`/blog/${post.slug}`} />}
         {post.photo && (
           <figure className="mt-6">
             {/* eslint-disable-next-line @next/next/no-img-element -- own immutable R2 WebP with its 480/960 px copies; no image optimizer */}
@@ -67,7 +70,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             </figcaption>
           </figure>
         )}
-        {rest && <BlogMarkdown source={rest} returnPath={`/blog/${post.slug}`} />}
+        {after && <BlogMarkdown source={after} returnPath={`/blog/${post.slug}`} />}
         <p className="mt-10 text-sm text-muted-foreground">
           Last updated <time dateTime={post.updated}>{formatPostDate(post.updated)}</time>
         </p>
