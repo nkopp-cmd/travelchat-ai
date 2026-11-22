@@ -180,7 +180,18 @@ export const AUTH_ENTRY_LINKS: readonly AuthBackLink[] = [
     { href: "/itineraries/new", label: "Plan a free trip, no account needed" },
     { href: "/spots", label: "Browse local spots" },
 ];
-export function authEntryLinks(redirectUrl: string | null | undefined): readonly AuthBackLink[] {
+export function authEntryLinks(redirectUrl: string | null | undefined, mode: AuthMode = "sign-up"): readonly AuthBackLink[] {
     const path = pathOf(redirectUrl);
-    return path === null || path === "/" ? AUTH_ENTRY_LINKS : [];
+    if (path !== null && path !== "/") return [];
+    // Push CM1: bare /sign-in shows the planner as its lead line (authLeadLink), so the list keeps only the spots.
+    return mode === "sign-in" ? AUTH_ENTRY_LINKS.filter((link) => link.href !== SIGN_IN_LEAD.href) : AUTH_ENTRY_LINKS;
+}
+
+// Push CM1: bare /sign-in is the top Bing landing page (RUM 11-15..22: 5 of 9 Bing arrivals) and greets a first-time
+// visitor with "Welcome Back"; the free planner link sat at the fold edge (y 798 of 844 at 390 px). It now sits under
+// the heading, above the form. A visitor with a real target (redirect_url) keeps the form first.
+export const SIGN_IN_LEAD: AuthBackLink = { href: "/itineraries/new", label: "New to Localley? Plan a free trip, no account needed" };
+export function authLeadLink(mode: AuthMode, redirectUrl: string | null | undefined): AuthBackLink | null {
+    const path = pathOf(redirectUrl);
+    return mode === "sign-in" && (path === null || path === "/") ? SIGN_IN_LEAD : null;
 }

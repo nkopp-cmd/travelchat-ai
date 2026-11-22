@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 vi.mock("@/components/brand/logo", () => ({ Logo: () => null }));
 vi.mock("@/components/layout/app-background", () => ({ AppBackground: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
 import { AuthShell } from "@/components/auth/auth-shell";
-import { AUTH_ENTRY_LINKS } from "@/lib/auth/auth-copy";
+import { AUTH_ENTRY_LINKS, SIGN_IN_LEAD } from "@/lib/auth/auth-copy";
 
 // Push BS1: the sign-up footer named the terms as plain text; a visitor could not read them without leaving the form.
 describe("auth form footer links the legal pages (Push BS1)", () => {
@@ -33,5 +33,22 @@ describe("bare auth form offers a way on without an account (Push CJ1)", () => {
   it("renders no nav when there are no links", () => {
     render(<AuthShell title="t" subtitle="s" entry={[]}>form</AuthShell>);
     expect(screen.queryByRole("navigation", { name: "Without an account" })).toBeNull();
+  });
+});
+
+describe("bare sign-in shows the free planner above the form (Push CM1)", () => {
+  it("renders the lead link before the form", () => {
+    const { container } = render(<AuthShell title="t" subtitle="s" lead={SIGN_IN_LEAD}><div data-testid="form">form</div></AuthShell>);
+    const lead = screen.getByTestId("auth-lead");
+    expect(lead.getAttribute("href")).toBe("/itineraries/new");
+    expect(lead.textContent).toContain("New to Localley? Plan a free trip, no account needed");
+    const form = screen.getByTestId("form");
+    expect(lead.compareDocumentPosition(form) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(container.querySelectorAll("[data-testid=auth-lead]").length).toBe(1);
+  });
+
+  it("renders no lead without one", () => {
+    render(<AuthShell title="t" subtitle="s" lead={null}>form</AuthShell>);
+    expect(screen.queryByTestId("auth-lead")).toBeNull();
   });
 });

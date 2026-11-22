@@ -53,10 +53,18 @@ describe("auth pages pass the no-account links (Push CJ1)", () => {
   for (const page of ["sign-in", "sign-up"] as const) {
     it(`${page}: bare form gets the planner + spots, a target gets none`, async () => {
       mocks.auth.mockResolvedValue({ userId: null });
-      const bare = await render(page) as React.ReactElement<{ entry: { href: string }[] }>;
-      expect(bare.props.entry.map((link) => link.href)).toEqual(["/itineraries/new", "/spots"]);
-      const withTarget = await render(page, "/itineraries/preview") as React.ReactElement<{ entry: unknown[] }>;
+      const bare = await render(page) as React.ReactElement<{ entry: { href: string }[]; lead?: { href: string } | null }>;
+      // Push CM1: bare sign-in moves the planner link into the lead under the title.
+      const hrefs = bare.props.entry.map((link) => link.href);
+      if (page === "sign-in") {
+        expect(hrefs).toEqual(["/spots"]);
+        expect(bare.props.lead?.href).toBe("/itineraries/new");
+      } else {
+        expect(hrefs).toEqual(["/itineraries/new", "/spots"]);
+      }
+      const withTarget = await render(page, "/itineraries/preview") as React.ReactElement<{ entry: unknown[]; lead?: unknown }>;
       expect(withTarget.props.entry).toEqual([]);
+      expect(withTarget.props.lead ?? null).toBeNull();
     });
   }
 });

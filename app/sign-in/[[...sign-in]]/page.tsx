@@ -5,7 +5,7 @@ import { SignInForm } from "@/components/auth/auth-forms";
 import { redirect } from "next/navigation";
 import { auth, isGoogleSignInEnabled } from "@/lib/auth/server";
 import { safeRedirect } from "@/lib/auth/redirect";
-import { authBackLink, authCopy, authEntryLinks } from "@/lib/auth/auth-copy";
+import { authBackLink, authCopy, authEntryLinks, authLeadLink } from "@/lib/auth/auth-copy";
 import { KeptTripLine } from "@/components/auth/kept-trip-line";
 import { GENERATED_PREVIEW_PATH } from "@/lib/trips/generated-preview";
 
@@ -25,7 +25,7 @@ export default async function SignInPage({ searchParams }: Props) {
     if ((await auth()).userId) redirect(safeRedirect(target));
     const copy = authCopy("sign-in", target);
     return (
-        <AuthShell title={copy.title} subtitle={copy.subtitle} back={authBackLink(target)} entry={authEntryLinks(target)}>
+        <AuthShell title={copy.title} subtitle={copy.subtitle} back={authBackLink(target)} entry={authEntryLinks(target, "sign-in")} lead={authLeadLink("sign-in", target)}>
             {target?.split(/[?#]/)[0] === GENERATED_PREVIEW_PATH && <KeptTripLine />}
             <Suspense>
                 <SignInForm googleEnabled={isGoogleSignInEnabled()} />
