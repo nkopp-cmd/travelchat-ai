@@ -60,6 +60,13 @@
     "database_name": "localley-migration-candidate-20260930",
     "database_id": "6f5b1df7-2eb5-479f-8803-8095e72c7053",
     "migrations_dir": "migrations/app-preview"
+  }, {
+    // Push CJ2 (2026-11-22): the preview serves app data from D1 like production (DATA_BACKEND=d1).
+    // Empty schema-only store (migrations/app-preview), no production rows; e2e test users write here.
+    "binding": "APP_DB",
+    "database_name": "localley-app-e2e-preview",
+    "database_id": "56640987-6249-4213-ace8-ce62671efc8c",
+    "migrations_dir": "migrations/app-preview"
   }],
   // lib/rate-limit.ts uses RATE_LIMIT_<maxRequests> for 60 second windows (replaces Upstash).
   "ratelimits": [
@@ -79,6 +86,8 @@
     "NEXTJS_ENV": "production",
     // Auth emails go to the auth_mail_outbox table, never to a real inbox.
     "AUTH_MAIL_MODE": "outbox",
+    // Push CJ2: app data from APP_DB (localley-app-e2e-preview) like production; no Supabase secret here.
+    "DATA_BACKEND": "d1",
     // OpenNext bundles private build defaults. Override local development tier
     // flags explicitly so hosted candidate acceptance uses saved entitlements.
     "BETA_MODE": "false",
