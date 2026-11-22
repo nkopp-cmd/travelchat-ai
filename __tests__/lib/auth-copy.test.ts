@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { authBackLink, authCopy, FREE_ACCOUNT_SUBTITLE } from "@/lib/auth/auth-copy";
+import { authBackLink, authCopy, authEntryLinks, FREE_ACCOUNT_SUBTITLE } from "@/lib/auth/auth-copy";
 import { TIER_CONFIGS } from "@/lib/subscription";
 
 describe("authCopy", () => {
@@ -200,4 +200,19 @@ describe("authBackLink (Push BS2 + BS4)", () => {
             expect(back).not.toBeNull();
             expect(back!.href).toMatch(/^\/(?![/\\])[^?#]*$/);
         });
+});
+
+describe("authEntryLinks (Push CJ1)", () => {
+    it("a bare form or one from the home page offers the free planner and the spots", () => {
+        for (const target of [undefined, null, "", "/", "/?utm_source=bing"]) {
+            expect(authEntryLinks(target).map((link) => link.href)).toEqual(["/itineraries/new", "/spots"]);
+        }
+    });
+
+    it("a visitor with a real target keeps only the back link", () => {
+        for (const target of ["/itineraries/preview", "/itineraries/new", "/pricing?checkout=pro-monthly", "/spots/abc", "/settings", "/dashboard"]) {
+            expect(authEntryLinks(target)).toEqual([]);
+        }
+    });
+
 });

@@ -48,3 +48,15 @@ describe("auth page tab titles (Push BS3)", () => {
         for (const meta of [signUpMeta, signInMeta]) expect(meta.robots).toEqual({ index: false, follow: false });
     });
 });
+
+describe("auth pages pass the no-account links (Push CJ1)", () => {
+  for (const page of ["sign-in", "sign-up"] as const) {
+    it(`${page}: bare form gets the planner + spots, a target gets none`, async () => {
+      mocks.auth.mockResolvedValue({ userId: null });
+      const bare = await render(page) as React.ReactElement<{ entry: { href: string }[] }>;
+      expect(bare.props.entry.map((link) => link.href)).toEqual(["/itineraries/new", "/spots"]);
+      const withTarget = await render(page, "/itineraries/preview") as React.ReactElement<{ entry: unknown[] }>;
+      expect(withTarget.props.entry).toEqual([]);
+    });
+  }
+});

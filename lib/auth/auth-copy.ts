@@ -172,3 +172,15 @@ export function authBackLink(redirectUrl: string | null | undefined): AuthBackLi
     if (path && BLOG_POST.test(path)) return { href: path, label: "Back to the article" };
     return null;
 }
+
+// Push CJ1: a bare /sign-up or /sign-in (typed, a Bing result, the home page header) was the top landing page with no
+// way on but the form (26 loads in 7 days, 0 sign-ups). Those visitors get the free planner (no account needed for
+// the first plan) and the spots. A visitor with a real target keeps only the back link above.
+export const AUTH_ENTRY_LINKS: readonly AuthBackLink[] = [
+    { href: "/itineraries/new", label: "Plan a free trip, no account needed" },
+    { href: "/spots", label: "Browse local spots" },
+];
+export function authEntryLinks(redirectUrl: string | null | undefined): readonly AuthBackLink[] {
+    const path = pathOf(redirectUrl);
+    return path === null || path === "/" ? AUTH_ENTRY_LINKS : [];
+}

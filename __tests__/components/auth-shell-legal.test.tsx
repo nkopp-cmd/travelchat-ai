@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react";
 vi.mock("@/components/brand/logo", () => ({ Logo: () => null }));
 vi.mock("@/components/layout/app-background", () => ({ AppBackground: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
 import { AuthShell } from "@/components/auth/auth-shell";
+import { AUTH_ENTRY_LINKS } from "@/lib/auth/auth-copy";
 
 // Push BS1: the sign-up footer named the terms as plain text; a visitor could not read them without leaving the form.
 describe("auth form footer links the legal pages (Push BS1)", () => {
@@ -18,5 +19,19 @@ describe("auth form footer links the legal pages (Push BS1)", () => {
     render(<AuthShell title="t" subtitle="s" footer={<p>Own footer</p>}>form</AuthShell>);
     expect(screen.queryByRole("link", { name: "Terms of Service" })).toBeNull();
     expect(screen.getByText("Own footer")).not.toBeNull();
+  });
+});
+
+describe("bare auth form offers a way on without an account (Push CJ1)", () => {
+  it("renders the planner and spots links under the form", () => {
+    render(<AuthShell title="t" subtitle="s" entry={AUTH_ENTRY_LINKS}>form</AuthShell>);
+    const nav = screen.getByRole("navigation", { name: "Without an account" });
+    expect([...nav.querySelectorAll("a")].map((a) => a.getAttribute("href"))).toEqual(["/itineraries/new", "/spots"]);
+    expect(screen.getByRole("link", { name: /Plan a free trip, no account needed/ })).not.toBeNull();
+  });
+
+  it("renders no nav when there are no links", () => {
+    render(<AuthShell title="t" subtitle="s" entry={[]}>form</AuthShell>);
+    expect(screen.queryByRole("navigation", { name: "Without an account" })).toBeNull();
   });
 });

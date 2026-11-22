@@ -9,12 +9,14 @@ function LegalLink({ href, children }: { href: string; children: ReactNode }) {
     return <a href={href} target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-foreground">{children}</a>;
 }
 
-export function AuthShell({ title, subtitle, children, footer, back }: {
+export function AuthShell({ title, subtitle, children, footer, back, entry }: {
     title: string;
     subtitle: string;
     children: ReactNode;
     footer?: ReactNode;
     back?: AuthBackLink | null;
+    /** Push CJ1: ways on for a visitor who landed on the bare form (lib/auth/auth-copy authEntryLinks). */
+    entry?: readonly AuthBackLink[];
 }) {
     return (
         <AppBackground ambient className="min-h-dvh" contentClassName="flex min-h-dvh items-center justify-center p-4">
@@ -34,6 +36,15 @@ export function AuthShell({ title, subtitle, children, footer, back }: {
                 <div className="overflow-hidden rounded-lg bg-card/80 p-6 backdrop-blur-xl sm:p-8">
                     {children}
                 </div>
+                {entry && entry.length > 0 && (
+                    <nav aria-label="Without an account" data-testid="auth-entry" className="mt-4 flex flex-wrap justify-center gap-x-4">
+                        {entry.map((link) => (
+                            <Link key={link.href} href={link.href} className="inline-flex min-h-11 items-center text-sm font-medium text-primary underline-offset-2 hover:underline">
+                                {link.label}<span aria-hidden="true">&nbsp;→</span>
+                            </Link>
+                        ))}
+                    </nav>
+                )}
                 {footer ?? (
                     <p className="text-center text-sm text-muted-foreground mt-6">
                         By continuing, you agree to our <LegalLink href="/terms">Terms of Service</LegalLink> and <LegalLink href="/privacy">Privacy Policy</LegalLink>
