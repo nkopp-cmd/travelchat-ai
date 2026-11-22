@@ -1,9 +1,11 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
 import { AlertCircle, RefreshCw, Home } from "@/components/ui/icons";
-import * as Sentry from "@sentry/nextjs";
 import { useEffect } from "react";
+
+// Push CH1: this boundary sits on the planner first screen (/itineraries/new). A static @sentry/nextjs import and the
+// tailwind-merge Button put ~6 KB gzip into its first-load JS; Sentry now loads only when an error really happens.
 
 export default function ItinerariesError({
     error,
@@ -13,7 +15,7 @@ export default function ItinerariesError({
     reset: () => void;
 }) {
     useEffect(() => {
-        Sentry.captureException(error);
+        void import("@sentry/nextjs").then((Sentry) => Sentry.captureException(error)).catch(() => undefined);
     }, [error]);
 
     return (
@@ -37,14 +39,14 @@ export default function ItinerariesError({
             </div>
 
             <div className="flex gap-4 justify-center">
-                <Button onClick={reset} variant="default">
+                <button type="button" onClick={reset} className={buttonVariants({ variant: "default" })}>
                     <RefreshCw className="mr-2 h-4 w-4" />
                     Try Again
-                </Button>
-                <Button onClick={() => window.location.href = "/dashboard"} variant="outline">
+                </button>
+                <a href="/dashboard" className={buttonVariants({ variant: "outline" })}>
                     <Home className="mr-2 h-4 w-4" />
                     Dashboard
-                </Button>
+                </a>
             </div>
         </div>
     );

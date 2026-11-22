@@ -2,12 +2,19 @@
 
 import type { RefObject } from "react";
 import { IntentLink } from "@/components/navigation/intent-link";
-import { ArrowRight } from "@/components/ui/icons";
+import { ArrowRight, Settings, Sparkles } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/brand/logo";
-import { mobileRoutes } from "@/components/layout/navbar-routes";
+import { routes } from "@/components/layout/navbar-routes";
+
+// Push CH1: the drawer-only entries live here, so their icons load with the drawer, not with the navbar on every page.
+const mobileRoutes = [
+  ...routes,
+  { href: "/templates", label: "Templates", icon: Sparkles },
+  { href: "/settings", label: "Settings", icon: Settings },
+];
 
 export function NavbarDrawer({ open, onOpenChange, returnFocusTo, pathname, isLanding }: { open: boolean; onOpenChange: (open: boolean) => void; returnFocusTo: RefObject<HTMLButtonElement | null>; pathname: string; isLanding: boolean }) {
   return (

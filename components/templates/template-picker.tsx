@@ -13,10 +13,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TemplateCard } from "@/components/templates/template-card";
 import {
-  getTemplateImageUrl,
   getTemplateSampleCity,
   type ItineraryTemplate,
 } from "@/lib/templates";
+import { getTemplateImageUrl } from "@/lib/template-images";
 import { cn } from "@/lib/utils";
 
 interface TemplatePickerProps {

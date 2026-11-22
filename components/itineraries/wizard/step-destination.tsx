@@ -1,16 +1,21 @@
 "use client";
 
 import { useCallback, useContext, useEffect, useState } from "react";
-import Image from "next/image";
-import { cn } from "@/lib/utils";
+import { clsx as cn } from "clsx";
 import { useWizard } from "./wizard-context";
 import { MapPin, Check, RefreshCw, Route } from "@/components/ui/icons";
-import { Skeleton } from "@/components/ui/skeleton";
 import { MAX_CORRIDOR_DESTINATIONS } from "@/lib/trips/wizard-corridor";
 import { selectableSlugs, type CorridorNetwork } from "@/lib/trips/corridor-select";
 import { PLANNER_CITIES_URL, isPlannerCity } from "@/lib/trips/planner-cities";
 import { PlannerCitiesContext } from "./planner-cities-context";
 import { useAuth } from "@/lib/auth/client";
+
+
+// Push CH1: a plain <img> on the /_next/image optimizer instead of next/image keeps ~4.5 KB gzip of image runtime
+// out of the planner first-load JS. 48 and 96 are in images.imageSizes and 75 in images.qualities (next.config.ts).
+function thumbUrl(src: string, width: 48 | 96): string {
+  return `/_next/image?url=${encodeURIComponent(src)}&w=${width}&q=75`;
+}
 
 interface CityOption {
   slug: string;
@@ -320,7 +325,9 @@ function CityCard({
       className={cn("flex min-h-24 min-w-0 items-start gap-3 rounded-xl p-3 text-left transition-colors",
         isSelected ? "bg-primary text-primary-foreground" : "bg-surface text-foreground hover:bg-raised",
         isDisabled && "cursor-not-allowed opacity-50")}>
-      {city.heroImage && <Image src={city.heroImage} alt="" width={48} height={48} sizes="48px" quality={75}
+      {/* eslint-disable-next-line @next/next/no-img-element -- see thumbUrl */}
+      {city.heroImage && <img src={thumbUrl(city.heroImage, 96)} srcSet={`${thumbUrl(city.heroImage, 48)} 1x, ${thumbUrl(city.heroImage, 96)} 2x`}
+        alt="" width={48} height={48} loading="lazy" decoding="async"
         className="size-12 shrink-0 rounded-lg object-cover" />}
       <span className="flex min-w-0 flex-1 flex-col gap-1">
         <span className="flex items-start justify-between gap-2">
@@ -334,17 +341,18 @@ function CityCard({
   );
 }
 
+// Push CH1: plain pulse blocks instead of ui/skeleton (cn -> tailwind-merge and ui/card) on the planner first screen.
 function LoadingSkeleton() {
   return (
     <div className="flex flex-col h-full px-4 py-6">
       <div className="text-center mb-8">
-        <Skeleton className="w-14 h-14 rounded-full mx-auto mb-4" />
-        <Skeleton className="h-8 w-32 mx-auto mb-2" />
-        <Skeleton className="h-4 w-48 mx-auto" />
+        <div className="animate-pulse bg-muted w-14 h-14 rounded-full mx-auto mb-4" />
+        <div className="animate-pulse bg-muted rounded-md h-8 w-32 mx-auto mb-2" />
+        <div className="animate-pulse bg-muted rounded-md h-4 w-48 mx-auto" />
       </div>
       <div className="grid grid-cols-1 gap-3 min-[390px]:grid-cols-2 lg:grid-cols-3">
         {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-          <Skeleton key={i} className="min-h-24 rounded-xl" />
+          <div key={i} className="animate-pulse bg-muted min-h-24 rounded-xl" />
         ))}
       </div>
     </div>
