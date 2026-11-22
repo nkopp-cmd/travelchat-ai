@@ -23,7 +23,7 @@ describe("Gravity release smoke (Push BI1)", () => {
   it("checks the pricing page by the signed-out Pro subscribe link the page renders", () => {
     const marker = byPath.get("/pricing")?.contains;
     expect(marker).toBe(`href="${checkoutSignUpUrl("pro", "monthly")}"`);
-    const page = read("app/pricing/page.tsx");
+    const page = read("app/pricing/pricing-plans.tsx"); // Push CH2: the cards live in the client island
     expect(page).toContain('href={checkoutSignUpUrl(tier, isYearly ? "yearly" : "monthly")}');
     expect(page).toContain("useState(false)"); // isYearly starts monthly in the edge HTML
   });
