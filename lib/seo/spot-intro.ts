@@ -23,6 +23,16 @@ function ordinal(n: number): string {
   return `${n}${({ 1: "st", 2: "nd", 3: "rd" } as Record<number, string>)[n % 10] ?? "th"}`;
 }
 
+// Most stored categories are fields ("Shopping", "Culture", "Outdoor"), not things: "a shopping" reads broken.
+const COUNTABLE_CATEGORIES = new Set(["cafe", "market", "historic site", "restaurant", "beach", "bar", "temple", "museum", "park", "mall", "shop", "gallery"]);
+
+/** "shopping" -> "shopping spot", "cafe" -> "cafe", "" -> "place". */
+export function categoryNoun(category: string): string {
+  const value = category.trim().toLowerCase();
+  if (!value) return "place";
+  return COUNTABLE_CATEGORIES.has(value) ? value : `${value} spot`;
+}
+
 function walk(distanceKm: number): string {
   if (distanceKm < 1) return `${Math.max(50, Math.round((distanceKm * 1000) / 10) * 10)} m`;
   return `${distanceKm.toFixed(1)} km`;
@@ -39,9 +49,10 @@ export function spotIntro(input: SpotIntroInput): string {
   const self = input.directory.find((entry) => entry.id.toLowerCase() === input.id.toLowerCase());
   const rated = input.directory.length;
   const rankText = self && rated > 1 ? ` and ranked ${ordinal(self.rank + 1)} of ${rated.toLocaleString("en-US")} rated places in ${input.city}` : "";
-  const noun = category || "place";
+  const noun = categoryNoun(category);
   const article = /^[aeiou]/.test(noun) ? "an" : "a";
-  const first = `${input.name} is ${article} ${noun} in ${place}, rated ${label} (Localley Score ${input.score}/6)${rankText}.`;
+  // Push CE1: no "(Localley Score n/6)" in the lead (internal scale, content-first rule); the tier name stays.
+  const first = `${input.name} is ${article} ${noun} in ${place}, rated ${label}${rankText}.`;
 
   const closest = input.nearby[0];
   if (!closest) return first;
