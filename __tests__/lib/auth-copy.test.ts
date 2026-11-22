@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { authBackLink, authCopy, authEntryLinks, FREE_ACCOUNT_SUBTITLE } from "@/lib/auth/auth-copy";
+import { authBackLink, authCopy, authEntryLinks, authLeadLink, FREE_ACCOUNT_SUBTITLE, SIGN_IN_LEAD } from "@/lib/auth/auth-copy";
 import { TIER_CONFIGS } from "@/lib/subscription";
 
 describe("authCopy", () => {
@@ -215,4 +215,24 @@ describe("authEntryLinks (Push CJ1)", () => {
         }
     });
 
+});
+
+describe("bare sign-in leads with the free planner (Push CM1)", () => {
+  it("leads with the planner on bare /sign-in and lists only the spots below", () => {
+    for (const target of [undefined, null, "", "/", "/?utm_source=bing"]) {
+      expect(authLeadLink("sign-in", target)).toEqual(SIGN_IN_LEAD);
+      expect(authEntryLinks(target, "sign-in").map((l) => l.href)).toEqual(["/spots"]);
+    }
+    expect(SIGN_IN_LEAD.href).toBe("/itineraries/new");
+  });
+  it("keeps the form first when the visitor has a real target", () => {
+    for (const target of ["/pricing", "/itineraries/new", "/settings?subscription=success"]) {
+      expect(authLeadLink("sign-in", target)).toBeNull();
+      expect(authEntryLinks(target, "sign-in")).toEqual([]);
+    }
+  });
+  it("leaves sign-up unchanged", () => {
+    expect(authLeadLink("sign-up", undefined)).toBeNull();
+    expect(authEntryLinks(undefined, "sign-up").map((l) => l.href)).toEqual(["/itineraries/new", "/spots"]);
+  });
 });

@@ -9,7 +9,7 @@ function LegalLink({ href, children }: { href: string; children: ReactNode }) {
     return <a href={href} target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-foreground">{children}</a>;
 }
 
-export function AuthShell({ title, subtitle, children, footer, back, entry }: {
+export function AuthShell({ title, subtitle, children, footer, back, entry, lead }: {
     title: string;
     subtitle: string;
     children: ReactNode;
@@ -17,6 +17,8 @@ export function AuthShell({ title, subtitle, children, footer, back, entry }: {
     back?: AuthBackLink | null;
     /** Push CJ1: ways on for a visitor who landed on the bare form (lib/auth/auth-copy authEntryLinks). */
     entry?: readonly AuthBackLink[];
+    /** Push CM1: one way on above the form for a first-time visitor (lib/auth/auth-copy authLeadLink). */
+    lead?: AuthBackLink | null;
 }) {
     return (
         <AppBackground ambient className="min-h-dvh" contentClassName="flex min-h-dvh items-center justify-center p-4">
@@ -32,6 +34,11 @@ export function AuthShell({ title, subtitle, children, footer, back, entry }: {
                 <div className="text-center mb-8">
                     <h1 className="text-3xl font-bold text-foreground mb-2">{title}</h1>
                     <p className="text-muted-foreground">{subtitle}</p>
+                    {lead && (
+                        <Link href={lead.href} data-testid="auth-lead" className="mt-3 inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-2 hover:text-foreground">
+                            {lead.label}<span aria-hidden="true">&nbsp;→</span>
+                        </Link>
+                    )}
                 </div>
                 <div className="overflow-hidden rounded-lg bg-card/80 p-6 backdrop-blur-xl sm:p-8">
                     {children}
