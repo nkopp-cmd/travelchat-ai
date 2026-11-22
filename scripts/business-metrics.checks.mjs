@@ -165,3 +165,17 @@ test("planner no-spots errors count per city, own checks apart (push CG3)", () =
   assert.equal(plannerErrorsNote(null), "unknown: Worker log unreadable");
   assert.equal(plannerErrorsNote([]), "0, smaller plan offered 0, own checks 0 excluded");
 });
+
+test("Push CK2: a no-spots line counts as own when its request came from our ASN or sent the check header", () => {
+  const fetch = (requestId, cf) => ({ $metadata: { requestId }, $workers: { event: { request: { method: "POST", cf } } } });
+  const line = (requestId, source) => ({ source: { message: "[generate] outcome", status: 422, reason: "no_spots", ...source },
+    $metadata: { requestId }, $workers: { event: { request: { method: "POST" } } } });
+  const note = plannerErrorsNote([
+    fetch("r1", { asn: 24940 }), line("r1", {}), // pre-CG3 own check: no city, no check flag
+    fetch("r2", { asn: 7922, requestHeaderNames: ["x-localley-check"] }), line("r2", { city: "jeju" }),
+    fetch("r3", { asn: 28573 }), line("r3", { city: "canggu" }), // a real visitor
+    line("r4", { city: "nara" }), // fetch event outside the read window: counts as real
+    fetch(undefined, { asn: 24940 }), line(undefined, {}), // no requestId: never matches an own id
+  ]);
+  assert.equal(note, "3 (canggu 1, nara 1, unknown 1), smaller plan offered 0, own checks 2 excluded");
+});

@@ -28,6 +28,7 @@ const RESOLVED = new Set(["matched", "created"]);
 // Push CE3: our own servers (Hetzner) and checks that send x-localley-check are not visitors.
 const OWN_ASNS = new Set([24940, 213230]);
 const LOG_LIMIT = 2000;
+const ownCall = (cf) => OWN_ASNS.has(Number(cf.asn)) || (cf.requestHeaderNames ?? []).includes("x-localley-check");
 // User content rows: [table, user column, time column]. private_notes has no timestamp, so it is not counted.
 const UGC_TABLES = [
   ["community_questions", "user_id", "created_at"], ["community_answers", "user_id", "created_at"],
@@ -59,7 +60,7 @@ export function generateCallsNote(events) {
     // Only the fetch event carries request.cf; log lines of the same call repeat the request without it.
     if (!request?.cf || request.method !== "POST") continue;
     const cf = request.cf;
-    if (OWN_ASNS.has(Number(cf.asn)) || (cf.requestHeaderNames ?? []).includes("x-localley-check")) { own += 1; continue; }
+    if (ownCall(cf)) { own += 1; continue; }
     if (cf.verifiedBotCategory) { bots += 1; continue; }
     real += 1;
     const status = Number(e.$workers.event.response?.status);
@@ -71,17 +72,25 @@ export function generateCallsNote(events) {
 
 /**
  * Pure (push CG3): "[generate] outcome" log lines with status 422 no_spots -> planner errors per city, most first.
- * Own checks carry `check` (x-localley-check header or a check user agent); lines from before CG3 have no city.
+ * Own checks carry `check` (x-localley-check header or a check user agent); lines from before CG3 have no city and
+ * no `check`, so (push CK2) a line also counts as own when the fetch event of the same $metadata.requestId came from our ASN or
+ * sent x-localley-check: on 2026-11-22 all 5 "unknown" errors were our own checks from ASN 24940.
  * The 2026-12-19 offer check reads where planner_start does not reach trip_generated from this.
  */
 export function plannerErrorsNote(events) {
   if (!Array.isArray(events)) return "unknown: Worker log unreadable";
+  const ownIds = new Set();
+  for (const e of events) {
+    const cf = e?.$workers?.event?.request?.cf;
+    const id = e.$metadata?.requestId;
+    if (cf && id && ownCall(cf)) ownIds.add(id);
+  }
   const byCity = new Map();
   let total = 0, suggested = 0, own = 0;
   for (const e of events) {
     const line = e?.source;
     if (line?.message !== "[generate] outcome" || Number(line.status) !== 422 || line.reason !== "no_spots") continue;
-    if (line.check) { own += 1; continue; }
+    if (line.check || (e.$metadata?.requestId && ownIds.has(e.$metadata.requestId))) { own += 1; continue; }
     total += 1;
     if (line.suggestion === true) suggested += 1;
     const city = typeof line.city === "string" && /^[a-z0-9-]{1,40}$/.test(line.city) ? line.city : "unknown";
