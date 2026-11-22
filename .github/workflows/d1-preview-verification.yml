@@ -7,6 +7,8 @@ on:
       - 'package.json'
       - '__tests__/providers/query-provider-scope.test.ts'
       - '__tests__/lib/auth-copy.test.ts'
+      - '__tests__/lib/spot-plan-link.test.ts'
+      - 'lib/spots/plan-link.ts'
       - '__tests__/lib/auth-wall-copy.test.ts'
       - 'lib/auth/auth-copy.ts'
       - 'lib/auth/email-typo.ts'

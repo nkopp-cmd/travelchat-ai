@@ -22,6 +22,7 @@ import { SpotJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { pageMeta, shareImage } from "@/lib/seo/meta";
 import { spotMetaDescription, spotPageTitle } from "@/lib/seo/spot-card";
 import { normalizeSpotPhotos } from "@/lib/spots/transform";
+import { spotPlanLink } from "@/lib/spots/plan-link";
 import { summarizeSpotPhotos } from "@/lib/place-images";
 import {
   inferSpotContextCity,
@@ -605,7 +606,7 @@ export default async function SpotPage({
   // hero placeholder (it collapsed after load: CLS 0.31 on mobile PSI, weekend sprint L4 follow-up).
   const photosPossible = !candidate && spot.hasIndexPhoto;
 
-  const planHref = `/itineraries/new?${new URLSearchParams(knownCity ? { spot: spot.id, city: knownCity } : { spot: spot.id })}`;
+  const plan = spotPlanLink({ id: spot.id, name: spot.name, plannerCity: knownCity, lat: spot.location.lat, lng: spot.location.lng });
 
   return (
     <VenuePhotoProvider key={spot.id} spotId={spot.id} allowFetch={photosPossible} directPhotos={directSpotPhotos(spot)}
@@ -658,7 +659,7 @@ export default async function SpotPage({
 
         {!candidate && (
           <div className="lg:hidden">
-            <PlanTripButton spotId={spot.id} href={planHref} testId="spot-plan-trip-top" label={`Plan a free day around ${spot.name}`} />
+            <PlanTripButton spotId={spot.id} href={plan.href} testId="spot-plan-trip-top" label={plan.label} />
           </div>
         )}
 
@@ -725,7 +726,7 @@ export default async function SpotPage({
           <aside className="space-y-3 lg:sticky lg:top-24 lg:self-start">
             <GetDirectionsButton spot={spot} />
             {!candidate && (
-              <PlanTripButton spotId={spot.id} href={planHref} testId="spot-plan-trip" label="Plan a free trip with this spot" />
+              <PlanTripButton spotId={spot.id} href={plan.href} testId="spot-plan-trip" label={plan.shortLabel} />
             )}
             <DriverCardLink spotId={spot.id} />
             <div className={`${LIQUID_CARD} overflow-hidden`}>
@@ -792,7 +793,7 @@ export default async function SpotPage({
 
         {!candidate && (
           <div className="mx-auto w-full max-w-md">
-            <PlanTripButton spotId={spot.id} href={planHref} testId="spot-plan-trip-nearby" label={`Plan a free day around ${spot.name}`} />
+            <PlanTripButton spotId={spot.id} href={plan.href} testId="spot-plan-trip-nearby" label={plan.label} />
             <p className="mt-2 text-center text-sm text-muted-foreground">First plan free · no sign-up</p>
           </div>
         )}
