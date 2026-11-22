@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { QueryProvider } from "@/lib/query-client";
 import { BreadcrumbJsonLd, JsonLd } from "@/components/seo/json-ld";
 import { pageMeta, SITE_URL } from "@/lib/seo/meta";
 import { pageCardImage } from "@/lib/seo/page-card";
@@ -58,7 +57,8 @@ export default function PricingLayout({
         <>
             <JsonLd data={pricingJsonLd} />
             <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Pricing", url: "/pricing" }]} />
-            <QueryProvider>{children}</QueryProvider>
+            {/* Push CH2: no QueryProvider; the pricing island reads the plan without React Query. */}
+            {children}
         </>
     );
 }

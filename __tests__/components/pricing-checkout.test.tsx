@@ -6,7 +6,7 @@ const mocks = vi.hoisted(() => ({ signedIn: false, authLoaded: true, subLoading:
 vi.mock("@/lib/funnel-analytics", () => ({ trackFunnelStep: mocks.track }));
 vi.mock("@/lib/auth/client", () => ({ useAuth: () => ({ isLoaded: mocks.authLoaded, isSignedIn: mocks.signedIn }), useUser: () => ({ isLoaded: mocks.authLoaded, isSignedIn: mocks.signedIn }) }));
 vi.mock("@/hooks/use-toast", () => ({ useToast: () => ({ toast: mocks.toast }) }));
-vi.mock("@/hooks/use-subscription", () => ({ useSubscription: () => ({
+vi.mock("@/hooks/use-pricing-subscription", () => ({ usePricingSubscription: () => ({
   tier: mocks.tier, isLoading: mocks.subLoading, openCheckout: mocks.openCheckout, openBillingPortal: vi.fn(), hasBillingPortal: false,
 }) }));
 vi.mock("@/components/layout/app-background", () => ({ AppBackground: ({ children }: { children: React.ReactNode }) => children }));
@@ -184,5 +184,35 @@ describe("openCheckout counts each Stripe checkout once (Push BW1 fix)", () => {
     const { body } = await run("pro", "yearly", "home" as "other");
     expect(body).toEqual({ tier: "pro", billingCycle: "yearly" });
     expect(mocks.track.mock.calls).toEqual([["checkout_start", "home"]]);
+  });
+});
+
+// Push CH2: /pricing uses the light hook (no React Query). Same beacon, same body, same Stripe redirect.
+describe("usePricingSubscription matches useSubscription (Push CH2)", () => {
+  it("reads the plan once and opens checkout with one checkout_start and the same body", async () => {
+    mocks.signedIn = true;
+    const fetchMock = vi.fn(async (url: string) => new Response(JSON.stringify(url.includes("checkout") ? {} : { tier: "pro", hasBillingPortal: true }), { status: 200, headers: { "content-type": "application/json" } }));
+    vi.stubGlobal("fetch", fetchMock);
+    const { usePricingSubscription } = await vi.importActual<typeof import("@/hooks/use-pricing-subscription")>("@/hooks/use-pricing-subscription");
+    const { result } = renderHook(() => usePricingSubscription());
+    expect(result.current.isLoading).toBe(true);
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.tier).toBe("pro");
+    expect(result.current.hasBillingPortal).toBe(true);
+    await result.current.openCheckout("premium", "yearly", "pricing", "planner");
+    const calls = fetchMock.mock.calls.filter(([url]) => String(url).includes("/api/subscription/checkout")) as unknown as [string, RequestInit][];
+    expect(calls).toHaveLength(1);
+    expect(JSON.parse(String(calls[0][1].body))).toEqual({ tier: "premium", billingCycle: "yearly", source: "pricing", returnTo: "planner" });
+    expect(mocks.track.mock.calls).toEqual([["checkout_start", "pricing"]]);
+    expect(fetchMock.mock.calls.filter(([url]) => String(url).includes("/api/subscription/status"))).toHaveLength(1);
+  });
+  it("signed out: no status request and not loading", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    const { usePricingSubscription } = await vi.importActual<typeof import("@/hooks/use-pricing-subscription")>("@/hooks/use-pricing-subscription");
+    const { result } = renderHook(() => usePricingSubscription());
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.tier).toBe("free");
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });

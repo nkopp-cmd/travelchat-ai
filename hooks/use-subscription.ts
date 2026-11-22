@@ -5,71 +5,11 @@ import { useUser } from "@/lib/auth/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SubscriptionTier, TIER_CONFIGS, hasFeature, isWithinLimit } from "@/lib/subscription";
 import { queryKeys } from "@/hooks/query-keys";
-import { trackFunnelStep, type FunnelSource } from "@/lib/funnel-analytics";
-import { isCheckoutReturnTo, isCheckoutSource, type CheckoutReturnTo } from "@/lib/checkout-source";
+import type { FunnelSource } from "@/lib/funnel-analytics";
+import type { CheckoutReturnTo } from "@/lib/checkout-source";
+import { fetchSubscriptionStatus, requestBillingPortal, requestCheckout, type SubscriptionStatus } from "@/lib/subscription-actions";
 
-async function readErrorMessage(response: Response, fallback: string): Promise<string> {
-    const contentType = response.headers.get("content-type") || "";
-
-    if (contentType.includes("application/json")) {
-        const error = await response.json().catch(() => null);
-        if (error && typeof error === "object") {
-            if (
-                "error" in error &&
-                error.error &&
-                typeof error.error === "object" &&
-                "message" in error.error &&
-                typeof error.error.message === "string"
-            ) {
-                return error.error.message;
-            }
-
-            if ("error" in error && typeof error.error === "string") {
-                return error.error;
-            }
-
-            if ("message" in error && typeof error.message === "string") {
-                return error.message;
-            }
-        }
-    }
-
-    const text = await response.text().catch(() => "");
-    if (text.includes("<!DOCTYPE") || text.includes("<html")) {
-        return fallback;
-    }
-
-    return text || fallback;
-}
-
-export interface SubscriptionStatus {
-    tier: SubscriptionTier;
-    status: string;
-    isActive: boolean;
-    hasBillingPortal: boolean;
-    currentPeriodEnd: string | null;
-    cancelAtPeriodEnd: boolean;
-    trialEnd: string | null;
-    limits: {
-        itinerariesPerMonth: number;
-        chatMessagesPerDay: number;
-        storiesPerWeek: number;
-        aiImagesPerMonth: number;
-        savedSpotsLimit: number;
-    };
-    usage: {
-        itinerariesThisMonth: number;
-        chatMessagesToday: number;
-        storiesThisWeek: number;
-        aiImagesThisMonth: number;
-        savedSpots: number;
-    };
-    // Early adopter / beta info
-    isBetaMode?: boolean;
-    isEarlyAdopter?: boolean;
-    earlyAdopterPosition?: number;
-    earlyAdopterSlotsRemaining?: number;
-}
+export type { SubscriptionStatus };
 
 interface UseSubscriptionReturn {
     subscription: SubscriptionStatus | null;
@@ -88,19 +28,6 @@ interface UseSubscriptionReturn {
     refetch: () => Promise<void>;
     openCheckout: (tier: "pro" | "premium", billingCycle?: "monthly" | "yearly", source?: FunnelSource, returnTo?: CheckoutReturnTo) => Promise<void>;
     openBillingPortal: () => Promise<void>;
-}
-
-/**
- * Fetch subscription status from API
- */
-async function fetchSubscriptionStatus(): Promise<SubscriptionStatus> {
-    const response = await fetch("/api/subscription/status");
-
-    if (!response.ok) {
-        throw new Error("Failed to fetch subscription");
-    }
-
-    return response.json();
 }
 
 export function useSubscription(): UseSubscriptionReturn {
@@ -137,53 +64,14 @@ export function useSubscription(): UseSubscriptionReturn {
             returnTo?: CheckoutReturnTo;
         }) => {
             // The one checkout_start for every Stripe checkout opened through this hook (Push BW1 fix: callers pass the source).
-            trackFunnelStep("checkout_start", source);
-            const response = await fetch("/api/subscription/checkout", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                // Push BX2: the start page goes to Stripe metadata, so checkout_paid is counted per source.
-                // Only sources the server accepts are sent; any other value would be rejected with 400.
-                body: JSON.stringify({
-                    tier, billingCycle,
-                    ...(isCheckoutSource(source) ? { source } : {}),
-                    // Push BY1: fixed return page (planner); the server maps it to its own URLs.
-                    ...(isCheckoutReturnTo(returnTo) ? { returnTo } : {}),
-                }),
-            });
-
-            if (!response.ok) {
-                const errorMessage = await readErrorMessage(response, "Failed to create checkout session");
-                throw new Error(errorMessage);
-            }
-
-            return response.json();
-        },
-        onSuccess: (data) => {
-            if (data.url) {
-                window.location.href = data.url;
-            }
+            return requestCheckout({ tier, billingCycle, source, returnTo });
         },
     });
 
     // Portal mutation
     const portalMutation = useMutation({
-        mutationFn: async () => {
-            const response = await fetch("/api/subscription/portal", {
-                method: "POST",
-            });
-
-            if (!response.ok) {
-                const errorMessage = await readErrorMessage(response, "Failed to open billing portal");
-                throw new Error(errorMessage);
-            }
-
-            return response.json();
-        },
-        onSuccess: (data) => {
-            if (data.url) {
-                window.location.href = data.url;
-            }
-        },
+        // requestCheckout / requestBillingPortal open the returned Stripe URL themselves.
+        mutationFn: requestBillingPortal,
     });
 
     // Derived values - memoized to prevent recalculation

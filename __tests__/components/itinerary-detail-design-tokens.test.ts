@@ -48,6 +48,7 @@ const FILES = [
   "components/guide/source-guide-application.tsx",
   "components/guide/source-guide-dashboard.tsx",
   "app/pricing/page.tsx",
+  "app/pricing/pricing-plans.tsx",
   "app/page.tsx",
   "components/landing/planner.tsx",
   // batch 7: admin (chart series colours in app/admin/analytics/page.tsx are data-viz, not UI chrome)

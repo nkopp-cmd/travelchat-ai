@@ -9,7 +9,6 @@ const QUERY_ROOTS = [
   "app/chat/layout.tsx",
   "app/dashboard/layout.tsx",
   "app/itineraries/layout.tsx",
-  "app/pricing/layout.tsx",
   "app/settings/layout.tsx",
   "app/shared/[shareCode]/layout.tsx",
   "components/layout/navbar-account.tsx",
@@ -17,7 +16,6 @@ const QUERY_ROOTS = [
 // Files that call React Query hooks directly or through the shared hooks. A new file here
 // needs a QueryProvider root above it; add the root to QUERY_ROOTS and the file to this list.
 const KNOWN_USERS = [
-  "app/pricing/page.tsx",
   "components/activities/itinerary-activity-card.tsx",
   "components/chat/chat-interface.tsx",
   "components/chat/itinerary-preview.tsx",
