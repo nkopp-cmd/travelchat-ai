@@ -659,7 +659,7 @@ export default async function SpotPage({
 
         {!candidate && (
           <div className="lg:hidden">
-            <PlanTripButton spotId={spot.id} href={plan.href} testId="spot-plan-trip-top" label={plan.label} />
+            <PlanTripButton spotId={spot.id} spotName={spot.name} href={plan.href} testId="spot-plan-trip-top" label={plan.label} />
           </div>
         )}
 
@@ -726,7 +726,7 @@ export default async function SpotPage({
           <aside className="space-y-3 lg:sticky lg:top-24 lg:self-start">
             <GetDirectionsButton spot={spot} />
             {!candidate && (
-              <PlanTripButton spotId={spot.id} href={plan.href} testId="spot-plan-trip" label={plan.shortLabel} />
+              <PlanTripButton spotId={spot.id} spotName={spot.name} href={plan.href} testId="spot-plan-trip" label={plan.shortLabel} />
             )}
             <DriverCardLink spotId={spot.id} />
             <div className={`${LIQUID_CARD} overflow-hidden`}>
@@ -793,7 +793,7 @@ export default async function SpotPage({
 
         {!candidate && (
           <div className="mx-auto w-full max-w-md">
-            <PlanTripButton spotId={spot.id} href={plan.href} testId="spot-plan-trip-nearby" label={plan.label} />
+            <PlanTripButton spotId={spot.id} spotName={spot.name} href={plan.href} testId="spot-plan-trip-nearby" label={plan.label} />
             <p className="mt-2 text-center text-sm text-muted-foreground">First plan free · no sign-up</p>
           </div>
         )}
@@ -846,10 +846,10 @@ export default async function SpotPage({
 }
 
 // Planner entry (revenue push L1): plain link, add_to_trip event; the first plan is free and needs no account.
-function PlanTripButton({ spotId, href, testId, label }: { spotId: string; href: string; testId: string; label: string }) {
+function PlanTripButton({ spotId, spotName, href, testId, label }: { spotId: string; spotName: string; href: string; testId: string; label: string }) {
   return (
     <Button asChild className="h-auto min-h-12 w-full rounded-xl py-3 text-base font-semibold shadow-sm" size="lg">
-      <SpotEventLink spotId={spotId} event="add_to_trip" prefetch={false} data-testid={testId} href={href}>
+      <SpotEventLink spotId={spotId} event="add_to_trip" handoffName={spotName} prefetch={false} data-testid={testId} href={href}>
         <span className="text-balance text-center leading-snug">{label}</span>
       </SpotEventLink>
     </Button>

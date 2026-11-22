@@ -9,6 +9,7 @@ import { selectableSlugs, type CorridorNetwork } from "@/lib/trips/corridor-sele
 import { PLANNER_CITIES_URL, isPlannerCity } from "@/lib/trips/planner-cities";
 import { PlannerCitiesContext } from "./planner-cities-context";
 import { useAuth } from "@/lib/auth/client";
+import { useHandoffSpotName } from "@/lib/trips/spot-handoff";
 
 
 // Push CH1: a plain <img> on the /_next/image optimizer instead of next/image keeps ~4.5 KB gzip of image runtime
@@ -35,6 +36,7 @@ interface CitiesResponse {
 
 export function StepDestination() {
   const { data, setData, setCanProceed } = useWizard();
+  const handoffSpotName = useHandoffSpotName(data.selectedSpotId);
   const serverCities = useContext(PlannerCitiesContext);
   const [citiesData, setCitiesData] = useState<CitiesResponse | null>(() =>
     serverCities?.length ? { success: true, cities: serverCities, total: serverCities.length } : null);
@@ -237,7 +239,7 @@ export function StepDestination() {
             </span>
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold leading-tight text-foreground">
-                {data.city} selected
+                {handoffSpotName ? `${handoffSpotName} is in your ${data.city} plan` : `${data.city} selected`}
               </p>
               <p className="truncate text-xs leading-tight text-foreground">
                 {templateMode ? "Template settings are ready." : "Get the free plan below, or Customize."}
