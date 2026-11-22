@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ITINERARY_SPOT_POOL_LIMIT, itinerarySpotPoolQuery } from "@/app/api/itineraries/generate/spot-pool";
+import { ITINERARY_SPOT_POOL_LIMIT, ITINERARY_SPOT_QUERY_LIMIT, itinerarySpotPoolQuery } from "@/app/api/itineraries/generate/spot-pool";
 
 type Call = [string, ...unknown[]];
 type Result = { data: unknown[] | null; error: { message: string } | null };
@@ -48,7 +48,7 @@ describe("itinerary spot pool query", () => {
       expect(calls.some((call) => call[0] === "eq" && call[1] === "verified")).toBe(false);
       const limit = calls.findIndex((call) => call[0] === "limit");
       expect(limit).toBe(calls.length - 1);
-      expect(calls[limit]).toEqual(["limit", ITINERARY_SPOT_POOL_LIMIT]);
+      expect(calls[limit]).toEqual(["limit", ITINERARY_SPOT_QUERY_LIMIT]);
       expect(calls).toContainEqual(["not", "photos", "is", null]);
       expect(calls.filter((call) => call[0] === "order").map((call) => call[1])).toEqual(["verified", "localley_score", "local_percentage"]);
       expect(calls).toContainEqual(["order", "verified", { ascending: false, nullsFirst: false }]);
@@ -106,6 +106,22 @@ describe("itinerary spot pool query", () => {
 
     const failed = recorder([{ data: [row("c", 5)], error: null }, { data: [], error: null }, { data: null, error: { message: "boom" } }]);
     expect(await itinerarySpotPoolQuery(failed.client, "Tokyo", "p")).toEqual({ data: [row("c", 5)], error: null });
+  });
+
+  it("keeps only spots within the day-route radius of the city center (rows without coordinates stay)", async () => {
+    const at = (id: string, lat: number, lng: number) => ({ ...row(id, 5), location: { type: "Point", coordinates: [lng, lat] } });
+    const { client } = recorder([
+      { data: [at("old-quarter", 21.03, 105.85), at("sapa", 22.34, 103.84), at("ha-long", 20.95, 107.08), row("no-coords", 5)], error: null },
+      { data: [], error: null },
+    ]);
+    const { data } = await itinerarySpotPoolQuery(client, "Hanoi");
+    expect((data as { id: string }[]).map((spot) => spot.id).sort()).toEqual(["no-coords", "old-quarter"]);
+  });
+
+  it("keeps every row for a city without a known center", async () => {
+    const far = { ...row("far", 5), location: { type: "Point", coordinates: [0, 0] } };
+    const { client } = recorder([{ data: [far], error: null }, { data: [], error: null }]);
+    expect((await itinerarySpotPoolQuery(client, "Atlantis")).data).toHaveLength(1);
   });
 
   it("returns the first query error and no rows", async () => {
