@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { authBackLink, authCopy, authEntryLinks, authLeadLink, FREE_ACCOUNT_SUBTITLE, SIGN_IN_LEAD } from "@/lib/auth/auth-copy";
+import { authBackLink, authCopy, authEntryLinks, authLeadLink, FREE_ACCOUNT_SUBTITLE, SIGN_IN_LEAD, SIGN_UP_LEAD } from "@/lib/auth/auth-copy";
 import { TIER_CONFIGS } from "@/lib/subscription";
 
 describe("authCopy", () => {
@@ -203,9 +203,9 @@ describe("authBackLink (Push BS2 + BS4)", () => {
 });
 
 describe("authEntryLinks (Push CJ1)", () => {
-    it("a bare form or one from the home page offers the free planner and the spots", () => {
+    it("a bare form or one from the home page lists the spots (the planner is the lead line, Push CM1/CN2)", () => {
         for (const target of [undefined, null, "", "/", "/?utm_source=bing"]) {
-            expect(authEntryLinks(target).map((link) => link.href)).toEqual(["/itineraries/new", "/spots"]);
+            expect(authEntryLinks(target).map((link) => link.href)).toEqual(["/spots"]);
         }
     });
 
@@ -221,18 +221,23 @@ describe("bare sign-in leads with the free planner (Push CM1)", () => {
   it("leads with the planner on bare /sign-in and lists only the spots below", () => {
     for (const target of [undefined, null, "", "/", "/?utm_source=bing"]) {
       expect(authLeadLink("sign-in", target)).toEqual(SIGN_IN_LEAD);
-      expect(authEntryLinks(target, "sign-in").map((l) => l.href)).toEqual(["/spots"]);
+      expect(authEntryLinks(target).map((l) => l.href)).toEqual(["/spots"]);
     }
     expect(SIGN_IN_LEAD.href).toBe("/itineraries/new");
   });
   it("keeps the form first when the visitor has a real target", () => {
     for (const target of ["/pricing", "/itineraries/new", "/settings?subscription=success"]) {
       expect(authLeadLink("sign-in", target)).toBeNull();
-      expect(authEntryLinks(target, "sign-in")).toEqual([]);
+      expect(authEntryLinks(target)).toEqual([]);
     }
   });
-  it("leaves sign-up unchanged", () => {
-    expect(authLeadLink("sign-up", undefined)).toBeNull();
-    expect(authEntryLinks(undefined, "sign-up").map((l) => l.href)).toEqual(["/itineraries/new", "/spots"]);
+  it("bare sign-up leads with the planner too, in its own words (Push CN2)", () => {
+    for (const target of [undefined, null, "", "/", "/?utm_source=bing"]) {
+      expect(authLeadLink("sign-up", target)).toEqual(SIGN_UP_LEAD);
+    }
+    expect(SIGN_UP_LEAD).toEqual({ href: "/itineraries/new", label: "Just want a plan? Plan a free trip, no account needed" });
+    for (const target of ["/pricing?checkout=pro-monthly", "/itineraries/preview?continue=save", "/settings"]) {
+      expect(authLeadLink("sign-up", target)).toBeNull();
+    }
   });
 });

@@ -25,7 +25,7 @@ export default async function SignInPage({ searchParams }: Props) {
     if ((await auth()).userId) redirect(safeRedirect(target));
     const copy = authCopy("sign-in", target);
     return (
-        <AuthShell title={copy.title} subtitle={copy.subtitle} back={authBackLink(target)} entry={authEntryLinks(target, "sign-in")} lead={authLeadLink("sign-in", target)}>
+        <AuthShell title={copy.title} subtitle={copy.subtitle} back={authBackLink(target)} entry={authEntryLinks(target)} lead={authLeadLink("sign-in", target)}>
             {target?.split(/[?#]/)[0] === GENERATED_PREVIEW_PATH && <KeptTripLine />}
             <Suspense>
                 <SignInForm googleEnabled={isGoogleSignInEnabled()} />
