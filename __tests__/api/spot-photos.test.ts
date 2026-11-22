@@ -134,6 +134,17 @@ describe("public spot photo gallery", () => {
         expect(fetch).toHaveBeenCalledTimes(1);
     });
 
+    it("takes the stored city when the address text names none", async () => {
+        const noCity = { ...structuredClone(spot), address: { en: "88 Changgyeonggung-ro, Jongno-gu" } };
+        mocks.single.mockResolvedValue({ data: noCity, error: null });
+        expect((await call()).status).toBe(502);
+        mocks.single.mockResolvedValue({ data: { ...noCity, city: "Seoul" }, error: null });
+        expect((await (await call()).json()).status).toBe("available");
+        // A stored city far from the listing does not pass on its own.
+        mocks.single.mockResolvedValue({ data: { ...noCity, city: "Tokyo" }, error: null });
+        expect((await call()).status).toBe(502);
+    });
+
     it("remembers an identity conflict at the edge so the next visitor costs no Details call", async () => {
         const store = new Map<string, Response>();
         vi.stubGlobal("caches", { default: {
@@ -144,7 +155,7 @@ describe("public spot photo gallery", () => {
         try {
             vi.mocked(fetch).mockImplementation(async () => Response.json({ ...details(), location: { latitude: 37.60, longitude: 126.999 } }));
             expect((await call()).status).toBe(502);
-            expect([...store.keys()]).toEqual([`https://spot-photo-verdict.localley.internal/v1/${id}/${placeId}/37.57,126.999`]);
+            expect([...store.keys()]).toEqual([`https://spot-photo-verdict.localley.internal/v2/${id}/${placeId}/37.57,126.999`]);
             const second = await call();
             expect(second.status).toBe(200);
             expect((await second.json()).status).toBe("unavailable");

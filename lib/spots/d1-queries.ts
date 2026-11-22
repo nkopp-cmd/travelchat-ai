@@ -187,15 +187,19 @@ export async function d1WeeklyRankings(weekStart: string, citySlug: string | nul
 export async function d1SpotSource(id: string): Promise<(RawSpot & Record<string, unknown>) | null> {
   // Up to 8 stored photos in position order, with the credit fields their licence needs, in the same single read.
   const row = await appDataDb().prepare(`SELECT l.payload, (SELECT json_group_array(json_object('k', ph.r2_key, 's', ph.source,
-        'l', ph.licence, 'a', ph.author, 'u', ph.source_url)) FROM (SELECT * FROM spot_photos WHERE spot_id = l.spotId ORDER BY position LIMIT 8) ph) AS stored_photos
-    FROM legacy_spot_source l WHERE l.spotId = ?`).bind(id.toLowerCase()).first<{ payload: string; stored_photos: string | null }>();
+        'l', ph.licence, 'a', ph.author, 'u', ph.source_url)) FROM (SELECT * FROM spot_photos WHERE spot_id = l.spotId ORDER BY position LIMIT 8) ph) AS stored_photos,
+      (SELECT s.city FROM spots s WHERE s.id = l.spotId) AS spot_city
+    FROM legacy_spot_source l WHERE l.spotId = ?`).bind(id.toLowerCase()).first<{ payload: string; stored_photos: string | null; spot_city: string | null }>();
   if (!row) return null;
   const spot: unknown = JSON.parse(row.payload);
   if (!spot || typeof spot !== "object" || Array.isArray(spot) || (spot as { id?: unknown }).id !== id.toLowerCase()) {
     throw new Error("Invalid D1 spot source");
   }
   const storedPhotos = parseStoredSpotPhotos(row.stored_photos);
-  return { ...(spot as RawSpot & Record<string, unknown>), own_photo: storedPhotos[0]?.src ?? null, stored_photos: storedPhotos };
+  const base = spot as RawSpot & Record<string, unknown>;
+  // The imported payload often has no city; the spots row has the curated one (the photo route's listing check needs it).
+  const city = typeof base.city === "string" && base.city.trim() ? base.city : row.spot_city ?? null;
+  return { ...base, city, own_photo: storedPhotos[0]?.src ?? null, stored_photos: storedPhotos };
 }
 
 export type D1CommunitySubmission = {
