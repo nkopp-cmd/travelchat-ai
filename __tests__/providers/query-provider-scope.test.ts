@@ -8,7 +8,8 @@ const ROOT = join(__dirname, "..", "..");
 const QUERY_ROOTS = [
   "app/chat/layout.tsx",
   "app/dashboard/layout.tsx",
-  "app/itineraries/layout.tsx",
+  "app/itineraries/(list)/layout.tsx",
+  "app/itineraries/[id]/layout.tsx",
   "app/pricing/layout.tsx",
   "app/settings/layout.tsx",
   "app/shared/[shareCode]/layout.tsx",
@@ -52,6 +53,10 @@ describe("React Query provider scope", () => {
     for (const file of QUERY_ROOTS) {
       expect(readFileSync(join(ROOT, file), "utf8"), file).toMatch(/<QueryProvider>/);
     }
+  });
+
+  it("keeps QueryProvider off the planner and preview (Push CH1)", () => {
+    expect(readFileSync(join(ROOT, "app/itineraries/layout.tsx"), "utf8")).not.toMatch(/<QueryProvider>|@\/lib\/query-client/);
   });
 
   it("knows every React Query user", () => {

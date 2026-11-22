@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { ToastAction } from "@/components/ui/toast";
+import { LazyToastAction } from "@/components/ui/toast-action-lazy";
 import { ArrowLeft, ArrowRight, MapPin, Sparkles } from "@/components/ui/icons";
 import { WizardProvider, useWizard, WizardData } from "./wizard-context";
 import { PlannerCitiesContext } from "./planner-cities-context";
@@ -154,7 +154,7 @@ function WizardContent({
           description: generateFailureText(error),
           variant: "destructive",
           // Re-sends the same inputs through this path (progress state included).
-          action: <ToastAction altText="Try again" onClick={() => void handleNext()}>Try again</ToastAction>,
+          action: <LazyToastAction altText="Try again" onClick={() => void handleNext()}>Try again</LazyToastAction>,
         });
       } finally {
         setIsGenerating(false);
