@@ -25,6 +25,9 @@ const VIRAL_STATE = join(homedir(), ".local/state/localley/viral-scout.json"); /
 // Push CC3: weekly Google URL Inspection of the money/entry pages (scripts/seo/index-status.mjs).
 const INDEX_STATE = join(homedir(), "projects/CyberLink/claude-work/localley-index-status.json");
 const RESOLVED = new Set(["matched", "created"]);
+// Push CE3: our own servers (Hetzner) and checks that send x-localley-check are not visitors.
+const OWN_ASNS = new Set([24940, 213230]);
+const LOG_LIMIT = 2000;
 // User content rows: [table, user column, time column]. private_notes has no timestamp, so it is not counted.
 const UGC_TABLES = [
   ["community_questions", "user_id", "created_at"], ["community_answers", "user_id", "created_at"],
@@ -44,8 +47,30 @@ const at = (value) => {
 };
 const within = (value, from, to) => { const ms = at(value); return ms !== null && ms >= from && ms < to; };
 
+/**
+ * Pure: Worker log events of POST /api/itineraries/generate -> "real N (ok M)". Generate is never edge-cached, so the
+ * Worker log sees every call; the funnel table only sees browsers that ran the beacon. null = log unreadable.
+ */
+export function generateCallsNote(events) {
+  if (!Array.isArray(events)) return "unknown: Worker log unreadable";
+  let real = 0, ok = 0, own = 0, bots = 0;
+  for (const e of events) {
+    const request = e?.$workers?.event?.request;
+    // Only the fetch event carries request.cf; log lines of the same call repeat the request without it.
+    if (!request?.cf || request.method !== "POST") continue;
+    const cf = request.cf;
+    if (OWN_ASNS.has(Number(cf.asn)) || (cf.requestHeaderNames ?? []).includes("x-localley-check")) { own += 1; continue; }
+    if (cf.verifiedBotCategory) { bots += 1; continue; }
+    real += 1;
+    const status = Number(e.$workers.event.response?.status);
+    if (status >= 200 && status < 300) ok += 1;
+  }
+  const capped = events.length >= LOG_LIMIT ? " (log capped, at least)" : "";
+  return `${real} (ok ${ok}, own checks ${own}, verified bots ${bots} excluded)${capped}`;
+}
+
 /** Pure: rows from the two databases -> the probe line. */
-export function summarize({ users, sessions, subscriptions, funnel, links = [], ugc = [], rankings = [], viral = null, subscribers = null, lastEvent = null, indexStatus = null }, now = Date.now()) {
+export function summarize({ users, sessions, subscriptions, funnel, links = [], ugc = [], rankings = [], viral = null, subscribers = null, lastEvent = null, indexStatus = null, generateLog = undefined }, now = Date.now()) {
   const from30 = now - 30 * DAY;
   const internal = new Set(users.filter((u) => isInternal(u.email)).map((u) => u.id));
   for (const l of links) if (internal.has(l.authUserId)) internal.add(l.ownerId); // legacy rows carry the owner id
@@ -98,6 +123,8 @@ export function summarize({ users, sessions, subscriptions, funnel, links = [], 
       // Push AN2: the last day the collector counted anything, so "beacons broken" and "no visitors" look different.
       + `last counted event day (UTC; own checks are not counted): funnel ${lastEvent?.funnel ?? "unknown"}, spot cards ${lastEvent?.cards ?? "unknown"}; `
       + `${indexNote(indexStatus, now)}; `
+      // Push CE3: tells "no visitors" from "visitors who stop" (no funnel step needed, so no D1 migration).
+      + (generateLog === undefined ? "" : `real trip generate calls 7d (Worker log): ${generateCallsNote(generateLog)}; `)
       + `revenue/prev/repeat null: Stripe key is a Worker secret only and D1 keeps no invoice history; `
       + `proprietary = ${events ? `${events.length} viral events + ${places} resolved places` : "viral archive missing"} + ${ranked} weekly rankings; `
       + `ugc = questions/answers/reviews/tips/social submissions; owned_audience = ${audience
@@ -122,10 +149,28 @@ async function select(database, sql, auth) {
   return body.result?.[0]?.results ?? [];
 }
 
+/** Read-only Worker observability query: the last 7 days of generate calls. null when the log cannot be read. */
+async function generateEvents(auth, now = Date.now()) {
+  try {
+    const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${ACCOUNT}/workers/observability/telemetry/query`, {
+      method: "POST", headers: { authorization: `Bearer ${auth}`, "content-type": "application/json" },
+      body: JSON.stringify({ queryId: "adhoc", view: "events", limit: LOG_LIMIT, timeframe: { from: now - 7 * DAY, to: now },
+        parameters: { filters: [
+          // One filter only: on 2026-11-22 a second filter (method or scriptName) cut 24 matching calls to 4.
+          { key: "$workers.event.request.url", operation: "includes", value: "/api/itineraries/generate", type: "string" },
+        ] } }),
+    });
+    const body = await response.json().catch(() => ({}));
+    return response.ok && body.success ? body.result?.events?.events ?? [] : null;
+  } catch {
+    return null;
+  }
+}
+
 async function main() {
   const auth = token();
   const lastDay = (table) => select(AUTH_DB, `SELECT max(day) AS day FROM ${table}`, auth).then((r) => r[0]?.day ?? null, () => null);
-  const [users, sessions, funnel, subscriptions, links, ugc, rankings, subscribers, funnelDay, cardsDay] = await Promise.all([
+  const [users, sessions, funnel, subscriptions, links, ugc, rankings, subscribers, funnelDay, cardsDay, generateLog] = await Promise.all([
     select(AUTH_DB, "SELECT id, email, createdAt FROM user", auth),
     select(AUTH_DB, "SELECT userId, updatedAt FROM session WHERE updatedAt >= strftime('%Y-%m-%dT%H:%M:%fZ','now','-31 days')", auth),
     select(AUTH_DB, "SELECT day, step, source, count FROM funnel_events_daily WHERE step IN ('checkout_paid', 'checkout_start')", auth),
@@ -136,12 +181,12 @@ async function main() {
     select(APP_DB, "SELECT created_at FROM weekly_city_spot_rankings", auth),
     // Unknown (null), not zero, when the table is not there yet or the read fails.
     select(APP_DB, "SELECT email, status, created_at FROM newsletter_subscribers", auth).catch(() => null),
-    lastDay("funnel_events_daily"), lastDay("spot_card_events_daily"),
+    lastDay("funnel_events_daily"), lastDay("spot_card_events_daily"), generateEvents(auth),
   ]);
   const viral = existsSync(VIRAL_STATE) ? JSON.parse(readFileSync(VIRAL_STATE, "utf8")) : null;
   let indexStatus = null;
   try { indexStatus = JSON.parse(readFileSync(INDEX_STATE, "utf8")); } catch { /* no run yet: the note says unknown */ }
-  process.stdout.write(`${JSON.stringify(summarize({ users, sessions, subscriptions, funnel, links, ugc, rankings, viral, subscribers, lastEvent: { funnel: funnelDay, cards: cardsDay }, indexStatus }))}\n`);
+  process.stdout.write(`${JSON.stringify(summarize({ users, sessions, subscriptions, funnel, links, ugc, rankings, viral, subscribers, lastEvent: { funnel: funnelDay, cards: cardsDay }, indexStatus, generateLog }))}\n`);
 }
 
 // realpath: the probe also runs through symlinked checkouts, where argv[1] is not the resolved module path.

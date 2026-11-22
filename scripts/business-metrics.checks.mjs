@@ -1,7 +1,7 @@
 // node --test scripts/business-metrics.checks.mjs — pure parts of the business-loop money + moat probe (no network).
 import assert from "node:assert/strict";
 import test from "node:test";
-import { PAID_PATH_LIVE_SINCE, isInternal, summarize } from "./business-metrics.mjs";
+import { PAID_PATH_LIVE_SINCE, generateCallsNote, isInternal, summarize } from "./business-metrics.mjs";
 
 const now = Date.parse("2026-11-01T12:00:00Z");
 const users = [
@@ -121,4 +121,28 @@ test("Push CC3: notes carry the Google index count, or unknown without a run", (
   assert.match(summarize(base, now).notes, /google index of money\/entry pages: unknown \(no index-status run\);/);
   const indexStatus = { summary: { at: "2026-10-27T06:40:00Z", line: "indexed 14/20" } };
   assert.match(summarize({ ...base, indexStatus }, now).notes, /google index of money\/entry pages: indexed 14\/20 \(URL Inspection 2026-10-27\);/);
+});
+
+test("real generate calls: own servers, check header and verified bots are not visitors (push CE3)", () => {
+  const call = (cf, status = 200, method = "POST") => ({ $workers: { event: { request: { method, cf }, response: { status } } } });
+  const note = generateCallsNote([
+    call({ asn: 24940 }),
+    call({ asn: 7922, requestHeaderNames: ["x-localley-check"] }),
+    call({ asn: 15169, verifiedBotCategory: "Search Engine Crawler" }),
+    call({ asn: 7922 }),
+    call({ asn: 4766 }, 429),
+    call({ asn: 4766 }, 200, "GET"),
+    { $workers: { event: {} } },
+    { $workers: { event: { request: { method: "POST" } } } }, // a log line of a call: no cf
+  ]);
+  assert.equal(note, "2 (ok 1, own checks 2, verified bots 1 excluded)");
+  assert.equal(generateCallsNote(null), "unknown: Worker log unreadable");
+  assert.equal(generateCallsNote([]), "0 (ok 0, own checks 0, verified bots 0 excluded)");
+});
+
+test("the generate note is in the probe only when the log was read", () => {
+  const base = { users: [], sessions: [], subscriptions: [], funnel: [] };
+  assert.doesNotMatch(summarize(base, now).notes, /generate calls/);
+  assert.match(summarize({ ...base, generateLog: [] }, now).notes, /real trip generate calls 7d \(Worker log\): 0 \(ok 0/);
+  assert.match(summarize({ ...base, generateLog: null }, now).notes, /generate calls 7d \(Worker log\): unknown/);
 });
