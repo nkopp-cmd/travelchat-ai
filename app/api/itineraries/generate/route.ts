@@ -296,8 +296,9 @@ async function generate(req: NextRequest, outcome: GenerateOutcome) {
         error: "insufficient_verified_spots",
         message: suggestion
           ? `Localley cannot fill this exact ${normalizedCity} mix yet. A ${describeCoverageSuggestion(suggestion, interests ?? [])} works now.`
-          : `Localley does not yet have enough verified, photographed ${normalizedCity} spots for this exact pace and interest mix. Try fewer days, a slower pace, or broader interests.`,
-        ...(suggestion && { suggestion }),
+          : `Localley cannot plan ${normalizedCity} yet. Pick another city to get your free plan now.`,
+        // Push CH3: no smaller mix works either, so the planner offers a city change instead of a retry.
+        ...(suggestion ? { suggestion } : { pickCity: true }),
       }, { status: 422 });
     }
 
