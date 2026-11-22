@@ -54,6 +54,7 @@ on:
       - 'scripts/public-catalog-preview.checks.mjs'
       - 'scripts/check-route-review*.mjs'
       - 'scripts/check-embedded-borders.checks.mjs'
+      - 'scripts/planner-city-check*.mjs'
 
       - 'scripts/public-cache-proof.py'
       - 'scripts/test_public_cache_proof.py'
@@ -842,6 +843,8 @@ jobs:
         run: node --test scripts/viral-scout.checks.mjs
       - name: Business metrics probe checks
         run: node --test scripts/business-metrics.checks.mjs
+      - name: Planner city check (push CG4)
+        run: node --test scripts/planner-city-check.checks.mjs
 
       - name: Verify single-table count preflight
         run: node --test scripts/d1-migration/count-preflight.checks.mjs
