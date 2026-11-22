@@ -640,7 +640,7 @@ export default async function SpotPage({
           Back to spots
         </Link>
 
-        <VenueHeroPhoto name={spot.name} />
+        <VenueHeroPhoto name={spot.name} category={spot.category} />
 
         <header className="flex items-start justify-between gap-3">
           <div className="min-w-0 space-y-2">
