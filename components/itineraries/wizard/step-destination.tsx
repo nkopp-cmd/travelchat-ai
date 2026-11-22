@@ -238,7 +238,8 @@ export function StepDestination() {
               <Check className="h-4 w-4" aria-hidden="true" />
             </span>
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold leading-tight text-foreground">
+              {/* Wraps to 2 lines: truncate cut "<Spot> is in your <City> plan" before the city at 390 px. */}
+              <p className="line-clamp-2 break-words text-sm font-semibold leading-tight text-foreground">
                 {handoffSpotName ? `${handoffSpotName} is in your ${data.city} plan` : `${data.city} selected`}
               </p>
               <p className="truncate text-xs leading-tight text-foreground">
