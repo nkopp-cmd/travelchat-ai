@@ -9,33 +9,25 @@ import { CityImageAvatar } from "@/components/ui/city-image";
 
 interface OnboardingPanelProps {
     className?: string;
-    onPromptClick?: (prompt: string) => void;
 }
 
-const EXAMPLE_PROMPTS = [
-    {
-        text: "Find me the best street food in Seoul",
-        icon: "🍜",
-    },
-    {
-        text: "What are some hidden bars in Tokyo?",
-        icon: "🍸",
-    },
-    {
-        text: "Show me vintage shops in Bangkok",
-        icon: "🛍️",
-    },
-    {
-        text: "Where do locals hang out in Singapore?",
-        icon: "🌴",
-    },
-];
+// Push CM2: a new account's first screen offers ONE primary action, the first free plan. The old "Try asking Alley"
+// cards were buttons with no handler on /dashboard (onPromptClick was never passed), so the first four clicks did
+// nothing. They are now planner links with the city filled in.
+const CITY_STARTS = [
+    { city: "Seoul", text: "Street food and late-night markets in Seoul" },
+    { city: "Tokyo", text: "Hidden bars and quiet side streets in Tokyo" },
+    { city: "Bangkok", text: "Vintage shops and canal-side food in Bangkok" },
+    { city: "Singapore", text: "Where locals eat and hang out in Singapore" },
+] as const;
+
+const cardClass = "relative overflow-hidden rounded-2xl p-6 bg-surface shadow-surface hover:bg-raised transition-colors duration-300";
 
 /**
- * Onboarding panel shown when user has no itineraries or on first visit.
- * Provides guidance, example prompts, and clear CTAs to get started.
+ * Onboarding panel shown on desktop when the account has no itineraries yet.
+ * First action: plan the first trip (free). Then city starts, then the spot map.
  */
-export function OnboardingPanel({ className, onPromptClick }: OnboardingPanelProps) {
+export function OnboardingPanel({ className }: OnboardingPanelProps) {
     return (
         <div className={cn("relative", className)}>
             {/* Background decorative elements */}
@@ -50,110 +42,69 @@ export function OnboardingPanel({ className, onPromptClick }: OnboardingPanelPro
                     eyebrow="Get started"
                     eyebrowIcon={Sparkles}
                     title="Welcome to Localley"
-                    lede="Your local guide for hidden gems, local favorites and authentic experiences."
+                    lede="Start with one free plan: pick a city and get a day-by-day route built from spots locals rate."
                 />
 
-                {/* Try Asking Section with premium prompt cards */}
+                {/* The one primary action */}
+                <Link href="/itineraries/new" data-testid="onboarding-first-plan" className="group mb-8 block">
+                    <div className="relative flex items-center gap-4 overflow-hidden rounded-2xl bg-primary p-6 text-primary-foreground shadow-surface transition-opacity duration-300 hover:opacity-95">
+                        <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-primary-foreground/15">
+                            <Sparkles className="h-7 w-7" aria-hidden="true" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <h3 className="mb-1 text-lg font-bold">Plan your first trip</h3>
+                            <p className="text-sm text-primary-foreground/85">Free. A day-by-day plan in under a minute.</p>
+                        </div>
+                        <ArrowRight className="h-5 w-5 flex-shrink-0 transition-transform duration-300 group-hover:translate-x-2" aria-hidden="true" />
+                    </div>
+                </Link>
+
+                {/* City starts: the planner with the city filled in */}
                 <div className="mb-10">
-                    <div className="flex items-center gap-2 mb-5">
+                    <div className="mb-5 flex items-center gap-2">
                         <Lightbulb className="h-4 w-4 text-primary" aria-hidden="true" />
-                        <span className="text-[15px] font-semibold text-foreground">Try asking Alley</span>
+                        <h2 className="text-[15px] font-semibold text-foreground">Or start from a city</h2>
                     </div>
                     <div className="grid gap-3 sm:grid-cols-2">
-                        {EXAMPLE_PROMPTS.map((prompt, idx) => (
-                            <button
-                                key={idx}
-                                onClick={() => onPromptClick?.(prompt.text)}
-                                className={cn(
-                                    "flex items-center gap-3 p-4 rounded-xl",
-                                    "bg-surface shadow-surface hover:bg-raised",
-                                    "transition-all duration-300 text-left group",
-                                    "relative overflow-hidden"
-                                )}
+                        {CITY_STARTS.map((start) => (
+                            <Link
+                                key={start.city}
+                                href={`/itineraries/new?city=${encodeURIComponent(start.city)}`}
+                                className="group relative flex items-center gap-3 overflow-hidden rounded-xl bg-surface p-4 text-left shadow-surface transition-all duration-300 hover:bg-raised"
                             >
-
                                 <CityImageAvatar
-                                    city={prompt.text}
+                                    city={start.city}
                                     className="relative h-12 w-12 flex-shrink-0 rounded-lg transition-transform duration-300 group-hover:scale-105"
                                     sizes="48px"
                                 />
-                                <span className="relative text-sm text-foreground/80 group-hover:text-foreground transition-colors">
-                                    {prompt.text}
+                                <span className="relative text-sm text-foreground/80 transition-colors group-hover:text-foreground">
+                                    {start.text}
                                 </span>
-                            </button>
+                            </Link>
                         ))}
                     </div>
                 </div>
 
-                {/* Quick Actions with glassmorphism */}
-                <div className="grid gap-4 sm:grid-cols-2 mb-10">
-                    <Link href="/itineraries/new" className="block group">
-                        <div className={cn(
-                            "relative overflow-hidden rounded-2xl p-6",
-                            "bg-surface shadow-surface hover:bg-raised",
-                            "transition-colors duration-300"
-                        )}>
-                            <div className="relative flex items-start gap-4">
-                                <div className={cn(
-                                    "h-14 w-14 rounded-xl flex items-center justify-center flex-shrink-0",
-                                    "bg-primary text-primary-foreground",
-                                    "transition-transform duration-300 group-hover:scale-105"
-                                )}>
-                                    <Sparkles className="h-7 w-7" aria-hidden="true" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <h3 className="font-bold text-lg mb-1 group-hover:text-primary transition-colors">
-                                        Generate Itinerary
-                                    </h3>
-                                    <p className="text-sm text-muted-foreground">
-                                        Get a personalized day-by-day plan in seconds
-                                    </p>
-                                </div>
-                                <ArrowRight className={cn(
-                                    "h-5 w-5 text-muted-foreground flex-shrink-0 mt-1",
-                                    "group-hover:text-primary group-hover:translate-x-2",
-                                    "transition-all duration-300"
-                                )} />
+                {/* Secondary: the spot map */}
+                <Link href="/spots?view=map" className="group mb-10 block">
+                    <div className={cardClass}>
+                        <div className="relative flex items-start gap-4">
+                            <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-raised text-primary transition-transform duration-300 group-hover:scale-105">
+                                <Map className="h-7 w-7" aria-hidden="true" />
                             </div>
-                        </div>
-                    </Link>
-
-                    <Link href="/spots?view=map" className="block group">
-                        <div className={cn(
-                            "relative overflow-hidden rounded-2xl p-6",
-                            "bg-surface shadow-surface hover:bg-raised",
-                            "transition-colors duration-300"
-                        )}>
-                            <div className="relative flex items-start gap-4">
-                                <div className={cn(
-                                    "h-14 w-14 rounded-xl flex items-center justify-center flex-shrink-0",
-                                    "bg-primary text-primary-foreground",
-                                    "transition-transform duration-300 group-hover:scale-105"
-                                )}>
-                                    <Map className="h-7 w-7" aria-hidden="true" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <h3 className="font-bold text-lg mb-1 group-hover:text-primary transition-colors">
-                                        Spot map
-                                    </h3>
-                                    <p className="text-sm text-muted-foreground">
-                                        Every spot we know, on one map
-                                    </p>
-                                </div>
-                                <ArrowRight className={cn(
-                                    "h-5 w-5 text-muted-foreground flex-shrink-0 mt-1",
-                                    "group-hover:text-primary group-hover:translate-x-2",
-                                    "transition-all duration-300"
-                                )} />
+                            <div className="min-w-0 flex-1">
+                                <h3 className="mb-1 text-lg font-bold transition-colors group-hover:text-primary">Spot map</h3>
+                                <p className="text-sm text-muted-foreground">Every spot we know, on one map</p>
                             </div>
+                            <ArrowRight className="mt-1 h-5 w-5 flex-shrink-0 text-muted-foreground transition-all duration-300 group-hover:translate-x-2 group-hover:text-primary" aria-hidden="true" />
                         </div>
-                    </Link>
-                </div>
+                    </div>
+                </Link>
 
                 {/* Available Cities with premium styling */}
                 <div className="text-center">
                     <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full bg-raised">
-                        <Globe className="h-4 w-4 text-primary" />
+                        <Globe className="h-4 w-4 text-primary" aria-hidden="true" />
                         <span className="text-sm text-muted-foreground">
                             Available in <span className="font-semibold text-foreground">{SUPPORTED_CITIES.length}</span> cities
                         </span>
