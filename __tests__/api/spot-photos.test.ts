@@ -126,12 +126,38 @@ describe("public spot photo gallery", () => {
         { id: "different" },
         { location: { latitude: 35.68, longitude: 139.69 } },
         { location: undefined },
-        { location: { latitude: 37.60, longitude: 126.999 } },
+        { location: { latitude: 37.65, longitude: 126.999 } },
         { location: { latitude: 999, longitude: 126 } },
     ])("rejects contradictory identity evidence", async change => {
         vi.mocked(fetch).mockResolvedValue(Response.json({ ...details(), ...change }));
         expect((await call()).status).toBe(502);
         expect(fetch).toHaveBeenCalledTimes(1);
+    });
+
+    it("checks the listing name when the stored coordinates are 1-5 km off (Push CF2)", async () => {
+        const log = vi.spyOn(console, "error").mockImplementation(() => {});
+        try {
+            // 3.3 km off, same name: one Essentials call plus one Pro name call, then available.
+            vi.mocked(fetch).mockImplementation(async () => Response.json({ ...details(), location: { latitude: 37.60, longitude: 126.999 } }));
+            expect((await (await call()).json()).status).toBe("available");
+            expect(fetch).toHaveBeenCalledTimes(2);
+            // 3.3 km off, unrelated name: a name conflict.
+            vi.mocked(fetch).mockImplementation(async () => Response.json({ ...details(), location: { latitude: 37.60, longitude: 126.999 },
+                displayName: { text: "Unrelated Store" }, formattedAddress: "77 Other Road, Seoul, South Korea" }));
+            expect((await call()).status).toBe(502);
+            expect(log).toHaveBeenLastCalledWith(expect.stringContaining('"reason":"listing_name_conflict"'));
+            // 0.5 km off: no name call.
+            vi.mocked(fetch).mockClear();
+            vi.mocked(fetch).mockImplementation(async () => Response.json({ ...details(), location: { latitude: 37.5745, longitude: 126.999 } }));
+            expect((await (await call()).json()).status).toBe("available");
+            expect(fetch).toHaveBeenCalledTimes(1);
+            // 8.9 km off: a coordinate conflict without a name call, whatever the name.
+            vi.mocked(fetch).mockClear();
+            vi.mocked(fetch).mockImplementation(async () => Response.json({ ...details(), location: { latitude: 37.65, longitude: 126.999 } }));
+            expect((await call()).status).toBe(502);
+            expect(fetch).toHaveBeenCalledTimes(1);
+            expect(log).toHaveBeenLastCalledWith(expect.stringContaining('"reason":"listing_coordinate_conflict"'));
+        } finally { log.mockRestore(); }
     });
 
     it("takes the stored city when the address text names none", async () => {
@@ -153,7 +179,7 @@ describe("public spot photo gallery", () => {
         } });
         const log = vi.spyOn(console, "error").mockImplementation(() => {});
         try {
-            vi.mocked(fetch).mockImplementation(async () => Response.json({ ...details(), location: { latitude: 37.60, longitude: 126.999 } }));
+            vi.mocked(fetch).mockImplementation(async () => Response.json({ ...details(), location: { latitude: 37.65, longitude: 126.999 } }));
             expect((await call()).status).toBe(502);
             expect([...store.keys()]).toEqual([`https://spot-photo-verdict.localley.internal/v2/${id}/${placeId}/37.57,126.999`]);
             const second = await call();
@@ -162,7 +188,7 @@ describe("public spot photo gallery", () => {
             expect(fetch).toHaveBeenCalledTimes(1);
             expect(log).toHaveBeenCalledOnce();
             // A corrected listing (new coordinates) is checked again.
-            mocks.single.mockResolvedValue({ data: { ...structuredClone(spot), location: { coordinates: [126.999, 37.60] } }, error: null });
+            mocks.single.mockResolvedValue({ data: { ...structuredClone(spot), location: { coordinates: [126.999, 37.65] } }, error: null });
             expect((await (await call()).json()).status).toBe("available");
             expect(fetch).toHaveBeenCalledTimes(2);
         } finally { log.mockRestore(); }
@@ -191,7 +217,7 @@ describe("public spot photo gallery", () => {
         const log = vi.spyOn(console, "error").mockImplementation(() => {});
         try {
             vi.mocked(fetch).mockResolvedValue(Response.json({ ...details(),
-                location: { latitude: 37.60, longitude: 126.999 },
+                location: { latitude: 37.65, longitude: 126.999 },
                 private: "secret-key person@example.com https://private.example/?token=secret",
             }));
             const response = await call();
