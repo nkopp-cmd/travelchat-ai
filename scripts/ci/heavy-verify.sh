@@ -69,6 +69,7 @@ VITEST_FILES=(
   __tests__/lib/spot-display-geography.test.ts
   __tests__/lib/weekly-trending-spots.test.ts
   __tests__/lib/spots-public-quality.test.ts
+  __tests__/lib/spot-plan-link.test.ts
   __tests__/lib/viral-scout-rows.test.ts
   __tests__/lib/promote-candidates-rows.test.ts
   __tests__/lib/discover-osm-places.test.ts
@@ -451,6 +452,8 @@ ESLINT_FILES=(
   app/og/shared/[shareCode]/route.tsx
   lib/spots/city-directory.ts
   lib/spots/city-context.ts
+  lib/spots/plan-link.ts
+  __tests__/lib/spot-plan-link.test.ts
   lib/spots/city-directory-store.ts
   components/spots/city-spot-directory.tsx
   app/spots/a-z/[city]/page.tsx
