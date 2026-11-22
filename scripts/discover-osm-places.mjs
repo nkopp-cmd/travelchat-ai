@@ -11,6 +11,8 @@
 // REQUERY_DAYS. Candidates hang on the day's apify_spot_discovery_runs row (UNIQUE discovery_date): the Apify row when it
 // ran, else one 'osm-overpass' row. Dry run unless --apply.
 //
+// Address fallbacks when OSM tags and Nominatim give no number: Wikidata P6375 (Japan), Kakao coord2address (Korea,
+// needs KAKAO_REST_API_KEY).
 // Usage: node scripts/discover-osm-places.mjs [--apply] [--city <slug>]
 
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -144,6 +146,28 @@ export function reverseAddress(data, city) {
   return [`${hn} ${road}`, area, city.name, city.country].filter(Boolean).join(", ");
 }
 
+/** Wikidata P6375 street address (Japanese) -> "<address>, <city>, Japan", or "" without a block/house number.
+ * OSM and Nominatim carry no house number for most Kyoto temples and museums (2026-11-22 dry run: 31 places with a
+ * photo, 1 exact address); Wikidata has one for 38 of 101 Kyoto places. The promoter's copy step romanizes it. */
+export function wikidataAddress(text, city) {
+  if (city.countryCode !== "JP") return "";
+  let a = str(String(text ?? "").normalize("NFKC")) // full-width digits/hyphens -> ASCII
+    .replace(/〒?\s*\d{3}-\d{4}\s*/, "") // postcode
+    .replace(/\([^)]*\)/g, "") // "(building 5th floor)"
+    .replace(/\s+/g, "");
+  a = a.replace(/^(東京都|北海道|(京都|大阪)府|[^\d]{2,3}県)/, "").replace(/^[^\d区]{1,5}?市(?=.)/, "");
+  if (!/\d/.test(a) || a.length > 80) return "";
+  return [a, city.name, city.country].join(", ");
+}
+
+/** Kakao coord2address result -> "<Korean road or lot address>, <city>, South Korea", or "" without a number. */
+export function kakaoAddress(data, city) {
+  if (city.countryCode !== "KR") return "";
+  const doc = data?.documents?.[0];
+  const a = str(doc?.road_address?.address_name) || str(doc?.address?.address_name);
+  return /\d/.test(a) ? [a, city.name, city.country].join(", ") : "";
+}
+
 // ---------- I/O ----------
 
 async function d1(sql, params = []) {
@@ -172,6 +196,31 @@ async function overpass(city) {
     last = `overpass ${response.status}`;
   }
   throw new Error(last);
+}
+
+/** { Q1: "京都府京都市...1-2" } street addresses (P6375, Japanese first) for up to 50 ids per request. */
+async function wikidataStreetAddresses(qids) {
+  const ids = [...new Set(qids)].filter((q) => /^Q\d+$/.test(q)), out = {};
+  for (let i = 0; i < ids.length; i += 50) {
+    const u = `https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&props=claims&ids=${ids.slice(i, i + 50).join("|")}`;
+    const response = await fetch(u, { headers: { "user-agent": UA }, signal: AbortSignal.timeout(30000) });
+    if (!response.ok) { await response.body?.cancel(); throw new Error(`wikidata ${response.status}`); }
+    for (const [qid, e] of Object.entries((await response.json()).entities ?? {})) {
+      const values = (e?.claims?.P6375 ?? []).filter((x) => x?.rank !== "deprecated").map((x) => x?.mainsnak?.datavalue?.value).filter(Boolean);
+      const v = values.find((x) => x.language === "ja") ?? values[0];
+      if (typeof v?.text === "string") out[qid] = v.text;
+    }
+  }
+  return out;
+}
+
+/** Kakao Local coord2address (free key, Korea only); "" without KAKAO_REST_API_KEY or on any error. */
+async function kakaoReverse(c, city) {
+  const key = process.env.KAKAO_REST_API_KEY;
+  if (!key || city.countryCode !== "KR") return "";
+  const u = `https://dapi.kakao.com/v2/local/geo/coord2address.json?x=${c.longitude}&y=${c.latitude}`;
+  const response = await fetch(u, { headers: { authorization: `KakaoAK ${key}` }, signal: AbortSignal.timeout(15000) });
+  return response.ok ? kakaoAddress(await response.json(), city) : (await response.body?.cancel(), "");
 }
 
 async function reverse(c, city) {
@@ -245,10 +294,14 @@ export async function run({ apply = false, city: onlyCity = null, now = new Date
     const imageOf = (c) => imageNear(images[wikidataId(c)], { lat: c.latitude, lng: c.longitude });
     const withPhoto = fresh.filter(imageOf);
     stat.withPhoto = withPhoto.length;
+    const streets = city.countryCode === "JP"
+      ? await wikidataStreetAddresses(withPhoto.map(wikidataId).filter(Boolean)).catch((e) => { stat.error = `wikidata P6375: ${e.message}`; return {}; })
+      : {};
     let lookups = 0;
     for (const c of withPhoto) {
       if (stat.exact >= MAX_PER_CITY) break;
       if (!c.address && lookups < MAX_REVERSE_PER_CITY) { lookups++; c.address = await reverse(c, city).catch(() => ""); }
+      if (!c.address) c.address = wikidataAddress(streets[wikidataId(c)], city) || await kakaoReverse(c, city).catch(() => "");
       if (!c.address) continue;
       stat.exact++;
       const image = commonsFileUrl(imageOf(c));
