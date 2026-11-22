@@ -13,6 +13,19 @@ describe("site URL fallback", () => {
     expect(readFileSync("public/robots.txt", "utf8")).toContain("Sitemap: https://www.localley.io/sitemap.xml");
   });
 
+  it("keeps crawlers off the sign-in wall but not off public pages (Push CK3)", () => {
+    // Google/Bing robots semantics: '*' matches any run, the longest matching rule wins, Allow wins a tie.
+    const rules = readFileSync("public/robots.txt", "utf8").split("\n")
+      .map((line) => /^(Allow|Disallow):\s*(\S+)/.exec(line)).filter((m): m is RegExpExecArray => !!m)
+      .map(([, kind, path]) => ({ allow: kind === "Allow", path, re: new RegExp(`^${path.replace(/[.?+()[\]^$|{}\\]/g, "\\$&").replace(/\*/g, ".*")}`) }));
+    const allowed = (url: string) => {
+      const hits = rules.filter((rule) => rule.re.test(url)).sort((a, b) => b.path.length - a.path.length || Number(b.allow) - Number(a.allow));
+      return hits[0]?.allow ?? true;
+    };
+    for (const url of ["/spots/377bb2cb-1/tips", "/sign-up?redirect_url=%2Fspots%2Fx%2Ftips", "/sign-in?redirect_url=%2Fdashboard"]) expect(allowed(url), url).toBe(false);
+    for (const url of ["/", "/spots/377bb2cb-1", "/spots?city=seoul", "/blog/tips-for-seoul", "/sign-up", "/itineraries/new?city=Seoul"]) expect(allowed(url), url).toBe(true);
+  });
+
   it("gives every page a self canonical, og:image and a bounded description", () => {
     const meta = pageMeta({ title: "Local spots in Seoul", description: "x".repeat(80), path: "/spots?city=seoul" });
     expect(meta.alternates?.canonical).toBe("https://www.localley.io/spots?city=seoul");

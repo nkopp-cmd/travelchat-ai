@@ -1,3 +1,7 @@
 User-agent: *
 Allow: /
+# Push CK3: the sign-in wall is not content. Crawlers looped /spots/<id>/tips -> /sign-up?redirect_url= -> /sign-in.
+Disallow: /spots/*/tips
+Disallow: /sign-up?
+Disallow: /sign-in?
 Sitemap: https://www.localley.io/sitemap.xml
