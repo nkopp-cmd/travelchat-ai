@@ -1,7 +1,7 @@
 // node --test scripts/business-metrics.checks.mjs — pure parts of the business-loop money + moat probe (no network).
 import assert from "node:assert/strict";
 import test from "node:test";
-import { PAID_PATH_LIVE_SINCE, generateCallsNote, isInternal, plannerErrorsNote, summarize } from "./business-metrics.mjs";
+import { PAID_PATH_LIVE_SINCE, externalArrivalsNote, generateCallsNote, isInternal, plannerErrorsNote, summarize } from "./business-metrics.mjs";
 
 const now = Date.parse("2026-11-01T12:00:00Z");
 const users = [
@@ -178,4 +178,22 @@ test("Push CK2: a no-spots line counts as own when its request came from our ASN
     fetch(undefined, { asn: 24940 }), line(undefined, {}), // no requestId: never matches an own id
   ]);
   assert.equal(note, "3 (canggu 1, nara 1, unknown 1), smaller plan offered 0, own checks 2 excluded");
+});
+
+test("external arrivals: referrer hosts outside localley.io, own hosts and direct loads excluded (Push CM3)", () => {
+  const rows = [
+    { count: 9, dimensions: { refererHost: "www.bing.com" } },
+    { count: 2, dimensions: { refererHost: "l.facebook.com" } },
+    { count: 1, dimensions: { refererHost: "bing.com" } },
+    { count: 40, dimensions: { refererHost: "www.localley.io" } },
+    { count: 3, dimensions: { refererHost: "localley.io" } },
+    { count: 20, dimensions: { refererHost: "" } },
+    { count: 1, dimensions: {} },
+  ];
+  assert.equal(externalArrivalsNote(rows), "12 (bing.com 10, l.facebook.com 2) of 76 page loads");
+  assert.equal(externalArrivalsNote([]), "0 of 0 page loads");
+  assert.equal(externalArrivalsNote(null), "unknown");
+  const line = summarize({ users, sessions: [], subscriptions: [], funnel: [], arrivals: rows }, now);
+  assert.match(line.notes, /external arrivals 7d \(CF RUM, referrer not localley\.io\): 12 \(bing\.com 10, l\.facebook\.com 2\) of 76 page loads; /);
+  assert.doesNotMatch(summarize({ users, sessions: [], subscriptions: [], funnel: [] }, now).notes, /external arrivals/);
 });
