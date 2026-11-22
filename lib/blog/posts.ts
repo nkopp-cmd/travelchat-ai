@@ -28,6 +28,13 @@ export function splitLead(body: string): { lead: string; rest: string } {
   return { lead: body.slice(0, at).trimEnd(), rest: body.slice(at) };
 }
 
+/** Push CI1: the first "## " section of `rest`, then everything after it (the photo goes between, below the phone fold). */
+export function splitFirstSection(rest: string): { first: string; after: string } {
+  const at = rest.slice(3).search(/^## /m);
+  if (!rest.startsWith("## ") || at < 0) return { first: rest, after: "" };
+  return { first: rest.slice(0, at + 3).trimEnd(), after: rest.slice(at + 3) };
+}
+
 /** Push BL2: the first planner link in the body names the post's city; none -> undefined. */
 export function postPlannerCity(body: string): string | undefined {
   const match = PLANNER_CITY.exec(body);

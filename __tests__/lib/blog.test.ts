@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 // @ts-expect-error -- plain ESM build script without type declarations
 import { BLOG_BUNDLE, blogSlugs, renderBundle } from "../../scripts/blog-index.mjs";
 import { authReturnHref, BlogMarkdown, parseBlocks } from "../../lib/blog/markdown";
-import { BLOG_POSTS, blogPlannerCities, blogPost, parsePost, plannerHref, postPlannerCity, splitLead } from "../../lib/blog/posts";
+import { BLOG_POSTS, blogPlannerCities, blogPost, parsePost, plannerHref, postPlannerCity, splitFirstSection, splitLead } from "../../lib/blog/posts";
 import { blogPostingJsonLd, blogRss, jsonLdHtml } from "../../lib/blog/seo";
 
 const post = (meta: string, body = "Hello.") => `---\n${meta}\n---\n${body}\n`;
@@ -174,7 +174,24 @@ describe("Push CA4: answer before the photo", () => {
   it("the page renders the lead before the photo and does not preload the photo", () => {
     const page = readFileSync("app/blog/[slug]/page.tsx", "utf8");
     expect(page.indexOf("source={lead}")).toBeLessThan(page.indexOf("<figure"));
-    expect(page.indexOf("<figure")).toBeLessThan(page.indexOf("source={rest}"));
+    expect(page.indexOf("source={first}")).toBeLessThan(page.indexOf("<figure"));
+    expect(page.indexOf("<figure")).toBeLessThan(page.indexOf("source={after}"));
+    expect(page).toContain('loading="lazy"');
     expect(page).not.toContain('fetchPriority="high"');
+  });
+});
+
+describe("Push CI1: photo after the first section", () => {
+  it("splits rest at the second ## heading and keeps all text", () => {
+    expect(splitFirstSection("## A\n\nx\n\n## B\n\ny")).toEqual({ first: "## A\n\nx", after: "## B\n\ny" });
+    expect(splitFirstSection("## A\n\nx ##tag")).toEqual({ first: "## A\n\nx ##tag", after: "" });
+    expect(splitFirstSection("")).toEqual({ first: "", after: "" });
+    for (const p of BLOG_POSTS) {
+      const { rest } = splitLead(p.body);
+      const { first, after } = splitFirstSection(rest);
+      expect(first.startsWith("## ")).toBe(true);
+      expect(first.length).toBeGreaterThan(200);
+      expect(`${first}\n\n${after}`.replace(/\s+/g, " ").trim()).toBe(rest.replace(/\s+/g, " ").trim());
+    }
   });
 });
