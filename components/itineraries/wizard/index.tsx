@@ -101,6 +101,7 @@ export function getTemplateGenerateLabel(city: string): string {
 // free plan with the defaults; "Customize" keeps the full form.
 export { QUICK_START_OFFER } from "@/lib/offer-copy";
 import { QUICK_START_OFFER, SPOT_QUICK_START_OFFER } from "@/lib/offer-copy";
+import { spotOfferLine, useHandoffSpotName } from "@/lib/trips/spot-handoff";
 
 export function getQuickStartLabel(days: number): string {
   return `Free ${days}-day plan`;
@@ -147,6 +148,7 @@ function WizardContent({
   onGenerate: (data: WizardData) => Promise<void>;
 }) {
   const { currentStep, totalSteps, data, canProceed, nextStep, prevStep, goToStep, setData } = useWizard();
+  const handoffSpotName = useHandoffSpotName(data.selectedSpotId);
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
   const [progressMessage, setProgressMessage] = useState("");
@@ -308,7 +310,7 @@ function WizardContent({
           )}
           {showOffer && (
             <p className="mb-1.5 text-center text-xs font-medium text-foreground sm:mb-2">
-              {data.selectedSpotId && data.city ? SPOT_QUICK_START_OFFER : QUICK_START_OFFER}
+              {data.selectedSpotId && data.city ? (handoffSpotName ? spotOfferLine(handoffSpotName) : SPOT_QUICK_START_OFFER) : QUICK_START_OFFER}
             </p>
           )}
           <div className={getTemplateFooterLayoutClass(compactTemplateFooter)}>

@@ -47,6 +47,7 @@ VITEST_FILES=(
   __tests__/components/planner-limit-pricing.test.tsx
   __tests__/components/planner-paid-return.test.tsx
   __tests__/components/planner-generate-errors.test.tsx
+  __tests__/components/planner-spot-handoff.test.tsx
   __tests__/lib/trip-date-range.test.ts
   __tests__/components/planner-dates.test.tsx
   __tests__/lib/planner-draft.test.ts

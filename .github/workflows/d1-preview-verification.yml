@@ -747,6 +747,8 @@ on:
       - '__tests__/components/planner-limit-pricing.test.tsx'
       - '__tests__/components/planner-paid-return.test.tsx'
       - '__tests__/components/planner-generate-errors.test.tsx'
+      - '__tests__/components/planner-spot-handoff.test.tsx'
+      - 'lib/trips/spot-handoff.ts'
       - 'components/ui/slider.tsx'
       - 'components/itineraries/wizard/wizard-progress.tsx'
       - 'components/spots/review-form.tsx'
