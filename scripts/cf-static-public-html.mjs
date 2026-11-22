@@ -42,9 +42,11 @@ export const STATIC_PUBLIC_PAGES = {
 /**
  * Pages whose HTML gets inlined critical CSS (Push AL3, home LCP). The 25 KB gzip global sheet blocked the first
  * paint for one extra round trip: Lighthouse mobile LCP 2.1 s with the hero image already at fetchpriority high.
- * Only "/" for now: it is the landing page and the one measured; other pages keep the exact bytes.
+ * "/" first (the landing page). Push CI1: the journal posts too; their text LCP equals FCP, and the three blocking sheets
+ * (29 KB) held FCP at 1.2 s in PSI mobile on paying-in-singapore. Posts have no hero, so their scripts stay unchanged.
+ * Other pages keep the exact bytes.
  */
-export const CRITICAL_CSS_PAGES = new Set(["/"]);
+export const CRITICAL_CSS_PAGES = new Set(["/", ...blogSlugs().map((slug) => `/blog/${slug}`)]);
 
 const STYLESHEET_LINK = /<link\b[^>]*\brel="stylesheet"[^>]*>/g;
 const hrefOf = (tag) => /\bhref="([^"]+)"/.exec(tag)?.[1] ?? null;
@@ -136,7 +138,7 @@ export async function packageStaticPublicHtml(root = process.cwd()) {
     await mkdir(path.dirname(path.join(assets, file)), { recursive: true });
     if (CRITICAL_CSS_PAGES.has(route)) {
       await writeFile(path.join(assets, file), deferChunkScripts(await inlineCriticalCss(await readFile(source, "utf8"), assets)));
-      copied.push(`${route} -> ${file} (critical CSS, JS after hero)`);
+      copied.push(`${route} -> ${file} (critical CSS${route === "/" ? ", JS after hero" : ""})`);
     } else {
       await copyFile(source, path.join(assets, file));
       copied.push(`${route} -> ${file}`);
