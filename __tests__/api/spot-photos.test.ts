@@ -302,6 +302,23 @@ describe("public spot photo gallery", () => {
         expect(mocks.limit).not.toHaveBeenCalled();
         expect(fetch).not.toHaveBeenCalled();
     });
+    it.each([
+        ["rate limiter throws", () => { vi.stubEnv("NODE_ENV", "production"); mocks.productionLimit.mockRejectedValue(new RangeError("secret detail")); }, "rate_limit_exception", "RangeError"],
+        ["source throws", () => { mocks.single.mockRejectedValue(new TypeError("secret detail")); }, "source_exception", "TypeError"],
+        ["provider fetch throws", () => { vi.mocked(fetch).mockRejectedValue(new TypeError("secret detail")); }, "provider_fetch_exception", "TypeError"],
+    ])("names the stage and error class of a throw, never its message (Push CF3): %s", async (_name, arrange, reason, errorName) => {
+        const log = vi.spyOn(console, "error").mockImplementation(() => {});
+        const info = vi.spyOn(console, "log").mockImplementation(() => {});
+        arrange();
+        const response = await call();
+        expect(response.status).toBe(502);
+        const lines = log.mock.calls.map(([line]) => String(line)).filter(line => line.startsWith("[spot-photos] {"));
+        expect(lines).toHaveLength(1);
+        expect(JSON.parse(lines[0].slice("[spot-photos] ".length))).toMatchObject({ reason, status: 502, errorName });
+        expect(lines[0]).not.toContain("secret detail");
+        log.mockRestore();
+        info.mockRestore();
+    });
     describe("outcome log (push AQ2)", () => {
         const outcomes = (log: ReturnType<typeof vi.spyOn>) => log.mock.calls
             .filter(([tag]) => tag === "[spot-photos] outcome").map(([, json]) => JSON.parse(String(json)));

@@ -88,10 +88,10 @@ async function photoGallery(req: NextRequest, context: { params: Promise<{ id: s
     // photo references, request headers, account identities or exception text.
     let conflictKey: Request | undefined;
     let pending: Promise<unknown> | undefined;
-    const failureForRequest = (status: 502 | 503 | 504, reason: string, upstreamStatus?: number) => {
+    const failureForRequest = (status: 502 | 503 | 504, reason: string, upstreamStatus?: number, errorName?: string) => {
         outcome.reason = reason;
         console.error(`[spot-photos] ${JSON.stringify({ spotId: id, reason, status,
-            ...(upstreamStatus === undefined ? {} : { upstreamStatus }) })}`);
+            ...(upstreamStatus === undefined ? {} : { upstreamStatus }), ...(errorName ? { errorName } : {}) })}`);
         if (conflictKey && IDENTITY_CONFLICTS.has(reason)) {
             const key = conflictKey;
             pending = verdictCache()?.put(key, new Response(reason, {
@@ -105,6 +105,8 @@ async function photoGallery(req: NextRequest, context: { params: Promise<{ id: s
     const timeout = setTimeout(() => controller.abort(), 10_000);
     try {
         // Use one IP bucket across spot IDs; the development helper keys by pathname.
+        // Push CF3: each stage names its own exception reason, so a throw no longer collapses into request_exception.
+        exceptionReason = "rate_limit_exception";
         if (process.env.NODE_ENV === "production") {
             const verdict = await strictPlatformLimit(req, 40, "venue_photos_v2");
             if (verdict === "unavailable") return failureForRequest(503, "rate_limit_unavailable");
@@ -113,6 +115,7 @@ async function photoGallery(req: NextRequest, context: { params: Promise<{ id: s
             const limited = await developmentLimit(new NextRequest(new URL("/api/spots/photos", req.url), { headers: req.headers }));
             if (limited) return unavailableForRequest(limited.status, undefined, "rate_limited");
         }
+        exceptionReason = "source_exception";
         let spot: (RawSpot & { city?: unknown }) | null;
         if (candidate) {
             try {
@@ -132,6 +135,7 @@ async function photoGallery(req: NextRequest, context: { params: Promise<{ id: s
             if (result.error) return failureForRequest(503, "source_unavailable");
             spot = result.data as RawSpot | null;
         }
+        exceptionReason = "request_exception";
         if (!spot || !shouldShowPublicSpot({
             name: spot.name, address: spot.address, location: spot.location,
             photos: spot.photos, google_place_id: spot.google_place_id,
@@ -149,10 +153,12 @@ async function photoGallery(req: NextRequest, context: { params: Promise<{ id: s
         if (!apiKey) return failureForRequest(503, "provider_key_missing");
         const readDetails = async (mask: string) => {
             if (!(await reservePlacesCall("details"))) return { failure: failureForRequest(503, "provider_daily_cap") };
+            exceptionReason = "provider_fetch_exception";
             const response = await fetch(`https://places.googleapis.com/v1/places/${placeId}?languageCode=en`, {
                 cache: "no-store", redirect: "manual", signal: controller.signal,
                 headers: { "X-Goog-Api-Key": apiKey, "X-Goog-FieldMask": mask },
             });
+            exceptionReason = "provider_read_exception";
             if (!response.ok) { await response.body?.cancel(); return { failure: failureForRequest(502, "provider_http", response.status) }; }
             const limit = 256 * 1024;
             if (Number(response.headers.get("content-length")) > limit) {
@@ -234,8 +240,10 @@ async function photoGallery(req: NextRequest, context: { params: Promise<{ id: s
             // asks for the same photo URLs and gets them from the browser cache instead of new Places calls.
             ? withSource(NextResponse.json({ status: "available", photos: gallery } satisfies PhotoGalleryResponse, { headers: { ...headers, "Cache-Control": "private, max-age=600" } }))
             : unavailableForRequest(200, undefined, "no_provider_photos");
-    } catch {
-        return failureForRequest(controller.signal.aborted ? 504 : 502, controller.signal.aborted ? "request_timeout" : exceptionReason);
+    } catch (error) {
+        // The error class only (e.g. TypeError), never its message: messages can carry provider or request data.
+        const name = error instanceof Error && /^[A-Za-z]{1,40}$/.test(error.name) ? error.name : "unknown";
+        return failureForRequest(controller.signal.aborted ? 504 : 502, controller.signal.aborted ? "request_timeout" : exceptionReason, undefined, name);
     } finally {
         clearTimeout(timeout);
         await pending;

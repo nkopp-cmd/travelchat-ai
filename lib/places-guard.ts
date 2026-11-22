@@ -31,6 +31,7 @@ export const DATACENTER_ASNS: ReadonlySet<number> = new Set([
   20473, // Vultr
   51167, // Contabo
   12876, // Scaleway
+  32934, // Meta (IPv4 crawlers with desktop Chrome user agents; 2026-11-16 request_exception from it, Push CF3)
 ]);
 
 /** The caller's ASN from the Cloudflare request context (set by the OpenNext Worker; a client cannot forge it). */
