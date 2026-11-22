@@ -1,7 +1,7 @@
 // node --test scripts/business-metrics.checks.mjs — pure parts of the business-loop money + moat probe (no network).
 import assert from "node:assert/strict";
 import test from "node:test";
-import { PAID_PATH_LIVE_SINCE, externalArrivalsNote, generateCallsNote, isInternal, plannerErrorsNote, summarize } from "./business-metrics.mjs";
+import { PAID_PATH_LIVE_SINCE, authAttemptsNote, externalArrivalsNote, generateCallsNote, isInternal, plannerErrorsNote, summarize } from "./business-metrics.mjs";
 
 const now = Date.parse("2026-11-01T12:00:00Z");
 const users = [
@@ -196,4 +196,29 @@ test("external arrivals: referrer hosts outside localley.io, own hosts and direc
   const line = summarize({ users, sessions: [], subscriptions: [], funnel: [], arrivals: rows }, now);
   assert.match(line.notes, /external arrivals 7d \(CF RUM, referrer not localley\.io\): 12 \(bing\.com 10, l\.facebook\.com 2\) of 76 page loads; /);
   assert.doesNotMatch(summarize({ users, sessions: [], subscriptions: [], funnel: [] }, now).notes, /external arrivals/);
+});
+
+test("auth attempts (Push CN1): real localley.io POSTs by kind, own checks and the preview host left out", () => {
+  const ev = (url, { method = "POST", asn = 7922, status = 200, headers = [], cf = true } = {}) => ({
+    $workers: { event: { request: { url, method, ...(cf ? { cf: { asn, requestHeaderNames: headers } } : {}) }, response: { status } } },
+  });
+  const events = [
+    ev("https://www.localley.io/api/auth/sign-up/email"),
+    ev("https://www.localley.io/api/auth/sign-up/email", { status: 422 }),
+    ev("https://localley.io/api/auth/sign-in/email", { status: 401 }),
+    ev("https://www.localley.io/api/auth/sign-in/social"),
+    ev("https://www.localley.io/api/auth/sign-in/email", { asn: 24940 }),
+    ev("https://www.localley.io/api/auth/sign-up/email", { headers: ["x-localley-check"] }),
+    ev("https://localley-next-preview.nkopp.workers.dev/api/auth/sign-up/email"),
+    ev("https://www.localley.io/api/auth/sign-in/email", { method: "GET" }),
+    ev("https://www.localley.io/api/auth/sign-in/email", { cf: false }),
+    ev("https://www.localley.io/api/auth/sign-out"),
+    ev("https://evil.example/www.localley.io/api/auth/sign-up/email"),
+  ];
+  assert.equal(authAttemptsNote(events), "4 (sign-up email 2, sign-in email 1, social 1; non-2xx 2), own checks 2 excluded");
+  assert.equal(authAttemptsNote([]), "0 (non-2xx 0), own checks 0 excluded");
+  assert.equal(authAttemptsNote(null), "unknown: Worker log unreadable");
+  const line = summarize({ users, sessions: [], subscriptions: [], funnel: [], authLog: events }, now);
+  assert.match(line.notes, /real auth attempts 7d \(Worker log, POST \/api\/auth sign-up\/sign-in\): 4 \(sign-up email 2, /);
+  assert.doesNotMatch(summarize({ users, sessions: [], subscriptions: [], funnel: [] }, now).notes, /auth attempts/);
 });

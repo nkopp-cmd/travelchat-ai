@@ -100,6 +100,37 @@ export function plannerErrorsNote(events) {
   return `${total}${cities ? ` (${cities})` : ""}, smaller plan offered ${suggested}, own checks ${own} excluded`;
 }
 
+/**
+ * Pure (push CN1): Worker log events of POST /api/auth/sign-up|sign-in -> "real N (sign-up email a, sign-in email b,
+ * social c; non-2xx d), own checks e excluded". Only localley.io hosts count (the preview Worker logs the same paths).
+ * On 2026-11-22 the auth pages were the top landings (26 page loads 7 d) with 0 real auth POSTs, so this tells
+ * "read the form and leave" from "tried and failed". null = log unreadable.
+ */
+export function authAttemptsNote(events) {
+  if (!Array.isArray(events)) return "unknown: Worker log unreadable";
+  let real = 0, own = 0, failed = 0;
+  const kinds = new Map();
+  for (const e of events) {
+    const request = e?.$workers?.event?.request;
+    if (!request?.cf || request.method !== "POST") continue;
+    let url;
+    try { url = new URL(request.url); } catch { continue; }
+    if (url.hostname !== "localley.io" && !url.hostname.endsWith(".localley.io")) continue;
+    const kind = /^\/api\/auth\/sign-up\/email\/?$/.test(url.pathname) ? "sign-up email"
+      : /^\/api\/auth\/sign-in\/email\/?$/.test(url.pathname) ? "sign-in email"
+      : /^\/api\/auth\/sign-in\/social\/?$/.test(url.pathname) ? "social" : null;
+    if (!kind) continue;
+    if (ownCall(request.cf)) { own += 1; continue; }
+    real += 1;
+    kinds.set(kind, (kinds.get(kind) ?? 0) + 1);
+    const status = Number(e.$workers.event.response?.status);
+    if (!(status >= 200 && status < 300)) failed += 1;
+  }
+  const parts = ["sign-up email", "sign-in email", "social"].filter((k) => kinds.has(k)).map((k) => `${k} ${kinds.get(k)}`);
+  const capped = events.length >= LOG_LIMIT ? " (log capped, at least)" : "";
+  return `${real} (${parts.length ? `${parts.join(", ")}; ` : ""}non-2xx ${failed}), own checks ${own} excluded${capped}`;
+}
+
 /** Push CM3: CF RUM page loads 7d grouped by referrer host -> "N (bing.com 9, facebook.com 2) of M page loads".
  * Own hosts (localley.io and subdomains) and empty referrers (direct, our own checks) are not arrivals. */
 export function externalArrivalsNote(rows) {
@@ -119,7 +150,7 @@ export function externalArrivalsNote(rows) {
 }
 
 /** Pure: rows from the two databases -> the probe line. */
-export function summarize({ users, sessions, subscriptions, funnel, links = [], ugc = [], rankings = [], viral = null, subscribers = null, lastEvent = null, indexStatus = null, generateLog = undefined, arrivals = undefined }, now = Date.now()) {
+export function summarize({ users, sessions, subscriptions, funnel, links = [], ugc = [], rankings = [], viral = null, subscribers = null, lastEvent = null, indexStatus = null, generateLog = undefined, arrivals = undefined, authLog = undefined }, now = Date.now()) {
   const from30 = now - 30 * DAY;
   const internal = new Set(users.filter((u) => isInternal(u.email)).map((u) => u.id));
   for (const l of links) if (internal.has(l.authUserId)) internal.add(l.ownerId); // legacy rows carry the owner id
@@ -176,6 +207,8 @@ export function summarize({ users, sessions, subscriptions, funnel, links = [], 
       + (generateLog === undefined ? "" : `real trip generate calls 7d (Worker log): ${generateCallsNote(generateLog)}; planner no-spots errors 7d by city: ${plannerErrorsNote(generateLog)}; `)
       // Push CM3: search arrivals next to sign-ups, so "no visitors" and "visitors who do not pay" look different.
       + (arrivals === undefined ? "" : `external arrivals 7d (CF RUM, referrer not localley.io): ${externalArrivalsNote(arrivals)}; `)
+      // Push CN1: the sign-up step: visitors who try the account form, next to the arrivals above.
+      + (authLog === undefined ? "" : `real auth attempts 7d (Worker log, POST /api/auth sign-up/sign-in): ${authAttemptsNote(authLog)}; `)
       + `revenue/prev/repeat null: Stripe key is a Worker secret only and D1 keeps no invoice history; `
       + `proprietary = ${events ? `${events.length} viral events + ${places} resolved places` : "viral archive missing"} + ${ranked} weekly rankings; `
       + `ugc = questions/answers/reviews/tips/social submissions; owned_audience = ${audience
@@ -202,13 +235,23 @@ async function select(database, sql, auth) {
 
 /** Read-only Worker observability query: the last 7 days of generate calls. null when the log cannot be read. */
 async function generateEvents(auth, now = Date.now()) {
+  return logEvents(auth, "/api/itineraries/generate", now);
+}
+
+/** Push CN1: the last 7 days of auth POSTs. Two queries: an "includes" value that ends in "-" matched 3 of 21 events. */
+async function authEvents(auth, now = Date.now()) {
+  const [up, inn] = await Promise.all([logEvents(auth, "/api/auth/sign-up", now), logEvents(auth, "/api/auth/sign-in", now)]);
+  return up && inn ? [...up, ...inn] : null;
+}
+
+async function logEvents(auth, path, now) {
   try {
     const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${ACCOUNT}/workers/observability/telemetry/query`, {
       method: "POST", headers: { authorization: `Bearer ${auth}`, "content-type": "application/json" },
       body: JSON.stringify({ queryId: "adhoc", view: "events", limit: LOG_LIMIT, timeframe: { from: now - 7 * DAY, to: now },
         parameters: { filters: [
           // One filter only: on 2026-11-22 a second filter (method or scriptName) cut 24 matching calls to 4.
-          { key: "$workers.event.request.url", operation: "includes", value: "/api/itineraries/generate", type: "string" },
+          { key: "$workers.event.request.url", operation: "includes", value: path, type: "string" },
         ] } }),
     });
     const body = await response.json().catch(() => ({}));
@@ -238,7 +281,7 @@ async function rumArrivals(auth, now = Date.now()) {
 async function main() {
   const auth = token();
   const lastDay = (table) => select(AUTH_DB, `SELECT max(day) AS day FROM ${table}`, auth).then((r) => r[0]?.day ?? null, () => null);
-  const [users, sessions, funnel, subscriptions, links, ugc, rankings, subscribers, funnelDay, cardsDay, generateLog, arrivals] = await Promise.all([
+  const [users, sessions, funnel, subscriptions, links, ugc, rankings, subscribers, funnelDay, cardsDay, generateLog, arrivals, authLog] = await Promise.all([
     select(AUTH_DB, "SELECT id, email, createdAt FROM user", auth),
     select(AUTH_DB, "SELECT userId, updatedAt FROM session WHERE updatedAt >= strftime('%Y-%m-%dT%H:%M:%fZ','now','-31 days')", auth),
     select(AUTH_DB, "SELECT day, step, source, count FROM funnel_events_daily WHERE step IN ('checkout_paid', 'checkout_start')", auth),
@@ -249,12 +292,12 @@ async function main() {
     select(APP_DB, "SELECT created_at FROM weekly_city_spot_rankings", auth),
     // Unknown (null), not zero, when the table is not there yet or the read fails.
     select(APP_DB, "SELECT email, status, created_at FROM newsletter_subscribers", auth).catch(() => null),
-    lastDay("funnel_events_daily"), lastDay("spot_card_events_daily"), generateEvents(auth), rumArrivals(auth),
+    lastDay("funnel_events_daily"), lastDay("spot_card_events_daily"), generateEvents(auth), rumArrivals(auth), authEvents(auth),
   ]);
   const viral = existsSync(VIRAL_STATE) ? JSON.parse(readFileSync(VIRAL_STATE, "utf8")) : null;
   let indexStatus = null;
   try { indexStatus = JSON.parse(readFileSync(INDEX_STATE, "utf8")); } catch { /* no run yet: the note says unknown */ }
-  process.stdout.write(`${JSON.stringify(summarize({ users, sessions, subscriptions, funnel, links, ugc, rankings, viral, subscribers, lastEvent: { funnel: funnelDay, cards: cardsDay }, indexStatus, generateLog, arrivals }))}\n`);
+  process.stdout.write(`${JSON.stringify(summarize({ users, sessions, subscriptions, funnel, links, ugc, rankings, viral, subscribers, lastEvent: { funnel: funnelDay, cards: cardsDay }, indexStatus, generateLog, arrivals, authLog }))}\n`);
 }
 
 // realpath: the probe also runs through symlinked checkouts, where argv[1] is not the resolved module path.
