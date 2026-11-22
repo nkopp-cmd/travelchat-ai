@@ -734,6 +734,7 @@ on:
       - 'tsconfig.json'
       - 'eslint.config.mjs'
       - '__tests__/components/auth-form-return.test.tsx'
+      - '__tests__/components/auth-checkout-resume.test.tsx'
       - '__tests__/components/auth-reset-return.test.tsx'
       - '__tests__/components/auth-in-app-browser.test.tsx'
       - 'lib/in-app-browser.ts'
