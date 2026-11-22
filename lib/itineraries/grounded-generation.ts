@@ -551,8 +551,9 @@ export function groundGeneratedDailyPlans(
 /**
  * "Add to trip" on a spot card or spot page opens the planner with ?spot=<id>. Move that spot to the top of the
  * ranked pool so it is in the model's candidate list (only the first 30 are sent). A twin row (same name, other id)
- * that won the name dedupe stands in for it. Returns the pinned id, or undefined when the spot cannot ground a trip
- * (other city, hidden, no photo/coordinates, below the localness threshold).
+ * that won the name dedupe stands in for it. A chosen spot that the ranking dropped only for its short description or
+ * localness score is pinned from the pool. Returns the pinned id, or undefined when the spot cannot ground a trip
+ * (other city, hidden, no photo/coordinates).
  */
 export function pinSelectedSpot(
   rankedSpots: ItineraryGroundingSpot[],
@@ -565,6 +566,11 @@ export function pinSelectedSpot(
     const source = pool.find((spot) => spot.id === spotId);
     const name = source ? normalizedName(localizedText(source.name)) : "";
     pinned = name ? rankedSpots.find((spot) => normalizedName(localizedText(spot.name)) === name) : undefined;
+    // The visitor chose this spot, so a short description or a low localness score does not drop it. It still
+    // needs a real photo and coordinates to render and route the stop.
+    if (!pinned && name && getFirstRealDisplaySpotPhoto(source?.photos) && parseSpotCoordinates(source?.location)) {
+      pinned = source;
+    }
   }
   if (!pinned) return { spots: rankedSpots };
   return { spots: [pinned, ...rankedSpots.filter((spot) => spot !== pinned)], pinnedId: pinned.id };

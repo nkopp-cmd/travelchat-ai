@@ -297,6 +297,23 @@ describe("add-to-trip pinned spot", () => {
     expect(pinSelectedSpot(ranked, pool, "9").pinnedId).toBe("2");
   });
 
+  it("pins a chosen spot that the ranking dropped for a short description (Push CG1, HK Sing Kee)", () => {
+    const ranked = [spot("1", "One", "Food"), spot("2", "Two", "Nightlife")];
+    const short = spot("5", "Sing Kee", "Food", { description: { en: "Dai pai dong with wok hei." }, localley_score: 2 });
+    expect(rankItineraryGroundingSpots([...ranked, short], { days: 1, localnessLevel: 3 }).map((s) => s.id)).not.toContain("5");
+    const result = pinSelectedSpot(ranked, [...ranked, short], "5");
+    expect(result.pinnedId).toBe("5");
+    expect(result.spots.map((candidate) => candidate.id)).toEqual(["5", "1", "2"]);
+  });
+
+  it("does not pin a chosen spot without a photo or coordinates", () => {
+    const ranked = [spot("1", "One", "Food")];
+    const noPhoto = spot("6", "No Photo", "Food", { photos: [] });
+    const noPlace = spot("7", "No Place", "Food", { location: null as unknown as string });
+    expect(pinSelectedSpot(ranked, [...ranked, noPhoto, noPlace], "6")).toEqual({ spots: ranked });
+    expect(pinSelectedSpot(ranked, [...ranked, noPhoto, noPlace], "7")).toEqual({ spots: ranked });
+  });
+
   it("changes nothing for an unknown or other-city spot", () => {
     const ranked = [spot("1", "One", "Food"), spot("2", "Two", "Nightlife")];
     expect(pinSelectedSpot(ranked, ranked, "77")).toEqual({ spots: ranked });
