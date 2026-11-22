@@ -40,6 +40,10 @@ const detailsSchema = z.object({
 // plus the place ID, no Places content) at the edge so later visitors skip the billed Details call.
 // The key carries the place ID and coordinates, so a corrected listing is checked again at once.
 const CONFLICT_TTL_SECONDS = 7 * 86_400;
+/** Listing within this distance of the stored coordinates: same place without a name check. */
+const COORDINATE_MATCH_KM = 1;
+/** Listing 1-5 km away: the listing name must match; farther is a coordinate conflict. */
+const COORDINATE_NAME_CHECK_KM = 5;
 const IDENTITY_CONFLICTS = new Set(["listing_id_conflict", "listing_city_conflict", "listing_coordinate_conflict", "listing_name_conflict"]);
 interface VerdictCache {
     match(request: Request): Promise<Response | undefined>;
@@ -198,10 +202,13 @@ async function photoGallery(req: NextRequest, context: { params: Promise<{ id: s
         const coordinates = stored;
         // Coordinates corroborate listing identity, not an entrance or photo verification.
         // Do not reject a Korean display name merely because the saved name is English.
-        if (coordinates && (coordinates.lat !== 0 || coordinates.lng !== 0)) {
-            if (distanceKm(coordinates.lat, coordinates.lng, place.location.latitude, place.location.longitude) > 1) return failureForRequest(502, "listing_coordinate_conflict");
-        } else {
-            // Rare: no stored coordinates. Only then pay for the Pro name fields.
+        const offsetKm = coordinates && (coordinates.lat !== 0 || coordinates.lng !== 0)
+            ? distanceKm(coordinates.lat, coordinates.lng, place.location.latitude, place.location.longitude) : undefined;
+        // Push CF2: many stored coordinates are rough (a district or station, 1-5 km off). Up to 5 km the listing name
+        // decides (one Pro call); beyond 5 km it stays a coordinate conflict.
+        if (offsetKm !== undefined && offsetKm > COORDINATE_NAME_CHECK_KM) return failureForRequest(502, "listing_coordinate_conflict");
+        if (offsetKm === undefined || offsetKm > COORDINATE_MATCH_KM) {
+            // No stored coordinates or rough ones: only then pay for the Pro name fields.
             const named = await readDetails(NAME_MASK);
             if (named.failure) return named.failure;
             if (!named.place.displayName || !named.place.formattedAddress || !getPlacePhotoMatchQuality(getLocalizedText(spot.name), address, spot.category, {
