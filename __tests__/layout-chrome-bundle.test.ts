@@ -128,4 +128,13 @@ describe("planner first-screen bundle (Push CH1)", () => {
       .map(([spec, by]) => `${spec} <- ${by}`);
     expect(hits).toEqual([]);
   });
+
+  it("loads steps 1-3 and the wait screen (Radix Slider) after the first screen", () => {
+    const graph = staticGraph(roots);
+    const eager = ["step-duration", "step-interests", "step-preferences", "generating-screen"]
+      .map((name) => `components/itineraries/wizard/${name}.tsx`)
+      .filter((file) => graph.has(file));
+    expect(eager).toEqual([]);
+    expect([...graph.keys()].filter((spec) => spec.startsWith("@radix-ui/react-slider"))).toEqual([]);
+  });
 });

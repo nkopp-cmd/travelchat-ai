@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -9,13 +10,24 @@ import { LazyToastAction } from "@/components/ui/toast-action-lazy";
 import { ArrowLeft, ArrowRight, MapPin, Sparkles } from "@/components/ui/icons";
 import { WizardProvider, useWizard, WizardData } from "./wizard-context";
 import { PlannerCitiesContext } from "./planner-cities-context";
-import { GeneratingScreen } from "./generating-screen";
 import type { PlannerCity } from "@/lib/cities-catalog";
 import { WizardProgress } from "./wizard-progress";
 import { StepDestination } from "./step-destination";
-import { StepDuration } from "./step-duration";
-import { StepInterests } from "./step-interests";
-import { StepPreferences } from "./step-preferences";
+
+// Push CH1: the first screen is step 0 (city list). Steps 1-3 (Radix Slider, date range, preference
+// lists) and the wait screen load as their own chunks, fetched when the browser is idle after the
+// first paint, so a ?city= link that opens at step 1 and the Next click find them ready.
+const loadDuration = () => import("./step-duration").then((m) => m.StepDuration);
+const loadInterests = () => import("./step-interests").then((m) => m.StepInterests);
+const loadPreferences = () => import("./step-preferences").then((m) => m.StepPreferences);
+const loadGenerating = () => import("./generating-screen").then((m) => m.GeneratingScreen);
+const StepDuration = dynamic(loadDuration);
+const StepInterests = dynamic(loadInterests);
+const StepPreferences = dynamic(loadPreferences);
+const GeneratingScreen = dynamic(loadGenerating);
+export function preloadLaterSteps() {
+  return Promise.all([loadDuration(), loadInterests(), loadPreferences(), loadGenerating()]);
+}
 import { getErrorMessage } from "@/lib/error-utils";
 import { PLANNER_RESUME_PATH, savePlannerDraft } from "@/lib/trips/planner-draft";
 
@@ -403,6 +415,10 @@ export function resetPlannerStartForTest() { plannerStartTracked = false; }
 export function ItineraryWizard({ initialData, initialStep, initialCities = null }: ItineraryWizardProps) {
   const router = useRouter();
   const { toast } = useToast();
+  useEffect(() => {
+    const idle = window.requestIdleCallback ?? ((run: () => void) => window.setTimeout(run, 1));
+    idle(() => { void preloadLaterSteps().catch(() => undefined); });
+  }, []);
 
   // Failures throw to the wizard footer, which shows the toast with a Try again action.
   const handleGenerate = async (data: WizardData) => {
