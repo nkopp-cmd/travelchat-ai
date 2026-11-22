@@ -1,8 +1,15 @@
 import type { createSupabaseAdmin } from "@/lib/supabase";
+import { getCityByName } from "@/lib/cities";
+import { distanceKm } from "@/lib/geocoding";
+import { parseSpotCoordinates } from "@/lib/spots/coordinates";
 import { applyPublicSpotVisibilityFilters } from "@/lib/spots/public-quality";
 
 /** Rows sent to rankItineraryGroundingSpots per city. */
 export const ITINERARY_SPOT_POOL_LIMIT = 80;
+/** Rows read per city query before the radius cut (the facade cannot filter on coordinates). */
+export const ITINERARY_SPOT_QUERY_LIMIT = 200;
+/** Day-route radius around the city center. Spots further out (Sapa, Ha Long, north Bali) break every day route. */
+export const ITINERARY_SPOT_RADIUS_KM = 20;
 
 type SpotPoolRow = {
   id?: string | null;
@@ -29,6 +36,10 @@ function byPoolOrder(a: SpotPoolRow, b: SpotPoolRow): number {
  * `city = name OR (city IS NULL AND address->>en ILIKE '%name%')`. The facade has no or(), so two queries, each
  * limited, merged and cut to the limit. Address-only found 3 Hanoi/HCMC spots while /spots listed 50+.
  *
+ * Only spots within ITINERARY_SPOT_RADIUS_KM of the city center (lib/cities.ts) join: a Hanoi pool with Sapa and
+ * Ha Long, or Chiang Mai/Ubud pools spread over 60+ km, could not build one feasible day route (422 for the default
+ * plan). Rows without coordinates stay (ranking drops them); an unknown city keeps every row.
+ *
  * `spotId` (the "Plan a trip" button on a spot page) is loaded by id with the same public filters and joins the pool
  * even outside the top rows, so pinSelectedSpot can find it. A spot of another city is not added.
  */
@@ -43,7 +54,7 @@ export async function itinerarySpotPoolQuery(
       .order("verified", { ascending: false, nullsFirst: false })
       .order("localley_score", { ascending: false })
       .order("local_percentage", { ascending: false })
-      .limit(ITINERARY_SPOT_POOL_LIMIT);
+      .limit(ITINERARY_SPOT_QUERY_LIMIT);
 
   const [byColumn, byAddress, byId] = await Promise.all([
     ranked(base().eq("city", cityName)),
@@ -55,7 +66,11 @@ export async function itinerarySpotPoolQuery(
   const error = byColumn.error ?? byAddress.error;
   if (error) return { data: null, error };
   // Rows keep the query's own row type (select("*")); only the sort reads the score fields.
-  const rows = [...(byColumn.data ?? []), ...(byAddress.data ?? [])].sort(byPoolOrder).slice(0, ITINERARY_SPOT_POOL_LIMIT);
+  const inRadius = withinCityRadius(cityName);
+  const rows = [...(byColumn.data ?? []), ...(byAddress.data ?? [])]
+    .filter(inRadius)
+    .sort(byPoolOrder)
+    .slice(0, ITINERARY_SPOT_POOL_LIMIT);
   // A failed pin lookup only loses the pin, never the plan.
   const pinned = (byId.error ? [] : byId.data ?? []).find((spot) => pinnedSpotInCity(spot, cityName));
   if (pinned && !rows.some((spot) => (spot as SpotPoolRow).id === (pinned as SpotPoolRow).id)) rows.push(pinned);
@@ -69,4 +84,13 @@ function pinnedSpotInCity(spot: unknown, cityName: string): boolean {
   if (city) return city === cityName;
   const en = typeof address === "object" && address ? (address as { en?: unknown }).en : address;
   return typeof en === "string" && en.toLowerCase().includes(cityName.toLowerCase());
+}
+
+function withinCityRadius(cityName: string): (spot: unknown) => boolean {
+  const center = getCityByName(cityName)?.center;
+  if (!center) return () => true;
+  return (spot) => {
+    const point = parseSpotCoordinates((spot as { location?: unknown }).location);
+    return !point || distanceKm(center.lat, center.lng, point.lat, point.lng) <= ITINERARY_SPOT_RADIUS_KM;
+  };
 }
