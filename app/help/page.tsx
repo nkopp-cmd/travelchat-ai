@@ -45,6 +45,20 @@ export default function HelpPage() {
           </li>
         ))}
       </ul>
+      {/* Push CL4: the pay cards are the most used help pages but had no link from /help itself. */}
+      <section aria-labelledby="help-pay" className="mt-8">
+        <h2 id="help-pay" className="text-lg font-semibold text-foreground">How to pay</h2>
+        <ul className="mt-3 flex flex-wrap gap-2">
+          {HELP_COUNTRIES.map((country) => (
+            <li key={country.slug}>
+              <Link href={`/help/${country.slug}/pay`}
+                className="inline-flex min-h-11 items-center rounded-full bg-surface px-4 text-sm font-semibold text-foreground shadow-surface hover:bg-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+                Pay in {country.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
       <section aria-labelledby="help-hubs" className="mt-8">
         <h2 id="help-hubs" className="text-lg font-semibold text-foreground">Local places by city</h2>
         <ul className="mt-3 flex flex-wrap gap-2">

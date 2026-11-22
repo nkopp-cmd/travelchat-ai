@@ -13,6 +13,8 @@ import { getCityBySlug } from "@/lib/cities";
 import { withHubCity } from "@/lib/spots/hub-city";
 import { hubIndexable, spotsHubHeading } from "@/lib/seo/spot-indexable";
 import { sitemapSpotRows } from "@/lib/seo/sitemap-spots";
+import { homeHubLinks } from "@/lib/seo/home-links";
+import { homeLinkRows } from "@/lib/seo/home-links-snapshot";
 import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { pageMeta } from "@/lib/seo/meta";
 import { localMonth, seasonFor } from "@/lib/season/season-table";
@@ -239,6 +241,20 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
                         </IntentLink>
                         .
                     </p>
+                    {/* Push CL4: the A-Z list of each indexable hub had one inbound link (home); link them from /spots too. */}
+                    {hub.city ? null : (
+                        <nav aria-label="Spots A to Z by city" data-testid="hub-az-links" className="text-sm leading-6 text-muted-foreground">
+                            Every spot A–Z:{" "}
+                            {homeHubLinks(homeLinkRows()).map((link, i) => (
+                                <span key={link.azHref}>
+                                    {i > 0 ? " · " : null}
+                                    <IntentLink href={link.azHref} className="font-semibold text-foreground underline underline-offset-2">
+                                        {link.name}
+                                    </IntentLink>
+                                </span>
+                            ))}
+                        </nav>
+                    )}
                 </div>
 
                 {/* Main Content: no key, so a filter change keeps the current view (and the mounted map) until new results arrive. */}
