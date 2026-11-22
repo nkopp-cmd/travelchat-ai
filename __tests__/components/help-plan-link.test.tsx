@@ -51,6 +51,11 @@ describe("help guide link to the free planner", () => {
     }
   });
 
+  it("links every country's pay card from /help (Push CL4: /help/japan/pay had 0 inbound links)", () => {
+    const html = renderToStaticMarkup(<HelpPage />);
+    for (const country of HELP_COUNTRIES) expect(html).toContain(`href="/help/${country.slug}/pay"`);
+  });
+
   it("gives the indexed /help page crawl paths to the Ring-1 city hubs and the templates", () => {
     const html = renderToStaticMarkup(<HelpPage />);
     for (const href of ["/spots?city=seoul", "/spots?city=tokyo", "/spots?city=bangkok", "/spots?city=singapore", "/templates"]) {

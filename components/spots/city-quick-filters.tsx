@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useTransition } from "react";
+import { useTransition, type MouseEvent } from "react";
 import { CityOption } from "@/lib/spots/types";
 import { Sparkles, Loader2 } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
@@ -24,7 +24,7 @@ export function CityQuickFilters({ cities, totalSpots }: CityQuickFiltersProps) 
 
     const currentCity = searchParams.get("city");
 
-    const handleCityClick = (citySlug: string | null) => {
+    const cityHref = (citySlug: string | null) => {
         const params = new URLSearchParams(searchParams.toString());
 
         if (citySlug === currentCity) {
@@ -38,12 +38,17 @@ export function CityQuickFilters({ cities, totalSpots }: CityQuickFiltersProps) 
 
         // Reset to page 1 when changing city filter
         params.delete("page");
+        const queryString = params.toString();
+        return queryString ? `${pathname}?${queryString}` : pathname;
+    };
 
+    // Push CL4: chips are real links so crawlers reach every city hub from /spots; a plain click stays a client transition.
+    const handleCityClick = (event: MouseEvent<HTMLAnchorElement>, href: string) => {
+        if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        if (isPending) return;
         startTransition(() => {
-            const queryString = params.toString();
-            router.push(queryString ? `${pathname}?${queryString}` : pathname, {
-                scroll: false,
-            });
+            router.push(href, { scroll: false });
         });
     };
 
@@ -52,14 +57,14 @@ export function CityQuickFilters({ cities, totalSpots }: CityQuickFiltersProps) 
             <div className="flex min-w-0 flex-wrap items-center gap-2">
             {cities.map((city) => {
                 const isActive = currentCity === city.slug;
+                const href = cityHref(city.slug);
 
                 return (
-                    <button
+                    <a
                         key={city.slug}
-                        type="button"
-                        aria-pressed={isActive}
-                        onClick={() => handleCityClick(city.slug)}
-                        disabled={isPending}
+                        href={href}
+                        aria-current={isActive ? "page" : undefined}
+                        onClick={(event) => handleCityClick(event, href)}
                         className="city-chip-btn group"
                     >
                         <span
@@ -82,7 +87,7 @@ export function CityQuickFilters({ cities, totalSpots }: CityQuickFiltersProps) 
                                 {city.count.toLocaleString("en-US")} spots
                             </span>
                         </span>
-                    </button>
+                    </a>
                 );
             })}
             </div>

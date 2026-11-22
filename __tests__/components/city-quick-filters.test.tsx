@@ -16,28 +16,39 @@ describe("city quick filters", () => {
   it("exposes the full catalog count separately from city controls", () => {
     render(<CityQuickFilters cities={cities} totalSpots={1234567} />);
     expect(screen.getByRole("status").textContent).toBe("1,234,567 total curated spots");
-    expect(screen.getByRole("button", { name: "Seoul 1,234 spots" }).getAttribute("aria-pressed")).toBe("true");
-    expect(screen.getByRole("button", { name: "Tokyo 4,321 spots" }).getAttribute("aria-pressed")).toBe("false");
+    expect(screen.getByRole("link", { name: "Seoul 1,234 spots" }).getAttribute("aria-current")).toBe("page");
+    expect(screen.getByRole("link", { name: "Tokyo 4,321 spots" }).getAttribute("aria-current")).toBeNull();
   });
   it("keeps category and layout while resetting pagination for another city", () => {
     render(<CityQuickFilters cities={cities} totalSpots={5555} />);
-    fireEvent.click(screen.getByRole("button", { name: "Tokyo 4,321 spots" }));
+    fireEvent.click(screen.getByRole("link", { name: "Tokyo 4,321 spots" }));
     const target = new URL(push.mock.calls[0][0], "https://www.localley.io");
     expect(Object.fromEntries(target.searchParams)).toEqual({ city: "tokyo", view: "list", category: "Food" });
     expect(push.mock.calls[0][1]).toEqual({ scroll: false });
   });
   it("clears the active city without losing other filters", () => {
     render(<CityQuickFilters cities={cities} totalSpots={5555} />);
-    fireEvent.click(screen.getByRole("button", { name: "Seoul 1,234 spots" }));
+    fireEvent.click(screen.getByRole("link", { name: "Seoul 1,234 spots" }));
     const target = new URL(push.mock.calls[0][0], "https://www.localley.io");
     expect(Object.fromEntries(target.searchParams)).toEqual({ view: "list", category: "Food" });
   });
+  it("gives each chip a crawlable href (Push CL4) and leaves modified clicks to the browser", () => {
+    render(<CityQuickFilters cities={cities} totalSpots={5555} />);
+    const tokyo = screen.getByRole("link", { name: "Tokyo 4,321 spots" });
+    expect(tokyo.getAttribute("href")).toBe("/spots?city=tokyo&view=list&category=Food");
+    expect(screen.getByRole("link", { name: "Seoul 1,234 spots" }).getAttribute("href")).toBe("/spots?view=list&category=Food");
+    const allowed = fireEvent.click(tokyo, { ctrlKey: true });
+    expect(allowed).toBe(true);
+    expect(push).not.toHaveBeenCalled();
+    expect(fireEvent.click(tokyo)).toBe(false);
+    expect(push).toHaveBeenCalledTimes(1);
+  });
   it("styles chips with the short city-chip classes, not the Badge utility string (Push BZ4)", () => {
     const { container } = render(<CityQuickFilters cities={cities} totalSpots={5555} />);
-    const seoul = screen.getByRole("button", { name: "Seoul 1,234 spots" });
+    const seoul = screen.getByRole("link", { name: "Seoul 1,234 spots" });
     expect(seoul.className).toBe("city-chip-btn group");
     expect(seoul.firstElementChild?.className).toBe("city-chip city-chip-on");
-    expect(screen.getByRole("button", { name: "Tokyo 4,321 spots" }).firstElementChild?.className).toBe("city-chip city-chip-off");
+    expect(screen.getByRole("link", { name: "Tokyo 4,321 spots" }).firstElementChild?.className).toBe("city-chip city-chip-off");
     expect(container.innerHTML).not.toMatch(/aria-invalid:ring|\[&amp;&gt;svg\]|ring-offset-\[#100b1c\]/);
   });
 });

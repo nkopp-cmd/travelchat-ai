@@ -26,9 +26,11 @@ const latest = (dates: (string | undefined)[]) => dates.filter((d): d is string 
  */
 export function pageEntries(spotRows: readonly SitemapSpotRow[] = []): SitemapEntry[] {
   const newest = (rows: readonly SitemapSpotRow[]) => latest(rows.map((row) => row.lastmod ?? undefined));
-  const cities = ENABLED_CITIES.filter((city) => hubIndexable(spotRows, city.name)).map((city) => ({
-    loc: `${SITE}/spots?city=${city.slug}`, lastmod: newest(spotRows.filter((row) => row.hub === city.name)),
-  }));
+  // Push CL4: each indexable hub also lists its A-Z page (same noindex rule as app/spots/a-z/[city]).
+  const cities = ENABLED_CITIES.filter((city) => hubIndexable(spotRows, city.name)).flatMap((city) => {
+    const lastmod = newest(spotRows.filter((row) => row.hub === city.name));
+    return [{ loc: `${SITE}/spots?city=${city.slug}`, lastmod }, { loc: `${SITE}/spots/a-z/${encodeURIComponent(city.slug)}`, lastmod }];
+  });
   return [
     { loc: SITE }, { loc: `${SITE}/spots`, lastmod: newest(spotRows) }, ...cities, { loc: `${SITE}/trending` }, { loc: `${SITE}/templates` },
     { loc: `${SITE}/pricing` },
