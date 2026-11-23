@@ -103,6 +103,8 @@ export function edgeTtlSeconds(pathname: string): number | undefined {
 
 // The only query the edge keys on: one enabled-city slug, so the key set stays bounded.
 const EDGE_SPOTS_CITIES = new Set(ENABLED_CITIES.map((city) => city.slug));
+// List pages 2-99 in canonical form (page 1 has no param; no leading zero), so the key set stays bounded.
+const EDGE_SPOTS_PAGE = /^(?:[2-9]|[1-9]\d)$/;
 const EDGE_SPOTS_VIEWS = new Set(["map", "list"]);
 // Auth pages: besides the plain path, only the money-path returns (Save on the free-trip preview, the planner
 // resume, a pricing plan -> Stripe). The server HTML differs per redirect (headline + form links), so the key
@@ -205,12 +207,15 @@ function cacheableQuery(url: URL): boolean {
     return keys.length === 1 && keys[0] === "city" && EDGE_SPOTS_CITIES.has(url.searchParams.get("city") ?? "");
   }
   if (url.pathname !== "/spots") return false;
-  // An enabled city and/or the map or list view, each at most once (the view is a shared public page too).
+  // An enabled city, the map or list view and/or a list page 2-99, each at most once (the view and the
+  // crawlable page links, Push DA2, are shared public pages too).
   const keys = [...url.searchParams.keys()];
-  if (new Set(keys).size !== keys.length || keys.some((key) => key !== "city" && key !== "view")) return false;
+  if (new Set(keys).size !== keys.length || keys.some((key) => key !== "city" && key !== "view" && key !== "page")) return false;
   const city = url.searchParams.get("city");
   const view = url.searchParams.get("view");
-  return (city === null || EDGE_SPOTS_CITIES.has(city)) && (view === null || EDGE_SPOTS_VIEWS.has(view));
+  const page = url.searchParams.get("page");
+  return (city === null || EDGE_SPOTS_CITIES.has(city)) && (view === null || EDGE_SPOTS_VIEWS.has(view))
+    && (page === null || EDGE_SPOTS_PAGE.test(page));
 }
 
 export function edgeCacheKey(request: Request, version: string): Request {
@@ -219,10 +224,11 @@ export function edgeCacheKey(request: Request, version: string): Request {
   if (QUERY_FREE_PATHS.has(url.pathname)) return new Request(`${url.origin}${url.pathname}?__edge=${encodeURIComponent(version)}`);
   const city = url.searchParams.get("city");
   const view = url.searchParams.get("view");
+  const page = url.pathname === "/spots" ? url.searchParams.get("page") : null;
   const redirect = AUTH_PATHS.has(url.pathname) ? url.searchParams.get("redirect_url") : null;
   const variant = url.pathname === "/api/cities" ? "&minSpots=1"
     : redirect ? `&redirect_url=${encodeURIComponent(redirect)}`
-    : `${city ? `&city=${encodeURIComponent(city)}` : ""}${view ? `&view=${encodeURIComponent(view)}` : ""}`;
+    : `${city ? `&city=${encodeURIComponent(city)}` : ""}${view ? `&view=${encodeURIComponent(view)}` : ""}${page ? `&page=${encodeURIComponent(page)}` : ""}`;
   return new Request(`${url.origin}${url.pathname}?__edge=${encodeURIComponent(version)}${variant}`);
 }
 
