@@ -6,7 +6,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { SpotCardEvents } from "@/components/spots/spot-card-events";
 import type { ReactNode } from "react";
 import { SpotsFilterBar } from "./spots-filter-bar";
-import { SpotsPagination } from "./spots-pagination";
+import { SpotsPagination, spotsPageHref } from "./spots-pagination";
 import { Spot } from "@/types";
 import { SpotsFilterState, FilterOptions } from "@/lib/spots/types";
 import { ErrorBoundary } from "@/components/error-boundary";
@@ -181,6 +181,11 @@ export function SpotsExplorer({
         [scrollResultsIntoView, updateFilters]
     );
 
+    const pageHref = useCallback(
+        (page: number) => spotsPageHref(pathname, searchParams.toString(), page),
+        [pathname, searchParams]
+    );
+
     /**
      * Clear all filters
      */
@@ -307,6 +312,7 @@ export function SpotsExplorer({
                                         totalCount={totalCount}
                                         pageSize={pageSize}
                                         onPageChange={handlePageChange}
+                                        hrefFor={pageHref}
                                         isPending={isPending}
                                     />
                                 }
@@ -330,6 +336,7 @@ export function SpotsExplorer({
                             totalCount={totalCount}
                             pageSize={pageSize}
                             onPageChange={handlePageChange}
+                                        hrefFor={pageHref}
                             isPending={isPending}
                         />}
                     </>
