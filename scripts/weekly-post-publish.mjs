@@ -54,9 +54,22 @@ export async function ping(urls, post = (url, init) => fetch(url, init)) {
 export const prCreateArgs = (slug, day, file) => ["pr", "create", "--label", "hold", "--title", `[builder] blog: ${slug}`, "--body",
   `Weekly post ${day}: \`${file}\`. Gates passed (weekly-post-gates.mjs). Label \`hold\` until Nils' Telegram ok (PRIME RULE 4); then remove it. After the release lane deploys the merge: \`node scripts/weekly-post-publish.mjs live ${slug}\`.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)`];
 
-// Telegram messages cap near 4096 chars; the PR link carries the full text when the post is longer.
-export const reviewMessage = (slug, pr, text, max = 3500) =>
-  `Localley weekly post "${slug}" waits for your review.\nReply "ok blog ${slug}" to publish it.\nPR: ${pr}\n\n${text.length > max ? `${text.slice(0, max)}\n[... full text in the PR]` : text}`;
+// Telegram messages cap near 4096 chars: long posts go out in parts, split at "## " headings where possible.
+export function reviewMessages(slug, pr, text, max = 3500) {
+  const parts = [];
+  let rest = text;
+  while (rest.length > max) {
+    const cut = rest.lastIndexOf("\n## ", max);
+    const at = cut > max / 3 ? cut + 1 : max;
+    parts.push(rest.slice(0, at));
+    rest = rest.slice(at);
+  }
+  parts.push(rest);
+  const n = parts.length;
+  return parts.map((part, i) => (i === 0
+    ? `Localley weekly post "${slug}" (part 1/${n}) waits for your review.\nReply "ok blog ${slug}" to publish it.\nPR: ${pr} (label hold)\n\n`
+    : `Localley post "${slug}" (part ${i + 1}/${n})\n\n`) + part);
+}
 
 const sh = (cmd, args, cwd, input) => {
   const result = spawnSync(cmd, args, { cwd, input, encoding: "utf8", timeout: 900_000, maxBuffer: 16 << 20 });
@@ -92,9 +105,10 @@ function draft() {
     sh("git", ["push", "-q", "-u", "origin", branch], tree);
     const pr = sh("gh", prCreateArgs(slug, day, file), tree);
     const text = sh("cat", [file], tree);
-    const sent = spawnSync(`${ROOT}/shared/scripts/notify.sh`, ["--area", "Localley", "--level", "action", "--title",
-      `Blog review: ${slug}`], { input: reviewMessage(slug, pr, text), encoding: "utf8", timeout: 120_000 });
-    console.log(JSON.stringify({ post: true, slug, pr, review: sent.status === 0 ? "sent" : "send failed", wait: "Nils Telegram review" }));
+    const sent = reviewMessages(slug, pr, text).map((message, i, all) => spawnSync(`${ROOT}/shared/scripts/notify.sh`,
+      ["--area", "Localley", "--level", "action", "--title", `Blog review: ${slug} ${i + 1}/${all.length}`],
+      { input: message, encoding: "utf8", timeout: 120_000 }).status);
+    console.log(JSON.stringify({ post: true, slug, pr, review: sent.every((s) => s === 0) ? "sent" : "send failed", wait: "Nils Telegram review" }));
     return 0;
   } finally {
     if (existsSync(modules)) rmSync(modules);

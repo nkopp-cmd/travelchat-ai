@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 // @ts-expect-error -- plain ESM script without type declarations
-import { HOST, INDEXNOW_KEY, escapeHtml, holdsPost, indexNowBody, liveCheck, ping, prCreateArgs, reviewMessage } from "../../scripts/weekly-post-publish.mjs";
+import { HOST, INDEXNOW_KEY, escapeHtml, holdsPost, indexNowBody, liveCheck, ping, prCreateArgs, reviewMessages } from "../../scripts/weekly-post-publish.mjs";
 
 const title = "Paying in Seoul: cards & T-money";
 const pages: Record<string, string> = {
@@ -49,10 +49,14 @@ describe("rule 4: Telegram review before the post goes out", () => {
     const args = prCreateArgs("paying-in-tokyo", "2026-11-23", "content/blog/2026-11-23-paying-in-tokyo.md");
     expect(args.slice(0, 4)).toEqual(["pr", "create", "--label", "hold"]);
   });
-  it("sends the approval phrase, the PR and the text, cut under the Telegram limit", () => {
-    const msg = reviewMessage("paying-in-tokyo", "https://github.com/x/pull/1", "a".repeat(9000));
-    expect(msg).toContain('"ok blog paying-in-tokyo"');
-    expect(msg).toContain("https://github.com/x/pull/1");
-    expect(msg.length).toBeLessThan(4096);
+  it("sends the approval phrase and the PR, and the whole text in parts under the Telegram limit", () => {
+    const text = Array.from({ length: 6 }, (_, i) => `## Section ${i}\n${"word ".repeat(250)}`).join("\n");
+    const msgs = reviewMessages("paying-in-tokyo", "https://github.com/x/pull/1", text);
+    expect(msgs.length).toBeGreaterThan(1);
+    expect(msgs[0]).toContain('"ok blog paying-in-tokyo"');
+    expect(msgs[0]).toContain("https://github.com/x/pull/1");
+    for (const m of msgs) expect(m.length).toBeLessThan(4096);
+    const body = msgs.map((m) => m.slice(m.indexOf("\n\n") + 2)).join("");
+    expect(body).toBe(text);
   });
 });
