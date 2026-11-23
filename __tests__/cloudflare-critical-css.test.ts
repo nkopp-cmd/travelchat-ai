@@ -109,7 +109,16 @@ describe("spot chunks start after the hero (Push AM2)", () => {
     expect(out).toContain(`<noscript><link rel="stylesheet" href="${B}" data-precedence="next"/>`);
   });
 
-  it("keeps the chunks for a spot without a photo and never defers without critical CSS", async () => {
+  it("push CI2: a spot without a photo defers behind its intro text; a page with neither keeps its chunks", async () => {
+    const intro = '<p data-testid="spot-intro" class="text-base">A quiet cafe.</p>';
+    const text = await (await withCriticalCss(new Response(withChunks(intro)), critical)).text();
+    expect(text).not.toMatch(/<script src="\/_next\/static\/chunks\/(main|page)\.js"/);
+    expect(text).toContain('document.querySelector("p[data-testid=\\"spot-intro\\"]")');
+    expect(text).toContain(`C=["${B}","${A}"]`);
+    // With a photo the hero still wins: one loader, waiting for the image.
+    const both = await (await withCriticalCss(new Response(withChunks(`${hero}${intro}`)), critical)).text();
+    expect(both.match(/var S=/g)).toHaveLength(1);
+    expect(both).toContain('document.querySelector("img[fetchpriority=\\"high\\"]")');
     const noPhoto = await (await withCriticalCss(new Response(withChunks("<p>x</p>")), critical)).text();
     expect(noPhoto).toContain('<script src="/_next/static/chunks/page.js" async=""></script>');
     expect(noPhoto).toContain("<style>.hero{color:#fff}</style>");

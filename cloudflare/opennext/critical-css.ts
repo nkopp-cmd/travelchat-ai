@@ -9,7 +9,7 @@
  *
  * Safe by default: any mismatch (other sheets, already async links, no </head>) leaves the HTML unchanged.
  */
-import { deferChunkScripts, SPOT_HERO } from "../../scripts/cf-defer-scripts.mjs";
+import { deferChunkScripts, SPOT_HERO, SPOT_TEXT } from "../../scripts/cf-defer-scripts.mjs";
 
 export const SPOT_CRITICAL_CSS_PATH = "/_localley/critical-spot.json";
 
@@ -57,7 +57,9 @@ export function applyCriticalCss(html: string, critical: CriticalCss): string | 
 export function deferSpotChunks(html: string | null): string | null {
   if (html === null) return null;
   try {
-    return deferChunkScripts(html, SPOT_HERO);
+    // A photo spot waits for its hero; a spot without a photo waits for its intro text (Push CI2).
+    const hero = deferChunkScripts(html, SPOT_HERO);
+    return hero !== html ? hero : deferChunkScripts(html, SPOT_TEXT);
   } catch {
     return html;
   }
