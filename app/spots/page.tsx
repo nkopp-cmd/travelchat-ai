@@ -17,6 +17,7 @@ import { homeHubLinks } from "@/lib/seo/home-links";
 import { homeLinkRows } from "@/lib/seo/home-links-snapshot";
 import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { pageMeta } from "@/lib/seo/meta";
+import { spotsHubPagePath } from "@/lib/seo/spots-hub-page";
 import { localMonth, seasonFor } from "@/lib/season/season-table";
 import { getWeather } from "@/lib/weather/met-norway";
 import { WeeklyTrendingSpots } from "@/components/spots/weekly-trending-spots";
@@ -47,13 +48,17 @@ function spotsHub(params: SpotsFilterParams) {
 }
 
 export async function generateMetadata({ searchParams }: SpotsPageProps): Promise<Metadata> {
-    const { city, path } = spotsHub(await searchParams);
+    const params = await searchParams;
+    const hub = spotsHub(params);
+    const { city } = hub;
+    // Page 2+ is its own page for search engines (DA2): self canonical and its own title.
+    const { path, titleSuffix: pageSuffix } = spotsHubPagePath(hub.path, params.page);
     // A hub with fewer than 5 guide spots is thin (F4): keep it live and followed, but out of the index.
     const thin = city ? !hubIndexable(await sitemapSpotRows().catch(() => []), city.name) : false;
     return city
         ? {
             ...pageMeta({
-                title: `Hidden gems in ${city.name}: local spots`,
+                title: `Hidden gems in ${city.name}: local spots${pageSuffix}`,
                 description: cityHubDescription(city.name, city.country),
                 path,
                 image: city.heroImage,
@@ -61,7 +66,7 @@ export async function generateMetadata({ searchParams }: SpotsPageProps): Promis
             ...(thin ? { robots: { index: false, follow: true } } : {}),
         }
         : pageMeta({
-            title: "Discover hidden gems and local spots",
+            title: `Discover hidden gems and local spots${pageSuffix}`,
             description: SPOTS_INDEX_DESCRIPTION,
             path,
         });

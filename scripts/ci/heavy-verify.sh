@@ -92,6 +92,7 @@ VITEST_FILES=(
   __tests__/components/main-content-shell.test.tsx
   __tests__/components/spots-scroll-layout.test.tsx
   __tests__/components/spots-filter-bar.test.tsx
+  __tests__/components/spots-pagination-links.test.tsx
   __tests__/lib/mobile-chrome.test.ts
   __tests__/components/landing-planner.test.tsx
   __tests__/components/weekend-picks.test.tsx
@@ -531,6 +532,9 @@ ESLINT_FILES=(
   __tests__/components/main-content-shell.test.tsx
   __tests__/components/spots-scroll-layout.test.tsx
   __tests__/components/spots-filter-bar.test.tsx
+  __tests__/components/spots-pagination-links.test.tsx
+  components/spots/spots-pagination.tsx
+  lib/seo/spots-hub-page.ts
   app/page.tsx
   components/landing/
   lib/landing/
