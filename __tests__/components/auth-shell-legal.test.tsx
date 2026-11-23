@@ -47,6 +47,14 @@ describe("bare sign-in shows the free planner above the form (Push CM1)", () => 
     expect(container.querySelectorAll("[data-testid=auth-lead]").length).toBe(1);
   });
 
+  it("is a plain anchor, so the planner load reaches CF RUM with the auth page as referrer (Push DB1)", () => {
+    render(<AuthShell title="t" subtitle="s" lead={SIGN_IN_LEAD}>form</AuthShell>);
+    const lead = screen.getByTestId("auth-lead");
+    expect(lead.tagName).toBe("A");
+    expect(lead.getAttribute("href")).toBe("/itineraries/new");
+    expect(lead.getAttribute("target")).toBeNull();
+  });
+
   it("renders no lead without one", () => {
     render(<AuthShell title="t" subtitle="s" lead={null}>form</AuthShell>);
     expect(screen.queryByTestId("auth-lead")).toBeNull();

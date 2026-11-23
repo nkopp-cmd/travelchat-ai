@@ -149,8 +149,24 @@ export function externalArrivalsNote(rows) {
   return `${external}${external ? ` (${hosts.map((h) => `${h} ${counts[h]}`).join(", ")})` : ""} of ${total} page loads`;
 }
 
+/** Push DB1: CF RUM planner page loads 7d grouped by same-origin refererPath -> "sign-in a, sign-up b". The auth-page
+ * lead link (Push CM1/CN2) is a full page load, so these are visitors who left the account form for the free planner. */
+export function authLeadNote(rows) {
+  if (!Array.isArray(rows)) return "unknown";
+  const counts = { "sign-in": 0, "sign-up": 0 };
+  for (const row of rows) {
+    const d = row?.dimensions ?? {};
+    if (String(d.requestPath ?? "") !== "/itineraries/new") continue;
+    const host = String(d.refererHost ?? "").trim().toLowerCase().replace(/^www\./, "");
+    if (host !== "localley.io") continue;
+    const from = String(d.refererPath ?? "").replace(/\/+$/, "");
+    if (from === "/sign-in" || from === "/sign-up") counts[from.slice(1)] += Number(row?.count || 0);
+  }
+  return `sign-in ${counts["sign-in"]}, sign-up ${counts["sign-up"]}`;
+}
+
 /** Pure: rows from the two databases -> the probe line. */
-export function summarize({ users, sessions, subscriptions, funnel, links = [], ugc = [], rankings = [], viral = null, subscribers = null, lastEvent = null, indexStatus = null, generateLog = undefined, arrivals = undefined, authLog = undefined }, now = Date.now()) {
+export function summarize({ users, sessions, subscriptions, funnel, links = [], ugc = [], rankings = [], viral = null, subscribers = null, lastEvent = null, indexStatus = null, generateLog = undefined, arrivals = undefined, authLog = undefined, authLead = undefined }, now = Date.now()) {
   const from30 = now - 30 * DAY;
   const internal = new Set(users.filter((u) => isInternal(u.email)).map((u) => u.id));
   for (const l of links) if (internal.has(l.authUserId)) internal.add(l.ownerId); // legacy rows carry the owner id
@@ -209,6 +225,8 @@ export function summarize({ users, sessions, subscriptions, funnel, links = [], 
       + (arrivals === undefined ? "" : `external arrivals 7d (CF RUM, referrer not localley.io): ${externalArrivalsNote(arrivals)}; `)
       // Push CN1: the sign-up step: visitors who try the account form, next to the arrivals above.
       + (authLog === undefined ? "" : `real auth attempts 7d (Worker log, POST /api/auth sign-up/sign-in): ${authAttemptsNote(authLog)}; `)
+      // Push DB1: the auth-page lead link to the free planner, read at the 2026-12-19 offer check.
+      + (authLead === undefined ? "" : `planner loads from the auth-page lead 7d (CF RUM refererPath): ${authLeadNote(authLead)}; `)
       + `revenue/prev/repeat null: Stripe key is a Worker secret only and D1 keeps no invoice history; `
       + `proprietary = ${events ? `${events.length} viral events + ${places} resolved places` : "viral archive missing"} + ${ranked} weekly rankings; `
       + `ugc = questions/answers/reviews/tips/social submissions; owned_audience = ${audience
@@ -261,6 +279,23 @@ async function logEvents(auth, path, now) {
   }
 }
 
+/** Push DB1: read-only CF RUM planner page loads 7d by same-origin referrer path. null when it cannot be read. */
+async function rumAuthLead(auth, now = Date.now()) {
+  const since = new Date(now - 7 * DAY).toISOString().slice(0, 10);
+  const query = `{viewer{accounts(filter:{accountTag:"${ACCOUNT}"}){rumPageloadEventsAdaptiveGroups(limit:100,`
+    + `filter:{date_geq:"${since}",requestHost_like:"%localley.io",requestPath:"/itineraries/new"}){count dimensions{refererHost refererPath requestPath}}}}}`;
+  try {
+    const response = await fetch("https://api.cloudflare.com/client/v4/graphql", {
+      method: "POST", headers: { authorization: `Bearer ${auth}`, "content-type": "application/json" }, body: JSON.stringify({ query }),
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok || body.errors?.length) return null;
+    return body.data?.viewer?.accounts?.[0]?.rumPageloadEventsAdaptiveGroups ?? null;
+  } catch {
+    return null;
+  }
+}
+
 /** Read-only CF RUM (Web Analytics) query: page loads 7d by referrer host. null when it cannot be read. */
 async function rumArrivals(auth, now = Date.now()) {
   const since = new Date(now - 7 * DAY).toISOString().slice(0, 10);
@@ -281,7 +316,7 @@ async function rumArrivals(auth, now = Date.now()) {
 async function main() {
   const auth = token();
   const lastDay = (table) => select(AUTH_DB, `SELECT max(day) AS day FROM ${table}`, auth).then((r) => r[0]?.day ?? null, () => null);
-  const [users, sessions, funnel, subscriptions, links, ugc, rankings, subscribers, funnelDay, cardsDay, generateLog, arrivals, authLog] = await Promise.all([
+  const [users, sessions, funnel, subscriptions, links, ugc, rankings, subscribers, funnelDay, cardsDay, generateLog, arrivals, authLog, authLead] = await Promise.all([
     select(AUTH_DB, "SELECT id, email, createdAt FROM user", auth),
     select(AUTH_DB, "SELECT userId, updatedAt FROM session WHERE updatedAt >= strftime('%Y-%m-%dT%H:%M:%fZ','now','-31 days')", auth),
     select(AUTH_DB, "SELECT day, step, source, count FROM funnel_events_daily WHERE step IN ('checkout_paid', 'checkout_start')", auth),
@@ -292,12 +327,12 @@ async function main() {
     select(APP_DB, "SELECT created_at FROM weekly_city_spot_rankings", auth),
     // Unknown (null), not zero, when the table is not there yet or the read fails.
     select(APP_DB, "SELECT email, status, created_at FROM newsletter_subscribers", auth).catch(() => null),
-    lastDay("funnel_events_daily"), lastDay("spot_card_events_daily"), generateEvents(auth), rumArrivals(auth), authEvents(auth),
+    lastDay("funnel_events_daily"), lastDay("spot_card_events_daily"), generateEvents(auth), rumArrivals(auth), authEvents(auth), rumAuthLead(auth),
   ]);
   const viral = existsSync(VIRAL_STATE) ? JSON.parse(readFileSync(VIRAL_STATE, "utf8")) : null;
   let indexStatus = null;
   try { indexStatus = JSON.parse(readFileSync(INDEX_STATE, "utf8")); } catch { /* no run yet: the note says unknown */ }
-  process.stdout.write(`${JSON.stringify(summarize({ users, sessions, subscriptions, funnel, links, ugc, rankings, viral, subscribers, lastEvent: { funnel: funnelDay, cards: cardsDay }, indexStatus, generateLog, arrivals, authLog }))}\n`);
+  process.stdout.write(`${JSON.stringify(summarize({ users, sessions, subscriptions, funnel, links, ugc, rankings, viral, subscribers, lastEvent: { funnel: funnelDay, cards: cardsDay }, indexStatus, generateLog, arrivals, authLog, authLead }))}\n`);
 }
 
 // realpath: the probe also runs through symlinked checkouts, where argv[1] is not the resolved module path.
