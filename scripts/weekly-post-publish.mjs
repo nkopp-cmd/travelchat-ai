@@ -1,7 +1,9 @@
 // Weekly blog publish (shared/plans/weekly-blog.md item 6; go live always, Nils' own content).
 //   draft        fresh worktree from origin/main -> weekly-post-draft (subscription) -> weekly-post-gates ->
-//                bundle check -> blog tests -> commit -> push -> READY PR. The delivery autopilot merges it when green;
-//                the Gravity release lane deploys the merge.
+//                bundle check -> blog tests -> commit -> push -> READY PR with label `hold` -> post text to Nils on
+//                Telegram (PRIME RULE 4, Nils 2026-11-14: content waits for his "ok"). After his ok:
+//                `gh pr edit <n> --remove-label hold`; the delivery autopilot merges it when green and the Gravity
+//                release lane deploys the merge.
 //   live <slug>  (after the lane deployed it) live sha must hold the post -> live check of the post, /blog, RSS,
 //                sitemap and the IndexNow key file -> IndexNow ping (Bing, Yandex, Seznam share it) -> mark-deployed.
 // Exit codes: 0 done, 1 failed, 2 no post this week (draft) / usage, 3 the post is not deployed yet (retry later).
@@ -48,6 +50,14 @@ export async function ping(urls, post = (url, init) => fetch(url, init)) {
   return response.status; // 200 or 202 = accepted
 }
 
+/** The PR stays on `hold` until Nils' Telegram ok (rule 4), so the autopilot cannot publish it first. */
+export const prCreateArgs = (slug, day, file) => ["pr", "create", "--label", "hold", "--title", `[builder] blog: ${slug}`, "--body",
+  `Weekly post ${day}: \`${file}\`. Gates passed (weekly-post-gates.mjs). Label \`hold\` until Nils' Telegram ok (PRIME RULE 4); then remove it. After the release lane deploys the merge: \`node scripts/weekly-post-publish.mjs live ${slug}\`.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)`];
+
+// Telegram messages cap near 4096 chars; the PR link carries the full text when the post is longer.
+export const reviewMessage = (slug, pr, text, max = 3500) =>
+  `Localley weekly post "${slug}" waits for your review.\nReply "ok blog ${slug}" to publish it.\nPR: ${pr}\n\n${text.length > max ? `${text.slice(0, max)}\n[... full text in the PR]` : text}`;
+
 const sh = (cmd, args, cwd, input) => {
   const result = spawnSync(cmd, args, { cwd, input, encoding: "utf8", timeout: 900_000, maxBuffer: 16 << 20 });
   if (result.status !== 0) throw new Error(`${cmd} ${args.join(" ")}: ${(result.stderr || result.stdout || "").trim().slice(-400)}`);
@@ -80,9 +90,11 @@ function draft() {
     sh("git", ["add", "content/blog", "lib/blog/posts.generated.json"], tree);
     sh("git", ["commit", "-q", "-F", "-"], tree, `[builder] blog: ${slug} (weekly post ${day})\n\nDrafted on the subscription from lib/help fact rows; all weekly-post gates passed.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n`);
     sh("git", ["push", "-q", "-u", "origin", branch], tree);
-    const pr = sh("gh", ["pr", "create", "--title", `[builder] blog: ${slug}`, "--body",
-      `Weekly post ${day}: \`${file}\`. Gates passed (weekly-post-gates.mjs). After the release lane deploys the merge: \`node scripts/weekly-post-publish.mjs live ${slug}\`.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)`], tree);
-    console.log(JSON.stringify({ post: true, slug, pr }));
+    const pr = sh("gh", prCreateArgs(slug, day, file), tree);
+    const text = sh("cat", [file], tree);
+    const sent = spawnSync(`${ROOT}/shared/scripts/notify.sh`, ["--area", "Localley", "--level", "action", "--title",
+      `Blog review: ${slug}`], { input: reviewMessage(slug, pr, text), encoding: "utf8", timeout: 120_000 });
+    console.log(JSON.stringify({ post: true, slug, pr, review: sent.status === 0 ? "sent" : "send failed", wait: "Nils Telegram review" }));
     return 0;
   } finally {
     if (existsSync(modules)) rmSync(modules);

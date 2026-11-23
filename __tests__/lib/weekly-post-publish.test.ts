@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 // @ts-expect-error -- plain ESM script without type declarations
-import { HOST, INDEXNOW_KEY, escapeHtml, holdsPost, indexNowBody, liveCheck, ping } from "../../scripts/weekly-post-publish.mjs";
+import { HOST, INDEXNOW_KEY, escapeHtml, holdsPost, indexNowBody, liveCheck, ping, prCreateArgs, reviewMessage } from "../../scripts/weekly-post-publish.mjs";
 
 const title = "Paying in Seoul: cards & T-money";
 const pages: Record<string, string> = {
@@ -41,5 +41,18 @@ describe("weekly-post-publish", () => {
     expect(holdsPost(listing, "paying-in-bangkok")).toBe(true);
     expect(holdsPost(listing, "bangkok")).toBe(false);
     expect(holdsPost(listing, "paying-in-tokyo")).toBe(false);
+  });
+});
+
+describe("rule 4: Telegram review before the post goes out", () => {
+  it("opens the PR with the hold label so the autopilot cannot merge it first", () => {
+    const args = prCreateArgs("paying-in-tokyo", "2026-11-23", "content/blog/2026-11-23-paying-in-tokyo.md");
+    expect(args.slice(0, 4)).toEqual(["pr", "create", "--label", "hold"]);
+  });
+  it("sends the approval phrase, the PR and the text, cut under the Telegram limit", () => {
+    const msg = reviewMessage("paying-in-tokyo", "https://github.com/x/pull/1", "a".repeat(9000));
+    expect(msg).toContain('"ok blog paying-in-tokyo"');
+    expect(msg).toContain("https://github.com/x/pull/1");
+    expect(msg.length).toBeLessThan(4096);
   });
 });
