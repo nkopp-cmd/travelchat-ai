@@ -30,6 +30,10 @@ export const HOME_HERO = { marker: /class="ll-hero-poster"/, selector: HERO_SELE
 // Push AM2: spot detail pages (Worker edge-cache miss rewrite, cloudflare/opennext/critical-css.ts). Their hero is the
 // next/image photo with fetchPriority="high"; a spot without a photo has no such image and stays unchanged.
 export const SPOT_HERO = { marker: /<img\b[^>]*\bfetchPriority="high"/, selector: 'img[fetchpriority="high"]' };
+// Push CI2: a spot without a photo paints its intro paragraph as the LCP (4 of 5 PSI samples, simulated LCP
+// 1.35-1.65 s while the chunks and full sheets started right after the document). The loader waits for that text's
+// LCP entry the same way; a text element has no load event, so it counts as loaded at once.
+export const SPOT_TEXT = { marker: /<p\b[^>]*\bdata-testid="spot-intro"/, selector: 'p[data-testid="spot-intro"]' };
 export const DEFER_FALLBACK_MS = 3000;
 
 const CHUNK_SCRIPT = /<script\b(?=[^>]*\bsrc="(\/_next\/static\/[^"]+\.js)")(?=[^>]*\basync\b)(?![^>]*\bnomodule\b)[^>]*><\/script>/gi;
@@ -49,7 +53,7 @@ export function loaderScript(scripts, preloads, sheets = [], selector = HERO_SEL
     + `function k(){if(L&&(H||M>A()))later()}`
     + `if(!H)try{new t(function(l){l.getEntries().forEach(function(e){if(e.element===i)H=1;else if(e.size>M)M=e.size});k()}).observe({type:"largest-contentful-paint",buffered:true})}catch(x){H=1}`
     + `function f(){L=1;k()}function g(){L=H=1;k()}`
-    + `if(!i||i.complete)f();else{i.addEventListener("load",f);i.addEventListener("error",g)}`
+    + `if(!i||i.complete||i.tagName!=="IMG")f();else{i.addEventListener("load",f);i.addEventListener("error",g)}`
     + `["pointerdown","keydown","touchstart"].forEach(function(t){addEventListener(t,go,{once:true,passive:true})});`
     + `setTimeout(go,${DEFER_FALLBACK_MS})})()</script>`;
 }
