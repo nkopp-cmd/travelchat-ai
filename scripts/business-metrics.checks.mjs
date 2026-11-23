@@ -1,7 +1,7 @@
 // node --test scripts/business-metrics.checks.mjs — pure parts of the business-loop money + moat probe (no network).
 import assert from "node:assert/strict";
 import test from "node:test";
-import { PAID_PATH_LIVE_SINCE, authAttemptsNote, externalArrivalsNote, generateCallsNote, isInternal, plannerErrorsNote, summarize } from "./business-metrics.mjs";
+import { PAID_PATH_LIVE_SINCE, authAttemptsNote, authLeadNote, externalArrivalsNote, generateCallsNote, isInternal, plannerErrorsNote, summarize } from "./business-metrics.mjs";
 
 const now = Date.parse("2026-11-01T12:00:00Z");
 const users = [
@@ -221,4 +221,19 @@ test("auth attempts (Push CN1): real localley.io POSTs by kind, own checks and t
   const line = summarize({ users, sessions: [], subscriptions: [], funnel: [], authLog: events }, now);
   assert.match(line.notes, /real auth attempts 7d \(Worker log, POST \/api\/auth sign-up\/sign-in\): 4 \(sign-up email 2, /);
   assert.doesNotMatch(summarize({ users, sessions: [], subscriptions: [], funnel: [] }, now).notes, /auth attempts/);
+});
+
+test("auth-page lead (Push DB1): planner loads from /sign-in and /sign-up only, same origin only", () => {
+  const row = (count, refererHost, refererPath, requestPath = "/itineraries/new") => ({ count, dimensions: { refererHost, refererPath, requestPath } });
+  const rows = [
+    row(10, "www.localley.io", "/sign-in"), row(3, "localley.io", "/sign-up/"), row(2, "www.localley.io", "/sign-up"),
+    row(7, "www.localley.io", "/"), row(5, "bing.com", "/sign-in"), row(4, "www.localley.io", "/sign-in", "/spots"),
+    row(1, "evil-localley.io", "/sign-in"),
+  ];
+  assert.equal(authLeadNote(rows), "sign-in 10, sign-up 5");
+  assert.equal(authLeadNote([]), "sign-in 0, sign-up 0");
+  assert.equal(authLeadNote(null), "unknown");
+  const line = summarize({ users, sessions: [], subscriptions: [], funnel: [], authLead: rows }, now);
+  assert.match(line.notes, /planner loads from the auth-page lead 7d \(CF RUM refererPath\): sign-in 10, sign-up 5; /);
+  assert.doesNotMatch(summarize({ users, sessions: [], subscriptions: [], funnel: [] }, now).notes, /auth-page lead/);
 });
