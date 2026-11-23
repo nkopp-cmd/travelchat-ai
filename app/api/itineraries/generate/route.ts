@@ -22,9 +22,7 @@ import {
   buildItinerarySpotContext,
   getPaceStopRange,
   groundGeneratedDailyPlans,
-  hasItineraryGroundingCoverage,
-  rankItineraryGroundingSpots,
-  pinSelectedSpot,
+  groundItineraryPool,
   suggestCoverageFallback,
   describeCoverageSuggestion,
   ensurePinnedSpot,
@@ -273,23 +271,19 @@ async function generate(req: NextRequest, outcome: GenerateOutcome) {
       throw new Error(`Could not load verified itinerary spots: ${spotsError.message}`);
     }
     const visibleSpots = (spots || []).filter((spot) => shouldShowPublicSpot(spot));
-    const groundFor = (preferences: ItineraryGroundingPreferences) => pinSelectedSpot(
-      rankItineraryGroundingSpots(visibleSpots as ItineraryGroundingSpot[], preferences),
+    const groundFor = (preferences: ItineraryGroundingPreferences) => groundItineraryPool(
       visibleSpots as ItineraryGroundingSpot[],
+      preferences,
       spotId,
     );
-    const { spots: groundingSpots, pinnedId } = groundFor({ days, interests, localnessLevel, pace });
-    const hasGroundingCoverage = hasItineraryGroundingCoverage(
-      groundingSpots,
-      { days, interests, localnessLevel, pace },
-    );
+    const { spots: groundingSpots, pinnedId, covered: hasGroundingCoverage } = groundFor({ days, interests, localnessLevel, pace });
 
     if (!hasGroundingCoverage) {
       outcome.reason = "no_spots";
       // Push CG3: name one mix that passes the same check, so the planner can offer it as one tap.
       const suggestion = suggestCoverageFallback(
         { days, interests, localnessLevel, pace },
-        (preferences) => hasItineraryGroundingCoverage(groundFor(preferences).spots, preferences),
+        (preferences) => groundFor(preferences).covered,
       );
       outcome.suggestion = suggestion !== null;
       return NextResponse.json({

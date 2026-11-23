@@ -6,6 +6,7 @@ import {
   hasItineraryGroundingCoverage,
   ensurePinnedSpot,
   pinSelectedSpot,
+  groundItineraryPool,
   rankItineraryGroundingSpots,
   type ItineraryGroundingSpot,
 } from "@/lib/itineraries/grounded-generation";
@@ -306,6 +307,36 @@ describe("add-to-trip pinned spot", () => {
     const result = pinSelectedSpot(ranked, [...ranked, short], "5");
     expect(result.pinnedId).toBe("5");
     expect(result.spots.map((candidate) => candidate.id)).toEqual(["5", "1", "2"]);
+  });
+
+  it("plans without a chosen spot that is too far from the rest of the pool (Push DA1, Min Buri 25 km out)", () => {
+    const categories = ["Food", "Culture", "Nightlife", "Shopping", "Nature", "Cafe"];
+    const central = Array.from({ length: 12 }, (_, index) => spot(String(index + 1), `Central ${index + 1}`, categories[index % 6], {
+      location: `POINT(${100.5 + index * 0.002} ${13.75 + index * 0.002})`,
+    }));
+    const far = spot("90", "Min Buri Old Market", "Market", { location: "POINT(100.7327 13.8084)" });
+    const pool = [...central, far];
+    const preferences = { days: 1, localnessLevel: 3, pace: "moderate" };
+    const pinnedOnly = pinSelectedSpot(rankItineraryGroundingSpots(pool, preferences), pool, "90");
+    expect(pinnedOnly.pinnedId).toBe("90");
+    expect(hasItineraryGroundingCoverage(pinnedOnly.spots, preferences)).toBe(false);
+
+    const result = groundItineraryPool(pool, preferences, "90");
+    expect(result.covered).toBe(true);
+    expect(result.pinSkipped).toBe(true);
+    expect(result.pinnedId).toBeUndefined();
+    expect(result.spots.map((candidate) => candidate.id)).not.toContain("90");
+  });
+
+  it("keeps a reachable chosen spot pinned first", () => {
+    const categories = ["Food", "Culture", "Nightlife", "Shopping", "Nature", "Cafe"];
+    const pool = Array.from({ length: 12 }, (_, index) => spot(String(index + 1), `Central ${index + 1}`, categories[index % 6], {
+      location: `POINT(${100.5 + index * 0.002} ${13.75 + index * 0.002})`,
+    }));
+    const result = groundItineraryPool(pool, { days: 1, localnessLevel: 3, pace: "moderate" }, "7");
+    expect(result).toMatchObject({ covered: true, pinnedId: "7" });
+    expect(result.pinSkipped).toBeUndefined();
+    expect(result.spots[0].id).toBe("7");
   });
 
   it("does not pin a chosen spot without a photo or coordinates", () => {
