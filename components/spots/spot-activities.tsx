@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { ActivityCard, ActivityCardSkeleton } from '@/components/viator/activity-card';
+import { BookableCard, BookableCardSkeleton, BookableSection, viatorToBookable, type BookableItem } from '@/components/booking/bookable-card';
 import { ViatorActivity } from '@/types/viator';
 import { Button } from '@/components/ui/button';
-import { Sparkles, ChevronRight } from '@/components/ui/icons';
+import { ChevronRight } from '@/components/ui/icons';
 import { useAuth } from '@/lib/auth/client';
 
 interface SpotActivitiesProps {
@@ -47,7 +47,7 @@ export function SpotActivities({ city, spotName }: SpotActivitiesProps) {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         destination: city,
-                        limit: 6, // Get 6 activities
+                        limit: 6,
                     }),
                 });
 
@@ -65,99 +65,32 @@ export function SpotActivities({ city, spotName }: SpotActivitiesProps) {
         fetchActivities();
     }, [city, isLoaded, isSignedIn]);
 
-    // Show 3 by default, all when "View All" is clicked
-    const displayedActivities = showAll ? activities : activities.slice(0, 3);
+    const items = activities.map(viatorToBookable).filter((item): item is BookableItem => item !== null);
+    const displayed = showAll ? items : items.slice(0, 3);
 
     if (loading) {
         return (
-            <section className="py-12 ">
-                <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h2 className="text-2xl font-bold mb-2">{copy.heading}</h2>
-                            <p className="text-muted-foreground">
-                                {copy.loadingDescription}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {[...Array(3)].map((_, i) => (
-                            <ActivityCardSkeleton key={i} />
-                        ))}
-                    </div>
+            <BookableSection title={copy.heading} description={copy.loadingDescription}>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {[0, 1, 2].map((i) => <BookableCardSkeleton key={i} />)}
                 </div>
-            </section>
+            </BookableSection>
         );
     }
 
-    if (activities.length === 0) {
-        return null; // Don't show section if no activities
-    }
+    if (items.length === 0) return null;
 
     return (
-        <section className="py-12 ">
-            <div className="space-y-6">
-                {/* Header */}
-                <div className="flex items-center justify-between">
-                    <div>
-                        <div className="flex items-center gap-2 mb-2">
-                            <Sparkles className="h-5 w-5 text-violet-600" />
-                            <h2 className="text-2xl font-bold">{copy.heading}</h2>
-                        </div>
-                        <p className="text-muted-foreground">
-                            {copy.description}
-                        </p>
-                    </div>
-
-                    {activities.length > 3 && !showAll && (
-                        <Button
-                            variant="outline"
-                            onClick={() => setShowAll(true)}
-                            className="hidden md:flex"
-                        >
-                            View All {activities.length}
-                            <ChevronRight className="ml-1 h-4 w-4" />
-                        </Button>
-                    )}
-                </div>
-
-                {/* Activities Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {displayedActivities.map(activity => (
-                        <ActivityCard
-                            key={activity.id}
-                            activity={activity}
-                            onViewDetails={(activity) => {
-                                // Open Viator booking page in new tab
-                                window.open(activity.viatorUrl || activity.bookingUrl, '_blank');
-                            }}
-                        />
-                    ))}
-                </div>
-
-                {/* View All Button (Mobile) */}
-                {activities.length > 3 && !showAll && (
-                    <div className="flex justify-center md:hidden">
-                        <Button
-                            variant="outline"
-                            onClick={() => setShowAll(true)}
-                            className="w-full"
-                        >
-                            View All {activities.length} Activities
-                            <ChevronRight className="ml-1 h-4 w-4" />
-                        </Button>
-                    </div>
-                )}
-
-                {/* Powered by Viator */}
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-sm text-muted-foreground pt-6 mt-6">
-                    <div className="flex items-center gap-1.5">
-                        <span>Activities powered by</span>
-                        <span className="font-semibold text-foreground">Viator</span>
-                    </div>
-                </div>
+        <BookableSection title={copy.heading} description={copy.description}>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {displayed.map((item) => <BookableCard key={item.id} item={item} placement="spot" />)}
             </div>
-        </section>
+            {items.length > 3 && !showAll && (
+                <Button variant="outline" onClick={() => setShowAll(true)} className="w-full sm:w-auto">
+                    Show {items.length - 3} more
+                    <ChevronRight className="ml-1 h-4 w-4" />
+                </Button>
+            )}
+        </BookableSection>
     );
 }

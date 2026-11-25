@@ -1,43 +1,19 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import Image from "next/image";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useState, useEffect, useRef } from "react";
+import { SubscriptionTier } from "@/lib/subscription";
 import {
-    Star,
-    Clock,
-    ExternalLink,
-    ChevronRight,
-    Sparkles,
-    Tag,
-    ImageOff,
-} from "@/components/ui/icons";
-import { cn } from "@/lib/utils";
-import { SubscriptionTier, hasFeature } from "@/lib/subscription";
-import { CityImageAvatar } from "@/components/ui/city-image";
-
-interface ViatorActivity {
-    id: string;
-    productCode: string;
-    title: string;
-    shortDescription?: string;
-    thumbnailUrl?: string;
-    images?: string[];
-    priceFrom: number;
-    currency: string;
-    rating?: number;
-    reviewCount?: number;
-    duration?: string;
-    category?: string;
-    bookingUrl: string;
-}
+    BookableCard,
+    BookableCardSkeleton,
+    BookableSection,
+    viatorToBookable,
+    type BookableItem,
+} from "@/components/booking/bookable-card";
 
 interface ViatorSuggestionsProps {
     city: string;
     category?: string;
+    /** Kept for callers; booking cards are the same for every tier. */
     userTier?: SubscriptionTier;
     className?: string;
     limit?: number;
@@ -46,17 +22,14 @@ interface ViatorSuggestionsProps {
 export function ViatorSuggestions({
     city,
     category,
-    userTier = "free",
     className,
     limit = 4,
 }: ViatorSuggestionsProps) {
-    const [activities, setActivities] = useState<ViatorActivity[]>([]);
+    const [items, setItems] = useState<BookableItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
+    const [error, setError] = useState(false);
 
-    const showDeals = hasFeature(userTier, "bookingDeals");
-    // The card sits below the itinerary; ask Viator only when it is about to scroll into view,
+    // The block sits below the itinerary; ask Viator only when it is about to scroll into view,
     // so the first view of the page does not wait on (or pay for) an off-screen partner call.
     const rootRef = useRef<HTMLDivElement>(null);
     const [nearViewport, setNearViewport] = useState(false);
@@ -78,230 +51,40 @@ export function ViatorSuggestions({
         return () => observer.disconnect();
     }, [nearViewport]);
 
-    const handleImageError = useCallback((activityId: string) => {
-        setFailedImages(prev => new Set(prev).add(activityId));
-    }, []);
-
     useEffect(() => {
         if (!nearViewport) return;
         async function fetchActivities() {
             setIsLoading(true);
-            setError(null);
-
+            setError(false);
             try {
-                const params = new URLSearchParams({
-                    destination: city,
-                    limit: String(limit),
-                });
-                if (category) {
-                    params.set("category", category);
-                }
-
+                const params = new URLSearchParams({ destination: city, limit: String(limit) });
+                if (category) params.set("category", category);
                 const response = await fetch(`/api/viator/search?${params}`);
-                if (!response.ok) {
-                    throw new Error("Failed to fetch activities");
-                }
-
+                if (!response.ok) throw new Error("Failed to fetch activities");
                 const data = await response.json();
-                if (data.success && data.data?.activities) {
-                    setActivities(data.data.activities);
-                }
-            } catch (err) {
-                console.error("Error fetching Viator activities:", err);
-                setError("Unable to load activity suggestions");
+                const activities = (data?.data?.activities ?? []) as Parameters<typeof viatorToBookable>[0][];
+                setItems(activities.map(viatorToBookable).filter((item): item is BookableItem => item !== null));
+            } catch {
+                setError(true);
             } finally {
                 setIsLoading(false);
             }
         }
-
         fetchActivities();
     }, [city, category, limit, nearViewport]);
 
-    const handleBookClick = async (activity: ViatorActivity) => {
-        // Track affiliate click
-        try {
-            await fetch("/api/affiliates/track", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    partner: "viator",
-                    trackingId: `viator-${activity.productCode}`,
-                    activityName: activity.title.slice(0, 200),
-                    productCode: activity.productCode,
-                    eventType: "click",
-                }),
-            });
-        } catch {
-            // Ignore tracking errors
-        }
-
-        // Open booking URL
-        window.open(activity.bookingUrl, "_blank");
-    };
-
-    if (error || (!isLoading && activities.length === 0)) {
-        return null; // Optional block: hide it when there is nothing real to book
-    }
+    // Nothing to book (or partner down): no empty box, no apology text.
+    if (error || (!isLoading && items.length === 0)) return <div ref={rootRef} aria-hidden />;
 
     return (
-        <Card ref={rootRef} className={cn("overflow-hidden !py-0 !gap-0", className)}>
-            <CardHeader className="relative min-h-28 overflow-hidden bg-surface text-foreground">
-                <CityImageAvatar
-                    city={city}
-                    className="absolute inset-0 h-full w-full rounded-none opacity-45"
-                    imageClassName="object-cover"
-                    sizes="100vw"
-                    imageWidth={1200}
-                    quality={90}
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/70 to-transparent" />
-                <div className="relative">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                        <Sparkles className="h-5 w-5" />
-                        Book Tours & Activities in {city}
-                    </CardTitle>
-                    <p className="text-sm text-foreground">
-                        Curated experiences from our travel partners
-                    </p>
+        <div ref={rootRef} className={className}>
+            <BookableSection title={`Book tours in ${city}`} description="Top-rated tours you can add to this trip.">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    {isLoading
+                        ? Array.from({ length: Math.min(limit, 4) }, (_, i) => <BookableCardSkeleton key={i} />)
+                        : items.map((item) => <BookableCard key={item.id} item={item} placement="itinerary" />)}
                 </div>
-            </CardHeader>
-            <CardContent className="p-6">
-                {isLoading ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {[...Array(limit)].map((_, i) => (
-                            <div key={i} className="space-y-2">
-                                <Skeleton className="aspect-[16/9] w-full rounded-lg" />
-                                <Skeleton className="h-4 w-3/4" />
-                                <Skeleton className="h-4 w-1/2" />
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {activities.map((activity) => (
-                            <div
-                                key={activity.id}
-                                className="group relative rounded-xl bg-card hover:shadow-md transition-all overflow-hidden"
-                            >
-                                {/* Activity Image */}
-                                <div className="relative aspect-[16/9] bg-muted overflow-hidden">
-                                    {(activity.thumbnailUrl || activity.images?.[0]) && !failedImages.has(activity.id) ? (
-                                        <Image
-                                            src={activity.thumbnailUrl || activity.images?.[0] || ''}
-                                            alt={activity.title}
-                                            fill
-                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                            sizes="(max-width: 640px) 100vw, 50vw"
-                                            onError={() => handleImageError(activity.id)}
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center bg-raised">
-                                            <ImageOff className="h-8 w-8 text-primary" />
-                                        </div>
-                                    )}
-
-                                    {/* Rating Badge */}
-                                    {activity.rating && (
-                                        <Badge
-                                            className="absolute top-2 left-2 bg-raised text-black"
-                                        >
-                                            <Star className="h-3 w-3 fill-yellow-400 text-[rgb(var(--ll-warning))] mr-1" />
-                                            {activity.rating.toFixed(1)}
-                                            {activity.reviewCount && (
-                                                <span className="text-muted-foreground ml-1">
-                                                    ({activity.reviewCount})
-                                                </span>
-                                            )}
-                                        </Badge>
-                                    )}
-
-                                    {/* Category Badge */}
-                                    {activity.category && (
-                                        <Badge
-                                            variant="secondary"
-                                            className="absolute top-2 right-2 text-xs"
-                                        >
-                                            {activity.category}
-                                        </Badge>
-                                    )}
-                                </div>
-
-                                {/* Activity Details */}
-                                <div className="p-3 space-y-2">
-                                    <h4 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors">
-                                        {activity.title}
-                                    </h4>
-
-                                    {activity.shortDescription && (
-                                        <p className="text-xs text-muted-foreground line-clamp-2">
-                                            {activity.shortDescription}
-                                        </p>
-                                    )}
-
-                                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                                        {activity.duration && (
-                                            <span className="flex items-center gap-1">
-                                                <Clock className="h-3 w-3" />
-                                                {activity.duration}
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-2">
-                                        <div className="flex items-center gap-1 flex-wrap">
-                                            <span className="text-lg font-bold text-primary">
-                                                ${activity.priceFrom}
-                                            </span>
-                                            <span className="text-xs text-muted-foreground">
-                                                / person
-                                            </span>
-                                            {showDeals && (
-                                                <Badge
-                                                    variant="outline"
-                                                    className="ml-2 text-xs text-primary"
-                                                >
-                                                    <Tag className="h-2.5 w-2.5 mr-1" />
-                                                    Best Price
-                                                </Badge>
-                                            )}
-                                        </div>
-                                        <Button
-                                            size="sm"
-                                            className="text-xs px-3 w-full sm:w-auto"
-                                            onClick={() => handleBookClick(activity)}
-                                        >
-                                            Book
-                                            <ExternalLink className="h-3 w-3 ml-1" />
-                                        </Button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-
-                {/* View More Link */}
-                {activities.length > 0 && (
-                    <div className="mt-4 pt-4 text-center">
-                        <Button
-                            variant="ghost"
-                            className="text-primary hover:text-primary hover:bg-raised"
-                            onClick={() => {
-                                const viatorUrl = `https://www.viator.com/searchResults/all?text=${encodeURIComponent(city)}&pid=localley`;
-                                window.open(viatorUrl, "_blank");
-                            }}
-                        >
-                            View all {city} activities on Viator
-                            <ChevronRight className="h-4 w-4 ml-1" />
-                        </Button>
-                    </div>
-                )}
-
-                {/* Partner Attribution */}
-                <p className="text-xs text-center text-muted-foreground mt-2">
-                    Tours from Viator, our booking partner
-                </p>
-            </CardContent>
-        </Card>
+            </BookableSection>
+        </div>
     );
 }

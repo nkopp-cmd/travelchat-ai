@@ -15,9 +15,6 @@
     "white-alpha": 1,
     "palette": 1
   },
-  "app/itineraries/error.tsx": {
-    "palette": 4
-  },
   "app/leaderboard/page.tsx": {
     "palette": 2
   },
@@ -40,7 +37,7 @@
     "palette": 4
   },
   "app/spots/page.tsx": {
-    "white-alpha": 3
+    "white-alpha": 2
   },
   "app/templates/error.tsx": {
     "palette": 4
@@ -63,9 +60,6 @@
     "gradient": 18,
     "palette": 1
   },
-  "components/activities/viator-suggestions.tsx": {
-    "palette": 1
-  },
   "components/admin/apify-spot-discovery-workbench.tsx": {
     "palette": 1
   },
@@ -74,12 +68,6 @@
   },
   "components/auth/auth-forms.tsx": {
     "palette": 2
-  },
-  "components/auth/signup-prompt-sheet.tsx": {
-    "gradient": 6,
-    "white-alpha": 3,
-    "palette": 7,
-    "colored-shadow": 2
   },
   "components/auth/user-menu.tsx": {
     "raw-hex": 1,
@@ -189,12 +177,7 @@
     "white-alpha": 1
   },
   "components/spots/city-quick-filters.tsx": {
-    "raw-hex": 1,
-    "palette": 9,
-    "colored-shadow": 1
-  },
-  "components/spots/localley-scale.tsx": {
-    "palette": 18
+    "palette": 5
   },
   "components/spots/review-form.tsx": {
     "gradient": 4,
@@ -205,9 +188,6 @@
   },
   "components/spots/save-spot-button.tsx": {
     "palette": 2
-  },
-  "components/spots/spot-activities.tsx": {
-    "palette": 5
   },
   "components/spots/spot-detail-map.tsx": {
     "palette": 1
@@ -222,12 +202,10 @@
     "palette": 2
   },
   "components/spots/spot-photo-image.tsx": {
-    "palette": 2,
-    "tiny-text": 3,
+    "palette": 1,
     "colored-shadow": 1
   },
   "components/spots/spots-explorer.tsx": {
-    "white-alpha": 2,
     "palette": 4
   },
   "components/spots/spots-pagination.tsx": {
@@ -288,10 +266,5 @@
   },
   "components/ui/toast.tsx": {
     "palette": 2
-  },
-  "components/viator/activity-card.tsx": {
-    "gradient": 8,
-    "white-alpha": 2,
-    "palette": 15
   }
 }
