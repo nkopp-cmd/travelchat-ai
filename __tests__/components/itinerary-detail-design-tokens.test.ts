@@ -16,6 +16,8 @@ const FILES = [
   "components/itineraries/email-dialog.tsx",
   // batch 4
   "components/activities/viator-suggestions.tsx",
+  "components/booking/bookable-card.tsx",
+  "components/spots/spot-activities.tsx",
   "components/activities/booking-deals-popover.tsx",
   "components/itineraries/itinerary-list.tsx",
   "app/itineraries/(list)/page.tsx",

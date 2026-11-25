@@ -365,6 +365,8 @@ on:
       - '__tests__/components/viator-suggestions-lazy.test.tsx'
       - 'lib/booking/**'
       - '__tests__/lib/booking-match.test.ts'
+      - 'components/booking/**'
+      - '__tests__/components/bookable-card.test.tsx'
       - 'lib/viator.ts'
       - '__tests__/lib/viator-no-mock.test.ts'
       - '__tests__/lib/viator-partner-search.test.ts'
