@@ -66,7 +66,7 @@ describe('candidate itinerary page and metadata',()=>{
     expect(html).toContain('Source trip');expect(html).toContain('Generate story');expect(html).not.toContain('Preview email link');expect(html).not.toContain('Make a copy');
     mocks.headers.mockResolvedValue(new Headers({host:'www.localley.io'}));
     html=renderToStaticMarkup(await Page(input('d1')));
-    expect(html).toContain('Source trip');expect(html).toContain('Provider suggestions');expect(html).not.toContain('Preview email link');expect(html).not.toContain('Make a copy');
+    expect(html).toContain('Source trip');expect(html).not.toContain('Provider suggestions');expect(html).not.toContain('Preview email link');expect(html).not.toContain('Make a copy');
     expect(mocks.read).not.toHaveBeenCalled();expect(mocks.admin).toHaveBeenCalledTimes(2);
   });
 });
