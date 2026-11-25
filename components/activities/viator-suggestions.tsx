@@ -139,8 +139,8 @@ export function ViatorSuggestions({
         window.open(activity.bookingUrl, "_blank");
     };
 
-    if (error) {
-        return null; // Silently fail - suggestions are optional
+    if (error || (!isLoading && activities.length === 0)) {
+        return null; // Optional block: hide it when there is nothing real to book
     }
 
     return (
@@ -176,10 +176,6 @@ export function ViatorSuggestions({
                             </div>
                         ))}
                     </div>
-                ) : activities.length === 0 ? (
-                    <p className="text-center text-muted-foreground py-8">
-                        No activities found for {city}
-                    </p>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {activities.map((activity) => (
@@ -303,7 +299,7 @@ export function ViatorSuggestions({
 
                 {/* Partner Attribution */}
                 <p className="text-xs text-center text-muted-foreground mt-2">
-                    Powered by Viator - earn rewards when you book
+                    Tours from Viator, our booking partner
                 </p>
             </CardContent>
         </Card>
