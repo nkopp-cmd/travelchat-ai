@@ -129,6 +129,8 @@ on:
       - 'app/og/**'
       - '__tests__/lib/spots-city-directory.test.ts'
       - '__tests__/components/city-spot-directory-payload.test.tsx'
+      - '__tests__/components/city-trip-story-card.test.tsx'
+      - 'components/blog/city-trip-story-card.tsx'
       - 'app/spots/a-z/**'
       - 'lib/spots/city-directory.ts'
       - 'lib/spots/city-directory-store.ts'
