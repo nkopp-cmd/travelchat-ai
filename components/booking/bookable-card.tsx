@@ -65,11 +65,11 @@ export function BookableCard({ item, placement, className }: { item: BookableIte
             onClick={() => trackClick(item, placement)}
             data-bookable-card={item.partner}
             className={cn(
-                "group flex h-full flex-col overflow-hidden rounded-2xl bg-card text-foreground ring-1 ring-border transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                "group flex h-full flex-col overflow-hidden rounded-2xl bg-raised text-foreground transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
                 className,
             )}
         >
-            <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden bg-raised">
+            <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden bg-card">
                 {item.imageUrl && !imageFailed ? (
                     <Image
                         src={item.imageUrl}
@@ -125,11 +125,11 @@ export function BookableCard({ item, placement, className }: { item: BookableIte
 
 export function BookableCardSkeleton() {
     return (
-        <div className="flex h-full flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border" aria-hidden>
-            <div className="aspect-[16/9] w-full animate-pulse bg-raised" />
+        <div className="flex h-full flex-col overflow-hidden rounded-2xl bg-raised" aria-hidden>
+            <div className="aspect-[16/9] w-full animate-pulse bg-card" />
             <div className="space-y-2 p-4">
-                <div className="h-4 w-3/4 animate-pulse rounded bg-raised" />
-                <div className="h-4 w-1/2 animate-pulse rounded bg-raised" />
+                <div className="h-4 w-3/4 animate-pulse rounded bg-card" />
+                <div className="h-4 w-1/2 animate-pulse rounded bg-card" />
             </div>
         </div>
     );
