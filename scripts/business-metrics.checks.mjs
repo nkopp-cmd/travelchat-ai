@@ -1,7 +1,7 @@
 // node --test scripts/business-metrics.checks.mjs — pure parts of the business-loop money + moat probe (no network).
 import assert from "node:assert/strict";
 import test from "node:test";
-import { PAID_PATH_LIVE_SINCE, authAttemptsNote, authLeadNote, externalArrivalsNote, isDevHost, generateCallsNote, isInternal, plannerErrorsNote, summarize } from "./business-metrics.mjs";
+import { PAID_PATH_LIVE_SINCE, authAttemptsNote, authLeadNote, externalArrivalsNote, isDevHost, landingGroup, generateCallsNote, isInternal, plannerErrorsNote, summarize } from "./business-metrics.mjs";
 
 const now = Date.parse("2026-11-01T12:00:00Z");
 const users = [
@@ -245,4 +245,16 @@ test("external arrivals (Push DC1): dev and preview referrers count as dev, not 
   const rows = [r("bing.com", 6), r("localhost", 3), r("127.0.0.1", 2), r("www.localley.io", 20), r("", 10), r("localley-preview.workers.dev", 1)];
   assert.equal(externalArrivalsNote(rows), "6 (bing.com 6) of 42 page loads, dev 6");
   assert.equal(externalArrivalsNote([r("bing.com", 1)]), "1 (bing.com 1) of 1 page loads");
+});
+
+test("external arrivals (Push DE1): landing paths grouped by page type, own and dev loads not counted", () => {
+  const r = (refererHost, requestPath, count) => ({ count, dimensions: { refererHost, requestPath } });
+  const rows = [r("www.bing.com", "/spots/gwangjang-market", 4), r("bing.com", "/spots/x-y/", 2), r("google.com", "/", 2),
+    r("l.facebook.com", "/blog/paying-in-tokyo?fbclid=1", 2), r("google.com", "/itineraries/new", 1),
+    r("www.localley.io", "/pricing", 30), r("localhost", "/help/faq", 3), r("", "/", 9)];
+  assert.equal(externalArrivalsNote(rows), "11 (bing.com 6, google.com 3, l.facebook.com 2) of 53 page loads, landing /spots/* 6, / 2, /blog/* 2, /itineraries/new 1, dev 3");
+  assert.equal(landingGroup("/Spots"), "/spots");
+  assert.equal(landingGroup("/help/a/b"), "/help/*");
+  assert.equal(landingGroup("//"), "/");
+  assert.equal(landingGroup("/%3Cscript%3E/x"), "other");
 });
