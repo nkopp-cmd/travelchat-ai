@@ -1,5 +1,46 @@
 import { ViatorActivity, ViatorSearchParams, ViatorSearchResult, ViatorAvailability, ViatorPricing } from '@/types/viator';
 
+/** Viator destination ids for enabled cities (Ring 1 + common aliases). Unknown city -> no search. */
+export const VIATOR_DESTINATION_IDS: Record<string, string> = {
+    seoul: '973',
+    tokyo: '334',
+    bangkok: '343',
+    singapore: '18',
+};
+
+export function resolveViatorDestinationId(destination: string | undefined): string | null {
+    if (!destination) return null;
+    const trimmed = destination.trim();
+    if (/^\d+$/.test(trimmed)) return trimmed;
+    const key = trimmed.toLowerCase().split(',')[0].trim();
+    return VIATOR_DESTINATION_IDS[key] || null;
+}
+
+/** Prefer a ~480-800 px wide variant for cards; fall back to the first one. */
+function pickImageVariant(img: { url?: string; variants?: Array<{ url: string; width?: number }> }): string {
+    const variants = img.variants || [];
+    const sized = variants
+        .filter((v) => v.url && typeof v.width === 'number' && v.width >= 400 && v.width <= 900)
+        .sort((a, b) => (b.width || 0) - (a.width || 0));
+    return sized[0]?.url || variants[0]?.url || img.url || '';
+}
+
+const SEARCH_TTL_MS = 24 * 60 * 60 * 1000;
+const SEARCH_CACHE_MAX = 200;
+const searchCache = new Map<string, { expires: number; result: ViatorSearchResult }>();
+
+function rememberSearch(key: string, result: ViatorSearchResult) {
+    if (searchCache.size >= SEARCH_CACHE_MAX) {
+        const oldest = searchCache.keys().next().value;
+        if (oldest !== undefined) searchCache.delete(oldest);
+    }
+    searchCache.set(key, { expires: Date.now() + SEARCH_TTL_MS, result });
+}
+
+export function clearViatorSearchCache() {
+    searchCache.clear();
+}
+
 interface ViatorConfig {
     apiKey?: string;
     partnerId?: string;
@@ -15,8 +56,8 @@ class ViatorClient {
     constructor(config: ViatorConfig = {}) {
         const apiKey = config.apiKey || process.env.VIATOR_API_KEY;
 
-        // Use sandbox endpoint for testing
-        const baseUrl = config.baseUrl || process.env.VIATOR_API_URL || 'https://api.sandbox.viator.com/partner';
+        // Production Partner API; set VIATOR_API_URL=https://api.sandbox.viator.com/partner for a sandbox key.
+        const baseUrl = config.baseUrl || process.env.VIATOR_API_URL || 'https://api.viator.com/partner';
 
         this.config = {
             apiKey,
@@ -45,33 +86,55 @@ class ViatorClient {
             return this.emptyOrMockSearch(params);
         }
 
-        try {
-            const queryParams = new URLSearchParams({
-                destination: params.destination,
-                ...(params.category && { category: params.category }),
-                ...(params.startDate && { startDate: params.startDate }),
-                ...(params.currency && { currency: params.currency }),
-                limit: String(params.limit || 20),
-                offset: String(params.offset || 0),
-            });
+        const destinationId = resolveViatorDestinationId(params.destination);
+        if (!destinationId) return { activities: [], total: 0, hasMore: false };
 
-            const response = await fetch(`${this.config.baseUrl}/search?${queryParams}`, {
-                headers: {
-                    'Authorization': `Bearer ${this.config.apiKey}`,
-                    'Content-Type': 'application/json',
-                },
+        const limit = Math.min(Math.max(params.limit || 6, 1), 20);
+        const currency = params.currency || 'USD';
+        const cacheKey = [destinationId, params.category || "", limit, params.offset || 0, currency, params.minPrice ?? "", params.maxPrice ?? "", params.rating ?? ""].join("|");
+        const cached = searchCache.get(cacheKey);
+        if (cached && cached.expires > Date.now()) return cached.result;
+
+        try {
+            const filtering: Record<string, unknown> = { destination: destinationId };
+            if (params.minPrice != null) filtering.lowestPrice = params.minPrice;
+            if (params.maxPrice != null) filtering.highestPrice = params.maxPrice;
+            if (params.rating != null) filtering.rating = { from: params.rating, to: 5 };
+
+            const response = await fetch(`${this.config.baseUrl}/products/search`, {
+                method: 'POST',
+                headers: this.headers(),
+                body: JSON.stringify({
+                    filtering,
+                    sorting: { sort: 'TRAVELER_RATING', order: 'DESCENDING' },
+                    pagination: { start: (params.offset || 0) + 1, count: limit },
+                    currency,
+                }),
             });
 
             if (!response.ok) {
-                throw new Error(`Viator API error: ${response.statusText}`);
+                throw new Error(`Viator API error: ${response.status}`);
             }
 
             const data = await response.json();
-            return this.transformSearchResponse(data);
+            const result = this.transformSearchResponse(data);
+            result.activities = result.activities.filter((a) => a.productCode && a.title && a.viatorUrl);
+            rememberSearch(cacheKey, result);
+            return result;
         } catch (error) {
             console.warn('Error searching Viator activities:', error);
             return this.emptyOrMockSearch(params);
         }
+    }
+
+    /** Viator Partner API v2 headers (exp-api-key, versioned Accept). */
+    private headers(): Record<string, string> {
+        return {
+            'exp-api-key': this.config.apiKey || '',
+            'Accept': 'application/json;version=2.0',
+            'Accept-Language': 'en-US',
+            'Content-Type': 'application/json',
+        };
     }
 
     /**
@@ -84,11 +147,8 @@ class ViatorClient {
         }
 
         try {
-            const response = await fetch(`${this.config.baseUrl}/products/${productCode}`, {
-                headers: {
-                    'Authorization': `Bearer ${this.config.apiKey}`,
-                    'Content-Type': 'application/json',
-                },
+            const response = await fetch(`${this.config.baseUrl}/products/${encodeURIComponent(productCode)}`, {
+                headers: this.headers(),
             });
 
             if (!response.ok) {
@@ -497,6 +557,7 @@ class ViatorClient {
         // Transform actual Viator API response to our format
         // Based on Viator Partner API v1 response structure
         const products = (data.products || data.data || []) as Record<string, unknown>[];
+        const totalCount = data.totalCount as number | undefined;
         const pagination = data.pagination as Record<string, unknown> | undefined;
 
         const activities: ViatorActivity[] = products.map((product) =>
@@ -505,8 +566,8 @@ class ViatorClient {
 
         return {
             activities,
-            total: (pagination?.totalCount as number) || activities.length,
-            hasMore: (pagination?.totalPages as number) > (pagination?.currentPage as number) || false,
+            total: totalCount || (pagination?.totalCount as number) || activities.length,
+            hasMore: totalCount != null ? totalCount > activities.length : ((pagination?.totalPages as number) > (pagination?.currentPage as number) || false),
         };
     }
 
@@ -521,7 +582,7 @@ class ViatorClient {
         const pricing = product.pricing as Record<string, unknown> | undefined;
         const pricingSummary = pricing?.summary as Record<string, unknown> | undefined;
         const reviews = product.reviews as Record<string, unknown> | undefined;
-        const images = (product.images || []) as Array<{ url?: string; variants?: Array<{ url: string }> }>;
+        const images = (product.images || []) as Array<{ url?: string; variants?: Array<{ url: string; width?: number }> }>;
         const itinerary = product.itinerary as Record<string, unknown> | undefined;
         const logistics = product.logistics as Record<string, unknown> | undefined;
         const logisticsStart = logistics?.start as Array<Record<string, unknown>> | undefined;
@@ -547,12 +608,14 @@ class ViatorClient {
             priceFrom: (pricingSummary?.fromPrice || pricing?.fromPrice || 0) as number,
             priceTo: (pricingSummary?.toPrice || pricing?.toPrice) as number | undefined,
             currency: (pricing?.currency || 'USD') as string,
-            rating: (reviews?.combinedAverageRating || product.rating) as number | undefined,
+            rating: ((reviews?.totalReviews as number) > 0 ? (reviews?.combinedAverageRating || product.rating) : undefined) as number | undefined,
             reviewCount: (reviews?.totalReviews || product.reviewCount || 0) as number,
-            images: images.map(img => img.variants?.[0]?.url || img.url || '').filter(Boolean),
-            thumbnailUrl: images[0]?.variants?.[0]?.url || images[0]?.url,
-            bookingUrl: `https://www.viator.com/tours/${product.productCode}`,
-            viatorUrl: (product.productUrl || `https://www.viator.com/tours/${product.productCode}`) as string,
+            images: images.map(img => pickImageVariant(img)).filter(Boolean),
+            thumbnailUrl: images[0] ? pickImageVariant(images[0]) || undefined : undefined,
+            // productUrl from the Partner API already carries our pid/mcid; never build a bare URL without it.
+            bookingUrl: (product.productUrl || '') as string,
+            viatorUrl: (product.productUrl || '') as string,
+            freeCancellation: ((product.flags || []) as string[]).includes('FREE_CANCELLATION'),
             cancellationPolicy: (cancellationPolicy?.description || itinerary?.cancellationPolicy) as string | undefined,
             included: ((itinerary?.inclusions || []) as string[]),
             excluded: ((itinerary?.exclusions || []) as string[]),
@@ -560,7 +623,7 @@ class ViatorClient {
             languages: languageGuides.map(l => l.language || '').filter(Boolean),
             maxTravelers: (bookingInfo?.maxTravelersPerBooking) as number | undefined,
             instantConfirmation: (bookingInfo?.confirmationType === 'INSTANT') || false,
-            mobileTicket: (bookingInfo?.voucherOption === 'MOBILE') || true,
+            mobileTicket: bookingInfo?.voucherOption === 'MOBILE',
         };
     }
 

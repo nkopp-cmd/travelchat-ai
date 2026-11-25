@@ -29,6 +29,7 @@ export interface ViatorActivity {
     accessibility?: string;
     maxTravelers?: number;
     instantConfirmation: boolean;
+    freeCancellation?: boolean;
     mobileTicket: boolean;
     lastSynced?: Date;
     createdAt?: Date;
