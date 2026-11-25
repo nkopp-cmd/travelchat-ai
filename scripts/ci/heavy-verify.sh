@@ -1047,6 +1047,8 @@ lane_node() {
   node --check scripts/seo/orphan-check.mjs
   node --test scripts/seo/index-status-lib.test.mjs
   node --check scripts/seo/index-status.mjs
+  node --test scripts/trip-story/export-lib.test.mjs
+  node --check scripts/trip-story/export.mjs
   node --test scripts/photos/quarantine-source.test.mjs
   node --test scripts/photos/kto-harvest-lib.test.mjs
   node --test scripts/photos/taiwan-opendata-lib.test.mjs

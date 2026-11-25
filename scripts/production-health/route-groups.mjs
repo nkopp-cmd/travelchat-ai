@@ -135,6 +135,7 @@ const routes = [
   "/leaderboard",
   "/media/activity/[file]",
   "/media/spot/[spotId]/[file]",
+  "/media/trip-story/[file]",
   "/newsletter",
   "/newsletter/[state]",
   "/newsletter/confirm",

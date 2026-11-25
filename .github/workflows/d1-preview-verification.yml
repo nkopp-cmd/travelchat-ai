@@ -666,6 +666,7 @@ on:
       - 'app/api/admin/spots/backfill-photos/route.ts'
       - 'lib/place-images.ts'
       - 'scripts/photos/**'
+      - 'scripts/trip-story/**'
       - 'scripts/release/**'
       - 'hooks/use-place-photo.ts'
       - '__tests__/hooks/use-place-photo.test.tsx'
