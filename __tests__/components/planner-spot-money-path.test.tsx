@@ -6,7 +6,7 @@ import type { PlannerCity } from "@/lib/cities-catalog";
 // spotId so the route pins the spot (AD1). Without ?spot= the body has no spotId.
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn(), replace: vi.fn(), prefetch: vi.fn() }) }));
 vi.mock("next/image", () => ({ default: (props: { alt: string }) => <span>{props.alt}</span> }));
-vi.mock("@/lib/funnel-analytics", () => ({ trackFunnelStep: vi.fn(), funnelSource: () => "direct" }));
+vi.mock("@/lib/funnel-analytics", () => ({ trackFunnelStep: vi.fn(), funnelSource: () => "direct", clientNavLanding: () => "" }));
 import { NewItineraryClient } from "@/app/itineraries/new/planner-client";
 import { getQuickStartLabel } from "@/components/itineraries/wizard";
 import { SPOT_QUICK_START_OFFER, QUICK_START_OFFER } from "@/lib/offer-copy";

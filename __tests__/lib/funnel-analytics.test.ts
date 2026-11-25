@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { funnelSource, trackFunnelStep } from "@/lib/funnel-analytics";
+import { clientNavLanding, funnelSource, trackFunnelStep } from "@/lib/funnel-analytics";
 
 afterEach(() => { vi.unstubAllGlobals(); });
 
@@ -22,6 +22,29 @@ describe("funnel analytics", () => {
     expect(funnelSource("https://www.localley.io/", origin, spot)).toBe("spots");
     expect(funnelSource("", origin, "?city=seoul&spot=not-a-uuid")).toBe("direct");
     expect(funnelSource("https://www.google.com/", origin, "?city=seoul")).toBe("other");
+  });
+
+  it("uses the tab's landing page for a client navigation into the planner (push DH1)", () => {
+    const origin = "https://www.localley.io";
+    expect(funnelSource("", origin, "", "https://www.localley.io/")).toBe("home");
+    expect(funnelSource("https://www.google.com/", origin, "", "https://www.localley.io/")).toBe("home");
+    expect(funnelSource("", origin, "", "https://www.localley.io/pricing?x=1")).toBe("pricing");
+    expect(funnelSource("", origin, "", "https://www.localley.io/help")).toBe("other");
+    expect(funnelSource("", origin, "", "https://evil.example/")).toBe("direct");
+    expect(funnelSource("", origin, "", "not a url")).toBe("direct");
+    expect(funnelSource("", origin, "?spot=0022DC9C-5F13-41FD-9940-38A190795704", "https://www.localley.io/")).toBe("spots");
+  });
+
+  it("clientNavLanding names the first load only after a client navigation (push DH1)", () => {
+    const first = `${location.origin}/`;
+    vi.stubGlobal("performance", { getEntriesByType: () => [{ name: first }] });
+    history.replaceState(null, "", "/");
+    expect(clientNavLanding()).toBe("");
+    history.pushState(null, "", "/itineraries/new");
+    expect(clientNavLanding()).toBe(first);
+    vi.stubGlobal("performance", { getEntriesByType: () => [] });
+    expect(clientNavLanding()).toBe("");
+    history.replaceState(null, "", "/");
   });
 
   it("sends one beacon with only the step and the source", async () => {

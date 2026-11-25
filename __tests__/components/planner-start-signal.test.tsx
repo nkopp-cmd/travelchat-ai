@@ -4,7 +4,7 @@ import { ItineraryWizard, resetPlannerStartForTest } from "@/components/itinerar
 import { trackFunnelStep } from "@/lib/funnel-analytics";
 import type { WizardData } from "@/components/itineraries/wizard/wizard-context";
 
-vi.mock("@/lib/funnel-analytics", () => ({ trackFunnelStep: vi.fn(), funnelSource: () => "home" }));
+vi.mock("@/lib/funnel-analytics", () => ({ trackFunnelStep: vi.fn(), funnelSource: () => "home", clientNavLanding: () => "" }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 vi.mock("@/hooks/use-toast", () => ({ useToast: () => ({ toast: vi.fn() }) }));
 
