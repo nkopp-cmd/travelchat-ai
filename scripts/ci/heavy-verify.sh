@@ -124,6 +124,7 @@ VITEST_FILES=(
   __tests__/components/help-menu-page.test.tsx
   __tests__/lib/help-pay.test.ts
   __tests__/lib/blog.test.ts
+  __tests__/lib/blog-trip-story.test.tsx
   __tests__/app/site-url-fallback.test.ts
   __tests__/lib/seo-sitemap.test.ts
   __tests__/lib/seo-spot-indexable.test.ts
@@ -444,6 +445,7 @@ ESLINT_FILES=(
   lib/blog/posts.ts
   lib/blog/markdown.tsx
   lib/blog/seo.ts
+  lib/blog/trip-story.ts
   app/blog/page.tsx
   app/blog/[slug]/page.tsx
   app/blog/rss.xml/route.ts
@@ -486,6 +488,7 @@ ESLINT_FILES=(
   __tests__/lib/spots-city-directory.test.ts
   __tests__/components/city-spot-directory-payload.test.tsx
   __tests__/lib/blog.test.ts
+  __tests__/lib/blog-trip-story.test.tsx
   __tests__/lib/weekly-post-topic.test.ts
   __tests__/lib/weekly-post-draft.test.ts
   __tests__/lib/weekly-post-gates.test.ts

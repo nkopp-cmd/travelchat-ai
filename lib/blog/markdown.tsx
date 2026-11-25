@@ -1,15 +1,21 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { tripStoryAlt } from "./trip-story";
 
 /**
  * Small Markdown renderer for our own blog posts: ## / ### headings, paragraphs,
- * "-" and "1." lists, pipe tables, **bold**, *italic*, `code` and [links](url).
+ * "-" and "1." lists, pipe tables, **bold**, *italic*, `code` and [links](url), and trip-story section images
+ * on their own line: ![alt](/media/trip-story/<sha>-1080.webp) (own AI story images only, trip-story plan T2).
  * No raw HTML: the source is text only, so React escapes everything.
  */
 type Block =
   | { type: "h2" | "h3" | "p"; text: string }
   | { type: "ul" | "ol"; items: string[] }
-  | { type: "table"; head: string[]; rows: string[][] };
+  | { type: "table"; head: string[]; rows: string[][] }
+  | { type: "img"; sha: string; alt: string };
+
+/** Own trip-story image path (R2 trip-story/<sha>-<w>.<ext>); nothing else may appear as an image. */
+const TRIP_STORY_IMAGE = /^!\[([^\]]+)\]\(\/media\/trip-story\/([0-9a-f]{64})-1080\.webp\)$/;
 
 const cells = (line: string) => line.trim().replace(/^\||\|$/g, "").split("|").map((c) => c.trim());
 
@@ -19,6 +25,13 @@ export function parseBlocks(markdown: string): Block[] {
   for (let i = 0; i < lines.length; ) {
     const line = lines[i];
     if (!line.trim()) { i++; continue; }
+    if (line.startsWith("![")) {
+      const image = TRIP_STORY_IMAGE.exec(line.trim());
+      if (!image) throw new Error(`unsupported image ${line.trim()}`);
+      blocks.push({ type: "img", sha: image[2], alt: tripStoryAlt(image[1]) });
+      i++;
+      continue;
+    }
     const heading = /^(#{2,3}) (.+)$/.exec(line);
     if (heading) { blocks.push({ type: heading[1] === "##" ? "h2" : "h3", text: heading[2].trim() }); i++; continue; }
     if (/^- /.test(line) || /^\d+\. /.test(line)) {
@@ -38,7 +51,7 @@ export function parseBlocks(markdown: string): Block[] {
       continue;
     }
     const text: string[] = [];
-    while (i < lines.length && lines[i].trim() && !/^(#{2,3} |- |\d+\. |\|)/.test(lines[i])) text.push(lines[i++].trim());
+    while (i < lines.length && lines[i].trim() && !/^(#{2,3} |- |\d+\. |\||!\[)/.test(lines[i])) text.push(lines[i++].trim());
     blocks.push({ type: "p", text: text.join(" ") });
   }
   return blocks;
@@ -82,6 +95,22 @@ export function headingId(text: string): string {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
+/** 4:5 trip-story image (1080x1350): AVIF first, WebP fallback, 540/1080 px, lazy. No credit line, no label. */
+export function TripStoryFigure({ sha, alt, className = "mt-6" }: { sha: string; alt: string; className?: string }) {
+  const src = (w: number, ext: string) => `/media/trip-story/${sha}-${w}.${ext}`;
+  const set = (ext: string) => `${src(540, ext)} 540w, ${src(1080, ext)} 1080w`;
+  const sizes = "(min-width: 768px) 720px, 100vw";
+  return (
+    <figure className={className}>
+      <picture>
+        <source type="image/avif" srcSet={set("avif")} sizes={sizes} />
+        <img src={src(1080, "webp")} srcSet={set("webp")} sizes={sizes} width={1080} height={1350} alt={alt}
+          loading="lazy" decoding="async" className="h-auto w-full rounded-2xl bg-muted object-cover" />
+      </picture>
+    </figure>
+  );
+}
+
 export function BlogMarkdown({ source, returnPath }: { source: string; returnPath?: string }) {
   return (
     <>
@@ -93,6 +122,7 @@ export function BlogMarkdown({ source, returnPath }: { source: string; returnPat
           case "p": return <p key={k} className="mt-4 text-base leading-7 text-foreground">{renderInline(block.text, k, returnPath)}</p>;
           case "ul": return <ul key={k} className="mt-4 flex list-disc flex-col gap-2 pl-5 text-base leading-7 text-foreground">{block.items.map((item, j) => <li key={j}>{renderInline(item, `${k}-${j}`, returnPath)}</li>)}</ul>;
           case "ol": return <ol key={k} className="mt-4 flex list-decimal flex-col gap-2 pl-5 text-base leading-7 text-foreground">{block.items.map((item, j) => <li key={j}>{renderInline(item, `${k}-${j}`, returnPath)}</li>)}</ol>;
+          case "img": return <TripStoryFigure key={k} sha={block.sha} alt={block.alt} />;
           case "table": return (
             <div key={k} className="mt-4 overflow-x-auto rounded-2xl bg-surface shadow-surface">
               <table className="w-full text-left text-sm leading-6">
