@@ -125,3 +125,10 @@ export function formatPostDate(date: string): string {
 export function blogPlannerCities(posts: readonly BlogPost[] = BLOG_POSTS): string[] {
   return [...new Set(posts.flatMap((p) => (p.plannerCity ? [p.plannerCity] : [])))];
 }
+
+/** Trip-story plan T7: the newest trip-story post (own illustration + planner link) for one city, for its city pages. */
+export function cityTripStory(cityName: string, posts: readonly BlogPost[] = BLOG_POSTS): BlogPost | undefined {
+  return posts
+    .filter((p) => p.illustration && p.plannerCity === cityName)
+    .sort((a, b) => b.published.localeCompare(a.published))[0];
+}

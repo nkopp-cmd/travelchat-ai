@@ -140,6 +140,7 @@ VITEST_FILES=(
   __tests__/api/shared-og-card.test.ts
   __tests__/lib/spots-city-directory.test.ts
   __tests__/components/city-spot-directory-payload.test.tsx
+  __tests__/components/city-trip-story-card.test.tsx
   __tests__/lib/weekly-post-topic.test.ts
   __tests__/lib/weekly-post-draft.test.ts
   __tests__/lib/weekly-post-gates.test.ts
@@ -497,6 +498,8 @@ ESLINT_FILES=(
   __tests__/api/page-og-card.test.ts
   __tests__/lib/spots-city-directory.test.ts
   __tests__/components/city-spot-directory-payload.test.tsx
+  __tests__/components/city-trip-story-card.test.tsx
+  components/blog/city-trip-story-card.tsx
   __tests__/lib/blog.test.ts
   __tests__/lib/blog-trip-story.test.tsx
   __tests__/lib/weekly-post-topic.test.ts

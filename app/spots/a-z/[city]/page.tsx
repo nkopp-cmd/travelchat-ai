@@ -5,6 +5,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { PageHeader } from "@/components/layout/page-header";
+import { CityTripStoryCard } from "@/components/blog/city-trip-story-card";
 import { MapPin } from "@/components/ui/icons";
 import { CitySpotAzList, cityAzPath } from "@/components/spots/city-spot-directory";
 import { getCityBySlug } from "@/lib/cities";
@@ -57,6 +58,7 @@ export default async function CitySpotsAzPage({ params }: Props) {
       <PageHeader eyebrow={<Link prefetch={false} href={hubPath} className="hover:underline">Hidden gems in {city.name}</Link>} eyebrowIcon={MapPin}
         title={`All ${entries.length} spots in ${city.name}, A–Z`}
         lede="Every place we list in this city. Open a spot for its Localley Score, local tips and the map, or go back to the city page to filter by category and score." />
+      <CityTripStoryCard cityName={city.name} />
       <CitySpotAzList entries={entries} />
       <p className="mt-10 text-sm">
         <Link prefetch={false} href={hubPath} className="font-semibold text-primary underline-offset-2 hover:underline">← Best-rated spots in {city.name}</Link>
