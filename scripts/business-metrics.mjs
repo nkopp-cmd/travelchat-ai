@@ -136,6 +136,7 @@ export function authAttemptsNote(events) {
 export function externalArrivalsNote(rows) {
   if (!Array.isArray(rows)) return "unknown";
   const counts = {};
+  const landing = {};
   let total = 0;
   let dev = 0;
   for (const row of rows) {
@@ -145,10 +146,28 @@ export function externalArrivalsNote(rows) {
     if (!host || host === "localley.io" || host.endsWith(".localley.io")) continue;
     if (isDevHost(host)) { dev += n; continue; }
     counts[host] = (counts[host] ?? 0) + n;
+    const path = row?.dimensions?.requestPath;
+    if (typeof path === "string" && path) {
+      const group = landingGroup(path);
+      landing[group] = (landing[group] ?? 0) + n;
+    }
   }
-  const hosts = Object.keys(counts).sort((a, b) => counts[b] - counts[a] || a.localeCompare(b));
+  const byCount = (map) => Object.keys(map).sort((a, b) => map[b] - map[a] || a.localeCompare(b));
+  const hosts = byCount(counts);
   const external = hosts.reduce((sum, h) => sum + counts[h], 0);
-  return `${external}${external ? ` (${hosts.map((h) => `${h} ${counts[h]}`).join(", ")})` : ""} of ${total} page loads${dev ? `, dev ${dev}` : ""}`;
+  const pages = byCount(landing).slice(0, 5);
+  return `${external}${external ? ` (${hosts.map((h) => `${h} ${counts[h]}`).join(", ")})` : ""} of ${total} page loads`
+    + `${pages.length ? `, landing ${pages.map((p) => `${p} ${landing[p]}`).join(", ")}` : ""}${dev ? `, dev ${dev}` : ""}`;
+}
+
+/** Push DE1: an outside visitor's landing path grouped by page type: /spots/<slug> -> /spots/*, one-segment paths and
+ * the planner stay exact, query strings and trailing slashes dropped. Slugs never reach the note. */
+export function landingGroup(path) {
+  const clean = String(path).split(/[?#]/)[0].replace(/\/+$/, "") || "/";
+  if (clean === "/" || clean === "/itineraries/new") return clean;
+  const parts = clean.split("/").filter(Boolean);
+  if (!parts.length || !/^[a-z0-9-]{1,40}$/i.test(parts[0])) return "other";
+  return parts.length === 1 ? `/${parts[0].toLowerCase()}` : `/${parts[0].toLowerCase()}/*`;
 }
 
 /** Push DC1: a referrer from our own machines (local dev, IP literals, previews) is not a visitor from the web. */
@@ -306,11 +325,11 @@ async function rumAuthLead(auth, now = Date.now()) {
   }
 }
 
-/** Read-only CF RUM (Web Analytics) query: page loads 7d by referrer host. null when it cannot be read. */
+/** Read-only CF RUM (Web Analytics) query: page loads 7d by referrer host and landing path (Push DE1). null when it cannot be read. */
 async function rumArrivals(auth, now = Date.now()) {
   const since = new Date(now - 7 * DAY).toISOString().slice(0, 10);
-  const query = `{viewer{accounts(filter:{accountTag:"${ACCOUNT}"}){rumPageloadEventsAdaptiveGroups(limit:500,`
-    + `filter:{date_geq:"${since}",requestHost_like:"%localley.io"}){count dimensions{refererHost}}}}}`;
+  const query = `{viewer{accounts(filter:{accountTag:"${ACCOUNT}"}){rumPageloadEventsAdaptiveGroups(limit:2000,`
+    + `filter:{date_geq:"${since}",requestHost_like:"%localley.io"}){count dimensions{refererHost requestPath}}}}}`;
   try {
     const response = await fetch("https://api.cloudflare.com/client/v4/graphql", {
       method: "POST", headers: { authorization: `Bearer ${auth}`, "content-type": "application/json" }, body: JSON.stringify({ query }),
