@@ -66,6 +66,7 @@ const PUBLIC_ROUTES = [
     '/api/itineraries/:id/story',  // The route enforces owner/public access before rendering.
     '/media/activity/:file',  // Public AI activity thumbnails (R2, hash names only)
     '/media/spot/:spotId/:file',  // Public own spot photos (R2, rows in spot_photos only)
+    '/media/trip-story/:file',  // Public trip-story illustrations (R2, sha names only)
 ];
 
 // Top-level sections with signed-in pages. A signed-out request there goes to sign-up/sign-in; any other unknown path
