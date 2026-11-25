@@ -9,7 +9,7 @@ const nav = vi.hoisted(() => ({ push: vi.fn(), toast: vi.fn(), track: vi.fn() })
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: nav.push, replace: vi.fn(), prefetch: vi.fn() }) }));
 vi.mock("next/image", () => ({ default: (props: { alt: string }) => <span>{props.alt}</span> }));
 vi.mock("next/link", () => ({ default: ({ href, ...props }: { href: string } & Record<string, unknown>) => { delete props.prefetch; return <a href={href} {...props} />; } }));
-vi.mock("@/lib/funnel-analytics", () => ({ trackFunnelStep: vi.fn(), funnelSource: () => "direct" }));
+vi.mock("@/lib/funnel-analytics", () => ({ trackFunnelStep: vi.fn(), funnelSource: () => "direct", clientNavLanding: () => "" }));
 vi.mock("@/lib/spot-analytics", () => ({ trackSpotEvent: nav.track }));
 vi.mock("@/hooks/use-toast", () => ({ useToast: () => ({ toast: nav.toast, dismiss: vi.fn(), toasts: [] }), toast: nav.toast }));
 import { ItineraryWizard, getQuickStartLabel } from "@/components/itineraries/wizard";

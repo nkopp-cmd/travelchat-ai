@@ -7,7 +7,7 @@ import type { PlannerCity } from "@/lib/cities-catalog";
 const nav = vi.hoisted(() => ({ push: vi.fn() }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: nav.push, replace: vi.fn(), prefetch: vi.fn() }) }));
 vi.mock("next/image", () => ({ default: (props: { alt: string }) => <span>{props.alt}</span> }));
-vi.mock("@/lib/funnel-analytics", () => ({ trackFunnelStep: vi.fn(), funnelSource: () => "direct" }));
+vi.mock("@/lib/funnel-analytics", () => ({ trackFunnelStep: vi.fn(), funnelSource: () => "direct", clientNavLanding: () => "" }));
 import { ItineraryWizard, getQuickStartLabel } from "@/components/itineraries/wizard";
 import { Errors } from "@/lib/api-errors";
 import { formatResetDay, parsePlannerLimit, plannerLimitPricingHref } from "@/lib/pricing-checkout";
