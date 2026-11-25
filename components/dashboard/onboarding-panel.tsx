@@ -9,6 +9,8 @@ import { CityImageAvatar } from "@/components/ui/city-image";
 
 interface OnboardingPanelProps {
     className?: string;
+    /** Push DD1: names of the cities the planner offers (lib/cities-catalog plannerCities). null: catalog unavailable. */
+    plannerCityNames?: string[] | null;
 }
 
 // Push CM2: a new account's first screen offers ONE primary action, the first free plan. The old "Try asking Alley"
@@ -27,7 +29,10 @@ const cardClass = "relative overflow-hidden rounded-2xl p-6 bg-surface shadow-su
  * Onboarding panel shown on desktop when the account has no itineraries yet.
  * First action: plan the first trip (free). Then city starts, then the spot map.
  */
-export function OnboardingPanel({ className }: OnboardingPanelProps) {
+export function OnboardingPanel({ className, plannerCityNames }: OnboardingPanelProps) {
+    // A 1-3 spot city linked here opened a planner whose free plan could not build (Push DD1).
+    const offered = plannerCityNames ? new Set(plannerCityNames) : null;
+    const cities = offered ? SUPPORTED_CITIES.filter((city) => offered.has(city.name)) : SUPPORTED_CITIES;
     return (
         <div className={cn("relative", className)}>
             {/* Background decorative elements */}
@@ -106,13 +111,13 @@ export function OnboardingPanel({ className }: OnboardingPanelProps) {
                     <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full bg-raised">
                         <Globe className="h-4 w-4 text-primary" aria-hidden="true" />
                         <span className="text-sm text-muted-foreground">
-                            Available in <span className="font-semibold text-foreground">{SUPPORTED_CITIES.length}</span> cities
+                            Available in <span className="font-semibold text-foreground">{cities.length}</span> cities
                         </span>
                     </div>
                     <div className="rounded-2xl bg-surface p-3">
                         <div className="max-h-[16rem] overflow-y-auto pr-2 scrollbar-hide">
                             <div className="flex justify-center gap-2 flex-wrap">
-                                {SUPPORTED_CITIES.map((city, idx) => (
+                                {cities.map((city, idx) => (
                                     <Link
                                         key={city.name}
                                         href={`/itineraries/new?city=${encodeURIComponent(city.name)}`}
