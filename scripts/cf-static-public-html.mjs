@@ -44,9 +44,11 @@ export const STATIC_PUBLIC_PAGES = {
  * paint for one extra round trip: Lighthouse mobile LCP 2.1 s with the hero image already at fetchpriority high.
  * "/" first (the landing page). Push CI1: the journal posts too; their text LCP equals FCP, and the three blocking sheets
  * (29 KB) held FCP at 1.2 s in PSI mobile on paying-in-singapore. Posts have no hero, so their scripts stay unchanged.
+ * Push DJ2: "/pricing" (the checkout page) too; its H1 text LCP equalled FCP at 1205 ms in PSI mobile (3 runs, budget
+ * 1200 ms), held by the same three blocking sheets. No hero, so its scripts stay unchanged.
  * Other pages keep the exact bytes.
  */
-export const CRITICAL_CSS_PAGES = new Set(["/", ...blogSlugs().map((slug) => `/blog/${slug}`)]);
+export const CRITICAL_CSS_PAGES = new Set(["/", "/pricing", ...blogSlugs().map((slug) => `/blog/${slug}`)]);
 
 const STYLESHEET_LINK = /<link\b[^>]*\brel="stylesheet"[^>]*>/g;
 const hrefOf = (tag) => /\bhref="([^"]+)"/.exec(tag)?.[1] ?? null;
