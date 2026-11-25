@@ -137,16 +137,26 @@ export function externalArrivalsNote(rows) {
   if (!Array.isArray(rows)) return "unknown";
   const counts = {};
   let total = 0;
+  let dev = 0;
   for (const row of rows) {
     const n = Number(row?.count || 0);
     total += n;
     const host = String(row?.dimensions?.refererHost ?? "").trim().toLowerCase().replace(/^www\./, "");
     if (!host || host === "localley.io" || host.endsWith(".localley.io")) continue;
+    if (isDevHost(host)) { dev += n; continue; }
     counts[host] = (counts[host] ?? 0) + n;
   }
   const hosts = Object.keys(counts).sort((a, b) => counts[b] - counts[a] || a.localeCompare(b));
   const external = hosts.reduce((sum, h) => sum + counts[h], 0);
-  return `${external}${external ? ` (${hosts.map((h) => `${h} ${counts[h]}`).join(", ")})` : ""} of ${total} page loads`;
+  return `${external}${external ? ` (${hosts.map((h) => `${h} ${counts[h]}`).join(", ")})` : ""} of ${total} page loads${dev ? `, dev ${dev}` : ""}`;
+}
+
+/** Push DC1: a referrer from our own machines (local dev, IP literals, previews) is not a visitor from the web. */
+export function isDevHost(host) {
+  const h = String(host ?? "").trim().toLowerCase().replace(/:\d+$/, "");
+  return h === "localhost" || h.endsWith(".localhost") || h.endsWith(".local") || h.endsWith(".workers.dev")
+    || h.endsWith(".pages.dev") || h.endsWith(".vercel.app") || h.endsWith(".ts.net")
+    || /^\d{1,3}(\.\d{1,3}){3}$/.test(h) || h.startsWith("[") || /^[0-9a-f:]+$/.test(h) && h.includes(":");
 }
 
 /** Push DB1: CF RUM planner page loads 7d grouped by same-origin refererPath -> "sign-in a, sign-up b". The auth-page

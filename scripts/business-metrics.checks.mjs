@@ -1,7 +1,7 @@
 // node --test scripts/business-metrics.checks.mjs — pure parts of the business-loop money + moat probe (no network).
 import assert from "node:assert/strict";
 import test from "node:test";
-import { PAID_PATH_LIVE_SINCE, authAttemptsNote, authLeadNote, externalArrivalsNote, generateCallsNote, isInternal, plannerErrorsNote, summarize } from "./business-metrics.mjs";
+import { PAID_PATH_LIVE_SINCE, authAttemptsNote, authLeadNote, externalArrivalsNote, isDevHost, generateCallsNote, isInternal, plannerErrorsNote, summarize } from "./business-metrics.mjs";
 
 const now = Date.parse("2026-11-01T12:00:00Z");
 const users = [
@@ -236,4 +236,13 @@ test("auth-page lead (Push DB1): planner loads from /sign-in and /sign-up only, 
   const line = summarize({ users, sessions: [], subscriptions: [], funnel: [], authLead: rows }, now);
   assert.match(line.notes, /planner loads from the auth-page lead 7d \(CF RUM refererPath\): sign-in 10, sign-up 5; /);
   assert.doesNotMatch(summarize({ users, sessions: [], subscriptions: [], funnel: [] }, now).notes, /auth-page lead/);
+});
+
+test("external arrivals (Push DC1): dev and preview referrers count as dev, not as visitors", () => {
+  for (const h of ["localhost", "localhost:3000", "127.0.0.1", "100.124.34.110", "app.local", "x.workers.dev", "y.vercel.app", "[::1]", "::1"]) assert.equal(isDevHost(h), true, h);
+  for (const h of ["bing.com", "l.facebook.com", "domainlions.com", "", "1password.com"]) assert.equal(isDevHost(h), false, h);
+  const r = (refererHost, count) => ({ count, dimensions: { refererHost } });
+  const rows = [r("bing.com", 6), r("localhost", 3), r("127.0.0.1", 2), r("www.localley.io", 20), r("", 10), r("localley-preview.workers.dev", 1)];
+  assert.equal(externalArrivalsNote(rows), "6 (bing.com 6) of 42 page loads, dev 6");
+  assert.equal(externalArrivalsNote([r("bing.com", 1)]), "1 (bing.com 1) of 1 page loads");
 });
