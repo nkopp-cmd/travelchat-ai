@@ -745,7 +745,7 @@ export default async function SpotPage({
 
         <VenuePhotoThumbnails name={spot.name} />
 
-        {!candidate && <SpotActivities spotId={spot.id} city={city} spotName={spot.name} />}
+        {!candidate && <SpotActivities spotId={spot.id} city={city} spotName={spot.name} category={spot.category} />}
 
         {(relatedSpots.length > 0 || nearbyLinks.length > 0 || nextSpot) && (
           <section className="space-y-3" aria-label="Nearby">

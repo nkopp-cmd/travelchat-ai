@@ -36,10 +36,6 @@ vi.mock("@/components/ui/city-image", () => ({
   ),
 }));
 
-vi.mock("@/components/activities/booking-deals-popover", () => ({
-  BookingDealsPopover: () => <button type="button">Deals</button>,
-}));
-
 describe("ItineraryActivityCard", () => {
   it("resolves a fresh attributed image by grounded spot ID without rendering the expired URL", () => {
     const old = "/api/places/photo?name=places/owned/photos/expired";

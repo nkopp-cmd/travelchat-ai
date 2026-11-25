@@ -13,12 +13,7 @@ import { Loader2,
   Navigation,
 } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
-import { SubscriptionTier, hasFeature } from "@/lib/subscription";
-import {
-  getActivityBookingLinks,
-  getHotelBookingLinks,
-} from "@/lib/affiliates";
-import { BookingDealsPopover } from "./booking-deals-popover";
+import { SubscriptionTier } from "@/lib/subscription";
 import { usePlacePhoto } from "@/hooks/use-place-photo";
 import { useVenuePhotos } from "@/components/spots/venue-photo-provider";
 import { SpotPhotoImage } from "@/components/spots/spot-photo-image";
@@ -132,7 +127,6 @@ export function ItineraryActivityCard({
   const scoreBadge = activity.localleyScore
     ? getScoreBadge(activity.localleyScore)
     : null;
-  const showDeals = hasFeature(userTier, "bookingDeals");
   const storedActivityImage = activity.image || activity.thumbnail;
   // Stored Google references expire. Resolve a fresh, attributed gallery only
   // through the grounded spot ID; never guess a new venue from an old photo.
@@ -171,15 +165,6 @@ export function ItineraryActivityCard({
       return { key: imageKey, sources: next };
     });
   };
-
-  // Get booking links
-  const bookingLinks = getActivityBookingLinks({
-    activityName: activity.name,
-    city,
-    category: activity.category,
-  });
-
-  const hotelLinks = getHotelBookingLinks({ city });
 
   const matchedAddress = placeData.formattedAddress || "";
   const preferredMapAddress = getPreferredActivityMapAddress(
@@ -376,14 +361,8 @@ export function ItineraryActivityCard({
               )}
             </div>
 
-            {/* Booking & Maps */}
+            {/* Maps */}
             <div className="flex flex-wrap gap-1.5 pt-0.5 sm:gap-2 sm:pt-1">
-              <BookingDealsPopover
-                activityLinks={bookingLinks.slice(0, 2)}
-                hotelLinks={hotelLinks.slice(0, 1)}
-                activityName={activity.name}
-                showDeals={showDeals}
-              />
               {exactMapUrl && (
                 <Button
                   variant="outline"

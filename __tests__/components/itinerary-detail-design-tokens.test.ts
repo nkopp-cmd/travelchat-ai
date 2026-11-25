@@ -15,10 +15,9 @@ const FILES = [
   "components/itineraries/share-dialog.tsx",
   "components/itineraries/email-dialog.tsx",
   // batch 4
-  "components/activities/viator-suggestions.tsx",
+  "components/booking/trip-booking.tsx",
   "components/booking/bookable-card.tsx",
   "components/spots/spot-activities.tsx",
-  "components/activities/booking-deals-popover.tsx",
   "components/itineraries/itinerary-list.tsx",
   "app/itineraries/(list)/page.tsx",
   "app/settings/page.tsx",
@@ -27,7 +26,6 @@ const FILES = [
   "app/users/[username]/page.tsx",
   // batch 5
   "app/spots/[id]/page.tsx",
-  "components/activities/activity-card.tsx",
   "app/spots/submissions/page.tsx",
   "app/spots/submit/page.tsx",
   "components/itineraries/wizard/index.tsx",

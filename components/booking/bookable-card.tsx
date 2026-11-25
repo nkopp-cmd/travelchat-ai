@@ -56,6 +56,8 @@ export function BookableCard({ item, placement, className }: { item: BookableIte
     const [imageFailed, setImageFailed] = useState(false);
     const price = formatFromPrice(item.priceFrom, item.currency);
     const showRating = typeof item.rating === "number" && item.rating > 0 && (item.reviewCount ?? 0) > 0;
+    // Inline cards sit under one itinerary stop: a short row (thumbnail left), not a full 16:9 tile.
+    const row = placement === "inline";
 
     return (
         <a
@@ -65,28 +67,29 @@ export function BookableCard({ item, placement, className }: { item: BookableIte
             onClick={() => trackClick(item, placement)}
             data-bookable-card={item.partner}
             className={cn(
-                "group flex h-full flex-col overflow-hidden rounded-2xl bg-raised text-foreground transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                "group flex overflow-hidden rounded-2xl bg-raised text-foreground transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                row ? "flex-row items-stretch" : "h-full flex-col",
                 className,
             )}
         >
-            <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden bg-card">
+            <div className={cn("relative shrink-0 overflow-hidden bg-card", row ? "w-24 sm:w-32" : "aspect-[16/9] w-full")}>
                 {item.imageUrl && !imageFailed ? (
                     <Image
                         src={item.imageUrl}
                         alt=""
                         fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
+                        sizes={row ? "128px" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"}
                         className="object-cover transition-transform duration-300 group-hover:scale-105"
                         onError={() => setImageFailed(true)}
                     />
                 ) : (
                     <div className="flex h-full w-full items-center justify-center">
-                        <ImageOff className="h-8 w-8 text-muted-foreground" aria-hidden />
+                        <ImageOff className={cn("text-muted-foreground", row ? "h-6 w-6" : "h-8 w-8")} aria-hidden />
                     </div>
                 )}
             </div>
-            <div className="flex flex-1 flex-col gap-2 p-4">
-                <h3 className="line-clamp-2 text-base font-semibold leading-snug">{item.title}</h3>
+            <div className={cn("flex min-w-0 flex-1 flex-col", row ? "gap-1 p-3" : "gap-2 p-4")}>
+                <h3 className={cn("line-clamp-2 font-semibold leading-snug", row ? "text-sm" : "text-base")}>{item.title}</h3>
                 {(showRating || item.duration) && (
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
                         {showRating && (
@@ -105,7 +108,8 @@ export function BookableCard({ item, placement, className }: { item: BookableIte
                     </div>
                 )}
                 {item.freeCancellation && <p className="text-sm text-muted-foreground">Free cancellation</p>}
-                <div className="mt-auto flex items-end justify-between gap-3 pt-2">
+                {row && <p className="text-xs text-muted-foreground">Book via Viator</p>}
+                <div className={cn("mt-auto flex flex-wrap items-end justify-between gap-2", row ? "pt-1" : "pt-2")}>
                     {price ? (
                         <p className="text-sm text-muted-foreground">
                             from <span className="text-lg font-bold text-foreground">{price}</span> / person
