@@ -18,6 +18,7 @@ VITEST_FILES=(
   __tests__/lib/planner-client-imports.test.ts
   __tests__/lib/preview-draft-store.test.ts
   __tests__/api/itinerary-save-candidate.test.ts
+  __tests__/api/itinerary-save-www.test.ts
   __tests__/api/itinerary-update-candidate.test.ts
   __tests__/api/subscription-checkout-live.test.ts
   __tests__/api/subscription-portal-live.test.ts
@@ -933,6 +934,7 @@ ESLINT_FILES=(
   app/api/itineraries/save/route.ts
   lib/app-data/preview-itinerary-save.ts
   __tests__/api/itinerary-save-candidate.test.ts
+  __tests__/api/itinerary-save-www.test.ts
   __tests__/lib/app-data-preview-itinerary-save.test.ts
   lib/app-data/preview-itinerary-delete.ts
   __tests__/api/itinerary-delete-candidate.test.ts

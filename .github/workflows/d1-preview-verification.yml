@@ -610,6 +610,7 @@ on:
       - '__tests__/api/itinerary-update-candidate.test.ts'
       - '__tests__/api/itinerary-delete-candidate.test.ts'
       - '__tests__/api/itinerary-save-candidate.test.ts'
+      - '__tests__/api/itinerary-save-www.test.ts'
       - '__tests__/api/itinerary-duplicate-candidate.test.ts'
       - '__tests__/app/itinerary-list-candidate-page.test.tsx'
       - '__tests__/app/dashboard-candidate-page.test.tsx'
