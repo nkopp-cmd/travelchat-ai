@@ -47,6 +47,18 @@ describe("planner city list rendered with the page", () => {
     expect(fetcher.mock.calls.map(([url]) => String(url))).toContain("/api/cities?minSpots=1");
   });
 
+  it("clears a ?city= the planner does not offer and asks for a listed city (Push DD3); a listed city stays chosen", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status: 404 })));
+    const list = toPlannerCities([city("seoul", 386, "recommended"), city("tokyo", 429, "recommended")]);
+    const { unmount } = render(<PlannerCitiesContext.Provider value={list}><WizardProvider initialData={{ city: "Nara" }}><StepDestination /></WizardProvider></PlannerCitiesContext.Provider>);
+    expect((await screen.findByTestId("planner-unplannable-city")).textContent).toBe("Localley cannot plan Nara yet. Pick a city below for your free plan.");
+    expect(screen.queryByText(/selected/i)).toBeNull();
+    unmount();
+    render(<PlannerCitiesContext.Provider value={list}><WizardProvider initialData={{ city: "tokyo" }}><StepDestination /></WizardProvider></PlannerCitiesContext.Provider>);
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(screen.queryByTestId("planner-unplannable-city")).toBeNull();
+  });
+
   it("is the page's one <h1> (the step heading) so the free-trip landing has a main heading", () => {
     vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status: 404 })));
     render(<PlannerCitiesContext.Provider value={toPlannerCities([city("seoul", 386, "recommended")])}><WizardProvider><StepDestination /></WizardProvider></PlannerCitiesContext.Provider>);
