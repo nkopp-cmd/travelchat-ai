@@ -85,11 +85,12 @@ describe("home journal and A-Z links (Push CC2)", () => {
     expect(homeJournalLinks([])).toEqual([]);
   });
 
-  it("the real journal gives 3 links to existing posts, paying-in-seoul included", () => {
+  it("the real journal gives the 3 newest existing posts (a new weekly post must not break this)", () => {
     const links = homeJournalLinks(BLOG_POSTS);
     expect(links).toHaveLength(Math.min(3, BLOG_POSTS.length));
     for (const l of links) expect(BLOG_POSTS.some((p) => `/blog/${p.slug}` === l.href && p.title === l.title)).toBe(true);
-    expect(links.map((l) => l.href)).toContain("/blog/paying-in-seoul");
+    const newest = [...BLOG_POSTS].sort((a, b) => b.published.localeCompare(a.published) || a.slug.localeCompare(b.slug))[0];
+    expect(links[0].href).toBe(`/blog/${newest.slug}`);
   });
 
   it("every linked hub also links its A-Z page (same path as the hub page's own link)", () => {
