@@ -363,6 +363,8 @@ on:
       - 'components/ui/badge.tsx'
       - 'components/activities/viator-suggestions.tsx'
       - '__tests__/components/viator-suggestions-lazy.test.tsx'
+      - 'lib/viator.ts'
+      - '__tests__/lib/viator-no-mock.test.ts'
       - 'lib/itineraries/grounded-generation.ts'
       - '__tests__/lib/itinerary-grounded-generation.test.ts'
       - 'lib/llm/provider-probe.ts'

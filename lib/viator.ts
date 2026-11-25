@@ -10,6 +10,7 @@ interface ViatorConfig {
 class ViatorClient {
     private config: ViatorConfig;
     private useMock: boolean;
+    private allowMock: boolean;
 
     constructor(config: ViatorConfig = {}) {
         const apiKey = config.apiKey || process.env.VIATOR_API_KEY;
@@ -24,15 +25,24 @@ class ViatorClient {
             useMockData: config.useMockData ?? !apiKey,
         };
 
-        this.useMock = this.config.useMockData || !this.config.apiKey;
+        // Mock tours are invented (titles, prices, ratings, review counts, URLs). They must never reach a
+        // visitor: only an explicit opt-in (tests/dev with VIATOR_ALLOW_MOCK=1) may use them.
+        this.allowMock = config.useMockData === true || process.env.VIATOR_ALLOW_MOCK === '1';
+        this.useMock = this.allowMock && (this.config.useMockData === true || !this.config.apiKey);
+    }
+
+    /** No key, an API error, or no opt-in: show nothing rather than invented tours. */
+    private emptyOrMockSearch(params: ViatorSearchParams): ViatorSearchResult {
+        if (this.allowMock) return this.getMockSearchResults(params);
+        return { activities: [], total: 0, hasMore: false };
     }
 
     /**
      * Search for activities by destination and filters
      */
     async searchActivities(params: ViatorSearchParams): Promise<ViatorSearchResult> {
-        if (this.useMock) {
-            return this.getMockSearchResults(params);
+        if (this.useMock || !this.config.apiKey) {
+            return this.emptyOrMockSearch(params);
         }
 
         try {
@@ -60,8 +70,7 @@ class ViatorClient {
             return this.transformSearchResponse(data);
         } catch (error) {
             console.warn('Error searching Viator activities:', error);
-            // Fallback to mock data on error
-            return this.getMockSearchResults(params);
+            return this.emptyOrMockSearch(params);
         }
     }
 
@@ -69,6 +78,7 @@ class ViatorClient {
      * Get activity details by product code
      */
     async getActivity(productCode: string): Promise<ViatorActivity | null> {
+        if (!this.config.apiKey && !this.allowMock) return null;
         if (this.useMock) {
             return this.getMockActivity(productCode);
         }
@@ -89,7 +99,7 @@ class ViatorClient {
             return this.transformActivityResponse(data);
         } catch (error) {
             console.warn('Error fetching Viator activity:', error);
-            return this.getMockActivity(productCode);
+            return this.allowMock ? this.getMockActivity(productCode) : null;
         }
     }
 
