@@ -170,6 +170,7 @@ VITEST_FILES=(
   __tests__/components/dashboard-design-tokens.test.ts
   __tests__/components/viator-suggestions-lazy.test.tsx
   __tests__/lib/viator-no-mock.test.ts
+  __tests__/lib/viator-partner-search.test.ts
   __tests__/lib/itinerary-grounded-generation.test.ts
   __tests__/lib/provider-probe.test.ts
   __tests__/api/ai-provider-probe-route.test.ts
@@ -425,6 +426,7 @@ VITEST_FILES=(
 ESLINT_FILES=(
   lib/viator.ts
   __tests__/lib/viator-no-mock.test.ts
+  __tests__/lib/viator-partner-search.test.ts
   components/itineraries/planner-paid-return.tsx
   lib/seo/pricing-line.ts
   components/seo/pricing-line.tsx
