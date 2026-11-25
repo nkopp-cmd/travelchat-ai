@@ -178,11 +178,12 @@ export function isDevHost(host) {
     || /^\d{1,3}(\.\d{1,3}){3}$/.test(h) || h.startsWith("[") || /^[0-9a-f:]+$/.test(h) && h.includes(":");
 }
 
-/** Push DB1: CF RUM planner page loads 7d grouped by same-origin refererPath -> "sign-in a, sign-up b". The auth-page
- * lead link (Push CM1/CN2) is a full page load, so these are visitors who left the account form for the free planner. */
+/** Push DB1/DG1: CF RUM planner page loads 7d grouped by same-origin refererPath -> "home a, sign-in b, sign-up c". The
+ * auth-page lead link (Push CM1/CN2) is a full page load, so these are visitors who left the account form for the free
+ * planner; "home" shows whether the top outside landing page ("/") moves visitors to the free plan. */
 export function authLeadNote(rows) {
   if (!Array.isArray(rows)) return "unknown";
-  const counts = { "sign-in": 0, "sign-up": 0 };
+  const counts = { home: 0, "sign-in": 0, "sign-up": 0 };
   for (const row of rows) {
     const d = row?.dimensions ?? {};
     if (String(d.requestPath ?? "") !== "/itineraries/new") continue;
@@ -190,8 +191,9 @@ export function authLeadNote(rows) {
     if (host !== "localley.io") continue;
     const from = String(d.refererPath ?? "").replace(/\/+$/, "");
     if (from === "/sign-in" || from === "/sign-up") counts[from.slice(1)] += Number(row?.count || 0);
+    else if (from === "") counts.home += Number(row?.count || 0);
   }
-  return `sign-in ${counts["sign-in"]}, sign-up ${counts["sign-up"]}`;
+  return `home ${counts.home}, sign-in ${counts["sign-in"]}, sign-up ${counts["sign-up"]}`;
 }
 
 /** Pure: rows from the two databases -> the probe line. */
@@ -255,7 +257,7 @@ export function summarize({ users, sessions, subscriptions, funnel, links = [], 
       // Push CN1: the sign-up step: visitors who try the account form, next to the arrivals above.
       + (authLog === undefined ? "" : `real auth attempts 7d (Worker log, POST /api/auth sign-up/sign-in): ${authAttemptsNote(authLog)}; `)
       // Push DB1: the auth-page lead link to the free planner, read at the 2026-12-19 offer check.
-      + (authLead === undefined ? "" : `planner loads from the auth-page lead 7d (CF RUM refererPath): ${authLeadNote(authLead)}; `)
+      + (authLead === undefined ? "" : `planner loads from home and the auth-page lead 7d (CF RUM refererPath): ${authLeadNote(authLead)}; `)
       + `revenue/prev/repeat null: Stripe key is a Worker secret only and D1 keeps no invoice history; `
       + `proprietary = ${events ? `${events.length} viral events + ${places} resolved places` : "viral archive missing"} + ${ranked} weekly rankings; `
       + `ugc = questions/answers/reviews/tips/social submissions; owned_audience = ${audience
