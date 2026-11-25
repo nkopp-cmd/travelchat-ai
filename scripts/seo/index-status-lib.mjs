@@ -48,7 +48,29 @@ export function indexNote(state, now = Date.now()) {
   if (!Number.isFinite(ms)) return "google index of money/entry pages: unknown (no index-status run)";
   const day = new Date(ms).toISOString().slice(0, 10);
   const stale = now - ms > 14 * 86_400_000 ? ", stale" : "";
-  return `google index of money/entry pages: ${state.summary.line} (URL Inspection ${day}${stale})`;
+  const sm = state.sitemap;
+  const sitemap = sm?.read ? `; sitemap read ${sm.read}, ${sm.submitted} submitted, ${sm.indexed} indexed` : "";
+  return `google index of money/entry pages: ${state.summary.line} (URL Inspection ${day}${stale})${sitemap}`;
+}
+
+/**
+ * Push DI1: Search Console sitemaps list -> last Google read day + web URLs submitted/indexed (summed over sitemaps).
+ * Answers "did Google read the sitemap at all" next to the per-URL inspection. Bad body -> null.
+ */
+export function parseSitemaps(body) {
+  const list = Array.isArray(body?.sitemap) ? body.sitemap : null;
+  if (!list) return null;
+  let read = "", submitted = 0, indexed = 0;
+  for (const s of list) {
+    const day = String(s?.lastDownloaded ?? "").slice(0, 10);
+    if (day > read) read = day;
+    for (const c of Array.isArray(s?.contents) ? s.contents : []) {
+      if (c?.type !== "web") continue;
+      submitted += Number(c.submitted) || 0;
+      indexed += Number(c.indexed) || 0;
+    }
+  }
+  return { read: read || null, submitted, indexed };
 }
 
 /** Service-account JWT for the OAuth token exchange (RS256). */

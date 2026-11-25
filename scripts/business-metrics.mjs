@@ -75,29 +75,36 @@ export function generateCallsNote(events) {
  * Own checks carry `check` (x-localley-check header or a check user agent); lines from before CG3 have no city and
  * no `check`, so (push CK2) a line also counts as own when the fetch event of the same $metadata.requestId came from our ASN or
  * sent x-localley-check: on 2026-11-22 all 5 "unknown" errors were our own checks from ASN 24940.
+ * Push DI1: a pre-CG3 line (no city, no check field) whose fetch event is no longer in the log cannot be classed, so it is
+ * "unmatched", not real: on 2026-11-25 five such own-check lines read as real errors while real generate calls were 0.
  * The 2026-12-19 offer check reads where planner_start does not reach trip_generated from this.
  */
 export function plannerErrorsNote(events) {
   if (!Array.isArray(events)) return "unknown: Worker log unreadable";
   const ownIds = new Set();
+  const fetchIds = new Set();
   for (const e of events) {
     const cf = e?.$workers?.event?.request?.cf;
     const id = e.$metadata?.requestId;
+    if (cf && id) fetchIds.add(id);
     if (cf && id && ownCall(cf)) ownIds.add(id);
   }
   const byCity = new Map();
-  let total = 0, suggested = 0, own = 0;
+  let total = 0, suggested = 0, own = 0, unmatched = 0;
   for (const e of events) {
     const line = e?.source;
     if (line?.message !== "[generate] outcome" || Number(line.status) !== 422 || line.reason !== "no_spots") continue;
-    if (line.check || (e.$metadata?.requestId && ownIds.has(e.$metadata.requestId))) { own += 1; continue; }
+    const id = e.$metadata?.requestId;
+    if (line.check || (id && ownIds.has(id))) { own += 1; continue; }
+    if (line.city === undefined && line.check === undefined && !(id && fetchIds.has(id))) { unmatched += 1; continue; }
     total += 1;
     if (line.suggestion === true) suggested += 1;
     const city = typeof line.city === "string" && /^[a-z0-9-]{1,40}$/.test(line.city) ? line.city : "unknown";
     byCity.set(city, (byCity.get(city) ?? 0) + 1);
   }
   const cities = [...byCity].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([c, n]) => `${c} ${n}`).join(", ");
-  return `${total}${cities ? ` (${cities})` : ""}, smaller plan offered ${suggested}, own checks ${own} excluded`;
+  return `${total}${cities ? ` (${cities})` : ""}, smaller plan offered ${suggested}, own checks ${own} excluded`
+    + (unmatched ? `, ${unmatched} old lines without their request excluded` : "");
 }
 
 /**

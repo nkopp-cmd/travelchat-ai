@@ -7,7 +7,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
-import { DEFAULT_PATHS, MAX_URLS, PROPERTY, SITE, parseInspection, serviceAccountJwt, summarizeRows } from "./index-status-lib.mjs";
+import { DEFAULT_PATHS, MAX_URLS, PROPERTY, SITE, parseInspection, parseSitemaps, serviceAccountJwt, summarizeRows } from "./index-status-lib.mjs";
 
 export const STATE_FILE = join(homedir(), "projects/CyberLink/claude-work/localley-index-status.json");
 const KEY_FILE = process.env.GSC_KEY_FILE || join(homedir(), "secrets/gsc-service-account.json");
@@ -33,6 +33,18 @@ async function inspect(token, path) {
   return parseInspection(path, await res.json());
 }
 
+/** Push DI1: best effort; a failed sitemaps read never blocks the inspection rows. */
+async function sitemaps(token) {
+  try {
+    const res = await fetch(`https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(PROPERTY)}/sitemaps`, {
+      headers: { authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(20_000),
+    });
+    return res.ok ? parseSitemaps(await res.json()) : null;
+  } catch {
+    return null;
+  }
+}
+
 async function main() {
   const args = process.argv.slice(2);
   const outAt = args.indexOf("--out");
@@ -43,9 +55,10 @@ async function main() {
   for (const path of paths) rows.push(await inspect(token, path)); // one at a time: quota is per minute too
   const summary = summarizeRows(rows, new Date().toISOString());
   mkdirSync(dirname(out), { recursive: true });
-  writeFileSync(out, `${JSON.stringify({ summary, rows }, null, 1)}\n`);
+  const sitemap = await sitemaps(token);
+  writeFileSync(out, `${JSON.stringify({ summary, sitemap, rows }, null, 1)}\n`);
   for (const r of rows) console.log(`${r.path} | ${r.error ?? `${r.coverage} | crawled ${r.lastCrawl ?? "-"}`}`);
-  console.log(`${summary.line}${summary.errors ? ` (${summary.errors} errors)` : ""}`);
+  console.log(`${summary.line}${summary.errors ? ` (${summary.errors} errors)` : ""}${sitemap?.read ? `; sitemap read ${sitemap.read}, ${sitemap.submitted} submitted, ${sitemap.indexed} indexed` : ""}`);
   if (summary.checked === 0) process.exit(1);
 }
 

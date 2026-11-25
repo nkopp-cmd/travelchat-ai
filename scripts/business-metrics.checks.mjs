@@ -161,7 +161,8 @@ test("planner no-spots errors count per city, own checks apart (push CG3)", () =
     { source: { message: "other", status: 422, reason: "no_spots", city: "x" } },
     { $workers: { event: { request: { method: "POST", cf: {} } } } },
   ]);
-  assert.equal(note, "5 (canggu 2, unknown 2, taipei 1), smaller plan offered 2, own checks 1 excluded");
+  // The pre-CG3 line (no city, no check) has no fetch event in the log: unmatched (push DI1), not real.
+  assert.equal(note, "4 (canggu 2, taipei 1, unknown 1), smaller plan offered 2, own checks 1 excluded, 1 old lines without their request excluded");
   assert.equal(plannerErrorsNote(null), "unknown: Worker log unreadable");
   assert.equal(plannerErrorsNote([]), "0, smaller plan offered 0, own checks 0 excluded");
 });
@@ -175,9 +176,21 @@ test("Push CK2: a no-spots line counts as own when its request came from our ASN
     fetch("r2", { asn: 7922, requestHeaderNames: ["x-localley-check"] }), line("r2", { city: "jeju" }),
     fetch("r3", { asn: 28573 }), line("r3", { city: "canggu" }), // a real visitor
     line("r4", { city: "nara" }), // fetch event outside the read window: counts as real
-    fetch(undefined, { asn: 24940 }), line(undefined, {}), // no requestId: never matches an own id
+    fetch(undefined, { asn: 24940 }), line(undefined, {}), // no requestId: never matches, so an old line is unmatched
   ]);
-  assert.equal(note, "3 (canggu 1, nara 1, unknown 1), smaller plan offered 0, own checks 2 excluded");
+  assert.equal(note, "2 (canggu 1, nara 1), smaller plan offered 0, own checks 2 excluded, 1 old lines without their request excluded");
+});
+
+test("Push DI1: a pre-CG3 line counts as real only while its fetch event is in the log and not own", () => {
+  const fetch = (requestId, cf) => ({ $metadata: { requestId }, $workers: { event: { request: { method: "POST", cf } } } });
+  const line = (requestId, source) => ({ source: { message: "[generate] outcome", status: 422, reason: "no_spots", ...source },
+    $metadata: { requestId }, $workers: { event: { request: { method: "POST" } } } });
+  // 2026-11-25: five pre-CG3 own-check lines whose fetch events had left the log read as "5 (unknown 5)".
+  const gone = ["a", "b", "c", "d", "e"].map((id) => line(id, {}));
+  assert.equal(plannerErrorsNote(gone), "0, smaller plan offered 0, own checks 0 excluded, 5 old lines without their request excluded");
+  assert.equal(plannerErrorsNote([fetch("v", { asn: 28573 }), line("v", {})]), "1 (unknown 1), smaller plan offered 0, own checks 0 excluded");
+  assert.equal(plannerErrorsNote([line("n", { city: "nara" })]), "1 (nara 1), smaller plan offered 0, own checks 0 excluded");
+  assert.equal(plannerErrorsNote([line("k", { city: "kyoto", check: false })]), "1 (kyoto 1), smaller plan offered 0, own checks 0 excluded");
 });
 
 test("external arrivals: referrer hosts outside localley.io, own hosts and direct loads excluded (Push CM3)", () => {
