@@ -122,15 +122,18 @@ export function postFile({ topic, date, description, body, photo }) {
   return `---\n${meta.join("\n")}\n---\n${body.trim()}\n`;
 }
 
-function runCodex(prompt) {
+const DRAFT_SCHEMA = {
+  type: "object", additionalProperties: false, required: ["description", "body"],
+  properties: { description: { type: "string" }, body: { type: "string" } },
+};
+
+/** One `codex exec` call on the ChatGPT subscription (no metered key reaches it); returns the parsed JSON reply. */
+export function runCodex(prompt, outputSchema = DRAFT_SCHEMA) {
   const dir = mkdtempSync(path.join(tmpdir(), "localley-draft-"));
   try {
     const schema = path.join(dir, "schema.json");
     const out = path.join(dir, "out.json");
-    writeFileSync(schema, JSON.stringify({
-      type: "object", additionalProperties: false, required: ["description", "body"],
-      properties: { description: { type: "string" }, body: { type: "string" } },
-    }));
+    writeFileSync(schema, JSON.stringify(outputSchema));
     const env = { ...process.env };
     for (const k of ["OPENAI_API_KEY", "CODEX_API_KEY", "CODEX_ACCESS_TOKEN", "OPENAI_BASE_URL", "OPENAI_API_BASE", "ANTHROPIC_API_KEY"]) delete env[k];
     const args = ["exec", "--ignore-user-config", "--ephemeral", "--skip-git-repo-check", "--cd", dir, "--sandbox", "read-only",
