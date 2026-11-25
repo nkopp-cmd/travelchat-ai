@@ -366,6 +366,7 @@ on:
       - '__tests__/components/trip-booking.test.tsx'
       - 'lib/booking/**'
       - '__tests__/lib/booking-match.test.ts'
+      - '__tests__/lib/booking-checklist.test.ts'
       - 'components/booking/**'
       - '__tests__/components/bookable-card.test.tsx'
       - 'lib/viator.ts'

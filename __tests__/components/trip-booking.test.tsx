@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
-import { StopBookingCard, TripBookingProvider, computeTripMatches } from "@/components/booking/trip-booking";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { StopBookingCard, TripBookingProvider, TripChecklist, computeTripMatches } from "@/components/booking/trip-booking";
 import type { ViatorActivity } from "@/types/viator";
 
 const activity = (productCode: string, title: string, priceFrom = 45): ViatorActivity =>
@@ -73,5 +73,38 @@ describe("TripBookingProvider", () => {
     );
     await new Promise((r) => setTimeout(r, 10));
     expect(view.getByTestId("paid").innerHTML).toBe("");
+  });
+
+  it("checklist lists matched stops once, totals per person and keeps booked marks on the device", async () => {
+    window.localStorage.clear();
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ success: true, data: { activities: products } }))));
+    const days = [
+      [{ name: "Gwangjang Market", category: "food", cost: "$10" }, { name: "Seoul Forest", category: "park" }],
+      [{ name: "Gyeongbokgung Palace", category: "culture", cost: "₩3,000" }],
+    ];
+    const view = render(
+      <TripBookingProvider city="Seoul" days={days}>
+        <TripChecklist itineraryId="trip-1" />
+      </TripBookingProvider>,
+    );
+    await waitFor(() => expect(screen.getByText("Bookings for this trip")).toBeTruthy());
+    expect(screen.getByText("Book early")).toBeTruthy();
+    expect(screen.getByText(/0 of 2 booked · \$90 of \$90 per person left to book/)).toBeTruthy();
+    fireEvent.click(screen.getByLabelText(/Gwangjang Market Night Food Tour/));
+    expect(screen.getByText(/1 of 2 booked · \$45 of \$90/)).toBeTruthy();
+    expect(JSON.parse(window.localStorage.getItem("localley:booked:trip-1") ?? "[]")).toEqual(["P1"]);
+    expect(screen.getAllByText("Check availability")).toHaveLength(1);
+    view.unmount();
+  });
+
+  it("checklist renders nothing when no stop matched", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("no", { status: 401 })));
+    const view = render(
+      <TripBookingProvider city="Seoul" days={[[{ name: "Gwangjang Market", category: "food", cost: "$10" }]]}>
+        <div data-testid="list"><TripChecklist itineraryId="trip-2" /></div>
+      </TripBookingProvider>,
+    );
+    await new Promise((r) => setTimeout(r, 10));
+    expect(view.getByTestId("list").innerHTML).toBe("");
   });
 });

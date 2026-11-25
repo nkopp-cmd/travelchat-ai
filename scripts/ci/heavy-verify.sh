@@ -172,6 +172,7 @@ VITEST_FILES=(
   __tests__/components/dashboard-design-tokens.test.ts
   __tests__/components/trip-booking.test.tsx
   __tests__/lib/booking-match.test.ts
+  __tests__/lib/booking-checklist.test.ts
   __tests__/components/bookable-card.test.tsx
   __tests__/lib/viator-no-mock.test.ts
   __tests__/lib/viator-partner-search.test.ts
@@ -429,6 +430,8 @@ VITEST_FILES=(
 
 ESLINT_FILES=(
   lib/booking/match.ts
+  lib/booking/checklist.ts
+  __tests__/lib/booking-checklist.test.ts
   __tests__/lib/booking-match.test.ts
   lib/viator.ts
   __tests__/lib/viator-no-mock.test.ts

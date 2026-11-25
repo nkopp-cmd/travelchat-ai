@@ -21,7 +21,7 @@ import { StoryDialog } from "@/components/itineraries/story-dialog";
 import { ItineraryMap } from "@/components/itinerary/itinerary-map";
 import { ItineraryInsightsPanel } from "@/components/itinerary/itinerary-insights-panel";
 import { DayRouteSection } from "@/components/itinerary/day-route-section";
-import { TripBookingProvider } from "@/components/booking/trip-booking";
+import { TripBookingProvider, TripChecklist } from "@/components/booking/trip-booking";
 import { HeroSection } from "@/components/itinerary/hero-section";
 import { auth, getPublicSession } from "@/lib/auth/server";
 import { getUserTier } from "@/lib/usage-tracking";
@@ -423,6 +423,7 @@ export default async function ItineraryViewPage({
                   userTier={userTier}
                 />
               ))}
+              <TripChecklist itineraryId={itinerary.id} />
             </TripBookingProvider>
 
             {/* Fallback if no activities */}
