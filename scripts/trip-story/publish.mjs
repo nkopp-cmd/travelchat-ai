@@ -113,7 +113,7 @@ async function live() {
     if (fail.length) { failed = true; keep.push(item); console.log(JSON.stringify({ slug: item.slug, live: false, fail })); continue; }
     const status = await ping([url, `https://${HOST}/blog`]);
     sh(`${ROOT}/shared/scripts/mark-deployed`, ["Localley"], app);
-    notify(`Trip story live: ${item.slug}`, `Live: ${url}\nReply "no trip ${item.slug}" to unpublish it.`);
+    notify(`Trip story live: ${item.slug}`, `Live: ${url}\nReply "no trip ${item.slug}" to unpublish it.\nOptional (T6): set the TikTok bio link to ${url} so viewers of the carousel find the full plan.`);
     console.log(JSON.stringify({ slug: item.slug, live: true, indexnow: status }));
   }
   writeState({ ...state, pending: keep });
