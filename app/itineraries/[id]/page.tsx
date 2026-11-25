@@ -21,7 +21,7 @@ import { StoryDialog } from "@/components/itineraries/story-dialog";
 import { ItineraryMap } from "@/components/itinerary/itinerary-map";
 import { ItineraryInsightsPanel } from "@/components/itinerary/itinerary-insights-panel";
 import { DayRouteSection } from "@/components/itinerary/day-route-section";
-import { ViatorSuggestions } from "@/components/activities/viator-suggestions";
+import { TripBookingProvider } from "@/components/booking/trip-booking";
 import { HeroSection } from "@/components/itinerary/hero-section";
 import { auth, getPublicSession } from "@/lib/auth/server";
 import { getUserTier } from "@/lib/usage-tracking";
@@ -408,15 +408,22 @@ export default async function ItineraryViewPage({
                 </ul>
               </nav>
             )}
-            {dailyPlansForDisplay.map((dayPlan: DayPlan, dayIndex: number) => (
-              <DayRouteSection
-                key={dayIndex}
-                dayPlan={dayPlan}
-                dayIndex={dayIndex}
-                city={displayCity}
-                userTier={userTier}
-              />
-            ))}
+            <TripBookingProvider
+              city={displayCity}
+              days={dailyPlansForDisplay.map((dayPlan: DayPlan) =>
+                (dayPlan.activities || []).map((a) => ({ name: a.name, category: a.category, type: a.type, cost: a.cost })),
+              )}
+            >
+              {dailyPlansForDisplay.map((dayPlan: DayPlan, dayIndex: number) => (
+                <DayRouteSection
+                  key={dayIndex}
+                  dayPlan={dayPlan}
+                  dayIndex={dayIndex}
+                  city={displayCity}
+                  userTier={userTier}
+                />
+              ))}
+            </TripBookingProvider>
 
             {/* Fallback if no activities */}
             {dailyPlansForDisplay.length === 0 && (
@@ -426,9 +433,6 @@ export default async function ItineraryViewPage({
             )}
           </div>
         </div>
-
-        {/* Viator Activity Suggestions */}
-        <ViatorSuggestions city={displayCity} userTier={userTier} limit={4} />
 
         {/* Footer Actions */}
         <section className="rounded-2xl bg-raised p-4 backdrop-blur-xl sm:p-5">

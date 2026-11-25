@@ -17,7 +17,6 @@ vi.mock('@/components/itineraries/preview-copy-button',()=>({PreviewCopyButton:(
 vi.mock('@/components/itineraries/email-dialog',()=>({EmailDialog:()=> <button>Email</button>}));
 vi.mock('@/components/itineraries/story-dialog',()=>({StoryDialog:()=> <button>Generate story</button>}));
 vi.mock('@/components/itinerary/itinerary-map',()=>({ItineraryMap:()=> <p>Provider map</p>}));
-vi.mock('@/components/activities/viator-suggestions',()=>({ViatorSuggestions:()=> <p>Provider suggestions</p>}));
 import {JsonLd} from '@/components/seo/json-ld';
 import Page,{generateMetadata} from '@/app/itineraries/[id]/page';
 const env=process.env;
@@ -67,7 +66,7 @@ describe('candidate itinerary page and metadata',()=>{
     expect(html).toContain('Source trip');expect(html).toContain('Generate story');expect(html).not.toContain('Preview email link');expect(html).not.toContain('Make a copy');
     mocks.headers.mockResolvedValue(new Headers({host:'www.localley.io'}));
     html=renderToStaticMarkup(await Page(input('d1')));
-    expect(html).toContain('Source trip');expect(html).toContain('Provider suggestions');expect(html).not.toContain('Preview email link');expect(html).not.toContain('Make a copy');
+    expect(html).toContain('Source trip');expect(html).not.toContain('Provider suggestions');expect(html).not.toContain('Preview email link');expect(html).not.toContain('Make a copy');
     expect(mocks.read).not.toHaveBeenCalled();expect(mocks.admin).toHaveBeenCalledTimes(2);
   });
 });

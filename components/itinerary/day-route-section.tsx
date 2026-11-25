@@ -1,6 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Fragment } from "react";
 import { ItineraryActivityCard } from "@/components/activities/itinerary-activity-card";
+import { StopBookingCard } from "@/components/booking/trip-booking";
 import {
   buildDayRouteUrl,
   getDayRouteAddressSummary,
@@ -232,14 +234,16 @@ export function DayRouteSection({
             )}
             <div className="space-y-1.5 sm:space-y-2">
               {activities.map((activity, activityIndex) => (
-                <ItineraryActivityCard
-                  key={`${activity.name}-${activityIndex}`}
-                  activity={activity}
-                  city={city}
-                  userTier={userTier}
-                  isLast={activityIndex === activities.length - 1}
-                  position={activityIndex + 1}
-                />
+                <Fragment key={`${activity.name}-${activityIndex}`}>
+                  <ItineraryActivityCard
+                    activity={activity}
+                    city={city}
+                    userTier={userTier}
+                    isLast={activityIndex === activities.length - 1}
+                    position={activityIndex + 1}
+                  />
+                  <StopBookingCard dayIndex={dayIndex} stopIndex={activityIndex} />
+                </Fragment>
               ))}
             </div>
           </div>

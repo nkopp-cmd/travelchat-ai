@@ -45,14 +45,6 @@
   "components/accessibility/skip-link.tsx": {
     "palette": 1
   },
-  "components/activities/activity-card.tsx": {
-    "palette": 1
-  },
-  "components/activities/booking-button.tsx": {
-    "gradient": 4,
-    "palette": 1,
-    "tiny-text": 1
-  },
   "components/activities/itinerary-activity-card.tsx": {
     "palette": 1
   },

@@ -4,17 +4,22 @@ import { render, waitFor } from "@testing-library/react";
 const auth = vi.hoisted(() => ({ state: { isLoaded: true, isSignedIn: false } }));
 vi.mock("@/lib/auth/client", () => ({ useAuth: () => auth.state }));
 
-import { SpotActivities, getSpotActivitiesCopy } from "@/components/spots/spot-activities";
+import { SpotActivities, getSpotActivitiesCopy, pickSpotProduct } from "@/components/spots/spot-activities";
+
+const viator = (productCode: string, title: string) => ({
+  id: productCode, productCode, title, priceFrom: 40, currency: "USD", rating: 4.8, reviewCount: 300,
+  viatorUrl: `https://www.viator.com/tours/Seoul/x/d973-${productCode}`,
+});
 
 describe("SpotActivities", () => {
-  it("describes Viator results as city-level instead of exact nearby picks", () => {
-    expect(getSpotActivitiesCopy("Seoul", "Gwangjang Market")).toEqual({
-      heading: "Bookable activities in Seoul",
-      loadingDescription:
-        "Finding city-level tours that can pair with Gwangjang Market.",
-      description:
-        "These are city-level tours and activities around Seoul, not exact walking-distance picks from Gwangjang Market.",
-    });
+  it("heading names the spot, never a city list", () => {
+    expect(getSpotActivitiesCopy("Gwangjang Market").heading).toBe("Book a tour with Gwangjang Market");
+  });
+
+  it("picks one product that fits the spot, none for a free place", () => {
+    const list = [viator("P1", "Gwangjang Market Night Food Tour"), viator("P2", "DMZ Day Trip")] as never[];
+    expect(pickSpotProduct(list, { name: "Gwangjang Market", category: "Market" })?.productCode).toBe("P1");
+    expect(pickSpotProduct(list, { name: "Seoul Forest", category: "Park" })).toBeNull();
   });
 });
 
@@ -34,7 +39,24 @@ describe("SpotActivities requests", () => {
     const fetchMock = vi.fn(async () => new Response(JSON.stringify({ success: true, data: { activities: [] } })));
     vi.stubGlobal("fetch", fetchMock);
     auth.state = { isLoaded: true, isSignedIn: true };
-    render(<SpotActivities spotId="s1" city="Seoul" />);
+    render(<SpotActivities spotId="s1" city="Seoul" spotName="Gwangjang Market" category="Market" />);
     await waitFor(() => expect(fetchMock).toHaveBeenCalledWith("/api/viator/search", expect.objectContaining({ method: "POST" })));
+  });
+
+  it("renders one matched card for a signed-in user", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ success: true, data: { activities: [viator("P1", "Gwangjang Market Night Food Tour"), viator("P3", "Gwangjang Market Cooking Class")] } }))));
+    auth.state = { isLoaded: true, isSignedIn: true };
+    const { findAllByRole } = render(<SpotActivities spotId="s1" city="Seoul" spotName="Gwangjang Market" category="Market" />);
+    const links = await findAllByRole("link");
+    expect(new Set(links.map((l) => l.getAttribute("href"))).size).toBe(1);
+  });
+
+  it("makes no request for a free place", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    auth.state = { isLoaded: true, isSignedIn: true };
+    render(<SpotActivities spotId="s1" city="Seoul" spotName="Seoul Forest" category="Park" />);
+    await new Promise((r) => setTimeout(r, 10));
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
