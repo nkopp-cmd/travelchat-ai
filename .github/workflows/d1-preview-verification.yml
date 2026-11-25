@@ -92,6 +92,7 @@ on:
       - 'emails/newsletter-*.ts'
       - 'public/email/**'
       - 'scripts/newsletter/**'
+      - 'scripts/trip-story/**'
       - 'migrations/app-preview/0051_newsletter_subscribers.sql'
       - '__tests__/lib/newsletter-store.test.ts'
       - '__tests__/api/newsletter-routes.test.ts'
