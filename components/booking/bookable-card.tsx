@@ -33,7 +33,7 @@ export function formatFromPrice(amount: number | undefined, currency = "USD"): s
     }
 }
 
-function trackClick(item: BookableItem, placement: BookablePlacement) {
+export function trackClick(item: BookableItem, placement: BookablePlacement) {
     try {
         void fetch("/api/affiliates/track", {
             method: "POST",
