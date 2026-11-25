@@ -1,4 +1,5 @@
 import bundle from "./posts.generated.json";
+import { tripStoryAlt } from "./trip-story";
 
 /** Weekly blog (shared/plans/weekly-blog.md): Markdown files in content/blog, bundled by scripts/blog-index.mjs. */
 export type BlogPost = {
@@ -10,6 +11,8 @@ export type BlogPost = {
   updated: string;
   image?: string;
   photo?: BlogPhoto;
+  /** Trip-story plan T2: our own AI story image as the post's top image (4:5, no credit line). */
+  illustration?: BlogIllustration;
   body: string;
   /** City of the post's own planner link (`/itineraries/new?city=<City>`), for the planner button under the post. */
   plannerCity?: string;
@@ -60,6 +63,22 @@ function parsePhoto(file: string, meta: Record<string, string>): BlogPhoto | und
   return { src: meta.photo, alt: meta.photoAlt, credit: meta.photoCredit, width: Number(size[1]), height: Number(size[2]) };
 }
 
+/** Own AI trip-story image (R2 trip-story/<sha>-1080|540.avif|webp, 1080x1350). Never captioned as a photo. */
+export type BlogIllustration = { sha: string; alt: string; width: 1080; height: 1350 };
+
+const SHA = /^[0-9a-f]{64}$/;
+
+function parseIllustration(file: string, meta: Record<string, string>): BlogIllustration | undefined {
+  if (!meta.illustration) return undefined;
+  if (!SHA.test(meta.illustration)) throw new Error(`${file}: illustration must be a trip-story image sha (64 hex)`);
+  if (meta.photo) throw new Error(`${file}: use photo or illustration, not both`);
+  try {
+    return { sha: meta.illustration, alt: tripStoryAlt(meta.illustrationAlt ?? ""), width: 1080, height: 1350 };
+  } catch (error) {
+    throw new Error(`${file}: illustrationAlt: ${(error as Error).message}`);
+  }
+}
+
 const FILE = /^(\d{4}-\d{2}-\d{2})-([a-z0-9]+(?:-[a-z0-9]+)*)\.md$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -82,7 +101,7 @@ export function parsePost(file: string, source: string): BlogPost {
   if (meta.updated < meta.published) throw new Error(`${file}: updated is before published`);
   return {
     slug: name[2], file, title: meta.title, description: meta.description,
-    published: meta.published, updated: meta.updated, image: meta.image || undefined, photo: parsePhoto(file, meta), body: match[2].trim(),
+    published: meta.published, updated: meta.updated, image: meta.image || undefined, photo: parsePhoto(file, meta), illustration: parseIllustration(file, meta), body: match[2].trim(),
     plannerCity: postPlannerCity(match[2]),
   };
 }

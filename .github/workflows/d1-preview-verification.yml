@@ -154,6 +154,7 @@ on:
       - 'app/help/**'
       - '__tests__/lib/help-pay.test.ts'
       - '__tests__/lib/blog.test.ts'
+      - '__tests__/lib/blog-trip-story.test.tsx'
       - 'app/blog/**'
       - 'lib/blog/**'
       - 'content/blog/**'

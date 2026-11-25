@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "@/components/ui/icons";
 import { LocalleySignup } from "@/components/newsletter/localley-signup";
-import { BlogMarkdown } from "@/lib/blog/markdown";
+import { BlogMarkdown, TripStoryFigure } from "@/lib/blog/markdown";
 import { BLOG_POSTS, blogPost, formatPostDate, plannerHref, splitFirstSection, splitLead } from "@/lib/blog/posts";
 import { spotPhotoSrcSet } from "@/lib/spots/own-photo";
 import { blogPostingJsonLd, jsonLdHtml, postImage, postUrl } from "@/lib/blog/seo";
@@ -20,7 +20,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const post = blogPost((await params).slug);
   if (!post) return {};
   const image = postImage(post);
-  const size = !post.image && post.photo ? { width: post.photo.width, height: post.photo.height } : { width: 1200, height: 630 };
+  const own = post.image ? undefined : post.photo ?? post.illustration;
+  const size = own ? { width: own.width, height: own.height } : { width: 1200, height: 630 };
   // " | Localley" (11 chars) only when the whole title still fits 65 chars; long post titles stand alone.
   return {
     title: post.title.length + 11 <= 65 ? post.title : { absolute: clip(post.title, 65) },
@@ -70,6 +71,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             </figcaption>
           </figure>
         )}
+        {post.illustration && <TripStoryFigure sha={post.illustration.sha} alt={post.illustration.alt} />}
         {after && <BlogMarkdown source={after} returnPath={`/blog/${post.slug}`} />}
         <p className="mt-10 text-sm text-muted-foreground">
           Last updated <time dateTime={post.updated}>{formatPostDate(post.updated)}</time>

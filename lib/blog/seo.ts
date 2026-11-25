@@ -1,3 +1,4 @@
+import { illustrationSrc } from "./trip-story";
 import { BLOG_DESCRIPTION, BLOG_TITLE, BLOG_URL, type BlogPost } from "./posts";
 
 export const DEFAULT_BLOG_IMAGE = "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1200&h=630&auto=format&fit=crop";
@@ -9,9 +10,11 @@ const publisher = {
   logo: { "@type": "ImageObject", url: "https://www.localley.io/android-chrome-512x512.png" },
 };
 
-/** Share image: the front matter image, else the post's own photo, else the default. */
+/** Share image: the front matter image, else the post's own photo, else its trip-story image, else the default. */
 export function postImage(post: BlogPost): string {
-  return post.image ?? (post.photo ? `https://www.localley.io${post.photo.src}` : DEFAULT_BLOG_IMAGE);
+  if (post.image) return post.image;
+  if (post.photo) return `https://www.localley.io${post.photo.src}`;
+  return post.illustration ? `https://www.localley.io${illustrationSrc(post.illustration.sha)}` : DEFAULT_BLOG_IMAGE;
 }
 
 export function postUrl(post: BlogPost): string {
