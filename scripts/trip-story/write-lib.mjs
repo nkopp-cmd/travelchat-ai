@@ -3,7 +3,8 @@
 // code places the painted day images, the headings, the planner link and the front matter, then checks the prose.
 import { TELL } from "../weekly-post-draft.mjs";
 
-export const WORDS = { min: 600, max: 1600 };
+// Short trips with few stop facts make short posts; padding to a fixed length would invent content.
+export const WORDS = { min: 300, max: 1600 };
 const SHA = /^[0-9a-f]{64}$/;
 const NUMBER = /\d[\d,.]*\d|\d/g;
 const norm = (n) => n.replace(/[,.]+$/, "").replace(/,/g, "");
@@ -31,6 +32,7 @@ export function tripFacts(trip) {
       if (s.duration) bits.push(`duration ${s.duration}`);
       if (s.cost) bits.push(`cost ${s.cost}`);
       lines.push(bits.join("; "));
+      if (s.plan) lines.push(`"${s.name}" what to do: ${s.plan}`);
       if (f.description) lines.push(`"${s.name}": ${f.description}`);
       for (const tip of f.tips ?? []) lines.push(`"${s.name}" tip: ${tip}`);
       if (f.bestTimes?.length) lines.push(`"${s.name}" best times: ${f.bestTimes.join(", ")}`);
@@ -55,6 +57,7 @@ export function buildPrompt(trip, date) {
     "- intro: 2-3 short paragraphs (plain text, paragraphs split by a blank line). The first sentence says what the trip is and who it suits.",
     `- days: exactly ${trip.days.length} items in day order, each {"heading": "<3-8 words, no 'Day N'>", "text": "<2-4 short paragraphs>"}.`,
     "  Each day text names every stop of that day exactly as written in the facts, in order, and says what to do there, when, and one tip if a tip exists.",
+    `- Length: ${WORDS.min + 100}-${WORDS.min + 400} words in total. Reach it with more practical detail from the facts (what to do, timing, how long, cost), never with new facts.`,
     "- Plain, friendly, concrete English. No Markdown headings, no links, no images, no lists, no emoji.",
     "- Do not mention AI, images, illustrations, TikTok, data, or how the post was made.",
   ].join("\n");
@@ -91,7 +94,8 @@ export function checkDraft(draft, trip) {
   if (PHOTO_WORD.test(all) || /\b(ai|tiktok|illustrat\w*|image)s?\b/i.test(all)) problems.push("mentions images or how it was made");
   for (const re of TELL) if (re.test(all)) problems.push(`tell ${re.source}`);
   const words = all.split(/\s+/).filter((w) => /\w/.test(w)).length;
-  if (words < WORDS.min || words > WORDS.max) problems.push(`words ${words}`);
+  if (words < WORDS.min) problems.push(`too short: ${words} words, write at least ${WORDS.min + 100}`);
+  if (words > WORDS.max) problems.push(`too long: ${words} words, max ${WORDS.max}`);
   const known = new Set(tripFacts(trip).join(" ").match(NUMBER)?.map(norm) ?? []);
   for (const n of new Set((all.match(NUMBER) ?? []).map(norm))) {
     if (!known.has(n) && !(/^\d+$/.test(n) && Number(n) >= 1 && Number(n) <= 10)) problems.push(`number ${n} not in facts`);
