@@ -214,6 +214,7 @@ VITEST_FILES=(
   __tests__/api/generate-plan-cache.test.ts
   __tests__/lib/plan-cache.test.ts
   __tests__/scripts/warm-free-plans.test.ts
+  __tests__/scripts/a11y-money-pages.test.ts
   __tests__/lib/hub-city.test.tsx
   __tests__/components/kept-trip-line.test.tsx
   __tests__/lib/chat-provider-fallback.test.ts
@@ -502,6 +503,8 @@ ESLINT_FILES=(
   __tests__/api/generate-plan-cache.test.ts
   __tests__/scripts/warm-free-plans.test.ts
   scripts/warm-free-plans.mjs
+  __tests__/scripts/a11y-money-pages.test.ts
+  scripts/a11y-money-pages.mjs
   app/itineraries/preview/layout.tsx
   lib/trips/generated-preview.ts
   lib/trips/paid-return.ts
