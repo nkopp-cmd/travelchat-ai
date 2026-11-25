@@ -223,18 +223,18 @@ test("auth attempts (Push CN1): real localley.io POSTs by kind, own checks and t
   assert.doesNotMatch(summarize({ users, sessions: [], subscriptions: [], funnel: [] }, now).notes, /auth attempts/);
 });
 
-test("auth-page lead (Push DB1): planner loads from /sign-in and /sign-up only, same origin only", () => {
+test("planner lead (Push DB1/DG1): planner loads from /, /sign-in and /sign-up only, same origin only", () => {
   const row = (count, refererHost, refererPath, requestPath = "/itineraries/new") => ({ count, dimensions: { refererHost, refererPath, requestPath } });
   const rows = [
     row(10, "www.localley.io", "/sign-in"), row(3, "localley.io", "/sign-up/"), row(2, "www.localley.io", "/sign-up"),
-    row(7, "www.localley.io", "/"), row(5, "bing.com", "/sign-in"), row(4, "www.localley.io", "/sign-in", "/spots"),
+    row(7, "www.localley.io", "/"), row(1, "localley.io", ""), row(2, "www.localley.io", "/blog/x"), row(6, "google.com", "/"), row(5, "bing.com", "/sign-in"), row(4, "www.localley.io", "/sign-in", "/spots"),
     row(1, "evil-localley.io", "/sign-in"),
   ];
-  assert.equal(authLeadNote(rows), "sign-in 10, sign-up 5");
-  assert.equal(authLeadNote([]), "sign-in 0, sign-up 0");
+  assert.equal(authLeadNote(rows), "home 8, sign-in 10, sign-up 5");
+  assert.equal(authLeadNote([]), "home 0, sign-in 0, sign-up 0");
   assert.equal(authLeadNote(null), "unknown");
   const line = summarize({ users, sessions: [], subscriptions: [], funnel: [], authLead: rows }, now);
-  assert.match(line.notes, /planner loads from the auth-page lead 7d \(CF RUM refererPath\): sign-in 10, sign-up 5; /);
+  assert.match(line.notes, /planner loads from home and the auth-page lead 7d \(CF RUM refererPath\): home 8, sign-in 10, sign-up 5; /);
   assert.doesNotMatch(summarize({ users, sessions: [], subscriptions: [], funnel: [] }, now).notes, /auth-page lead/);
 });
 
