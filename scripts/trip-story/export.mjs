@@ -2,6 +2,7 @@
 // Trip-story plan T1: export posted TikTok carousel trips for blog posts.
 //   node scripts/trip-story/export.mjs --list               posted trips that can become a post
 //   node scripts/trip-story/export.mjs --out DIR [--limit N] write DIR/<itineraryId>.json
+//   ... --only <itineraryId>                                  export one trip (publish.mjs, T5)
 //   ... --derive                                              also put 4:5 AVIF/WebP derivatives in R2 (trip-story/<sha>-<w>.<ext>)
 // Reads: carousel ledger (agent host), production D1 (SELECT only). Writes: local JSON, R2 objects (content-addressed).
 import { execFileSync } from "node:child_process";
@@ -70,7 +71,8 @@ async function main() {
   const value = (name) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : undefined; };
   const auth = token();
   const ledger = JSON.parse(readFileSync(LEDGER, "utf8"));
-  const posted = postedTrips(ledger).slice(0, Number(value("--limit")) || Infinity);
+  const only = value("--only");
+  const posted = postedTrips(ledger).filter((p) => !only || p.itineraryId === only).slice(0, Number(value("--limit")) || Infinity);
   const outDir = value("--out");
   if (outDir) mkdirSync(outDir, { recursive: true });
   const workDir = join(homedir(), ".cache/localley-trip-story");
