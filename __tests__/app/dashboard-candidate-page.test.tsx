@@ -11,6 +11,7 @@ vi.mock("@/lib/app-data/preview-itinerary-list", () => ({
 vi.mock("@/components/chat/chat-interface", () => ({ ChatInterface: () => null }));
 vi.mock("@/components/chat/mobile-chat-fab", () => ({ MobileChatFAB: () => null }));
 vi.mock("@/components/dashboard/recent-stories", () => ({ RecentStories: () => null }));
+vi.mock("@/lib/cities-catalog", () => ({ plannerCities: async () => [] }));
 vi.mock("@/components/dashboard/onboarding-panel", () => ({ OnboardingPanel: () => null }));
 vi.mock("@/components/dashboard/mobile-dashboard-content", () => ({ MobileDashboardContent: () => null }));
 import DashboardPage from "@/app/dashboard/page";

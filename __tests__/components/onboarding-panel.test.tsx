@@ -23,4 +23,14 @@ describe("new account onboarding panel (Push CM2)", () => {
       expect(starts).toContain(`/itineraries/new?city=${city}`);
     }
   });
+
+  it("lists only the cities the planner offers (Push DD1), the full list when the catalog is unavailable", () => {
+    const { container } = render(<OnboardingPanel plannerCityNames={["Tokyo", "Seoul", "Ubud, Bali"]} />);
+    const hrefs = [...container.querySelectorAll("a")].map((a) => a.getAttribute("href") ?? "");
+    expect(hrefs).toContain("/itineraries/new?city=Ubud%2C%20Bali");
+    for (const city of ["Nara", "Jeju", "Canggu%2C%20Bali"]) expect(hrefs).not.toContain(`/itineraries/new?city=${city}`);
+    expect(screen.getByText("3")).not.toBeNull();
+    const fallback = render(<OnboardingPanel plannerCityNames={null} />);
+    expect([...fallback.container.querySelectorAll("a")].map((a) => a.getAttribute("href"))).toContain("/itineraries/new?city=Nara");
+  });
 });
