@@ -204,7 +204,25 @@ export function authLeadNote(rows) {
 }
 
 /** Pure: rows from the two databases -> the probe line. */
-export function summarize({ users, sessions, subscriptions, funnel, links = [], ugc = [], rankings = [], viral = null, subscribers = null, lastEvent = null, indexStatus = null, generateLog = undefined, arrivals = undefined, authLog = undefined, authLead = undefined }, now = Date.now()) {
+// Booking plan B8: affiliate clicks by partner + placement. BookableCard tracking ids end in the placement
+// (`viator-<code>-spot`); older ids have none and count as "legacy". Own accounts are left out.
+const PLACEMENTS = new Set(["itinerary", "spot", "inline", "checklist"]);
+export function bookingClicksNote(rows, internal = new Set(), now = Date.now(), days = 30) {
+  if (!Array.isArray(rows)) return "unknown: affiliate_clicks unreadable";
+  const from = now - days * DAY;
+  const counts = {};
+  for (const r of rows) {
+    if ((r.event_type ?? "click") !== "click" || (r.clerk_user_id && internal.has(r.clerk_user_id))) continue;
+    if (!within(r.created_at, from, now + DAY)) continue;
+    const last = String(r.tracking_id ?? "").split("-").pop();
+    const key = `${r.partner || "unknown"} ${PLACEMENTS.has(last) ? last : "legacy"}`;
+    counts[key] = (counts[key] ?? 0) + 1;
+  }
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+  return `${total}${total ? ` (${Object.keys(counts).sort().map((k) => `${k} ${counts[k]}`).join(", ")})` : ""}`;
+}
+
+export function summarize({ users, sessions, subscriptions, funnel, links = [], ugc = [], rankings = [], viral = null, subscribers = null, lastEvent = null, indexStatus = null, generateLog = undefined, arrivals = undefined, authLog = undefined, authLead = undefined, clicks = undefined }, now = Date.now()) {
   const from30 = now - 30 * DAY;
   const internal = new Set(users.filter((u) => isInternal(u.email)).map((u) => u.id));
   for (const l of links) if (internal.has(l.authUserId)) internal.add(l.ownerId); // legacy rows carry the owner id
@@ -268,6 +286,8 @@ export function summarize({ users, sessions, subscriptions, funnel, links = [], 
       + (authLog === undefined ? "" : `real auth attempts 7d (Worker log, POST /api/auth sign-up/sign-in): ${authAttemptsNote(authLog)}; `)
       // Push DB1: the auth-page lead link to the free planner, read at the 2026-12-19 offer check.
       + (authLead === undefined ? "" : `planner loads from home and the auth-page lead 7d (CF RUM refererPath): ${authLeadNote(authLead)}; `)
+      // Booking plan B8: which booking placement earns clicks (bookings themselves live in partner reports).
+      + (clicks === undefined ? "" : `booking clicks 30d by partner + placement (D1 affiliate_clicks): ${bookingClicksNote(clicks, internal, now)}; `)
       + `revenue/prev/repeat null: Stripe key is a Worker secret only and D1 keeps no invoice history; `
       + `proprietary = ${events ? `${events.length} viral events + ${places} resolved places` : "viral archive missing"} + ${ranked} weekly rankings; `
       + `ugc = questions/answers/reviews/tips/social submissions; owned_audience = ${audience
@@ -357,7 +377,7 @@ async function rumArrivals(auth, now = Date.now()) {
 async function main() {
   const auth = token();
   const lastDay = (table) => select(AUTH_DB, `SELECT max(day) AS day FROM ${table}`, auth).then((r) => r[0]?.day ?? null, () => null);
-  const [users, sessions, funnel, subscriptions, links, ugc, rankings, subscribers, funnelDay, cardsDay, generateLog, arrivals, authLog, authLead] = await Promise.all([
+  const [users, sessions, funnel, subscriptions, links, ugc, rankings, subscribers, funnelDay, cardsDay, generateLog, arrivals, authLog, authLead, clicks] = await Promise.all([
     select(AUTH_DB, "SELECT id, email, createdAt FROM user", auth),
     select(AUTH_DB, "SELECT userId, updatedAt FROM session WHERE updatedAt >= strftime('%Y-%m-%dT%H:%M:%fZ','now','-31 days')", auth),
     select(AUTH_DB, "SELECT day, step, source, count FROM funnel_events_daily WHERE step IN ('checkout_paid', 'checkout_start', 'planner_start', 'trip_generated')", auth),
@@ -369,11 +389,12 @@ async function main() {
     // Unknown (null), not zero, when the table is not there yet or the read fails.
     select(APP_DB, "SELECT email, status, created_at FROM newsletter_subscribers", auth).catch(() => null),
     lastDay("funnel_events_daily"), lastDay("spot_card_events_daily"), generateEvents(auth), rumArrivals(auth), authEvents(auth), rumAuthLead(auth),
+    select(APP_DB, "SELECT partner, tracking_id, event_type, clerk_user_id, created_at FROM affiliate_clicks WHERE created_at >= strftime('%Y-%m-%dT%H:%M:%fZ','now','-31 days')", auth).catch(() => null),
   ]);
   const viral = existsSync(VIRAL_STATE) ? JSON.parse(readFileSync(VIRAL_STATE, "utf8")) : null;
   let indexStatus = null;
   try { indexStatus = JSON.parse(readFileSync(INDEX_STATE, "utf8")); } catch { /* no run yet: the note says unknown */ }
-  process.stdout.write(`${JSON.stringify(summarize({ users, sessions, subscriptions, funnel, links, ugc, rankings, viral, subscribers, lastEvent: { funnel: funnelDay, cards: cardsDay }, indexStatus, generateLog, arrivals, authLog, authLead }))}\n`);
+  process.stdout.write(`${JSON.stringify(summarize({ users, sessions, subscriptions, funnel, links, ugc, rankings, viral, subscribers, lastEvent: { funnel: funnelDay, cards: cardsDay }, indexStatus, generateLog, arrivals, authLog, authLead, clicks }))}\n`);
 }
 
 // realpath: the probe also runs through symlinked checkouts, where argv[1] is not the resolved module path.
