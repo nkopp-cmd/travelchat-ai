@@ -29,6 +29,7 @@ test("facts carry every stop field, nothing internal", () => {
   const lines = tripFacts(trip).join("\n");
   assert.match(lines, /Gwangjang Market" tip: Go before the lunch queue/);
   assert.match(lines, /cost ₩15,000/);
+  assert.match(tripFacts({ ...trip, days: [{ ...trip.days[0], stops: [stop("Gwangjang Market", { plan: "Eat bindaetteok at the stalls." })] }] }).join("\n"), /"Gwangjang Market" what to do: Eat bindaetteok at the stalls\./);
   assert.doesNotMatch(lines, /localleyScore|score/i);
 });
 
