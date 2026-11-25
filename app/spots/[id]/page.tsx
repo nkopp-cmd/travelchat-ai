@@ -68,6 +68,7 @@ import { PricingLineLink } from "@/components/seo/pricing-line";
 import { PreviewSaveSpotButton } from "@/components/spots/preview-save-spot-button";
 import { previewSavedSpotActor } from "@/lib/app-data/preview-saved-spot-actor";
 import { previewSpotPageData } from "@/lib/app-data/preview-spot-page";
+import { plannerCities } from "@/lib/cities-catalog";
 
 const LIQUID_CARD =
   "rounded-lg bg-surface/[0.86] backdrop-blur-xl";
@@ -556,12 +557,14 @@ export default async function SpotPage({
   const citySlug = inferSpotCitySlug(spot);
   const knownCity = citySlug ? city : null; // address fallback is not a planner city
   const primaryArea = getPrimaryArea(spot.location.address, city);
-  const [relatedSpots, guide, viralMentions, directory, indexableRows] = await Promise.all([
+  const [relatedSpots, guide, viralMentions, directory, indexableRows, offeredPlannerCities] = await Promise.all([
     candidate ? Promise.resolve([] as RelatedSpot[]) : getRelatedSpots(spot, city),
     candidate ? Promise.resolve(null) : spotGuide(spot.id),
     candidate ? Promise.resolve([]) : fetchSpotViralMentions(spot.id).catch(() => []),
     candidate ? Promise.resolve([]) : cityDirectory(citySlug),
     candidate ? Promise.resolve([]) : sitemapSpotRows().catch(() => []),
+    // Push DD2: the plan button opens only a city whose free plan builds (cached list; null = not known).
+    plannerCities().then((list) => new Set(list.map((c) => c.name)), () => null),
   ]);
   // Six closest spots of the same city hub as plain links: every spot page links its neighbours, so no spot is an
   // orphan even outside the hub's first page (weekend sprint L3).
@@ -606,7 +609,7 @@ export default async function SpotPage({
   // hero placeholder (it collapsed after load: CLS 0.31 on mobile PSI, weekend sprint L4 follow-up).
   const photosPossible = !candidate && spot.hasIndexPhoto;
 
-  const plan = spotPlanLink({ id: spot.id, name: spot.name, plannerCity: knownCity, lat: spot.location.lat, lng: spot.location.lng });
+  const plan = spotPlanLink({ id: spot.id, name: spot.name, plannerCity: knownCity, lat: spot.location.lat, lng: spot.location.lng }, offeredPlannerCities);
 
   return (
     <VenuePhotoProvider key={spot.id} spotId={spot.id} allowFetch={photosPossible} directPhotos={directSpotPhotos(spot)}

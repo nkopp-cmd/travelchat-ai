@@ -11,6 +11,7 @@ import { CityQuickFilters } from "@/components/spots/city-quick-filters";
 import { CityConditions } from "@/components/spots/city-conditions";
 import { getCityBySlug } from "@/lib/cities";
 import { withHubCity } from "@/lib/spots/hub-city";
+import { plannerCities } from "@/lib/cities-catalog";
 import { hubIndexable, spotsHubHeading } from "@/lib/seo/spot-indexable";
 import { sitemapSpotRows } from "@/lib/seo/sitemap-spots";
 import { homeHubLinks } from "@/lib/seo/home-links";
@@ -166,8 +167,14 @@ async function SpotsContent({
  */
 export default async function SpotsPage({ searchParams }: SpotsPageProps) {
     // Filter options are cached (10 min) and SpotsContent needs them too, so the shell waits for no extra round trip.
-    const [params, filterOptions] = await Promise.all([searchParams, fetchFilterOptions()]);
+    const [params, filterOptions, offeredPlannerCities] = await Promise.all([
+        searchParams,
+        fetchFilterOptions(),
+        plannerCities().then((list) => new Set(list.map((c) => c.name)), () => null),
+    ]);
     const hub = spotsHub(params);
+    // Push DD2: a hub city below the planner threshold gets the plain planner, not a plan that cannot build.
+    const hubPlanCity = hub.city && (!offeredPlannerCities || offeredPlannerCities.has(hub.city.name)) ? hub.city : null;
     const heading = spotsHubHeading(hub.city);
     const totalSpots = filterOptions.cities.reduce((sum, c) => sum + c.count, 0);
 
@@ -209,8 +216,8 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
                             </p>
                             {hub.city ? <PricingLineLink pageKey={hub.city.slug} className="mt-2 text-sm leading-6 text-muted-foreground" /> : null}
                             <Button asChild className="mt-4 min-h-11">
-                                <IntentLink href={hub.city ? `/itineraries/new?${new URLSearchParams({ city: hub.city.name })}` : "/itineraries/new"} data-testid="hub-plan-trip">
-                                    {hub.city ? `Plan a free ${hub.city.name} trip` : "Plan a free trip"}
+                                <IntentLink href={hubPlanCity ? `/itineraries/new?${new URLSearchParams({ city: hubPlanCity.name })}` : "/itineraries/new"} data-testid="hub-plan-trip">
+                                    {hubPlanCity ? `Plan a free ${hubPlanCity.name} trip` : "Plan a free trip"}
                                 </IntentLink>
                             </Button>
                             {socialSpotSubmissionsAvailable() && (
