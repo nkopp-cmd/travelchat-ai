@@ -18,6 +18,7 @@ VITEST_FILES=(
   __tests__/lib/planner-client-imports.test.ts
   __tests__/lib/preview-draft-store.test.ts
   __tests__/api/itinerary-save-candidate.test.ts
+  __tests__/api/itinerary-save-www.test.ts
   __tests__/api/itinerary-update-candidate.test.ts
   __tests__/api/subscription-checkout-live.test.ts
   __tests__/api/subscription-portal-live.test.ts
@@ -92,6 +93,7 @@ VITEST_FILES=(
   __tests__/components/main-content-shell.test.tsx
   __tests__/components/spots-scroll-layout.test.tsx
   __tests__/components/spots-filter-bar.test.tsx
+  __tests__/components/spots-pagination-links.test.tsx
   __tests__/lib/mobile-chrome.test.ts
   __tests__/components/landing-planner.test.tsx
   __tests__/components/weekend-picks.test.tsx
@@ -212,6 +214,7 @@ VITEST_FILES=(
   __tests__/api/generate-plan-cache.test.ts
   __tests__/lib/plan-cache.test.ts
   __tests__/scripts/warm-free-plans.test.ts
+  __tests__/scripts/a11y-money-pages.test.ts
   __tests__/lib/hub-city.test.tsx
   __tests__/components/kept-trip-line.test.tsx
   __tests__/lib/chat-provider-fallback.test.ts
@@ -238,6 +241,7 @@ VITEST_FILES=(
   __tests__/cloudflare-critical-css.test.ts
   __tests__/cloudflare-defer-scripts.test.ts
   __tests__/app/planner-ssr-cities.test.tsx
+  __tests__/lib/nearest-planner-city.test.ts
   __tests__/app/templates-free-path.test.tsx
   __tests__/app/newsletter-placement.test.tsx
   __tests__/lib/auth-copy.test.ts
@@ -246,6 +250,9 @@ VITEST_FILES=(
   __tests__/app/auth-pages-signed-in.test.tsx
   __tests__/components/auth-shell-legal.test.tsx
   __tests__/components/onboarding-panel.test.tsx
+  __tests__/components/onboarding-panel-axe.test.tsx
+  __tests__/components/generated-preview-axe.test.tsx
+  __tests__/components/pricing-axe.test.tsx
   __tests__/lib/gate-href.test.ts
   __tests__/styles/leaflet-borderless.test.ts
   __tests__/styles/home-below-fold.test.ts
@@ -496,6 +503,8 @@ ESLINT_FILES=(
   __tests__/api/generate-plan-cache.test.ts
   __tests__/scripts/warm-free-plans.test.ts
   scripts/warm-free-plans.mjs
+  __tests__/scripts/a11y-money-pages.test.ts
+  scripts/a11y-money-pages.mjs
   app/itineraries/preview/layout.tsx
   lib/trips/generated-preview.ts
   lib/trips/paid-return.ts
@@ -531,6 +540,9 @@ ESLINT_FILES=(
   __tests__/components/main-content-shell.test.tsx
   __tests__/components/spots-scroll-layout.test.tsx
   __tests__/components/spots-filter-bar.test.tsx
+  __tests__/components/spots-pagination-links.test.tsx
+  components/spots/spots-pagination.tsx
+  lib/seo/spots-hub-page.ts
   app/page.tsx
   components/landing/
   lib/landing/
@@ -598,6 +610,9 @@ ESLINT_FILES=(
   __tests__/app/auth-pages-signed-in.test.tsx
   __tests__/components/auth-shell-legal.test.tsx
   __tests__/components/onboarding-panel.test.tsx
+  __tests__/components/onboarding-panel-axe.test.tsx
+  __tests__/components/generated-preview-axe.test.tsx
+  __tests__/components/pricing-axe.test.tsx
   __tests__/lib/subscription-mail.test.ts
   components/spots/preview-save-spot-button.tsx
   lib/app-data/preview-saved-spot-actor.ts
@@ -922,6 +937,7 @@ ESLINT_FILES=(
   app/api/itineraries/save/route.ts
   lib/app-data/preview-itinerary-save.ts
   __tests__/api/itinerary-save-candidate.test.ts
+  __tests__/api/itinerary-save-www.test.ts
   __tests__/lib/app-data-preview-itinerary-save.test.ts
   lib/app-data/preview-itinerary-delete.ts
   __tests__/api/itinerary-delete-candidate.test.ts

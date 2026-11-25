@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-// Push CG4 (2026-11-22): daily live check that the default free plan builds in every enabled planner city.
+// Push CG4 (2026-11-22): daily live check that the default free plan builds in every planner city.
 // A 422 (no coverage) or 5xx in one city was invisible until a visitor hit it (CG1/CG2 found 12 of 15 cities failing).
 // The default input is a preset (lib/trips/plan-cache isPresetPlanInput), so after the first build a city answers
 // from the KV plan cache: no model cost per run. x-localley-check keeps these calls out of the visitor funnel.
 // Usage: node scripts/planner-city-check.mjs [--push] [--base https://www.localley.io]
 import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { setTimeout as sleep } from "node:timers/promises";
 
 const args = process.argv.slice(2);
@@ -15,6 +16,18 @@ const GAP_MS = 13_000;
 const NOTIFY = new URL("../../../shared/scripts/notify.sh", import.meta.url).pathname;
 
 export const DEFAULT_PLAN = { days: 3, interests: [], budget: "moderate", localnessLevel: 3, pace: "moderate", groupType: "solo" };
+
+// Push DD1: check the cities the planner picker offers (lib/trips/planner-cities.ts isPlannerCity), not every
+// enabled city: a 1-spot city that no screen offers made the alert fire every day (12 of 26 failed).
+export function plannerMinSpots(source = readFileSync(new URL("../lib/trips/planner-cities.ts", import.meta.url), "utf8")) {
+  const match = source.match(/export const PLANNER_MIN_SPOTS = (\d+);/);
+  if (!match) throw new Error("PLANNER_MIN_SPOTS not found in lib/trips/planner-cities.ts");
+  return Number(match[1]);
+}
+
+export function offeredCities(cities, minSpots) {
+  return cities.filter((c) => c.isEnabled && c.status !== "hidden" && c.spotCount >= minSpots).map((c) => c.name);
+}
 
 export function summarize(results) {
   const failed = results.filter((r) => r.status !== 200);
@@ -39,8 +52,8 @@ async function checkCity(city) {
 
 async function main() {
   const list = await fetch(`${base}/api/cities`, { headers: { "x-localley-check": "1" } }).then((r) => r.json());
-  const cities = (list.cities ?? []).filter((c) => c.isEnabled).map((c) => c.name);
-  if (cities.length === 0) throw new Error("no enabled cities from /api/cities");
+  const cities = offeredCities(list.cities ?? [], plannerMinSpots());
+  if (cities.length === 0) throw new Error("no planner cities from /api/cities");
   const results = [];
   for (const [i, city] of cities.entries()) {
     if (i > 0) await sleep(GAP_MS);

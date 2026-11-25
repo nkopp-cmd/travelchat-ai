@@ -143,6 +143,12 @@ describe("public HTML edge cache", () => {
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=seoul&view=map&category=Food"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=atlantis&view=map"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=Seoul"))).toBe(false);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots?city=seoul&page=2"))).toBe(true);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots?page=21&city=tokyo&view=list"))).toBe(true);
+    expect(isEdgeCacheable(new Request("https://www.localley.io/spots?page=99"))).toBe(true);
+    for (const bad of ["1", "0", "02", "100", "2.5", "-3", "x", "", "2&page=3"]) {
+      expect(isEdgeCacheable(new Request(`https://www.localley.io/spots?city=seoul&page=${bad}`))).toBe(false);
+    }
     expect(isEdgeCacheable(new Request("https://www.localley.io/pricing?city=seoul"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/?utm=x"))).toBe(false);
     expect(isEdgeCacheable(new Request("https://www.localley.io/", { method: "POST" }))).toBe(false);
@@ -234,11 +240,16 @@ describe("public HTML edge cache", () => {
     const seoul = await serve(new Request("https://www.localley.io/spots?city=seoul"), cache, handler);
     expect(seoul.headers.get(EDGE_CACHE_HEADER)).toBe("HIT");
     expect(await seoul.text()).toBe("<html>?city=seoul</html>");
-    expect(handler).toHaveBeenCalledTimes(3);
+    await serve(new Request("https://www.localley.io/spots?city=seoul&page=2"), cache, handler);
+    const page2 = await serve(new Request("https://www.localley.io/spots?page=2&city=seoul"), cache, handler);
+    expect(page2.headers.get(EDGE_CACHE_HEADER)).toBe("HIT");
+    expect(await page2.text()).toBe("<html>?city=seoul&page=2</html>");
+    expect(handler).toHaveBeenCalledTimes(4);
     expect([...cache.store.keys()]).toEqual([
       "https://www.localley.io/spots?__edge=v1&city=seoul",
       "https://www.localley.io/spots?__edge=v1&city=tokyo",
       "https://www.localley.io/spots?__edge=v1&city=seoul&view=map",
+      "https://www.localley.io/spots?__edge=v1&city=seoul&page=2",
     ]);
   });
 

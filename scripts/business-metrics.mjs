@@ -75,29 +75,36 @@ export function generateCallsNote(events) {
  * Own checks carry `check` (x-localley-check header or a check user agent); lines from before CG3 have no city and
  * no `check`, so (push CK2) a line also counts as own when the fetch event of the same $metadata.requestId came from our ASN or
  * sent x-localley-check: on 2026-11-22 all 5 "unknown" errors were our own checks from ASN 24940.
+ * Push DI1: a pre-CG3 line (no city, no check field) whose fetch event is no longer in the log cannot be classed, so it is
+ * "unmatched", not real: on 2026-11-25 five such own-check lines read as real errors while real generate calls were 0.
  * The 2026-12-19 offer check reads where planner_start does not reach trip_generated from this.
  */
 export function plannerErrorsNote(events) {
   if (!Array.isArray(events)) return "unknown: Worker log unreadable";
   const ownIds = new Set();
+  const fetchIds = new Set();
   for (const e of events) {
     const cf = e?.$workers?.event?.request?.cf;
     const id = e.$metadata?.requestId;
+    if (cf && id) fetchIds.add(id);
     if (cf && id && ownCall(cf)) ownIds.add(id);
   }
   const byCity = new Map();
-  let total = 0, suggested = 0, own = 0;
+  let total = 0, suggested = 0, own = 0, unmatched = 0;
   for (const e of events) {
     const line = e?.source;
     if (line?.message !== "[generate] outcome" || Number(line.status) !== 422 || line.reason !== "no_spots") continue;
-    if (line.check || (e.$metadata?.requestId && ownIds.has(e.$metadata.requestId))) { own += 1; continue; }
+    const id = e.$metadata?.requestId;
+    if (line.check || (id && ownIds.has(id))) { own += 1; continue; }
+    if (line.city === undefined && line.check === undefined && !(id && fetchIds.has(id))) { unmatched += 1; continue; }
     total += 1;
     if (line.suggestion === true) suggested += 1;
     const city = typeof line.city === "string" && /^[a-z0-9-]{1,40}$/.test(line.city) ? line.city : "unknown";
     byCity.set(city, (byCity.get(city) ?? 0) + 1);
   }
   const cities = [...byCity].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([c, n]) => `${c} ${n}`).join(", ");
-  return `${total}${cities ? ` (${cities})` : ""}, smaller plan offered ${suggested}, own checks ${own} excluded`;
+  return `${total}${cities ? ` (${cities})` : ""}, smaller plan offered ${suggested}, own checks ${own} excluded`
+    + (unmatched ? `, ${unmatched} old lines without their request excluded` : "");
 }
 
 /**
@@ -136,21 +143,68 @@ export function authAttemptsNote(events) {
 export function externalArrivalsNote(rows) {
   if (!Array.isArray(rows)) return "unknown";
   const counts = {};
+  const landing = {};
   let total = 0;
+  let dev = 0;
   for (const row of rows) {
     const n = Number(row?.count || 0);
     total += n;
     const host = String(row?.dimensions?.refererHost ?? "").trim().toLowerCase().replace(/^www\./, "");
     if (!host || host === "localley.io" || host.endsWith(".localley.io")) continue;
+    if (isDevHost(host)) { dev += n; continue; }
     counts[host] = (counts[host] ?? 0) + n;
+    const path = row?.dimensions?.requestPath;
+    if (typeof path === "string" && path) {
+      const group = landingGroup(path);
+      landing[group] = (landing[group] ?? 0) + n;
+    }
   }
-  const hosts = Object.keys(counts).sort((a, b) => counts[b] - counts[a] || a.localeCompare(b));
+  const byCount = (map) => Object.keys(map).sort((a, b) => map[b] - map[a] || a.localeCompare(b));
+  const hosts = byCount(counts);
   const external = hosts.reduce((sum, h) => sum + counts[h], 0);
-  return `${external}${external ? ` (${hosts.map((h) => `${h} ${counts[h]}`).join(", ")})` : ""} of ${total} page loads`;
+  const pages = byCount(landing).slice(0, 5);
+  return `${external}${external ? ` (${hosts.map((h) => `${h} ${counts[h]}`).join(", ")})` : ""} of ${total} page loads`
+    + `${pages.length ? `, landing ${pages.map((p) => `${p} ${landing[p]}`).join(", ")}` : ""}${dev ? `, dev ${dev}` : ""}`;
+}
+
+/** Push DE1: an outside visitor's landing path grouped by page type: /spots/<slug> -> /spots/*, one-segment paths and
+ * the planner stay exact, query strings and trailing slashes dropped. Slugs never reach the note. */
+export function landingGroup(path) {
+  const clean = String(path).split(/[?#]/)[0].replace(/\/+$/, "") || "/";
+  if (clean === "/" || clean === "/itineraries/new") return clean;
+  const parts = clean.split("/").filter(Boolean);
+  if (!parts.length || !/^[a-z0-9-]{1,40}$/i.test(parts[0])) return "other";
+  return parts.length === 1 ? `/${parts[0].toLowerCase()}` : `/${parts[0].toLowerCase()}/*`;
+}
+
+/** Push DC1: a referrer from our own machines (local dev, IP literals, previews) is not a visitor from the web. */
+export function isDevHost(host) {
+  const h = String(host ?? "").trim().toLowerCase().replace(/:\d+$/, "");
+  return h === "localhost" || h.endsWith(".localhost") || h.endsWith(".local") || h.endsWith(".workers.dev")
+    || h.endsWith(".pages.dev") || h.endsWith(".vercel.app") || h.endsWith(".ts.net")
+    || /^\d{1,3}(\.\d{1,3}){3}$/.test(h) || h.startsWith("[") || /^[0-9a-f:]+$/.test(h) && h.includes(":");
+}
+
+/** Push DB1/DG1: CF RUM planner page loads 7d grouped by same-origin refererPath -> "home a, sign-in b, sign-up c". The
+ * auth-page lead link (Push CM1/CN2) is a full page load, so these are visitors who left the account form for the free
+ * planner; "home" shows whether the top outside landing page ("/") moves visitors to the free plan. */
+export function authLeadNote(rows) {
+  if (!Array.isArray(rows)) return "unknown";
+  const counts = { home: 0, "sign-in": 0, "sign-up": 0 };
+  for (const row of rows) {
+    const d = row?.dimensions ?? {};
+    if (String(d.requestPath ?? "") !== "/itineraries/new") continue;
+    const host = String(d.refererHost ?? "").trim().toLowerCase().replace(/^www\./, "");
+    if (host !== "localley.io") continue;
+    const from = String(d.refererPath ?? "").replace(/\/+$/, "");
+    if (from === "/sign-in" || from === "/sign-up") counts[from.slice(1)] += Number(row?.count || 0);
+    else if (from === "") counts.home += Number(row?.count || 0);
+  }
+  return `home ${counts.home}, sign-in ${counts["sign-in"]}, sign-up ${counts["sign-up"]}`;
 }
 
 /** Pure: rows from the two databases -> the probe line. */
-export function summarize({ users, sessions, subscriptions, funnel, links = [], ugc = [], rankings = [], viral = null, subscribers = null, lastEvent = null, indexStatus = null, generateLog = undefined, arrivals = undefined, authLog = undefined }, now = Date.now()) {
+export function summarize({ users, sessions, subscriptions, funnel, links = [], ugc = [], rankings = [], viral = null, subscribers = null, lastEvent = null, indexStatus = null, generateLog = undefined, arrivals = undefined, authLog = undefined, authLead = undefined }, now = Date.now()) {
   const from30 = now - 30 * DAY;
   const internal = new Set(users.filter((u) => isInternal(u.email)).map((u) => u.id));
   for (const l of links) if (internal.has(l.authUserId)) internal.add(l.ownerId); // legacy rows carry the owner id
@@ -200,6 +254,9 @@ export function summarize({ users, sessions, subscriptions, funnel, links = [], 
     notes: `paying = active/past_due Pro/Premium Stripe subscriptions now (D1 legacy_subscriptions, own accounts excluded); `
       + `checkout_paid funnel events 30d: ${bySource("checkout_paid", "stripe")}; `
       + `checkout_start funnel events 30d: ${bySource("checkout_start", "other")}; `
+      // Push DH1: the wizard beacon also sees client (soft) navigations, which CF RUM page loads miss.
+      + `planner_start funnel events 30d: ${bySource("planner_start", "other")}; `
+      + `trip_generated funnel events 30d: ${bySource("trip_generated", "other")}; `
       // Push AN2: the last day the collector counted anything, so "beacons broken" and "no visitors" look different.
       + `last counted event day (UTC; own checks are not counted): funnel ${lastEvent?.funnel ?? "unknown"}, spot cards ${lastEvent?.cards ?? "unknown"}; `
       + `${indexNote(indexStatus, now)}; `
@@ -209,6 +266,8 @@ export function summarize({ users, sessions, subscriptions, funnel, links = [], 
       + (arrivals === undefined ? "" : `external arrivals 7d (CF RUM, referrer not localley.io): ${externalArrivalsNote(arrivals)}; `)
       // Push CN1: the sign-up step: visitors who try the account form, next to the arrivals above.
       + (authLog === undefined ? "" : `real auth attempts 7d (Worker log, POST /api/auth sign-up/sign-in): ${authAttemptsNote(authLog)}; `)
+      // Push DB1: the auth-page lead link to the free planner, read at the 2026-12-19 offer check.
+      + (authLead === undefined ? "" : `planner loads from home and the auth-page lead 7d (CF RUM refererPath): ${authLeadNote(authLead)}; `)
       + `revenue/prev/repeat null: Stripe key is a Worker secret only and D1 keeps no invoice history; `
       + `proprietary = ${events ? `${events.length} viral events + ${places} resolved places` : "viral archive missing"} + ${ranked} weekly rankings; `
       + `ugc = questions/answers/reviews/tips/social submissions; owned_audience = ${audience
@@ -261,11 +320,28 @@ async function logEvents(auth, path, now) {
   }
 }
 
-/** Read-only CF RUM (Web Analytics) query: page loads 7d by referrer host. null when it cannot be read. */
+/** Push DB1: read-only CF RUM planner page loads 7d by same-origin referrer path. null when it cannot be read. */
+async function rumAuthLead(auth, now = Date.now()) {
+  const since = new Date(now - 7 * DAY).toISOString().slice(0, 10);
+  const query = `{viewer{accounts(filter:{accountTag:"${ACCOUNT}"}){rumPageloadEventsAdaptiveGroups(limit:100,`
+    + `filter:{date_geq:"${since}",requestHost_like:"%localley.io",requestPath:"/itineraries/new"}){count dimensions{refererHost refererPath requestPath}}}}}`;
+  try {
+    const response = await fetch("https://api.cloudflare.com/client/v4/graphql", {
+      method: "POST", headers: { authorization: `Bearer ${auth}`, "content-type": "application/json" }, body: JSON.stringify({ query }),
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok || body.errors?.length) return null;
+    return body.data?.viewer?.accounts?.[0]?.rumPageloadEventsAdaptiveGroups ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Read-only CF RUM (Web Analytics) query: page loads 7d by referrer host and landing path (Push DE1). null when it cannot be read. */
 async function rumArrivals(auth, now = Date.now()) {
   const since = new Date(now - 7 * DAY).toISOString().slice(0, 10);
-  const query = `{viewer{accounts(filter:{accountTag:"${ACCOUNT}"}){rumPageloadEventsAdaptiveGroups(limit:500,`
-    + `filter:{date_geq:"${since}",requestHost_like:"%localley.io"}){count dimensions{refererHost}}}}}`;
+  const query = `{viewer{accounts(filter:{accountTag:"${ACCOUNT}"}){rumPageloadEventsAdaptiveGroups(limit:2000,`
+    + `filter:{date_geq:"${since}",requestHost_like:"%localley.io"}){count dimensions{refererHost requestPath}}}}}`;
   try {
     const response = await fetch("https://api.cloudflare.com/client/v4/graphql", {
       method: "POST", headers: { authorization: `Bearer ${auth}`, "content-type": "application/json" }, body: JSON.stringify({ query }),
@@ -281,10 +357,10 @@ async function rumArrivals(auth, now = Date.now()) {
 async function main() {
   const auth = token();
   const lastDay = (table) => select(AUTH_DB, `SELECT max(day) AS day FROM ${table}`, auth).then((r) => r[0]?.day ?? null, () => null);
-  const [users, sessions, funnel, subscriptions, links, ugc, rankings, subscribers, funnelDay, cardsDay, generateLog, arrivals, authLog] = await Promise.all([
+  const [users, sessions, funnel, subscriptions, links, ugc, rankings, subscribers, funnelDay, cardsDay, generateLog, arrivals, authLog, authLead] = await Promise.all([
     select(AUTH_DB, "SELECT id, email, createdAt FROM user", auth),
     select(AUTH_DB, "SELECT userId, updatedAt FROM session WHERE updatedAt >= strftime('%Y-%m-%dT%H:%M:%fZ','now','-31 days')", auth),
-    select(AUTH_DB, "SELECT day, step, source, count FROM funnel_events_daily WHERE step IN ('checkout_paid', 'checkout_start')", auth),
+    select(AUTH_DB, "SELECT day, step, source, count FROM funnel_events_daily WHERE step IN ('checkout_paid', 'checkout_start', 'planner_start', 'trip_generated')", auth),
     select(APP_DB, `SELECT l.authUserId, s.tier, s.status, s.stripeSubscriptionId FROM legacy_subscriptions s
       LEFT JOIN identity_links l ON l.ownerId = s.ownerId`, auth),
     select(APP_DB, "SELECT authUserId, ownerId FROM identity_links", auth),
@@ -292,12 +368,12 @@ async function main() {
     select(APP_DB, "SELECT created_at FROM weekly_city_spot_rankings", auth),
     // Unknown (null), not zero, when the table is not there yet or the read fails.
     select(APP_DB, "SELECT email, status, created_at FROM newsletter_subscribers", auth).catch(() => null),
-    lastDay("funnel_events_daily"), lastDay("spot_card_events_daily"), generateEvents(auth), rumArrivals(auth), authEvents(auth),
+    lastDay("funnel_events_daily"), lastDay("spot_card_events_daily"), generateEvents(auth), rumArrivals(auth), authEvents(auth), rumAuthLead(auth),
   ]);
   const viral = existsSync(VIRAL_STATE) ? JSON.parse(readFileSync(VIRAL_STATE, "utf8")) : null;
   let indexStatus = null;
   try { indexStatus = JSON.parse(readFileSync(INDEX_STATE, "utf8")); } catch { /* no run yet: the note says unknown */ }
-  process.stdout.write(`${JSON.stringify(summarize({ users, sessions, subscriptions, funnel, links, ugc, rankings, viral, subscribers, lastEvent: { funnel: funnelDay, cards: cardsDay }, indexStatus, generateLog, arrivals, authLog }))}\n`);
+  process.stdout.write(`${JSON.stringify(summarize({ users, sessions, subscriptions, funnel, links, ugc, rankings, viral, subscribers, lastEvent: { funnel: funnelDay, cards: cardsDay }, indexStatus, generateLog, arrivals, authLog, authLead }))}\n`);
 }
 
 // realpath: the probe also runs through symlinked checkouts, where argv[1] is not the resolved module path.

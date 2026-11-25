@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 // @ts-expect-error build script without types
-import { DEFER_FALLBACK_MS, deferChunkScripts, loaderScript, SPOT_HERO } from "../scripts/cf-defer-scripts.mjs";
+import { DEFER_FALLBACK_MS, deferChunkScripts, loaderScript, SPOT_HERO, SPOT_TEXT } from "../scripts/cf-defer-scripts.mjs";
 
 const HERO = '<img src="/h.webp" fetchpriority="high" class="ll-hero-poster">';
 const page = (body: string) =>
@@ -226,5 +226,65 @@ describe("spot detail hero (Push AM2)", () => {
     vi.useRealTimers();
     document.head.innerHTML = "";
     document.body.innerHTML = "";
+  });
+});
+
+describe("spot without a photo waits for its intro text (Push CI2)", () => {
+  type Entry = { element: Element | null; size: number };
+  let report: (entries: Entry[]) => void = () => {};
+  class FakeObserver {
+    static supportedEntryTypes = ["largest-contentful-paint"];
+    constructor(cb: (list: { getEntries: () => Entry[] }) => void) { report = (entries) => cb({ getEntries: () => entries }); }
+    observe() {}
+  }
+  const INTRO = '<h1>Cafe</h1><p data-testid="spot-intro">A quiet cafe in Seongsu.</p>';
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+    document.head.innerHTML = "";
+    document.body.innerHTML = "";
+  });
+  const run = (lcp = true) => {
+    vi.useFakeTimers();
+    if (lcp) vi.stubGlobal("PerformanceObserver", FakeObserver);
+    else vi.stubGlobal("PerformanceObserver", undefined);
+    document.body.innerHTML = INTRO;
+    const p = document.querySelector("p")!;
+    p.getBoundingClientRect = () => ({ left: 0, top: 0, right: 360, bottom: 120, width: 360, height: 120, x: 0, y: 0, toJSON() {} });
+    new Function(loaderScript(["/_next/static/chunks/a.js"], [], ["/_next/static/css/x.css"], SPOT_TEXT.selector).replace(/^<script>|<\/script>$/g, ""))();
+    return p;
+  };
+  const started = () => document.head.querySelectorAll("script,link").length;
+
+  it("rewrites only pages with the intro paragraph", () => {
+    const out: string = deferChunkScripts(page(INTRO), SPOT_TEXT);
+    expect(out).not.toMatch(/<script src="\/_next\/static\/chunks\/(a|b)\.js"/);
+    expect(out).toContain('document.querySelector("p[data-testid=\\"spot-intro\\"]")');
+    expect(deferChunkScripts(page("<p>other</p>"), SPOT_TEXT)).toBe(page("<p>other</p>"));
+  });
+
+  it("holds the CSS and chunks until the intro's LCP entry, then starts exactly once", () => {
+    const p = run();
+    vi.advanceTimersByTime(500);
+    expect(started()).toBe(0);
+    report([{ element: p, size: 43200 }]);
+    vi.advanceTimersByTime(50);
+    expect(started()).toBe(2);
+    report([{ element: p, size: 43200 }]);
+    vi.advanceTimersByTime(DEFER_FALLBACK_MS);
+    expect(started()).toBe(2);
+  });
+
+  it("starts after a larger LCP element than the intro", () => {
+    run();
+    report([{ element: document.querySelector("h1"), size: 90000 }]);
+    vi.advanceTimersByTime(50);
+    expect(started()).toBe(2);
+  });
+
+  it("without largest-contentful-paint support it starts after the next frame, not after the fallback", () => {
+    run(false);
+    vi.advanceTimersByTime(50);
+    expect(started()).toBe(2);
   });
 });

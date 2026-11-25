@@ -1,7 +1,7 @@
 // node --test scripts/business-metrics.checks.mjs — pure parts of the business-loop money + moat probe (no network).
 import assert from "node:assert/strict";
 import test from "node:test";
-import { PAID_PATH_LIVE_SINCE, authAttemptsNote, externalArrivalsNote, generateCallsNote, isInternal, plannerErrorsNote, summarize } from "./business-metrics.mjs";
+import { PAID_PATH_LIVE_SINCE, authAttemptsNote, authLeadNote, externalArrivalsNote, isDevHost, landingGroup, generateCallsNote, isInternal, plannerErrorsNote, summarize } from "./business-metrics.mjs";
 
 const now = Date.parse("2026-11-01T12:00:00Z");
 const users = [
@@ -161,7 +161,8 @@ test("planner no-spots errors count per city, own checks apart (push CG3)", () =
     { source: { message: "other", status: 422, reason: "no_spots", city: "x" } },
     { $workers: { event: { request: { method: "POST", cf: {} } } } },
   ]);
-  assert.equal(note, "5 (canggu 2, unknown 2, taipei 1), smaller plan offered 2, own checks 1 excluded");
+  // The pre-CG3 line (no city, no check) has no fetch event in the log: unmatched (push DI1), not real.
+  assert.equal(note, "4 (canggu 2, taipei 1, unknown 1), smaller plan offered 2, own checks 1 excluded, 1 old lines without their request excluded");
   assert.equal(plannerErrorsNote(null), "unknown: Worker log unreadable");
   assert.equal(plannerErrorsNote([]), "0, smaller plan offered 0, own checks 0 excluded");
 });
@@ -175,9 +176,21 @@ test("Push CK2: a no-spots line counts as own when its request came from our ASN
     fetch("r2", { asn: 7922, requestHeaderNames: ["x-localley-check"] }), line("r2", { city: "jeju" }),
     fetch("r3", { asn: 28573 }), line("r3", { city: "canggu" }), // a real visitor
     line("r4", { city: "nara" }), // fetch event outside the read window: counts as real
-    fetch(undefined, { asn: 24940 }), line(undefined, {}), // no requestId: never matches an own id
+    fetch(undefined, { asn: 24940 }), line(undefined, {}), // no requestId: never matches, so an old line is unmatched
   ]);
-  assert.equal(note, "3 (canggu 1, nara 1, unknown 1), smaller plan offered 0, own checks 2 excluded");
+  assert.equal(note, "2 (canggu 1, nara 1), smaller plan offered 0, own checks 2 excluded, 1 old lines without their request excluded");
+});
+
+test("Push DI1: a pre-CG3 line counts as real only while its fetch event is in the log and not own", () => {
+  const fetch = (requestId, cf) => ({ $metadata: { requestId }, $workers: { event: { request: { method: "POST", cf } } } });
+  const line = (requestId, source) => ({ source: { message: "[generate] outcome", status: 422, reason: "no_spots", ...source },
+    $metadata: { requestId }, $workers: { event: { request: { method: "POST" } } } });
+  // 2026-11-25: five pre-CG3 own-check lines whose fetch events had left the log read as "5 (unknown 5)".
+  const gone = ["a", "b", "c", "d", "e"].map((id) => line(id, {}));
+  assert.equal(plannerErrorsNote(gone), "0, smaller plan offered 0, own checks 0 excluded, 5 old lines without their request excluded");
+  assert.equal(plannerErrorsNote([fetch("v", { asn: 28573 }), line("v", {})]), "1 (unknown 1), smaller plan offered 0, own checks 0 excluded");
+  assert.equal(plannerErrorsNote([line("n", { city: "nara" })]), "1 (nara 1), smaller plan offered 0, own checks 0 excluded");
+  assert.equal(plannerErrorsNote([line("k", { city: "kyoto", check: false })]), "1 (kyoto 1), smaller plan offered 0, own checks 0 excluded");
 });
 
 test("external arrivals: referrer hosts outside localley.io, own hosts and direct loads excluded (Push CM3)", () => {
@@ -221,4 +234,54 @@ test("auth attempts (Push CN1): real localley.io POSTs by kind, own checks and t
   const line = summarize({ users, sessions: [], subscriptions: [], funnel: [], authLog: events }, now);
   assert.match(line.notes, /real auth attempts 7d \(Worker log, POST \/api\/auth sign-up\/sign-in\): 4 \(sign-up email 2, /);
   assert.doesNotMatch(summarize({ users, sessions: [], subscriptions: [], funnel: [] }, now).notes, /auth attempts/);
+});
+
+test("planner lead (Push DB1/DG1): planner loads from /, /sign-in and /sign-up only, same origin only", () => {
+  const row = (count, refererHost, refererPath, requestPath = "/itineraries/new") => ({ count, dimensions: { refererHost, refererPath, requestPath } });
+  const rows = [
+    row(10, "www.localley.io", "/sign-in"), row(3, "localley.io", "/sign-up/"), row(2, "www.localley.io", "/sign-up"),
+    row(7, "www.localley.io", "/"), row(1, "localley.io", ""), row(2, "www.localley.io", "/blog/x"), row(6, "google.com", "/"), row(5, "bing.com", "/sign-in"), row(4, "www.localley.io", "/sign-in", "/spots"),
+    row(1, "evil-localley.io", "/sign-in"),
+  ];
+  assert.equal(authLeadNote(rows), "home 8, sign-in 10, sign-up 5");
+  assert.equal(authLeadNote([]), "home 0, sign-in 0, sign-up 0");
+  assert.equal(authLeadNote(null), "unknown");
+  const line = summarize({ users, sessions: [], subscriptions: [], funnel: [], authLead: rows }, now);
+  assert.match(line.notes, /planner loads from home and the auth-page lead 7d \(CF RUM refererPath\): home 8, sign-in 10, sign-up 5; /);
+  assert.doesNotMatch(summarize({ users, sessions: [], subscriptions: [], funnel: [] }, now).notes, /auth-page lead/);
+});
+
+test("external arrivals (Push DC1): dev and preview referrers count as dev, not as visitors", () => {
+  for (const h of ["localhost", "localhost:3000", "127.0.0.1", "100.124.34.110", "app.local", "x.workers.dev", "y.vercel.app", "[::1]", "::1"]) assert.equal(isDevHost(h), true, h);
+  for (const h of ["bing.com", "l.facebook.com", "domainlions.com", "", "1password.com"]) assert.equal(isDevHost(h), false, h);
+  const r = (refererHost, count) => ({ count, dimensions: { refererHost } });
+  const rows = [r("bing.com", 6), r("localhost", 3), r("127.0.0.1", 2), r("www.localley.io", 20), r("", 10), r("localley-preview.workers.dev", 1)];
+  assert.equal(externalArrivalsNote(rows), "6 (bing.com 6) of 42 page loads, dev 6");
+  assert.equal(externalArrivalsNote([r("bing.com", 1)]), "1 (bing.com 1) of 1 page loads");
+});
+
+test("external arrivals (Push DE1): landing paths grouped by page type, own and dev loads not counted", () => {
+  const r = (refererHost, requestPath, count) => ({ count, dimensions: { refererHost, requestPath } });
+  const rows = [r("www.bing.com", "/spots/gwangjang-market", 4), r("bing.com", "/spots/x-y/", 2), r("google.com", "/", 2),
+    r("l.facebook.com", "/blog/paying-in-tokyo?fbclid=1", 2), r("google.com", "/itineraries/new", 1),
+    r("www.localley.io", "/pricing", 30), r("localhost", "/help/faq", 3), r("", "/", 9)];
+  assert.equal(externalArrivalsNote(rows), "11 (bing.com 6, google.com 3, l.facebook.com 2) of 53 page loads, landing /spots/* 6, / 2, /blog/* 2, /itineraries/new 1, dev 3");
+  assert.equal(landingGroup("/Spots"), "/spots");
+  assert.equal(landingGroup("/help/a/b"), "/help/*");
+  assert.equal(landingGroup("//"), "/");
+  assert.equal(landingGroup("/%3Cscript%3E/x"), "other");
+});
+
+test("planner_start and trip_generated by source 30d (Push DH1)", () => {
+  const now = Date.parse("2026-10-30T12:00:00Z");
+  const funnel = [
+    { day: "2026-10-20", step: "planner_start", source: "home", count: 3 },
+    { day: "2026-10-21", step: "planner_start", source: "direct", count: 1 },
+    { day: "2026-10-22", step: "trip_generated", source: "home", count: 2 },
+    { day: "2026-09-01", step: "planner_start", source: "home", count: 9 }, // older than 30 days
+  ];
+  const out = summarize({ users: [], sessions: [], subscriptions: [], funnel }, now);
+  assert.match(out.notes, /checkout_start funnel events 30d: 0; planner_start funnel events 30d: 4 \(direct 1, home 3\); trip_generated funnel events 30d: 2 \(home 2\);/);
+  assert.equal(out.paying_30d, 0);
+  assert.match(summarize({ users: [], sessions: [], subscriptions: [], funnel: [] }, now).notes, /planner_start funnel events 30d: 0; trip_generated funnel events 30d: 0;/);
 });

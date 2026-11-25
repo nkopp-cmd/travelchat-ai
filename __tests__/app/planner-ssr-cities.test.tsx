@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, afterEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 
 vi.mock("server-only", () => ({}));
 vi.mock("next/image", () => ({ default: (props: { alt: string }) => <span>{props.alt}</span> }));
@@ -45,6 +45,30 @@ describe("planner city list rendered with the page", () => {
     // The API answers every city with a spot; the picker drops the ones that cannot fill a trip.
     expect(screen.queryByText("Hanoi")).toBeNull();
     expect(fetcher.mock.calls.map(([url]) => String(url))).toContain("/api/cities?minSpots=1");
+  });
+
+  it("clears a ?city= the planner does not offer and asks for a listed city (Push DD3); a listed city stays chosen", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status: 404 })));
+    const list = toPlannerCities([city("seoul", 386, "recommended"), city("tokyo", 429, "recommended")]);
+    const { unmount } = render(<PlannerCitiesContext.Provider value={list}><WizardProvider initialData={{ city: "Nara" }}><StepDestination /></WizardProvider></PlannerCitiesContext.Provider>);
+    expect((await screen.findByTestId("planner-unplannable-city")).textContent).toBe("Localley cannot plan Nara yet. Pick a city below for your free plan.");
+    expect(screen.queryByText(/selected/i)).toBeNull();
+    unmount();
+    render(<PlannerCitiesContext.Provider value={list}><WizardProvider initialData={{ city: "tokyo" }}><StepDestination /></WizardProvider></PlannerCitiesContext.Provider>);
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(screen.queryByTestId("planner-unplannable-city")).toBeNull();
+  });
+
+  it("offers a one-tap swap to the nearest planner city for an unplannable ?city= (Push DD3)", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status: 404 })));
+    const list = toPlannerCities([city("tokyo", 429, "recommended"), city("osaka", 120, "recommended")]);
+    render(<PlannerCitiesContext.Provider value={list}><WizardProvider initialData={{ city: "Nara" }}><StepDestination /></WizardProvider></PlannerCitiesContext.Provider>);
+    const swap = await screen.findByTestId("planner-nearby-swap");
+    expect(swap.textContent).toBe("Plan Osaka instead");
+    expect(screen.getByTestId("planner-unplannable-city").textContent).toMatch(/^Localley cannot plan Nara yet\. Osaka is \d+ km away\./);
+    fireEvent.click(swap);
+    expect(screen.queryByTestId("planner-unplannable-city")).toBeNull();
+    expect(screen.getByText(/selected/i)).toBeTruthy();
   });
 
   it("is the page's one <h1> (the step heading) so the free-trip landing has a main heading", () => {

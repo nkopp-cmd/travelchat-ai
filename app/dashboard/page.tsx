@@ -11,6 +11,7 @@ import { AppBackground } from "@/components/layout/app-background";
 import { isPreviewItineraryListCandidate, previewRecentItineraries } from "@/lib/app-data/preview-itinerary-list";
 import { headers } from "next/headers";
 import { SessionSeed } from "@/components/auth/session-seed";
+import { plannerCities } from "@/lib/cities-catalog";
 
 // Fetch user's recent itineraries. Candidate requests read only D1 (no Supabase fallback).
 async function getRecentItineraries(candidate: boolean) {
@@ -36,6 +37,9 @@ export default async function DashboardPage({
 }) {
     const params = await searchParams;
     const candidate = isPreviewItineraryListCandidate((await headers()).get("host"), params.data_candidate);
+    // Push DD1: the onboarding city list links into the planner, so it offers only planner cities. The cached
+    // catalog read starts in parallel with the itinerary read; null (catalog error) keeps the static list.
+    const plannerList = plannerCities().then((list) => list.map((c) => c.name), () => null);
     const recentItineraries = await getRecentItineraries(candidate);
 
     // Check if a template was selected
@@ -52,7 +56,8 @@ export default async function DashboardPage({
         : undefined;
 
     // Private, no-store page: hand the already validated session to the client store.
-    const sessionSeed = await getPublicSession();
+    const showOnboarding = recentItineraries.length === 0 && !itineraryContext && !selectedTemplate;
+    const [sessionSeed, plannerCityNames] = await Promise.all([getPublicSession(), showOnboarding ? plannerList : null]);
     return (
         <AppBackground ambient fitParent className="lg:h-[calc(100dvh-var(--ll-topbar-height)-4rem)]" contentClassName="lg:h-full">
             <SessionSeed session={sessionSeed} />
@@ -68,11 +73,11 @@ export default async function DashboardPage({
                 <div className="flex-1 flex flex-col py-4 overflow-hidden">
                     {/* Desktop - Chat or Onboarding */}
                     <div className="container mx-auto hidden min-h-0 w-full flex-1 px-4 lg:flex">
-                        {recentItineraries.length === 0 && !itineraryContext && !selectedTemplate ? (
+                        {showOnboarding ? (
                             // Show onboarding panel for new users
                             <div className="flex-1 min-h-0 overflow-y-auto px-2 py-6">
                                 <div className="flex min-h-full items-start justify-center">
-                                    <OnboardingPanel className="max-w-2xl w-full pb-10" />
+                                    <OnboardingPanel className="max-w-2xl w-full pb-10" plannerCityNames={plannerCityNames} />
                                 </div>
                             </div>
                         ) : (

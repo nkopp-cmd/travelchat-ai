@@ -41,6 +41,10 @@ export function StepDestination() {
   const [citiesData, setCitiesData] = useState<CitiesResponse | null>(() =>
     serverCities?.length ? { success: true, cities: serverCities, total: serverCities.length } : null);
   const [citiesError, setCitiesError] = useState(false);
+  // Push DD3: a ?city= link (spot page, blog, dashboard) can name a city the planner does not offer; its free plan
+  // failed only after submit (422). Clear it on arrival and ask for a city from the list instead.
+  const [unplannableCity, setUnplannableCity] = useState<string | null>(null);
+  const [nearbyCity, setNearbyCity] = useState<{ name: string; km: number } | null>(null);
   const [isLoading, setIsLoading] = useState(() => !serverCities?.length);
   const [multiCityAvailable, setMultiCityAvailable] = useState(false);
   const [corridorNetwork, setCorridorNetwork] = useState<CorridorNetwork | null>(null);
@@ -97,6 +101,23 @@ export function StepDestination() {
     setData({ cityNameBySlug: nameBySlug });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [citiesData]);
+
+  useEffect(() => {
+    const list = citiesData?.success ? citiesData.cities : null;
+    if (!list?.length || !data.city) return;
+    const wanted = data.city.trim().toLowerCase();
+    if (list.some((city) => city.name.toLowerCase() === wanted || city.slug.toLowerCase() === wanted)) return;
+    const missing = data.city.trim();
+    setUnplannableCity(missing);
+    setData({ city: "" });
+    // Offer the closest planner city as a one-tap swap; the centers load only on this rare path.
+    import("@/lib/trips/nearest-planner-city").then(async ({ nearestPlannerCity }) => {
+      const centers = (await import("@/lib/trips/city-centers.json")).default;
+      const near = nearestPlannerCity(centers as unknown as import("@/lib/trips/nearest-planner-city").CityCenters, missing, list);
+      setNearbyCity(near ? { name: near.name, km: near.km } : null);
+    }).catch(() => setNearbyCity(null));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [citiesData, data.city]);
 
   useEffect(() => {
     setCanProceed(
@@ -172,6 +193,26 @@ export function StepDestination() {
               : "Pick a city to explore like a local"}
         </p>
       </div>
+
+      {unplannableCity && !data.city && !multiMode && (
+        <div role="status" data-testid="planner-unplannable-city" className="mb-2 rounded-lg bg-raised p-2.5 text-center text-sm text-foreground sm:mb-3">
+          <p>
+            {nearbyCity
+              ? `Localley cannot plan ${unplannableCity} yet. ${nearbyCity.name} is ${nearbyCity.km} km away.`
+              : `Localley cannot plan ${unplannableCity} yet. Pick a city below for your free plan.`}
+          </p>
+          {nearbyCity && (
+            <button
+              type="button"
+              data-testid="planner-nearby-swap"
+              onClick={() => handleSelectCity(nearbyCity.name)}
+              className="mt-2 inline-flex min-h-11 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground"
+            >
+              Plan {nearbyCity.name} instead
+            </button>
+          )}
+        </div>
+      )}
 
       {showModeToggle && (
         <div className="mb-3 flex justify-center sm:mb-4">

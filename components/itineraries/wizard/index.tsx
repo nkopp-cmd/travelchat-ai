@@ -37,7 +37,7 @@ export function preloadLaterSteps() {
 import { getErrorMessage } from "@/lib/error-utils";
 import { PLANNER_RESUME_PATH, savePlannerDraft } from "@/lib/trips/planner-draft";
 
-import { funnelSource, trackFunnelStep } from "@/lib/funnel-analytics";
+import { clientNavLanding, funnelSource, trackFunnelStep } from "@/lib/funnel-analytics";
 import { plannerLimitPricingHref } from "@/lib/pricing-checkout";
 
 const PROGRESS_MESSAGES = [
@@ -412,7 +412,7 @@ let plannerStartTracked = false;
 export function markPlannerStart() {
   if (plannerStartTracked) return;
   plannerStartTracked = true;
-  trackFunnelStep("planner_start", funnelSource(document.referrer, location.origin, location.search));
+  trackFunnelStep("planner_start", funnelSource(document.referrer, location.origin, location.search, clientNavLanding()));
 }
 /** Test hook: a new page load. */
 export function resetPlannerStartForTest() { plannerStartTracked = false; }
@@ -508,7 +508,7 @@ export function ItineraryWizard({ initialData, initialStep, initialCities = null
     }
 
     // Same coarse source as planner_start (push AJ3: a spot-led plan counted as "direct").
-    trackFunnelStep("trip_generated", funnelSource(document.referrer, location.origin, location.search));
+    trackFunnelStep("trip_generated", funnelSource(document.referrer, location.origin, location.search, clientNavLanding()));
     // Free generation is a full readable browser preview. Saving is a separate paid action.
     if (result.isAnonymous || result.requiresSaveUpgrade) {
       // Same id as the server copy (HttpOnly cookie), so a cold return from sign-up or checkout renders it in HTML.

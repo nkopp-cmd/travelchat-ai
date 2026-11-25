@@ -8,7 +8,7 @@ import { apiError, ErrorCodes } from "@/lib/api-errors";
 import { GENERATE_FAILED_MESSAGE } from "@/components/itineraries/wizard";
 
 const state = vi.hoisted(() => ({ push: vi.fn(), toast: vi.fn() }));
-vi.mock("@/lib/funnel-analytics", () => ({ trackFunnelStep: vi.fn(), funnelSource: () => "direct" }));
+vi.mock("@/lib/funnel-analytics", () => ({ trackFunnelStep: vi.fn(), funnelSource: () => "direct", clientNavLanding: () => "" }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: state.push }) }));
 vi.mock("@/hooks/use-toast", () => ({ useToast: () => ({ toast: state.toast }) }));
 const saved: WizardData = {

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createVerify, generateKeyPairSync } from "node:crypto";
-import { DEFAULT_PATHS, MAX_URLS, indexNote, isIndexed, parseInspection, serviceAccountJwt, summarizeRows } from "./index-status-lib.mjs";
+import { DEFAULT_PATHS, MAX_URLS, indexNote, parseSitemaps, isIndexed, parseInspection, serviceAccountJwt, summarizeRows } from "./index-status-lib.mjs";
 
 test("default list stays inside the 20 URL cap and has no duplicates", () => {
   assert.ok(DEFAULT_PATHS.length >= 15 && DEFAULT_PATHS.length <= MAX_URLS);
@@ -48,4 +48,19 @@ test("serviceAccountJwt is a valid RS256 token for the key", () => {
   const [h, p, sig] = serviceAccountJwt(key, "scope-x", 1000).split(".");
   assert.deepEqual(JSON.parse(Buffer.from(p, "base64url")), { iss: key.client_email, scope: "scope-x", aud: key.token_uri, iat: 1000, exp: 4600 });
   assert.ok(createVerify("RSA-SHA256").update(`${h}.${p}`).verify(publicKey, Buffer.from(sig, "base64url")));
+});
+
+test("Push DI1: sitemaps list -> read day + web submitted/indexed, shown in the index note", () => {
+  const body = { sitemap: [
+    { path: "https://www.localley.io/sitemap.xml", lastDownloaded: "2026-11-24T05:12:00.000Z",
+      contents: [{ type: "web", submitted: "1714", indexed: "0" }, { type: "image", submitted: "40", indexed: "0" }] },
+    { path: "https://www.localley.io/old.xml", lastDownloaded: "2026-10-01T00:00:00Z", contents: [{ type: "web", submitted: "6", indexed: "2" }] },
+  ] };
+  assert.deepEqual(parseSitemaps(body), { read: "2026-11-24", submitted: 1720, indexed: 2 });
+  assert.equal(parseSitemaps({}), null);
+  assert.deepEqual(parseSitemaps({ sitemap: [] }), { read: null, submitted: 0, indexed: 0 });
+  const now = Date.parse("2026-11-25T00:00:00Z");
+  const state = { summary: { at: "2026-11-23T06:40:00Z", line: "indexed 4/20" }, sitemap: parseSitemaps(body) };
+  assert.equal(indexNote(state, now), "google index of money/entry pages: indexed 4/20 (URL Inspection 2026-11-23); sitemap read 2026-11-24, 1720 submitted, 2 indexed");
+  assert.equal(indexNote({ ...state, sitemap: { read: null, submitted: 0, indexed: 0 } }, now), "google index of money/entry pages: indexed 4/20 (URL Inspection 2026-11-23)");
 });

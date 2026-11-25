@@ -35,9 +35,11 @@ export function AuthShell({ title, subtitle, children, footer, back, entry, lead
                     <h1 className="text-3xl font-bold text-foreground mb-2">{title}</h1>
                     <p className="text-muted-foreground">{subtitle}</p>
                     {lead && (
-                        <Link href={lead.href} data-testid="auth-lead" className="mt-3 inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-2 hover:text-foreground">
+                        // Push DB1: a plain <a> (full page load), not a client navigation, so CF RUM records the planner
+                        // load with refererPath /sign-in or /sign-up and the probe can count lead clicks (no new D1 step).
+                        <a href={lead.href} data-testid="auth-lead" className="mt-3 inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-2 hover:text-foreground">
                             {lead.label}<span aria-hidden="true">&nbsp;→</span>
-                        </Link>
+                        </a>
                     )}
                 </div>
                 <div className="overflow-hidden rounded-lg bg-card/80 p-6 backdrop-blur-xl sm:p-8">

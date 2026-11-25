@@ -1,7 +1,9 @@
 // Weekly blog publish (shared/plans/weekly-blog.md item 6; go live always, Nils' own content).
 //   draft        fresh worktree from origin/main -> weekly-post-draft (subscription) -> weekly-post-gates ->
-//                bundle check -> blog tests -> commit -> push -> READY PR. The delivery autopilot merges it when green;
-//                the Gravity release lane deploys the merge.
+//                bundle check -> blog tests -> commit -> push -> READY PR with label `hold` -> post text to Nils on
+//                Telegram (PRIME RULE 4, Nils 2026-11-14: content waits for his "ok"). After his ok:
+//                `gh pr edit <n> --remove-label hold`; the delivery autopilot merges it when green and the Gravity
+//                release lane deploys the merge.
 //   live <slug>  (after the lane deployed it) live sha must hold the post -> live check of the post, /blog, RSS,
 //                sitemap and the IndexNow key file -> IndexNow ping (Bing, Yandex, Seznam share it) -> mark-deployed.
 // Exit codes: 0 done, 1 failed, 2 no post this week (draft) / usage, 3 the post is not deployed yet (retry later).
@@ -48,6 +50,27 @@ export async function ping(urls, post = (url, init) => fetch(url, init)) {
   return response.status; // 200 or 202 = accepted
 }
 
+/** The PR stays on `hold` until Nils' Telegram ok (rule 4), so the autopilot cannot publish it first. */
+export const prCreateArgs = (slug, day, file) => ["pr", "create", "--label", "hold", "--title", `[builder] blog: ${slug}`, "--body",
+  `Weekly post ${day}: \`${file}\`. Gates passed (weekly-post-gates.mjs). Label \`hold\` until Nils' Telegram ok (PRIME RULE 4); then remove it. After the release lane deploys the merge: \`node scripts/weekly-post-publish.mjs live ${slug}\`.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)`];
+
+// Telegram messages cap near 4096 chars: long posts go out in parts, split at "## " headings where possible.
+export function reviewMessages(slug, pr, text, max = 3500) {
+  const parts = [];
+  let rest = text;
+  while (rest.length > max) {
+    const cut = rest.lastIndexOf("\n## ", max);
+    const at = cut > max / 3 ? cut + 1 : max;
+    parts.push(rest.slice(0, at));
+    rest = rest.slice(at);
+  }
+  parts.push(rest);
+  const n = parts.length;
+  return parts.map((part, i) => (i === 0
+    ? `Localley weekly post "${slug}" (part 1/${n}) waits for your review.\nReply "ok blog ${slug}" to publish it.\nPR: ${pr} (label hold)\n\n`
+    : `Localley post "${slug}" (part ${i + 1}/${n})\n\n`) + part);
+}
+
 const sh = (cmd, args, cwd, input) => {
   const result = spawnSync(cmd, args, { cwd, input, encoding: "utf8", timeout: 900_000, maxBuffer: 16 << 20 });
   if (result.status !== 0) throw new Error(`${cmd} ${args.join(" ")}: ${(result.stderr || result.stdout || "").trim().slice(-400)}`);
@@ -80,9 +103,12 @@ function draft() {
     sh("git", ["add", "content/blog", "lib/blog/posts.generated.json"], tree);
     sh("git", ["commit", "-q", "-F", "-"], tree, `[builder] blog: ${slug} (weekly post ${day})\n\nDrafted on the subscription from lib/help fact rows; all weekly-post gates passed.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n`);
     sh("git", ["push", "-q", "-u", "origin", branch], tree);
-    const pr = sh("gh", ["pr", "create", "--title", `[builder] blog: ${slug}`, "--body",
-      `Weekly post ${day}: \`${file}\`. Gates passed (weekly-post-gates.mjs). After the release lane deploys the merge: \`node scripts/weekly-post-publish.mjs live ${slug}\`.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)`], tree);
-    console.log(JSON.stringify({ post: true, slug, pr }));
+    const pr = sh("gh", prCreateArgs(slug, day, file), tree);
+    const text = sh("cat", [file], tree);
+    const sent = reviewMessages(slug, pr, text).map((message, i, all) => spawnSync(`${ROOT}/shared/scripts/notify.sh`,
+      ["--area", "Localley", "--level", "action", "--title", `Blog review: ${slug} ${i + 1}/${all.length}`],
+      { input: message, encoding: "utf8", timeout: 120_000 }).status);
+    console.log(JSON.stringify({ post: true, slug, pr, review: sent.every((s) => s === 0) ? "sent" : "send failed", wait: "Nils Telegram review" }));
     return 0;
   } finally {
     if (existsSync(modules)) rmSync(modules);

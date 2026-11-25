@@ -42,6 +42,7 @@ vi.mock("@/lib/itineraries/grounded-generation", () => ({
   hasItineraryGroundingCoverage: () => true,
   rankItineraryGroundingSpots: (spots: unknown) => spots,
   pinSelectedSpot: (spots: unknown) => ({ spots }),
+  groundItineraryPool: (spots: unknown) => ({ spots, covered: true }),
   ensurePinnedSpot: (plans: unknown) => plans,
 }));
 vi.mock("@/lib/geocoding", () => ({ geocodeItineraryActivities: async (plans: unknown) => plans }));

@@ -577,6 +577,27 @@ export function pinSelectedSpot(
 }
 
 /**
+ * Push DA1: the grounding pool for one request. A chosen spot far from the rest of the city pool (Min Buri Old
+ * Market sits 25 km east of central Bangkok) is pinned first, so no day route can start there and the filler check
+ * failed: the visitor got "cannot plan Bangkok" while the same request without the spot works. The pin may never
+ * turn a plan into a failure: when the pinned pool fails and the pool without that spot passes, plan without it.
+ */
+export function groundItineraryPool(
+  pool: ItineraryGroundingSpot[],
+  preferences: ItineraryGroundingPreferences,
+  spotId: string | undefined,
+): { spots: ItineraryGroundingSpot[]; pinnedId?: string; covered: boolean; pinSkipped?: boolean } {
+  const ranked = rankItineraryGroundingSpots(pool, preferences);
+  const pinned = pinSelectedSpot(ranked, pool, spotId);
+  if (hasItineraryGroundingCoverage(pinned.spots, preferences)) return { ...pinned, covered: true };
+  if (pinned.pinnedId) {
+    const withoutPin = ranked.filter((spot) => spot.id !== pinned.pinnedId);
+    if (hasItineraryGroundingCoverage(withoutPin, preferences)) return { spots: withoutPin, covered: true, pinSkipped: true };
+  }
+  return { ...pinned, covered: false };
+}
+
+/**
  * The pinned spot must be in the trip the visitor asked for. If the model and the grounding left it out, it takes
  * the slot (time, type, duration) of the nearest stop whose removal keeps every requested interest covered.
  */
