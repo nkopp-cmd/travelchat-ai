@@ -13,6 +13,8 @@ export const SPOTS_PER_SITEMAP = 5000;
 
 export type SitemapEntry = { loc: string; lastmod?: string };
 export type SitemapSpotRow = { id: string; lastmod: string | null; hub?: string | null; name?: string };
+/** A viral event page (/trending/<slug>) that answers 200; lastSeen is the newest news date for it. */
+export type SitemapTrendingEvent = { slug: string; lastSeen?: string | null };
 
 const DATE = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\+00:00|Z))?$/;
 const latest = (dates: (string | undefined)[]) => dates.filter((d): d is string => !!d).sort().at(-1);
@@ -24,7 +26,7 @@ const latest = (dates: (string | undefined)[]) => dates.filter((d): d is string 
  * /credits, /privacy and /terms stay out (Push BK2, diagnosis RC2): Google indexes few Localley URLs, so the sitemap
  * names only money and entry pages; the footer still links the legal pages.
  */
-export function pageEntries(spotRows: readonly SitemapSpotRow[] = []): SitemapEntry[] {
+export function pageEntries(spotRows: readonly SitemapSpotRow[] = [], trending: readonly SitemapTrendingEvent[] = []): SitemapEntry[] {
   const newest = (rows: readonly SitemapSpotRow[]) => latest(rows.map((row) => row.lastmod ?? undefined));
   // Push CL4: each indexable hub also lists its A-Z page (same noindex rule as app/spots/a-z/[city]).
   const cities = ENABLED_CITIES.filter((city) => hubIndexable(spotRows, city.name)).flatMap((city) => {
@@ -32,9 +34,21 @@ export function pageEntries(spotRows: readonly SitemapSpotRow[] = []): SitemapEn
     return [{ loc: `${SITE}/spots?city=${city.slug}`, lastmod }, { loc: `${SITE}/spots/a-z/${encodeURIComponent(city.slug)}`, lastmod }];
   });
   return [
-    { loc: SITE }, { loc: `${SITE}/spots`, lastmod: newest(spotRows) }, ...cities, { loc: `${SITE}/trending` }, { loc: `${SITE}/templates` },
-    { loc: `${SITE}/pricing` },
+    { loc: SITE }, { loc: `${SITE}/spots`, lastmod: newest(spotRows) }, ...cities, { loc: `${SITE}/trending` }, ...trendingEntries(trending),
+    { loc: `${SITE}/templates` }, { loc: `${SITE}/pricing` },
   ];
+}
+
+/** Viral event pages: self-canonical and indexed, but Google did not know them (sitemap gap 2026-11-26). */
+export function trendingEntries(events: readonly SitemapTrendingEvent[]): SitemapEntry[] {
+  const seen = new Set<string>();
+  return events.flatMap((event) => {
+    if (!/^[a-z0-9][a-z0-9-]{2,95}$/.test(event.slug) || seen.has(event.slug)) return [];
+    seen.add(event.slug);
+    // The scout writes full ISO times (with ms); the sitemap date format takes the day only.
+    const day = /^\d{4}-\d{2}-\d{2}/.exec(event.lastSeen ?? "")?.[0];
+    return [{ loc: `${SITE}/trending/${event.slug}`, lastmod: day }];
+  });
 }
 
 /** Traveller guides: the help phrase cards and the journal. */
@@ -75,9 +89,9 @@ export function renderUrlset(entries: SitemapEntry[]): string {
 }
 
 /** The index: one <sitemap> per child, lastmod = the newest lastmod inside that child. */
-export function renderIndex(spotRows: SitemapSpotRow[]): string {
+export function renderIndex(spotRows: SitemapSpotRow[], trending: readonly SitemapTrendingEvent[] = []): string {
   const children: SitemapEntry[] = [
-    { loc: `${SITE}/sitemaps/pages.xml`, lastmod: latest(pageEntries(spotRows).map((e) => e.lastmod)) },
+    { loc: `${SITE}/sitemaps/pages.xml`, lastmod: latest(pageEntries(spotRows, trending).map((e) => e.lastmod)) },
     { loc: `${SITE}/sitemaps/guides.xml`, lastmod: latest(guideEntries().map((e) => e.lastmod)) },
     ...Array.from({ length: spotChunkCount(spotRows.length) }, (_, i) => ({
       loc: `${SITE}/sitemaps/spots-${i + 1}.xml`,

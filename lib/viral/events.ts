@@ -63,6 +63,21 @@ export async function fetchViralEvents(): Promise<ViralEvent[]> {
   return (await readViralFeed())?.events ?? [];
 }
 
+/**
+ * Events whose /trending/<slug> page answers 200 (at least one visible spot, else the page is a 404), for the
+ * sitemap. One D1 read for all events; empty on any error so the sitemap never fails.
+ */
+export async function fetchIndexableViralEvents(): Promise<ViralEvent[]> {
+  try {
+    const events = (await readViralFeed())?.events ?? [];
+    const visible = await cards(events.flatMap((event) => event.spots));
+    return events.filter((event) => event.spots.some((ref) => visible.has(ref.spotId)));
+  } catch (error) {
+    console.error("[viral] sitemap events unavailable:", error instanceof Error ? error.message : error);
+    return [];
+  }
+}
+
 /** One event with its visible spots, or null when the slug is unknown. */
 export async function fetchViralEvent(slug: string): Promise<{ event: ViralEvent; spots: { spot: Spot; note: string | null }[] } | null> {
   if (!VIRAL_SLUG.test(slug)) return null;

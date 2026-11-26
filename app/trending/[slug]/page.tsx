@@ -32,7 +32,7 @@ export default async function ViralEventPage({ params }: Props) {
   const { event, spots } = data;
   const jsonLd = {
     "@context": "https://schema.org", "@type": "ItemList", name: event.label,
-    itemListElement: spots.map(({ spot }, index) => ({ "@type": "ListItem", position: index + 1, url: `https://localley.io/spots/${spot.id}`, name: spot.name })),
+    itemListElement: spots.map(({ spot }, index) => ({ "@type": "ListItem", position: index + 1, url: `https://www.localley.io/spots/${spot.id}`, name: spot.name })),
   };
 
   return (
