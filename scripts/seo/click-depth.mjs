@@ -5,15 +5,18 @@
 // Fetches pages up to depth 2 (their links give depth 3). Exit 0 when every target is within budget, else 1.
 import { writeFileSync } from "node:fs";
 import { sitemapLocs } from "./orphan-check-lib.mjs";
-import { bfsDepth, depthReport, internalLinks } from "./click-depth-lib.mjs";
+import { allWithinBudget, bfsDepth, depthReport, internalLinks, pacer } from "./click-depth-lib.mjs";
 
 const args = process.argv.slice(2);
 const opt = (k) => (args.includes(k) ? args[args.indexOf(k) + 1] : undefined);
 const base = (opt("--base") ?? "https://www.localley.io").replace(/\/$/, "");
 const UA = "LocalleyClickDepth/1.0";
 const MAX_FETCH = 4000;
+// Push DM2: at most 2 req/s (--rps), so one run stays far below 300 Worker CPU-s per hour.
+const pace = pacer(Number(opt("--rps") ?? 2));
 
 async function get(url) {
+  await pace();
   const res = await fetch(url, { headers: { "user-agent": UA }, redirect: "follow" });
   if (!res.ok) throw new Error(`${res.status} ${url}`);
   return res.text();
@@ -38,8 +41,10 @@ const seen = new Set(frontier);
 let fetched = 0, failed = 0;
 for (let d = 0; d < 3 && frontier.length; d++) {
   const next = [];
-  if (d < 3) {
-    await pool(frontier, 6, async (path) => {
+  // Every target already within budget: the pages of this level would only add deeper links (Push DM2).
+  if (allWithinBudget(targets, bfsDepth("/", (p) => graph.get(p), d))) break;
+  {
+    await pool(frontier, 2, async (path) => {
       if (fetched >= MAX_FETCH) return;
       fetched++;
       try { graph.set(path, [...internalLinks(await get(base + path))]); } catch { failed++; graph.set(path, []); }

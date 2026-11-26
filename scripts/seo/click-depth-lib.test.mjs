@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { bfsDepth, depthReport, internalLinks, pageType } from "./click-depth-lib.mjs";
+import { allWithinBudget, bfsDepth, depthReport, internalLinks, pacer, pageType } from "./click-depth-lib.mjs";
 
 const A = "f242e187-56ee-4cc8-9736-52f4ea46aebc";
 
@@ -44,4 +44,24 @@ test("depthReport applies city <= 2 and spot <= 3", () => {
   const depth = new Map([["/spots/a-z/seoul", 1], ["/spots/a-z/tokyo", 3], [`/spots/${A}`, 3]]);
   const r = depthReport(["/spots/a-z/seoul", "/spots/a-z/tokyo", "/spots/a-z/osaka", `/spots/${A}`, "/blog"], depth);
   assert.deepEqual(r, { city: { total: 3, within: 1, over: ["/spots/a-z/tokyo", "/spots/a-z/osaka"] }, spot: { total: 1, within: 1, over: [] } });
+});
+
+test("pacer spaces request starts at least 1000/rps ms apart, also for parallel callers (Push DM2)", async () => {
+  let clock = 1000;
+  const starts = [];
+  const wait = pacer(2, () => clock, async (ms) => { clock += ms; });
+  for (let i = 0; i < 5; i++) { await wait(); starts.push(clock); }
+  for (let i = 1; i < starts.length; i++) assert.ok(starts[i] - starts[i - 1] >= 500, `gap ${starts[i] - starts[i - 1]}`);
+  // Parallel callers on a real clock: 4 starts at 20 req/s take >= 3 gaps.
+  const real = pacer(20);
+  const t0 = Date.now();
+  await Promise.all([real(), real(), real(), real()]);
+  assert.ok(Date.now() - t0 >= 140);
+});
+
+test("allWithinBudget stops the crawl once every target is within its budget", () => {
+  const depth = new Map([["/", 0], ["/spots/a-z/seoul", 1], [`/spots/${A}`, 2]]);
+  assert.equal(allWithinBudget(["/spots/a-z/seoul", `/spots/${A}`], depth), true);
+  assert.equal(allWithinBudget(["/spots/a-z/seoul", `/spots/${A}`, "/spots/a-z/tokyo"], depth), false);
+  assert.equal(allWithinBudget([], depth), true);
 });

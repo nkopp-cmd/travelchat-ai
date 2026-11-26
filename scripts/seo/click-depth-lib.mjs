@@ -53,3 +53,24 @@ export function depthReport(targets, depth, budget = { city: 2, spot: 3 }) {
   }
   return report;
 }
+
+/**
+ * Push DM2: request pacing for site-wide checks. Returns `wait()`, which resolves when the next request may start,
+ * so starts are at least 1000/rps ms apart across all callers (default 2 req/s). Uncached pages cost the Worker
+ * 50-500 ms CPU each; a 6-way crawl of 3,300 pages used ~530 CPU-s in minutes and tripped the usage watchdog.
+ */
+export function pacer(rps = 2, now = () => Date.now(), sleep = (ms) => new Promise((r) => setTimeout(r, ms))) {
+  const gap = 1000 / rps;
+  let next = 0;
+  return async () => {
+    const t = now();
+    const start = Math.max(t, next);
+    next = start + gap;
+    if (start > t) await sleep(start - t);
+  };
+}
+
+/** True when every target already has a depth within its type budget, so deeper pages need no fetch (Push DM2). */
+export function allWithinBudget(targets, depth, budget = { city: 2, spot: 3 }) {
+  return Object.values(depthReport(targets, depth, budget)).every((r) => r.over.length === 0);
+}

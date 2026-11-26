@@ -7,6 +7,7 @@
 import { createRequire } from "node:module";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { pacer } from "./seo/click-depth-lib.mjs";
 
 export const PAGES = ["/", "/pricing", "/sign-up?redirect_url=%2Fpricing", "/sign-in", "/forgot-password", "/itineraries/new", "/spots"];
 export const BROWSE_PAGES = ["/trending", "/templates", "/help", "/help/korea", "/help/korea/pay", "/blog"];
@@ -48,12 +49,17 @@ async function main() {
         console.error(`a11y-money-pages: no city links on ${base}/spots (HTTP ${spotsStatus})`);
         return 1;
     }
+    const pace = pacer(2);
     const browser = await chromium.launch();
     let blocking = 0;
     try {
         for (const [name, width, height] of VIEWPORTS) {
             const page = await browser.newPage({ viewport: { width, height }, extraHTTPHeaders: headers });
+            // Push DM2: link prefetches (?_rsc=) render dozens of Worker pages per check page and are not part of
+            // the audit; pages load at most 2 per second.
+            await page.route((url) => url.searchParams.has("_rsc"), (route) => route.abort());
             for (const path of pages) {
+                await pace();
                 const response = await page.goto(base + path, { waitUntil: "networkidle", timeout: 30_000 }).catch((error) => error);
                 if (response instanceof Error || !response || response.status() >= 400) {
                     blocking += 1;
