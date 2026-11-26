@@ -10,7 +10,7 @@
  *     --command "SELECT email, status, unsubscribe_token, unsubscribed_at FROM newsletter_subscribers WHERE status = 'confirmed' AND unsubscribed_at IS NULL" \
  *     2>/dev/null > subscribers.json
  *   npx tsx scripts/newsletter/send-issue.tsx --issue 2026-11-first --list subscribers.json \
- *     --approval NL-20261114-rich --ledger sent-2026-11-first.txt [--send]
+ *     --approval NL-20261126 --ledger sent-2026-11-first.txt [--send]
  *
  * Without --send nothing is sent (list mode prints the recipient count only, never addresses). List mode re-filters
  * the export (confirmed, not unsubscribed, valid token, de-duplicated) and skips every address in the ledger, so a
