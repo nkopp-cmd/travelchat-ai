@@ -31,11 +31,11 @@ describe("newsletter list send", () => {
   });
 
   it("refuses the list send without the issue's exact approval tag", () => {
-    expect(approval).toBe("NL-20261114-rich");
-    expect(() => assertApproval(approval, undefined)).toThrow(/--approval NL-20261114-rich/);
+    expect(approval).toBe("NL-20261126");
+    expect(() => assertApproval(approval, undefined)).toThrow(/--approval NL-20261126/);
     expect(() => assertApproval(approval, "ok")).toThrow();
     expect(() => assertApproval(undefined, "anything")).toThrow(/no approval tag/);
-    expect(() => assertApproval(approval, "NL-20261114-rich")).not.toThrow();
+    expect(() => assertApproval(approval, "NL-20261126")).not.toThrow();
   });
 
   describe("ledger", () => {

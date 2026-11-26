@@ -1,24 +1,25 @@
 import type { NewsletterIssue } from "../../../emails/newsletter-issue-email";
 
-// Issue 1. Every number is from production D1 (visible spots) on 2026-11-14; payment guidance from lib/help/pay.json.
+// Issue 1, refreshed 2026-11-26: every number is from production D1 (visible spots, weekly_city_spot_rankings) on
+// 2026-11-26; ranked spots are indexable guide pages (spots-1.xml); payment guidance from lib/help/pay.json.
 const SITE = "https://www.localley.io";
 const utm = (path: string) => `${SITE}${path}${path.includes("?") ? "&" : "?"}utm_source=newsletter&utm_medium=email&utm_campaign=2026-11-first`;
 const spot = (id: string) => utm(`/spots/${id}`);
 
-// Telegram approval tag for the list send (Nils replies "ok NL-20261114-rich").
-export const approval = "NL-20261114-rich";
+// Approval tag for the list send (PRIME RULE 4, 2026-11-25: publish + Telegram preview; Nils' "no" blocks).
+export const approval = "NL-20261126";
 
 export const issue: NewsletterIssue = {
   subject: "41 Seoul places locals rate at the top, and how to pay in Korea",
-  preview: "Our Seoul scores in one chart, the five most local Legendary spots, and a payment tip for Korea.",
+  preview: "Our Seoul scores in one chart, five Hidden Gems where locals outnumber tourists, and a payment tip for Korea.",
   title: "Find the places locals actually rate",
   intro:
-    "Welcome to the first Localley newsletter. We score every place from 1 to 6 by rating per review and by how often locals post about it. This issue: the Seoul scores, five places with almost no tourists, and how to pay in Korea.",
+    "Welcome to the first Localley newsletter. We score every place from 1 to 6 by rating per review and by how often locals post about it. This issue: the Seoul scores, five places locals outnumber tourists, and how to pay in Korea.",
   hero: { photo: "seoul", alt: "Neon signs in a Seoul side street at night", credit: "Photo: Unsplash" },
   stats: [
-    { value: "458", label: "Seoul places rated" },
+    { value: "496", label: "Seoul places rated" },
     { value: "41", label: "Legendary Alley" },
-    { value: "4", label: "cities live" },
+    { value: "30", label: "Asian cities" },
   ],
   scores: {
     title: "How Seoul scores",
@@ -27,46 +28,46 @@ export const issue: NewsletterIssue = {
       { level: 6, count: 41 },
       { level: 5, count: 170 },
       { level: 4, count: 159 },
-      { level: 3, count: 46 },
+      { level: 3, count: 84 },
       { level: 2, count: 42 },
     ],
     url: utm("/spots?city=seoul"),
-    linkLabel: "See all 458 Seoul places",
+    linkLabel: "See all Seoul places",
   },
   ranked: {
-    title: "Five Legendary spots with almost no tourists",
-    caption: "Top score, sorted by the share of locals among visitors.",
+    title: "Five Hidden Gems where locals outnumber tourists",
+    caption: "Hidden Gem score and a full local guide, sorted by the share of locals among visitors.",
     spots: [
-      { name: "Haengdang-dong Local Market", area: "Seongdong-gu", level: 6, localShare: 98,
-        note: "A neighbourhood market for residents. No tour groups.", url: spot("067bacc4-825e-4e60-bab8-2720785c15bf") },
-      { name: "Changsin-dong Sewing Village", area: "Jongno-gu", level: 6, localShare: 98,
-        note: "The garment district where Seoul fashion starts, with cheap workers' eateries.", url: spot("d1e6b2f9-0ff7-4151-9142-1052db9eca25") },
-      { name: "Sadang Station Underground", area: "Dongjak-gu", level: 6, localShare: 98,
-        note: "Underground shopping at very low prices for clothes, shoes and accessories.", url: spot("c23fb655-d962-4cd5-8dd0-362fb8732b1f") },
-      { name: "Dongmyo Flea Market", area: "Jongno-gu", level: 6, localShare: 95,
-        note: "A big outdoor flea market where grandmas sell everything. Go early for vintage.", url: spot("f6b6d93a-4993-4ce7-8691-afe8b2ce3d09") },
-      { name: "Hongje-dong Hills", area: "Seodaemun-gu", level: 6, localShare: 95,
-        note: "Hillside streets with wide city views, old apartment blocks and local markets.", url: spot("0afb50c3-64dd-4e22-8600-edcf29a1879f") },
+      { name: "Sillim-dong Sundae Town", area: "Gwanak-gu", level: 5, localShare: 90,
+        note: "Vendors have served sundae (blood sausage) here for decades. Order it with gopchang.", url: spot("26f8640c-0942-4001-b0ac-b20d3cf5b197") },
+      { name: "Nakseongdae Park", area: "Gwanak-gu", level: 5, localShare: 90,
+        note: "A quiet memorial park for General Kang Gam-chan, with traditional buildings and gardens.", url: spot("32be2449-a190-4afb-a3d2-75bbf4b6e241") },
+      { name: "Naksan Park", area: "Jongno-gu", level: 5, localShare: 85,
+        note: "Walk the old fortress wall at sunset for views of old and new Seoul. Free.", url: spot("b50160e9-3c20-49c6-8d8f-7700b0b8ccc3") },
+      { name: "Yeouido Saetgang Ecological Park", area: "Yeongdeungpo-gu", level: 5, localShare: 85,
+        note: "A green river path behind the office towers, popular with local cyclists.", url: spot("37e27665-0b02-4522-944c-cc5652af8592") },
+      { name: "Mangwon Market", area: "Mapo-gu", level: 5, localShare: 80,
+        note: "A neighbourhood market where grandmas sell homemade banchan. Less crowded than Gwangjang.", url: spot("aee0ec5d-577b-4e3a-ab5e-d92c4b743202") },
     ],
   },
   cityShares: {
     title: "Where hidden gems are easiest to find",
     caption: "Share of rated places at Hidden Gem or Legendary Alley.",
     rows: [
-      { city: "Seoul", share: 46, url: utm("/spots?city=seoul") },
-      { city: "Tokyo", share: 43, url: utm("/spots?city=tokyo") },
-      { city: "Singapore", share: 37, url: utm("/spots?city=singapore") },
-      { city: "Bangkok", share: 32, url: utm("/spots?city=bangkok") },
+      { city: "Seoul", share: 43, url: utm("/spots?city=seoul") },
+      { city: "Tokyo", share: 41, url: utm("/spots?city=tokyo") },
+      { city: "Singapore", share: 36, url: utm("/spots?city=singapore") },
+      { city: "Bangkok", share: 31, url: utm("/spots?city=bangkok") },
     ],
-    source: "Seoul 458, Tokyo 514, Singapore 442, Bangkok 389 rated places. Localley data, 14 Nov 2026.",
+    source: "Seoul 496, Tokyo 537, Singapore 513, Bangkok 398 rated places. Localley data, 26 Nov 2026.",
   },
   trend: {
     icon: "trend",
     eyebrow: "Our weekly social scan",
-    title: "Dongmyo Flea Market led Seoul two weeks in a row",
-    body: "It was the top Seoul spot in our scan of local posts in the weeks of 12 and 19 October. In Bangkok, Yaowarat (Chinatown) street food led the week of 19 October.",
-    url: spot("f6b6d93a-4993-4ce7-8691-afe8b2ce3d09"),
-    linkLabel: "Open Dongmyo Flea Market",
+    title: "Zhinan Temple led Taipei two weeks in a row",
+    body: "It was the top Taipei spot in our scan of local posts in the weeks of 16 and 23 November. Take the Maokong Gondola to the Zhinan Temple stop. In Bangkok, Nang Loeng Market led both weeks.",
+    url: spot("1537affa-dcdb-4ba6-a51f-e19fb1461fdd"),
+    linkLabel: "Open Zhinan Temple",
   },
   tip: {
     icon: "card",
@@ -80,10 +81,10 @@ export const issue: NewsletterIssue = {
     title: "Same method, three more cities",
     cards: [
       { city: "Tokyo", photo: "tokyo", title: "201 Hidden Gems", body: "The most of any city we rate.", url: utm("/spots?city=tokyo"), linkLabel: "Explore Tokyo" },
-      { city: "Singapore", photo: "singapore", title: "175 Local Favorites", body: "Neighbourhood food and local spots.", url: utm("/spots?city=singapore"), linkLabel: "Explore Singapore" },
+      { city: "Singapore", photo: "singapore", title: "184 Hidden Gems", body: "Neighbourhood food and local spots.", url: utm("/spots?city=singapore"), linkLabel: "Explore Singapore" },
       { city: "Bangkok", photo: "bangkok", title: "169 Local Favorites", body: "Street food and markets first.", url: utm("/spots?city=bangkok"), linkLabel: "Explore Bangkok" },
     ],
   },
   cta: { label: "Plan a trip with Localley", url: utm("/itineraries/new") },
-  sources: "Photos: Unsplash. Scores and counts: Localley data, 14 Nov 2026.",
+  sources: "Photos: Unsplash. Scores and counts: Localley data, 26 Nov 2026.",
 };
