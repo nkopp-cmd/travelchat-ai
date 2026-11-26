@@ -43,6 +43,21 @@ describe("viral events reader", () => {
     expect(mocks.d1SpotCardsByIds).toHaveBeenCalledWith([A, B]);
   });
 
+  it("lists for the sitemap only events whose page has a visible spot (the page 404s otherwise)", async () => {
+    const C = "0022dc9c-5f13-41fd-9940-38a190795704";
+    const gone = { ...feed.events[0], slug: "gone-event-seoul-2026-10", spots: [{ spotId: C, note: null }] };
+    const { fetchIndexableViralEvents } = await load(() => ({ json: async () => ({ ...feed, events: [...feed.events, gone] }) }));
+    mocks.d1SpotCardsByIds.mockResolvedValue([raw(B)]);
+    expect((await fetchIndexableViralEvents()).map((event) => event.slug)).toEqual(["justin-bieber-seoul-2026-10"]);
+    expect(mocks.d1SpotCardsByIds).toHaveBeenCalledTimes(1);
+    expect(mocks.d1SpotCardsByIds).toHaveBeenCalledWith([A, B, C]);
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    mocks.d1SpotCardsByIds.mockRejectedValue(new Error("d1 down"));
+    vi.resetModules();
+    const again = await load(() => ({ json: async () => feed }));
+    expect(await again.fetchIndexableViralEvents()).toEqual([]);
+  });
+
   it("hides the rail when the file is missing, broken or R2 fails", async () => {
     for (const get of [() => null, () => ({ json: async () => ({ nope: true }) }), () => { throw new Error("r2 down"); }]) {
       const { fetchViralSpots, fetchViralEvents } = await load(get);

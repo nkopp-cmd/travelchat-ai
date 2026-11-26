@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { BLOG_POSTS } from "@/lib/blog/posts";
 import {
-  guideEntries, pageEntries, parseSitemapFile, renderIndex, renderUrlset, SPOTS_PER_SITEMAP, spotChunk, spotChunkCount, spotEntries,
+  guideEntries, pageEntries, parseSitemapFile, renderIndex, renderUrlset, SPOTS_PER_SITEMAP, spotChunk, spotChunkCount, spotEntries, trendingEntries,
 } from "@/lib/seo/sitemap";
 
 const rows = (n: number) => Array.from({ length: n }, (_, i) => ({ id: `spot-${i}`, lastmod: `2026-0${1 + (i % 9)}-01T00:00:00+00:00` }));
@@ -42,6 +42,23 @@ describe("sitemap index", () => {
     for (const path of ["", "/pricing", "/templates"]) expect(at(path)?.lastmod).toBeUndefined();
     for (const path of ["/credits", "/privacy", "/terms"]) expect(at(path)).toBeUndefined();
     expect(renderIndex(hubRows)).toContain("<loc>https://www.localley.io/sitemaps/pages.xml</loc><lastmod>2026-11-15T00:00:00+00:00</lastmod>");
+  });
+
+  it("lists each viral event page once with its last news day, and only safe slugs", () => {
+    const trending = [
+      { slug: "justin-bieber-seoul-2026-10", lastSeen: "2026-10-30T07:12:44.123Z" },
+      { slug: "justin-bieber-seoul-2026-10", lastSeen: "2026-10-30T07:12:44.123Z" },
+      { slug: "no-date-busan-2026-11", lastSeen: null },
+      { slug: "../etc", lastSeen: "2026-10-30" },
+    ];
+    expect(trendingEntries(trending)).toEqual([
+      { loc: "https://www.localley.io/trending/justin-bieber-seoul-2026-10", lastmod: "2026-10-30" },
+      { loc: "https://www.localley.io/trending/no-date-busan-2026-11", lastmod: undefined },
+    ]);
+    const urls = pageEntries([], trending).map((e) => e.loc);
+    expect(urls.indexOf("https://www.localley.io/trending/justin-bieber-seoul-2026-10")).toBe(urls.indexOf("https://www.localley.io/trending") + 1);
+    expect(renderUrlset(pageEntries([], trending))).toContain("<loc>https://www.localley.io/trending/justin-bieber-seoul-2026-10</loc><lastmod>2026-10-30</lastmod>");
+    expect(renderIndex([], trending)).toContain("<loc>https://www.localley.io/sitemaps/pages.xml</loc><lastmod>2026-10-30</lastmod>");
   });
 
   it("splits spots into children of at most 5,000 URLs and covers every row once", () => {
