@@ -33,6 +33,14 @@ describe("LocalleySignup", () => {
   });
 });
 
+describe("A-Z city hub sign-up (Push DP1)", () => {
+  it("every /spots/a-z/<city> hub renders the sign-up with source city-az and the city slug", () => {
+    const page = readFileSync(join(process.cwd(), "app/spots/a-z/[city]/page.tsx"), "utf8");
+    expect(page).toMatch(/<LocalleySignup source="city-az" city=\{city\.slug\}/);
+    expect(cleanSource("city-az")).toBe("city-az");
+  });
+});
+
 describe("sign-up sources and answer pages", () => {
   // A source that fails the store rule is stored as "site": list analytics then lose the page.
   it("every LocalleySignup source used in app/ passes the store source rule", () => {

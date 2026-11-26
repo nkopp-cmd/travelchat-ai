@@ -7,6 +7,7 @@ import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { PageHeader } from "@/components/layout/page-header";
 import { CityTripStoryCard } from "@/components/blog/city-trip-story-card";
 import { MapPin } from "@/components/ui/icons";
+import { LocalleySignup } from "@/components/newsletter/localley-signup";
 import { CitySpotAzList, cityAzPath } from "@/components/spots/city-spot-directory";
 import { getCityBySlug } from "@/lib/cities";
 import { cityDirectory } from "@/lib/spots/city-directory-store";
@@ -60,6 +61,8 @@ export default async function CitySpotsAzPage({ params }: Props) {
         lede="Every place we list in this city. Open a spot for its Localley Score, local tips and the map, or go back to the city page to filter by category and score." />
       <CityTripStoryCard cityName={city.name} />
       <CitySpotAzList entries={entries} />
+      {/* Push DP1: the A-Z hubs are the pages Google indexes best; they get the same no-JS sign-up as the city hub. */}
+      <LocalleySignup source="city-az" city={city.slug} heading={`More ${city.name} picks by email`} className="mt-10" />
       <p className="mt-10 text-sm">
         <Link prefetch={false} href={hubPath} className="font-semibold text-primary underline-offset-2 hover:underline">← Best-rated spots in {city.name}</Link>
       </p>
