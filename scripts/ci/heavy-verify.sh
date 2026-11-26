@@ -1053,6 +1053,8 @@ lane_node() {
   node scripts/d1-migration/atomic-usage-proof.mjs --out "$RUNNER_TEMP/localley-quota-proof-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"
   node --test scripts/seo/orphan-check-lib.test.mjs
   node --check scripts/seo/orphan-check.mjs
+  node --test scripts/seo/click-depth-lib.test.mjs
+  node --check scripts/seo/click-depth.mjs
   node --test scripts/seo/index-status-lib.test.mjs
   node --check scripts/seo/index-status.mjs
   node --check scripts/seo/index-gap.mjs
