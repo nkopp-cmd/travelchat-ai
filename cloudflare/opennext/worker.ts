@@ -9,6 +9,11 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { default as handler } from "../../.open-next/worker.js";
+// Evaluate the Next server bundle at startup, not on the first request: OpenNext imports it lazily inside fetch,
+// so every cold isolate billed ~450 ms of request CPU (Push DM1, 2026-11-26). Same module, so the lazy import is free.
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import "../../.open-next/server-functions/default/handler.mjs";
 import { serveWithEdgeCache } from "./edge-html-cache";
 import { loadCriticalCss, withCriticalCss } from "./critical-css";
 import { withHostRobots } from "./robots-host";
