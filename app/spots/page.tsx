@@ -14,15 +14,13 @@ import { withHubCity } from "@/lib/spots/hub-city";
 import { plannerCities } from "@/lib/cities-catalog";
 import { hubIndexable, spotsHubHeading } from "@/lib/seo/spot-indexable";
 import { sitemapSpotRows } from "@/lib/seo/sitemap-spots";
-import { homeHubLinks } from "@/lib/seo/home-links";
-import { homeLinkRows } from "@/lib/seo/home-links-snapshot";
 import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { pageMeta } from "@/lib/seo/meta";
 import { spotsHubPagePath } from "@/lib/seo/spots-hub-page";
 import { localMonth, seasonFor } from "@/lib/season/season-table";
 import { getWeather } from "@/lib/weather/met-norway";
 import { WeeklyTrendingSpots } from "@/components/spots/weekly-trending-spots";
-import { CitySpotDirectory } from "@/components/spots/city-spot-directory";
+import { CitySpotDirectory, cityAzPath } from "@/components/spots/city-spot-directory";
 import { ViralSpots } from "@/components/spots/viral-spots";
 import { Images, MapPin, Plus } from "@/components/ui/icons";
 import { AppBackground } from "@/components/layout/app-background";
@@ -253,15 +251,17 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
                         </IntentLink>
                         .
                     </p>
-                    {/* Push CL4: the A-Z list of each indexable hub had one inbound link (home); link them from /spots too. */}
+                    {/* Push CL4 + DK3: the A-Z list of EVERY city chip (not only the 11 hubs) links from /spots, so each indexable
+                        spot is <= 3 clicks from home (/ -> /spots -> /spots/a-z/<city> -> spot). Before, a Hanoi or Busan spot sat at
+                        depth 4 behind the ?city= chip. Same list as the chips: no extra query. */}
                     {hub.city ? null : (
                         <nav aria-label="Spots A to Z by city" data-testid="hub-az-links" className="text-sm leading-6 text-muted-foreground">
                             Every spot A–Z:{" "}
-                            {homeHubLinks(homeLinkRows()).map((link, i) => (
-                                <span key={link.azHref}>
+                            {filterOptions.cities.map((city, i) => (
+                                <span key={city.slug}>
                                     {i > 0 ? " · " : null}
-                                    <IntentLink href={link.azHref} className="font-semibold text-foreground underline underline-offset-2">
-                                        {link.name}
+                                    <IntentLink href={cityAzPath(city.slug)} className="font-semibold text-foreground underline underline-offset-2">
+                                        {city.name}
                                     </IntentLink>
                                 </span>
                             ))}
