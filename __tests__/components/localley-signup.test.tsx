@@ -71,3 +71,13 @@ describe("sign-up sources and answer pages", () => {
     }
   });
 });
+
+describe("A-Z city hub planner CTA (Push DQ1)", () => {
+  it("every /spots/a-z/<city> hub links to the free planner prefilled with the city, gated by planner cities", () => {
+    const page = readFileSync(join(process.cwd(), "app/spots/a-z/[city]/page.tsx"), "utf8");
+    expect(page).toMatch(/plannerCities\(\)/);
+    expect(page).toMatch(/\/itineraries\/new\?\$\{new URLSearchParams\(\{ city: planCity \}\)\}/);
+    expect(page).toMatch(/Plan a free \$\{planCity\} trip/);
+    expect(page).toMatch(/data-testid="az-plan-trip"/);
+  });
+});

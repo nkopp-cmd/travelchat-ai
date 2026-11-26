@@ -7,6 +7,9 @@ import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { PageHeader } from "@/components/layout/page-header";
 import { CityTripStoryCard } from "@/components/blog/city-trip-story-card";
 import { MapPin } from "@/components/ui/icons";
+import { Button } from "@/components/ui/button";
+import { IntentLink } from "@/components/navigation/intent-link";
+import { plannerCities } from "@/lib/cities-catalog";
 import { LocalleySignup } from "@/components/newsletter/localley-signup";
 import { CitySpotAzList, cityAzPath } from "@/components/spots/city-spot-directory";
 import { getCityBySlug } from "@/lib/cities";
@@ -49,16 +52,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CitySpotsAzPage({ params }: Props) {
   const { city: slug } = await params;
-  const list = await findList(slug);
+  // Push DQ1: planner cities load in parallel with the list; a failed load still shows the generic plan link.
+  const [list, offered] = await Promise.all([
+    findList(slug),
+    plannerCities().then((all) => new Set(all.map((c) => c.name)), () => null),
+  ]);
   if (!list) notFound();
   const { city, entries } = list;
+  const planCity = !offered || offered.has(city.name) ? city.name : null;
   const hubPath = `/spots?city=${encodeURIComponent(city.slug)}`;
   return (
     <div className="mx-auto w-full max-w-5xl px-4 pb-24 pt-6 sm:px-6">
       <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Spots", url: "/spots" }, { name: city.name, url: hubPath }, { name: "A–Z", url: cityAzPath(city.slug) }]} />
       <PageHeader eyebrow={<Link prefetch={false} href={hubPath} className="hover:underline">Hidden gems in {city.name}</Link>} eyebrowIcon={MapPin}
         title={`All ${entries.length} spots in ${city.name}, A–Z`}
-        lede="Every place we list in this city. Open a spot for its Localley Score, local tips and the map, or go back to the city page to filter by category and score." />
+        lede="Every place we list in this city. Open a spot for its Localley Score, local tips and the map, or go back to the city page to filter by category and score."
+        actions={
+          <Button asChild className="min-h-11">
+            <IntentLink href={planCity ? `/itineraries/new?${new URLSearchParams({ city: planCity })}` : "/itineraries/new"} data-testid="az-plan-trip">
+              {planCity ? `Plan a free ${planCity} trip` : "Plan a free trip"}
+            </IntentLink>
+          </Button>
+        } />
       <CityTripStoryCard cityName={city.name} />
       <CitySpotAzList entries={entries} />
       {/* Push DP1: the A-Z hubs are the pages Google indexes best; they get the same no-JS sign-up as the city hub. */}
