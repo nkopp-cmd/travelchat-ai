@@ -80,6 +80,7 @@ VITEST_FILES=(
   __tests__/lib/viral-feed.test.ts
   __tests__/lib/spot-guide.test.ts
   __tests__/lib/viral-events.test.ts
+  __tests__/lib/trending-metadata.test.ts
   __tests__/components/viral-spots.test.tsx
   __tests__/lib/pin-clusters.test.ts
   __tests__/lib/pin-index.test.ts
@@ -706,6 +707,7 @@ ESLINT_FILES=(
   __tests__/lib/viral-feed.test.ts
   __tests__/lib/spot-guide.test.ts
   __tests__/lib/viral-events.test.ts
+  __tests__/lib/trending-metadata.test.ts
   __tests__/components/viral-spots.test.tsx
   __tests__/middleware.test.ts
   lib/apify-spot-discovery.ts
