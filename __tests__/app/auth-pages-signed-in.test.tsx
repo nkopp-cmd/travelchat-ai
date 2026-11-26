@@ -42,10 +42,10 @@ describe("auth pages forward a signed-in visitor (Push BB1)", () => {
 });
 
 describe("auth page tab titles (Push BS3)", () => {
-    it("names the form, stays noindex", () => {
+    it("names the form, stays noindex but lets crawlers follow the free-plan and /spots links (Push DN1)", () => {
         expect(signUpMeta.title).toBe("Join Localley free");
         expect(signInMeta.title).toBe("Sign in");
-        for (const meta of [signUpMeta, signInMeta]) expect(meta.robots).toEqual({ index: false, follow: false });
+        for (const meta of [signUpMeta, signInMeta]) expect(meta.robots).toEqual({ index: false, follow: true });
     });
 });
 
