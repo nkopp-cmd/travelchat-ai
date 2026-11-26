@@ -34,12 +34,13 @@ const findList = cache(async (slug: string) => {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { city: slug } = await params;
-  const list = await findList(slug);
+  // Push DQ3: both data-cache reads start together (each is an R2/Cache API read plus a D1 tag check).
+  const [list, rows] = await Promise.all([findList(slug), sitemapSpotRows().catch(() => [])]);
   // notFound() here (before any body streams) gives a real 404 status, so the edge cache never stores an unknown slug.
   if (!list) notFound();
   const { city, entries } = list;
   // Same thin rule as the hub: a hub out of the index keeps its list out too, links still followed.
-  const thin = !hubIndexable(await sitemapSpotRows().catch(() => []), city.name);
+  const thin = !hubIndexable(rows, city.name);
   return {
     ...pageMeta({
       title: `All ${entries.length} spots in ${city.name}, A–Z`,
