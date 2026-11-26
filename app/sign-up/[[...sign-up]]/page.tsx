@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 
 // Auth pages are not search results (indexing diagnosis F6).
 // Push BS3: the tab named the site, not the form ("Localley - Your Local Friend in Asia").
-export const metadata: Metadata = { title: "Join Localley free", robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: "Join Localley free", robots: { index: false, follow: true } };
 
 type Props = { searchParams: Promise<{ redirect_url?: string | string[] }> };
 

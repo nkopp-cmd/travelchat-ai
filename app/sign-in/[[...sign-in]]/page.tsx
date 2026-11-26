@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 
 // Auth pages are not search results (indexing diagnosis F6).
 // Push BS3: the tab names the form.
-export const metadata: Metadata = { title: "Sign in", robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: "Sign in", robots: { index: false, follow: true } };
 
 type Props = { searchParams: Promise<{ redirect_url?: string | string[] }> };
 
