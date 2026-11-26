@@ -26,6 +26,25 @@ describe("site URL fallback", () => {
     for (const url of ["/", "/spots/377bb2cb-1", "/spots?city=seoul", "/blog/tips-for-seoul", "/sign-up", "/itineraries/new?city=Seoul"]) expect(allowed(url), url).toBe(true);
   });
 
+  it("slows SEO-tool crawlers and keeps them off share cards, but leaves search engines on the '*' rules (Push DM1)", () => {
+    const groups = readFileSync("public/robots.txt", "utf8").split(/\n\s*\n/).map((block) => {
+      const lines = block.split("\n").filter((line) => !line.startsWith("#"));
+      return {
+        agents: lines.filter((l) => l.startsWith("User-agent:")).map((l) => l.split(":")[1].trim()),
+        rules: lines.filter((l) => /^(Allow|Disallow|Crawl-delay):/.test(l)).map((l) => l.replace(/\s+/g, " ")),
+      };
+    }).filter((g) => g.agents.length);
+    const star = groups.find((g) => g.agents.includes("*"))!;
+    const tools = groups.find((g) => g.agents.includes("AhrefsBot"))!;
+    expect(tools.agents).toEqual(expect.arrayContaining(["AhrefsBot", "SemrushBot"]));
+    for (const engine of ["Googlebot", "bingbot", "Twitterbot", "facebookexternalhit"]) expect(groups.some((g) => g.agents.includes(engine))).toBe(false);
+    expect(tools.rules).toContain("Crawl-delay: 10");
+    expect(tools.rules).toContain("Disallow: /spots/*/og");
+    expect(star.rules).not.toContain("Disallow: /spots/*/og");
+    // A named group replaces '*' for that bot: it must repeat every '*' Disallow.
+    for (const rule of star.rules.filter((r) => r.startsWith("Disallow:"))) expect(tools.rules).toContain(rule);
+  });
+
   it("gives every page a self canonical, og:image and a bounded description", () => {
     const meta = pageMeta({ title: "Local spots in Seoul", description: "x".repeat(80), path: "/spots?city=seoul" });
     expect(meta.alternates?.canonical).toBe("https://www.localley.io/spots?city=seoul");

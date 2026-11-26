@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
-import { APP_TOP_LEVEL_NAMES, EDGE_AUTH_REDIRECTS, EDGE_AUTH_WALL_REDIRECTS, EDGE_CACHE_HEADER, EDGE_STALE_SECONDS, edgeTtlSeconds, isEdgeCacheable, isUnknownPagePath, serveWithEdgeCache, withoutTracking } from "@/cloudflare/opennext/edge-html-cache";
+import { APP_TOP_LEVEL_NAMES, EDGE_AUTH_REDIRECTS, EDGE_AUTH_WALL_REDIRECTS, EDGE_CACHE_HEADER, EDGE_STALE_SECONDS, SPOT_OG_REVISION, edgeTtlSeconds, isEdgeCacheable, isUnknownPagePath, serveWithEdgeCache, withoutTracking } from "@/cloudflare/opennext/edge-html-cache";
 import { GENERATED_PREVIEW_PATH } from "@/lib/trips/generated-preview";
 import { PLANNER_RESUME_PATH } from "@/lib/trips/planner-draft";
 import { checkoutSignUpUrl } from "@/lib/pricing-checkout";
@@ -446,6 +446,15 @@ describe("per-spot share card at the edge", () => {
     await serve(new Request(og), other, async () => html());
     await serve(new Request(og), other, async () => new Response("x", { status: 404, headers: { "content-type": "image/png" } }));
     expect(other.put).not.toHaveBeenCalled();
+  });
+
+  it("serves a card hit across deploys: the key carries the card revision, not the Worker version (Push DM1)", async () => {
+    const cache = memoryCache();
+    const png = vi.fn(async () => new Response(new Uint8Array([0x89, 0x50, 0x4e, 0x47]), { headers: { "content-type": "image/png" } }));
+    expect((await serve(new Request(og), cache, png, "v1")).headers.get(EDGE_CACHE_HEADER)).toBe("MISS");
+    expect((await serve(new Request(og), cache, png, "v2")).headers.get(EDGE_CACHE_HEADER)).toBe("HIT");
+    expect(png).toHaveBeenCalledTimes(1);
+    expect([...cache.store.keys()]).toEqual([`${og}?__og=${SPOT_OG_REVISION}`]);
   });
 });
 
