@@ -1,8 +1,11 @@
 import { getAuth } from "@/lib/auth/server";
+import { anonymousGetSession } from "@/lib/auth/anonymous-session";
 
 export const dynamic = "force-dynamic";
 
 async function handle(request: Request): Promise<Response> {
+    const anonymous = anonymousGetSession(request);
+    if (anonymous) return anonymous;
     try {
         return await getAuth().handler(request);
     } catch (error) {

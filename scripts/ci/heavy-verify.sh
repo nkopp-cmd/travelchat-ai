@@ -424,6 +424,8 @@ VITEST_FILES=(
   __tests__/components/spot-photo-image.test.tsx
   __tests__/lib/newsletter-store.test.ts
   __tests__/api/newsletter-routes.test.ts
+  __tests__/api/auth-get-session-anonymous.test.ts
+  __tests__/scripts/cpu-per-route.test.ts
   __tests__/components/localley-signup.test.tsx
   __tests__/lib/newsletter-email.test.tsx
   __tests__/scripts/newsletter-list-send.test.ts
@@ -945,6 +947,10 @@ ESLINT_FILES=(
   scripts/newsletter/issues/2026-11-first.ts
   __tests__/lib/newsletter-store.test.ts
   __tests__/api/newsletter-routes.test.ts
+  app/api/auth/[...all]/route.ts
+  lib/auth/anonymous-session.ts
+  __tests__/api/auth-get-session-anonymous.test.ts
+  __tests__/scripts/cpu-per-route.test.ts
   __tests__/components/localley-signup.test.tsx
   __tests__/lib/newsletter-email.test.tsx
   __tests__/scripts/newsletter-list-send.test.ts
