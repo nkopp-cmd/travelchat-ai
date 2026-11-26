@@ -64,3 +64,58 @@ test("Push DI1: sitemaps list -> read day + web submitted/indexed, shown in the 
   assert.equal(indexNote(state, now), "google index of money/entry pages: indexed 4/20 (URL Inspection 2026-11-23); sitemap read 2026-11-24, 1720 submitted, 2 indexed");
   assert.equal(indexNote({ ...state, sitemap: { read: null, submitted: 0, indexed: 0 } }, now), "google index of money/entry pages: indexed 4/20 (URL Inspection 2026-11-23)");
 });
+
+// ---- Push DK1 ----
+import { PAGE_TYPES, coverageBucket, evenSample, gapMarkdown, gapTable, pageType, samplePerType, searchByType } from "./index-status-lib.mjs";
+
+test("pageType sorts the sitemap paths into the DK1 types", () => {
+  assert.equal(pageType("/spots/0022dc9c-5f13-41fd-9940-38a190795704"), "spot");
+  assert.equal(pageType("/spots?city=seoul"), "city list");
+  assert.equal(pageType("/spots/a-z/hong-kong"), "city list");
+  assert.equal(pageType("/spots?city=seoul&sort=local"), "other");
+  assert.equal(pageType("/help/korea/pay"), "help");
+  assert.equal(pageType("/blog"), "blog");
+  assert.equal(pageType("/trending/x-seoul-2026-10"), "trending");
+  for (const p of ["/", "/pricing", "/spots", "/templates", "/helpdesk"]) assert.equal(pageType(p), "other");
+});
+
+test("evenSample is deterministic, unique and capped (property over sizes)", () => {
+  for (let len = 0; len < 120; len++) {
+    const items = Array.from({ length: len }, (_, i) => i);
+    for (const n of [0, 1, 7, 30, 200]) {
+      const s = evenSample(items, n);
+      assert.equal(s.length, Math.min(len, Math.max(0, n)));
+      assert.equal(new Set(s).size, s.length);
+      assert.deepEqual(s, [...s].sort((a, b) => a - b));
+      assert.deepEqual(evenSample(items, n), s);
+    }
+  }
+});
+
+test("samplePerType keeps every type and at most n each", () => {
+  const paths = [...Array.from({ length: 50 }, (_, i) => `/spots/s${i}`), "/help", "/help", "/blog/a", "/"];
+  const s = samplePerType(paths, 30);
+  assert.deepEqual(Object.keys(s), PAGE_TYPES);
+  assert.equal(s.spot.length, 30);
+  assert.deepEqual(s.help, ["/help"]);
+});
+
+test("gapTable buckets add up to the sample and searchByType sums per type", () => {
+  const rows = [
+    { type: "spot", coverage: "URL is unknown to Google", indexed: false },
+    { type: "spot", coverage: "Submitted and indexed", indexed: true },
+    { type: "spot", coverage: "Discovered - currently not indexed", indexed: false },
+    { type: "help", error: "HTTP 429" },
+  ];
+  const search = searchByType([
+    { keys: ["https://www.localley.io/help/korea/pay"], impressions: 5, clicks: 1 },
+    { keys: ["https://localley.io/help"], impressions: 2, clicks: 0 },
+  ]);
+  assert.deepEqual(search.help, { impressions: 7, clicks: 1 });
+  const t = gapTable(rows, { spot: 1658, help: 25 }, search);
+  const spot = t.find((r) => r.type === "spot");
+  assert.equal(spot.indexed + spot.unknown + spot.discovered + spot.crawled + spot.canonical + spot.other + spot.error, spot.sampled);
+  assert.equal(t.find((r) => r.type === "help").error, 1);
+  assert.equal(coverageBucket({ coverage: "Alternate page with proper canonical tag" }), "canonical");
+  assert.match(gapMarkdown(t), /\| spot \| 1658 \| 3 \| 1 \| 1 \| 1 \|/);
+});

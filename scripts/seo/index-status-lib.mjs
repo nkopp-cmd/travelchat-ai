@@ -79,3 +79,81 @@ export function serviceAccountJwt(key, scope, nowSec = Math.floor(Date.now() / 1
   const head = `${b64({ alg: "RS256", typ: "JWT" })}.${b64({ iss: key.client_email, scope, aud: key.token_uri, iat: nowSec, exp: nowSec + 3600 })}`;
   return `${head}.${createSign("RSA-SHA256").update(head).sign(key.private_key).toString("base64url")}`;
 }
+
+// ---- Push DK1: index gap per page type (scripts/seo/index-gap.mjs) ----
+export const PAGE_TYPES = ["spot", "city list", "help", "blog", "trending", "other"];
+
+/** Site path -> page type. City list = the hub per city (/spots?city=X) and its A-Z page. */
+export function pageType(path) {
+  const p = String(path ?? "");
+  if (/^\/spots\?city=[^&]+$/.test(p) || /^\/spots\/a-z\/[^/?]+$/.test(p)) return "city list";
+  if (/^\/spots\/[^/?]+$/.test(p) && !p.startsWith("/spots/a-z")) return "spot";
+  if (/^\/help(\/|$)/.test(p)) return "help";
+  if (/^\/blog(\/|$)/.test(p)) return "blog";
+  if (/^\/trending(\/|$)/.test(p)) return "trending";
+  return "other";
+}
+
+/** Evenly spaced, deterministic sample of at most n items (keeps order; n >= length -> all). */
+export function evenSample(items, n) {
+  if (n <= 0) return [];
+  if (items.length <= n) return [...items];
+  const out = [];
+  for (let i = 0; i < n; i++) out.push(items[Math.floor((i * items.length) / n)]);
+  return out;
+}
+
+/** Paths -> { type: sample } with at most n per type ("other" included). */
+export function samplePerType(paths, n) {
+  const groups = Object.fromEntries(PAGE_TYPES.map((t) => [t, []]));
+  for (const p of new Set(paths)) groups[pageType(p)].push(p);
+  return Object.fromEntries(PAGE_TYPES.map((t) => [t, evenSample(groups[t], n)]));
+}
+
+/** Coverage text -> short bucket for the table. */
+export function coverageBucket(row) {
+  if (row.error) return "error";
+  if (row.indexed) return "indexed";
+  const c = String(row.coverage ?? "").toLowerCase();
+  if (c.includes("unknown to google")) return "unknown";
+  if (c.includes("discovered")) return "discovered";
+  if (c.includes("crawled")) return "crawled";
+  if (c.includes("canonical") || c.includes("duplicate")) return "canonical";
+  return "other";
+}
+
+/**
+ * Inspection rows (with .type) + sitemap counts per type + search analytics per type
+ * -> one table row per type. Every row: counts add up to the sample size.
+ */
+export function gapTable(rows, totals = {}, search = {}) {
+  return PAGE_TYPES.map((type) => {
+    const mine = rows.filter((r) => r.type === type);
+    const b = { indexed: 0, unknown: 0, discovered: 0, crawled: 0, canonical: 0, other: 0, error: 0 };
+    for (const r of mine) b[coverageBucket(r)]++;
+    const s = search[type] ?? { impressions: 0, clicks: 0 };
+    return { type, inSitemap: totals[type] ?? 0, sampled: mine.length, ...b, impressions: s.impressions, clicks: s.clicks };
+  }).filter((r) => r.sampled > 0 || r.inSitemap > 0 || r.impressions > 0);
+}
+
+/** Search Analytics rows (keys[0] = full page URL) -> { type: {impressions, clicks} }. */
+export function searchByType(apiRows) {
+  const out = {};
+  for (const r of Array.isArray(apiRows) ? apiRows : []) {
+    const url = String(r?.keys?.[0] ?? "");
+    const path = url.replace(/^https?:\/\/(www\.)?localley\.io/, "") || "/";
+    const t = pageType(path);
+    out[t] ??= { impressions: 0, clicks: 0 };
+    out[t].impressions += Number(r.impressions) || 0;
+    out[t].clicks += Number(r.clicks) || 0;
+  }
+  return out;
+}
+
+/** Table rows -> Markdown table (for the push plan). */
+export function gapMarkdown(table) {
+  const head = "| type | in sitemap | sampled | indexed | unknown | discovered | crawled not idx | canonical | other | impr 28d | clicks 28d |";
+  const sep = "|---|---|---|---|---|---|---|---|---|---|---|";
+  const lines = table.map((r) => `| ${r.type} | ${r.inSitemap} | ${r.sampled} | ${r.indexed} | ${r.unknown} | ${r.discovered} | ${r.crawled} | ${r.canonical} | ${r.other + r.error} | ${r.impressions} | ${r.clicks} |`);
+  return [head, sep, ...lines].join("\n");
+}
