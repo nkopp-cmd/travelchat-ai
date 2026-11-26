@@ -16,6 +16,9 @@ const AUTH_DB = "73378d0e-7f2a-465a-8188-a67cb6d2a5c2"; // localley-auth (produc
 const DAY = 86_400_000;
 // First live Stripe checkout session on the Worker (localley-full-cutover.md, Attempt566/574, 2026-10-15).
 export const PAID_PATH_LIVE_SINCE = "2026-10-15";
+/** Push DO1: the event collector skips our own checks only since Push AE4 (c72e3f47, 2026-11-17); older funnel rows
+ * hold check runs (2026-11-03: 261 planner_start), so funnel counts start at this day while the 30-day window is older. */
+export const FUNNEL_REAL_SINCE = "2026-11-17";
 // Team, house and test accounts: whole domains, plus sha256 of single owner addresses (no address in the code).
 const INTERNAL_DOMAINS = new Set(["brenkogroup.com", "localley.io", "my-goodlife.com"]);
 const INTERNAL_EMAIL_SHA256 = new Set(["97e25833e1476659d6dba1fa5cb00c02f846a2673dfd60d8b9785506be0027df"]);
@@ -244,10 +247,13 @@ export function summarize({ users, sessions, subscriptions, funnel, links = [], 
   const ranked = recent(rankings, "created_at").length;
   // Push BW2/BX3: starts and payments by source, so an offer change (localley-decisions.md) can read start -> paid.
   // checkout_paid source = the page the checkout started on (Push BX1), "stripe" for older or unknown sessions.
-  const bySource = (step, fallback) => {
+  const funnelFrom = Math.max(from30, Date.parse(`${FUNNEL_REAL_SINCE}T00:00:00Z`));
+  const funnelSince = new Date(funnelFrom).toISOString().slice(0, 10);
+  // Browser beacon steps only: checkout_paid comes from the signed Stripe webhook, which our checks cannot send.
+  const bySource = (step, fallback, from = step === "checkout_paid" ? from30 : funnelFrom) => {
     const counts = {};
     for (const f of funnel) {
-      if (f.step !== step || !within(`${f.day}T00:00:00Z`, from30, now + DAY)) continue;
+      if (f.step !== step || !within(`${f.day}T00:00:00Z`, from, now + DAY)) continue;
       const source = f.source || fallback;
       counts[source] = (counts[source] ?? 0) + Number(f.count || 0);
     }
@@ -270,6 +276,7 @@ export function summarize({ users, sessions, subscriptions, funnel, links = [], 
     owned_audience: audience ? audience.confirmed : null,
     in_person_30d: null,
     notes: `paying = active/past_due Pro/Premium Stripe subscriptions now (D1 legacy_subscriptions, own accounts excluded); `
+      + `browser funnel steps counted from ${funnelSince} (collector skips own checks since ${FUNNEL_REAL_SINCE}); `
       + `checkout_paid funnel events 30d: ${bySource("checkout_paid", "stripe")}; `
       + `checkout_start funnel events 30d: ${bySource("checkout_start", "other")}; `
       // Push DH1: the wizard beacon also sees client (soft) navigations, which CF RUM page loads miss.
