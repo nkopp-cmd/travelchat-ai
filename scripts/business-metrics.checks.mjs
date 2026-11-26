@@ -69,16 +69,19 @@ test("owned audience = confirmed Localley newsletter subscribers, own addresses 
   const base = { users, sessions: [], subscriptions: [], funnel: [] };
   const t = (iso) => Date.parse(iso) / 1000;
   const subscribers = [
-    { email: "a@example.com", status: "confirmed", created_at: t("2026-10-25T00:00:00Z") },
+    { email: "a@example.com", status: "confirmed", source: "city-az", created_at: t("2026-10-25T00:00:00Z") },
     { email: "b@example.com", status: "confirmed", created_at: t("2026-01-01T00:00:00Z") },
-    { email: "c@example.com", status: "pending", created_at: t("2026-10-30T00:00:00Z") },
+    { email: "c@example.com", status: "pending", source: "city-az", created_at: t("2026-10-30T00:00:00Z") },
     { email: "d@example.com", status: "unsubscribed", created_at: t("2026-10-30T00:00:00Z") },
-    { email: "nkopp@my-goodlife.com", status: "confirmed", created_at: t("2026-11-01T00:00:00Z") },
+    { email: "nkopp@my-goodlife.com", status: "confirmed", source: "spot", created_at: t("2026-11-01T00:00:00Z") },
     { email: "hello@localley.io", status: "confirmed", created_at: t("2026-11-01T00:00:00Z") },
+    { email: "delivered@resend.dev", status: "unsubscribed", source: "livetest", created_at: t("2026-10-30T00:00:00Z") },
   ];
   const out = summarize({ ...base, subscribers }, now);
   assert.equal(out.owned_audience, 2);
-  assert.match(out.notes, /Localley newsletter.*\(3 signups 30d\)/);
+  // Push DQ2: 30-day sign-ups by form source, own addresses out, missing source = "site".
+  assert.match(out.notes, /Localley newsletter.*\(3 signups 30d by source: city-az 2, site 1\)/);
+  assert.doesNotMatch(out.notes, /spot 1|livetest/);
   assert.doesNotMatch(JSON.stringify(out), /@/);
   assert.equal(summarize({ ...base, subscribers: [] }, now).owned_audience, 0);
   assert.equal(summarize({ ...base, subscribers: null }, now).owned_audience, null);

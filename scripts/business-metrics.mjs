@@ -20,7 +20,8 @@ export const PAID_PATH_LIVE_SINCE = "2026-10-15";
  * hold check runs (2026-11-03: 261 planner_start), so funnel counts start at this day while the 30-day window is older. */
 export const FUNNEL_REAL_SINCE = "2026-11-17";
 // Team, house and test accounts: whole domains, plus sha256 of single owner addresses (no address in the code).
-const INTERNAL_DOMAINS = new Set(["brenkogroup.com", "localley.io", "my-goodlife.com"]);
+// resend.dev = Resend test inboxes (delivered@/bounced@resend.dev) used by our live mail checks (Push DQ2).
+const INTERNAL_DOMAINS = new Set(["brenkogroup.com", "localley.io", "my-goodlife.com", "resend.dev"]);
 const INTERNAL_EMAIL_SHA256 = new Set(["97e25833e1476659d6dba1fa5cb00c02f846a2673dfd60d8b9785506be0027df"]);
 const PAID_TIERS = new Set(["pro", "premium"]);
 const PAYING_STATUS = new Set(["active", "past_due"]); // trialing has not paid yet
@@ -240,6 +241,14 @@ export function summarize({ users, sessions, subscriptions, funnel, links = [], 
     confirmed: outside.filter((r) => r.status === "confirmed").length,
     signups30: outside.filter((r) => within(Number(r.created_at) * 1000, from30, now + DAY)).length,
   };
+  // Push DQ2: which form builds the audience (source = LocalleySignup source, e.g. city-az, city-hub, spot).
+  const audienceBySource = () => {
+    const counts = {};
+    for (const r of outside) {
+      if (within(Number(r.created_at) * 1000, from30, now + DAY)) counts[r.source || "site"] = (counts[r.source || "site"] ?? 0) + 1;
+    }
+    return Object.keys(counts).sort().map((k) => `${k} ${counts[k]}`).join(", ");
+  };
   const recent = (rows, key) => rows.filter((r) => within(r[key], from30, now + DAY));
   // Our own records: viral events (first seen) + their resolved places, and weekly spot rankings.
   const events = viral ? recent(Object.values(viral.events ?? {}), "firstSeen") : null;
@@ -298,7 +307,7 @@ export function summarize({ users, sessions, subscriptions, funnel, links = [], 
       + `revenue/prev/repeat null: Stripe key is a Worker secret only and D1 keeps no invoice history; `
       + `proprietary = ${events ? `${events.length} viral events + ${places} resolved places` : "viral archive missing"} + ${ranked} weekly rankings; `
       + `ugc = questions/answers/reviews/tips/social submissions; owned_audience = ${audience
-        ? `confirmed Localley newsletter subscribers, own addresses excluded (${audience.signups30} signups 30d)` : "null: newsletter table unreadable"}; in_person null: no in-person service`,
+        ? `confirmed Localley newsletter subscribers, own addresses excluded (${audience.signups30} signups 30d${audience.signups30 ? ` by source: ${audienceBySource()}` : ""})` : "null: newsletter table unreadable"}; in_person null: no in-person service`,
   };
 }
 
@@ -394,7 +403,7 @@ async function main() {
     select(APP_DB, UGC_TABLES.map(([t, u, c]) => `SELECT ${u} AS uid, ${c} AS at FROM ${t}`).join(" UNION ALL "), auth),
     select(APP_DB, "SELECT created_at FROM weekly_city_spot_rankings", auth),
     // Unknown (null), not zero, when the table is not there yet or the read fails.
-    select(APP_DB, "SELECT email, status, created_at FROM newsletter_subscribers", auth).catch(() => null),
+    select(APP_DB, "SELECT email, status, source, created_at FROM newsletter_subscribers", auth).catch(() => null),
     lastDay("funnel_events_daily"), lastDay("spot_card_events_daily"), generateEvents(auth), rumArrivals(auth), authEvents(auth), rumAuthLead(auth),
     select(APP_DB, "SELECT partner, tracking_id, event_type, clerk_user_id, created_at FROM affiliate_clicks WHERE created_at >= strftime('%Y-%m-%dT%H:%M:%fZ','now','-31 days')", auth).catch(() => null),
   ]);
