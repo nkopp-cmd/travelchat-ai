@@ -14,7 +14,8 @@ describe("sitemap index", () => {
     }
     expect(new Set(urls).size).toBe(urls.length);
     expect(urls).toContain("https://www.localley.io/spots?city=seoul");
-    expect(urls).toContain("https://www.localley.io/help/korea/pay");
+    expect(urls).toContain("https://www.localley.io/help/korea");
+    expect(urls).not.toContain("https://www.localley.io/help/korea/pay");
   });
 
   it("never writes a fake lastmod: static pages have none, posts carry their real updated date", () => {
@@ -29,6 +30,8 @@ describe("sitemap index", () => {
     const hubRows = [
       ...Array.from({ length: 5 }, (_, i) => ({ id: `s${i}`, hub: "Seoul", lastmod: `2026-11-0${i + 1}T00:00:00+00:00` })),
       ...Array.from({ length: 5 }, (_, i) => ({ id: `t${i}`, hub: "Tokyo", lastmod: i === 0 ? null : `2026-10-0${i}T00:00:00+00:00` })),
+      // DK2: a hub needs 10 guide spots; undated fillers reach the minimum without changing the newest date.
+      ...["Seoul", "Tokyo"].flatMap((hub) => Array.from({ length: 5 }, (_, i) => ({ id: `${hub}-x${i}`, hub, lastmod: null }))),
       { id: "b0", hub: "Busan", lastmod: "2026-11-15T00:00:00+00:00" },
     ];
     const entries = pageEntries(hubRows);

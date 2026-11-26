@@ -5,3 +5,8 @@ import type { SitemapSpotRow } from "./sitemap";
 export function homeLinkRows(): SitemapSpotRow[] {
   return snapshot.rows;
 }
+
+/** City hubs the live pages sitemap lists (DK2); empty in an old snapshot. */
+export function homeHubNames(): string[] {
+  return (snapshot as { hubs?: string[] }).hubs ?? [];
+}

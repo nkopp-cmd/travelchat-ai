@@ -54,7 +54,7 @@ import {
 import { mergeSpotSources, normalizeSourceUrls, publicTips } from "@/lib/spots/guide";
 import { splitDescriptionLinks } from "@/lib/spots/description-links";
 import { readSpotGuide } from "@/lib/spots/guide-store";
-import { isSpotIndexable } from "@/lib/seo/spot-indexable";
+import { indexableOnly, isSpotIndexable } from "@/lib/seo/spot-indexable";
 import { cityDirectory } from "@/lib/spots/city-directory-store";
 import { nearestEntries, nextInDirectory } from "@/lib/spots/city-directory";
 import { sitemapSpotRows } from "@/lib/seo/sitemap-spots";
@@ -530,7 +530,7 @@ export async function generateMetadata({
     keywords,
     ...(candidate
       ? { robots: { index: false, follow: false } }
-      : isSpotIndexable({ hasGuide: Boolean(await spotGuide(spot.id)) })
+      : isSpotIndexable({ hasGuide: Boolean(await spotGuide(spot.id)), hasOwnPhoto: (spot.ownPhotos?.length ?? 0) > 0 })
         ? {}
         : { robots: { index: false, follow: true } }),
   };
@@ -571,7 +571,7 @@ export default async function SpotPage({
   const nearbyLinks = nearestEntries(directory, spot.location, [spot.id, ...relatedSpots.map((related) => related.id)], 6);
   // Ring link: nearest-6 never reaches an outlier spot (graph: 5 orphans in Busan/Hanoi), the A-Z successor always does.
   // Indexable spots ring over sitemap spots only, so each gets a link from an indexable page (BF3b attempt 2).
-  const nextSpot = nextInDirectory(directory, spot.id, new Set(indexableRows.map((row) => row.id.toLowerCase())));
+  const nextSpot = nextInDirectory(directory, spot.id, new Set(indexableOnly(indexableRows).map((row) => row.id.toLowerCase())));
   // Own-data lead (sprint-2 L8): score, hub rank and the closest neighbours make each spot page's opening unique.
   const intro = candidate ? null : spotIntro({
     id: spot.id, name: spot.name, category: spot.category, score: spot.localleyScore, area: primaryArea, city,

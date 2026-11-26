@@ -1,7 +1,7 @@
 import { BLOG_POSTS } from "@/lib/blog/posts";
 import { ENABLED_CITIES } from "@/lib/cities";
 import { HELP_COUNTRIES } from "@/lib/help/phrases";
-import { hubIndexable } from "./spot-indexable";
+import { hubIndexable, indexableOnly } from "./spot-indexable";
 
 /**
  * Sitemap index (Nils 2026-11-04): /sitemap.xml lists /sitemaps/pages.xml, /sitemaps/guides.xml and
@@ -12,7 +12,7 @@ export const SITE = "https://www.localley.io";
 export const SPOTS_PER_SITEMAP = 5000;
 
 export type SitemapEntry = { loc: string; lastmod?: string };
-export type SitemapSpotRow = { id: string; lastmod: string | null; hub?: string | null; name?: string };
+export type SitemapSpotRow = { id: string; lastmod: string | null; hub?: string | null; name?: string; indexable?: boolean };
 /** A viral event page (/trending/<slug>) that answers 200; lastSeen is the newest news date for it. */
 export type SitemapTrendingEvent = { slug: string; lastSeen?: string | null };
 
@@ -53,13 +53,15 @@ export function trendingEntries(events: readonly SitemapTrendingEvent[]): Sitema
 
 /** Traveller guides: the help phrase cards and the journal. */
 export function guideEntries(): SitemapEntry[] {
-  const help = HELP_COUNTRIES.flatMap((country) => ["", "/pay", "/open", "/menu"].map((sub) => ({ loc: `${SITE}/help/${country.slug}${sub}` })));
+  // DK2: the /pay, /open and /menu tool pages are under MIN_GUIDE_WORDS (noindex, follow), so only the country guides.
+  const help = HELP_COUNTRIES.map((country) => ({ loc: `${SITE}/help/${country.slug}` }));
   const posts = BLOG_POSTS.map((post) => ({ loc: `${SITE}/blog/${post.slug}`, lastmod: post.updated }));
   return [{ loc: `${SITE}/help` }, ...help, { loc: `${SITE}/blog`, lastmod: latest(posts.map((p) => p.lastmod)) }, ...posts];
 }
 
+/** Spot sitemap entries: only indexable rows (DK2: guide + own photo). */
 export function spotEntries(rows: SitemapSpotRow[]): SitemapEntry[] {
-  return rows.map((row) => ({ loc: `${SITE}/spots/${encodeURIComponent(row.id)}`, lastmod: row.lastmod ?? undefined }));
+  return indexableOnly(rows).map((row) => ({ loc: `${SITE}/spots/${encodeURIComponent(row.id)}`, lastmod: row.lastmod ?? undefined }));
 }
 
 export function spotChunkCount(total: number): number {
@@ -67,7 +69,8 @@ export function spotChunkCount(total: number): number {
 }
 
 /** Rows of spot sitemap n (1-based), or null when n is out of range. */
-export function spotChunk(rows: SitemapSpotRow[], n: number): SitemapSpotRow[] | null {
+export function spotChunk(allRows: SitemapSpotRow[], n: number): SitemapSpotRow[] | null {
+  const rows = indexableOnly(allRows);
   if (!Number.isInteger(n) || n < 1 || n > spotChunkCount(rows.length)) return null;
   return rows.slice((n - 1) * SPOTS_PER_SITEMAP, n * SPOTS_PER_SITEMAP);
 }
@@ -93,7 +96,7 @@ export function renderIndex(spotRows: SitemapSpotRow[], trending: readonly Sitem
   const children: SitemapEntry[] = [
     { loc: `${SITE}/sitemaps/pages.xml`, lastmod: latest(pageEntries(spotRows, trending).map((e) => e.lastmod)) },
     { loc: `${SITE}/sitemaps/guides.xml`, lastmod: latest(guideEntries().map((e) => e.lastmod)) },
-    ...Array.from({ length: spotChunkCount(spotRows.length) }, (_, i) => ({
+    ...Array.from({ length: spotChunkCount(indexableOnly(spotRows).length) }, (_, i) => ({
       loc: `${SITE}/sitemaps/spots-${i + 1}.xml`,
       lastmod: latest((spotChunk(spotRows, i + 1) ?? []).map((row) => row.lastmod ?? undefined)),
     })),

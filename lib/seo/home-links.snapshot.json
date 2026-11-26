@@ -1,551 +1,522 @@
 {
  "source": "https://www.localley.io",
+ "hubs": [
+  "Seoul",
+  "Tokyo",
+  "Bangkok",
+  "Singapore",
+  "Osaka",
+  "Kyoto",
+  "Taipei",
+  "Hong Kong",
+  "Ho Chi Minh City",
+  "Kuala Lumpur",
+  "Chiang Mai"
+ ],
  "rows": [
   {
-   "id": "f5d495e9-cd97-4d66-b86f-db65788dc2b4",
-   "name": "The Hyundai Seoul",
+   "id": "32be2449-a190-4afb-a3d2-75bbf4b6e241",
+   "name": "Nakseongdae Park",
    "hub": "Seoul",
-   "lastmod": "2026-11-14T03:28:30+00:00"
+   "lastmod": "2026-11-04T06:23:16+00:00"
   },
   {
-   "id": "ee7136f3-fdbb-4bfb-a7dd-a63463d29533",
-   "name": "Acorn Caricature at Dotori",
+   "id": "45f1269e-ab5d-4a2b-b558-33ea4af8906a",
+   "name": "Changgyeonggung Palace",
    "hub": "Seoul",
-   "lastmod": "2026-11-14T03:28:27+00:00"
+   "lastmod": "2026-11-04T06:23:16+00:00"
   },
   {
-   "id": "edb942f2-1240-4856-9d8f-59a882df6dab",
-   "name": "Sounds Forest at The Hyundai Seoul",
+   "id": "315cc561-868c-4c47-bb75-15c82e9d8074",
+   "name": "Deoksugung Palace",
    "hub": "Seoul",
-   "lastmod": "2026-11-14T03:28:24+00:00"
+   "lastmod": "2026-11-04T04:44:11+00:00"
   },
   {
-   "id": "ed3f160f-8423-4bbe-bca8-79978e630b10",
-   "name": "HiKR GROUND XR Studio",
+   "id": "9566d583-a3e1-401b-b5cf-87762ea43020",
+   "name": "Changdeokgung Palace",
    "hub": "Seoul",
-   "lastmod": "2026-11-14T03:27:46+00:00"
+   "lastmod": "2026-11-04T04:44:11+00:00"
   },
   {
-   "id": "da0ba29b-e1ef-46d9-b666-31851c511c0b",
-   "name": "INSPIRE Entertainment Resort Le Space",
+   "id": "c4fb47be-d4d8-45ee-b8a3-c49ccdb12cad",
+   "name": "Gyeonghuigung Palace",
    "hub": "Seoul",
-   "lastmod": "2026-11-14T03:26:52+00:00"
+   "lastmod": "2026-11-04T04:44:11+00:00"
   },
   {
-   "id": "c9434ea5-a72e-4259-a7c7-8bdd6075c9f5",
-   "name": "HAUS NOWHERE (Gentle Monster Flagship)",
+   "id": "221d7ff2-b199-469f-81f5-d7e965ebf182",
+   "name": "Ikseon-dong Hanok Village",
    "hub": "Seoul",
-   "lastmod": "2026-11-14T03:24:25+00:00"
+   "lastmod": "2026-11-04T03:41:30+00:00"
   },
   {
-   "id": "aeb2ef37-e209-4558-8932-63d9669db910",
-   "name": "Seosomun Shrine History Museum",
+   "id": "37e27665-0b02-4522-944c-cc5652af8592",
+   "name": "Yeouido Saetgang Ecological Park",
    "hub": "Seoul",
-   "lastmod": "2026-11-14T03:20:38+00:00"
+   "lastmod": "2026-11-04T03:41:30+00:00"
   },
   {
-   "id": "8f1029cf-e3bd-458a-9972-87b45ba33234",
-   "name": "Cafe Onion Anguk",
+   "id": "3b06b8d0-6718-4616-b44e-051ae0113f77",
+   "name": "Hongdae Playground Street",
    "hub": "Seoul",
-   "lastmod": "2026-11-14T03:18:35+00:00"
+   "lastmod": "2026-11-04T03:41:30+00:00"
   },
   {
-   "id": "8d39e8e8-0476-4896-a722-d1c3e1be2c60",
-   "name": "Seoul Sky Observatory",
+   "id": "b50160e9-3c20-49c6-8d8f-7700b0b8ccc3",
+   "name": "Naksan Park Sunset",
    "hub": "Seoul",
-   "lastmod": "2026-11-14T03:18:32+00:00"
+   "lastmod": "2026-11-04T03:41:30+00:00"
   },
   {
-   "id": "8c6dcbb2-d851-4601-9362-0368c5432529",
-   "name": "Deoksugung Palace Dondeokjeon Hall",
+   "id": "ecf11071-055b-4ec4-aa87-78281e494ca2",
+   "name": "Hyochang Park",
    "hub": "Seoul",
-   "lastmod": "2026-11-14T03:18:30+00:00"
+   "lastmod": "2026-11-04T03:41:30+00:00"
   },
   {
-   "id": "880b8ea7-5f23-4bda-ac8e-5b6f48645676",
-   "name": "Jack's Bar (Itaewon)",
+   "id": "26f8640c-0942-4001-b0ac-b20d3cf5b197",
+   "name": "Sillim-dong Sundae Town",
    "hub": "Seoul",
-   "lastmod": "2026-11-14T03:17:21+00:00"
+   "lastmod": "2026-11-04T02:37:59+00:00"
   },
   {
-   "id": "7f258ce1-b46c-4ab7-96ce-02a5fe5d6b67",
-   "name": "Gwangjang Market",
+   "id": "52989d16-637b-4edd-9419-019e5b188b5d",
+   "name": "Nambu Bus Terminal Area",
    "hub": "Seoul",
-   "lastmod": "2026-11-14T03:16:28+00:00"
+   "lastmod": "2026-11-04T02:37:59+00:00"
   },
   {
-   "id": "fa14f88d-3b46-424f-803b-588b868f1fdd",
-   "name": "Lush Green Park at Takanawa Gateway City",
+   "id": "a318789f-5307-46c1-b6a1-06c1917e5a09",
+   "name": "Akasaka Hikawa Shrine",
    "hub": "Tokyo",
-   "lastmod": "2026-11-14T03:29:15+00:00"
+   "lastmod": "2026-11-14T00:23:16+00:00"
   },
   {
-   "id": "ea80ef54-8e97-4e99-a246-ca3d344671ce",
-   "name": "Edo-Tokyo Museum",
+   "id": "64cd25d6-2e79-4390-9a78-10fa68c7f593",
+   "name": "Kodaira Furusato Village",
    "hub": "Tokyo",
-   "lastmod": "2026-11-14T03:27:44+00:00"
+   "lastmod": "2026-11-14T00:21:57+00:00"
   },
   {
-   "id": "d13083f1-3271-49ae-b6b3-e275418e957e",
-   "name": "MoN Takanawa",
+   "id": "4fb7dbcd-134b-4348-9940-03a8ed2d431e",
+   "name": "Shoto Park",
    "hub": "Tokyo",
-   "lastmod": "2026-11-14T03:25:37+00:00"
+   "lastmod": "2026-11-14T00:21:12+00:00"
   },
   {
-   "id": "ca51663e-bc9f-43c8-b9ed-d4cf4e4ebc79",
-   "name": "Basegate Yokohama Kannai",
+   "id": "cc19c1fe-c59f-4c28-af83-7921b7bb3ca9",
+   "name": "Mukojima Hyakkaen Garden",
    "hub": "Tokyo",
-   "lastmod": "2026-11-14T03:24:28+00:00"
+   "lastmod": "2026-11-14T00:13:10+00:00"
   },
   {
-   "id": "c833d9ee-a037-4a61-a6d0-8476372c7b30",
-   "name": "Shibuya Center Gai",
+   "id": "45fc9c95-9682-4828-bd1f-43d8e82699fa",
+   "name": "Okubo Southeast Asian",
    "hub": "Tokyo",
-   "lastmod": "2026-11-14T03:24:22+00:00"
+   "lastmod": "2026-11-04T05:39:28+00:00"
   },
   {
-   "id": "c0d03c12-3616-419c-87da-410854f7babc",
-   "name": "Tokyo DisneySea 25th Anniversary",
+   "id": "ff265a92-36f6-42b4-aa33-2279fcfab8d7",
+   "name": "Tabata Writers Village",
    "hub": "Tokyo",
-   "lastmod": "2026-11-14T03:23:09+00:00"
+   "lastmod": "2026-11-04T05:39:28+00:00"
   },
   {
-   "id": "bd7ebd32-10cf-4425-9668-b9bc62800799",
-   "name": "Tsutaya Shibuya Pop-Up",
+   "id": "1fe039a2-258e-424a-b340-8f86e664e6c6",
+   "name": "Todoroki Valley",
    "hub": "Tokyo",
-   "lastmod": "2026-11-14T03:22:18+00:00"
+   "lastmod": "2026-11-04T04:44:11+00:00"
   },
   {
-   "id": "a2c797fd-4230-45cd-87ea-b3570edeafb9",
-   "name": "PokéPark KANTO Forest",
+   "id": "e2c4f479-886e-4feb-95bb-060e624af3da",
+   "name": "Shimokitazawa Vintage Street",
    "hub": "Tokyo",
-   "lastmod": "2026-11-14T03:19:50+00:00"
+   "lastmod": "2026-11-04T04:44:11+00:00"
   },
   {
-   "id": "6cfd3d1f-99bd-4c2d-b81a-8333bc647cfa",
-   "name": "PokéPark KANTO",
+   "id": "11ea3547-dcd7-451b-ade8-209ac7874458",
+   "name": "Toneri Park",
    "hub": "Tokyo",
-   "lastmod": "2026-11-14T03:14:37+00:00"
+   "lastmod": "2026-11-04T03:41:30+00:00"
   },
   {
-   "id": "4aed2afa-f778-4ff2-bcdb-15fa72ea0572",
-   "name": "Yurakucho Park",
+   "id": "15730178-4945-4dbf-818c-e72d716e7607",
+   "name": "Machida Squirrel Garden",
    "hub": "Tokyo",
-   "lastmod": "2026-11-14T03:12:54+00:00"
+   "lastmod": "2026-11-04T03:41:30+00:00"
   },
   {
-   "id": "346e4b67-d76d-4eea-a93e-3e1fd6263c4c",
-   "name": "Oimachi Tracks Tsutaya",
+   "id": "163f6930-bbbd-4128-8655-70b31fcb2d48",
+   "name": "Tomigaya Dining",
    "hub": "Tokyo",
-   "lastmod": "2026-11-14T03:11:00+00:00"
+   "lastmod": "2026-11-04T03:41:30+00:00"
   },
   {
-   "id": "2ddca7ec-6768-4441-8bc8-4030e3d8169f",
-   "name": "Oimachi Tracks Rooftop Bar",
+   "id": "22d9d045-f740-469d-b987-4e2c2ec5faf1",
+   "name": "Bunkyo Civic Center Observatory",
    "hub": "Tokyo",
-   "lastmod": "2026-11-14T03:09:59+00:00"
+   "lastmod": "2026-11-04T03:41:30+00:00"
   },
   {
-   "id": "fd9fe5c9-26fd-4a2b-8d29-91bb28070243",
-   "name": "Scarlett Rooftop",
+   "id": "343a99c6-1646-42a3-9a35-e6fae299b9d7",
+   "name": "Sri Maha Mariamman Hindu Temple",
    "hub": "Bangkok",
-   "lastmod": "2026-11-14T03:30:11+00:00"
+   "lastmod": "2026-11-14T00:55:47+00:00"
   },
   {
-   "id": "fb8a02eb-8d53-4cd9-937e-481752968e04",
-   "name": "One Bangkok The STOREYS",
+   "id": "5f8e157e-c074-4de0-83dc-c75568ec7af7",
+   "name": "Bang Nam Pheung Floating Market",
    "hub": "Bangkok",
-   "lastmod": "2026-11-14T03:29:20+00:00"
+   "lastmod": "2026-11-14T00:52:11+00:00"
   },
   {
-   "id": "fb556e5c-6b17-4c87-9bd5-de83bbe075ea",
-   "name": "Kurasu Thonglor",
+   "id": "3281d81b-edfb-4dcb-88ae-ddc290d4c900",
+   "name": "Santiphap Park",
    "hub": "Bangkok",
-   "lastmod": "2026-11-14T03:29:17+00:00"
+   "lastmod": "2026-11-14T00:51:26+00:00"
   },
   {
-   "id": "ed553410-35d1-4bfe-997f-7f9b6ec6dbbe",
-   "name": "Rough & Round",
+   "id": "2e677a41-8d07-4736-8318-1f6e473bdda0",
+   "name": "Taling Chan Floating Market",
    "hub": "Bangkok",
-   "lastmod": "2026-11-14T03:28:21+00:00"
+   "lastmod": "2026-11-14T00:47:35+00:00"
   },
   {
-   "id": "e32e37a9-cf57-4504-9107-4a8b8ecd79ce",
-   "name": "One Bangkok X Cat Radio",
+   "id": "e979e8b2-94ce-44e1-9763-a2e39d4c88ca",
+   "name": "Lak Mueang City Pillar Shrine",
    "hub": "Bangkok",
-   "lastmod": "2026-11-14T03:26:57+00:00"
+   "lastmod": "2026-11-14T00:45:47+00:00"
   },
   {
-   "id": "d2a98705-c600-4e07-8055-e9e504d92ae1",
-   "name": "Le Normandie",
+   "id": "ed8a306f-1e03-4bae-a70b-cbad9f74e3eb",
+   "name": "Wat Rakhang Kositaram",
    "hub": "Bangkok",
-   "lastmod": "2026-11-14T03:25:40+00:00"
+   "lastmod": "2026-11-14T00:41:25+00:00"
   },
   {
-   "id": "d0793f41-576c-41bf-aa60-e2e976125125",
-   "name": "Dior Gold House",
+   "id": "e5def3e3-911d-4eea-9ab0-3e3fc411a6b2",
+   "name": "Wat Kalayanamit",
    "hub": "Bangkok",
-   "lastmod": "2026-11-14T03:25:34+00:00"
+   "lastmod": "2026-11-14T00:41:22+00:00"
   },
   {
-   "id": "bb2071af-095f-4d26-8dcc-e822aa8c8d6c",
-   "name": "Dior Café by Mauro Colagreco",
+   "id": "e209dcec-c9cf-4bbc-a7bf-8470044279c3",
+   "name": "Pratunam Market",
    "hub": "Bangkok",
-   "lastmod": "2026-11-14T03:21:34+00:00"
+   "lastmod": "2026-11-14T00:41:18+00:00"
   },
   {
-   "id": "b60f5248-a4a2-4940-ad3d-0e1a00964bb0",
-   "name": "SOL and LUNA",
+   "id": "c6ca846b-3f0c-465e-9a7f-e4a201b45d34",
+   "name": "Santa Cruz Church",
    "hub": "Bangkok",
-   "lastmod": "2026-11-14T03:21:31+00:00"
+   "lastmod": "2026-11-14T00:40:29+00:00"
   },
   {
-   "id": "b0705cbe-701a-45b3-aba9-359cf9f279d2",
-   "name": "LV The Place Bangkok",
+   "id": "ad5cdafb-7434-4545-a419-bd4fb72de667",
+   "name": "Correction Museum",
    "hub": "Bangkok",
-   "lastmod": "2026-11-14T03:20:41+00:00"
+   "lastmod": "2026-11-14T00:40:23+00:00"
   },
   {
-   "id": "a354df03-8df3-4d12-babb-067f5dba3e9a",
-   "name": "Bangkok Reflection Interactive",
+   "id": "667f5b6d-16eb-45b4-866e-59ec8a332d49",
+   "name": "Saphan Lek Thieves Market",
    "hub": "Bangkok",
-   "lastmod": "2026-11-14T03:19:53+00:00"
+   "lastmod": "2026-11-14T00:35:47+00:00"
   },
   {
-   "id": "9db00e2c-34bd-4a8b-9c47-a687b1c51d4b",
-   "name": "Pastel Rooftop",
+   "id": "556cdae5-eda8-479d-8175-311ade10395e",
+   "name": "Warehouse 30",
    "hub": "Bangkok",
-   "lastmod": "2026-11-14T03:19:47+00:00"
+   "lastmod": "2026-11-14T00:34:55+00:00"
   },
   {
-   "id": "fc962ebd-0435-4cdf-b5c4-23d3688ed098",
-   "name": "Singapore Oceanarium",
+   "id": "dd5bc03b-cf4a-4eed-bbe9-bf815e426b5a",
+   "name": "Northpoint City",
    "hub": "Singapore",
-   "lastmod": "2026-11-14T03:29:22+00:00"
+   "lastmod": "2026-11-14T00:24:17+00:00"
   },
   {
-   "id": "ea4ae55a-a61b-451c-86d1-0bfcd9fb50c4",
-   "name": "Harry Potter: Visions of Magic",
+   "id": "8e59875f-673d-4bba-84eb-4af64a146106",
+   "name": "Sembawang Hills Food Centre",
    "hub": "Singapore",
-   "lastmod": "2026-11-14T03:27:41+00:00"
+   "lastmod": "2026-11-14T00:23:08+00:00"
   },
   {
-   "id": "e660eccf-3665-4ac3-bcd5-b1beb5498b66",
-   "name": "Sentosa Sensoryscape",
+   "id": "4bbecffe-8928-46e3-97e4-45ef59fa3626",
+   "name": "Berseh Food Centre",
    "hub": "Singapore",
-   "lastmod": "2026-11-14T03:27:38+00:00"
+   "lastmod": "2026-11-14T00:21:09+00:00"
   },
   {
-   "id": "d6a1e7f5-0960-411c-ba59-d6a84f34fae9",
-   "name": "IMBA Theatre Gallery",
+   "id": "4786861e-d5d8-45a6-80b0-73d968f8a1a8",
+   "name": "Ang Mo Kio Hub",
    "hub": "Singapore",
-   "lastmod": "2026-11-14T03:26:49+00:00"
+   "lastmod": "2026-11-14T00:21:06+00:00"
   },
   {
-   "id": "d664bd2a-82be-45fa-8c20-cf4ca4ef6efc",
-   "name": "Peacock Power",
+   "id": "f9ba8853-fc15-4aa4-9894-f48d59ce99d8",
+   "name": "Lot One Shoppers' Mall",
    "hub": "Singapore",
-   "lastmod": "2026-11-14T03:25:42+00:00"
+   "lastmod": "2026-11-14T00:20:19+00:00"
   },
   {
-   "id": "cb285e4f-7baa-486b-b807-beb454ba5bdf",
-   "name": "New enlarged rope course at Houbii Spot",
+   "id": "db93be56-bff1-4275-9a71-783e67acc12c",
+   "name": "Tuas Second Link",
    "hub": "Singapore",
-   "lastmod": "2026-11-14T03:24:30+00:00"
+   "lastmod": "2026-11-14T00:19:21+00:00"
   },
   {
-   "id": "c62faedb-f12f-488f-8a77-cf69de8117d7",
-   "name": "FRAMED: A Murder Mystery",
+   "id": "a473614f-bcc6-47cc-96a3-78a59db59cad",
+   "name": "Waterway Point",
    "hub": "Singapore",
-   "lastmod": "2026-11-14T03:23:17+00:00"
+   "lastmod": "2026-11-14T00:18:10+00:00"
   },
   {
-   "id": "c5477d80-2bfb-4e91-9cde-6f1c06df0d4d",
-   "name": "DINOSAURS EXTINCTIONS US",
+   "id": "82af9528-c33b-44a6-8fb9-20a9d5800f87",
+   "name": "Westgate Mall",
    "hub": "Singapore",
-   "lastmod": "2026-11-14T03:23:14+00:00"
+   "lastmod": "2026-11-14T00:18:07+00:00"
   },
   {
-   "id": "c54216c9-9ed8-4ca4-9df9-427bf29eea42",
-   "name": "Curiosity Cove",
+   "id": "7425c0cd-45c2-4ab3-a27e-d96795ee863e",
+   "name": "Upper Seletar Reservoir",
    "hub": "Singapore",
-   "lastmod": "2026-11-14T03:23:11+00:00"
+   "lastmod": "2026-11-14T00:17:07+00:00"
   },
   {
-   "id": "bf0cb82d-de5f-4534-b418-3a6eaa2c58c0",
-   "name": "Revamped SuperPark Singapore",
+   "id": "6b0b6946-31be-4d8e-b279-290c21974200",
+   "name": "Tekka Centre",
    "hub": "Singapore",
-   "lastmod": "2026-11-14T03:22:24+00:00"
+   "lastmod": "2026-11-14T00:17:01+00:00"
   },
   {
-   "id": "bd9b6165-541a-448b-af5c-9799d4d30242",
-   "name": "LOJEL Pop-Up Store",
+   "id": "2c510641-0150-4fd0-b797-0774755f11a8",
+   "name": "Beauty World Centre",
    "hub": "Singapore",
-   "lastmod": "2026-11-14T03:22:21+00:00"
+   "lastmod": "2026-11-14T00:16:02+00:00"
   },
   {
-   "id": "bbfddf45-ac46-4698-8f2e-5ddaa30134c8",
-   "name": "Borealis at Gardens by the Bay",
+   "id": "fad3861e-a71b-4b87-9a4d-6aa364a4b103",
+   "name": "Wisma Geylang Serai",
    "hub": "Singapore",
-   "lastmod": "2026-11-14T03:22:16+00:00"
+   "lastmod": "2026-11-14T00:15:17+00:00"
   },
   {
-   "id": "ffc0ff76-a600-485b-887a-3c607265eddc",
-   "name": "Kitahama American Cafe Scene",
+   "id": "329ba0be-fcdc-4e2e-90a4-f3b9822ccb49",
+   "name": "Shinsekai",
    "hub": "Osaka",
-   "lastmod": "2026-11-14T06:27:37+00:00"
+   "lastmod": "2026-11-14T04:46:12+00:00"
   },
   {
-   "id": "5b75ba78-b2e4-485d-aa0d-56ae199b9726",
-   "name": "Shinmachi",
+   "id": "03f914e9-0db0-48b3-b2ed-680d777f85d1",
+   "name": "Shitenno-ji Temple",
    "hub": "Osaka",
-   "lastmod": "2026-11-14T06:23:49+00:00"
+   "lastmod": "2026-11-14T04:44:31+00:00"
   },
   {
-   "id": "6067e6a6-50d5-489d-ae87-a3ed6dad47b4",
-   "name": "Dotonbori River Cruise",
+   "id": "e0d28e5d-898c-40d4-88ca-9b6ca052200f",
+   "name": "IKEA Tsuruhama",
    "hub": "Osaka",
-   "lastmod": "2026-11-14T06:19:17+00:00"
+   "lastmod": "2026-11-14T04:43:42+00:00"
   },
   {
-   "id": "334453b6-4465-46ff-b26a-74edc6e7f6d3",
-   "name": "Universal Studios Japan",
+   "id": "9b0ee471-3db3-495a-a242-73d4294ba236",
+   "name": "Namba Walk",
    "hub": "Osaka",
-   "lastmod": "2026-11-14T06:19:12+00:00"
+   "lastmod": "2026-11-14T04:40:56+00:00"
   },
   {
-   "id": "4771ba80-89e4-4cb8-9fc0-a3e89e7c78f9",
-   "name": "Rinku Premium Outlets",
+   "id": "945d15f6-1f58-4492-a4d3-f5fa9c71f302",
+   "name": "Osaka Central Public Hall",
    "hub": "Osaka",
-   "lastmod": "2026-11-14T06:18:23+00:00"
+   "lastmod": "2026-11-14T04:40:53+00:00"
   },
   {
-   "id": "99009dae-1986-49bb-be42-eefb1494cbad",
-   "name": "Osaka Castle",
+   "id": "2cb29e89-409a-4466-885c-b62135d70449",
+   "name": "Crysta Nagahori",
    "hub": "Osaka",
-   "lastmod": "2026-11-14T06:17:16+00:00"
+   "lastmod": "2026-11-14T04:39:15+00:00"
   },
   {
-   "id": "dc214a9b-6a28-4901-9a5e-724304bde59c",
-   "name": "Umeda Sky Building",
+   "id": "af1075c2-5297-47ad-bdcf-461a3d9d1289",
+   "name": "Nakanoshima Rose Garden",
    "hub": "Osaka",
-   "lastmod": "2026-11-14T06:16:26+00:00"
+   "lastmod": "2026-11-14T04:36:42+00:00"
   },
   {
-   "id": "46080929-f9dd-49eb-909b-b3b2ee219ca3",
-   "name": "Ichiran Ramen Osaka",
+   "id": "4a395334-d7bb-4fcb-8413-bf8fa2d69ce4",
+   "name": "Expo '70 Commemorative Park",
    "hub": "Osaka",
-   "lastmod": "2026-11-14T06:15:33+00:00"
+   "lastmod": "2026-11-14T04:34:18+00:00"
   },
   {
-   "id": "91ca0418-2a8f-466c-9d53-d5c3cabb7cda",
-   "name": "Osaka Aquarium Kaiyukan",
+   "id": "2c8f3127-d822-449d-b26a-3a1b610a7fed",
+   "name": "Osaka Science Museum",
    "hub": "Osaka",
-   "lastmod": "2026-11-14T06:14:44+00:00"
+   "lastmod": "2026-11-14T04:34:15+00:00"
   },
   {
-   "id": "ebd91aa8-2389-411c-b01a-ec146b6359b6",
-   "name": "Don Quijote Dotonbori",
+   "id": "c27e6670-3733-4a68-9f39-50217944ff96",
+   "name": "LALAPORT EXPOCITY",
    "hub": "Osaka",
-   "lastmod": "2026-11-14T06:12:56+00:00"
+   "lastmod": "2026-11-14T04:32:33+00:00"
   },
   {
-   "id": "6656941d-dacc-4b16-a33e-e47b23c4aacc",
-   "name": "Takoyaki Museum",
+   "id": "b6f6394c-49ab-4a76-ac5f-5c019205c974",
+   "name": "Kabuki at Shochiku-za",
    "hub": "Osaka",
-   "lastmod": "2026-11-14T06:12:01+00:00"
+   "lastmod": "2026-11-14T04:31:53+00:00"
   },
   {
-   "id": "97687fd0-0b62-4fef-84de-9de4bb82f73e",
-   "name": "Kani Doraku",
+   "id": "af7b7407-d8c7-45df-9e7e-9a19c494fd4b",
+   "name": "Lucua Osaka",
    "hub": "Osaka",
-   "lastmod": "2026-11-14T06:11:16+00:00"
+   "lastmod": "2026-11-14T04:31:50+00:00"
   },
   {
-   "id": "264410d9-95a7-4ede-936f-eebfb20e5eb1",
-   "name": "Gion Tatsumi Bridge",
+   "id": "a6384a25-6fa7-4ecd-b700-ff93f506c11a",
+   "name": "Sanjusangendo Temple",
    "hub": "Kyoto",
-   "lastmod": "2026-11-14T06:28:27+00:00"
+   "lastmod": "2026-11-14T05:02:58+00:00"
   },
   {
-   "id": "1d5c6d9f-5f5d-4598-b504-d6e940551790",
-   "name": "Teramachi & Shinkyogoku",
+   "id": "a2c32644-e220-4689-b2b3-eb561e33a2c4",
+   "name": "Tsuruya Yoshinobu",
    "hub": "Kyoto",
-   "lastmod": "2026-11-14T06:28:25+00:00"
+   "lastmod": "2026-11-14T05:02:19+00:00"
   },
   {
-   "id": "745ef2e6-7a1a-48de-809c-edd7d4bbf2b4",
-   "name": "SOU SOU Kyoto Store",
+   "id": "822fcfa9-71dd-4889-9524-93eede96368a",
+   "name": "Kyoto Aquarium",
    "hub": "Kyoto",
-   "lastmod": "2026-11-14T06:24:53+00:00"
+   "lastmod": "2026-11-14T05:01:23+00:00"
   },
   {
-   "id": "63e0d4b8-1768-4f69-8b27-84566f47dba1",
-   "name": "Efish Café",
+   "id": "761bc832-2398-427f-b003-a221a31b9f4c",
+   "name": "Kyoto Station Building",
    "hub": "Kyoto",
-   "lastmod": "2026-11-14T06:24:50+00:00"
+   "lastmod": "2026-11-14T05:00:37+00:00"
   },
   {
-   "id": "2638da6e-1035-4b9c-aa2a-161f93bdcfd7",
-   "name": "Kyoto Botanical Gardens",
+   "id": "17f3ab05-730f-4a85-9fc1-a855e9d7649a",
+   "name": "Kennin-ji Temple",
    "hub": "Kyoto",
-   "lastmod": "2026-11-14T06:22:50+00:00"
+   "lastmod": "2026-11-14T04:57:51+00:00"
   },
   {
-   "id": "dc884e65-0907-42ba-a492-b42e6bc84a6d",
-   "name": "Kaboku Cafe",
+   "id": "da56fae7-90dd-431b-bea5-a04d65dda9d9",
+   "name": "Hokan-ji Temple",
    "hub": "Kyoto",
-   "lastmod": "2026-11-14T06:21:55+00:00"
+   "lastmod": "2026-11-14T04:56:17+00:00"
   },
   {
-   "id": "95e290db-cbce-4363-b1ea-269274bccefc",
-   "name": "Okochi Sanso Villa",
+   "id": "a8fa1e42-4acb-42d8-821b-3ce3a6e3f8f6",
+   "name": "Gojo-zaka Pottery Street",
    "hub": "Kyoto",
-   "lastmod": "2026-11-14T06:21:11+00:00"
+   "lastmod": "2026-11-14T04:55:20+00:00"
   },
   {
-   "id": "782a9584-32ed-4b24-9ac7-b12410833aed",
-   "name": "Nonomiya Shrine",
+   "id": "3e31f42e-fb90-4552-9f65-819e4e7c0f66",
+   "name": "Kyoto National Museum",
    "hub": "Kyoto",
-   "lastmod": "2026-11-14T06:20:25+00:00"
+   "lastmod": "2026-11-14T04:51:14+00:00"
   },
   {
-   "id": "6232f9dd-07ba-4fe4-beed-f941256e8d94",
-   "name": "Rurikoin Temple",
+   "id": "bff4bc0e-1847-49f8-a3f6-ab2dabda1ae6",
+   "name": "Ninna-ji Temple",
    "hub": "Kyoto",
-   "lastmod": "2026-11-14T06:20:22+00:00"
+   "lastmod": "2026-11-14T04:42:49+00:00"
   },
   {
-   "id": "698228f3-5344-443e-993c-4ffa6cc19992",
-   "name": "Heian Jingu Shrine",
+   "id": "a4e3ace6-e210-49cc-8af2-ad86bff84f17",
+   "name": "Kyoto Railway Museum",
    "hub": "Kyoto",
-   "lastmod": "2026-11-14T06:17:13+00:00"
+   "lastmod": "2026-11-14T04:41:48+00:00"
   },
   {
-   "id": "02d99e3f-365e-447c-a9d8-8fcbbe2cea50",
-   "name": "Sannenzaka Street",
+   "id": "179181db-cead-4e73-9154-2fcc3f88c896",
+   "name": "Jojakkoji Temple",
    "hub": "Kyoto",
-   "lastmod": "2026-11-14T06:17:08+00:00"
+   "lastmod": "2026-11-14T04:39:07+00:00"
   },
   {
-   "id": "5af8f0b4-02db-4c08-a75c-7aa0c9997469",
-   "name": "Fushimi Inari Shrine",
+   "id": "10d5631a-ad09-4860-9783-f509638829c3",
+   "name": "Kyoto Film Museum",
    "hub": "Kyoto",
-   "lastmod": "2026-11-14T06:15:36+00:00"
+   "lastmod": "2026-11-14T04:38:27+00:00"
   },
   {
-   "id": "7f3e33d8-b18f-49c8-b030-0f2a208a8ccf",
-   "name": "Bellavita",
+   "id": "baa12ee0-e18b-403a-b43f-2eab4ab784a6",
+   "name": "Wuling Farm",
    "hub": "Taipei",
-   "lastmod": "2026-11-14T06:20:27+00:00"
+   "lastmod": "2026-11-14T05:28:42+00:00"
   },
   {
-   "id": "5d575a84-c896-4eb7-8943-e38a0bbe2c97",
-   "name": "Smoothie House",
+   "id": "57e64db7-5ac1-43fd-96a6-38dbdc7af59e",
+   "name": "Houtong Cat Village",
    "hub": "Taipei",
-   "lastmod": "2026-11-14T06:19:14+00:00"
+   "lastmod": "2026-11-14T05:07:01+00:00"
   },
   {
-   "id": "a871e784-48a5-4eb2-b25f-ef334bfe1bde",
-   "name": "Modern Toilet Restaurant",
+   "id": "09dd2baf-6f94-41b5-ac01-e4b7c93a9a08",
+   "name": "Taipei Film House",
    "hub": "Taipei",
-   "lastmod": "2026-11-14T06:18:29+00:00"
+   "lastmod": "2026-11-14T05:04:37+00:00"
   },
   {
-   "id": "99fc32f6-d794-4974-9a1f-a1e65e288c17",
-   "name": "Jiufen Old Street",
+   "id": "dfd6eabf-d1ac-4b76-9aa6-107667a2e288",
+   "name": "Breeze Center Taipei",
    "hub": "Taipei",
-   "lastmod": "2026-11-14T06:18:26+00:00"
+   "lastmod": "2026-11-14T05:03:50+00:00"
   },
   {
-   "id": "15186257-a2a5-441e-8680-90cb399631f3",
-   "name": "Taipei 101",
+   "id": "7a7440c1-17f3-46ea-99f5-0ece8da63909",
+   "name": "Taipei Grand Mosque",
    "hub": "Taipei",
-   "lastmod": "2026-11-14T06:18:21+00:00"
+   "lastmod": "2026-11-14T05:01:19+00:00"
   },
   {
-   "id": "aa2134b7-f3a7-4cab-8ad0-6783ae41bd60",
-   "name": "Woolloomooloo",
+   "id": "6405a75e-812a-48ce-b6c9-d18c5ae811ad",
+   "name": "Zhishan Garden",
    "hub": "Taipei",
-   "lastmod": "2026-11-14T06:16:23+00:00"
+   "lastmod": "2026-11-14T05:00:33+00:00"
   },
   {
-   "id": "07e3297e-7bd6-46bf-bee4-9c81a58d1986",
-   "name": "Hot Star Large Fried Chicken",
+   "id": "4aa61719-95e2-4566-a988-852c9a31f04f",
+   "name": "Beitou Hot Spring Museum",
    "hub": "Taipei",
-   "lastmod": "2026-11-14T06:15:30+00:00"
+   "lastmod": "2026-11-14T04:59:25+00:00"
   },
   {
-   "id": "881c92d7-facd-407c-bf46-c7274bc76157",
-   "name": "Xinyi Shopping District",
+   "id": "372ff983-6ca4-469e-9f79-1889d5f3d5de",
+   "name": "Shifen Waterfall",
    "hub": "Taipei",
-   "lastmod": "2026-11-14T06:14:41+00:00"
+   "lastmod": "2026-11-14T04:58:40+00:00"
   },
   {
-   "id": "006b4260-d60d-4fa7-a341-6d3dbb7866bf",
-   "name": "Shifen Old Street",
+   "id": "3468da23-635b-49a7-9367-a7be3811cb2f",
+   "name": "Taipei Astronomical Museum",
    "hub": "Taipei",
-   "lastmod": "2026-11-14T06:12:48+00:00"
+   "lastmod": "2026-11-14T04:58:38+00:00"
   },
   {
-   "id": "77b7ea77-6e5c-4f21-a533-ab4231cfcceb",
-   "name": "Tamsui Old Street",
+   "id": "08ace182-cfaa-4090-bcbd-6de4446de120",
+   "name": "Jingtong Old Street",
    "hub": "Taipei",
-   "lastmod": "2026-11-14T06:12:04+00:00"
+   "lastmod": "2026-11-14T04:57:43+00:00"
   },
   {
-   "id": "1f5a88b1-ae81-42d8-afe2-873e16f5819e",
-   "name": "Ximending",
+   "id": "016542e5-1abc-4626-8f8a-f627ace2a6b3",
+   "name": "Sanxia Old Street",
    "hub": "Taipei",
-   "lastmod": "2026-11-14T06:08:10+00:00"
+   "lastmod": "2026-11-14T04:56:54+00:00"
   },
   {
-   "id": "550de0cc-8d1e-4608-9d77-d0c95107e097",
-   "name": "Shin Kong Mitsukoshi Xinyi",
+   "id": "af46ddb6-1050-478e-9320-2ec97ed7dded",
+   "name": "C-Lab Taiwan Contemporary Culture Lab",
    "hub": "Taipei",
-   "lastmod": "2026-11-14T06:07:13+00:00"
-  },
-  {
-   "id": "ad157011-eb14-4892-92a8-d138b822be8f",
-   "name": "Ladies Market",
-   "hub": "Hong Kong",
-   "lastmod": "2026-11-14T06:32:15+00:00"
-  },
-  {
-   "id": "2e9e6eaa-b96c-4dd7-bde4-70b8944369bf",
-   "name": "Symphony of Lights",
-   "hub": "Hong Kong",
-   "lastmod": "2026-11-14T06:29:32+00:00"
-  },
-  {
-   "id": "900cc029-f93e-44af-8d7e-d02445535c4d",
-   "name": "Wooloomooloo Rooftop",
-   "hub": "Hong Kong",
-   "lastmod": "2026-11-14T06:26:00+00:00"
-  },
-  {
-   "id": "f25a9767-b140-48bf-b921-b51aa8eb1f6a",
-   "name": "Mido Cafe",
-   "hub": "Hong Kong",
-   "lastmod": "2026-11-14T06:21:58+00:00"
-  },
-  {
-   "id": "9f6ebb67-830e-49e1-b3ff-afecf2c8ebdf",
-   "name": "The Lawn (Upper House)",
-   "hub": "Hong Kong",
-   "lastmod": "2026-11-14T06:21:13+00:00"
-  },
-  {
-   "id": "555d351c-baf6-406e-b763-65a28b054ab2",
-   "name": "Ozone Bar",
-   "hub": "Hong Kong",
-   "lastmod": "2026-11-14T06:17:11+00:00"
-  },
-  {
-   "id": "f17afd1b-a6e6-4f7a-86e1-2f82fff3b67e",
-   "name": "Former Marine Police HQ",
-   "hub": "Hong Kong",
-   "lastmod": "2026-11-14T06:16:29+00:00"
+   "lastmod": "2026-11-14T04:55:26+00:00"
   },
   {
    "id": "a4ddef29-d731-47e3-8182-dd7d76cae7f6",
@@ -560,112 +531,64 @@
    "lastmod": "2026-11-14T06:15:39+00:00"
   },
   {
-   "id": "bdf0be29-fe19-4999-9842-b8e49e2a7c9b",
-   "name": "TOTT's Asian Grill & Bar",
+   "id": "efd54a8a-24b2-46a7-8f01-0601ca1adc42",
+   "name": "Stanley",
    "hub": "Hong Kong",
-   "lastmod": "2026-11-14T06:14:50+00:00"
+   "lastmod": "2026-11-14T06:12:10+00:00"
   },
   {
-   "id": "e6a50fe9-239d-41af-981e-80592ad46fc0",
-   "name": "K11 Musea",
+   "id": "b81fa6ba-88bd-4a6c-9f85-bfed7f29dd9e",
+   "name": "M+ Museum",
    "hub": "Hong Kong",
-   "lastmod": "2026-11-14T06:12:54+00:00"
+   "lastmod": "2026-11-14T06:11:19+00:00"
   },
   {
-   "id": "38e46511-f13a-492c-907b-e923756f000d",
-   "name": "Ngong Ping 360",
+   "id": "9c87082e-433a-45eb-9598-8421fb9bdcf7",
+   "name": "Lan Kwai Fong",
    "hub": "Hong Kong",
-   "lastmod": "2026-11-14T06:12:51+00:00"
+   "lastmod": "2026-11-14T06:07:22+00:00"
   },
   {
-   "id": "4010bbc8-4c83-4f24-89cf-4c8e7424d5b8",
-   "name": "War Remnants Museum",
-   "hub": "Ho Chi Minh City",
-   "lastmod": "2026-11-14T06:29:41+00:00"
+   "id": "986a7ed2-485b-42cc-bc64-acccbc11b03d",
+   "name": "Victoria Peak",
+   "hub": "Hong Kong",
+   "lastmod": "2026-11-14T06:07:19+00:00"
   },
   {
-   "id": "0fdc22d1-9555-4407-87c5-b99a27323950",
-   "name": "Apocalypse Now",
-   "hub": "Ho Chi Minh City",
-   "lastmod": "2026-11-14T06:28:22+00:00"
+   "id": "296eccca-2774-4057-b65d-4e0ae74ef251",
+   "name": "Hong Kong Palace Museum",
+   "hub": "Hong Kong",
+   "lastmod": "2026-11-14T06:06:27+00:00"
   },
   {
-   "id": "aaf3da93-6c74-4b2f-b2ee-cde3d215ed83",
-   "name": "The Observatory",
-   "hub": "Ho Chi Minh City",
-   "lastmod": "2026-11-14T06:26:48+00:00"
+   "id": "ec6303d7-2a93-4bdf-8f46-9f95272dd783",
+   "name": "Pacific Place",
+   "hub": "Hong Kong",
+   "lastmod": "2026-11-14T06:04:53+00:00"
   },
   {
-   "id": "96e4aab0-c20c-49ee-a79b-69d909396fb8",
-   "name": "Frolic",
-   "hub": "Ho Chi Minh City",
-   "lastmod": "2026-11-14T06:26:42+00:00"
+   "id": "2bfffcc7-d71b-4468-8916-f47976fc9cb5",
+   "name": "Yung Kee",
+   "hub": "Hong Kong",
+   "lastmod": "2026-11-14T06:04:47+00:00"
   },
   {
-   "id": "7b904a76-c673-4c8d-ab6d-25474c1b126b",
-   "name": "Than Cocktail Bar",
-   "hub": "Ho Chi Minh City",
-   "lastmod": "2026-11-14T06:25:52+00:00"
+   "id": "51721dbd-64b8-4988-9e73-d12cadb1643c",
+   "name": "IFC Mall",
+   "hub": "Hong Kong",
+   "lastmod": "2026-11-14T06:02:27+00:00"
   },
   {
-   "id": "fa71f0b8-1f02-44eb-9a8f-6f1d648d7a8a",
-   "name": "Boosh Rooftop",
-   "hub": "Ho Chi Minh City",
-   "lastmod": "2026-11-14T06:22:01+00:00"
+   "id": "5e803ae4-1952-4023-be2d-3d50e9c4365d",
+   "name": "Kau Kee",
+   "hub": "Hong Kong",
+   "lastmod": "2026-11-14T05:53:51+00:00"
   },
   {
-   "id": "79607142-07f9-4825-824e-3577f280ee2e",
-   "name": "The Iron Bank",
-   "hub": "Ho Chi Minh City",
-   "lastmod": "2026-11-14T06:21:05+00:00"
-  },
-  {
-   "id": "5685605e-11a1-449a-a8de-1c129da35175",
-   "name": "The Alley Cocktail Bar & Kitchen",
-   "hub": "Ho Chi Minh City",
-   "lastmod": "2026-11-14T06:20:19+00:00"
-  },
-  {
-   "id": "fe86fc12-3078-455c-a014-92d37a22afaa",
-   "name": "Sky51 (EQ Hotel)",
-   "hub": "Kuala Lumpur",
-   "lastmod": "2026-11-14T06:33:10+00:00"
-  },
-  {
-   "id": "f9e25242-7321-4197-be27-94b31ae65f4c",
-   "name": "SkyBar (Traders Hotel)",
-   "hub": "Kuala Lumpur",
-   "lastmod": "2026-11-14T06:33:07+00:00"
-  },
-  {
-   "id": "5ce939df-645f-4eb0-89c7-b04007a46729",
-   "name": "Helipad KL",
-   "hub": "Kuala Lumpur",
-   "lastmod": "2026-11-14T06:31:28+00:00"
-  },
-  {
-   "id": "5b2bf4ae-b436-4f37-a681-ee667c0beb7c",
-   "name": "Vertigo (Banyan Tree)",
-   "hub": "Kuala Lumpur",
-   "lastmod": "2026-11-14T06:30:29+00:00"
-  },
-  {
-   "id": "5ae15b29-af10-44d2-b507-55626f1c12d0",
-   "name": "Bun Choon",
-   "hub": "Kuala Lumpur",
-   "lastmod": "2026-11-14T06:30:26+00:00"
-  },
-  {
-   "id": "5880b20a-9fb3-4efd-a462-5823670798ef",
-   "name": "Chocha Foodstore",
-   "hub": "Kuala Lumpur",
-   "lastmod": "2026-11-14T06:30:24+00:00"
-  },
-  {
-   "id": "2941216b-1e7f-41a8-b95d-099ff1341ea2",
-   "name": "Bubble Bee Café",
-   "hub": "Kuala Lumpur",
-   "lastmod": "2026-11-14T06:28:30+00:00"
+   "id": "99842a14-178f-4287-a22e-5001285aa610",
+   "name": "Hong Kong Maritime Museum",
+   "hub": "Hong Kong",
+   "lastmod": "2026-11-14T05:45:33+00:00"
   },
   {
    "id": "dd5756c8-3113-4151-9489-4b034f484274",
@@ -674,76 +597,16 @@
    "lastmod": "2026-11-14T06:27:29+00:00"
   },
   {
-   "id": "b79233a0-91e1-4aeb-b4a4-d652bfa824be",
-   "name": "Jao Tim",
+   "id": "7a5d6b6d-9974-43b5-aec5-cde765eca569",
+   "name": "Sin Sze Si Ya Temple",
    "hub": "Kuala Lumpur",
-   "lastmod": "2026-11-14T06:26:51+00:00"
-  },
-  {
-   "id": "7d37bbe4-82c0-48db-aee7-79a71caf3a50",
-   "name": "LaGula Vegan Bakery",
-   "hub": "Kuala Lumpur",
-   "lastmod": "2026-11-14T06:25:54+00:00"
-  },
-  {
-   "id": "4601838c-1bff-4a78-8af1-cdbbd42fc873",
-   "name": "The Hungry Tapir",
-   "hub": "Kuala Lumpur",
-   "lastmod": "2026-11-14T06:23:46+00:00"
-  },
-  {
-   "id": "2faa380c-8d07-4e33-ae4a-1fcf6546ebb3",
-   "name": "Fuego (Troika)",
-   "hub": "Kuala Lumpur",
-   "lastmod": "2026-11-14T06:22:55+00:00"
-  },
-  {
-   "id": "d66aff5b-5745-40e7-89d2-f87b4446ae82",
-   "name": "Muay Thai Classes",
-   "hub": "Chiang Mai",
-   "lastmod": "2026-11-14T06:33:04+00:00"
-  },
-  {
-   "id": "d01251fd-6223-4b1f-a505-63f385465659",
-   "name": "My Secret Cafe In Town",
-   "hub": "Chiang Mai",
-   "lastmod": "2026-11-14T06:32:20+00:00"
-  },
-  {
-   "id": "b30a6024-7371-428e-b48c-4b3d37a98286",
-   "name": "Ploen Ruedee Night Market",
-   "hub": "Chiang Mai",
-   "lastmod": "2026-11-14T06:32:18+00:00"
-  },
-  {
-   "id": "8bf202be-cfa3-45f4-a50d-e3bdda319572",
-   "name": "Tha Pae Gate",
-   "hub": "Chiang Mai",
-   "lastmod": "2026-11-14T06:32:12+00:00"
-  },
-  {
-   "id": "fee75746-45d6-48bd-9516-e8a6572e6e9b",
-   "name": "Black Canyon Coffee",
-   "hub": "Chiang Mai",
-   "lastmod": "2026-11-14T06:27:34+00:00"
-  },
-  {
-   "id": "63cd856e-15f1-4e2b-b529-9e85d374f0df",
-   "name": "Pegasus Café & Roastery",
-   "hub": "Chiang Mai",
-   "lastmod": "2026-11-14T06:24:47+00:00"
+   "lastmod": "2026-11-14T06:21:08+00:00"
   },
   {
    "id": "5d943b8f-cb80-41dd-a936-87c1313f241e",
    "name": "Chiang Dao Caves",
    "hub": "Chiang Mai",
    "lastmod": "2026-11-14T06:24:45+00:00"
-  },
-  {
-   "id": "3c5bb002-b8f4-4d75-9baf-8ab3bf09a59d",
-   "name": "Sai Ua (Northern Sausage)",
-   "hub": "Chiang Mai",
-   "lastmod": "2026-11-14T06:23:44+00:00"
   },
   {
    "id": "2c24b200-691b-4461-9413-f6d7651ab481",

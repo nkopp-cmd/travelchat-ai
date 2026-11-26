@@ -21,7 +21,7 @@ import { HeroHelperLinks, LandingHelpers } from "@/components/landing/helpers";
 import { WeekendPicks } from "@/components/landing/weekend-picks";
 import { GuideSpotLinks } from "@/components/landing/guide-spot-links";
 import { LocalleySignup } from "@/components/newsletter/localley-signup";
-import { homeLinkRows } from "@/lib/seo/home-links-snapshot";
+import { homeHubNames, homeLinkRows } from "@/lib/seo/home-links-snapshot";
 import { homeGuideSpots, homeHubLinks, homeJournalLinks } from "@/lib/seo/home-links";
 import { BLOG_POSTS } from "@/lib/blog/posts";
 
@@ -255,7 +255,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <GuideSpotLinks spots={homeGuideSpots(spotRows)} hubs={homeHubLinks(spotRows)} posts={homeJournalLinks(BLOG_POSTS)} />
+      <GuideSpotLinks spots={homeGuideSpots(spotRows)} hubs={homeHubLinks(spotRows, homeHubNames())} posts={homeJournalLinks(BLOG_POSTS)} />
 
       <footer className="ll-below-fold bg-surface py-8">
         <div className="container mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 md:flex-row md:px-6">

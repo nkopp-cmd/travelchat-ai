@@ -35,6 +35,7 @@ vi.mock("@/lib/seo/home-links-snapshot", () => ({
   homeLinkRows: () => Array.from({ length: 14 }, (_, i) => ({
     id: `00000000-0000-4000-8000-${String(i).padStart(12, "0")}`, lastmod: null, hub: i % 2 ? "Seoul" : "Tokyo", name: `Guide spot ${i}`,
   })),
+  homeHubNames: () => ["Seoul", "Tokyo"],
 }));
 vi.mock("@/components/ui/city-image", () => ({
   CityImageAvatar: () => <span />,

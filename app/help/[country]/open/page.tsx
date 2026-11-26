@@ -22,7 +22,8 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ country: string }> }): Promise<Metadata> {
   const country = helpCountry((await params).country);
-  return country ? pageMeta({ title: `Find somewhere open nearby in ${country.name}`, description: `Places near you in ${country.name}, with one tap to their opening hours.`, path: `/help/${country.slug}/open`, image: pageCardImage(`help-${country.slug}-open`) }) : {};
+  // DK2: a tool page under MIN_GUIDE_WORDS: live and linked, but noindex, follow and out of the sitemap.
+  return country ? { ...pageMeta({ title: `Find somewhere open nearby in ${country.name}`, description: `Places near you in ${country.name}, with one tap to their opening hours.`, path: `/help/${country.slug}/open`, image: pageCardImage(`help-${country.slug}-open`) }), robots: { index: false, follow: true } } : {};
 }
 
 /** Vanilla, no framework: works before hydration and keeps the route's JS tiny. Text only via textContent. */
