@@ -4,4 +4,21 @@ Allow: /
 Disallow: /spots/*/tips
 Disallow: /sign-up?
 Disallow: /sign-in?
+
+# Push DM1: SEO-tool crawlers (not search engines) walked every spot page and share card once a deploy changed the
+# edge cache key: 858 Satori renders in 2 h from AhrefsBot alone. A named group replaces '*' for that bot, so it
+# repeats the rules above. Search engines and social preview bots keep the '*' group.
+User-agent: AhrefsBot
+User-agent: SemrushBot
+User-agent: MJ12bot
+User-agent: DotBot
+User-agent: BLEXBot
+User-agent: DataForSeoBot
+Crawl-delay: 10
+Allow: /
+Disallow: /spots/*/og
+Disallow: /spots/*/tips
+Disallow: /sign-up?
+Disallow: /sign-in?
+
 Sitemap: https://www.localley.io/sitemap.xml

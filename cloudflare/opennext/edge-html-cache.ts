@@ -64,6 +64,10 @@ const LIVE_DETAIL_TTL_SECONDS = 300;
 // Per-spot share card PNG (app/spots/[id]/og): drawn from name/category/score only, so a week is fine; a deploy re-keys.
 const SPOT_OG_PATH = /^\/spots\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/og$/;
 const SPOT_OG_TTL_SECONDS = 604800;
+// Push DM1: the card does not change with a deploy, so its key carries this revision instead of the Worker version.
+// Ten deploys a day re-keyed all ~1,650 cards and every crawler fetch became a ~200 ms CPU Satori render.
+// Bump it when app/spots/[id]/og/route.tsx changes how the card looks.
+export const SPOT_OG_REVISION = "1";
 const VIRAL_EVENT_PATH = /^\/trending\/[a-z0-9][a-z0-9-]{2,95}$/;
 // Photo credits of one city (app/credits/[city], Push AS3): same data and TTL as /credits. Unknown slugs are 404s
 // and never stored (only 200 HTML is cached).
@@ -221,6 +225,7 @@ function cacheableQuery(url: URL): boolean {
 export function edgeCacheKey(request: Request, version: string): Request {
   const url = withoutTracking(new URL(request.url));
   if (SPOT_MEDIA_PATH.test(url.pathname)) return new Request(`${url.origin}${url.pathname}`);
+  if (SPOT_OG_PATH.test(url.pathname)) return new Request(`${url.origin}${url.pathname}?__og=${SPOT_OG_REVISION}`);
   if (QUERY_FREE_PATHS.has(url.pathname)) return new Request(`${url.origin}${url.pathname}?__edge=${encodeURIComponent(version)}`);
   const city = url.searchParams.get("city");
   const view = url.searchParams.get("view");
