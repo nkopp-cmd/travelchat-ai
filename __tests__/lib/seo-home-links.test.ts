@@ -3,6 +3,7 @@ import fc from "fast-check";
 
 vi.mock("server-only", () => ({}));
 import { homeGuideSpots, homeHubLinks, homeJournalLinks } from "@/lib/seo/home-links";
+import { MIN_HUB_SPOTS } from "@/lib/seo/spot-indexable";
 import { BLOG_POSTS } from "@/lib/blog/posts";
 import { ENABLED_CITIES } from "@/lib/cities";
 import { homeLinkRows } from "@/lib/seo/home-links-snapshot";
@@ -40,7 +41,7 @@ describe("homeGuideSpots", () => {
 describe("homeHubLinks", () => {
   it("lists every hub when rows are unknown and drops thin hubs otherwise", () => {
     expect(homeHubLinks([])).toHaveLength(ENABLED_CITIES.length);
-    const seoul = Array.from({ length: 5 }, (_, i) => row(`s${i}`, "Seoul"));
+    const seoul = Array.from({ length: MIN_HUB_SPOTS }, (_, i) => row(`s${i}`, "Seoul"));
     expect(homeHubLinks([...seoul, row("t", "Tokyo")]).map((h) => h.href)).toEqual(["/spots?city=seoul"]);
   });
 });

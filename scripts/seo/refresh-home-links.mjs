@@ -3,7 +3,8 @@
 // Why a snapshot: "/" ships as a static asset (scripts/cf-static-public-html.mjs, ~30 ms TTFB in every
 // Cloudflare location); the D1 store is not reachable at build time. Source: the live public sitemap + hub pages,
 // so the snapshot only holds what Google already sees. Keeps the newest 12 rows per hub (enough for the
-// round-robin in lib/seo/home-links.ts and for hubIndexable's 5-spot rule). Run, then commit the JSON.
+// round-robin in lib/seo/home-links.ts). `hubs` = the hubs pages.xml lists (DK2: the hub gate counts guide spots,
+// the spot sitemap lists only guide + photo spots, so the hub list cannot come from the rows). Run, then commit the JSON.
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -37,14 +38,16 @@ async function main() {
   const pages = await get(`${SITE}/sitemaps/pages.xml`);
   const slugs = [...new Set([...pages.matchAll(/\/spots\?city=([a-z-]+)/g)].map((m) => m[1]))];
   const rows = [];
+  const hubs = [];
   for (const slug of slugs) {
     const hub = names.get(slug);
     if (!hub) throw new Error(`hub ${slug} is not in lib/cities.ts`);
+    hubs.push(hub);
     rows.push(...hubRows(await get(`${SITE}/spots?city=${slug}`), hub, lastmods));
   }
   if (rows.length < 12) throw new Error(`only ${rows.length} rows; refusing to write a thin snapshot`);
   const out = path.join(ROOT, "lib/seo/home-links.snapshot.json");
-  writeFileSync(out, `${JSON.stringify({ source: SITE, rows }, null, 1)}\n`);
+  writeFileSync(out, `${JSON.stringify({ source: SITE, hubs, rows }, null, 1)}\n`);
   console.log(`home-links snapshot: ${rows.length} rows over ${slugs.length} hubs (${lastmods.size} sitemap spots)`);
 }
 

@@ -20,7 +20,8 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ country: string }> }): Promise<Metadata> {
   const country = helpCountry((await params).country);
-  return country ? pageMeta({ title: `How to pay in ${country.name}`, description: `Cards, cash, wallets, transit cards and ATMs for visitors to ${country.name}.`, path: `/help/${country.slug}/pay`, image: pageCardImage(`help-${country.slug}-pay`) }) : {};
+  // DK2: a tool page under MIN_GUIDE_WORDS: live and linked, but noindex, follow and out of the sitemap.
+  return country ? { ...pageMeta({ title: `How to pay in ${country.name}`, description: `Cards, cash, wallets, transit cards and ATMs for visitors to ${country.name}.`, path: `/help/${country.slug}/pay`, image: pageCardImage(`help-${country.slug}-pay`) }), robots: { index: false, follow: true } } : {};
 }
 
 const checked = new Date(`${PAY_CHECKED_AT}T00:00:00Z`).toLocaleDateString("en", { month: "long", year: "numeric", timeZone: "UTC" });

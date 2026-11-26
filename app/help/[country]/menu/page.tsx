@@ -20,7 +20,8 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ country: string }> }): Promise<Metadata> {
   const country = helpCountry((await params).country);
-  return country ? pageMeta({ title: `Help me order this in ${country.name}`, description: `Photograph a menu in ${country.name} and read every dish in English.`, path: `/help/${country.slug}/menu`, image: pageCardImage(`help-${country.slug}-menu`) }) : {};
+  // DK2: a tool page under MIN_GUIDE_WORDS: live and linked, but noindex, follow and out of the sitemap.
+  return country ? { ...pageMeta({ title: `Help me order this in ${country.name}`, description: `Photograph a menu in ${country.name} and read every dish in English.`, path: `/help/${country.slug}/menu`, image: pageCardImage(`help-${country.slug}-menu`) }), robots: { index: false, follow: true } } : {};
 }
 
 /**

@@ -1,17 +1,80 @@
 import { describe, expect, it, vi } from "vitest";
 import fc from "fast-check";
 import {
-  hubIndexable, hubOf, hubSpotCounts, indexableSitemapRows, isSpotIndexable, MIN_HUB_SPOTS, onEnabledHub, spotsHubHeading,
+  hubIndexable, hubOf, hubSpotCounts, indexableOnly, indexableSitemapRows, isSpotIndexable, MIN_GUIDE_WORDS, MIN_HUB_SPOTS,
+  onEnabledHub, spotsHubHeading, wordCount,
 } from "@/lib/seo/spot-indexable";
 import { guideUploadDate } from "@/lib/spots/guide-store";
-import { pageEntries } from "@/lib/seo/sitemap";
+import { guideEntries, pageEntries, renderIndex, spotChunk, spotEntries } from "@/lib/seo/sitemap";
+import { homeGuideSpots, homeHubLinks } from "@/lib/seo/home-links";
+import { BLOG_POSTS } from "@/lib/blog/posts";
 
 vi.mock("server-only", () => ({}));
 
 describe("isSpotIndexable", () => {
-  it("indexes a spot only when it has its own guide (F4)", () => {
-    expect(isSpotIndexable({ hasGuide: true })).toBe(true);
-    expect(isSpotIndexable({ hasGuide: false })).toBe(false);
+  it("indexes a spot only with its own guide AND an own photo (F4 + DK2)", () => {
+    expect(isSpotIndexable({ hasGuide: true, hasOwnPhoto: true })).toBe(true);
+    expect(isSpotIndexable({ hasGuide: true, hasOwnPhoto: false })).toBe(false);
+    expect(isSpotIndexable({ hasGuide: false, hasOwnPhoto: true })).toBe(false);
+    expect(isSpotIndexable({ hasGuide: false, hasOwnPhoto: false })).toBe(false);
+  });
+});
+
+describe("DK2 thin-page cut", () => {
+  const candidate = fc.record({
+    id: fc.uuid(), lastmod: fc.constant(null), name: fc.string({ minLength: 1, maxLength: 6 }),
+    address: fc.constantFrom("Seoul 1", "Tokyo 2", "Bangkok 3"), city: fc.constantFrom(null, "Seoul", "Tokyo", "Bangkok"),
+    hasOwnPhoto: fc.boolean(), guided: fc.boolean(),
+  });
+  const hubs = ["Seoul", "Tokyo", "Bangkok"];
+
+  it("property: the spot sitemap, home links and next-spot set hold exactly the guide + own photo rows", () => {
+    fc.assert(fc.property(fc.array(candidate, { maxLength: 60 }), (rows) => {
+      const byId = new Map(rows.map((r) => [r.id, r]));
+      const guides = new Map(rows.filter((r) => r.guided).map((r) => [r.id.toLowerCase(), null as string | null]));
+      const out = indexableSitemapRows(rows, guides, hubs);
+      // Every kept row has a guide; indexable <=> the source row has an own photo.
+      for (const r of out) {
+        expect(guides.has(r.id.toLowerCase())).toBe(true);
+        expect(r.indexable).toBe(byId.get(r.id)!.hasOwnPhoto);
+      }
+      const sitemapIds = spotEntries(out).map((e) => decodeURIComponent(e.loc.split("/spots/")[1]));
+      expect(sitemapIds).toEqual(out.filter((r) => r.indexable).map((r) => r.id));
+      expect(spotChunk(out, 1)!.every((r) => r.indexable)).toBe(true);
+      for (const link of homeGuideSpots(out, 100)) expect(byId.get(link.id)!.hasOwnPhoto).toBe(true);
+      expect(indexableOnly(out).every((r) => isSpotIndexable({ hasGuide: true, hasOwnPhoto: byId.get(r.id)!.hasOwnPhoto }))).toBe(true);
+      // Hub gate counts guide rows (photo or not): a hub is indexable <=> >= MIN_HUB_SPOTS guide rows on it.
+      for (const hub of hubs) {
+        const n = out.filter((r) => r.hub === hub).length;
+        if (out.length > 0) expect(hubIndexable(out, hub)).toBe(n >= MIN_HUB_SPOTS);
+      }
+      // The index lists one spot file for any count of indexable rows.
+      expect(renderIndex(out)).toContain("/sitemaps/spots-1.xml");
+    }));
+  });
+
+  it("noindexes a city list under 10 guide spots", () => {
+    expect(MIN_HUB_SPOTS).toBe(10);
+    const rows = (hub: string, n: number) => Array.from({ length: n }, (_, i) => ({ id: `${hub}-${i}`, lastmod: null, hub, indexable: false }));
+    const all = [...rows("Seoul", 10), ...rows("Tokyo", 9)];
+    expect(homeHubLinks(all).map((h) => h.name)).toEqual(["Seoul"]);
+  });
+
+  it("guides sitemap: help country guides, /help, /blog and posts; no /pay, /open or /menu tool pages", () => {
+    const urls = guideEntries().map((e) => e.loc);
+    expect(urls.some((u) => /\/help\/[^/]+\/(pay|open|menu)$/.test(u))).toBe(false);
+    expect(urls.filter((u) => /\/help\/[^/]+$/.test(u)).length).toBeGreaterThan(0);
+  });
+
+  it("every blog post in the sitemap has at least MIN_GUIDE_WORDS words", () => {
+    for (const post of BLOG_POSTS) expect(wordCount(post.body), post.slug).toBeGreaterThanOrEqual(MIN_GUIDE_WORDS);
+  });
+
+  it("property: wordCount counts space-separated words", () => {
+    fc.assert(fc.property(fc.array(fc.stringMatching(/^[a-z]{1,8}$/), { maxLength: 50 }), (words) => {
+      expect(wordCount(words.join(" "))).toBe(words.length);
+      expect(wordCount(words.join(" ** "))).toBe(words.length);
+    }));
   });
 });
 

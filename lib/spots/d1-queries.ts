@@ -281,7 +281,7 @@ export async function d1PhotoCredits(): Promise<D1PhotoCredit[]> {
  * an approved stored photo and a visible tip. spots has no updated_at column; never "now".
  */
 export type D1SitemapSpot = {
-  id: string; lastmod: string | null; name: string; address: string; description: string; hasPhoto: boolean; city: string | null;
+  id: string; lastmod: string | null; name: string; address: string; description: string; hasPhoto: boolean; hasOwnPhoto: boolean; city: string | null;
   /** Twin dedupe keys (dedupePublicSpotRows), the same as the hub list. */
   latitude: number | null; longitude: number | null; google_place_id: string | null;
 };
@@ -300,6 +300,7 @@ export async function d1SitemapSpots(): Promise<D1SitemapSpot[]> {
       (EXISTS (SELECT 1 FROM spot_photos ph WHERE ph.spot_id = s.id)
         OR COALESCE(json_extract(l.payload, '$.google_place_id'), '') <> ''
         OR COALESCE(json_array_length(l.payload, '$.photos'), 0) > 0) AS has_photo,
+      EXISTS (SELECT 1 FROM spot_photos ph WHERE ph.spot_id = s.id) AS has_own_photo,
       NULLIF(MAX(COALESCE(substr(s.created_at, 1, 19), ''),
       COALESCE((SELECT MAX(substr(ph.approved_at, 1, 19)) FROM spot_photos ph WHERE ph.spot_id = s.id), ''),
       COALESCE((SELECT MAX(substr(t.created_at, 1, 19)) FROM spot_tips t WHERE t.spot_id = s.id AND t.status = 'visible'), '')), '') AS lastmod
@@ -315,6 +316,7 @@ export async function d1SitemapSpots(): Promise<D1SitemapSpot[]> {
         : address && typeof address === "object" ? String((address as Record<string, unknown>).en ?? Object.values(address)[0] ?? "") : "",
       description: typeof row.description === "string" ? row.description : "",
       hasPhoto: Number(row.has_photo) === 1,
+      hasOwnPhoto: Number(row.has_own_photo) === 1,
       city: typeof row.city === "string" && row.city ? row.city : null,
       latitude: typeof row.latitude === "number" ? row.latitude : null,
       longitude: typeof row.longitude === "number" ? row.longitude : null,

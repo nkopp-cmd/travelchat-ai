@@ -1,17 +1,17 @@
 import { ENABLED_CITIES } from "@/lib/cities";
-import { hubIndexable } from "./spot-indexable";
+import { hubIndexable, indexableOnly } from "./spot-indexable";
 import type { SitemapSpotRow } from "./sitemap";
 
 export type HomeSpotLink = { id: string; name: string; hub: string };
 
 /**
- * Guide spots the home page links to (indexing diagnosis F5): a crawl path from the strongest
+ * Indexable guide spots (guide + own photo, DK2) the home page links to (indexing diagnosis F5): a crawl path from the strongest
  * page to the pages we want indexed. Round-robin over hubs (largest first) so every hub gets
  * links; inside a hub the newest guide first. Deterministic for the same rows.
  */
 export function homeGuideSpots(rows: readonly SitemapSpotRow[], limit = 12): HomeSpotLink[] {
   const byHub = new Map<string, HomeSpotLink[]>();
-  const named = rows.filter((r) => r.hub && r.name?.trim())
+  const named = indexableOnly(rows).filter((r) => r.hub && r.name?.trim())
     .sort((a, b) => (b.lastmod ?? "").localeCompare(a.lastmod ?? "") || a.id.localeCompare(b.id));
   for (const r of named) {
     const list = byHub.get(r.hub!) ?? [];
@@ -26,9 +26,12 @@ export function homeGuideSpots(rows: readonly SitemapSpotRow[], limit = 12): Hom
   return out;
 }
 
-/** City hubs the home page links to: the same set the sitemap lists, each with its A-Z list page (Push CC2). */
-export function homeHubLinks(rows: readonly SitemapSpotRow[]) {
-  return ENABLED_CITIES.filter((city) => hubIndexable(rows, city.name))
+/**
+ * City hubs the home page links to: the same set the sitemap lists, each with its A-Z list page (Push CC2). `hubs` =
+ * the hub names from the snapshot (DK2: rows hold only indexable spots, too few to count a hub's guide spots).
+ */
+export function homeHubLinks(rows: readonly SitemapSpotRow[], hubs: readonly string[] = []) {
+  return ENABLED_CITIES.filter((city) => (hubs.length ? hubs.includes(city.name) : hubIndexable(rows, city.name)))
     .map(({ name, slug }) => ({ name, href: `/spots?city=${slug}`, azHref: `/spots/a-z/${encodeURIComponent(slug)}` }));
 }
 
