@@ -5,6 +5,7 @@ import { SpotCard } from "@/components/spots/spot-card";
 import { SpotCardEvents } from "@/components/spots/spot-card-events";
 import { Flame, Newspaper } from "@/components/ui/icons";
 import { fetchViralEvent } from "@/lib/viral/events";
+import { pageMeta } from "@/lib/seo/meta";
 
 // Live public data, edge-cached for 5 minutes (cloudflare/opennext/edge-html-cache.ts).
 export const dynamic = "force-dynamic";
@@ -23,7 +24,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { event, spots } = data;
   const title = `${event.label}: every spot`;
   const description = `${spots.length} ${spots.length === 1 ? "place" : "places"} from ${event.articleCount} news ${event.articleCount === 1 ? "report" : "reports"}, on a map you can add to your trip.`;
-  return { title, description, alternates: { canonical: `/trending/${event.slug}` }, openGraph: { title, description } };
+  // pageMeta: og/twitter image + title (a bare openGraph without images dropped the root og:image). Default share
+  // image only: a Places photo URL would bill Google on every crawler fetch.
+  return pageMeta({ title, description, path: `/trending/${event.slug}` });
 }
 
 export default async function ViralEventPage({ params }: Props) {

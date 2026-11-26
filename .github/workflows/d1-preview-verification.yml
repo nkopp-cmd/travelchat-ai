@@ -804,6 +804,7 @@ on:
       - '__tests__/lib/discover-new-places.test.ts'
       - '__tests__/lib/viral-feed.test.ts'
       - '__tests__/lib/viral-events.test.ts'
+      - '__tests__/lib/trending-metadata.test.ts'
       - '__tests__/lib/spot-guide.test.ts'
       - 'lib/spots/guide.ts'
       - 'lib/spots/description-links.ts'
