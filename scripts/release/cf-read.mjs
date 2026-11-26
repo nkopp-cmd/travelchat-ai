@@ -14,20 +14,31 @@ export function retryDelay(attempt, delayMs = READ_RETRY_DELAY_MS, maxDelayMs = 
   return Math.min(delayMs * 2 ** (attempt - 1), maxDelayMs);
 }
 
+/** Short reason for a failed read: HTTP status and Cloudflare error codes (release 547b4ee, 2026-11-26, failed 11 reads
+ * with no reason logged; the same read with the same token answered 200 minutes later). */
+export function failReason(body, error) {
+  if (error) return error.name === "TimeoutError" ? "timeout" : String(error.message ?? error).slice(0, 120);
+  const codes = (body?.errors ?? []).map((e) => `${e.code ?? "?"}${e.message ? " " + String(e.message).slice(0, 60) : ""}`).join("; ");
+  return [body?.status ? `HTTP ${body.status}` : null, codes || null].filter(Boolean).join(" ") || "no success flag";
+}
+
 export async function readWithRetry(readOnce, { retries = READ_RETRIES, delayMs = READ_RETRY_DELAY_MS, maxDelayMs = READ_RETRY_MAX_DELAY_MS, wait, log = console.log, label = "" } = {}) {
   const pause = wait ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms)));
   let lastError;
+  let reason = "";
   for (let attempt = 0; attempt <= retries; attempt++) {
     if (attempt > 0) {
       const ms = retryDelay(attempt, delayMs, maxDelayMs);
-      log(`[release] Cloudflare read ${label} not ready; retry ${attempt}/${retries} in ${Math.round(ms / 1000)} s`);
+      log(`[release] Cloudflare read ${label} not ready (${reason}); retry ${attempt}/${retries} in ${Math.round(ms / 1000)} s`);
       await pause(ms);
     }
     try {
       const body = await readOnce();
       if (body?.success) return body.result;
-      lastError = new Error(`Cloudflare read failed: ${label}`);
+      reason = failReason(body);
+      lastError = new Error(`Cloudflare read failed: ${label} (${reason})`);
     } catch (error) {
+      reason = failReason(null, error);
       lastError = error;
     }
   }

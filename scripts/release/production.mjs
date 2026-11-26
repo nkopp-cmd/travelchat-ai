@@ -56,11 +56,11 @@ async function cloudflare(pathname) {
   try {
     return await readWithRetry(async () => {
       const response = await fetch(API + pathname, { headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(20_000) });
-      const body = await response.json();
-      return response.ok ? body : { success: false };
+      const body = await response.json().catch(() => ({}));
+      return response.ok ? body : { success: false, status: response.status, errors: body?.errors };
     }, { label: pathname });
-  } catch {
-    fail(`Cloudflare read failed: ${pathname}`);
+  } catch (error) {
+    fail(`Cloudflare read failed: ${pathname}: ${error?.message ?? error}`);
   }
 }
 
