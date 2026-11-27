@@ -3,7 +3,7 @@ import { parsePlannerSpotId } from "@/lib/trips/planner-draft";
 
 // Planner/checkout funnel steps (shared/plans/localley-spot-cards-mobile.md). Sent at once with
 // sendBeacon (the step usually precedes a navigation). Only the step and a coarse source go out.
-export type BrowserFunnelStep = "planner_start" | "trip_generated" | "preview_view" | "checkout_start";
+export type BrowserFunnelStep = "planner_start" | "plan_requested" | "trip_generated" | "preview_view" | "checkout_start";
 export type FunnelSource = "home" | "spots" | "pricing" | "preview" | "other" | "direct";
 
 function pathSource(pathname: string): FunnelSource {

@@ -37,7 +37,7 @@ export function spotEventDatabase(): SpotEventDatabase | undefined {
     return context?.env?.AUTH_DB;
 }
 
-export const FUNNEL_STEPS = ["planner_start", "trip_generated", "preview_view", "checkout_start", "checkout_paid"] as const;
+export const FUNNEL_STEPS = ["planner_start", "plan_requested", "trip_generated", "preview_view", "checkout_start", "checkout_paid"] as const;
 export const FUNNEL_SOURCES = ["home", "spots", "pricing", "preview", "other", "direct", "stripe"] as const;
 export type FunnelStep = (typeof FUNNEL_STEPS)[number];
 export type FunnelSource = (typeof FUNNEL_SOURCES)[number];

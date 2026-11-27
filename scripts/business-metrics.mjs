@@ -292,6 +292,8 @@ export function summarize({ users, sessions, subscriptions, funnel, links = [], 
       + `checkout_start funnel events 30d: ${bySource("checkout_start", "other")}; `
       // Push DH1: the wizard beacon also sees client (soft) navigations, which CF RUM page loads miss.
       + `planner_start funnel events 30d: ${bySource("planner_start", "other")}; `
+      // Push BH3: the Generate click, so the drop shows before or after the plan request.
+      + `plan_requested funnel events 30d: ${bySource("plan_requested", "other")}; `
       + `trip_generated funnel events 30d: ${bySource("trip_generated", "other")}; `
       // Push AN2: the last day the collector counted anything, so "beacons broken" and "no visitors" look different.
       + `last counted event day (UTC; own checks are not counted): funnel ${lastEvent?.funnel ?? "unknown"}, spot cards ${lastEvent?.cards ?? "unknown"}; `
@@ -398,7 +400,7 @@ async function main() {
   const [users, sessions, funnel, subscriptions, links, ugc, rankings, subscribers, funnelDay, cardsDay, generateLog, arrivals, authLog, authLead, clicks] = await Promise.all([
     select(AUTH_DB, "SELECT id, email, createdAt FROM user", auth),
     select(AUTH_DB, "SELECT userId, updatedAt FROM session WHERE updatedAt >= strftime('%Y-%m-%dT%H:%M:%fZ','now','-31 days')", auth),
-    select(AUTH_DB, "SELECT day, step, source, count FROM funnel_events_daily WHERE step IN ('checkout_paid', 'checkout_start', 'planner_start', 'trip_generated')", auth),
+    select(AUTH_DB, "SELECT day, step, source, count FROM funnel_events_daily WHERE step IN ('checkout_paid', 'checkout_start', 'plan_requested', 'planner_start', 'trip_generated')", auth),
     select(APP_DB, `SELECT l.authUserId, s.tier, s.status, s.stripeSubscriptionId FROM legacy_subscriptions s
       LEFT JOIN identity_links l ON l.ownerId = s.ownerId`, auth),
     select(APP_DB, "SELECT authUserId, ownerId FROM identity_links", auth),
