@@ -151,6 +151,23 @@ export const TIER_CONFIGS: Record<SubscriptionTier, TierConfig> = {
     },
 };
 
+export function maxYearlySavingPercent(plans: readonly Pick<TierConfig, "price" | "yearlyPrice">[]): number {
+    let max = 0;
+    for (const { price, yearlyPrice } of plans) {
+        const monthlyTotalCents = Math.round(price * 100) * 12;
+        if (monthlyTotalCents <= 0) continue;
+        const savingCents = monthlyTotalCents - Math.round(yearlyPrice * 100);
+        max = Math.max(max, Math.floor(savingCents * 100 / monthlyTotalCents));
+    }
+    return max;
+}
+
+export function yearlyMonthlyEquivalent(yearlyPrice: number): string {
+    const annualCents = Math.round(yearlyPrice * 100);
+    const monthlyCents = Math.ceil(annualCents / 12);
+    return (monthlyCents / 100).toFixed(2);
+}
+
 /**
  * Get tier configuration
  */
