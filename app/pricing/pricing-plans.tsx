@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { usePricingSubscription } from "@/hooks/use-pricing-subscription";
 import { useToast } from "@/hooks/use-toast";
-import { PRO_TRIAL_DAYS, TIER_CONFIGS } from "@/lib/subscription";
+import { maxYearlySavingPercent, PRO_TRIAL_DAYS, TIER_CONFIGS, yearlyMonthlyEquivalent } from "@/lib/subscription";
 import { cn } from "@/lib/utils";
 import { checkoutSignUpUrl, formatResetDay, parseCheckoutIntent, parsePlannerLimit, withoutCheckoutParam, type PlannerLimitNotice } from "@/lib/pricing-checkout";
 import { currentPagePath, signInGateHref } from "@/lib/auth/gate-href";
@@ -16,7 +16,9 @@ import { currentPagePath, signInGateHref } from "@/lib/auth/gate-href";
 // Push CH2: the interactive part of /pricing (notices, billing toggle, plan cards with the Stripe buttons).
 // The page around it is server HTML, and this island loads no React Query and no Radix switch.
 
-type PaidTier = "pro" | "premium";
+const paidTiers = ["pro", "premium"] as const;
+type PaidTier = (typeof paidTiers)[number];
+const yearlySaving = maxYearlySavingPercent(paidTiers.map((tier) => TIER_CONFIGS[tier]));
 
 const PLAN_COPY = {
     pro: {
@@ -220,14 +222,16 @@ export function PricingPlans({ hero, initialPlannerLimit = null }: { hero: React
                                     Yearly
                                 </button>
                             </div>
-                            <p className="mt-3 text-sm text-foreground">Yearly plans save up to 30%.</p>
+                            {yearlySaving > 0 && (
+                                <p className="mt-3 text-sm text-foreground">Yearly plans save up to {yearlySaving}%.</p>
+                            )}
                         </div>
                     </section>
 
                     <section className="grid gap-4 md:grid-cols-2">
-                        {(["pro", "premium"] as PaidTier[]).map((tier) => {
+                        {paidTiers.map((tier) => {
                             const { price, yearlyPrice } = TIER_CONFIGS[tier];
-                            const monthlyEquivalent = (Math.ceil(yearlyPrice * 100 / 12) / 100).toFixed(2);
+                            const monthlyEquivalent = yearlyMonthlyEquivalent(yearlyPrice);
                             const isCurrent = currentTier === tier;
                             const plan = PLAN_COPY[tier];
 

@@ -13,13 +13,71 @@ vi.mock("@/hooks/use-pricing-subscription", () => ({ usePricingSubscription: () 
 vi.mock("@/components/layout/app-background", () => ({ AppBackground: ({ children }: { children: React.ReactNode }) => children }));
 vi.mock("@/providers/subscription-provider", () => ({ useSubscriptionContext: () => ({ openCheckout: mocks.openCheckout, tier: mocks.tier }) }));
 import PricingPage from "@/app/pricing/page";
+import PricingLayout from "@/app/pricing/layout";
 import PlannerUpgradePage from "@/app/pricing/upgrade/page";
 import { LimitExceededModal } from "@/components/subscription/limit-exceeded-modal";
 import { checkoutSignUpUrl, parseCheckoutIntent, parsePlannerLimit, withoutCheckoutParam } from "@/lib/pricing-checkout";
+import { maxYearlySavingPercent, TIER_CONFIGS, yearlyMonthlyEquivalent } from "@/lib/subscription";
 
 const setUrl = (path: string) => window.history.replaceState(null, "", path);
 beforeEach(() => { mocks.signedIn = false; mocks.authLoaded = true; mocks.subLoading = false; mocks.tier = "free"; mocks.openCheckout.mockResolvedValue(undefined); setUrl("/pricing"); });
 afterEach(() => { cleanup(); vi.resetAllMocks(); vi.unstubAllGlobals(); });
+
+describe("/pricing price claims", () => {
+  it("floors each discount and publishes the largest supported percentage", () => {
+    const paidPrices = fc.integer({ min: 1, max: 100_000 }).chain((monthlyCents) =>
+      fc.record({ monthlyCents: fc.constant(monthlyCents), annualCents: fc.integer({ min: 1, max: monthlyCents * 13 }) })
+    );
+    fc.assert(fc.property(fc.array(paidPrices, { minLength: 2, maxLength: 4 }), (tiers) => {
+      const prices = tiers.map(({ monthlyCents, annualCents }) => ({
+        price: monthlyCents / 100,
+        yearlyPrice: annualCents / 100,
+      }));
+      const claim = maxYearlySavingPercent([{ price: 0, yearlyPrice: 0 }, ...prices]);
+      const tierClaims = tiers.map(({ monthlyCents, annualCents }, index) => {
+        const annualAtMonthlyRate = monthlyCents * 12;
+        const savings = (annualAtMonthlyRate - annualCents) * 100;
+        const tierClaim = maxYearlySavingPercent([prices[index]]);
+        if (tierClaim > 0) expect(tierClaim * annualAtMonthlyRate).toBeLessThanOrEqual(savings);
+        expect((tierClaim + 1) * annualAtMonthlyRate).toBeGreaterThan(savings);
+        return tierClaim;
+      });
+      expect(claim).toBe(Math.max(...tierClaims));
+    }));
+  });
+
+  it("rounds the monthly equivalent up by less than one cent per month", () => {
+    fc.assert(fc.property(fc.integer({ min: 0, max: 1_200_000 }), (annualCents) => {
+      const shown = yearlyMonthlyEquivalent(annualCents / 100);
+      expect(shown).toMatch(/^\d+\.\d{2}$/);
+      const shownAnnualCents = Math.round(Number(shown) * 100) * 12;
+      expect(shownAnnualCents).toBeGreaterThanOrEqual(annualCents);
+      expect(shownAnnualCents - annualCents).toBeLessThan(12);
+    }));
+  });
+
+  it("shows the configured saving and emits both configured prices per paid tier in JSON-LD", () => {
+    const paidPlans = [TIER_CONFIGS.pro, TIER_CONFIGS.premium];
+    const claim = Math.floor(Math.max(...paidPlans.map(({ price, yearlyPrice }) =>
+      100 * (price * 12 - yearlyPrice) / (price * 12)
+    )));
+    const { container } = render(<PricingLayout><PricingPage /></PricingLayout>);
+    if (claim > 0) expect(screen.getByText(`Yearly plans save up to ${claim}%.`)).toBeTruthy();
+    else expect(screen.queryByText(/Yearly plans save/)).toBeNull();
+
+    const service = Array.from(container.querySelectorAll('script[type="application/ld+json"]'))
+      .map((script) => JSON.parse(script.textContent!))
+      .find((data) => data["@type"] === "Service");
+    expect(service?.offers).toEqual(paidPlans.flatMap(({ name, price, yearlyPrice }) => [
+      { name: `${name} monthly`, price, unitText: "MONTH" },
+      { name: `${name} yearly`, price: yearlyPrice, unitText: "ANN" },
+    ].map(({ name, price, unitText }) => expect.objectContaining({
+      name,
+      price,
+      priceSpecification: expect.objectContaining({ price, unitText }),
+    }))));
+  });
+});
 
 describe("pricing checkout intent", () => {
   it("round-trips every tier and cycle through the sign-up redirect", () => {
