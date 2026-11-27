@@ -66,6 +66,8 @@ describe("/pricing subscribe flow", () => {
       const card = screen.getByRole("heading", { name: tier, exact: true }).closest("article");
       expect(card?.textContent).toContain(`${monthly}/month`);
       expect(card?.textContent).toContain(`Billed ${annual} per year`);
+      // Pro carries the 7-day trial; Premium has none.
+      expect(card?.textContent?.includes("7 days free")).toBe(tier === "Pro");
     }
     fireEvent.click(screen.getByRole("button", { name: "Monthly" }));
     expect(screen.getByText("$9")).toBeTruthy();
@@ -78,11 +80,11 @@ describe("/pricing subscribe flow", () => {
     mocks.authLoaded = loaded; mocks.subLoading = !loaded;
     render(<PricingPage />);
     for (const [tier, name] of [["pro", "Pro"], ["premium", "Premium"]] as const) {
-      const link = screen.getByRole("link", { name: `Subscribe to ${name}` });
+      const link = screen.getByRole("link", { name: tier === "pro" ? "Try Pro 7 days free" : `Subscribe to ${name}` });
       expect(link.getAttribute("href")).toBe(checkoutSignUpUrl(tier, "monthly"));
       expect(link.hasAttribute("disabled")).toBe(false);
     }
-    expect(screen.queryByRole("button", { name: /Subscribe to/ })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Subscribe to|days free/ })).toBeNull();
     fireEvent.click(screen.getByRole("switch", { name: "Toggle yearly billing" }));
     expect(screen.getByRole("link", { name: "Subscribe to Premium" }).getAttribute("href")).toBe(checkoutSignUpUrl("premium", "yearly"));
     expect(mocks.openCheckout).not.toHaveBeenCalled();
@@ -92,8 +94,8 @@ describe("/pricing subscribe flow", () => {
   it("signed in: the plan is a button that opens Stripe checkout", async () => {
     mocks.signedIn = true;
     render(<PricingPage />);
-    expect(screen.queryByRole("link", { name: /Subscribe to/ })).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Subscribe to Pro" }));
+    expect(screen.queryByRole("link", { name: /Subscribe to|days free/ })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Try Pro 7 days free" }));
     await waitFor(() => expect(mocks.openCheckout).toHaveBeenCalledWith("pro", "monthly"));
     expect(mocks.track).not.toHaveBeenCalled(); // the hook counts checkout_start (source pricing by default), never the page too
   });
@@ -101,7 +103,7 @@ describe("/pricing subscribe flow", () => {
     mocks.signedIn = true;
     setUrl("/pricing?limit=itineraries&resets=2026-12-01#plans");
     render(<PricingPage />);
-    fireEvent.click(await screen.findByRole("button", { name: "Subscribe to Pro" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Try Pro 7 days free" }));
     await waitFor(() => expect(mocks.openCheckout).toHaveBeenCalledWith("pro", "monthly", "pricing", "planner"));
   });
   it("starts Stripe once after sign-up and removes the parameter", async () => {
