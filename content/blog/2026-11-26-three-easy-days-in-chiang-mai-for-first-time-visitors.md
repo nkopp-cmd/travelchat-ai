@@ -42,4 +42,4 @@ Finish at Yorice Cafe at 2:30 PM. Allow 45 minutes to choose something from the 
 
 ## Plan your own trip
 
-Start from this route and change any stop in the [Chiang Mai trip planner](/itineraries/new?city=Chiang%20Mai).
+Start from this route and change any stop in the [Localley trip planner](/itineraries/new).
