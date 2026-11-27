@@ -1,7 +1,7 @@
 // node --test scripts/trip-story/write-lib.test.mjs — trip-story post writer (pure, fake generator).
 import assert from "node:assert/strict";
 import test from "node:test";
-import { checkDraft, dayAlt, draftTripPost, postFile, slugify, tripFacts } from "./write-lib.mjs";
+import { checkDraft, dayAlt, draftTripPost, plannerLine, postFile, slugify, tripFacts } from "./write-lib.mjs";
 
 const sha = (c) => c.repeat(64);
 const stop = (name, extra = {}) => ({ spotId: name, name, category: "Food", time: "9:00 AM", duration: null, cost: "₩15,000", plan: null,
@@ -59,6 +59,12 @@ test("post file: front matter illustration, one painted image per day, own plann
   assert.match(src, /^## Day 2: Up the hill at dusk$/m);
   assert.match(src, /\]\(\/itineraries\/new\?city=Seoul\)/);
   assert.doesNotMatch(src.split("\n---\n")[1], /\bphoto/i);
+});
+
+test("planner link: core cities get the prefilled planner, other cities the plain one (Push DD2)", () => {
+  assert.match(plannerLine("Hong Kong"), /\(\/itineraries\/new\?city=Hong%20Kong\)/);
+  assert.match(plannerLine("Chiang Mai"), /\]\(\/itineraries\/new\)\.$/);
+  assert.doesNotMatch(plannerLine("Chiang Mai"), /city=/);
 });
 
 test("draftTripPost retries once with the problems, then gives up", () => {

@@ -103,6 +103,15 @@ export function checkDraft(draft, trip) {
   return problems;
 }
 
+// Static links have no live spot count, so only the eight core cities get a prefilled planner (Push DD2,
+// __tests__/lib/spot-plan-link.test.ts). Any other city links the plain planner.
+export const CORE_PLANNER_CITIES = new Set(["Seoul", "Tokyo", "Bangkok", "Singapore", "Osaka", "Kyoto", "Taipei", "Hong Kong"]);
+export function plannerLine(city) {
+  return CORE_PLANNER_CITIES.has(city)
+    ? `Start from this route and change any stop in the [${city} trip planner](/itineraries/new?city=${encodeURIComponent(city)}).`
+    : `Start from this route and change any stop in the [Localley trip planner](/itineraries/new).`;
+}
+
 /** Front matter + Markdown body. Images, headings and the planner link come from code, not the model. */
 export function postFile({ trip, date, draft }) {
   for (const sha of [trip.cover, ...trip.days.map((d) => d.image)]) if (!SHA.test(sha)) throw new Error(`bad image sha ${sha}`);
@@ -114,7 +123,7 @@ export function postFile({ trip, date, draft }) {
   trip.days.forEach((day, i) => {
     parts.push(`## Day ${day.day}: ${clean(draft.days[i].heading).replace(/\s+/g, " ")}`, imageLine(dayAlt(trip, day), day.image), clean(draft.days[i].text));
   });
-  parts.push("## Plan your own trip", `Start from this route and change any stop in the [${trip.city} trip planner](/itineraries/new?city=${encodeURIComponent(trip.city)}).`);
+  parts.push("## Plan your own trip", plannerLine(trip.city));
   return `---\n${meta.join("\n")}\n---\n${parts.join("\n\n")}\n`;
 }
 
