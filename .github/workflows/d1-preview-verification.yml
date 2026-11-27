@@ -119,6 +119,8 @@ on:
       - 'app/sitemaps/**'
       - 'lib/seo/**'
       - '__tests__/lib/seo-sitemap.test.ts'
+      - '__tests__/lib/vs-wanderlog.test.ts'
+      - 'lib/vs/**'
       - '__tests__/lib/seo-spot-indexable.test.ts'
       - '__tests__/lib/seo-home-links.test.ts'
       - '__tests__/lib/seo-pricing-line.test.ts'
