@@ -30,6 +30,7 @@ function stubBrowser() {
   }) });
   vi.stubGlobal("fetch", vi.fn(async (url: string) => {
     if (!String(url).includes("/api/itineraries/generate")) return new Response("{}", { status: 404 });
+    order.push("generate");
     return Response.json({ success: true, isAnonymous: true, preview: { id: "6f1c2a3b-4d5e-4f60-8a7b-9c0d1e2f3a4b" },
       itinerary: { title: "3 days in Tokyo", city: "Tokyo", days: 3, dailyPlans: [1, 2, 3].map((day) => ({ day, theme: "Back streets",
         activities: [{ name: "A sourced stop", description: "Walk here", time: "10:00", address: "Tokyo" }] })) } });
@@ -53,6 +54,22 @@ describe("trip_generated beacon order (AA3)", () => {
     expect(bodies[generated]).toEqual({ url: SPOT_EVENTS_URL, funnel: [{ step: "trip_generated", source: "direct" }] });
     expect(bodies.filter((body) => body.funnel?.[0]?.step === "trip_generated")).toHaveLength(1);
     expect(order.indexOf(`beacon:${generated}`)).toBeLessThan(order.indexOf(`push:${GENERATED_PREVIEW_PATH}`));
+  });
+
+  // Push BH3: the Generate click is its own funnel step, sent once and before the generate request.
+  it("sends plan_requested once, before the generate request", async () => {
+    render(<ItineraryWizard initialCities={cities} />);
+    fireEvent.click(screen.getByRole("button", { name: /Tokyo/ }));
+    fireEvent.click(screen.getByRole("button", { name: getQuickStartLabel(3) }));
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+    await waitFor(() => expect(nav.push).toHaveBeenCalledWith(GENERATED_PREVIEW_PATH));
+
+    const bodies = await Promise.all(beacons.map(async (beacon) => ({ url: beacon.url, ...JSON.parse(await beacon.body) })));
+    const requested = bodies.findIndex((body) => body.funnel?.[0]?.step === "plan_requested");
+    expect(requested).toBeGreaterThanOrEqual(0);
+    expect(bodies[requested]).toEqual({ url: SPOT_EVENTS_URL, funnel: [{ step: "plan_requested", source: "direct" }] });
+    expect(bodies.filter((body) => body.funnel?.[0]?.step === "plan_requested")).toHaveLength(1);
+    expect(order.indexOf(`beacon:${requested}`)).toBeLessThan(order.indexOf("generate"));
   });
 
   it("tags trip_generated with the spots source when the planner was opened from a spot (?spot=)", async () => {

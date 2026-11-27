@@ -429,6 +429,8 @@ export function ItineraryWizard({ initialData, initialStep, initialCities = null
   const handleGenerate = async (data: WizardData) => {
     // Preserve inputs before any request or authentication redirect. This grants no paid access.
     savePlannerDraft(localStorage, data);
+    // Push BH3: count the Generate click before the request, so the funnel shows where planner visitors stop.
+    trackFunnelStep("plan_requested", funnelSource(document.referrer, location.origin, location.search, clientNavLanding()));
     const isMultiCity = data.tripMode === "multi" && data.citySlugs.length >= 2;
     const response = await fetch("/api/itineraries/generate", {
       method: "POST",

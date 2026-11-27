@@ -96,6 +96,37 @@ describe("planner funnel", () => {
     expect(await recordFunnelSteps([{ step: "trip_generated", source: "direct", count: 1 }], store, day)).toBe("limited");
   });
 
+  // Push BH3: the Generate click step. Migration 0007 rebuilds the table with the widened CHECK and keeps the old
+  // rows (and the old table as funnel_events_daily_old for rollback).
+  it("accepts and stores plan_requested after migration 0007, with old rows kept", async () => {
+    const { parseFunnelSteps, recordFunnelSteps } = await import("@/lib/spot-event-store");
+    expect(parseFunnelSteps({ funnel: [{ step: "plan_requested", source: "home" }] }))
+      .toEqual([{ step: "plan_requested", source: "home", count: 1 }]);
+    const db = createAuthTestDatabase();
+    const store = db as unknown as SpotEventDatabase;
+    expect(await recordFunnelSteps([{ step: "planner_start", source: "home", count: 1 }, { step: "plan_requested", source: "home", count: 1 }], store, day)).toBe("stored");
+    expect(db.sqlite.prepare("SELECT step, source, count FROM funnel_events_daily ORDER BY step").all()).toEqual([
+      { step: "plan_requested", source: "home", count: 1 }, { step: "planner_start", source: "home", count: 1 },
+    ]);
+    expect(db.sqlite.prepare("SELECT COUNT(*) AS n FROM funnel_events_daily_old").get()).toEqual({ n: 0 });
+    expect(() => db.sqlite.prepare("INSERT INTO funnel_events_daily VALUES ('2026-10-23', 'made_up', 'home', 1)").run()).toThrow(/CHECK/);
+  });
+
+  it("migration 0007 copies every existing funnel row into the rebuilt table", async () => {
+    const { readFileSync, readdirSync } = await import("node:fs");
+    const path = await import("node:path");
+    const { DatabaseSync } = await import("node:sqlite");
+    const dir = path.resolve(__dirname, "../../migrations/auth");
+    const files = readdirSync(dir).filter((f) => f.endsWith(".sql")).sort();
+    const sqlite = new DatabaseSync(":memory:");
+    for (const name of files.filter((f) => f < "0007")) sqlite.exec(readFileSync(path.join(dir, name), "utf8"));
+    sqlite.exec("INSERT INTO funnel_events_daily VALUES ('2026-11-20', 'planner_start', 'home', 7), ('2026-11-21', 'checkout_paid', 'stripe', 1)");
+    sqlite.exec(readFileSync(path.join(dir, "0007_funnel_plan_requested.sql"), "utf8"));
+    const rows = "SELECT day, step, source, count FROM %s ORDER BY day";
+    expect(sqlite.prepare(rows.replace("%s", "funnel_events_daily")).all()).toEqual(sqlite.prepare(rows.replace("%s", "funnel_events_daily_old")).all());
+    expect(sqlite.prepare("SELECT COUNT(*) AS n FROM funnel_events_daily").get()).toEqual({ n: 2 });
+  });
+
   it("route accepts a funnel beacon and refuses a forged paid step", async () => {
     const { POST } = await import("@/app/api/events/spots/route");
     const send = (body: unknown) => POST(new NextRequest("https://www.localley.io/api/events/spots", {
