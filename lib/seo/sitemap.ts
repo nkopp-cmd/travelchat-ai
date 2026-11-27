@@ -35,7 +35,7 @@ export function pageEntries(spotRows: readonly SitemapSpotRow[] = [], trending: 
   });
   return [
     { loc: SITE }, { loc: `${SITE}/spots`, lastmod: newest(spotRows) }, ...cities, { loc: `${SITE}/trending` }, ...trendingEntries(trending),
-    { loc: `${SITE}/templates` }, { loc: `${SITE}/pricing` },
+    { loc: `${SITE}/templates` }, { loc: `${SITE}/pricing` }, { loc: `${SITE}/vs/wanderlog` },
   ];
 }
 

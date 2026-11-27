@@ -263,7 +263,7 @@ export const APP_TOP_LEVEL_NAMES: ReadonlySet<string> = new Set([
   "favicon.ico", "forgot-password", "globals.css", "guide", "help", "icon.png", "itineraries", "layout.tsx",
   "leaderboard", "media", "newsletter", "not-found.tsx", "og", "page.tsx", "pricing", "privacy", "profile",
   "reset-password", "settings", "shared", "sign-in", "sign-up", "sitemap.xml", "sitemaps", "spots", "templates",
-  "terms", "trending", "users", "verified",
+  "terms", "trending", "users", "verified", "vs",
 ]);
 const NOT_FOUND_TTL_SECONDS = 86400;
 const ORIGIN_STATUS = "x-localley-origin-status";

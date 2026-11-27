@@ -128,6 +128,7 @@ VITEST_FILES=(
   __tests__/lib/blog-trip-story.test.tsx
   __tests__/app/site-url-fallback.test.ts
   __tests__/lib/seo-sitemap.test.ts
+  __tests__/lib/vs-wanderlog.test.ts
   __tests__/lib/seo-spot-indexable.test.ts
   __tests__/lib/seo-home-links.test.ts
   __tests__/lib/seo-pricing-line.test.ts
@@ -480,6 +481,8 @@ ESLINT_FILES=(
   scripts/weekly-post-publish.mjs
   scripts/indexnow-changed.mjs
   lib/seo/sitemap.ts
+  lib/vs/wanderlog.ts
+  app/vs/wanderlog/page.tsx
   lib/seo/sitemap-spots.ts
   lib/seo/spot-indexable.ts
   lib/seo/home-links.ts
@@ -501,6 +504,7 @@ ESLINT_FILES=(
   app/sitemap.xml/route.ts
   app/sitemaps/[file]/route.ts
   __tests__/lib/seo-sitemap.test.ts
+  __tests__/lib/vs-wanderlog.test.ts
   __tests__/lib/seo-spot-indexable.test.ts
   __tests__/lib/seo-home-links.test.ts
   __tests__/lib/seo-pricing-line.test.ts

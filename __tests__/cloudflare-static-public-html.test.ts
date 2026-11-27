@@ -32,7 +32,7 @@ describe("static public HTML assets", () => {
   it("covers only the fully static public pages", () => {
     expect(Object.keys(STATIC_PUBLIC_PAGES)).toEqual(["/", "/pricing", "/help", ...HELP_COUNTRY_SLUGS.map((s: string) => `/help/${s}`),
       ...HELP_COUNTRY_SLUGS.map((s: string) => `/help/${s}/pay`), ...HELP_COUNTRY_SLUGS.map((s: string) => `/help/${s}/open`), ...HELP_COUNTRY_SLUGS.map((s: string) => `/help/${s}/menu`),
-      "/blog", ...BLOG_POSTS.map((p) => `/blog/${p.slug}`)]);
+      "/blog", ...BLOG_POSTS.map((p) => `/blog/${p.slug}`), "/vs/wanderlog"]);
     expect(STATIC_PUBLIC_PAGES["/blog/paying-in-seoul"]).toBe("blog/paying-in-seoul.html");
     expect(STATIC_PUBLIC_PAGES["/help/korea/open"]).toBe("help/korea/open.html");
     expect(STATIC_PUBLIC_PAGES["/help/korea/menu"]).toBe("help/korea/menu.html");
@@ -41,7 +41,7 @@ describe("static public HTML assets", () => {
   });
 
   it("push CI1: every journal post gets critical CSS; the journal index and other pages keep their bytes", () => {
-    expect([...CRITICAL_CSS_PAGES]).toEqual(["/", "/pricing", ...BLOG_POSTS.map((p) => `/blog/${p.slug}`)]);
+    expect([...CRITICAL_CSS_PAGES]).toEqual(["/", "/pricing", ...BLOG_POSTS.map((p) => `/blog/${p.slug}`), "/vs/wanderlog"]);
   });
 
   it("lists every help country page", () => {
@@ -51,7 +51,7 @@ describe("static public HTML assets", () => {
   it("copies the exact prerendered bytes, scripts included", async () => {
     const all = Object.fromEntries(Object.keys(STATIC_PUBLIC_PAGES).map((r) => [r, route(false)]));
     const dir = await buildTree(all);
-    expect(await packageStaticPublicHtml(dir)).toEqual(Object.entries(STATIC_PUBLIC_PAGES).map(([r, f]) => `${r} -> ${f}${r === "/" ? " (critical CSS, JS after hero)" : r.startsWith("/blog/") || r === "/pricing" ? " (critical CSS)" : ""}`));
+    expect(await packageStaticPublicHtml(dir)).toEqual(Object.entries(STATIC_PUBLIC_PAGES).map(([r, f]) => `${r} -> ${f}${r === "/" ? " (critical CSS, JS after hero)" : r.startsWith("/blog/") || r === "/pricing" || r === "/vs/wanderlog" ? " (critical CSS)" : ""}`));
     for (const file of Object.values(STATIC_PUBLIC_PAGES) as string[]) {
       expect(await readFile(path.join(dir, ".open-next", "assets", file), "utf8")).toBe(page);
     }

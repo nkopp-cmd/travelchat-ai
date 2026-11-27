@@ -37,6 +37,8 @@ export const STATIC_PUBLIC_PAGES = {
   // Journal (app/blog): force-static, one page per content/blog post. The RSS route stays on the Worker.
   "/blog": "blog.html",
   ...Object.fromEntries(blogSlugs().map((slug) => [`/blog/${slug}`, `blog/${slug}.html`])),
+  // Push DR3: planner comparison (app/vs/wanderlog), force-static from lib/vs/wanderlog.ts.
+  "/vs/wanderlog": "vs/wanderlog.html",
 };
 
 /**
@@ -47,8 +49,9 @@ export const STATIC_PUBLIC_PAGES = {
  * Push DJ2: "/pricing" (the checkout page) too; its H1 text LCP equalled FCP at 1205 ms in PSI mobile (3 runs, budget
  * 1200 ms), held by the same three blocking sheets. No hero, so its scripts stay unchanged.
  * Other pages keep the exact bytes.
+ * Push DR3: "/vs/wanderlog" too (text LCP, no hero, same blocking sheets).
  */
-export const CRITICAL_CSS_PAGES = new Set(["/", "/pricing", ...blogSlugs().map((slug) => `/blog/${slug}`)]);
+export const CRITICAL_CSS_PAGES = new Set(["/", "/pricing", ...blogSlugs().map((slug) => `/blog/${slug}`), "/vs/wanderlog"]);
 
 const STYLESHEET_LINK = /<link\b[^>]*\brel="stylesheet"[^>]*>/g;
 const hrefOf = (tag) => /\bhref="([^"]+)"/.exec(tag)?.[1] ?? null;

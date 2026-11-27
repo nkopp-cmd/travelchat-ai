@@ -282,7 +282,7 @@ export default async function SettingsPage({ searchParams }: {
                         </Label>
                         {subscription.tier === "free" ? (
                             <div className="rounded-xl bg-primary/10 p-4 text-sm leading-6 text-foreground">
-                                Localley is paid-only. Choose Pro for fast AI planning and exact addresses, or Premium for richer media, exports, and collaboration.
+                                Choose Pro for fast AI planning and exact addresses, or Premium for richer media, maps and exports.
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">

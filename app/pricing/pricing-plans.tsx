@@ -38,7 +38,7 @@ const PLAN_COPY = {
     premium: {
         title: "Premium",
         eyebrow: "For power planning",
-        description: "Everything in Pro, plus shared trips for your travel group, map pins with directions and unlimited chat.",
+        description: "Everything in Pro, plus map pins with directions, richer route maps and unlimited chat.",
         badge: "Full access",
         accent: "indigo",
         icon: Crown,
@@ -47,7 +47,6 @@ const PLAN_COPY = {
             "Unlimited chat and saved spots",
             "Richer maps and route context",
             "Map pins and directions",
-            "Collaborative trip planning",
             "Priority support",
         ],
     },

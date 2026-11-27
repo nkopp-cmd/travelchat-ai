@@ -27,6 +27,10 @@ export function PricingPage({ plannerLimit }: { plannerLimit?: PlannerLimitNotic
             </Button>
             {/* Push BG3: the same free-account offer as /sign-up, built from TIER_CONFIGS.free.limits. */}
             <p className="mt-3 text-sm text-muted-foreground" data-testid="pricing-free-account">{FREE_ACCOUNT_SUBTITLE}</p>
+            {/* Push DR3: one contextual link for buyers who compare planners. */}
+            <p className="mt-2 text-sm text-muted-foreground">
+                Using Wanderlog now? <Link href="/vs/wanderlog" className="underline underline-offset-2 hover:text-foreground">See how Localley compares</Link>.
+            </p>
         </>
     );
 

@@ -133,7 +133,6 @@ function getTierBenefits(tier: SubscriptionTier): string[] {
             "HD quality images",
             "Map pins and directions",
             "Smart scheduling (AI-optimized order)",
-            "Collaborative trip planning",
             "Priority customer support",
             "Branded PDF exports",
             "Unlimited everything",
