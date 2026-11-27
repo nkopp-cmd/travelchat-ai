@@ -344,6 +344,8 @@ on:
       - '__tests__/components/itinerary-detail-design-tokens.test.ts'
       - 'app/api/affiliates/track/route.ts'
       - 'lib/affiliate-click.ts'
+      - 'lib/affiliates.ts'
+      - '__tests__/lib/affiliates.test.ts'
       - 'lib/app-data/preview-affiliate-clicks.ts'
       - '__tests__/api/affiliate-click-candidate-route.test.ts'
       - 'components/navigation/intent-link.tsx'
