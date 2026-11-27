@@ -7,9 +7,9 @@ interface Env {
 }
 
 const FRONT_PATHS = new Set(["/sign-up", "/itineraries/new"]);
-export const CACHE_FRONT_HEADER = "x-localley-cache-front";
+const CACHE_FRONT_HEADER = "x-localley-cache-front";
 
-export async function serveCacheFront(request: Request, env: Env, cache: Pick<Cache, "match">): Promise<Response> {
+async function serveCacheFront(request: Request, env: Env, cache: Pick<Cache, "match">): Promise<Response> {
   const url = new URL(request.url);
   if (url.hostname === CANONICAL_HOST && FRONT_PATHS.has(url.pathname) && env.ORIGIN_VERSION && !request.headers.has("authorization")) {
     // Availability stays with the app on a miss, stale entry, or Cache API error.

@@ -5,7 +5,7 @@ import { GENERATED_PREVIEW_PATH } from "@/lib/trips/generated-preview";
 import { PLANNER_RESUME_PATH } from "@/lib/trips/planner-draft";
 import { checkoutSignUpUrl } from "@/lib/pricing-checkout";
 import { authCopy } from "@/lib/auth/auth-copy";
-import { CACHE_FRONT_HEADER, serveCacheFront } from "@/cloudflare/opennext/cache-front";
+import cacheFront from "@/cloudflare/opennext/cache-front";
 
 function memoryCache() {
   const store = new Map<string, Response>();
@@ -704,6 +704,15 @@ describe("worker entry keeps the Next server bundle lazy", () => {
 describe("public cache front", () => {
   const originUrl = "https://www.localley.io";
 
+  async function serveCacheFront(request: Request, env: Parameters<typeof cacheFront.fetch>[1], cache: ReturnType<typeof memoryCache>) {
+    vi.stubGlobal("caches", { default: cache });
+    try {
+      return await cacheFront.fetch(request, env);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  }
+
   it.each([
     ["/sign-up?redirect_url=%2Fitineraries%2Fpreview", "/sign-up?redirect_url=%2Fitineraries%2Fpreview"],
     ["/itineraries/new", "/itineraries/new?city=seoul"],
@@ -712,7 +721,7 @@ describe("public cache front", () => {
     await serve(new Request(originUrl + seed), cache, async () => html());
     const fetch = vi.fn(async (request: Request) => new Response(request.url));
     const response = await serveCacheFront(new Request(originUrl + requested), { ORIGIN: { fetch }, ORIGIN_VERSION: "v1" }, cache);
-    expect(response.headers.get(CACHE_FRONT_HEADER)).toBe("HIT");
+    expect(response.headers.get("x-localley-cache-front")).toBe("HIT");
     expect(response.headers.get("cache-control")).toBe("s-maxage=31536000");
     expect(response.headers.has("x-localley-stored-at")).toBe(false);
     expect(await response.text()).toBe("<html>home</html>");
