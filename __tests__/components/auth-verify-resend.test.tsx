@@ -99,6 +99,25 @@ describe("sign-up check-inbox screen (Push AH1/AH2)", () => {
     expect((screen.getByLabelText("Email") as HTMLInputElement).value).toBe("new@preview.localley.test");
     expect((screen.getByLabelText("Password (8+ characters)") as HTMLInputElement).value).toBe("");
   });
+
+  it("lets the visitor retry a dropped verification request with the same email and return URL", async () => {
+    mocks.query = "redirect_url=%2Fpricing%3Fcheckout%3Dpro-monthly";
+    await signUp();
+    await passCooldown();
+    mocks.fetch.mockRejectedValueOnce(new TypeError("Failed to fetch"));
+    const resend = screen.getByRole<HTMLButtonElement>("button", { name: "Resend link" });
+    fireEvent.click(resend);
+
+    expect((await screen.findByRole("alert")).textContent).toMatch(/Check your connection and try again/);
+    expect(resend.disabled).toBe(false);
+    fireEvent.click(resend);
+
+    await screen.findByText("We sent a new link to new@preview.localley.test.");
+    const payload = { email: "new@preview.localley.test", callbackURL: "/verified?to=%2Fpricing%3Fcheckout%3Dpro-monthly" };
+    expect(calls("/send-verification-email")).toEqual([payload, payload]);
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(resend.disabled).toBe(true);
+  });
 });
 
 describe("sign-in with an unverified email (Push AH4)", () => {
@@ -166,6 +185,26 @@ describe("sign-up error paths (Push BC4)", () => {
     fireEvent.change(screen.getByLabelText("Password (8+ characters)"), { target: { value: "unit-password" } });
     fireEvent.click(screen.getByRole("button", { name: "Create account" }));
   }
+
+  it("lets the visitor retry a dropped sign-up request without losing their details", async () => {
+    mocks.query = "redirect_url=%2Fpricing%3Fcheckout%3Dpro-monthly";
+    mocks.fetch.mockRejectedValueOnce(new TypeError("Failed to fetch"));
+    render(<SignUpForm googleEnabled={false} />);
+    submit();
+
+    expect((await screen.findByRole("alert")).textContent).toMatch(/Check your connection and try again/);
+    const button = screen.getByRole<HTMLButtonElement>("button", { name: "Create account" });
+    expect(button.disabled).toBe(false);
+    expect(screen.getByLabelText<HTMLInputElement>("Email").value).toBe("taken@preview.localley.test");
+    fireEvent.click(button);
+
+    await screen.findByText(/Check your inbox/);
+    const attempts = calls("/sign-up/email");
+    expect(attempts).toHaveLength(2);
+    expect(attempts[0]).toMatchObject({ email: "taken@preview.localley.test", callbackURL: "/verified?to=%2Fpricing%3Fcheckout%3Dpro-monthly" });
+    expect(attempts[1]).toEqual(attempts[0]);
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
 
   for (const code of ["USER_ALREADY_EXISTS", "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL"]) {
     it(`${code}: says the account exists and the Sign in link keeps the checkout redirect`, async () => {

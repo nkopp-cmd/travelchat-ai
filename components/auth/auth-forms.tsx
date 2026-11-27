@@ -110,6 +110,7 @@ function signInErrorText(code: string | null): string | null {
 }
 
 const errorText = (message?: string | null) => message || "Something went wrong. Please try again.";
+const connectionError = "Check your connection and try again.";
 
 export const RESEND_COOLDOWN_SECONDS = 60;
 
@@ -132,11 +133,16 @@ export function VerifyEmailHelp({ email, callbackURL, onChangeEmail }: { email: 
 
     async function resend() {
         setBusy(true); setStatus(null);
-        const { error: failure } = await authClient.sendVerificationEmail({ email, callbackURL: verifiedCallbackURL(callbackURL) });
-        setBusy(false);
-        if (failure) { setStatus({ tone: "error", text: errorText(failure.message) }); return; }
-        setStatus({ tone: "success", text: `We sent a new link to ${email}.` });
-        setWait(RESEND_COOLDOWN_SECONDS);
+        try {
+            const { error: failure } = await authClient.sendVerificationEmail({ email, callbackURL: verifiedCallbackURL(callbackURL) });
+            if (failure) { setStatus({ tone: "error", text: errorText(failure.message) }); return; }
+            setStatus({ tone: "success", text: `We sent a new link to ${email}.` });
+            setWait(RESEND_COOLDOWN_SECONDS);
+        } catch {
+            setStatus({ tone: "error", text: connectionError });
+        } finally {
+            setBusy(false);
+        }
     }
 
     return (
@@ -242,22 +248,27 @@ export function SignUpForm({ googleEnabled }: { googleEnabled: boolean }) {
         event.preventDefault();
         setBusy(true); setError(null); setExists(false);
         const [firstName, ...rest] = name.trim().split(/\s+/);
-        const { error: failure } = await authClient.signUp.email({
-            name: name.trim() || email.split("@")[0],
-            email,
-            password,
-            firstName: firstName || undefined,
-            lastName: rest.join(" ") || undefined,
-            // Through the Worker route, so an expired link on a static page still reaches sign-in.
-            callbackURL: verifiedCallbackURL(redirectTo),
-        });
-        setBusy(false);
-        if (failure) {
-            if (failure.code === "USER_ALREADY_EXISTS" || failure.code === "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL") setExists(true);
-            else setError(errorText(failure.message));
-            return;
+        try {
+            const { error: failure } = await authClient.signUp.email({
+                name: name.trim() || email.split("@")[0],
+                email,
+                password,
+                firstName: firstName || undefined,
+                lastName: rest.join(" ") || undefined,
+                // Through the Worker route, so an expired link on a static page still reaches sign-in.
+                callbackURL: verifiedCallbackURL(redirectTo),
+            });
+            if (failure) {
+                if (failure.code === "USER_ALREADY_EXISTS" || failure.code === "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL") setExists(true);
+                else setError(errorText(failure.message));
+                return;
+            }
+            setDone(true);
+        } catch {
+            setError(connectionError);
+        } finally {
+            setBusy(false);
         }
-        setDone(true);
     }
 
     if (done) {
