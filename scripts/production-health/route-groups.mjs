@@ -167,7 +167,8 @@ const routes = [
   "/trending/[slug]",
   "/terms",
   "/users/[username]",
-  "/verified"
+  "/verified",
+  "/vs/wanderlog"
 ];
 const patterns = routes.map(template => {
   const parts = template.split('/').slice(1);
