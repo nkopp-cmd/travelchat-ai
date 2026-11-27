@@ -174,6 +174,7 @@ VITEST_FILES=(
   __tests__/components/trip-booking.test.tsx
   __tests__/lib/booking-match.test.ts
   __tests__/lib/booking-gyg.test.ts
+  __tests__/components/day-route-section.test.tsx
   __tests__/lib/booking-checklist.test.ts
   __tests__/components/bookable-card.test.tsx
   __tests__/lib/viator-no-mock.test.ts
@@ -437,6 +438,7 @@ ESLINT_FILES=(
   lib/booking/checklist.ts
   lib/booking/gyg.ts
   __tests__/lib/booking-gyg.test.ts
+  __tests__/components/day-route-section.test.tsx
   __tests__/lib/booking-checklist.test.ts
   __tests__/lib/booking-match.test.ts
   lib/viator.ts
@@ -444,6 +446,7 @@ ESLINT_FILES=(
   __tests__/lib/viator-partner-search.test.ts
   components/booking/bookable-card.tsx
   components/booking/trip-booking.tsx
+  components/booking/gyg-day-link.tsx
   components/itinerary/day-route-section.tsx
   __tests__/components/trip-booking.test.tsx
   components/spots/spot-activities.tsx

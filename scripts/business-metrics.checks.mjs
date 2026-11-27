@@ -298,8 +298,9 @@ test("booking clicks count by partner + placement; own, old, non-click and legac
     { partner: "viator", tracking_id: "viator-1-spot", event_type: "click", clerk_user_id: "house", created_at: "2026-10-31T10:00:00.000Z" },
     { partner: "viator", tracking_id: "viator-1-spot", event_type: "view", clerk_user_id: null, created_at: "2026-10-31T10:00:00.000Z" },
     { partner: "viator", tracking_id: "viator-1-spot", event_type: "click", clerk_user_id: null, created_at: "2026-09-01T10:00:00.000Z" },
+    { partner: "getyourguide", tracking_id: "getyourguide-d2-itinerary-day", event_type: "click", clerk_user_id: null, created_at: "2026-10-30T10:00:00.000Z" },
   ];
-  assert.equal(bookingClicksNote(rows, new Set(["house"]), now), "4 (viator itinerary 1, viator legacy 1, viator spot 2)");
+  assert.equal(bookingClicksNote(rows, new Set(["house"]), now), "5 (getyourguide itinerary-day 1, viator itinerary 1, viator legacy 1, viator spot 2)");
   assert.equal(bookingClicksNote([], new Set(), now), "0");
   assert.equal(bookingClicksNote(null, new Set(), now), "unknown: affiliate_clicks unreadable");
 });

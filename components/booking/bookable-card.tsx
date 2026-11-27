@@ -22,7 +22,7 @@ export interface BookableItem {
     partner: "viator" | "getyourguide";
 }
 
-export type BookablePlacement = "itinerary" | "spot" | "inline" | "checklist";
+export type BookablePlacement = "itinerary" | "spot" | "inline" | "checklist" | "itinerary-day";
 
 export function formatFromPrice(amount: number | undefined, currency = "USD"): string | null {
     if (!amount || !Number.isFinite(amount) || amount <= 0) return null;

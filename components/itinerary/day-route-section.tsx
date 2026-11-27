@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Fragment } from "react";
 import { ItineraryActivityCard } from "@/components/activities/itinerary-activity-card";
 import { StopBookingCard } from "@/components/booking/trip-booking";
+import { GygDayLink } from "@/components/booking/gyg-day-link";
+import { gygDayLink, gygPartnerId } from "@/lib/booking/gyg";
 import {
   buildDayRouteUrl,
   getDayRouteAddressSummary,
@@ -119,6 +121,8 @@ export function DayRouteSection({
   const routeConfidence = getRouteConfidenceCopy(routeAddressSummary);
   const stopPreview = getStopPreview(activities);
   const hiddenStopCount = Math.max(activities.length - stopPreview.length, 0);
+  const dayNumber = dayPlan.day || dayIndex + 1;
+  const gygLink = gygDayLink(activities, city, gygPartnerId());
 
   return (
     <section
@@ -246,6 +250,7 @@ export function DayRouteSection({
                 </Fragment>
               ))}
             </div>
+            {gygLink && <GygDayLink day={dayNumber} spotName={gygLink.spotName} url={gygLink.url} />}
           </div>
         ) : (
           <div className="rounded-xl bg-raised p-4 text-sm text-foreground">

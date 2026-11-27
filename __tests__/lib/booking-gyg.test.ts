@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import fc from "fast-check";
-import { gygPartnerId, gygSpotSearchUrl, isGygSpotCategory } from "@/lib/booking/gyg";
+import { gygDayLink, gygPartnerId, gygSpotSearchUrl, isGygSpotCategory } from "@/lib/booking/gyg";
 
 describe("gygPartnerId (booking plan B7)", () => {
   it("returns the real id and never the placeholder", () => {
@@ -39,4 +39,21 @@ describe("gygSpotSearchUrl (Push DR1)", () => {
       return u.hostname === "www.getyourguide.com" && u.searchParams.get("partner_id") === "AB12CDE";
     }));
   });
+
+    it("day link: picks the top-scored bookable stop and skips free or non-landmark stops", () => {
+        const day = [
+            { name: "Cafe Onion", category: "Cafe", localleyScore: 9 },
+            { name: "Gyeongbokgung Palace", category: "Palace", localleyScore: 4 },
+            { name: "National Museum of Korea", type: "Museum", localleyScore: 5 },
+            { name: "Seoul Forest", category: "Park", localleyScore: 8 },
+        ];
+        const link = gygDayLink(day, "Seoul", "AB12CDE")!;
+        expect(link.spotName).toBe("National Museum of Korea");
+        const url = new URL(link.url);
+        expect(url.searchParams.get("q")).toBe("National Museum of Korea Seoul");
+        expect(url.searchParams.get("cmp")).toBe("localley-day");
+        expect(gygDayLink(day.slice(0, 1), "Seoul", "AB12CDE")).toBeNull();
+        expect(gygDayLink(day, "Seoul", null)).toBeNull();
+        expect(gygDayLink([{ name: "A Temple", category: "Temple" }, { name: "B Tower", category: "Tower" }], "Tokyo", "AB12CDE")!.spotName).toBe("A Temple");
+    });
 });

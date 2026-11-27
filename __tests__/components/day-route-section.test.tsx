@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { DayRouteSection } from "@/components/itinerary/day-route-section";
 
 vi.mock("@/components/activities/itinerary-activity-card", () => ({
@@ -110,5 +110,26 @@ describe("DayRouteSection", () => {
 
     expect(screen.getByText("No route yet")).toBeTruthy();
     expect(screen.getByText("No stops are scheduled for this day yet.")).toBeTruthy();
+  });
+
+  describe("GetYourGuide day link (Push DR2)", () => {
+    afterEach(() => vi.unstubAllEnvs());
+    const dayPlan = { day: 3, activities: [{ name: "Gyeongbokgung Palace", category: "Palace" }, { name: "Cafe Onion", category: "Cafe" }] };
+
+    it("shows one sponsored link for the day's bookable stop when a partner id exists", () => {
+      vi.stubEnv("GETYOURGUIDE_PARTNER_ID", "AB12CDE");
+      render(<DayRouteSection dayIndex={2} city="Seoul" userTier="free" dayPlan={dayPlan} />);
+      const links = screen.getAllByTestId("itinerary-day-gyg-link");
+      expect(links).toHaveLength(1);
+      expect(links[0].getAttribute("href")).toContain("partner_id=AB12CDE");
+      expect(links[0].getAttribute("rel")).toContain("sponsored");
+      expect(links[0].textContent).toContain("Gyeongbokgung Palace");
+    });
+
+    it("shows no link without a real partner id", () => {
+      vi.stubEnv("GETYOURGUIDE_PARTNER_ID", "localley");
+      render(<DayRouteSection dayIndex={2} city="Seoul" userTier="free" dayPlan={dayPlan} />);
+      expect(screen.queryByTestId("itinerary-day-gyg-link")).toBeNull();
+    });
   });
 });

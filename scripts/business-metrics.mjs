@@ -210,7 +210,8 @@ export function authLeadNote(rows) {
 /** Pure: rows from the two databases -> the probe line. */
 // Booking plan B8: affiliate clicks by partner + placement. BookableCard tracking ids end in the placement
 // (`viator-<code>-spot`); older ids have none and count as "legacy". Own accounts are left out.
-const PLACEMENTS = new Set(["itinerary", "spot", "inline", "checklist"]);
+// Longest first: "itinerary-day" (Push DR2) itself contains a dash, so match whole suffixes.
+const PLACEMENTS = ["itinerary-day", "itinerary", "spot", "inline", "checklist"];
 export function bookingClicksNote(rows, internal = new Set(), now = Date.now(), days = 30) {
   if (!Array.isArray(rows)) return "unknown: affiliate_clicks unreadable";
   const from = now - days * DAY;
@@ -218,8 +219,9 @@ export function bookingClicksNote(rows, internal = new Set(), now = Date.now(), 
   for (const r of rows) {
     if ((r.event_type ?? "click") !== "click" || (r.clerk_user_id && internal.has(r.clerk_user_id))) continue;
     if (!within(r.created_at, from, now + DAY)) continue;
-    const last = String(r.tracking_id ?? "").split("-").pop();
-    const key = `${r.partner || "unknown"} ${PLACEMENTS.has(last) ? last : "legacy"}`;
+    const id = String(r.tracking_id ?? "");
+    const placement = PLACEMENTS.find((p) => id.endsWith(`-${p}`)) ?? "legacy";
+    const key = `${r.partner || "unknown"} ${placement}`;
     counts[key] = (counts[key] ?? 0) + 1;
   }
   const total = Object.values(counts).reduce((a, b) => a + b, 0);

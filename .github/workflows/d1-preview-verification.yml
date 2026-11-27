@@ -372,6 +372,7 @@ on:
       - 'lib/booking/**'
       - '__tests__/lib/booking-match.test.ts'
       - '__tests__/lib/booking-gyg.test.ts'
+      - '__tests__/components/day-route-section.test.tsx'
       - '__tests__/lib/booking-checklist.test.ts'
       - 'components/booking/**'
       - '__tests__/components/bookable-card.test.tsx'
