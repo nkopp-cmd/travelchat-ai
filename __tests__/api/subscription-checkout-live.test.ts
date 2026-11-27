@@ -101,3 +101,19 @@ describe("checkout source for checkout_paid per page (Push BX1)", () => {
     expect(m.read).not.toHaveBeenCalled(); expect(m.customer).not.toHaveBeenCalled(); expect(m.checkout).not.toHaveBeenCalled();
   });
 });
+describe("Pro 7-day free trial (APPROVED 2026-11-27)", () => {
+  const post = (tier: string, billingCycle = "monthly") => POST(new NextRequest("https://www.localley.io/api/subscription/checkout", { method: "POST", body: JSON.stringify({ tier, billingCycle }) }));
+  it.each(["monthly", "yearly"])("gives a new Pro %s checkout 7 trial days", async (cycle) => {
+    expect((await post("pro", cycle)).status).toBe(200);
+    expect(m.checkout.mock.calls[0][0].trialDays).toBe(7);
+  });
+  it("gives Premium no trial", async () => {
+    expect((await post("premium")).status).toBe(200);
+    expect(m.checkout.mock.calls[0][0].trialDays).toBe(0);
+  });
+  it("gives no second trial to a customer who already had a subscription", async () => {
+    m.read.mockResolvedValue({ data: { tier: "free", status: "canceled", stripe_customer_id: "cus_owned", stripe_subscription_id: "sub_old" }, error: null });
+    expect((await post("pro")).status).toBe(200);
+    expect(m.checkout.mock.calls[0][0].trialDays).toBe(0);
+  });
+});

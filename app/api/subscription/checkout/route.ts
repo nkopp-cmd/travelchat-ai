@@ -12,6 +12,7 @@ import {
 } from "@/lib/stripe";
 import { Errors, handleApiError, apiError, ErrorCodes } from "@/lib/api-errors";
 import { checkoutReturnPaths, isCheckoutSource } from "@/lib/checkout-source";
+import { checkoutTrialDays } from "@/lib/subscription";
 
 export async function POST(req: NextRequest) {
     try {
@@ -117,6 +118,7 @@ export async function POST(req: NextRequest) {
             successUrl,
             cancelUrl,
             funnelSource: source,
+            trialDays: checkoutTrialDays(tier as "pro" | "premium", existing),
         });
 
         if (!session) {

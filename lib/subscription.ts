@@ -326,3 +326,18 @@ export function needsUpgrade(
 ): boolean {
     return compareTiers(currentTier, requiredTier) < 0;
 }
+
+/**
+ * Pro 7-day free trial (APPROVED Nils 2026-11-27). Pro only; Premium has no trial. A trial is a one-time offer:
+ * a customer who already had a Stripe subscription (any status) pays from day one.
+ */
+export const PRO_TRIAL_DAYS = 7;
+
+export function checkoutTrialDays(
+    tier: "pro" | "premium",
+    existing: { stripe_subscription_id?: string | null } | null | undefined,
+): number {
+    if (tier !== "pro") return 0;
+    if (existing?.stripe_subscription_id) return 0;
+    return PRO_TRIAL_DAYS;
+}

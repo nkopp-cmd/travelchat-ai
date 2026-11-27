@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { usePricingSubscription } from "@/hooks/use-pricing-subscription";
 import { useToast } from "@/hooks/use-toast";
-import { TIER_CONFIGS } from "@/lib/subscription";
+import { PRO_TRIAL_DAYS, TIER_CONFIGS } from "@/lib/subscription";
 import { cn } from "@/lib/utils";
 import { checkoutSignUpUrl, formatResetDay, parseCheckoutIntent, parsePlannerLimit, withoutCheckoutParam, type PlannerLimitNotice } from "@/lib/pricing-checkout";
 import { currentPagePath, signInGateHref } from "@/lib/auth/gate-href";
@@ -245,9 +245,10 @@ export function PricingPlans({ hero, initialPlannerLimit = null }: { hero: React
                                     price={`$${isYearly ? monthlyEquivalent : price}`}
                                     billingLabel="/month"
                                     annualNote={
-                                        isYearly
+                                        (tier === "pro" ? `${PRO_TRIAL_DAYS} days free. ` : "") +
+                                        (isYearly
                                             ? `Billed $${yearlyPrice} per year`
-                                            : "Billed monthly, cancel anytime"
+                                            : "Billed monthly, cancel anytime")
                                     }
                                     features={plan.features}
                                     footer={
@@ -273,7 +274,7 @@ export function PricingPlans({ hero, initialPlannerLimit = null }: { hero: React
                                             // sends an already signed-in visitor straight on.
                                             <Button asChild className="h-12 w-full rounded-lg bg-primary text-base font-semibold text-primary-foreground hover:bg-primary/90">
                                                 <a href={checkoutSignUpUrl(tier, isYearly ? "yearly" : "monthly", plannerLimit)} data-testid={`pricing-subscribe-${tier}`}>
-                                                    {`Subscribe to ${plan.title}`}
+                                                    {ctaLabel(tier, plan.title)}
                                                 </a>
                                             </Button>
                                         ) : (
@@ -292,7 +293,7 @@ export function PricingPlans({ hero, initialPlannerLimit = null }: { hero: React
                                                 }
                                             >
                                                 {loadingTier === tier ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                                                {hasPaidSubscription && hasBillingPortal ? "Open billing portal" : `Subscribe to ${plan.title}`}
+                                                {hasPaidSubscription && hasBillingPortal ? "Open billing portal" : ctaLabel(tier, plan.title)}
                                             </Button>
                                         )
                                     }
@@ -302,6 +303,11 @@ export function PricingPlans({ hero, initialPlannerLimit = null }: { hero: React
                     </section>
         </>
     );
+}
+
+// Pro carries the 7-day trial (APPROVED 2026-11-27), so its button says so; Premium has no trial.
+function ctaLabel(tier: PaidTier, title: string): string {
+    return tier === "pro" ? `Try ${title} ${PRO_TRIAL_DAYS} days free` : `Subscribe to ${title}`;
 }
 
 function PlanCard({
