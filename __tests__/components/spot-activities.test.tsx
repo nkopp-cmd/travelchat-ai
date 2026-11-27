@@ -51,6 +51,26 @@ describe("SpotActivities requests", () => {
     expect(new Set(links.map((l) => l.getAttribute("href"))).size).toBe(1);
   });
 
+  it("shows the GetYourGuide link to signed-out visitors without a Viator request (DR1)", async () => {
+    const fetchMock = vi.fn(async () => new Response("{}"));
+    vi.stubGlobal("fetch", fetchMock);
+    const url = "https://www.getyourguide.com/s/?q=Gyeongbokgung+Palace+Seoul&partner_id=AB12CDE&cmp=localley-spot";
+    const { findByTestId } = render(<SpotActivities spotId="s1" city="Seoul" spotName="Gyeongbokgung Palace" category="Palace" gygUrl={url} />);
+    const link = await findByTestId("spot-gyg-link");
+    expect(link.getAttribute("href")).toBe(url);
+    expect(link.getAttribute("rel")).toContain("sponsored");
+    expect(fetchMock).not.toHaveBeenCalledWith("/api/viator/search", expect.anything());
+    link.click();
+    const body = JSON.parse((fetchMock.mock.calls.at(-1) as unknown as [string, RequestInit])[1].body as string);
+    expect(body).toMatchObject({ partner: "getyourguide", trackingId: "getyourguide-s1-spot", eventType: "click" });
+  });
+
+  it("hides the GetYourGuide link on a free place", async () => {
+    vi.stubGlobal("fetch", vi.fn());
+    const { container } = render(<SpotActivities spotId="s1" city="Seoul" spotName="Seoul Forest" category="Park" gygUrl="https://www.getyourguide.com/s/?q=x" />);
+    await waitFor(() => expect(container.innerHTML).toBe(""));
+  });
+
   it("makes no request for a free place", async () => {
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);

@@ -37,7 +37,7 @@ export interface HotelBookingOptions {
 const AFFILIATE_IDS = {
     viator: process.env.VIATOR_AFFILIATE_ID || "localley",
     booking: process.env.BOOKING_AFFILIATE_ID || "localley",
-    getyourguide: process.env.GYG_AFFILIATE_ID || "localley",
+    getyourguide: process.env.GETYOURGUIDE_PARTNER_ID || process.env.GYG_AFFILIATE_ID || "localley",
     klook: process.env.KLOOK_AFFILIATE_ID || "localley",
 };
 

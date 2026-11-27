@@ -14,6 +14,7 @@ import { d1CommunitySubmission, d1RelatedSpotSources, d1SpotSource } from "@/lib
 import { cardPhotoCredits, cardSpotPhotos, directSpotPhotos, type StoredSpotPhoto } from "@/lib/spots/own-photo";
 import { SpotInteractions } from "@/components/spots/spot-interactions";
 import { SpotActivities } from "@/components/spots/spot-activities";
+import { gygPartnerId, gygSpotSearchUrl } from "@/lib/booking/gyg";
 import { LazyReviewList } from "@/components/spots/lazy-review-list";
 import { VenueHeroPhoto, VenuePhotoThumbnails, VenueCardPhoto } from "@/components/spots/spot-photo-image";
 import { VenuePhotoProvider, type DirectPhotoCredit } from "@/components/spots/venue-photo-provider";
@@ -745,7 +746,8 @@ export default async function SpotPage({
 
         <VenuePhotoThumbnails name={spot.name} />
 
-        {!candidate && <SpotActivities spotId={spot.id} city={city} spotName={spot.name} category={spot.category} />}
+        {!candidate && <SpotActivities spotId={spot.id} city={city} spotName={spot.name} category={spot.category}
+          gygUrl={gygSpotSearchUrl({ name: spot.name, category: spot.category, city }, gygPartnerId())} />}
 
         {(relatedSpots.length > 0 || nearbyLinks.length > 0 || nextSpot) && (
           <section className="space-y-3" aria-label="Nearby">
