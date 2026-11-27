@@ -22,7 +22,7 @@ const PLAN_COPY = {
     pro: {
         title: "Pro",
         eyebrow: "For real trips",
-        description: "Unlimited day plans around spots locals rate, with full addresses for the taxi and exports.",
+        description: "Save a Seoul trip, move Gwangjang Market to another day, and export the updated route with full addresses.",
         badge: "Most useful",
         accent: "violet",
         icon: Sparkles,
@@ -69,14 +69,6 @@ export function PricingPlans({ hero }: { hero: ReactNode }) {
 
     const hasPaidSubscription = currentTier === "pro" || currentTier === "premium";
     const hasIncludedAccess = hasPaidSubscription && !hasBillingPortal;
-
-    const priceFor = (tier: PaidTier) => {
-        const config = TIER_CONFIGS[tier];
-        return {
-            monthly: isYearly ? Math.round(config.yearlyPrice / 12) : config.price,
-            total: isYearly ? config.yearlyPrice : config.price,
-        };
-    };
 
     const handleSubscribe = async (tier: PaidTier) => {
         try {
@@ -230,7 +222,8 @@ export function PricingPlans({ hero }: { hero: ReactNode }) {
 
                     <section className="grid gap-4 md:grid-cols-2">
                         {(["pro", "premium"] as PaidTier[]).map((tier) => {
-                            const prices = priceFor(tier);
+                            const { price, yearlyPrice } = TIER_CONFIGS[tier];
+                            const monthlyEquivalent = (Math.ceil(yearlyPrice * 100 / 12) / 100).toFixed(2);
                             const isCurrent = currentTier === tier;
                             const plan = PLAN_COPY[tier];
 
@@ -244,11 +237,11 @@ export function PricingPlans({ hero }: { hero: ReactNode }) {
                                     badge={isCurrent ? "Current plan" : plan.badge}
                                     icon={plan.icon}
                                     accent={plan.accent}
-                                    price={`$${prices.monthly}`}
+                                    price={`$${isYearly ? monthlyEquivalent : price}`}
                                     billingLabel="/month"
                                     annualNote={
                                         isYearly
-                                            ? `Billed $${prices.total} annually`
+                                            ? `Billed $${yearlyPrice} per year`
                                             : "Billed monthly, cancel anytime"
                                     }
                                     features={plan.features}

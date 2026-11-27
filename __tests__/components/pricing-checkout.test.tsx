@@ -40,6 +40,20 @@ describe("pricing checkout intent", () => {
 });
 
 describe("/pricing subscribe flow", () => {
+  it("shows the yearly monthly equivalent and the actual annual charge on each plan", () => {
+    render(<PricingPage />);
+    fireEvent.click(screen.getByRole("button", { name: "Yearly" }));
+    for (const [tier, monthly, annual] of [["Pro", "$6.59", "$79"], ["Premium", "$13.25", "$159"]]) {
+      const card = screen.getByRole("heading", { name: tier, exact: true }).closest("article");
+      expect(card?.textContent).toContain(`${monthly}/month`);
+      expect(card?.textContent).toContain(`Billed ${annual} per year`);
+    }
+    fireEvent.click(screen.getByRole("button", { name: "Monthly" }));
+    expect(screen.getByText("$9")).toBeTruthy();
+    expect(screen.getByText("$19")).toBeTruthy();
+    expect(screen.queryByText(/Billed .* per year/)).toBeNull();
+  });
+
   // Push BU1: signed out (or the session check still running) the paid buttons are real links, never disabled.
   it.each([[true], [false]])("signed out (session loaded %s): each plan is a sign-up link with the plan and cycle kept", (loaded) => {
     mocks.authLoaded = loaded; mocks.subLoading = !loaded;
