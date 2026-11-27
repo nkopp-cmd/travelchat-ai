@@ -106,6 +106,10 @@
    "type": "secret_text"
   },
   {
+   "name": "GETYOURGUIDE_PARTNER_ID",
+   "type": "secret_text"
+  },
+  {
    "name": "GLM_API_KEY",
    "type": "secret_text"
   },

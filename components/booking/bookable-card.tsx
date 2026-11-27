@@ -19,7 +19,7 @@ export interface BookableItem {
     freeCancellation?: boolean;
     /** Partner URL that carries our partner id. Items without one are not rendered. */
     url: string;
-    partner: "viator";
+    partner: "viator" | "getyourguide";
 }
 
 export type BookablePlacement = "itinerary" | "spot" | "inline" | "checklist";
@@ -33,7 +33,7 @@ export function formatFromPrice(amount: number | undefined, currency = "USD"): s
     }
 }
 
-export function trackClick(item: BookableItem, placement: BookablePlacement) {
+export function trackClick(item: Pick<BookableItem, "partner" | "productCode" | "title">, placement: BookablePlacement) {
     try {
         void fetch("/api/affiliates/track", {
             method: "POST",
@@ -146,12 +146,14 @@ export function BookableSection({
     children,
     className,
     sectionRef,
+    partnerNote = "Tours from Viator, our booking partner. Prices and availability are set by Viator.",
 }: {
     title: string;
     description?: string;
     children: ReactNode;
     className?: string;
     sectionRef?: React.Ref<HTMLElement>;
+    partnerNote?: string;
 }) {
     return (
         <section ref={sectionRef} className={cn("space-y-4", className)} aria-label={title}>
@@ -160,7 +162,7 @@ export function BookableSection({
                 {description && <p className="text-sm text-muted-foreground">{description}</p>}
             </div>
             {children}
-            <p className="text-xs text-muted-foreground">Tours from Viator, our booking partner. Prices and availability are set by Viator.</p>
+            <p className="text-xs text-muted-foreground">{partnerNote}</p>
         </section>
     );
 }
