@@ -82,7 +82,7 @@ export function GygSpotLink({ spotId, spotName, url }: { spotId: string; spotNam
             <a
                 href={url}
                 target="_blank"
-                rel="sponsored noopener noreferrer"
+                rel="sponsored nofollow noopener noreferrer"
                 data-bookable-card="getyourguide"
                 data-testid="spot-gyg-link"
                 onClick={() => trackClick({ partner: "getyourguide", productCode: spotId, title }, "spot")}
