@@ -37,6 +37,8 @@ import type { Metadata } from "next";
 import { fetchWeeklyTrendingSpots } from "@/lib/spots/weekly-trending";
 import { fetchViralSpots } from "@/lib/viral/events";
 import { socialSpotSubmissionsAvailable } from "@/lib/social-submissions-availability";
+import { CityTourCards } from "@/components/booking/bookable-card";
+import { resolveViatorDestinationId, viatorClient } from "@/lib/viator";
 
 // City hubs (/spots?city=<slug>) are sitemap URLs: their canonical keeps the city; other filters fold to the hub.
 function spotsHub(params: SpotsFilterParams) {
@@ -74,6 +76,11 @@ export async function generateMetadata({ searchParams }: SpotsPageProps): Promis
 
 // Enable dynamic rendering for URL-based filtering
 export const dynamic = "force-dynamic";
+
+async function CityTours({ city }: { city: string }) {
+    const { activities } = await viatorClient.searchActivities({ destination: city, limit: 3 });
+    return activities.length ? <CityTourCards city={city} activities={activities} /> : null;
+}
 
 interface SpotsPageProps {
     searchParams: Promise<SpotsFilterParams>;
@@ -280,6 +287,12 @@ export default async function SpotsPage({ searchParams }: SpotsPageProps) {
                         <CitySpotDirectory citySlug={hub.city.slug} cityName={hub.city.name} />
                     </Suspense>
                 ) : null}
+
+                {hub.city && resolveViatorDestinationId(hub.city.slug) && (
+                    <Suspense fallback={null}>
+                        <CityTours city={hub.city.name} />
+                    </Suspense>
+                )}
 
                 <LocalleySignup source={hub.city ? "city-hub" : "spots"} city={hub.city?.slug} className="mt-10" />
             </div>

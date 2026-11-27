@@ -56,8 +56,9 @@ class ViatorClient {
     constructor(config: ViatorConfig = {}) {
         const apiKey = config.apiKey || process.env.VIATOR_API_KEY;
 
-        // Production Partner API; set VIATOR_API_URL=https://api.sandbox.viator.com/partner for a sandbox key.
-        const baseUrl = config.baseUrl || process.env.VIATOR_API_URL || 'https://api.viator.com/partner';
+        // Keep the production credential on the live Partner API. Local development can use a sandbox.
+        const localBaseUrl = process.env.NODE_ENV === 'production' ? undefined : process.env.VIATOR_API_URL;
+        const baseUrl = config.baseUrl || localBaseUrl || 'https://api.viator.com/partner';
 
         this.config = {
             apiKey,
@@ -104,6 +105,7 @@ class ViatorClient {
             const response = await fetch(`${this.config.baseUrl}/products/search`, {
                 method: 'POST',
                 headers: this.headers(),
+                signal: AbortSignal.timeout(2000),
                 body: JSON.stringify({
                     filtering,
                     sorting: { sort: 'TRAVELER_RATING', order: 'DESCENDING' },

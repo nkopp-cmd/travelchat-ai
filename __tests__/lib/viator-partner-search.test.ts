@@ -35,7 +35,9 @@ describe("Viator Partner API search", () => {
         vi.stubGlobal("fetch", fetchMock);
         const { default: ViatorClient, clearViatorSearchCache } = await loadClient();
         clearViatorSearchCache();
-        const client = new ViatorClient({ apiKey: "k", baseUrl: "https://api.viator.com/partner" });
+        vi.stubEnv("NODE_ENV", "production");
+        vi.stubEnv("VIATOR_API_URL", "https://api.sandbox.viator.com/partner");
+        const client = new ViatorClient({ apiKey: "k" });
 
         const result = await client.searchActivities({ destination: "Seoul", limit: 4 });
 

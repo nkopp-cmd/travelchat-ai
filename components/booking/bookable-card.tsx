@@ -22,7 +22,7 @@ export interface BookableItem {
     partner: "viator" | "getyourguide";
 }
 
-export type BookablePlacement = "itinerary" | "spot" | "inline" | "checklist" | "itinerary-day";
+export type BookablePlacement = "itinerary" | "spot" | "inline" | "checklist" | "itinerary-day" | "city-hub";
 
 export function formatFromPrice(amount: number | undefined, currency = "USD"): string | null {
     if (!amount || !Number.isFinite(amount) || amount <= 0) return null;
@@ -33,7 +33,7 @@ export function formatFromPrice(amount: number | undefined, currency = "USD"): s
     }
 }
 
-export function trackClick(item: Pick<BookableItem, "partner" | "productCode" | "title">, placement: BookablePlacement) {
+export function trackClick(item: Pick<BookableItem, "partner" | "productCode" | "title"> & { url?: string }, placement: BookablePlacement) {
     try {
         void fetch("/api/affiliates/track", {
             method: "POST",
@@ -44,6 +44,7 @@ export function trackClick(item: Pick<BookableItem, "partner" | "productCode" | 
                 trackingId: `${item.partner}-${item.productCode}-${placement}`,
                 activityName: item.title.slice(0, 200),
                 productCode: item.productCode,
+                url: item.url,
                 eventType: "click",
             }),
         }).catch(() => undefined);
@@ -199,4 +200,24 @@ export function viatorToBookable(activity: {
         url,
         partner: "viator",
     };
+}
+
+export function CityTourCards({ city, activities }: {
+    city: string;
+    activities: Parameters<typeof viatorToBookable>[0][];
+}) {
+    const items = activities.map(viatorToBookable).filter((item): item is BookableItem => {
+        if (!item) return false;
+        const { searchParams } = new URL(item.url);
+        return Boolean(searchParams.get("pid") && searchParams.get("mcid"));
+    });
+
+    if (!items.length) return null;
+    return (
+        <BookableSection title={`Tours in ${city}`} className="mt-10">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {items.map((item) => <BookableCard key={item.id} item={item} placement="city-hub" />)}
+            </div>
+        </BookableSection>
+    );
 }
