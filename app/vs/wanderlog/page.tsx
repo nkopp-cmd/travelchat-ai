@@ -36,8 +36,8 @@ export default function VsWanderlogPage() {
             <div className="mt-4 overflow-x-auto">
                 <table className="w-full min-w-[36rem] border-collapse text-left text-sm leading-6">
                     <thead>
-                        <tr className="border-b border-border text-foreground">
-                            <th scope="col" className="py-2 pr-3">Question</th>
+                        <tr className="text-foreground">
+                            <th scope="col" className="py-2 pl-2 pr-3">Question</th>
                             <th scope="col" className="py-2 pr-3">Wanderlog</th>
                             <th scope="col" className="py-2 pr-3">Localley</th>
                             <th scope="col" className="py-2">Source</th>
@@ -45,8 +45,8 @@ export default function VsWanderlogPage() {
                     </thead>
                     <tbody className="text-muted-foreground">
                         {P.reasons.map((r) => (
-                            <tr key={r.reason} className="border-b border-border/60 align-top">
-                                <th scope="row" className="py-3 pr-3 font-medium text-foreground">{r.reason}</th>
+                            <tr key={r.reason} className="align-top odd:bg-raised">
+                                <th scope="row" className="py-3 pl-2 pr-3 font-medium text-foreground">{r.reason}</th>
                                 <td className="py-3 pr-3">{r.them}</td>
                                 <td className="py-3 pr-3">{r.us}</td>
                                 <td className="py-3"><a href={r.source} rel="nofollow noopener" className="underline underline-offset-2">{host(r.source)}</a></td>
@@ -60,8 +60,8 @@ export default function VsWanderlogPage() {
             <div className="mt-4 overflow-x-auto">
                 <table className="w-full min-w-[30rem] border-collapse text-left text-sm leading-6" data-testid="vs-price-table">
                     <thead>
-                        <tr className="border-b border-border text-foreground">
-                            <th scope="col" className="py-2 pr-3">How you travel</th>
+                        <tr className="text-foreground">
+                            <th scope="col" className="py-2 pl-2 pr-3">How you travel</th>
                             <th scope="col" className="py-2 pr-3">Wanderlog Pro</th>
                             <th scope="col" className="py-2 pr-3">Localley Pro</th>
                             <th scope="col" className="py-2">Difference</th>
@@ -71,8 +71,8 @@ export default function VsWanderlogPage() {
                         {P.priceRows.map((row) => {
                             const diff = row.them - row.us;
                             return (
-                                <tr key={row.window} className="border-b border-border/60">
-                                    <th scope="row" className="py-3 pr-3 font-medium text-foreground">{row.window}</th>
+                                <tr key={row.window} className="odd:bg-raised">
+                                    <th scope="row" className="py-3 pl-2 pr-3 font-medium text-foreground">{row.window}</th>
                                     <td className="py-3 pr-3">{usd(row.them)}</td>
                                     <td className="py-3 pr-3">{usd(row.us)}</td>
                                     <td className="py-3">{diff >= 0 ? `Localley ${usd(diff)} less` : `Wanderlog ${usd(-diff)} less`}</td>
@@ -120,7 +120,7 @@ export default function VsWanderlogPage() {
                 </Button>
             </section>
 
-            <footer className="mt-12 border-t border-border pt-4 text-xs leading-5 text-muted-foreground">
+            <footer className="mt-12 pt-4 text-xs leading-5 text-muted-foreground">
                 <h2 className="text-sm font-semibold text-foreground">Sources</h2>
                 <ol className="mt-2 list-decimal space-y-1 pl-5">
                     {P.sources.map((s) => (
