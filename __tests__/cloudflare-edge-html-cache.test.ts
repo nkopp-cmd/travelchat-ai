@@ -688,3 +688,13 @@ describe("auth pages on the signed-out walls (Push BC3)", () => {
     }
   });
 });
+
+describe("worker entry keeps the Next server bundle lazy", () => {
+  // A cold isolate must answer an edge-cache HIT, /api/version and signed-out redirects without evaluating the
+  // ~27 MB Next server bundle. The eager import (#1091) put that work in front of every cold request.
+  it("does not import server-functions/default/handler.mjs", () => {
+    const code = readFileSync("cloudflare/opennext/worker.ts", "utf8").split("\n").filter((line) => !line.trim().startsWith("//")).join("\n");
+    expect(code).not.toMatch(/import\s+["'][^"']*server-functions\/default\/handler\.mjs["']/);
+    expect(code).not.toMatch(/from\s+["'][^"']*server-functions\/default\/handler\.mjs["']/);
+  });
+});
