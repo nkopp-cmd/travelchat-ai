@@ -22,6 +22,7 @@ import { SpotDetailMap } from "@/components/spots/spot-detail-map";
 import { SpotJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { pageMeta, shareImage } from "@/lib/seo/meta";
 import { spotMetaDescription, spotPageTitle } from "@/lib/seo/spot-card";
+import { spotSearchSnippet } from "@/lib/seo/spot-search-snippets";
 import { normalizeSpotPhotos } from "@/lib/spots/transform";
 import { spotPlanLink } from "@/lib/spots/plan-link";
 import { summarizeSpotPhotos } from "@/lib/place-images";
@@ -506,8 +507,11 @@ export async function generateMetadata({
   // a missing spot answers HTTP 404 with noindex instead of a 200 "Spot Not Found" page.
   if (!spot) notFound();
 
-  const text = splitDescriptionLinks(spot.description).text;
-  const description = spotMetaDescription({ name: spot.name, category: spot.category, city: inferSpotCity(spot), text });
+  const city = inferSpotCity(spot);
+  const snippet = spotSearchSnippet(spot.id);
+  const description = snippet?.description ?? spotMetaDescription({
+    name: spot.name, category: spot.category, city, text: splitDescriptionLinks(spot.description).text,
+  });
   const keywords = [
     spot.name,
     spot.category,
@@ -521,7 +525,7 @@ export async function generateMetadata({
   return {
     ...pageMeta({
       // pageMeta adds " | Localley" (11 chars); keep the full title within 65 chars (Push CC1: city, no tier).
-      title: spotPageTitle(spot.name, inferSpotCity(spot)),
+      title: snippet?.title ?? spotPageTitle(spot.name, city),
       socialTitle: spot.name,
       description,
       path: `/spots/${id}`,
