@@ -33,7 +33,11 @@ interface AnalyticsData {
         totalUsers: number;
         tierDistribution: { free: number; pro: number; premium: number };
         estimatedMRR: string;
+        payingSubscriptions: number;
+        trialSubscriptions: number;
+        trialMRR: string;
         totalAffiliateClicks: number;
+        lastAffiliateClickAt: string | null;
         totalConversions: number;
         totalAffiliateEarnings: string;
         conversionRate: string;
@@ -188,13 +192,15 @@ export default function AdminAnalyticsPage() {
                             icon={<Users className="h-5 w-5" />}
                         />
                         <MetricCard
-                            title="Estimated MRR"
+                            title="MRR (paid)"
                             value={`$${data.overview.estimatedMRR}`}
+                            note={`${data.overview.payingSubscriptions} paying` + (data.overview.trialSubscriptions > 0 ? ` · ${data.overview.trialSubscriptions} in trial ($${data.overview.trialMRR} if they convert)` : "")}
                             icon={<DollarSign className="h-5 w-5" />}
                         />
                         <MetricCard
                             title="Affiliate Clicks"
                             value={data.overview.totalAffiliateClicks.toLocaleString()}
+                            note={data.overview.lastAffiliateClickAt ? `Last click ${data.overview.lastAffiliateClickAt.slice(0, 10)}` : "No click recorded yet"}
                             icon={<MousePointer className="h-5 w-5" />}
                         />
                         <MetricCard

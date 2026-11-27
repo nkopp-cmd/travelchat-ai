@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { requireAdmin } from "@/lib/admin-auth";
+import { adminOwnerIds, summarizeRevenue } from "@/lib/admin/revenue";
 
 export async function GET(req: NextRequest) {
     try {
@@ -21,14 +22,15 @@ export async function GET(req: NextRequest) {
             affiliateClicks,
             affiliateEarnings,
             usageStats,
+            lastClick,
             recentSubscriptions,
             dailySignups,
         ] = await Promise.all([
             // Subscription tier distribution
             supabase
                 .from("subscriptions")
-                .select("tier, status")
-                .in("status", ["active", "trialing"]),
+                .select("clerk_user_id, tier, status, billing_cycle, stripe_subscription_id")
+                .in("status", ["active", "trialing", "past_due"]),
 
             // Affiliate clicks by partner (last N days)
             supabase
@@ -49,6 +51,14 @@ export async function GET(req: NextRequest) {
                 .select("usage_type, count, period_start, period_type")
                 .eq("period_type", "monthly")
                 .gte("period_start", startDateStr),
+
+            // Latest click ever, so a zero in the period still shows when the last click happened
+            supabase
+                .from("affiliate_clicks")
+                .select("created_at")
+                .eq("event_type", "click")
+                .order("created_at", { ascending: false })
+                .limit(1),
 
             // Recent subscription changes
             supabase
@@ -115,17 +125,19 @@ export async function GET(req: NextRequest) {
         const totalConversions = Object.values(clicksByPartner).reduce((sum, p) => sum + p.conversions, 0);
         const totalEarnings = (affiliateEarnings.data || []).reduce((sum, e) => sum + (parseFloat(e.commission_earned) || 0), 0);
 
-        // Calculate MRR estimate
-        const proPriceMonthly = 9.99;
-        const premiumPriceMonthly = 19.99;
-        const estimatedMRR = (tierCounts.pro * proPriceMonthly) + (tierCounts.premium * premiumPriceMonthly);
+        // MRR from paying Stripe subscriptions only; trials and owner accounts stay out (lib/admin/revenue.ts)
+        const revenue = summarizeRevenue(subscriptionStats.data || [], adminOwnerIds());
 
         return NextResponse.json({
             overview: {
                 totalUsers: Object.values(tierCounts).reduce((a, b) => a + b, 0),
                 tierDistribution: tierCounts,
-                estimatedMRR: estimatedMRR.toFixed(2),
+                estimatedMRR: revenue.mrr.toFixed(2),
+                payingSubscriptions: revenue.payingCount,
+                trialSubscriptions: revenue.trialCount,
+                trialMRR: revenue.trialMrr.toFixed(2),
                 totalAffiliateClicks,
+                lastAffiliateClickAt: lastClick.data?.[0]?.created_at ?? null,
                 totalConversions,
                 totalAffiliateEarnings: totalEarnings.toFixed(2),
                 conversionRate: totalAffiliateClicks > 0

@@ -31,6 +31,7 @@ VITEST_FILES=(
   __tests__/lib/spot-analytics.test.ts
   __tests__/lib/spot-event-store.test.ts
   __tests__/lib/check-traffic.test.ts
+  __tests__/lib/admin-revenue.test.ts
   __tests__/lib/referral-point.test.ts
   __tests__/lib/referral-point.property.test.ts
   __tests__/lib/funnel-analytics.test.ts

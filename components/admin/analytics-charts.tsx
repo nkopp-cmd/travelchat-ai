@@ -248,6 +248,7 @@ interface MetricCardProps {
     change?: number;
     changeLabel?: string;
     icon?: React.ReactNode;
+    note?: string;
     className?: string;
 }
 
@@ -257,6 +258,7 @@ export function MetricCard({
     change,
     changeLabel = "vs last period",
     icon,
+    note,
     className,
 }: MetricCardProps) {
     return (
@@ -268,6 +270,7 @@ export function MetricCard({
                 <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">{title}</p>
                     <p className="text-2xl font-bold">{value}</p>
+                    {note && <p className="text-xs text-muted-foreground">{note}</p>}
                     {change !== undefined && (
                         <p className={cn(
                             "text-xs",
