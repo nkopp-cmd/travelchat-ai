@@ -1,0 +1,16 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "localley-cache-front",
+  "main": "cache-front.ts",
+  "account_id": "664f242340bcec2f32daaeee15f58bde",
+  "compatibility_date": "2026-11-27",
+  "workers_dev": false,
+  "preview_urls": false,
+  "send_metrics": false,
+  "services": [{ "binding": "ORIGIN", "service": "localley-next" }],
+  // The suffix wildcard includes query strings. The Worker checks exact paths.
+  "routes": [
+    { "pattern": "www.localley.io/sign-up*", "zone_name": "localley.io" },
+    { "pattern": "www.localley.io/itineraries/new*", "zone_name": "localley.io" }
+  ]
+}
