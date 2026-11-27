@@ -160,7 +160,7 @@ export default function LandingPage() {
             <CreditCard className="mb-4 h-6 w-6 text-foreground" />
             <h3 className="text-2xl font-bold text-foreground">Pro starts at $9/month.</h3>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
-              Pro is for regular travelers. Premium is for heavier planning, maps, collaboration and high-capacity usage.
+              Pro is for regular travelers. Premium is for heavier planning, maps and high-capacity usage.
             </p>
             <Button asChild className="mt-5 h-12 w-full rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">
               <Link prefetch={false} href="/pricing">
