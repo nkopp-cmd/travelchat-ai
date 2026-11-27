@@ -1,5 +1,5 @@
 {
- "_comment": "Exact production Worker bindings (names + types; values never stored). scripts/release/production.mjs refuses to promote a version whose bindings differ. Update in the same PR that adds or removes a binding.",
+ "_comment": "Exact production app and cache-front Worker bindings (names + types; values never stored). scripts/release/production.mjs refuses to promote a version whose bindings differ. Update in the same PR that adds or removes a binding.",
  "bindings": [
   {
    "name": "ADMIN_USER_IDS",
@@ -264,6 +264,16 @@
   {
    "name": "WORKER_SELF_REFERENCE",
    "type": "service"
+  }
+ ],
+ "cacheFrontBindings": [
+  {
+   "name": "ORIGIN",
+   "type": "service"
+  },
+  {
+   "name": "ORIGIN_VERSION",
+   "type": "plain_text"
   }
  ]
 }

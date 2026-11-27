@@ -5,6 +5,7 @@ import { GENERATED_PREVIEW_PATH } from "@/lib/trips/generated-preview";
 import { PLANNER_RESUME_PATH } from "@/lib/trips/planner-draft";
 import { checkoutSignUpUrl } from "@/lib/pricing-checkout";
 import { authCopy } from "@/lib/auth/auth-copy";
+import { CACHE_FRONT_HEADER, serveCacheFront } from "@/cloudflare/opennext/cache-front";
 
 function memoryCache() {
   const store = new Map<string, Response>();
@@ -696,5 +697,54 @@ describe("worker entry keeps the Next server bundle lazy", () => {
     const code = readFileSync("cloudflare/opennext/worker.ts", "utf8").split("\n").filter((line) => !line.trim().startsWith("//")).join("\n");
     expect(code).not.toMatch(/import\s+["'][^"']*server-functions\/default\/handler\.mjs["']/);
     expect(code).not.toMatch(/from\s+["'][^"']*server-functions\/default\/handler\.mjs["']/);
+  });
+});
+
+
+describe("public cache front", () => {
+  const originUrl = "https://www.localley.io";
+
+  it.each([
+    ["/sign-up?redirect_url=%2Fitineraries%2Fpreview", "/sign-up?redirect_url=%2Fitineraries%2Fpreview"],
+    ["/itineraries/new", "/itineraries/new?city=seoul"],
+  ])("serves fresh origin HTML for %s without invoking the app", async (seed, requested) => {
+    const cache = memoryCache();
+    await serve(new Request(originUrl + seed), cache, async () => html());
+    const fetch = vi.fn(async (request: Request) => new Response(request.url));
+    const response = await serveCacheFront(new Request(originUrl + requested), { ORIGIN: { fetch }, ORIGIN_VERSION: "v1" }, cache);
+    expect(response.headers.get(CACHE_FRONT_HEADER)).toBe("HIT");
+    expect(response.headers.get("cache-control")).toBe("s-maxage=31536000");
+    expect(response.headers.has("x-localley-stored-at")).toBe(false);
+    expect(await response.text()).toBe("<html>home</html>");
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("forwards sessions, RSC, unsupported redirects, methods and prefix matches intact", async () => {
+    const cache = memoryCache();
+    const fetch = vi.fn(async (request: Request) => new Response(request.url));
+    const env = { ORIGIN: { fetch }, ORIGIN_VERSION: "v1" };
+    const requests = [
+      new Request(originUrl + "/sign-up", { headers: { cookie: "__Secure-better-auth.session_token=registered" } }),
+      new Request(originUrl + "/sign-up", { headers: { authorization: "Bearer example" } }),
+      new Request(originUrl + "/sign-up?redirect_url=%2Fcommunity%2F123"),
+      new Request(originUrl + "/itineraries/new", { headers: { rsc: "1" } }),
+      new Request(originUrl + "/itineraries/new", { method: "HEAD" }),
+      new Request(originUrl + "/itineraries/new-old"),
+    ];
+    for (const request of requests) await serveCacheFront(request, env, cache);
+    expect(cache.match).not.toHaveBeenCalled();
+    expect(fetch.mock.calls).toEqual(requests.map((request) => [request]));
+  });
+
+  it("forwards a stale entry, a miss for a new release and a cache failure", async () => {
+    const cache = memoryCache();
+    const fetch = vi.fn(async (request: Request) => new Response(request.url));
+    const request = new Request(originUrl + "/sign-up");
+    await serve(request, cache, async () => html(), "v1", () => 1);
+    await serveCacheFront(request, { ORIGIN: { fetch }, ORIGIN_VERSION: "v1" }, cache);
+    await serveCacheFront(request, { ORIGIN: { fetch }, ORIGIN_VERSION: "v2" }, cache);
+    cache.match.mockRejectedValueOnce(new Error("Cache API unavailable"));
+    await serveCacheFront(request, { ORIGIN: { fetch }, ORIGIN_VERSION: "v2" }, cache);
+    expect(fetch.mock.calls).toEqual([[request], [request], [request]]);
   });
 });

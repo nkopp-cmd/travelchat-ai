@@ -3,7 +3,7 @@
 // Stages (argv, no shell):
 //   build    -> `npm run cf:build` with only the public NEXT_PUBLIC_* values (from the lane), under run-heavy
 //   deploy   -> record the live version, upload with BUILD_SHA, refuse unless the new version's bindings equal
-//               config/production-bindings.json, promote to 100 %, confirm the deployment
+//               config/production-bindings.json, deploy the cache front, promote the app to 100 %, confirm
 //   rollback -> promote the version recorded by `deploy` again
 // The release commit comes from GRAVITY_RELEASE_SHA (set by the lane) or --sha <sha>.
 import { spawnSync } from "node:child_process";
@@ -18,7 +18,8 @@ import { warmUp } from "./warm-up.mjs";
 
 const ACCOUNT = "664f242340bcec2f32daaeee15f58bde";
 const SCRIPT = "localley-next";
-const API = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT}/workers/scripts/${SCRIPT}`;
+const API = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT}/workers/scripts`;
+const CACHE_FRONT = "localley-cache-front";
 const RUN_HEAVY = "/home/dev/projects/CyberLink/shared/scripts/run-heavy.sh";
 const STATE = path.resolve(".release");
 const ASSETS = path.resolve(".open-next/assets");
@@ -50,12 +51,12 @@ function run(argv, { env = process.env, capture = false } = {}) {
   return result;
 }
 
-async function cloudflare(pathname) {
+async function cloudflare(pathname, script = SCRIPT) {
   const token = process.env.CLOUDFLARE_API_TOKEN;
   if (!token) fail("CLOUDFLARE_API_TOKEN missing");
   try {
     return await readWithRetry(async () => {
-      const response = await fetch(API + pathname, { headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(20_000) });
+      const response = await fetch(`${API}/${script}${pathname}`, { headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(20_000) });
       const body = await response.json().catch(() => ({}));
       return response.ok ? body : { success: false, status: response.status, errors: body?.errors };
     }, { label: pathname });
@@ -65,6 +66,28 @@ async function cloudflare(pathname) {
 }
 
 const activeVersions = async () => (await cloudflare("/deployments")).deployments[0].versions;
+
+async function checkBindings(id, script = SCRIPT) {
+  const manifest = JSON.parse(readFileSync("config/production-bindings.json", "utf8"));
+  const expected = (script === CACHE_FRONT ? manifest.cacheFrontBindings : manifest.bindings).map((b) => `${b.name}:${b.type}`).sort();
+  const actual = (await cloudflare(`/versions/${id}`, script)).resources.bindings.map((b) => `${b.name}:${b.type}`).sort();
+  const missing = expected.filter((b) => !actual.includes(b));
+  const extra = actual.filter((b) => !expected.includes(b));
+  if (missing.length || extra.length) fail(`${script} bindings differ for ${id}. missing=${missing.join(",")} extra=${extra.join(",")}`);
+}
+
+async function deployCacheFront(originVersion) {
+  const env = { ...process.env, CLOUDFLARE_ACCOUNT_ID: ACCOUNT };
+  const result = await uploadWithRetry(() => run([
+    "node", "node_modules/wrangler/bin/wrangler.js", "deploy", "--config", "cloudflare/opennext/cache-front.wrangler.jsonc",
+    "--var", `ORIGIN_VERSION:${originVersion}`,
+  ], { env, capture: true }));
+  if (result.status !== 0) fail(`cache front deploy failed (exit ${result.status}): ${(result.stderr ?? "").slice(-400)}`);
+  const id = /(?:Current Version ID|Worker Version ID):\s*([0-9a-f-]{36})/.exec(result.stdout ?? "")?.[1];
+  if (!id) fail("cache front deploy did not report a version id");
+  await checkBindings(id, CACHE_FRONT);
+  console.log(`[release] cache front ${id} uses origin version ${originVersion}`);
+}
 
 if (!/^[0-9a-f]{40}$/.test(sha)) fail("release sha missing or invalid");
 
@@ -126,11 +149,10 @@ if (stage === "deploy") {
   const id = /Worker Version ID:\s*([0-9a-f-]{36})/.exec(upload.stdout ?? "")?.[1];
   if (!id) fail("upload did not report a version id");
 
-  const expected = JSON.parse(readFileSync("config/production-bindings.json", "utf8")).bindings.map((b) => `${b.name}:${b.type}`).sort();
-  const actual = (await cloudflare(`/versions/${id}`)).resources.bindings.map((b) => `${b.name}:${b.type}`).sort();
-  const missing = expected.filter((b) => !actual.includes(b));
-  const extra = actual.filter((b) => !expected.includes(b));
-  if (missing.length || extra.length) fail(`bindings differ; not promoting ${id}. missing=${missing.join(",")} extra=${extra.join(",")}`);
+  await checkBindings(id);
+  // Point the front at the incoming version before promotion. Until that version writes to
+  // its cache keys, the front misses and forwards to the currently live app.
+  await deployCacheFront(id);
 
   // capture: the retry reads wrangler's error code; stderr is echoed so the lane log keeps it.
   const promote = await promoteWithRetry(() => {
@@ -179,6 +201,7 @@ if (stage === "rollback") {
   const file = path.join(STATE, "previous.json");
   if (!existsSync(file)) fail("no recorded previous version; nothing to roll back");
   const previous = JSON.parse(readFileSync(file, "utf8"));
+  await deployCacheFront(previous.version_id);
   const result = run(["node", "node_modules/wrangler/bin/wrangler.js", "versions", "deploy", `${previous.version_id}@100%`, "--env", "production", "--yes",
     "--message", `rollback from ${sha.slice(0, 7)}`], { env: { ...process.env, CLOUDFLARE_ACCOUNT_ID: ACCOUNT } });
   if (result.status !== 0) fail(`rollback failed (exit ${result.status})`);

@@ -321,6 +321,27 @@ async function serveNotFound(request: Request, version: string, cache: EdgeCache
 export const EDGE_STALE_SECONDS = 86400;
 const STORED_AT = "x-localley-stored-at";
 
+// The cache front only serves records written by this Worker for the active origin version.
+export async function readFreshEdgeHtml(request: Request, version: string, cache: Pick<EdgeCache, "match">, now = Date.now): Promise<Response | null> {
+  if (!isEdgeCacheable(request)) return null;
+  const ttl = edgeTtlSeconds(new URL(request.url).pathname) ?? 0;
+  const hit = await cache.match(edgeCacheKey(request, version));
+  if (!hit || !storable(request, hit)) return null;
+  const storedAt = Number(hit.headers.get(STORED_AT));
+  if (!(storedAt > 0) || now() - storedAt > ttl * 1000) return null;
+  return cachedResponse(hit, "HIT");
+}
+
+function cachedResponse(hit: Response, status: "HIT" | "STALE"): Response {
+  const response = new Response(hit.body, hit);
+  response.headers.set(EDGE_CACHE_HEADER, status);
+  const origin = response.headers.get(ORIGIN_CACHE_CONTROL);
+  if (origin) response.headers.set("cache-control", origin);
+  response.headers.delete(ORIGIN_CACHE_CONTROL);
+  response.headers.delete(STORED_AT);
+  return response;
+}
+
 export async function serveWithEdgeCache(
   request: Request,
   version: string | undefined,
@@ -339,12 +360,7 @@ export async function serveWithEdgeCache(
   if (hit) {
     const storedAt = Number(hit.headers.get(STORED_AT));
     const stale = storedAt > 0 && now() - storedAt > ttl * 1000;
-    const response = new Response(hit.body, hit);
-    response.headers.set(EDGE_CACHE_HEADER, stale ? "STALE" : "HIT");
-    const origin = response.headers.get(ORIGIN_CACHE_CONTROL);
-    if (origin) response.headers.set("cache-control", origin);
-    response.headers.delete(ORIGIN_CACHE_CONTROL);
-    response.headers.delete(STORED_AT);
+    const response = cachedResponse(hit, stale ? "STALE" : "HIT");
     if (stale) {
       // The refresh replaces the entry; a page that is gone now (404, error, cookie) drops it, so a removed spot
       // is never served stale for the rest of the window.
