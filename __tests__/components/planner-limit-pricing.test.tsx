@@ -28,13 +28,13 @@ describe("planner limit -> pricing (push AP1)", () => {
     render(<ItineraryWizard initialCities={cities} />);
     fireEvent.click(screen.getByRole("button", { name: /Tokyo/ }));
     await act(async () => { fireEvent.click(screen.getByRole("button", { name: getQuickStartLabel(3) })); });
-    await waitFor(() => expect(nav.push.mock.calls).toEqual([["/pricing?limit=itineraries&resets=2026-12-01"]]));
+    await waitFor(() => expect(nav.push.mock.calls).toEqual([["/pricing/upgrade?limit=itineraries&resets=2026-12-01"]]));
   });
 
   it("builds and reads the pricing link; bad reset values are dropped, never shown", () => {
-    expect(plannerLimitPricingHref(undefined)).toBe("/pricing?limit=itineraries");
-    expect(plannerLimitPricingHref("soon")).toBe("/pricing?limit=itineraries");
-    expect(plannerLimitPricingHref("2026-13-45T00:00:00Z")).toBe("/pricing?limit=itineraries");
+    expect(plannerLimitPricingHref(undefined)).toBe("/pricing/upgrade?limit=itineraries");
+    expect(plannerLimitPricingHref("soon")).toBe("/pricing/upgrade?limit=itineraries");
+    expect(plannerLimitPricingHref("2026-13-45T00:00:00Z")).toBe("/pricing/upgrade?limit=itineraries");
     expect(parsePlannerLimit("?limit=itineraries&resets=2026-12-01")).toEqual({ resets: "2026-12-01" });
     expect(parsePlannerLimit("?limit=itineraries&resets=<script>")).toEqual({ resets: null });
     expect(parsePlannerLimit("?limit=other")).toBeNull();

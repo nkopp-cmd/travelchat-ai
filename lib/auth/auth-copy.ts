@@ -1,5 +1,5 @@
 import { GENERATED_PREVIEW_PATH } from "@/lib/trips/generated-preview";
-import { parseCheckoutIntent } from "@/lib/pricing-checkout";
+import { parseCheckoutIntent, parsePlannerLimit, plannerLimitPricingHref, PLANNER_UPGRADE_PATH } from "@/lib/pricing-checkout";
 import { CONTINUE_PARAM } from "@/lib/auth/resume-action";
 import { TIER_CONFIGS } from "@/lib/subscription";
 
@@ -149,7 +149,9 @@ export function authCopy(mode: AuthMode, redirectUrl: string | null | undefined)
     if (path && SAVED_TRIP_PAGE.test(path)) return SAVED_TRIP_COPY[mode];
     if (path === "/guide/dashboard" || path === "/guide/apply") return GUIDE_COPY[mode];
     if (path && (SPOT_PAGE.test(path) || isSpotSaveResume(redirectUrl!))) return SPOT_COPY[mode];
-    if (path === "/pricing" && redirectUrl?.includes("?")) return checkoutCopy(mode, redirectUrl.split("#")[0]) ?? DEFAULT_COPY[mode];
+    if ((path === "/pricing" || path === PLANNER_UPGRADE_PATH) && redirectUrl?.includes("?")) {
+        return checkoutCopy(mode, redirectUrl.split("#")[0]) ?? DEFAULT_COPY[mode];
+    }
     return DEFAULT_COPY[mode];
 }
 
@@ -166,7 +168,11 @@ export function authBackLink(redirectUrl: string | null | undefined): AuthBackLi
     if (tips) return { href: `/spots/${tips[1]}`, label: "Back to the spot" };
     // Push BS2: the header's Sign in / Join free now carry the page (BR2), so a visitor from a public page gets a way
     // back too. Only public pages: a link back to a signed-in wall would show this form again.
-    if (path === "/pricing") return { href: "/pricing", label: "Back to pricing" };
+    if (path === "/pricing" || path === PLANNER_UPGRADE_PATH) {
+        const query = redirectUrl?.split("#")[0].split("?")[1] ?? "";
+        const limit = parsePlannerLimit(query);
+        return { href: limit ? plannerLimitPricingHref(limit.resets) : "/pricing", label: "Back to pricing" };
+    }
     if (path === "/spots" || path === "/explore") return { href: path, label: "Back to Explore" };
     if (path === "/blog") return { href: "/blog", label: "Back to the blog" };
     if (path && BLOG_POST.test(path)) return { href: path, label: "Back to the article" };

@@ -130,7 +130,7 @@ describe("authCopy", () => {
         expect(authCopy("sign-up", "/spots/abc-123").subtitle).toContain(`up to ${free.limits.savedSpotsLimit} spots`);
         // Copy strings in these files must not carry a limit or price as a literal number.
         const literal = /["'`>][^"'`<]*?(\b\d+ (saved )?spots?\b|\b\d+ (chat )?(messages|questions)\b|\b\d+ trips? (a|per) month|\$\d+\/month)/;
-        for (const file of ["lib/auth/auth-copy.ts", "app/pricing/page.tsx", "app/pricing/pricing-plans.tsx", "app/itineraries/preview/preview-client.tsx", "lib/seo/pricing-line.ts"]) {
+        for (const file of ["lib/auth/auth-copy.ts", "app/pricing/pricing-page.tsx", "app/pricing/pricing-plans.tsx", "app/itineraries/preview/preview-client.tsx", "lib/seo/pricing-line.ts"]) {
             const code = readFileSync(file, "utf8").split("\n").filter((line) => !/^\s*(\/\/|\*|\{\/\*)/.test(line)).join("\n");
             expect(code.match(literal)?.[0], file).toBeUndefined();
         }

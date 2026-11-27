@@ -25,7 +25,7 @@ const json = (res: Response | NextResponse): Answer => async () => new Response(
 // The bodies are built with the same helpers the route uses, so a server shape change breaks this test.
 const ROUTES: Array<[string, Answer, { to: RegExp } | { retry: RegExp }]> = [
   ["401 unauthorized (anon free trip used)", json(apiError(ErrorCodes.UNAUTHORIZED, "Create an account and choose a plan to keep building itineraries.", { signupUrl: "/sign-up" })), { to: /^\/sign-up\?redirect_url=/ }],
-  ["429 limit_exceeded (free monthly trip used)", json(Errors.limitExceeded("itineraries", 1, 1, "2026-12-01T00:00:00.000Z")), { to: /^\/pricing\?limit=itineraries&resets=2026-12-01$/ }],
+  ["429 limit_exceeded (free monthly trip used)", json(Errors.limitExceeded("itineraries", 1, 1, "2026-12-01T00:00:00.000Z")), { to: /^\/pricing\/upgrade\?limit=itineraries&resets=2026-12-01$/ }],
   ["400 validation_error", json(Errors.validationError("days: Expected number")), { retry: /days/ }],
   ["422 insufficient_verified_spots (post-model, no pickCity)", json(NextResponse.json({ error: "insufficient_verified_spots", message: "Localley could not build a full Tokyo plan from its verified spots for this mix. Try fewer days, a slower pace, or broader interests." }, { status: 422 })), { retry: /Try fewer days/ }],
   ["422 insufficient_verified_spots (no mix works: pickCity)", json(NextResponse.json({ error: "insufficient_verified_spots", message: "Localley cannot plan Tokyo yet. Pick another city to get your free plan now.", pickCity: true }, { status: 422 })), { retry: /Pick another city/ }],

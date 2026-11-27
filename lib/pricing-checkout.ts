@@ -4,10 +4,14 @@ export type CheckoutCycle = "monthly" | "yearly";
 export type CheckoutIntent = { tier: CheckoutTier; cycle: CheckoutCycle };
 
 const INTENT = /^(pro|premium)-(monthly|yearly)$/;
+export const PLANNER_UPGRADE_PATH = "/pricing/upgrade";
 
 /** Sign-up URL that returns a new visitor to /pricing with the chosen plan kept. */
-export function checkoutSignUpUrl(tier: CheckoutTier, cycle: CheckoutCycle): string {
-    return `/sign-up?redirect_url=${encodeURIComponent(`/pricing?checkout=${tier}-${cycle}`)}`;
+export function checkoutSignUpUrl(tier: CheckoutTier, cycle: CheckoutCycle, plannerLimit?: PlannerLimitNotice | null): string {
+    const target = plannerLimit
+        ? `${plannerLimitPricingHref(plannerLimit.resets)}&checkout=${tier}-${cycle}`
+        : `/pricing?checkout=${tier}-${cycle}`;
+    return `/sign-up?redirect_url=${encodeURIComponent(target)}`;
 }
 
 /** Reads ?checkout=<tier>-<cycle>; anything else is null (never trust the URL for a tier name). */
@@ -28,18 +32,19 @@ export function withoutCheckoutParam(href: string): string {
 // visitor only saw a "Limit reached" toast and stayed on the planner.
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 
-/** /pricing?limit=itineraries[&resets=YYYY-MM-DD]; a missing or bad reset time is left out. */
+/** The server-rendered planner pricing URL. A missing or invalid reset day is omitted. */
 export function plannerLimitPricingHref(resetAt?: unknown): string {
     const day = typeof resetAt === "string" ? resetAt.slice(0, 10) : "";
     const valid = DAY.test(day) && !Number.isNaN(Date.parse(`${day}T00:00:00Z`));
-    return valid ? `/pricing?limit=itineraries&resets=${day}` : "/pricing?limit=itineraries";
+    const href = `${PLANNER_UPGRADE_PATH}?limit=itineraries`;
+    return valid ? `${href}&resets=${day}` : href;
 }
 
 export type PlannerLimitNotice = { resets: string | null };
 
 /** Reads ?limit=itineraries[&resets=]; any other value is null. The day is shown, never trusted for access. */
-export function parsePlannerLimit(search: string): PlannerLimitNotice | null {
-    const params = new URLSearchParams(search);
+export function parsePlannerLimit(search: string | URLSearchParams): PlannerLimitNotice | null {
+    const params = typeof search === "string" ? new URLSearchParams(search) : search;
     if (params.get("limit") !== "itineraries") return null;
     const resets = params.get("resets") ?? "";
     return { resets: DAY.test(resets) && !Number.isNaN(Date.parse(`${resets}T00:00:00Z`)) ? resets : null };

@@ -47,7 +47,7 @@ const FILES = [
   "app/explore/explore-content.tsx",
   "components/guide/source-guide-application.tsx",
   "components/guide/source-guide-dashboard.tsx",
-  "app/pricing/page.tsx",
+  "app/pricing/pricing-page.tsx",
   "app/pricing/pricing-plans.tsx",
   "app/page.tsx",
   "components/landing/planner.tsx",

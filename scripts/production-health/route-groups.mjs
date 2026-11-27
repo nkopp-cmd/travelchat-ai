@@ -143,6 +143,7 @@ const routes = [
   "/og/pages/[key]",
   "/og/shared/[shareCode]",
   "/pricing",
+  "/pricing/upgrade",
   "/privacy",
   "/profile",
   "/reset-password",

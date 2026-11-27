@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, renderHook, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import fc from "fast-check";
+import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({ signedIn: false, authLoaded: true, subLoading: false, tier: "free", openCheckout: vi.fn(), toast: vi.fn(), track: vi.fn() }));
 vi.mock("@/lib/funnel-analytics", () => ({ trackFunnelStep: mocks.track }));
@@ -12,8 +13,9 @@ vi.mock("@/hooks/use-pricing-subscription", () => ({ usePricingSubscription: () 
 vi.mock("@/components/layout/app-background", () => ({ AppBackground: ({ children }: { children: React.ReactNode }) => children }));
 vi.mock("@/providers/subscription-provider", () => ({ useSubscriptionContext: () => ({ openCheckout: mocks.openCheckout, tier: mocks.tier }) }));
 import PricingPage from "@/app/pricing/page";
+import PlannerUpgradePage from "@/app/pricing/upgrade/page";
 import { LimitExceededModal } from "@/components/subscription/limit-exceeded-modal";
-import { checkoutSignUpUrl, parseCheckoutIntent, withoutCheckoutParam } from "@/lib/pricing-checkout";
+import { checkoutSignUpUrl, parseCheckoutIntent, parsePlannerLimit, withoutCheckoutParam } from "@/lib/pricing-checkout";
 
 const setUrl = (path: string) => window.history.replaceState(null, "", path);
 beforeEach(() => { mocks.signedIn = false; mocks.authLoaded = true; mocks.subLoading = false; mocks.tier = "free"; mocks.openCheckout.mockResolvedValue(undefined); setUrl("/pricing"); });
@@ -40,6 +42,23 @@ describe("pricing checkout intent", () => {
 });
 
 describe("/pricing subscribe flow", () => {
+  it("puts both planner upgrade links in the initial HTML, before React runs", async () => {
+    mocks.authLoaded = false;
+    mocks.subLoading = true;
+    const markup = renderToStaticMarkup(await PlannerUpgradePage({ searchParams: Promise.resolve({ limit: "itineraries", resets: "2026-12-01" }) }));
+    const doc = new DOMParser().parseFromString(markup, "text/html");
+    expect(doc.querySelector('[data-testid="pricing-planner-limit"]')?.textContent).toContain("December 1");
+    for (const tier of ["pro", "premium"] as const) {
+      const link = doc.querySelector<HTMLAnchorElement>(`a[data-testid="pricing-subscribe-${tier}"]`);
+      const signUp = new URL(link!.getAttribute("href")!, "https://www.localley.io");
+      const resume = new URL(signUp.searchParams.get("redirect_url")!, signUp.origin);
+      expect(signUp.pathname).toBe("/sign-up");
+      expect(resume.pathname).toBe("/pricing/upgrade");
+      expect(parseCheckoutIntent(resume.search)).toEqual({ tier, cycle: "monthly" });
+      expect(parsePlannerLimit(resume.search)).toEqual({ resets: "2026-12-01" });
+    }
+    expect(mocks.openCheckout).not.toHaveBeenCalled();
+  });
   it("shows the yearly monthly equivalent and the actual annual charge on each plan", () => {
     render(<PricingPage />);
     fireEvent.click(screen.getByRole("button", { name: "Yearly" }));
@@ -96,6 +115,18 @@ describe("/pricing subscribe flow", () => {
     rerender(<PricingPage />);
     expect(mocks.openCheckout).toHaveBeenCalledTimes(1);
     expect(mocks.track).not.toHaveBeenCalled(); // counted inside openCheckout only
+  });
+  it("resumes a planner checkout once after auth and keeps the limit and reset day", async () => {
+    const href = checkoutSignUpUrl("premium", "yearly", { resets: "2026-12-01" });
+    setUrl(new URL(href, window.location.origin).searchParams.get("redirect_url")!);
+    const { rerender } = render(<PricingPage />);
+    expect(mocks.openCheckout).not.toHaveBeenCalled();
+    mocks.signedIn = true;
+    rerender(<PricingPage />);
+    await waitFor(() => expect(mocks.openCheckout).toHaveBeenCalledExactlyOnceWith("premium", "yearly", "pricing", "planner"));
+    expect(window.location.search).toBe("?limit=itineraries&resets=2026-12-01");
+    rerender(<PricingPage />);
+    expect(mocks.openCheckout).toHaveBeenCalledTimes(1);
   });
   it("does not start a second subscription for a paying member", async () => {
     mocks.signedIn = true; mocks.tier = "pro";
