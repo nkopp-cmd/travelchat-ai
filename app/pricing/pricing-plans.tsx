@@ -54,7 +54,7 @@ const PLAN_COPY = {
 } as const;
 
 
-export function PricingPlans({ hero }: { hero: ReactNode }) {
+export function PricingPlans({ hero, initialPlannerLimit = null }: { hero: ReactNode; initialPlannerLimit?: PlannerLimitNotice | null }) {
     const [isYearly, setIsYearly] = useState(false);
     const [loadingTier, setLoadingTier] = useState<string | null>(null);
     const { isSignedIn } = useAuth();
@@ -103,24 +103,29 @@ export function PricingPlans({ hero }: { hero: ReactNode }) {
         setCheckoutClosed(true);
     }, []);
 
-    // From the planner after the free monthly trip (?limit=itineraries): say why the visitor is here.
-    const [plannerLimit, setPlannerLimit] = useState<PlannerLimitNotice | null>(null);
+    // Older links go to the static /pricing page, where only the browser can read the limit.
+    const [legacyPlannerLimit, setLegacyPlannerLimit] = useState<PlannerLimitNotice | null>(null);
     useEffect(() => {
-        setPlannerLimit(parsePlannerLimit(window.location.search));
-    }, []);
+        if (!initialPlannerLimit) setLegacyPlannerLimit(parsePlannerLimit(window.location.search));
+    }, [initialPlannerLimit]);
+    const plannerLimit = initialPlannerLimit ?? legacyPlannerLimit;
 
     // Back from sign-up with ?checkout=<tier>-<cycle>: start Stripe once, then drop the parameter.
     const autoCheckoutStarted = useRef(false);
     useEffect(() => {
         if (!isSignedIn || isLoading || autoCheckoutStarted.current) return;
-        const intent = parseCheckoutIntent(window.location.search);
+        const search = window.location.search;
+        const intent = parseCheckoutIntent(search);
         if (!intent) return;
         autoCheckoutStarted.current = true;
         window.history.replaceState(null, "", withoutCheckoutParam(window.location.href));
         if (hasPaidSubscription) return;
         setIsYearly(intent.cycle === "yearly");
         setLoadingTier(intent.tier);
-        openCheckout(intent.tier, intent.cycle)
+        const checkout = parsePlannerLimit(search)
+            ? openCheckout(intent.tier, intent.cycle, "pricing", "planner")
+            : openCheckout(intent.tier, intent.cycle);
+        checkout
             .catch((error) => toast({
                 title: "Checkout error",
                 description: error instanceof Error ? error.message : "Failed to start checkout",
@@ -267,7 +272,7 @@ export function PricingPlans({ hero }: { hero: ReactNode }) {
                                             // HTML, tappable before hydration. Sign-up returns to /pricing?checkout -> Stripe, and
                                             // sends an already signed-in visitor straight on.
                                             <Button asChild className="h-12 w-full rounded-lg bg-primary text-base font-semibold text-primary-foreground hover:bg-primary/90">
-                                                <a href={checkoutSignUpUrl(tier, isYearly ? "yearly" : "monthly")} data-testid={`pricing-subscribe-${tier}`}>
+                                                <a href={checkoutSignUpUrl(tier, isYearly ? "yearly" : "monthly", plannerLimit)} data-testid={`pricing-subscribe-${tier}`}>
                                                     {`Subscribe to ${plan.title}`}
                                                 </a>
                                             </Button>

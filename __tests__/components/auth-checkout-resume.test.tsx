@@ -25,7 +25,7 @@ vi.mock("@/lib/auth/auth-client", () => ({
 import { SignInForm, SignUpForm } from "@/components/auth/auth-forms";
 import { GET as verifiedHop } from "@/app/verified/route";
 import { wrapVerifyMailURL } from "@/lib/auth/redirect";
-import { checkoutSignUpUrl, parseCheckoutIntent, type CheckoutCycle, type CheckoutTier } from "@/lib/pricing-checkout";
+import { checkoutSignUpUrl, parseCheckoutIntent, parsePlannerLimit, type CheckoutCycle, type CheckoutTier } from "@/lib/pricing-checkout";
 
 const ORIGIN = "https://www.localley.io";
 const PLANS: [CheckoutTier, CheckoutCycle][] = [["pro", "monthly"], ["pro", "yearly"], ["premium", "monthly"], ["premium", "yearly"]];
@@ -89,6 +89,29 @@ describe("checkout intent survives account creation (Push CJ4)", () => {
     const page = landing(state.signInEmail.mock.calls[0][0].callbackURL as string);
     expect(page.pathname).toBe("/pricing");
     expect(parseCheckoutIntent(page.search)).toEqual({ tier: "premium", cycle: "yearly" });
+  });
+
+  it.each(["sign-up", "sign-in"] as const)("keeps the planner limit through %s and the link to the other auth form", async (mode) => {
+    const signUp = new URL(checkoutSignUpUrl("pro", "yearly", { resets: "2026-12-01" }), ORIGIN);
+    state.query = signUp.search;
+    const target = signUp.searchParams.get("redirect_url");
+    const signingUp = mode === "sign-up";
+    render(signingUp ? <SignUpForm googleEnabled={false} /> : <SignInForm googleEnabled={false} />);
+
+    const link = screen.getByRole("link", { name: signingUp ? "Sign in" : "Sign up" });
+    const alternative = new URL(link.getAttribute("href")!, ORIGIN);
+    expect(alternative.pathname).toBe(signingUp ? "/sign-in" : "/sign-up");
+    expect(alternative.searchParams.get("redirect_url")).toBe(target);
+
+    fireEvent.change(screen.getByLabelText("Email"), { target: { value: "buyer@example.com" } });
+    fireEvent.change(screen.getByLabelText(/^Password/), { target: { value: "correct-horse-1" } });
+    fireEvent.click(screen.getByRole("button", { name: signingUp ? "Create account" : "Sign in" }));
+    const submit = signingUp ? state.signUpEmail : state.signInEmail;
+    await waitFor(() => expect(submit).toHaveBeenCalledTimes(1));
+    const page = landing(submit.mock.calls[0][0].callbackURL as string);
+    expect(page.pathname).toBe("/pricing/upgrade");
+    expect(parseCheckoutIntent(page.search)).toEqual({ tier: "pro", cycle: "yearly" });
+    expect(parsePlannerLimit(page.search)).toEqual({ resets: "2026-12-01" });
   });
 
   it("a forged redirect_url never sends the buyer off the site", async () => {
