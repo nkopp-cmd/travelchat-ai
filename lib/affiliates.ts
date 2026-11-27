@@ -8,6 +8,7 @@
  * - Klook: Asia activities (5-8% commission)
  */
 
+import { gygPartnerId } from "@/lib/booking/gyg";
 export type AffiliatePartner = "viator" | "booking" | "getyourguide" | "klook";
 
 export interface AffiliateLink {
@@ -37,7 +38,6 @@ export interface HotelBookingOptions {
 const AFFILIATE_IDS = {
     viator: process.env.VIATOR_AFFILIATE_ID || "localley",
     booking: process.env.BOOKING_AFFILIATE_ID || "localley",
-    getyourguide: process.env.GETYOURGUIDE_PARTNER_ID || process.env.GYG_AFFILIATE_ID || "localley",
     klook: process.env.KLOOK_AFFILIATE_ID || "localley",
 };
 
@@ -88,12 +88,14 @@ export function getBookingLink(options: HotelBookingOptions): AffiliateLink {
 /**
  * Generate GetYourGuide search link
  */
-export function getGetYourGuideLink(options: ActivityBookingOptions): AffiliateLink {
-    const { activityName, city } = options;
-    const searchQuery = encodeURIComponent(`${activityName} ${city}`);
-    const trackingId = `${AFFILIATE_IDS.getyourguide}-${Date.now()}`;
+export function getGetYourGuideLink(options: ActivityBookingOptions): AffiliateLink | null {
+    const partnerId = gygPartnerId();
+    if (!partnerId) return null;
 
-    const url = `https://www.getyourguide.com/s/?q=${searchQuery}&partner_id=${AFFILIATE_IDS.getyourguide}&cmp=localley`;
+    const { activityName, city } = options;
+    const params = new URLSearchParams({ q: `${activityName} ${city}`, partner_id: partnerId, cmp: "localley" });
+    const trackingId = `${partnerId}-${Date.now()}`;
+    const url = `https://www.getyourguide.com/s/?${params}`;
 
     return {
         partner: "getyourguide",
@@ -135,8 +137,8 @@ export function getActivityBookingLinks(options: ActivityBookingOptions): Affili
     // Always include Viator
     links.push(getViatorLink(options));
 
-    // Include GetYourGuide as alternative
-    links.push(getGetYourGuideLink(options));
+    const getYourGuide = getGetYourGuideLink(options);
+    if (getYourGuide) links.push(getYourGuide);
 
     // Include Klook for Asian cities
     const asianCities = [

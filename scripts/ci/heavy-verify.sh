@@ -308,6 +308,7 @@ VITEST_FILES=(
   __tests__/api/backfill-photo-coordinate-guard.test.ts
   __tests__/api/push-subscription-candidate-route.test.ts
   __tests__/api/affiliate-click-candidate-route.test.ts
+  __tests__/lib/affiliates.test.ts
   __tests__/api/notification-preferences-unavailable.test.ts
   __tests__/api/notification-preferences-candidate-route.test.ts
   __tests__/pages/notification-settings-candidate.test.tsx
