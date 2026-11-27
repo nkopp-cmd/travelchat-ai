@@ -48,6 +48,9 @@ export async function POST(req: NextRequest) {
         if (isPreviewAffiliateClickCandidate(req) && !userId) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: candidateHeaders });
         }
+        if (!userId && (click.eventType !== "click" || req.headers.get("origin") !== req.nextUrl.origin)) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
 
         const source = await recordClick(req, userId ?? null, click);
         return NextResponse.json({ success: true }, source === "d1" ? { headers: candidateHeaders } : undefined);

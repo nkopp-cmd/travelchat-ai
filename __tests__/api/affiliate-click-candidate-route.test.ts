@@ -87,6 +87,20 @@ describe("isolated D1 affiliate clicks on the exact candidate", () => {
 });
 
 describe("current site", () => {
+  it("records same-origin guest clicks and rejects cross-origin and conversion requests", async () => {
+    mocks.auth.mockResolvedValue({ userId: null });
+    const send = (origin: string, eventType = "click") => POST(new NextRequest(
+      "https://www.localley.io/api/affiliates/track",
+      { method: "POST", headers: { origin }, body: JSON.stringify({ ...click, eventType }) },
+    ));
+    expect((await send("https://www.localley.io")).status).toBe(200);
+    expect((await send("https://example.com")).status).toBe(401);
+    expect((await send("https://www.localley.io", "conversion")).status).toBe(401);
+    expect(mocks.insert).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
+      clerk_user_id: null, partner: "viator", affiliate_url: click.url,
+    }));
+  });
+
   it("keeps the Source table off the candidate host or flag", async () => {
     for (const req of [post(click, "www.localley.io"), post(click, host, false)]) {
       const res = await POST(req);

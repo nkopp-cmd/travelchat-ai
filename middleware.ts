@@ -90,6 +90,7 @@ const PUBLIC_MATCHERS = PUBLIC_ROUTES.map(toRegExp);
 
 export const isPublicRoute = (request: NextRequest) =>
     PUBLIC_MATCHERS.some((matcher) => matcher.test(request.nextUrl.pathname)) ||
+    (request.method === 'POST' && /^\/api\/affiliates\/track\/?$/.test(request.nextUrl.pathname)) ||
     (request.method === 'GET' && request.nextUrl.hostname === 'localley-next-preview.nkopp.workers.dev' &&
         request.nextUrl.searchParams.get('data_candidate') === 'd1' &&
         process.env.AUTH_MAIL_MODE === 'outbox' && process.env.SUPABASE_READ_ONLY === 'true' &&

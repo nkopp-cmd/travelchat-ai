@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { BookableCard, formatFromPrice, viatorToBookable } from "@/components/booking/bookable-card";
+import { BookableCard, CityTourCards, formatFromPrice, viatorToBookable } from "@/components/booking/bookable-card";
 
 const base = {
     id: "p1",
@@ -42,6 +42,13 @@ describe("BookableCard", () => {
         expect(viatorToBookable({ ...base, viatorUrl: undefined, bookingUrl: undefined })).toBeNull();
         expect(viatorToBookable({ ...base, viatorUrl: "https://example.com/tour" })).toBeNull();
         expect(viatorToBookable({ ...base, title: "" })).toBeNull();
+    });
+
+    it("shows only city tours with a complete affiliate link", () => {
+        const affiliateUrl = `${base.viatorUrl}&mcid=42383`;
+        render(<CityTourCards city="Seoul" activities={[base, { ...base, viatorUrl: affiliateUrl }]} />);
+        expect(screen.getByRole("heading", { name: "Tours in Seoul" })).toBeTruthy();
+        expect(screen.getByRole("link").getAttribute("href")).toBe(affiliateUrl);
     });
 
     it("shows no price for zero or missing amounts", () => {
