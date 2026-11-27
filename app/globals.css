@@ -107,6 +107,15 @@
 
   html {
     scrollbar-gutter: stable;
+    /* WCAG 2.4.11: keyboard focus must not land under the sticky header (56 px). */
+    scroll-padding-top: 4.5rem;
+  }
+
+  /* WCAG 2.4.11: pages with a fixed mobile bottom bar (home signup bar, app nav) keep focus above it. */
+  @media (max-width: 767.98px) {
+    html:has(nav[data-app-chrome], .mobile-sticky-safe-space) {
+      scroll-padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
+    }
   }
 
   * {
