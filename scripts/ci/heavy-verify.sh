@@ -103,6 +103,7 @@ VITEST_FILES=(
   __tests__/components/subscription-success-refetch.test.ts
   __tests__/components/conditional-navbar.test.tsx
   __tests__/motion-tokens.test.ts
+  __tests__/focus-not-obscured.test.ts
   __tests__/lib/auth-notification-store.test.ts
   __tests__/app/explore-public-itineraries.test.ts
   __tests__/app/explore-candidate-page.test.tsx
