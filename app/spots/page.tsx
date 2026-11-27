@@ -1,5 +1,5 @@
 import { PricingLineLink } from "@/components/seo/pricing-line";
-import { cityHubDescription, SPOTS_INDEX_DESCRIPTION } from "@/lib/seo/hub-meta";
+import { cityHubDescription, singaporeHubSnippet, SPOTS_INDEX_DESCRIPTION } from "@/lib/seo/hub-meta";
 import { Suspense } from "react";
 import { LocalleySignup } from "@/components/newsletter/localley-signup";
 import { IntentLink } from "@/components/navigation/intent-link";
@@ -54,11 +54,12 @@ export async function generateMetadata({ searchParams }: SpotsPageProps): Promis
     const { path, titleSuffix: pageSuffix } = spotsHubPagePath(hub.path, params.page);
     // A hub with fewer than 5 guide spots is thin (F4): keep it live and followed, but out of the index.
     const thin = city ? !hubIndexable(await sitemapSpotRows().catch(() => []), city.name) : false;
+    const snippet = city?.slug === "singapore" && !pageSuffix ? singaporeHubSnippet : undefined;
     return city
         ? {
             ...pageMeta({
-                title: `Hidden gems in ${city.name}: local spots${pageSuffix}`,
-                description: cityHubDescription(city.name, city.country),
+                title: snippet?.title ?? `Hidden gems in ${city.name}: local spots${pageSuffix}`,
+                description: snippet?.description ?? cityHubDescription(city.name, city.country),
                 path,
                 image: city.heroImage,
             }),

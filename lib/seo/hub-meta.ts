@@ -2,6 +2,11 @@
 // "Localley Score"; the snippet says what the page gives and ends with the free trip planner as the next step.
 export const HUB_META_TAIL = "Plan your days free with the trip planner.";
 
+export const singaporeHubSnippet = {
+  title: "Hidden gems in Singapore: Markets and Cafes",
+  description: "Find markets, cafés and other local spots in Singapore. Filter by neighbourhood or see what’s open now, then use the free planner to build your day.",
+};
+
 export function cityHubDescription(city: string, country: string): string {
   return `Hidden gems in ${city}, ${country}: cafes, food, bars and sights locals pick. Filter by area and open now. ${HUB_META_TAIL}`;
 }
