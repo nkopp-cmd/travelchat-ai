@@ -80,3 +80,46 @@ test("an area name inside a venue name is not a match; a place plus a short qual
   assert.equal(koSimilarity("낙산공원 일몰", "낙산공원"), 1);
   assert.ok(koSimilarity("북한산 우이동 입구", "북한산") < 0.6);
 });
+
+import { distanceM, koreanNameFromEng, korDetailImages, KOR_RADIUS_M, matchKor, TOURAPI_MIN_LONG_SIDE } from "./kto-harvest-lib.mjs";
+
+const korSpot = { nameKo: "광장시장", nameEn: "Gwangjang Market", category: "Market", city: "Seoul", lat: 37.5700, lng: 126.9996 };
+const kor = (over) => ({ contentid: "132183", title: "광장시장", cpyrhtDivCd: "Type1", firstimage: "http://tong.visitkorea.or.kr/cms/resource/1.jpg", mapx: "126.9996", mapy: "37.5701", addr1: "서울특별시 종로구", ...over });
+
+test("KorService2 match: same name near the spot, free licence, KTO image; https image url", () => {
+  const out = matchKor(korSpot, [kor({ contentid: "9", title: "경동시장" }), kor({}), kor({ contentid: "8", cpyrhtDivCd: "" })]);
+  assert.deepEqual(out.map((row) => row.contentId), ["132183"]);
+  assert.equal(out[0].licence, "KOGL Type 1");
+  assert.ok(out[0].url.startsWith("https://tong.visitkorea.or.kr/"));
+});
+
+test("KorService2 match rejects a same-name place far away, a foreign image host and, without coordinates, another city", () => {
+  assert.deepEqual(matchKor(korSpot, [kor({ mapy: "35.1" })]), []);
+  assert.deepEqual(matchKor(korSpot, [kor({ firstimage: "https://example.com/1.jpg" })]), []);
+  const noPoint = { ...korSpot, lat: NaN, lng: NaN };
+  assert.equal(matchKor(noPoint, [kor({})]).length, 1);
+  assert.deepEqual(matchKor(noPoint, [kor({ addr1: "부산광역시 중구" })]), []);
+  assert.ok(distanceM(37.57, 126.9996, 37.574, 126.9996) < KOR_RADIUS_M);
+  assert.ok(distanceM(37.57, 126.9996, 37.58, 126.9996) > KOR_RADIUS_M);
+});
+
+test("detailImage2 rows become extra candidates with their own licence; unknown licences drop", () => {
+  const [hit] = matchKor(korSpot, [kor({})]);
+  const out = korDetailImages(hit, [{ originimgurl: "http://tong.visitkorea.or.kr/2.jpg", cpyrhtDivCd: "Type3" }, { originimgurl: "http://tong.visitkorea.or.kr/3.jpg", cpyrhtDivCd: "Type4" }]);
+  assert.equal(out.length, 1);
+  assert.equal(out[0].licence, "KOGL Type 3");
+  assert.equal(out[0].contentId, "132183");
+});
+
+test("Korean name from the EngService2 row with the same English name only", () => {
+  const rows = [{ title: "Gwangjang Market (광장시장)", dist: "40" }, { title: "Mangnidan Street (망리단길)", dist: "10" }];
+  assert.equal(koreanNameFromEng(korSpot, rows), "광장시장");
+  assert.equal(koreanNameFromEng({ nameEn: "Gwangjang" }, rows), "");
+  assert.equal(koreanNameFromEng(korSpot, [{ title: "Gwangjang Market (광장시장)", dist: "900" }]), "");
+  assert.equal(koreanNameFromEng(korSpot, [{ title: "Gwangjang Market", dist: "5" }]), "");
+});
+
+test("TourAPI 940 px images pass the TourAPI size gate, not the gallery gate", () => {
+  assert.deepEqual(qualityProblems({ width: 940, height: 625, sharpness: 9 }, TOURAPI_MIN_LONG_SIDE), []);
+  assert.equal(qualityProblems({ width: 940, height: 625, sharpness: 9 }).length, 1);
+});
