@@ -93,10 +93,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       {related.length > 0 && (
         <nav aria-labelledby="more-journal" className="mt-10">
           <h2 id="more-journal" className="text-xl font-semibold text-foreground">More from the Journal</h2>
-          <ul className="mt-3 divide-y divide-border">
+          <ul className="mt-3 grid gap-3">
             {related.map((p) => (
               <li key={p.slug}>
-                <Link href={`/blog/${p.slug}`} className="block min-h-11 py-3 hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+                <Link href={`/blog/${p.slug}`} className="block min-h-11 rounded-2xl bg-surface p-4 shadow-surface hover:bg-surface/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
                   <span className="block text-base font-medium text-foreground">{p.title}</span>
                   <span className="mt-1 block text-sm text-muted-foreground">{p.description}</span>
                 </Link>
