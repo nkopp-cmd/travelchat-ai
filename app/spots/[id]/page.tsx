@@ -281,7 +281,11 @@ async function getSpotSourceD1(id: string) {
 // not a database error (Supabase throws "invalid input syntax for type uuid" -> 500).
 const SPOT_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-async function readSpot(id: string, candidate = false) {
+function readSpot(id: string, candidate = false) {
+  return timed("spot", readSpotSource(id, candidate));
+}
+
+async function readSpotSource(id: string, candidate = false) {
   if (!candidate && !SPOT_ID.test(id)) return null;
   if (candidate) {
     const row = await previewSpotPageData(id);
@@ -495,7 +499,7 @@ const spotGuide = cache((id: string) => timed("guide", readSpotGuide(id)));
 // Push EM1: generateMetadata blocks the first byte and the page then read the same spot again (2x D1, in series).
 // react cache() shares one read per request; the id-only reads start at once, next to the spot read, so the page's
 // Promise.all finds them done instead of waiting a second round trip (miss render was 217-310 ms).
-const getSpot = cache((id: string, candidate = false) => timed("spot", readSpot(id, candidate)));
+const getSpot = cache(readSpot);
 const spotViralMentions = cache((id: string) => timed("viral", fetchSpotViralMentions(id).catch(() => [])));
 const indexRows = cache(() => timed("index", sitemapSpotRows().catch(() => [])));
 const plannerCityNames = cache(() => timed("planner", plannerCities().then((list) => new Set(list.map((c) => c.name)), () => null)));
