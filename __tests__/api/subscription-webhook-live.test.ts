@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
+import fc from "fast-check";
 const m = vi.hoisted(() => ({ verify: vi.fn(), upsert: vi.fn(), update: vi.fn(), write: vi.fn(), retrieve: vi.fn(), tier: vi.fn(), eq: vi.fn(), owner: vi.fn(), source: vi.fn(), previous: vi.fn(), mail: vi.fn(), funnel: vi.fn() }));
 vi.mock("@/lib/stripe", () => ({ stripe: { subscriptions: { retrieve: m.retrieve } }, constructWebhookEvent: m.verify, getTierFromPriceId: m.tier }));
 vi.mock("@/lib/subscription-mail", async (importOriginal) => ({
@@ -133,5 +134,28 @@ describe("live subscription webhook compatibility", () => {
     m.verify.mockResolvedValue(event("invoice.payment_failed", { subscription: "sub_owned" }));
     expect((await post(request())).status).toBe(200);
     expect(m.mail).not.toHaveBeenCalled();
+  });
+  // Push DX3: Stripe retries and sends one invoice as both invoice.paid and invoice.payment_succeeded. Invariant: any
+  // order and repeat count of invoice events for one subscription only mirrors Stripe's canonical status onto that exact
+  // row; it never changes the tier, never creates a row, never mails and never records a funnel step.
+  it("property: repeated invoice events only mirror the canonical status, in any order", async () => {
+    await fc.assert(fc.asyncProperty(
+      fc.array(fc.constantFrom("invoice.paid", "invoice.payment_succeeded", "invoice.payment_failed"), { minLength: 1, maxLength: 6 }),
+      fc.constantFrom("active", "trialing", "past_due", "canceled", "unpaid", "incomplete_expired"),
+      async (types, canonical) => {
+        m.update.mockClear(); m.upsert.mockClear(); m.mail.mockClear(); m.funnel.mockClear(); m.eq.mockClear();
+        m.retrieve.mockResolvedValue({ ...sub, status: canonical });
+        const expected = ["active", "trialing", "past_due"].includes(canonical) ? canonical : "canceled";
+        for (const type of types) {
+          m.verify.mockResolvedValue(event(type, { id: "in_same", subscription: "sub_owned" }));
+          expect((await post(request())).status).toBe(200);
+        }
+        expect(m.update).toHaveBeenCalledTimes(types.length);
+        for (const [data] of m.update.mock.calls) expect(Object.keys(data).sort()).toEqual(["status", "updated_at"]);
+        expect(new Set(m.update.mock.calls.map(([data]) => data.status))).toEqual(new Set([expected]));
+        expect(m.eq).toHaveBeenCalledWith("stripe_subscription_id", "sub_owned");
+        expect(m.upsert).not.toHaveBeenCalled(); expect(m.mail).not.toHaveBeenCalled(); expect(m.funnel).not.toHaveBeenCalled();
+      },
+    ), { numRuns: 60 });
   });
 });
