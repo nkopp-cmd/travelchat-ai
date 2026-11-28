@@ -209,6 +209,9 @@ VITEST_FILES=(
   __tests__/lib/trial-claim-one-source.test.ts
   __tests__/lib/plan-billing-display.test.ts
   __tests__/lib/plan-billing-property.test.ts
+  __tests__/lib/subscription-actions.test.ts
+  __tests__/lib/checkout-source.property.test.ts
+  __tests__/lib/affiliate-click.property.test.ts
   __tests__/lib/checkout-trial-days.property.test.ts
   __tests__/lib/app-data-preview-chat-history-page.test.ts
   __tests__/pages/chat-history-candidate.test.tsx
@@ -665,6 +668,9 @@ ESLINT_FILES=(
   __tests__/lib/trial-claim-one-source.test.ts
   __tests__/lib/plan-billing-display.test.ts
   __tests__/lib/plan-billing-property.test.ts
+  __tests__/lib/subscription-actions.test.ts
+  __tests__/lib/checkout-source.property.test.ts
+  __tests__/lib/affiliate-click.property.test.ts
   __tests__/lib/checkout-trial-days.property.test.ts
   components/spots/preview-save-spot-button.tsx
   lib/app-data/preview-saved-spot-actor.ts
