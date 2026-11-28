@@ -130,6 +130,7 @@ VITEST_FILES=(
   __tests__/lib/blog-related.test.ts
   __tests__/lib/blog-country-posts.test.ts
   __tests__/lib/blog-city-journal.test.ts
+  __tests__/lib/spot-page-reads.test.ts
   __tests__/lib/blog-trip-story.test.tsx
   __tests__/app/site-url-fallback.test.ts
   __tests__/lib/seo-sitemap.test.ts
@@ -614,6 +615,7 @@ ESLINT_FILES=(
   __tests__/lib/blog-related.test.ts
   __tests__/lib/blog-country-posts.test.ts
   __tests__/lib/blog-city-journal.test.ts
+  __tests__/lib/spot-page-reads.test.ts
   __tests__/lib/blog-trip-story.test.tsx
   __tests__/lib/weekly-post-topic.test.ts
   __tests__/lib/weekly-post-draft.test.ts
