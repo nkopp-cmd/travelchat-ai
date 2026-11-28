@@ -81,9 +81,9 @@ const eventConfig: Record<SubscriptionEventType, {
         emoji: "⏰",
         title: "Trial Ending Soon",
         message: (props) =>
-            `Your free trial ends on ${props.trialEndDate}. Upgrade now to keep all your premium features and continue discovering hidden gems.`,
-        ctaText: "Upgrade Now",
-        ctaUrl: () => "https://www.localley.io/pricing",
+            `Your ${props.newTier || "Pro"} trial ends on ${props.trialEndDate}. Stripe then bills ${props.amount || "your plan price"}; cancel in Settings before then if you do not want to continue.`,
+        ctaText: "Manage Subscription",
+        ctaUrl: (props) => props.manageUrl || accountEmailLink("/settings"),
     },
     payment_failed: {
         subject: "Payment failed - Action required",
@@ -144,7 +144,7 @@ export function SubscriptionEmail(props: SubscriptionEmailProps) {
                     {/* Features for upgrades */}
                     {eventType === "upgrade" && (
                         <Section style={featuresSection}>
-                            <Text style={featuresTitle}>What's included:</Text>
+                            <Text style={featuresTitle}>What&apos;s included:</Text>
                             {newTier === "Pro" ? (
                                 <>
                                     <Text style={featureItem}>✓ Unlimited itineraries</Text>
