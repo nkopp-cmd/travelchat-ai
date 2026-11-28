@@ -206,6 +206,8 @@ on:
       - 'lib/places-quota.ts'
       - 'lib/places-guard.ts'
       - '__tests__/lib/places-quota.test.ts'
+      - 'lib/isolate-memo.ts'
+      - '__tests__/lib/isolate-memo.test.ts'
       - 'app/api/places/photo/route.ts'
       - '__tests__/api/place-photo-fallback.test.ts'
       - '__tests__/lib/spot-photos.test.ts'

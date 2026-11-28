@@ -166,6 +166,7 @@ VITEST_FILES=(
   __tests__/lib/community-qa.test.ts
   __tests__/lib/community-access.test.ts
   __tests__/lib/places-quota.test.ts
+  __tests__/lib/isolate-memo.test.ts
   __tests__/api/place-photo-fallback.test.ts
   __tests__/lib/hero-card-place.test.ts
   __tests__/lib/spot-photos.test.ts
@@ -695,6 +696,8 @@ ESLINT_FILES=(
   __tests__/components/conditional-navbar.test.tsx
   lib/places-quota.ts
   lib/places-guard.ts
+  lib/isolate-memo.ts
+  __tests__/lib/isolate-memo.test.ts
   __tests__/lib/places-quota.test.ts
   app/api/places/photo/route.ts
   __tests__/api/place-photo-fallback.test.ts

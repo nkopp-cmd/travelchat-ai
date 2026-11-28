@@ -1,5 +1,6 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
+import { isolateMemo } from "@/lib/isolate-memo";
 import { dataBackend } from "@/lib/app-data/backend";
 import { d1FilteredSpotKeys } from "./d1-queries";
 import { SPOT_DEDUPE_VERSION, dedupePublicSpotRows } from "./queries";
@@ -12,8 +13,8 @@ async function loadCityDirectory(citySlug: string): Promise<CityDirectoryEntry[]
   return toDirectoryEntries(dedupePublicSpotRows(rows));
 }
 
-const cachedCityDirectory = unstable_cache(loadCityDirectory, ["city-directory-v3", PUBLIC_SPOT_VISIBILITY_CACHE_VERSION, SPOT_DEDUPE_VERSION],
-  { revalidate: 3600, tags: ["spots"] });
+const cachedCityDirectory = isolateMemo(unstable_cache(loadCityDirectory, ["city-directory-v3", PUBLIC_SPOT_VISIBILITY_CACHE_VERSION, SPOT_DEDUPE_VERSION],
+  { revalidate: 3600, tags: ["spots"] }), 5 * 60_000);
 
 /** Every public spot of one city hub, A-Z (one cached D1 read per city and hour); empty outside D1. */
 export async function cityDirectory(citySlug: string | null | undefined): Promise<CityDirectoryEntry[]> {
