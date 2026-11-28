@@ -1,4 +1,4 @@
-import { isSpotDetailPath, readFreshEdgeHtml, SPOTS_AZ_PATH } from "./edge-html-cache";
+import { isSpotDetailPath, readFreshEdgeHtml, SPOT_MEDIA_PATH, SPOTS_AZ_PATH } from "./edge-html-cache";
 import { CANONICAL_HOST } from "./robots-host";
 
 interface Env {
@@ -11,8 +11,10 @@ interface Env {
 // rule of the main Worker's cache (session cookie, RSC, query, stale) stays in readFreshEdgeHtml; anything else
 // goes to the origin unchanged (/templates is a static asset, Push DT3). Keep the routes in cache-front.wrangler.jsonc in step.
 const FRONT_PATHS = new Set(["/sign-up", "/sign-in", "/forgot-password", "/itineraries/new", "/spots"]);
+// Push DT2: the stored spot photos (the spot hero is the LCP image). Their key has no Worker version, so a HIT
+// here is the same immutable bytes the main Worker would send.
 const isFrontPath = (pathname: string) =>
-  FRONT_PATHS.has(pathname) || SPOTS_AZ_PATH.test(pathname) || isSpotDetailPath(pathname);
+  FRONT_PATHS.has(pathname) || SPOTS_AZ_PATH.test(pathname) || isSpotDetailPath(pathname) || SPOT_MEDIA_PATH.test(pathname);
 const CACHE_FRONT_HEADER = "x-localley-cache-front";
 
 async function serveCacheFront(request: Request, env: Env, cache: Pick<Cache, "match">): Promise<Response> {

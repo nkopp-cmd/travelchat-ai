@@ -758,6 +758,24 @@ describe("public cache front", () => {
     expect(fetch.mock.calls).toEqual(requests.map((request) => [request]));
   });
 
+  it("serves a stored spot photo across releases and forwards a stand-in or a bad name (Push DT2)", async () => {
+    const photo = originUrl + "/media/spot/01053a4b-458b-4377-bf9d-2b70837b006e/" + "a".repeat(64);
+    const immutable = "public, max-age=31536000, immutable";
+    const cache = memoryCache();
+    await serve(new Request(`${photo}-w960.avif`), cache, async () => new Response(new Uint8Array([0]), {
+      headers: { "content-type": "image/avif", "cache-control": immutable },
+    }), "v1");
+    const fetch = vi.fn(async (request: Request) => new Response(request.url));
+    const env = { ORIGIN: { fetch }, ORIGIN_VERSION: "v2" };
+    const hit = await serveCacheFront(new Request(`${photo}-w960.avif`), env, cache);
+    expect(hit.headers.get("x-localley-cache-front")).toBe("HIT");
+    expect(hit.headers.get("content-type")).toBe("image/avif");
+    expect(hit.headers.get("cache-control")).toBe(immutable);
+    const forwarded = [new Request(`${photo}-w480.avif`), new Request(`${photo}-480.webp`), new Request(`${photo}.webp?v=2`)];
+    for (const request of forwarded) await serveCacheFront(request, env, cache);
+    expect(fetch.mock.calls).toEqual(forwarded.map((request) => [request]));
+  });
+
   it("forwards a stale entry, a miss for a new release and a cache failure", async () => {
     const cache = memoryCache();
     const fetch = vi.fn(async (request: Request) => new Response(request.url));
