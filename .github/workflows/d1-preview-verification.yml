@@ -347,6 +347,7 @@ on:
       - 'components/templates/**'
       - 'components/spots/submission-media-progress.tsx'
       - 'app/shared/**'
+      - 'lib/render-timing.ts'
       - 'app/explore/**'
       - 'app/spots/**'
       - 'components/itineraries/wizard/**'
