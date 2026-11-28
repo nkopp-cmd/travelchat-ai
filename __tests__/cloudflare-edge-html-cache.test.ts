@@ -722,6 +722,11 @@ describe("public cache front", () => {
     ["/spots?city=seoul&view=map", "/spots?city=seoul&view=map"],
     ["/spots/a-z/seoul", "/spots/a-z/seoul?fbclid=abc"],
     ["/spots/95116c7e-1234-4abc-8def-0123456789ab", "/spots/95116c7e-1234-4abc-8def-0123456789ab"],
+    // Push DU2: the viral event pages and the photo credits.
+    ["/trending", "/trending"],
+    ["/trending/justin-bieber-seoul-2026-10", "/trending/justin-bieber-seoul-2026-10"],
+    ["/credits", "/credits"],
+    ["/credits/seoul", "/credits/seoul"],
   ])("serves fresh origin HTML for %s without invoking the app", async (seed, requested) => {
     const cache = memoryCache();
     await serve(new Request(originUrl + seed), cache, async () => html());
@@ -751,6 +756,9 @@ describe("public cache front", () => {
       new Request(originUrl + "/spots/a-z/Seoul"),
       new Request(originUrl + "/spots/submit"),
       new Request(originUrl + "/templates"),
+      new Request(originUrl + "/trending/Bad_Slug"),
+      new Request(originUrl + "/trending/x/y"),
+      new Request(originUrl + "/credits/seoul/extra"),
       new Request("https://localley.io/spots/a-z/seoul"),
     ];
     for (const request of requests) await serveCacheFront(request, env, cache);
