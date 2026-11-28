@@ -39,6 +39,9 @@ export const STATIC_PUBLIC_PAGES = {
   ...Object.fromEntries(blogSlugs().map((slug) => [`/blog/${slug}`, `blog/${slug}.html`])),
   // Push DR3: planner comparison (app/vs/wanderlog), force-static from lib/vs/wanderlog.ts.
   "/vs/wanderlog": "vs/wanderlog.html",
+  // Push DT3: itinerary templates (app/templates), a pure prerender of lib/templates.ts (s-maxage=31536000). Through
+  // the Worker its edge HIT took 1.0-1.1 s on a cold isolate from ci-1 (2026-11-28).
+  "/templates": "templates.html",
 };
 
 /**
