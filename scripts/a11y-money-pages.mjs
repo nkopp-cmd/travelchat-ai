@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // Push BV3: axe on the pages a payer walks through, at phone and desktop width.
+// Push EA2: `--wide` also covers every /help/<country> and /trending/<slug> page (read live) and the legal pages.
 // Push DJ3: `--wide` adds every city list page linked from /spots (read live, so a new city needs no edit here)
 // plus the other public browse pages; a page that fails to load now counts as a failure instead of an empty "ok".
 // Push DX2: `--wide` also takes the first spot detail page linked from /spots and the first post linked from /blog
@@ -12,12 +13,21 @@ import { fileURLToPath } from "node:url";
 import { pacer } from "./seo/click-depth-lib.mjs";
 
 export const PAGES = ["/", "/pricing", "/sign-up?redirect_url=%2Fpricing", "/sign-in", "/forgot-password", "/itineraries/new", "/spots"];
-export const BROWSE_PAGES = ["/trending", "/templates", "/help", "/help/korea", "/help/korea/pay", "/blog", "/vs/wanderlog"];
+export const BROWSE_PAGES = ["/trending", "/templates", "/help", "/help/korea", "/help/korea/pay", "/blog", "/vs/wanderlog", "/credits", "/privacy", "/terms"];
 export const VIEWPORTS = [["mobile", 390, 844], ["desktop", 1280, 900]];
 const BLOCKING = new Set(["serious", "critical"]);
 const CITY_LINK = /href="(\/spots(?:\?city=|\/a-z\/)[a-z0-9-]+)"/g;
 const SPOT_LINK = /href="(\/spots\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"/;
 const POST_LINK = /href="(\/blog\/[a-z0-9]+(?:-[a-z0-9]+)*)"/;
+// Push EA2: the country help pages and the trending detail pages are entry pages from Google; read every one live.
+const HELP_LINK = /href="(\/help\/[a-z]+(?:-[a-z]+)*)"/g;
+const TRENDING_LINK = /href="(\/trending\/[a-z0-9]+(?:-[a-z0-9]+)*)"/g;
+
+/** Every /help/<country> link in the /help HTML and every /trending/<slug> link in the /trending HTML, each once. */
+export function entryPages(helpHtml = "", trendingHtml = "") {
+    const all = (html, re) => [...new Set([...html.matchAll(re)].map((m) => m[1]))].sort();
+    return [...all(helpHtml, HELP_LINK), ...all(trendingHtml, TRENDING_LINK)];
+}
 
 /** The first spot detail page and the first blog post the live HTML links, or none. */
 export function contentPages(spotsHtml = "", blogHtml = "") {
@@ -25,10 +35,10 @@ export function contentPages(spotsHtml = "", blogHtml = "") {
 }
 
 /** The page list: the money walk, plus (wide) the browse pages, every city link in the /spots HTML, one spot and one post. */
-export function pagesFor(wide, spotsHtml = "", blogHtml = "") {
+export function pagesFor(wide, spotsHtml = "", blogHtml = "", helpHtml = "", trendingHtml = "") {
     if (!wide) return [...PAGES];
     const cities = [...new Set([...spotsHtml.matchAll(CITY_LINK)].map((m) => m[1]))].sort();
-    return [...new Set([...PAGES, ...BROWSE_PAGES, ...cities, ...contentPages(spotsHtml, blogHtml)])];
+    return [...new Set([...PAGES, ...BROWSE_PAGES, ...cities, ...contentPages(spotsHtml, blogHtml), ...entryPages(helpHtml, trendingHtml)])];
 }
 
 async function main() {
@@ -48,6 +58,8 @@ async function main() {
     const headers = { "X-Localley-Check": "1" };
     let spotsHtml = "";
     let blogHtml = "";
+    let helpHtml = "";
+    let trendingHtml = "";
     let spotsStatus = 0;
     if (wide) {
         const response = await fetch(`${base}/spots`, { headers });
@@ -55,14 +67,22 @@ async function main() {
         spotsHtml = response.ok ? await response.text() : "";
         const blog = await fetch(`${base}/blog`, { headers });
         blogHtml = blog.ok ? await blog.text() : "";
+        const help = await fetch(`${base}/help`, { headers });
+        helpHtml = help.ok ? await help.text() : "";
+        const trending = await fetch(`${base}/trending`, { headers });
+        trendingHtml = trending.ok ? await trending.text() : "";
     }
-    const pages = pagesFor(wide, spotsHtml, blogHtml);
+    const pages = pagesFor(wide, spotsHtml, blogHtml, helpHtml, trendingHtml);
     if (wide && pages.length === pagesFor(true, "").length) {
         console.error(`a11y-money-pages: no city links on ${base}/spots (HTTP ${spotsStatus})`);
         return 1;
     }
     if (wide && contentPages(spotsHtml, blogHtml).length < 2) {
         console.error(`a11y-money-pages: no spot link on ${base}/spots or no post link on ${base}/blog`);
+        return 1;
+    }
+    if (wide && entryPages(helpHtml, "").length < 2) {
+        console.error(`a11y-money-pages: fewer than 2 country links on ${base}/help`);
         return 1;
     }
     const pace = pacer(2);
