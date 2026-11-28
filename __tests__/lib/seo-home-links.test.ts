@@ -47,6 +47,16 @@ describe("homeHubLinks", () => {
 });
 
 describe("static home snapshot (release: '/' must stay a static prerender)", () => {
+  it("home footer links the crawl-path pages (push EK1, EL2)", () => {
+    const footer = readFileSync(resolve("app/page.tsx"), "utf8").split('aria-label="Footer"')[1].split("</nav>")[0];
+    for (const href of ["/blog", "/templates", "/newsletter", "/vs/wanderlog"]) expect(footer).toContain(`href="${href}"`);
+  });
+
+  it("journal posts link the templates and trending pages (push EL3)", () => {
+    const post = readFileSync(resolve("app/blog/[slug]/page.tsx"), "utf8");
+    for (const href of ["/templates", "/trending"]) expect(post).toContain(`href="${href}"`);
+  });
+
   it("home page reads the committed snapshot and never renders per request", () => {
     const page = readFileSync(resolve("app/page.tsx"), "utf8");
     expect(page).not.toMatch(/export const (dynamic|revalidate)\b/);
