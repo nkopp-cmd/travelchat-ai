@@ -213,4 +213,14 @@ describe("place photo proxy without substitution", () => {
         expect(mocks.limit).not.toHaveBeenCalled();
         expect(fetch).not.toHaveBeenCalled();
     });
+
+    it.each(["Googlebot/2.1 (+http://www.google.com/bot.html)", "Mozilla/5.0 (Linux; Android 11) Chrome/136.0.0.0 Mobile Safari/537.36 Chrome-Lighthouse"])(
+        "sends crawlers the static placeholder, never a 404 or a billed call: %s", async ua => {
+            const response = await GET(new NextRequest(`https://localley.io/api/places/photo?name=${encodeURIComponent(name)}`, { headers: { "user-agent": ua } }));
+            expect(response.status).toBe(302);
+            expect(response.headers.get("location")).toBe("https://localley.io/placeholder-spot.svg");
+            expect(response.headers.get("cache-control")).toBe("no-store");
+            expect(fetch).not.toHaveBeenCalled();
+        },
+    );
 });

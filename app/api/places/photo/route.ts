@@ -14,6 +14,11 @@ function unavailable(status = 502) {
     });
 }
 
+/** Static, no billed call; no-store so a shared edge cache never gives a real visitor this redirect. */
+function automatedPlaceholder(req: NextRequest) {
+    return new NextResponse(null, { status: 302, headers: { ...noStore, Location: new URL("/placeholder-spot.svg", req.url).toString() } });
+}
+
 function trustedImageUrl(value: string): URL {
     const url = new URL(value);
     const host = url.hostname;
@@ -104,7 +109,8 @@ export async function GET(req: NextRequest) {
     const index = Number(params.get("i") ?? 0);
 
     // Bots, Lighthouse and prefetches never cost a billed Places call.
-    if (isAutomatedPlacesRequest(req.headers)) return unavailable(404);
+    // They get the static placeholder, not a 404: crawlers and Lighthouse saw broken <img> tags on /spots (DW2).
+    if (isAutomatedPlacesRequest(req.headers)) return automatedPlaceholder(req);
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 12_000);
     try {
