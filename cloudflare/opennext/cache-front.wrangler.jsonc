@@ -11,6 +11,9 @@
   // The suffix wildcard includes query strings. The Worker checks exact paths.
   "routes": [
     { "pattern": "www.localley.io/sign-up*", "zone_name": "localley.io" },
-    { "pattern": "www.localley.io/itineraries/new*", "zone_name": "localley.io" }
+    { "pattern": "www.localley.io/sign-in*", "zone_name": "localley.io" },
+    { "pattern": "www.localley.io/forgot-password*", "zone_name": "localley.io" },
+    { "pattern": "www.localley.io/itineraries/new*", "zone_name": "localley.io" },
+    { "pattern": "www.localley.io/spots*", "zone_name": "localley.io" }
   ]
 }

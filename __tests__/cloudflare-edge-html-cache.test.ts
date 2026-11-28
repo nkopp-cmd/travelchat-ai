@@ -716,6 +716,12 @@ describe("public cache front", () => {
   it.each([
     ["/sign-up?redirect_url=%2Fitineraries%2Fpreview", "/sign-up?redirect_url=%2Fitineraries%2Fpreview"],
     ["/itineraries/new", "/itineraries/new?city=seoul"],
+    // Push DT1: the other public pages whose cold-isolate HIT took 0.5-2.2 s through the main Worker.
+    ["/sign-in?redirect_url=%2Fsettings", "/sign-in?redirect_url=%2Fsettings"],
+    ["/forgot-password", "/forgot-password"],
+    ["/spots?city=seoul&view=map", "/spots?city=seoul&view=map"],
+    ["/spots/a-z/seoul", "/spots/a-z/seoul?fbclid=abc"],
+    ["/spots/95116c7e-1234-4abc-8def-0123456789ab", "/spots/95116c7e-1234-4abc-8def-0123456789ab"],
   ])("serves fresh origin HTML for %s without invoking the app", async (seed, requested) => {
     const cache = memoryCache();
     await serve(new Request(originUrl + seed), cache, async () => html());
@@ -739,6 +745,13 @@ describe("public cache front", () => {
       new Request(originUrl + "/itineraries/new", { headers: { rsc: "1" } }),
       new Request(originUrl + "/itineraries/new", { method: "HEAD" }),
       new Request(originUrl + "/itineraries/new-old"),
+      new Request(originUrl + "/sign-in", { headers: { cookie: "__Secure-better-auth.session_token=registered" } }),
+      new Request(originUrl + "/spots?city=nowhere"),
+      new Request(originUrl + "/spots/95116c7e-1234-4abc-8def-0123456789ab/og"),
+      new Request(originUrl + "/spots/a-z/Seoul"),
+      new Request(originUrl + "/spots/submit"),
+      new Request(originUrl + "/templates"),
+      new Request("https://localley.io/spots/a-z/seoul"),
     ];
     for (const request of requests) await serveCacheFront(request, env, cache);
     expect(cache.match).not.toHaveBeenCalled();
