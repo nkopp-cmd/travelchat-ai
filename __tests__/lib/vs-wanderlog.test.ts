@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { pageEntries } from "@/lib/seo/sitemap";
-import { TIER_CONFIGS } from "@/lib/subscription";
+import { PRO_TRIAL_DAYS, TIER_CONFIGS } from "@/lib/subscription";
 import { usd, VS_WANDERLOG as P } from "@/lib/vs/wanderlog";
 
 // Push DR3: the comparison page must stay honest and fit search snippets (vs-and-alternatives rules).
@@ -35,6 +35,13 @@ describe("/vs/wanderlog content", () => {
         expect(P.priceRows.map((r) => r.us)).toEqual([TIER_CONFIGS.pro.price, TIER_CONFIGS.pro.price * 2, TIER_CONFIGS.pro.yearlyPrice]);
         expect(usd(9)).toBe("$9.00");
         expect(usd(16.99)).toBe("$16.99");
+    });
+
+    it("names the Pro trial from PRO_TRIAL_DAYS in the price reason and the 'cheaper' FAQ (Push EB2)", () => {
+        const priceReason = P.reasons.find((r) => r.reason === "Paid plan for one trip");
+        expect(priceReason?.us).toBe(`Pro is $${TIER_CONFIGS.pro.price} a month after ${PRO_TRIAL_DAYS} days free for new subscribers; cancel any time.`);
+        const cheaper = P.faq.find((f) => f.question === "Is Localley cheaper than Wanderlog Pro?");
+        expect(cheaper?.answer).toContain(`first ${PRO_TRIAL_DAYS} days free`);
     });
 
     it("is in the sitemap", () => {

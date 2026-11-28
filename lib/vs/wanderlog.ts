@@ -1,4 +1,4 @@
-import { TIER_CONFIGS } from "@/lib/subscription";
+import { PRO_TRIAL_DAYS, TIER_CONFIGS } from "@/lib/subscription";
 
 /**
  * Push DR3: /vs/wanderlog comparison page content. Wanderlog facts were checked on 2026-11-27 against the U.S. App
@@ -56,7 +56,7 @@ export const VS_WANDERLOG = {
         {
             reason: "Paid plan for one trip",
             them: "Pro from $16.99 a month on the website.",
-            us: `Pro is $${pro.price} a month, cancel any time.`,
+            us: `Pro is $${pro.price} a month after ${PRO_TRIAL_DAYS} days free for new subscribers; cancel any time.`,
             source: WL_PRO,
         },
     ],
@@ -88,7 +88,7 @@ export const VS_WANDERLOG = {
         },
         {
             question: "Is Localley cheaper than Wanderlog Pro?",
-            answer: `For one or two months, yes: Localley Pro is $${pro.price} a month, Wanderlog Pro starts at $16.99 a month. For a full year Wanderlog is cheaper: from $39.99 against $${pro.yearlyPrice}.`,
+            answer: `For one or two months, yes: Localley Pro is $${pro.price} a month, Wanderlog Pro starts at $16.99 a month. New Localley Pro subscribers also get the first ${PRO_TRIAL_DAYS} days free. For a full year Wanderlog is cheaper: from $39.99 against $${pro.yearlyPrice}.`,
         },
         {
             question: "Can my friends edit a Localley plan with me?",
