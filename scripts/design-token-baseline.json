@@ -48,10 +48,6 @@
   "components/activities/itinerary-activity-card.tsx": {
     "palette": 1
   },
-  "components/activities/upgrade-prompt.tsx": {
-    "gradient": 18,
-    "palette": 1
-  },
   "components/admin/apify-spot-discovery-workbench.tsx": {
     "palette": 1
   },
