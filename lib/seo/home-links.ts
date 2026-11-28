@@ -35,6 +35,23 @@ export function homeHubLinks(rows: readonly SitemapSpotRow[], hubs: readonly str
     .map(({ name, slug }) => ({ name, href: `/spots?city=${slug}`, azHref: `/spots/a-z/${encodeURIComponent(slug)}` }));
 }
 
+/**
+ * Push DV2: the indexable guide spots (guide + own photo) of one hub, A-Z by name, for the top of /spots/a-z/<city>.
+ * The A-Z hubs are the pages Google indexes best; most of their rows link to noindex spots, so this block sends the
+ * link value to the ones Google can index. One row per id, names trimmed, at most `limit`. Deterministic.
+ */
+export function cityGuideSpots(rows: readonly SitemapSpotRow[], city: string, limit = 60): HomeSpotLink[] {
+  const seen = new Set<string>();
+  const out: HomeSpotLink[] = [];
+  for (const r of indexableOnly(rows)) {
+    const name = r.name?.trim();
+    if (r.hub !== city || !name || seen.has(r.id.toLowerCase())) continue;
+    seen.add(r.id.toLowerCase());
+    out.push({ id: r.id, name, hub: city });
+  }
+  return out.sort((a, b) => a.name.localeCompare(b.name, "en") || a.id.localeCompare(b.id)).slice(0, limit);
+}
+
 export type HomePostLink = { href: string; title: string };
 
 /**
