@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { authBackLink, authCopy, authEntryLinks, authLeadLink, FREE_ACCOUNT_SUBTITLE, SIGN_IN_LEAD, SIGN_UP_LEAD } from "@/lib/auth/auth-copy";
-import { TIER_CONFIGS } from "@/lib/subscription";
+import { checkoutTrialDays, TIER_CONFIGS } from "@/lib/subscription";
 
 describe("authCopy", () => {
     it("names the real free limits on the plain Join free form (Push BG1)", () => {
@@ -32,13 +32,35 @@ describe("authCopy", () => {
     });
 
     it("names the chosen plan when sign-up comes from a pricing plan button", () => {
-        expect(authCopy("sign-up", "/pricing?checkout=pro-monthly")).toEqual({ title: "Create your account to start Pro", subtitle: "Your Pro monthly checkout opens next." });
-        expect(authCopy("sign-up", "/pricing?checkout=premium-yearly").title).toBe("Create your account to start Premium");
-        expect(authCopy("sign-in", "/pricing?checkout=pro-yearly")).toEqual({ title: "Sign in to start Pro", subtitle: "Your Pro yearly checkout opens next." });
-        // The Pro trial is not live (checkout passes no trial days): never promise one.
-        expect(JSON.stringify(authCopy("sign-up", "/pricing?checkout=pro-monthly"))).not.toMatch(/trial|free/i);
+        // Push EA1: the Pro button says "Try Pro 7 days free"; this step keeps that promise with the real price.
+        expect(authCopy("sign-up", "/pricing?checkout=pro-monthly")).toEqual({
+            title: "Create your account to start Pro",
+            subtitle: "Next: your 7-day free trial. You pay $0 today, then $9 per month. Cancel before day 7 and pay nothing.",
+        });
+        expect(authCopy("sign-up", "/pricing?checkout=pro-yearly").subtitle).toContain("then $79 per year");
+        // Sign-in may be a past subscriber, who pays from day one (checkoutTrialDays): only "new subscribers".
+        expect(authCopy("sign-in", "/pricing?checkout=pro-yearly")).toEqual({
+            title: "Sign in to start Pro",
+            subtitle: "Your Pro yearly checkout opens next. New subscribers get 7 days free, then $79 per year.",
+        });
+        // Premium has no trial: never promise one.
+        expect(authCopy("sign-up", "/pricing?checkout=premium-yearly")).toEqual({ title: "Create your account to start Premium", subtitle: "Your Premium yearly checkout opens next." });
+        expect(JSON.stringify(authCopy("sign-in", "/pricing?checkout=premium-monthly"))).not.toMatch(/trial|free/i);
         for (const target of ["/pricing", "/pricing?checkout=gold-monthly", "/pricing?checkout=pro", "//evil.example/pricing?checkout=pro-monthly", "/pricingx?checkout=pro-monthly"]) {
             expect(authCopy("sign-up", target).title).toBe("Join Localley");
+        }
+    });
+
+    it("promises a free trial exactly when checkout really gives one (Push EA1)", () => {
+        for (const tier of ["pro", "premium"] as const) {
+            const days = checkoutTrialDays(tier, null);
+            for (const cycle of ["monthly", "yearly"] as const) {
+                for (const mode of ["sign-up", "sign-in"] as const) {
+                    const text = JSON.stringify(authCopy(mode, `/pricing?checkout=${tier}-${cycle}`));
+                    if (days > 0) expect(text).toContain(mode === "sign-up" ? `${days}-day free trial` : `${days} days free`);
+                    else expect(text).not.toMatch(/trial|free/i);
+                }
+            }
         }
     });
 
