@@ -166,3 +166,16 @@ export function countryPosts(countryCode: string, posts: readonly BlogPost[] = B
   const paying = mine.filter((p) => postSeries(p.slug) === "paying-in");
   return [...paying, ...mine.filter((p) => !paying.includes(p))].slice(0, Math.max(0, limit));
 }
+
+/** Help country slug -> ISO code of lib/cities (push EF2 on /pay, EI2 on the indexed country guides). */
+export const HELP_COUNTRY_CODE: Readonly<Record<string, string>> = { korea: "KR", japan: "JP", thailand: "TH", vietnam: "VN", taiwan: "TW", singapore: "SG" };
+
+/** Push EI2: Journal posts for one /help/<country> slug. */
+export function helpCountryPosts(slug: string, posts: readonly BlogPost[] = BLOG_POSTS, limit = 3): BlogPost[] {
+  return countryPosts(HELP_COUNTRY_CODE[slug] ?? "", posts, limit);
+}
+
+/** Push EI2: every "paying-in" post, newest first (the indexed /help page links them all). */
+export function payingPosts(posts: readonly BlogPost[] = BLOG_POSTS): BlogPost[] {
+  return posts.filter((p) => postSeries(p.slug) === "paying-in").sort((a, b) => b.published.localeCompare(a.published));
+}

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { BLOG_POSTS, countryPosts, postCountryCode, type BlogPost } from "../../lib/blog/posts";
+import { BLOG_POSTS, HELP_COUNTRY_CODE, countryPosts, helpCountryPosts, payingPosts, postCountryCode, type BlogPost } from "../../lib/blog/posts";
+import { HELP_COUNTRIES } from "../../lib/help/phrases";
 
 const p = (slug: string, published: string, plannerCity?: string): BlogPost => ({ slug, file: `${published}-${slug}.md`, title: slug, description: "", published, updated: published, body: "", plannerCity });
 
@@ -39,5 +40,17 @@ describe("countryPosts (push EF2)", () => {
   it("every live post maps to a country (Push EG1: trip posts link their city planner)", () => {
     expect(BLOG_POSTS.filter((post) => !postCountryCode(post)).map((post) => post.slug)).toEqual([]);
     expect(countryPosts("TH").map((post) => post.slug)).toContain("three-easy-days-in-chiang-mai-for-first-time-visitors");
+  });
+
+  it("every help country slug has an ISO code, and the Korea guide leads with paying-in-seoul (Push EI2)", () => {
+    for (const country of HELP_COUNTRIES) expect(HELP_COUNTRY_CODE[country.slug], country.slug).toMatch(/^[A-Z]{2}$/);
+    expect(helpCountryPosts("korea")[0]?.slug).toBe("paying-in-seoul");
+    expect(helpCountryPosts("nowhere")).toEqual([]);
+  });
+
+  it("payingPosts lists every live paying-in post, newest first (Push EI2)", () => {
+    const slugs = payingPosts().map((x) => x.slug);
+    expect(new Set(slugs)).toEqual(new Set(BLOG_POSTS.filter((x) => x.slug.startsWith("paying-in-")).map((x) => x.slug)));
+    expect(payingPosts(posts).map((x) => x.slug)).toEqual(["paying-in-tokyo", "paying-in-singapore", "paying-in-bangkok", "paying-in-seoul"]);
   });
 });
