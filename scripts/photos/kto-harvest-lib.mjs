@@ -98,9 +98,9 @@ export function ktoCredit(photographer) {
 }
 
 /** Quality gate (code): big enough and sharp enough. */
-export function qualityProblems({ width, height, sharpness }) {
+export function qualityProblems({ width, height, sharpness }, minLongSide = MIN_LONG_SIDE) {
     const problems = [];
-    if (Math.max(width || 0, height || 0) < MIN_LONG_SIDE) problems.push(`long side ${Math.max(width || 0, height || 0)} < ${MIN_LONG_SIDE}`);
+    if (Math.max(width || 0, height || 0) < minLongSide) problems.push(`long side ${Math.max(width || 0, height || 0)} < ${minLongSide}`);
     if (!(sharpness >= MIN_SHARPNESS)) problems.push(`sharpness ${Number(sharpness || 0).toFixed(2)} < ${MIN_SHARPNESS}`);
     return problems;
 }
@@ -176,4 +176,75 @@ export function matchTour(spot, items) {
             licence: TOUR_LICENCE[item.cpyrhtDivCd],
             score: Math.round(score * 100) / 100,
         }));
+}
+
+// TourAPI images (KorService2 firstimage / detailImage2 originimgurl) are 940 px wide. Pages use the 960/480/144
+// copies (make-thumbs.mjs), so 900 px is enough for them; gallery photos keep MIN_LONG_SIDE.
+export const TOURAPI_MIN_LONG_SIDE = 900;
+// KorService2 searchKeyword2 is not bound to a place: a same-name row must also be near the spot.
+export const KOR_RADIUS_M = 500;
+const KOR_CITY = { Seoul: "서울", Busan: "부산", Jeju: "제주", Gyeongju: "경주" };
+
+export function distanceM(lat1, lng1, lat2, lng2) {
+    const rad = Math.PI / 180;
+    const dLat = (lat2 - lat1) * rad;
+    const dLng = (lng2 - lng1) * rad;
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin(dLng / 2) ** 2;
+    return 2 * 6371000 * Math.asin(Math.sqrt(a));
+}
+
+const tourImage = (url) => /^https?:\/\/tong\.visitkorea\.or\.kr\//.test(url || "");
+
+/**
+ * KorService2 (Korean TourAPI) searchKeyword2 rows that are this spot: Korean name >= MATCH_MIN, a free KOGL
+ * type, a KTO image, and within KOR_RADIUS_M of the spot (or, without spot coordinates, in the spot's city).
+ */
+export function matchKor(spot, items) {
+    const hasPoint = Number.isFinite(spot.lat) && Number.isFinite(spot.lng);
+    return items
+        .map((item) => ({
+            item,
+            score: koSimilarity(spot.nameKo, item.title),
+            dist: hasPoint && item.mapx && item.mapy ? distanceM(spot.lat, spot.lng, Number(item.mapy), Number(item.mapx)) : NaN,
+        }))
+        .filter(({ item, score, dist }) => score >= MATCH_MIN && TOUR_LICENCE[item.cpyrhtDivCd] && tourImage(item.firstimage)
+            && (hasPoint ? dist <= KOR_RADIUS_M : String(item.addr1 || "").includes(KOR_CITY[spot.city] || "\u0000")))
+        .sort((a, b) => b.score - a.score || (a.dist || 0) - (b.dist || 0))
+        .slice(0, 1)
+        .map(({ item, score, dist }) => ({
+            contentId: String(item.contentid),
+            title: item.title,
+            url: String(item.firstimage).replace(/^http:/, "https:"),
+            licence: TOUR_LICENCE[item.cpyrhtDivCd],
+            score: Math.round(score * 100) / 100,
+            dist: Number.isFinite(dist) ? Math.round(dist) : null,
+        }));
+}
+
+/** detailImage2 rows as extra candidates for a matched content id (same licence rules, KTO host only). */
+export function korDetailImages(match, items, limit = 3) {
+    return items
+        .filter((item) => TOUR_LICENCE[item.cpyrhtDivCd] && tourImage(item.originimgurl))
+        .slice(0, limit)
+        .map((item) => ({ ...match, url: String(item.originimgurl).replace(/^http:/, "https:"), licence: TOUR_LICENCE[item.cpyrhtDivCd] }));
+}
+
+function enKey(text) {
+    return String(text || "").toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "");
+}
+
+/**
+ * A spot without a Korean name: the nearby EngService2 row whose English title is the spot's English name gives
+ * it ("Mangnidan Street (망리단길)"). Only an exact normalized English match within TOUR_RADIUS_M counts.
+ */
+export function koreanNameFromEng(spot, items) {
+    const want = enKey(String(spot.nameEn || "").replace(/\s*\([^)]*\)\s*$/u, ""));
+    if (want.length < 4) return "";
+    for (const item of items) {
+        const title = String(item.title || "");
+        const en = enKey(title.replace(/\s*\(.*$/u, ""));
+        const ko = tourTitleKo(title);
+        if (en === want && !(Number(item.dist) > TOUR_RADIUS_M) && /[가-힣]/u.test(ko) && ko !== title) return ko;
+    }
+    return "";
 }

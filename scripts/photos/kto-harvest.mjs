@@ -4,7 +4,10 @@
 // -> subscription vision check (codex exec, $0) -> webp -> R2 upload (--upload) -> manifest.
 // The spot_photos insert waits for the 'kto' source CHECK (NEEDS.md "NEED commons photos"); it is not done here.
 // Usage: node scripts/photos/kto-harvest.mjs --out <dir> [--city Seoul] [--limit 200] [--review] [--upload]
-// Env: KTO_SERVICE_KEY, CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID. Never prints the key.
+// Order per spot: Korean name (stored, else from the EngService2 row with the same English name) -> gallery search
+// -> KorService2 searchKeyword2 (+ detailImage2) -> EngService2 nearby.
+// Env: KTO_SERVICE_KEY (gallery + EngService2), DATA_GO_KR_PROJECT_KEY (KorService2; KTO_SERVICE_KEY is not
+// registered for it), CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID. Never prints a key.
 import { createHash } from "node:crypto";
 import { execFileSync, spawnSync } from "node:child_process";
 import fs from "node:fs";
@@ -12,12 +15,15 @@ import path from "node:path";
 import sharp from "sharp";
 import {
     KTO_LICENCE, dHash, isDuplicate, ktoCredit, matchGallery, qualityProblems, reviewPrompt, reviewSaysYes,
-    matchTour, searchKeywords, spotPhotoKey, TOUR_RADIUS_M,
+    matchTour, searchKeywords, spotPhotoKey, TOUR_RADIUS_M, matchKor, korDetailImages, koreanNameFromEng,
+    TOURAPI_MIN_LONG_SIDE,
 } from "./kto-harvest-lib.mjs";
 
 const GALLERY = "https://apis.data.go.kr/B551011/PhotoGalleryService1/gallerySearchList1";
-// KorService2 (Korean) is not registered for this key; EngService2 is, and its titles carry the Korean name.
+// EngService2 runs on KTO_SERVICE_KEY; its titles carry the Korean name.
 const TOUR = "https://apis.data.go.kr/B551011/EngService2/locationBasedList2";
+// KorService2 (Korean TourAPI, much larger) runs on DATA_GO_KR_PROJECT_KEY.
+const KOR = "https://apis.data.go.kr/B551011/KorService2";
 const BUCKET = "localley-community-media";
 const CODEX = "/home/dev/.local/bin/codex";
 
@@ -27,7 +33,7 @@ const option = (name, fallback) => {
     const index = args.indexOf(`--${name}`);
     return index >= 0 ? args[index + 1] : fallback;
 };
-// KTO dev quota is 1,000 calls/day for the key (all runs together); --max-calls keeps a margin.
+// KTO dev quota is 1,000 calls/day per key and service (all runs together); --max-calls keeps a margin.
 const MAX_CALLS = Number(option("max-calls", "900"));
 const city = option("city", "Seoul");
 const limit = Number(option("limit", "200"));
@@ -38,6 +44,8 @@ if (!outDir || !/^[A-Za-z]+$/.test(city) || !(limit > 0 && limit <= 2000)) {
 }
 const serviceKey = process.env.KTO_SERVICE_KEY;
 if (!serviceKey) { console.error("KTO_SERVICE_KEY missing"); process.exit(2); }
+const korKey = process.env.DATA_GO_KR_PROJECT_KEY;
+if (!korKey) console.error("DATA_GO_KR_PROJECT_KEY missing: KorService2 step skipped");
 fs.mkdirSync(path.join(outDir, "img"), { recursive: true });
 
 function wrangler(...rest) {
@@ -54,20 +62,21 @@ function topSpots() {
     });
 }
 
-let calls = 0;
+const calls = { kto: 0, kor: 0 };
 // Responses (no key inside) are kept on disk, so a second run does not spend the 1,000 calls/day quota again.
 const cacheFile = path.join(path.dirname(path.resolve(outDir)), "kto-response-cache.json");
 const searchCache = new Map(fs.existsSync(cacheFile) ? Object.entries(JSON.parse(fs.readFileSync(cacheFile, "utf8"))) : []);
 process.on("exit", () => fs.writeFileSync(cacheFile, JSON.stringify(Object.fromEntries(searchCache))));
-async function kto(endpoint, params) {
+async function kto(endpoint, params, keyName = "kto") {
     const url = new URL(endpoint);
     for (const [key, value] of Object.entries({ MobileOS: "ETC", MobileApp: "Localley", _type: "json", pageNo: "1", ...params })) url.searchParams.set(key, value);
     const cacheKey = url.toString();
     if (searchCache.has(cacheKey)) return searchCache.get(cacheKey);
-    if (calls >= MAX_CALLS) throw new Error("KTO daily call budget reached");
-    calls += 1;
+    if (calls[keyName] >= MAX_CALLS) throw new Error(`KTO daily call budget reached (${keyName})`);
+    calls[keyName] += 1;
     // The key is plain ASCII; it is appended here so the cache key and errors never contain it.
-    const response = await fetch(`${url}&serviceKey=${serviceKey}`, { signal: AbortSignal.timeout(20_000) });
+    const key = keyName === "kor" ? korKey : serviceKey;
+    const response = await fetch(`${url}&serviceKey=${key}`, { signal: AbortSignal.timeout(20_000) });
     if (!response.ok) throw new Error(`KTO HTTP ${response.status}`);
     const body = await response.json().catch(() => null);
     if (!body?.response) throw new Error("KTO error response");
@@ -78,6 +87,9 @@ async function kto(endpoint, params) {
 }
 const gallery = (keyword) => kto(GALLERY, { keyword, numOfRows: "50" });
 const nearby = (spot) => kto(TOUR, { mapX: String(spot.lng), mapY: String(spot.lat), radius: String(TOUR_RADIUS_M), arrange: "E", numOfRows: "30" });
+const korSearch = (keyword) => kto(`${KOR}/searchKeyword2`, { keyword, numOfRows: "30", arrange: "A" }, "kor");
+const korImages = (contentId) => kto(`${KOR}/detailImage2`, { contentId, imageYN: "Y", numOfRows: "10" }, "kor");
+const hasPoint = (spot) => Number.isFinite(spot.lat) && Number.isFinite(spot.lng);
 
 async function sharpness(image) {
     const { channels } = await sharp(image).resize({ width: 1000, withoutEnlargement: true }).greyscale()
@@ -126,14 +138,22 @@ const results = [];
 for (const spot of spots) {
     const row = { spotId: spot.id, nameEn: spot.nameEn, nameKo: spot.nameKo, category: spot.category, status: "no-match" };
     results.push(row);
-    if (!spot.nameKo) { row.status = "no-korean-name"; continue; }
     let candidates = [];
     try {
+        if (!spot.nameKo && hasPoint(spot)) {
+            spot.nameKo = koreanNameFromEng(spot, await nearby(spot));
+            if (spot.nameKo) Object.assign(row, { nameKo: spot.nameKo, nameKoFrom: "engservice2" });
+        }
+        if (!spot.nameKo) { row.status = "no-korean-name"; continue; }
         for (const keyword of searchKeywords(spot.nameKo)) {
             candidates = matchGallery(spot, await gallery(keyword));
             if (candidates.length) break;
         }
-        if (!candidates.length && Number.isFinite(spot.lat) && Number.isFinite(spot.lng)) {
+        if (!candidates.length && korKey) {
+            const [hit] = matchKor(spot, await korSearch(searchKeywords(spot.nameKo)[0]));
+            if (hit) candidates = [hit, ...korDetailImages(hit, await korImages(hit.contentId))].map((c) => ({ ...c, kor: true }));
+        }
+        if (!candidates.length && hasPoint(spot)) {
             candidates = matchTour(spot, await nearby(spot)).map((hit) => ({ ...hit, tour: true }));
         }
     } catch (error) {
@@ -147,7 +167,8 @@ for (const spot of spots) {
         const original = Buffer.from(await response.arrayBuffer());
         const meta = await sharp(original).metadata().catch(() => null);
         if (!meta) { row.status = "not-an-image"; continue; }
-        const problems = qualityProblems({ width: meta.width, height: meta.height, sharpness: await sharpness(original) });
+        const problems = qualityProblems({ width: meta.width, height: meta.height, sharpness: await sharpness(original) },
+            candidate.kor || candidate.tour ? TOURAPI_MIN_LONG_SIDE : undefined);
         const hash = await hashOf(original);
         if (problems.length) { row.status = `quality: ${problems.join("; ")}`; continue; }
         if (isDuplicate(hash, usedHashes)) { row.status = "duplicate"; continue; }
@@ -161,8 +182,9 @@ for (const spot of spots) {
             source: "kto", licence: candidate.licence || KTO_LICENCE, author: ktoCredit(candidate.photographer),
             sourceUrl: candidate.tour
                 ? `https://english.visitkorea.or.kr/svc/contents/contentsView.do?vcontsId=${candidate.contentId}`
-                : "https://api.visitkorea.or.kr/#/useKoreaGallery", galContentId: candidate.contentId,
-            via: candidate.tour ? "tourapi" : "gallery",
+                : candidate.kor ? "https://api.visitkorea.or.kr/#/useKoreaGuide" : "https://api.visitkorea.or.kr/#/useKoreaGallery",
+            galContentId: candidate.contentId,
+            via: candidate.tour ? "tourapi" : candidate.kor ? "korservice2" : "gallery",
             imageUrl: candidate.url, title: candidate.title, score: candidate.score,
         });
         break;
@@ -192,4 +214,6 @@ const stored = results.filter((row) => row.status === "candidate").length;
 fs.writeFileSync(path.join(outDir, "manifest.json"), `${JSON.stringify({ city, limit, calls, at: new Date().toISOString(), results }, null, 2)}\n`);
 const byStatus = {};
 for (const row of results) byStatus[row.status.split(":")[0]] = (byStatus[row.status.split(":")[0]] || 0) + 1;
-console.log(JSON.stringify({ spots: results.length, withPhoto: stored, coverage: `${Math.round((100 * stored) / Math.max(1, results.length))} %`, ktoCalls: calls, byStatus }));
+const byVia = {};
+for (const row of results) if (row.status === "candidate") byVia[row.via] = (byVia[row.via] || 0) + 1;
+console.log(JSON.stringify({ spots: results.length, withPhoto: stored, coverage: `${Math.round((100 * stored) / Math.max(1, results.length))} %`, ktoCalls: calls, byStatus, byVia }));
