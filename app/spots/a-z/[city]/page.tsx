@@ -17,6 +17,7 @@ import { cityDirectory } from "@/lib/spots/city-directory-store";
 import { hubIndexable } from "@/lib/seo/spot-indexable";
 import { sitemapSpotRows } from "@/lib/seo/sitemap-spots";
 import { pageMeta } from "@/lib/seo/meta";
+import { cityGuideSpots } from "@/lib/seo/home-links";
 
 // Every spot of one city hub, A-Z (Push CB2: moved off the hub, which links here). Live public data, edge-cached for
 // an hour like the directory's own data cache (cloudflare/opennext/edge-html-cache.ts, SPOTS_AZ_PATH).
@@ -54,12 +55,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CitySpotsAzPage({ params }: Props) {
   const { city: slug } = await params;
   // Push DQ1: planner cities load in parallel with the list; a failed load still shows the generic plan link.
-  const [list, offered] = await Promise.all([
+  // Push DV2: the sitemap rows (same data-cache read as generateMetadata) give the indexable guide spots for the top block.
+  const [list, offered, rows] = await Promise.all([
     findList(slug),
     plannerCities().then((all) => new Set(all.map((c) => c.name)), () => null),
+    sitemapSpotRows().catch(() => []),
   ]);
   if (!list) notFound();
   const { city, entries } = list;
+  const guides = cityGuideSpots(rows, city.name);
   const planCity = !offered || offered.has(city.name) ? city.name : null;
   const hubPath = `/spots?city=${encodeURIComponent(city.slug)}`;
   return (
@@ -76,6 +80,22 @@ export default async function CitySpotsAzPage({ params }: Props) {
           </Button>
         } />
       <CityTripStoryCard cityName={city.name} />
+      {guides.length > 0 && (
+        <section aria-labelledby="az-guides" className="mt-6" data-testid="az-guide-spots">
+          <h2 id="az-guides" className="text-xl font-black text-foreground">Spots with a full local guide</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Our own photos, what to order, when to go and how to get there.</p>
+          <ul className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {guides.map((spot) => (
+              <li key={spot.id} className="min-w-0">
+                <Link prefetch={false} href={`/spots/${spot.id}`}
+                  className="flex min-h-11 min-w-0 items-center rounded-lg bg-raised px-4 py-2 font-semibold text-foreground transition hover:bg-overlay">
+                  <span className="truncate">{spot.name}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       <CitySpotAzList entries={entries} />
       {/* Push DP1: the A-Z hubs are the pages Google indexes best; they get the same no-JS sign-up as the city hub. */}
       <LocalleySignup source="city-az" city={city.slug} heading={`More ${city.name} picks by email`} className="mt-10" />

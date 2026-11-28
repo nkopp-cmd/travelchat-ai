@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import fc from "fast-check";
 
 vi.mock("server-only", () => ({}));
-import { homeGuideSpots, homeHubLinks, homeJournalLinks } from "@/lib/seo/home-links";
+import { cityGuideSpots, homeGuideSpots, homeHubLinks, homeJournalLinks } from "@/lib/seo/home-links";
 import { MIN_HUB_SPOTS } from "@/lib/seo/spot-indexable";
 import { BLOG_POSTS } from "@/lib/blog/posts";
 import { ENABLED_CITIES } from "@/lib/cities";
@@ -101,5 +101,40 @@ describe("home journal and A-Z links (Push CC2)", () => {
     }
     const linked = homeHubLinks([]).map((h) => h.azHref);
     expect(linked).toEqual(expect.arrayContaining(["/spots/a-z/seoul", "/spots/a-z/tokyo"]));
+  });
+});
+
+describe("cityGuideSpots (Push DV2)", () => {
+  it("keeps only indexable, named rows of the city, A-Z, one per id", () => {
+    const rows = [
+      { ...row("b", "Seoul", null, "Banchan Bar"), indexable: true },
+      { ...row("a", "Seoul", null, " Alley Cafe "), indexable: true },
+      { ...row("A", "Seoul", null, "Alley Cafe twin id"), indexable: true },
+      { ...row("x", "Seoul", null, "No photo"), indexable: false },
+      { ...row("t", "Tokyo", null, "Tokyo spot"), indexable: true },
+      { ...row("e", "Seoul", null, "  "), indexable: true },
+    ];
+    expect(cityGuideSpots(rows, "Seoul")).toEqual([
+      { id: "a", name: "Alley Cafe", hub: "Seoul" },
+      { id: "b", name: "Banchan Bar", hub: "Seoul" },
+    ]);
+  });
+
+  it("property: every link is indexable, in the city, unique, sorted and within the limit", () => {
+    const arb = fc.array(fc.record({
+      id: fc.constantFrom("a", "b", "c", "d", "e", "f"), hub: fc.constantFrom("Seoul", "Tokyo"),
+      lastmod: fc.constant(null), name: fc.string({ maxLength: 6 }), indexable: fc.boolean(),
+    }), { maxLength: 30 });
+    fc.assert(fc.property(arb, fc.integer({ min: 0, max: 8 }), (rows, limit) => {
+      const out = cityGuideSpots(rows, "Seoul", limit);
+      expect(out.length).toBeLessThanOrEqual(limit);
+      expect(new Set(out.map((s) => s.id)).size).toBe(out.length);
+      for (const s of out) {
+        expect(rows.some((r) => r.id === s.id && r.hub === "Seoul" && r.indexable && r.name.trim() === s.name)).toBe(true);
+        expect(s.name.length).toBeGreaterThan(0);
+      }
+      const names = out.map((s) => s.name);
+      expect(names).toEqual([...names].sort((x, y) => x.localeCompare(y, "en")));
+    }));
   });
 });
