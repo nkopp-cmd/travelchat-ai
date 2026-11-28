@@ -1,6 +1,20 @@
 // Lighthouse/PageSpeed, headless browsers, crawlers, link unfurlers and HTTP libraries. On 2026-10-31 all 273 calls
 // came from PageSpeed (Chrome-Lighthouse, 199 requests) and our own HeadlessChrome checks (81); real visitors ~0.
-const AUTOMATED_UA = /bot\b|bot\/|crawl|spider|slurp|lighthouse|headless|pagespeed|gtmetrix|pingdom|uptime|preview|facebookexternalhit|embedly|whatsapp|telegram|discord|skype|curl\/|wget|python|node-fetch|undici|axios|go-http|okhttp|java\/|libwww|httpclient|playwright|puppeteer|selenium|phantomjs/i;
+const AUTOMATED_UA = /bot\b|bot\/|crawl|spider|slurp|lighthouse|headless|pagespeed|gtmetrix|pingdom|uptime|preview|facebookexternalhit|embedly|whatsapp|telegram|discord|skype|curl\/|wget|python|node-fetch|undici|axios|go-http|okhttp|java\/|libwww|httpclient|playwright|puppeteer|selenium|phantomjs|lightpanda/i;
+
+// Browser versions no real visitor still runs: Chrome 130 shipped 2024-10 and Firefox 128 (the ESR) 2024-07; Chrome
+// and Firefox update themselves. 2026-11-21..28 Worker logs: a scraper on residential proxies (PK, ZA, AR, BD, IN) sent
+// ~1,000 photo requests a week as Chrome 118-120 / Firefox 120-121 plus Lightpanda, and used the daily cap; real
+// browsers in the same week were ~2 %. A false positive only gets the placeholder photo.
+const MIN_CHROME_MAJOR = 130;
+const MIN_FIREFOX_MAJOR = 128;
+
+function staleBrowser(ua: string): boolean {
+  const chrome = /(?:Chrome|CriOS)\/(\d+)\./.exec(ua);
+  if (chrome) return Number(chrome[1]) < MIN_CHROME_MAJOR;
+  const firefox = /(?:Firefox|FxiOS)\/(\d+)\./.exec(ua);
+  return firefox ? Number(firefox[1]) < MIN_FIREFOX_MAJOR : false;
+}
 
 // Client hints show headless Chromium even when a test emulates a phone or desktop UA (Playwright devices).
 const HEADLESS_HINT = /headless/i;
@@ -43,7 +57,8 @@ export function requestAsn(): number | undefined {
 
 /**
  * True when a request must not spend a Places call: an automated client (empty or known automated user agent) or a
- * speculative load (prefetch / prerender before the visitor opens the page), headless client hints, or a request
+ * speculative load (prefetch / prerender before the visitor opens the page), headless client hints, a browser version
+ * years out of date (scraper fleets), or a request
  * from our own servers, a crawler network or a cloud/hosting network (ASN). Such requests get "photo unavailable".
  */
 export function isAutomatedPlacesRequest(headers: Headers, asn: number | undefined = requestAsn()): boolean {
@@ -54,5 +69,5 @@ export function isAutomatedPlacesRequest(headers: Headers, asn: number | undefin
   const ip = headers.get("cf-connecting-ip")?.trim() ?? "";
   if (AUTOMATED_IPV6_PREFIXES.some((prefix) => prefix.test(ip))) return true;
   const ua = headers.get("user-agent")?.trim() ?? "";
-  return !ua || AUTOMATED_UA.test(ua);
+  return !ua || AUTOMATED_UA.test(ua) || staleBrowser(ua);
 }

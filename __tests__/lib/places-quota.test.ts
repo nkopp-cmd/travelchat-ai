@@ -133,6 +133,24 @@ describe("automated requests never cost a Places call", () => {
     expect(isAutomatedPlacesRequest(h({ "user-agent": iphone, "cf-connecting-ip": "116.122.170.131" }))).toBe(false);
   });
 
+  it("refuses the 2026-11-28 scraper fleet (years-old browser versions, Lightpanda) and keeps current browsers", () => {
+    for (const ua of [
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0",
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:121.0) Gecko/20100101 Firefox/121.0",
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0",
+      "Lightpanda/1.0",
+    ]) expect(isAutomatedPlacesRequest(h({ "user-agent": ua })), ua).toBe(true);
+    for (const ua of [
+      chrome,
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Mobile/15E148 Safari/604.1",
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/142.0.7444.77 Mobile/15E148 Safari/604.1",
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0",
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:145.0) Gecko/20100101 Firefox/145.0",
+    ]) expect(isAutomatedPlacesRequest(h({ "user-agent": ua })), ua).toBe(false);
+  });
+
   it("refuses cloud/hosting networks by ASN (2026-11-16 Huawei Cloud renderers) and keeps ISPs, carriers and relays", () => {
     for (const asn of [136907, 55990, 16509, 14618, 396982, 8075, 45102, 132203, 14061, 24940, 16276])
       expect(isAutomatedPlacesRequest(h({ "user-agent": chrome }), asn), String(asn)).toBe(true);
