@@ -8,7 +8,7 @@ export function GuideSpotLinks({ spots, hubs, posts = [] }: {
   if (!spots.length && !hubs.length && !posts.length) return null;
   const lists = hubs.filter((hub) => hub.azHref);
   return (
-    <section id="guide-spots" className="ll-below-fold bg-surface py-14">
+    <section id="guide-spots" className="ll-below-fold bg-surface py-14 [--ll-h:1880px] md:[--ll-h:1020px] lg:[--ll-h:760px]">
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
         {spots.length > 0 && (
           <>

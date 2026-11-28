@@ -179,7 +179,7 @@ export default function LandingPage() {
 
       <WeekendPicks />
 
-      <section className="ll-below-fold bg-surface py-14">
+      <section className="ll-below-fold bg-surface py-14 [--ll-h:900px] md:[--ll-h:490px] lg:[--ll-h:440px]">
         <div className="container mx-auto max-w-7xl px-4 md:px-6">
           <div className="max-w-2xl">
             <p className="text-sm font-bold uppercase tracking-[0.16em] text-primary">The useful part</p>
@@ -203,7 +203,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="ll-below-fold bg-surface py-14">
+      <section className="ll-below-fold bg-surface py-14 [--ll-h:1680px] md:[--ll-h:960px] lg:[--ll-h:770px]">
         <div className="container mx-auto max-w-7xl px-4 md:px-6">
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
             <div>
