@@ -326,10 +326,14 @@ export async function readFreshEdgeHtml(request: Request, version: string, cache
   if (!isEdgeCacheable(request)) return null;
   const ttl = edgeTtlSeconds(new URL(request.url).pathname) ?? 0;
   const hit = await cache.match(edgeCacheKey(request, version));
-  if (!hit || !storable(request, hit)) return null;
+  if (!hit) return null;
   const storedAt = Number(hit.headers.get(STORED_AT));
   if (!(storedAt > 0) || now() - storedAt > ttl * 1000) return null;
-  return cachedResponse(hit, "HIT");
+  // The stored copy carries the cache's own cache-control; check the origin's (a photo's "immutable") on a bodiless view.
+  const view = new Response(null, { status: hit.status, headers: hit.headers });
+  const origin = hit.headers.get(ORIGIN_CACHE_CONTROL);
+  if (origin) view.headers.set("cache-control", origin);
+  return storable(request, view) ? cachedResponse(hit, "HIT") : null;
 }
 
 function cachedResponse(hit: Response, status: "HIT" | "STALE"): Response {
