@@ -32,4 +32,13 @@ describe("home below-fold sections skip first-paint rendering", () => {
       expect(read(file), file).not.toMatch(/\b(fixed|sticky)\b/);
     }
   });
+
+  it("home link grids keep every link inside its column on small screens (WCAG target-size)", () => {
+    const src = read("components/landing/guide-spot-links.tsx");
+    const grids = src.match(/<ul className="[^"]*\bgrid\b[^"]*">/g) ?? [];
+    expect(grids.length).toBeGreaterThanOrEqual(2);
+    // An implicit grid column sizes to the longest name; grid-cols-1 is minmax(0,1fr), so truncate works.
+    for (const ul of grids) expect(ul).toContain("grid-cols-1");
+    for (const li of src.match(/<li key=[^>]*>/g) ?? []) expect(li).toContain("min-w-0");
+  });
 });
