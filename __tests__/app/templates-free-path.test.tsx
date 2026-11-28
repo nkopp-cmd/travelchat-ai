@@ -19,7 +19,8 @@ describe("/templates free path", () => {
   it("sends every plan link to the free planner, never to a signed-in route", () => {
     const { container } = render(<TemplatesPage />);
     const hrefs = [...container.querySelectorAll("a[href]")].map((a) => a.getAttribute("href") ?? "");
-    const internal = hrefs.filter((href) => href.startsWith("/") && href !== "/privacy");
+    // /privacy and /newsletter (form fine print, push EK1) are public pages, not plan links.
+    const internal = hrefs.filter((href) => href.startsWith("/") && href !== "/privacy" && href !== "/newsletter");
 
     expect(internal.some((href) => href.includes("template="))).toBe(true);
     expect(internal.filter((href) => SIGNED_IN_ROUTES.test(href))).toEqual([]);

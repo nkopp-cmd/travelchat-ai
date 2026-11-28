@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -34,7 +35,10 @@ export function LocalleySignup({ source, city, className, heading = "The Localle
         <Button type="submit" className="min-h-12 font-semibold">Sign up</Button>
       </form>
       <p className="mt-2 text-xs text-muted-foreground">
-        We send a confirmation link first. Unsubscribe in one click. <a href="/privacy" className="underline underline-offset-2">Privacy</a>
+        We send a confirmation link first. Unsubscribe in one click.{" "}
+        {/* Push EK1: every page with the form links /newsletter, so Google can find the page (0 links before). */}
+        {source !== "newsletter-page" ? <><Link href="/newsletter" prefetch={false} className="underline underline-offset-2">What you get</Link>{" · "}</> : null}
+        <a href="/privacy" className="underline underline-offset-2">Privacy</a>
       </p>
     </aside>
   );
