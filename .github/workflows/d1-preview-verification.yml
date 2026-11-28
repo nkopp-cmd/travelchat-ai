@@ -168,6 +168,7 @@ on:
       - '__tests__/lib/help-pay.test.ts'
       - '__tests__/lib/blog.test.ts'
       - '__tests__/lib/blog-related.test.ts'
+      - '__tests__/lib/blog-country-posts.test.ts'
       - '__tests__/lib/blog-trip-story.test.tsx'
       - 'app/blog/**'
       - 'lib/blog/**'

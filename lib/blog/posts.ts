@@ -1,5 +1,6 @@
 import bundle from "./posts.generated.json";
 import { tripStoryAlt } from "./trip-story";
+import { getCityByName, getCityBySlug } from "@/lib/cities";
 
 /** Weekly blog (shared/plans/weekly-blog.md): Markdown files in content/blog, bundled by scripts/blog-index.mjs. */
 export type BlogPost = {
@@ -149,4 +150,19 @@ export function relatedPosts(post: BlogPost, posts: readonly BlogPost[] = BLOG_P
   const others = posts.filter((p) => p.slug !== post.slug).sort((a, b) => b.published.localeCompare(a.published));
   const same = series ? others.filter((p) => postSeries(p.slug) === series) : [];
   return [...same, ...others.filter((p) => !same.includes(p))].slice(0, Math.max(0, limit));
+}
+
+/** ISO country of a post: its planner city, else the city tail of a "paying-in-<city>" slug. */
+export function postCountryCode(post: Pick<BlogPost, "slug" | "plannerCity">): string | undefined {
+  const city = post.plannerCity ? getCityByName(post.plannerCity) : undefined;
+  if (city) return city.countryCode;
+  const tail = /^paying-in-([a-z]+(?:-[a-z]+)?)$/.exec(post.slug)?.[1];
+  return tail ? getCityBySlug(tail)?.countryCode : undefined;
+}
+
+/** Push EF2: Journal posts for one country (help pages link them); "paying-in" posts first, then newest. */
+export function countryPosts(countryCode: string, posts: readonly BlogPost[] = BLOG_POSTS, limit = 3): BlogPost[] {
+  const mine = posts.filter((p) => postCountryCode(p) === countryCode).sort((a, b) => b.published.localeCompare(a.published));
+  const paying = mine.filter((p) => postSeries(p.slug) === "paying-in");
+  return [...paying, ...mine.filter((p) => !paying.includes(p))].slice(0, Math.max(0, limit));
 }
