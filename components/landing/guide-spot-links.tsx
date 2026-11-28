@@ -14,11 +14,11 @@ export function GuideSpotLinks({ spots, hubs, posts = [] }: {
           <>
             <h2 className="text-3xl font-black leading-tight text-foreground md:text-4xl">Spots locals rate</h2>
             <p className="mt-2 text-muted-foreground">Each one has a local guide: what to order, when to go and how to get there.</p>
-            <ul className="mt-6 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="mt-6 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {spots.map((spot) => (
-                <li key={spot.id}>
+                <li key={spot.id} className="min-w-0">
                   <Link prefetch={false} href={`/spots/${spot.id}`}
-                    className="flex min-h-11 items-center justify-between gap-3 rounded-lg bg-raised px-4 py-3 text-foreground transition hover:bg-overlay">
+                    className="flex min-h-11 min-w-0 items-center justify-between gap-3 rounded-lg bg-raised px-4 py-3 text-foreground transition hover:bg-overlay">
                     <span className="truncate font-semibold">{spot.name}</span>
                     <span className="shrink-0 text-sm text-muted-foreground">{spot.hub}</span>
                   </Link>
@@ -52,9 +52,9 @@ export function GuideSpotLinks({ spots, hubs, posts = [] }: {
           <div className="mt-10">
             <h2 className="text-2xl font-black text-foreground">Before you go</h2>
             <p className="mt-2 text-muted-foreground">How to pay as a visitor: cards, cash, transit cards and ATMs, city by city.</p>
-            <ul className="mt-4 grid gap-2 md:grid-cols-3">
+            <ul className="mt-4 grid grid-cols-1 gap-2 md:grid-cols-3">
               {posts.map((post) => (
-                <li key={post.href}>
+                <li key={post.href} className="min-w-0">
                   <Link prefetch={false} href={post.href}
                     className="flex min-h-11 items-center rounded-lg bg-raised px-4 py-3 font-semibold text-foreground transition hover:bg-overlay">
                     {post.title}
