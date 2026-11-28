@@ -358,3 +358,9 @@ export function checkoutTrialDays(
     if (existing?.stripe_subscription_id) return 0;
     return PRO_TRIAL_DAYS;
 }
+
+/** Push EB1: the one sentence that states the trial next to the Pro price (pricing billing notes, comparison pages). */
+export function proTrialNote(): string {
+    const pro = TIER_CONFIGS.pro;
+    return `New Pro subscribers get ${PRO_TRIAL_DAYS} days free. Stripe then bills $${pro.price} a month (or $${pro.yearlyPrice} a year), unless you cancel before day ${PRO_TRIAL_DAYS}.`;
+}

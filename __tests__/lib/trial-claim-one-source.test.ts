@@ -4,7 +4,7 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { checkoutTrialDays, PRO_TRIAL_DAYS } from "@/lib/subscription";
+import { checkoutTrialDays, PRO_TRIAL_DAYS, proTrialNote, TIER_CONFIGS } from "@/lib/subscription";
 
 const ROOTS = ["app", "components", "lib", "emails"];
 // A digit glued to a trial claim: "7 days free", "7-day free trial", "7 day trial", "14-day trial".
@@ -46,5 +46,12 @@ describe("trial claim has one source (Push EA3)", () => {
         expect(checkoutTrialDays("pro", null)).toBe(PRO_TRIAL_DAYS);
         expect(checkoutTrialDays("pro", { stripe_subscription_id: "sub_old" })).toBe(0);
         expect(checkoutTrialDays("premium", null)).toBe(0);
+    });
+
+    it("the pricing billing notes state the trial next to the price, from the same numbers (Push EB1)", () => {
+        expect(proTrialNote()).toBe(
+            `New Pro subscribers get ${PRO_TRIAL_DAYS} days free. Stripe then bills $${TIER_CONFIGS.pro.price} a month (or $${TIER_CONFIGS.pro.yearlyPrice} a year), unless you cancel before day ${PRO_TRIAL_DAYS}.`,
+        );
+        expect(readFileSync("app/pricing/pricing-page.tsx", "utf8")).toMatch(/data-testid="pricing-trial-note">\{proTrialNote\(\)\}/);
     });
 });
