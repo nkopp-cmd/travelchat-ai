@@ -1,7 +1,7 @@
 import { GENERATED_PREVIEW_PATH } from "@/lib/trips/generated-preview";
 import { parseCheckoutIntent, parsePlannerLimit, plannerLimitPricingHref, PLANNER_UPGRADE_PATH } from "@/lib/pricing-checkout";
 import { CONTINUE_PARAM } from "@/lib/auth/resume-action";
-import { TIER_CONFIGS } from "@/lib/subscription";
+import { checkoutTrialDays, TIER_CONFIGS } from "@/lib/subscription";
 
 export type AuthMode = "sign-up" | "sign-in";
 export type AuthCopy = { title: string; subtitle: string };
@@ -126,6 +126,23 @@ function checkoutCopy(mode: AuthMode, redirectUrl: string): AuthCopy | null {
     const intent = parseCheckoutIntent(redirectUrl.slice(redirectUrl.indexOf("?") + 1));
     if (!intent) return null;
     const tier = TIER_NAME[intent.tier];
+    // Push EA1: the plan button promised "Try Pro N days free"; keep that promise on this step. The days come from
+    // checkoutTrialDays, so the copy names a trial only when Stripe really gets one. A new account never had a
+    // subscription (trial certain); a returning account may have had one, so sign-in says "new subscribers".
+    const trialDays = checkoutTrialDays(intent.tier, null);
+    if (trialDays > 0) {
+        const config = TIER_CONFIGS[intent.tier];
+        const amount = intent.cycle === "yearly" ? `$${config.yearlyPrice} per year` : `$${config.price} per month`;
+        return mode === "sign-up"
+            ? {
+                  title: `Create your account to start ${tier}`,
+                  subtitle: `Next: your ${trialDays}-day free trial. You pay $0 today, then ${amount}. Cancel before day ${trialDays} and pay nothing.`,
+              }
+            : {
+                  title: `Sign in to start ${tier}`,
+                  subtitle: `Your ${tier} ${intent.cycle} checkout opens next. New subscribers get ${trialDays} days free, then ${amount}.`,
+              };
+    }
     const subtitle = `Your ${tier} ${intent.cycle} checkout opens next.`;
     return mode === "sign-up"
         ? { title: `Create your account to start ${tier}`, subtitle }
