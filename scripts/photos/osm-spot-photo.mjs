@@ -13,7 +13,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import sharp from "sharp";
 import { allowedLicence, cleanArtist, USER_AGENT } from "./commons-harvest-lib.mjs";
-import { qualityProblems, spotPhotoKey } from "./kto-harvest-lib.mjs";
+import { ktoCredit, qualityProblems, spotPhotoKey, TOURAPI_MIN_LONG_SIDE } from "./kto-harvest-lib.mjs";
 
 sharp.cache(false);
 
@@ -25,6 +25,10 @@ export const COPIES = [
     { suffix: "-w144", resize: { width: 144, height: 144, fit: "cover", withoutEnlargement: true }, quality: 70 },
 ];
 export const APPROVED_BY = "harvester-osm-p18";
+export const KTO_APPROVED_BY = "harvester-kto-korservice2";
+// KorService2 (Korean TourAPI) images: KTO's own host only; KOGL Type 1 / Type 3 (attribution, no change of content).
+export const KTO_IMAGE_HOST = /^https?:\/\/tong\.visitkorea\.or\.kr\//;
+export const KTO_GUIDE_URL = "https://api.visitkorea.or.kr/#/useKoreaGuide";
 const FILE_PAGE = "https://commons.wikimedia.org/wiki/File:";
 
 /** Commons file page URL of a file name ("Wat Arun.jpg"). */
@@ -118,8 +122,9 @@ export function spotPhotoPathOf(key) {
 export function photoInsert(spotId, photo) {
     return {
         sql: `INSERT INTO spot_photos (r2_key, spot_id, position, source, licence, author, source_url, width, height, approved_by)
-      SELECT ?, ?, 0, 'commons', ?, ?, ?, ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM spot_photos WHERE r2_key = ?)`,
-        params: [photo.r2Key, spotId, photo.licence, photo.author, photo.sourceUrl, photo.width, photo.height, APPROVED_BY, photo.r2Key],
+      SELECT ?, ?, 0, ?, ?, ?, ?, ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM spot_photos WHERE r2_key = ?)`,
+        params: [photo.r2Key, spotId, photo.source ?? "commons", photo.licence, photo.author, photo.sourceUrl, photo.width, photo.height,
+            photo.approvedBy ?? APPROVED_BY, photo.r2Key],
     };
 }
 
@@ -153,18 +158,11 @@ function r2Put(key, file) {
     { stdio: ["ignore", "ignore", "pipe"], env: { ...process.env, CLOUDFLARE_ACCOUNT_ID: ACCOUNT }, timeout: 120_000 });
 }
 
-/**
- * Downloads, checks and (with apply) uploads the Commons file of a new spot. Returns the photo
- * ({ r2Key, path, licence, author, sourceUrl, width, height }) or { problem }.
- */
-export async function fetchSpotPhoto(file, spotId, { apply = false, put = r2Put } = {}) {
-    const info = parseImageInfo(await getJson(imageInfoUrl(file)));
-    if (info.problem) return { problem: info.problem };
-    const response = await fetch(info.thumbUrl, { headers: { "User-Agent": USER_AGENT }, signal: AbortSignal.timeout(60_000) }).catch(() => null);
-    if (!response?.ok) { await response?.body?.cancel(); return { problem: "download-failed" }; }
-    const original = Buffer.from(await response.arrayBuffer());
-    if (!(await sharp(original).metadata().catch(() => null))) return { problem: "not-an-image" };
-    const problems = qualityProblems({ width: info.width, height: info.height, sharpness: await sharpness(original) });
+/** Quality check, 1600 px webp and (with apply) the R2 upload of a new spot's first photo: { r2Key, path, width, height } or { problem }. */
+export async function storeSpotPhoto(original, spotId, { apply = false, put = r2Put, minLongSide } = {}) {
+    const meta0 = await sharp(original).metadata().catch(() => null);
+    if (!meta0) return { problem: "not-an-image" };
+    const problems = qualityProblems({ width: meta0.width, height: meta0.height, sharpness: await sharpness(original) }, minLongSide);
     if (problems.length) return { problem: `quality: ${problems.join("; ")}` };
     const webp = await sharp(original).rotate().resize({ width: WIDTH, withoutEnlargement: true }).webp({ quality: 80 }).toBuffer();
     const meta = await sharp(webp).metadata();
@@ -184,6 +182,38 @@ export async function fetchSpotPhoto(file, spotId, { apply = false, put = r2Put 
             }
         } finally { rmSync(dir, { recursive: true, force: true }); }
     }
-    return { r2Key, path: spotPhotoPathOf(r2Key), licence: info.licence, author: info.author, sourceUrl: info.sourceUrl,
-        width: meta.width, height: meta.height };
+    return { r2Key, path: spotPhotoPathOf(r2Key), width: meta.width, height: meta.height };
+}
+
+/**
+ * Downloads, checks and (with apply) uploads the Commons file of a new spot. Returns the photo
+ * ({ r2Key, path, licence, author, sourceUrl, width, height }) or { problem }.
+ */
+export async function fetchSpotPhoto(file, spotId, { apply = false, put = r2Put } = {}) {
+    const info = parseImageInfo(await getJson(imageInfoUrl(file)));
+    if (info.problem) return { problem: info.problem };
+    const response = await fetch(info.thumbUrl, { headers: { "User-Agent": USER_AGENT }, signal: AbortSignal.timeout(60_000) }).catch(() => null);
+    if (!response?.ok) { await response?.body?.cancel(); return { problem: "download-failed" }; }
+    // The Commons file size, not the thumbnail size, is the quality bar (same as before storeSpotPhoto).
+    const original = Buffer.from(await response.arrayBuffer());
+    if (!(await sharp(original).metadata().catch(() => null))) return { problem: "not-an-image" };
+    const problems = qualityProblems({ width: info.width, height: info.height, sharpness: await sharpness(original) });
+    if (problems.length) return { problem: `quality: ${problems.join("; ")}` };
+    const stored = await storeSpotPhoto(original, spotId, { apply, put, minLongSide: 1 });
+    if (stored.problem) return stored;
+    return { ...stored, licence: info.licence, author: info.author, sourceUrl: info.sourceUrl };
+}
+
+/**
+ * KorService2 first image of a new KTO spot (discover-kto-places.mjs): KTO host, a KOGL licence, >= 900 px (TourAPI
+ * images are 940 px wide), sharp enough. spot_photos source 'kto' with the KTO credit.
+ */
+export async function fetchKtoSpotPhoto(url, spotId, { apply = false, put = r2Put, licence } = {}) {
+    if (!KTO_IMAGE_HOST.test(String(url || ""))) return { problem: "bad-url" };
+    if (!/^KOGL Type [13]$/.test(String(licence || ""))) return { problem: "licence" };
+    const response = await fetch(String(url).replace(/^http:/, "https:"), { headers: { "User-Agent": USER_AGENT }, signal: AbortSignal.timeout(60_000) }).catch(() => null);
+    if (!response?.ok) { await response?.body?.cancel(); return { problem: "download-failed" }; }
+    const stored = await storeSpotPhoto(Buffer.from(await response.arrayBuffer()), spotId, { apply, put, minLongSide: TOURAPI_MIN_LONG_SIDE });
+    if (stored.problem) return stored;
+    return { ...stored, source: "kto", licence, author: ktoCredit(""), sourceUrl: KTO_GUIDE_URL, approvedBy: KTO_APPROVED_BY };
 }

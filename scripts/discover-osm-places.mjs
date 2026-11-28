@@ -170,7 +170,7 @@ export function kakaoAddress(data, city) {
 
 // ---------- I/O ----------
 
-async function d1(sql, params = []) {
+export async function d1(sql, params = []) {
   const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${ACCOUNT}/d1/database/${APP_DB}/query`, {
     method: "POST", headers: { authorization: `Bearer ${process.env.CLOUDFLARE_API_TOKEN}`, "content-type": "application/json" },
     body: JSON.stringify({ sql, params }), signal: AbortSignal.timeout(30000),
@@ -236,7 +236,7 @@ export function wikidataId(c) {
   return tag ? tag.slice("wikidata:".length) : null;
 }
 
-async function knownIds(ids) {
+export async function knownIds(ids) {
   const known = new Set();
   for (let i = 0; i < ids.length; i += 90) {
     const chunk = ids.slice(i, i + 90);
@@ -255,7 +255,7 @@ export function candidateParams(runId, c, image) {
   return [runId, c.citySlug, c.placeId, c.name, c.address, c.latitude, c.longitude, c.mapsUrl, c.categoryName, JSON.stringify(c.categories), image, SOURCE_TYPE];
 }
 
-async function dayRunId(date) {
+export async function dayRunId(date) {
   const row = (await d1("SELECT id FROM apify_spot_discovery_runs WHERE discovery_date = ?", [date]))[0];
   if (row) return row.id;
   const id = randomUUID(), now = new Date().toISOString();
