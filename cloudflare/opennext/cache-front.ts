@@ -7,10 +7,10 @@ interface Env {
 }
 
 // Push DT1: every public HTML page whose edge HIT still booted the main Worker on a cold isolate (0.5-2.2 s from
-// ci-1 on 2026-11-28): the auth forms, the template list, the spots list, the A-Z hubs and the spot pages. Every
+// ci-1 on 2026-11-28): the auth forms, the spots list, the A-Z hubs and the spot pages. Every
 // rule of the main Worker's cache (session cookie, RSC, query, stale) stays in readFreshEdgeHtml; anything else
-// goes to the origin unchanged. Keep the routes in cache-front.wrangler.jsonc in step.
-const FRONT_PATHS = new Set(["/sign-up", "/sign-in", "/forgot-password", "/itineraries/new", "/templates", "/spots"]);
+// goes to the origin unchanged (/templates is a static asset, Push DT3). Keep the routes in cache-front.wrangler.jsonc in step.
+const FRONT_PATHS = new Set(["/sign-up", "/sign-in", "/forgot-password", "/itineraries/new", "/spots"]);
 const isFrontPath = (pathname: string) =>
   FRONT_PATHS.has(pathname) || SPOTS_AZ_PATH.test(pathname) || isSpotDetailPath(pathname);
 const CACHE_FRONT_HEADER = "x-localley-cache-front";

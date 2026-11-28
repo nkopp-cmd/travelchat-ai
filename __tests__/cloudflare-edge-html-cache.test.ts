@@ -719,7 +719,6 @@ describe("public cache front", () => {
     // Push DT1: the other public pages whose cold-isolate HIT took 0.5-2.2 s through the main Worker.
     ["/sign-in?redirect_url=%2Fsettings", "/sign-in?redirect_url=%2Fsettings"],
     ["/forgot-password", "/forgot-password"],
-    ["/templates", "/templates?utm_source=tiktok"],
     ["/spots?city=seoul&view=map", "/spots?city=seoul&view=map"],
     ["/spots/a-z/seoul", "/spots/a-z/seoul?fbclid=abc"],
     ["/spots/95116c7e-1234-4abc-8def-0123456789ab", "/spots/95116c7e-1234-4abc-8def-0123456789ab"],
@@ -751,7 +750,7 @@ describe("public cache front", () => {
       new Request(originUrl + "/spots/95116c7e-1234-4abc-8def-0123456789ab/og"),
       new Request(originUrl + "/spots/a-z/Seoul"),
       new Request(originUrl + "/spots/submit"),
-      new Request(originUrl + "/templates/extra"),
+      new Request(originUrl + "/templates"),
       new Request("https://localley.io/spots/a-z/seoul"),
     ];
     for (const request of requests) await serveCacheFront(request, env, cache);

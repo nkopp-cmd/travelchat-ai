@@ -14,7 +14,6 @@
     { "pattern": "www.localley.io/sign-in*", "zone_name": "localley.io" },
     { "pattern": "www.localley.io/forgot-password*", "zone_name": "localley.io" },
     { "pattern": "www.localley.io/itineraries/new*", "zone_name": "localley.io" },
-    { "pattern": "www.localley.io/templates*", "zone_name": "localley.io" },
     { "pattern": "www.localley.io/spots*", "zone_name": "localley.io" }
   ]
 }
