@@ -164,7 +164,8 @@ describe("automated requests never cost a Places call", () => {
     vi.stubGlobal("fetch", fetchMock);
     const name = encodeURIComponent("places/ChIJabc/photos/p1");
     const photo = await GET(new NextRequest(`https://www.localley.io/api/places/photo?name=${name}`, { headers: { "user-agent": lighthouse } }));
-    expect(photo.status).toBe(404);
+    expect(photo.status).toBe(302); // static placeholder, no billed call (DW2)
+    expect(photo.headers.get("location")).toBe("https://www.localley.io/placeholder-spot.svg");
     const id = "3d08de9a-87b8-428c-bc7b-972a05000000";
     const gallery = await galleryGET(new NextRequest(`https://www.localley.io/api/spots/${id}/photos`, { headers: { "user-agent": chrome, "sec-purpose": "prefetch" } }), { params: Promise.resolve({ id }) });
     expect(await gallery.json()).toMatchObject({ status: "unavailable", photos: [] });
