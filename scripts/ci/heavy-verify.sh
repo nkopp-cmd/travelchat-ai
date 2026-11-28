@@ -267,6 +267,7 @@ VITEST_FILES=(
   __tests__/components/onboarding-panel-axe.test.tsx
   __tests__/components/generated-preview-axe.test.tsx
   __tests__/components/pricing-axe.test.tsx
+  __tests__/components/vs-wanderlog-axe.test.tsx
   __tests__/lib/gate-href.test.ts
   __tests__/styles/leaflet-borderless.test.ts
   __tests__/styles/home-below-fold.test.ts
@@ -655,6 +656,7 @@ ESLINT_FILES=(
   __tests__/components/onboarding-panel-axe.test.tsx
   __tests__/components/generated-preview-axe.test.tsx
   __tests__/components/pricing-axe.test.tsx
+  __tests__/components/vs-wanderlog-axe.test.tsx
   __tests__/lib/subscription-mail.test.ts
   components/spots/preview-save-spot-button.tsx
   lib/app-data/preview-saved-spot-actor.ts

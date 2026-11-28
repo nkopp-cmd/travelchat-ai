@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 import { pacer } from "./seo/click-depth-lib.mjs";
 
 export const PAGES = ["/", "/pricing", "/sign-up?redirect_url=%2Fpricing", "/sign-in", "/forgot-password", "/itineraries/new", "/spots"];
-export const BROWSE_PAGES = ["/trending", "/templates", "/help", "/help/korea", "/help/korea/pay", "/blog"];
+export const BROWSE_PAGES = ["/trending", "/templates", "/help", "/help/korea", "/help/korea/pay", "/blog", "/vs/wanderlog"];
 export const VIEWPORTS = [["mobile", 390, 844], ["desktop", 1280, 900]];
 const BLOCKING = new Set(["serious", "critical"]);
 const CITY_LINK = /href="(\/spots(?:\?city=|\/a-z\/)[a-z0-9-]+)"/g;

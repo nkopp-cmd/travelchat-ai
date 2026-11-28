@@ -13,6 +13,7 @@ export const metadata: Metadata = pageMeta({ title: P.title, absoluteTitle: true
 
 const host = (url: string) => new URL(url).hostname.replace(/^www\./, "");
 
+// Push DX1: the tables are wider than a phone; each scroll box takes keyboard focus (axe scrollable-region-focusable).
 export default function VsWanderlogPage() {
     return (
         <article className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 text-foreground sm:px-6" data-testid="vs-wanderlog">
@@ -33,7 +34,7 @@ export default function VsWanderlogPage() {
             </div>
 
             <h2 className="mt-12 text-2xl font-semibold">What decides between them</h2>
-            <div className="mt-4 overflow-x-auto">
+            <div tabIndex={0} role="region" aria-label="Wanderlog and Localley compared, scroll sideways" className="mt-4 overflow-x-auto rounded-md outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50">
                 <table className="w-full min-w-[36rem] border-collapse text-left text-sm leading-6">
                     <thead>
                         <tr className="text-foreground">
@@ -57,7 +58,7 @@ export default function VsWanderlogPage() {
             </div>
 
             <h2 className="mt-12 text-2xl font-semibold">What you pay for the paid plan</h2>
-            <div className="mt-4 overflow-x-auto">
+            <div tabIndex={0} role="region" aria-label="Wanderlog Pro and Localley Pro prices, scroll sideways" className="mt-4 overflow-x-auto rounded-md outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50">
                 <table className="w-full min-w-[30rem] border-collapse text-left text-sm leading-6" data-testid="vs-price-table">
                     <thead>
                         <tr className="text-foreground">
