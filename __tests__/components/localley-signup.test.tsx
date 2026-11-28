@@ -28,6 +28,20 @@ describe("LocalleySignup", () => {
     expect(html).not.toMatch(/<script|seoul-living|nilsgroove/i);
   });
 
+  it("links the /newsletter page from every form except the one on that page (Push EK1)", () => {
+    expect(renderToStaticMarkup(<LocalleySignup source="home" />)).toContain('href="/newsletter"');
+    expect(renderToStaticMarkup(<LocalleySignup source="help-index" />)).toContain('href="/newsletter"');
+    expect(renderToStaticMarkup(<LocalleySignup source="newsletter-page" />)).not.toContain('href="/newsletter"');
+  });
+
+  it("the home footer links the trip templates and the newsletter, and wraps on phones (Push EK1)", () => {
+    const home = readFileSync(join(process.cwd(), "app/page.tsx"), "utf8");
+    const footer = home.slice(home.indexOf('<nav aria-label="Footer"'), home.indexOf("</nav>", home.indexOf('<nav aria-label="Footer"')));
+    expect(footer).toContain('href="/templates"');
+    expect(footer).toContain('href="/newsletter"');
+    expect(footer).toContain("flex-wrap");
+  });
+
   it("omits the city field when no city is given", () => {
     expect(renderToStaticMarkup(<LocalleySignup source="trending" />)).not.toContain('name="city"');
   });

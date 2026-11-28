@@ -261,8 +261,11 @@ export default function LandingPage() {
         <div className="container mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 md:flex-row md:px-6">
           <Link href="/" prefetch={false} className={LOGO_LINK_CLASS}><LogoMark size="md" isLanding /></Link>
           <p className="text-sm text-muted-foreground">Your local friend in Asia.</p>
-          <nav aria-label="Footer" className="flex gap-4 text-sm text-muted-foreground">
+          <nav aria-label="Footer" className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
             <Link href="/blog" className="hover:text-foreground">Journal</Link>
+            {/* Push EK1: the indexed home page did not link the templates (a free-plan entry) or the newsletter. */}
+            <Link href="/templates" prefetch={false} className="hover:text-foreground">Trip templates</Link>
+            <Link href="/newsletter" prefetch={false} className="hover:text-foreground">Newsletter</Link>
             <Link href="/privacy" className="hover:text-foreground">Privacy</Link>
             <Link href="/terms" className="hover:text-foreground">Terms</Link>
           </nav>
