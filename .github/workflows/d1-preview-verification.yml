@@ -472,6 +472,7 @@ on:
       - '__tests__/lib/quota-math.property.test.ts'
       - '__tests__/lib/image-gate.property.test.ts'
       - '__tests__/lib/stripe-tier.property.test.ts'
+      - '__tests__/lib/checkout-trial-property.test.ts'
       - '__tests__/lib/payout-calculate-input.property.test.ts'
       - 'lib/payout-calculate-input.ts'
       - 'lib/subscription.ts'

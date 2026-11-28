@@ -114,6 +114,11 @@ export async function createCheckoutSession({
         throw new StripePlanAlreadyExistsError("Use billing settings to manage your current Stripe plan.");
     }
 
+    // Push DW5: only the newest checkout stays payable. Two open sessions completed = two subscriptions, two
+    // trials, two charges later. Expire the customer's older open sessions first; a failed expiry blocks the new one.
+    const openSessions = await stripe.checkout.sessions.list({ customer: customerId, status: "open", limit: 100 });
+    for (const session of openSessions.data) await stripe.checkout.sessions.expire(session.id);
+
     const sessionConfig: Stripe.Checkout.SessionCreateParams = {
         customer: customerId,
         mode: "subscription",
@@ -139,8 +144,10 @@ export async function createCheckoutSession({
         allow_promotion_codes: true,
     };
 
-    // Add trial if specified
-    if (trialDays && trialDays > 0) {
+    // Add trial if specified. A trial is a one-time offer (Push DW4): a customer with a canceled Stripe subscription
+    // already had a plan, even when our row lost its stripe_subscription_id. incomplete_expired never started.
+    const hadPlan = subscriptions.data.some(subscription => subscription.status === "canceled");
+    if (trialDays && trialDays > 0 && !hadPlan) {
         sessionConfig.subscription_data = {
             ...sessionConfig.subscription_data,
             trial_period_days: trialDays,
