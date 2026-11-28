@@ -171,6 +171,7 @@ on:
       - '__tests__/lib/blog-related.test.ts'
       - '__tests__/lib/blog-country-posts.test.ts'
       - '__tests__/lib/blog-city-journal.test.ts'
+      - '__tests__/lib/spot-page-reads.test.ts'
       - 'lib/blog/posts.ts'
       - '__tests__/lib/blog-trip-story.test.tsx'
       - 'app/blog/**'
