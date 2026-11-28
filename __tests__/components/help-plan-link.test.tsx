@@ -62,4 +62,13 @@ describe("help guide link to the free planner", () => {
       expect(html).toContain(`href="${href}"`);
     }
   });
+
+  // Push DW3: the indexed /help page links every Ring-1 A-Z hub.
+  it("links the A-Z hub of each Ring-1 city from /help", () => {
+    const html = renderToStaticMarkup(<HelpPage />);
+    for (const city of ["seoul", "tokyo", "bangkok", "singapore"]) {
+      expect(html).toContain(`href="/spots/a-z/${city}"`);
+      expect(html).toContain(`href="/spots?city=${city}"`);
+    }
+  });
 });

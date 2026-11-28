@@ -77,6 +77,18 @@ export default function HelpPage() {
             </Link>
           </li>
         </ul>
+        {/* Push DW3: /help is indexed but did not link the A-Z hubs, the full spot list per city. */}
+        <p className="mt-3 text-sm text-muted-foreground">
+          Every place A to Z:{" "}
+          {HELP_HUB_LINKS.map((hub, i) => (
+            <span key={hub.label}>
+              {i > 0 && " · "}
+              <Link href={`/spots/a-z/${hub.label.toLowerCase()}`} className="font-medium text-foreground underline underline-offset-4 hover:text-primary">
+                {hub.label}
+              </Link>
+            </span>
+          ))}
+        </p>
       </section>
       <FreePlanLink label="Plan a free trip" testId="help-index-plan-trip" />
       <LocalleySignup source="help-index" className="mt-10" />
