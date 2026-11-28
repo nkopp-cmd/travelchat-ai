@@ -139,8 +139,10 @@ export async function createCheckoutSession({
         allow_promotion_codes: true,
     };
 
-    // Add trial if specified
-    if (trialDays && trialDays > 0) {
+    // Add trial if specified. A trial is a one-time offer (Push DW4): a customer with a canceled Stripe subscription
+    // already had a plan, even when our row lost its stripe_subscription_id. incomplete_expired never started.
+    const hadPlan = subscriptions.data.some(subscription => subscription.status === "canceled");
+    if (trialDays && trialDays > 0 && !hadPlan) {
         sessionConfig.subscription_data = {
             ...sessionConfig.subscription_data,
             trial_period_days: trialDays,

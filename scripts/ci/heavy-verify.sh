@@ -196,6 +196,7 @@ VITEST_FILES=(
   __tests__/lib/stripe-tier.property.test.ts
   __tests__/lib/payout-calculate-input.property.test.ts
   __tests__/lib/stripe-live-session.test.ts
+  __tests__/lib/checkout-trial-property.test.ts
   __tests__/api/subscription-webhook-live.test.ts
   __tests__/api/subscription-webhook-signed.test.ts
   __tests__/lib/stripe-customer-ownership.test.ts
@@ -634,6 +635,7 @@ ESLINT_FILES=(
   __tests__/lib/stripe-tier.property.test.ts
   __tests__/lib/payout-calculate-input.property.test.ts
   __tests__/lib/stripe-live-session.test.ts
+  __tests__/lib/checkout-trial-property.test.ts
   __tests__/api/subscription-webhook-live.test.ts
   __tests__/api/subscription-webhook-signed.test.ts
   lib/stripe.ts
