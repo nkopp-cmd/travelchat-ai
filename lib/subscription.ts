@@ -364,3 +364,45 @@ export function proTrialNote(): string {
     const pro = TIER_CONFIGS.pro;
     return `New Pro subscribers get ${PRO_TRIAL_DAYS} days free. Stripe then bills $${pro.price} a month (or $${pro.yearlyPrice} a year), unless you cancel before day ${PRO_TRIAL_DAYS}.`;
 }
+
+export interface PlanBillingInput {
+    tier: SubscriptionTier;
+    status: string;
+    billingCycle?: string | null;
+    trialEnd?: string | null;
+}
+
+export interface PlanBillingDisplay {
+    /** "$9/month", "$79/year", "Included" (lifetime) or null (free). */
+    priceLabel: string | null;
+    /** "Free trial", "Active", "Past due" or null (no badge). */
+    badge: string | null;
+    /** Only for a trial with a known end date. */
+    trialLine: string | null;
+}
+
+function utcDate(iso: string): string | null {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return null;
+    return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" });
+}
+
+/**
+ * Push EC1: what the signed-in plan cards (/settings, /profile) say about the next charge. The price follows the
+ * billing cycle (a yearly customer pays yearlyPrice, not the monthly price), and a trial says when Stripe bills.
+ */
+export function planBillingDisplay(sub: PlanBillingInput): PlanBillingDisplay {
+    if (sub.status === "lifetime_premium") return { priceLabel: "Included", badge: "Active", trialLine: null };
+    if (sub.tier === "free") return { priceLabel: null, badge: null, trialLine: null };
+    const config = TIER_CONFIGS[sub.tier];
+    const yearly = sub.billingCycle === "yearly";
+    const amount = `$${yearly ? config.yearlyPrice : config.price}`;
+    const priceLabel = `${amount}/${yearly ? "year" : "month"}`;
+    const badge = sub.status === "trialing" ? "Free trial"
+        : sub.status === "active" ? "Active"
+        : sub.status === "past_due" ? "Past due"
+        : null;
+    const end = sub.status === "trialing" && sub.trialEnd ? utcDate(sub.trialEnd) : null;
+    const trialLine = end ? `Free trial ends ${end}. Stripe then bills ${amount} unless you cancel.` : null;
+    return { priceLabel, badge, trialLine };
+}

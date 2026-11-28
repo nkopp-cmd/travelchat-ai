@@ -10,10 +10,10 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Crown, Rocket, Sparkles, Check, Calendar, MessageSquare, Image as ImageIcon, Bookmark, ArrowRight } from "@/components/ui/icons";
 import { auth, currentUser } from "@/lib/auth/server";
-import { isActivePlanStatus, withLifetimePremium } from "@/lib/lifetime-premium";
+import { withLifetimePremium } from "@/lib/lifetime-premium";
 import { redirect } from "next/navigation";
 import { createSupabaseAdmin } from "@/lib/supabase";
-import { SubscriptionTier, TIER_CONFIGS } from "@/lib/subscription";
+import { SubscriptionTier, TIER_CONFIGS, planBillingDisplay } from "@/lib/subscription";
 import Link from "next/link";
 import { BillingPortalButton } from "@/components/subscription/billing-portal-button";
 import { EmailPreferencesSection } from "@/components/settings/email-preferences";
@@ -93,6 +93,7 @@ async function getSubscriptionData() {
             cancelAtPeriodEnd: subscription.cancel_at_period_end || false,
             stripeCustomerId: subscription.stripe_customer_id,
             billingCycle: subscription.billing_cycle || "monthly",
+            trialEnd: (subscription.trial_end as string | null | undefined) ?? null,
         } : {
             tier: "free" as SubscriptionTier,
             status: "none",
@@ -100,6 +101,7 @@ async function getSubscriptionData() {
             cancelAtPeriodEnd: false,
             stripeCustomerId: null,
             billingCycle: "monthly",
+            trialEnd: null,
         },
         usage: {
             itinerariesThisMonth: getUsage(monthlyUsage, "itineraries_created"),
@@ -153,7 +155,7 @@ export default async function SettingsPage({ searchParams }: {
     const subscription = withLifetimePremium(data.subscription, user.emailAddresses[0]?.emailAddress);
     const { usage } = data;
     const tierConfig = TIER_CONFIGS[subscription.tier];
-    const isActiveSub = isActivePlanStatus(subscription.status);
+    const billing = planBillingDisplay(subscription);
     const isLifetime = subscription.status === "lifetime_premium";
     const planLabel = subscription.tier === "free" ? "Choose a paid plan" : `${tierConfig.name} Plan`;
 
@@ -214,9 +216,14 @@ export default async function SettingsPage({ searchParams }: {
                                 <CardDescription>{planLabel}</CardDescription>
                             </div>
                         </div>
-                        {isActiveSub && (
-                            <Badge variant="secondary" className="w-fit bg-[rgb(var(--ll-success)/0.12)] text-[rgb(var(--ll-success))]">
-                                Active
+                        {billing.badge && (
+                            <Badge
+                                variant="secondary"
+                                className={billing.badge === "Past due"
+                                    ? "w-fit bg-[rgb(var(--ll-warning)/0.14)] text-foreground"
+                                    : "w-fit bg-[rgb(var(--ll-success)/0.12)] text-[rgb(var(--ll-success))]"}
+                            >
+                                {billing.badge}
                             </Badge>
                         )}
                         {subscription.tier === "free" && (
@@ -241,7 +248,11 @@ export default async function SettingsPage({ searchParams }: {
                                 </div>
                                 <div className="space-y-1">
                                     <Label className="text-muted-foreground">
-                                        {subscription.cancelAtPeriodEnd ? "Subscription Ends" : "Next Billing Date"}
+                                        {subscription.cancelAtPeriodEnd
+                                            ? "Subscription Ends"
+                                            : subscription.status === "trialing"
+                                            ? "First Charge"
+                                            : "Next Billing Date"}
                                     </Label>
                                     <p className="font-semibold">
                                         {isLifetime
@@ -258,12 +269,18 @@ export default async function SettingsPage({ searchParams }: {
                                 <div className="space-y-1">
                                     <Label className="text-muted-foreground">Price</Label>
                                     <p className="font-semibold">
-                                        {isLifetime ? "Included" : `$${tierConfig.price}/${subscription.billingCycle === "yearly" ? "year" : "month"}`}
+                                        {billing.priceLabel}
                                     </p>
                                 </div>
                             </>
                         )}
                     </div>
+
+                    {billing.trialLine && !subscription.cancelAtPeriodEnd && (
+                        <p data-testid="plan-trial-line" className="text-sm text-muted-foreground">
+                            {billing.trialLine}
+                        </p>
+                    )}
 
                     {subscription.cancelAtPeriodEnd && (
                         <div className="rounded-xl bg-[rgb(var(--ll-warning)/0.14)] p-3">
