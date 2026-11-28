@@ -58,6 +58,7 @@ import { splitDescriptionLinks } from "@/lib/spots/description-links";
 import { readSpotGuide } from "@/lib/spots/guide-store";
 import { indexableOnly, isSpotIndexable } from "@/lib/seo/spot-indexable";
 import { cityDirectory } from "@/lib/spots/city-directory-store";
+import { logRenderTimings, timed } from "@/lib/render-timing";
 import { nearestEntries, nextInDirectory } from "@/lib/spots/city-directory";
 import { sitemapSpotRows } from "@/lib/seo/sitemap-spots";
 import { spotIntro } from "@/lib/seo/spot-intro";
@@ -271,7 +272,7 @@ async function getSpotSourceSupabase(id: string) {
 }
 
 async function getSpotSourceD1(id: string) {
-  const [spot, communitySubmission] = await Promise.all([d1SpotSource(id), d1CommunitySubmission(id)]);
+  const [spot, communitySubmission] = await Promise.all([timed("d1spot", d1SpotSource(id)), timed("d1sub", d1CommunitySubmission(id))]);
   return { spot, communitySubmission };
 }
 
@@ -490,14 +491,14 @@ async function getRelatedSpots(
 
 // Generate metadata for SEO
 // generateMetadata (noindex decision) and the page read the same guide once per request.
-const spotGuide = cache(readSpotGuide);
+const spotGuide = cache((id: string) => timed("guide", readSpotGuide(id)));
 // Push EM1: generateMetadata blocks the first byte and the page then read the same spot again (2x D1, in series).
 // react cache() shares one read per request; the id-only reads start at once, next to the spot read, so the page's
 // Promise.all finds them done instead of waiting a second round trip (miss render was 217-310 ms).
-const getSpot = cache(readSpot);
-const spotViralMentions = cache((id: string) => fetchSpotViralMentions(id).catch(() => []));
-const indexRows = cache(() => sitemapSpotRows().catch(() => []));
-const plannerCityNames = cache(() => plannerCities().then((list) => new Set(list.map((c) => c.name)), () => null));
+const getSpot = cache((id: string, candidate = false) => timed("spot", readSpot(id, candidate)));
+const spotViralMentions = cache((id: string) => timed("viral", fetchSpotViralMentions(id).catch(() => [])));
+const indexRows = cache(() => timed("index", sitemapSpotRows().catch(() => [])));
+const plannerCityNames = cache(() => timed("planner", plannerCities().then((list) => new Set(list.map((c) => c.name)), () => null)));
 
 function prefetchSpotReads(id: string) {
   void spotGuide(id);
@@ -578,10 +579,10 @@ export default async function SpotPage({
   const knownCity = citySlug ? city : null; // address fallback is not a planner city
   const primaryArea = getPrimaryArea(spot.location.address, city);
   const [relatedSpots, guide, viralMentions, directory, indexableRows, offeredPlannerCities] = await Promise.all([
-    candidate ? Promise.resolve([] as RelatedSpot[]) : getRelatedSpots(spot, city),
+    candidate ? Promise.resolve([] as RelatedSpot[]) : timed("related", getRelatedSpots(spot, city)),
     candidate ? Promise.resolve(null) : spotGuide(spot.id),
     candidate ? Promise.resolve([]) : spotViralMentions(spot.id),
-    candidate ? Promise.resolve([]) : cityDirectory(citySlug),
+    candidate ? Promise.resolve([]) : timed("directory", cityDirectory(citySlug)),
     candidate ? Promise.resolve([]) : indexRows(),
     // Push DD2: the plan button opens only a city whose free plan builds (cached list; null = not known).
     plannerCityNames(),
@@ -597,6 +598,7 @@ export default async function SpotPage({
     id: spot.id, name: spot.name, category: spot.category, score: spot.localleyScore, area: primaryArea, city,
     directory, nearby: nearestEntries(directory, spot.location, [spot.id], 6),
   });
+  if (!candidate) logRenderTimings("spot", spot.id);
   let saveActor: string | null = null;
   if (candidate) {
     try { saveActor = await previewSavedSpotActor(); }
