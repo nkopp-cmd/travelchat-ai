@@ -163,6 +163,13 @@ describe("spot detail sources on D1", () => {
     expect(await d1CommunitySubmission(id(1))).toBeNull();
   });
 
+  it("a direct submission wins over an older one whose research created the same spot", async () => {
+    db.sqlite.prepare(`INSERT INTO social_spot_submissions (contributor_id, source_url, canonical_url, platform, status, contributor_credit, research, created_at)
+      VALUES (?, 'u3', 'https://www.tiktok.com/v/3', 'tiktok', 'needs_review', 'C', ?, '2000-01-01T00:00:00.000Z')`)
+      .run(id(90), JSON.stringify({ createdCandidates: [{ spotId: id(6), status: "spot_created" }] }));
+    expect(await d1CommunitySubmission(id(6))).toMatchObject({ platform: "instagram", contributor_credit: "A" });
+  });
+
   it("related candidates: same city, score floor, source photos required, excluded names and self skipped", async () => {
     for (const n of [1, 2, 3, 4, 6]) source(n);
     db.sqlite.prepare("UPDATE legacy_spot_source SET payload = json_set(payload, '$.photos', json('[]')) WHERE spotId = ?").run(id(4));

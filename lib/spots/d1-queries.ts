@@ -210,12 +210,11 @@ export type D1CommunitySubmission = {
 /** Oldest submission that created the spot, directly or as one of its research candidates. */
 export async function d1CommunitySubmission(spotId: string): Promise<D1CommunitySubmission | null> {
   const columns = "contributor_credit, platform, status, created_at, research_summary, canonical_url, research";
-  const db = appDataDb();
-  const row = await db.prepare(`SELECT ${columns} FROM social_spot_submissions WHERE spot_id = ? ORDER BY created_at ASC LIMIT 1`)
-    .bind(spotId).first<Record<string, unknown>>()
-    ?? await db.prepare(`SELECT ${columns} FROM social_spot_submissions WHERE json_valid(research) AND EXISTS (
-        SELECT 1 FROM json_each(research, '$.createdCandidates') c WHERE json_extract(c.value, '$.spotId') = ?)
-      ORDER BY created_at ASC LIMIT 1`).bind(spotId).first<Record<string, unknown>>();
+  // One round trip (EM4 2026-11-28: the second, sequential read cost ~35 ms on every spot page miss). A direct
+  // submission wins over one whose research created the spot; within each, the oldest.
+  const row = await appDataDb().prepare(`SELECT ${columns} FROM social_spot_submissions WHERE spot_id = ?1 OR (json_valid(research) AND EXISTS (
+      SELECT 1 FROM json_each(research, '$.createdCandidates') c WHERE json_extract(c.value, '$.spotId') = ?1))
+    ORDER BY (spot_id IS ?1) DESC, created_at ASC LIMIT 1`).bind(spotId).first<Record<string, unknown>>();
   if (!row) return null;
   return { ...row, research: parseJson(row.research) } as D1CommunitySubmission;
 }
