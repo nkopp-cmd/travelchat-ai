@@ -2,7 +2,7 @@
 title: Three Easy Days in Chiang Mai for First-Time Visitors
 description: Explore Chiang Mai over three easy days, from a teak temple and forest paths to local markets, regional food, books, crafts, and live jazz.
 published: 2026-11-26
-updated: 2026-11-26
+updated: 2026-11-28
 illustration: bec1a421d12f3d72901478555d20ea173c4c43527f1a8a620ce106f16501e38d
 illustrationAlt: Painted illustration of a 3-day trip in Chiang Mai
 ---
@@ -42,4 +42,4 @@ Finish at Yorice Cafe at 2:30 PM. Allow 45 minutes to choose something from the 
 
 ## Plan your own trip
 
-Start from this route and change any stop in the [Localley trip planner](/itineraries/new).
+Start from this route and change any stop in the [Chiang Mai trip planner](/itineraries/new?city=Chiang%20Mai).

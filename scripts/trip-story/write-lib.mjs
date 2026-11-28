@@ -103,11 +103,15 @@ export function checkDraft(draft, trip) {
   return problems;
 }
 
-// Static links have no live spot count, so only the eight core cities get a prefilled planner (Push DD2,
-// __tests__/lib/spot-plan-link.test.ts). Any other city links the plain planner.
-export const CORE_PLANNER_CITIES = new Set(["Seoul", "Tokyo", "Bangkok", "Singapore", "Osaka", "Kyoto", "Taipei", "Hong Kong"]);
+// Static links have no live spot count, so only cities with a clear margin over PLANNER_MIN_SPOTS (30) that
+// scripts/planner-city-check.mjs builds every day get a prefilled planner (Push DD2, EG1: 43+ spots and
+// a 200 plan on 2026-11-26..28; __tests__/lib/spot-plan-link.test.ts). Any other city links the plain planner.
+export const STATIC_PLANNER_CITIES = new Set([
+  "Seoul", "Tokyo", "Bangkok", "Singapore", "Osaka", "Kyoto", "Taipei", "Hong Kong",
+  "Kuala Lumpur", "Busan", "Hanoi", "Ho Chi Minh City", "Chiang Mai",
+]);
 export function plannerLine(city) {
-  return CORE_PLANNER_CITIES.has(city)
+  return STATIC_PLANNER_CITIES.has(city)
     ? `Start from this route and change any stop in the [${city} trip planner](/itineraries/new?city=${encodeURIComponent(city)}).`
     : `Start from this route and change any stop in the [Localley trip planner](/itineraries/new).`;
 }

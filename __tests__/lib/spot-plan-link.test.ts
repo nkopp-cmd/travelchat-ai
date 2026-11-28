@@ -59,6 +59,8 @@ describe("spotPlanLink (Push CK1)", () => {
     expect(mobileGrid.filter((name) => !core.has(name))).toEqual([]);
     const blogCities = BLOG_POSTS.flatMap((post) => [...post.body.matchAll(/\(\/itineraries\/new\?city=([^)&]+)/g)].map((m) => decodeURIComponent(m[1])));
     expect(blogCities.length).toBeGreaterThan(0);
-    expect(blogCities.filter((name) => !core.has(name))).toEqual([]);
+    // Push EG1: blog trip posts may also name the cities with 43+ spots that planner-city-check builds daily.
+    const checked = new Set([...core, "Kuala Lumpur", "Busan", "Hanoi", "Ho Chi Minh City", "Chiang Mai"]);
+    expect(blogCities.filter((name) => !checked.has(name))).toEqual([]);
   });
 });

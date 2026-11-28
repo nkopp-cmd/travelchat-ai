@@ -61,10 +61,11 @@ test("post file: front matter illustration, one painted image per day, own plann
   assert.doesNotMatch(src.split("\n---\n")[1], /\bphoto/i);
 });
 
-test("planner link: core cities get the prefilled planner, other cities the plain one (Push DD2)", () => {
+test("planner link: daily-checked cities get the prefilled planner, other cities the plain one (Push DD2, EG1)", () => {
   assert.match(plannerLine("Hong Kong"), /\(\/itineraries\/new\?city=Hong%20Kong\)/);
-  assert.match(plannerLine("Chiang Mai"), /\]\(\/itineraries\/new\)\.$/);
-  assert.doesNotMatch(plannerLine("Chiang Mai"), /city=/);
+  assert.match(plannerLine("Chiang Mai"), /\(\/itineraries\/new\?city=Chiang%20Mai\)\.$/);
+  assert.match(plannerLine("Nara"), /\]\(\/itineraries\/new\)\.$/);
+  assert.doesNotMatch(plannerLine("Ubud, Bali"), /city=/);
 });
 
 test("draftTripPost retries once with the problems, then gives up", () => {

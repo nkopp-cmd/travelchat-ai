@@ -35,4 +35,9 @@ describe("countryPosts (push EF2)", () => {
     const help = new Set(["KR", "JP", "TH", "VN", "TW", "SG"]);
     for (const post of BLOG_POSTS.filter((x) => x.slug.startsWith("paying-in-"))) expect(help.has(postCountryCode(post) ?? "")).toBe(true);
   });
+
+  it("every live post maps to a country (Push EG1: trip posts link their city planner)", () => {
+    expect(BLOG_POSTS.filter((post) => !postCountryCode(post)).map((post) => post.slug)).toEqual([]);
+    expect(countryPosts("TH").map((post) => post.slug)).toContain("three-easy-days-in-chiang-mai-for-first-time-visitors");
+  });
 });
