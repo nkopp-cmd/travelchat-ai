@@ -114,6 +114,11 @@ export async function createCheckoutSession({
         throw new StripePlanAlreadyExistsError("Use billing settings to manage your current Stripe plan.");
     }
 
+    // Push DW5: only the newest checkout stays payable. Two open sessions completed = two subscriptions, two
+    // trials, two charges later. Expire the customer's older open sessions first; a failed expiry blocks the new one.
+    const openSessions = await stripe.checkout.sessions.list({ customer: customerId, status: "open", limit: 100 });
+    for (const session of openSessions.data) await stripe.checkout.sessions.expire(session.id);
+
     const sessionConfig: Stripe.Checkout.SessionCreateParams = {
         customer: customerId,
         mode: "subscription",

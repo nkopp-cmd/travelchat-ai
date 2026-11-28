@@ -3,10 +3,10 @@ import fc from "fast-check";
 import { checkoutTrialDays, PRO_TRIAL_DAYS } from "@/lib/subscription";
 
 // Push DW4: the Pro trial is 7 days, Pro only, once per customer. Invariants over tier x interval x history.
-const m = vi.hoisted(() => ({ list: vi.fn(), create: vi.fn() }));
-vi.mock("stripe", () => { const S = vi.fn(function () { return { subscriptions: { list: m.list }, checkout: { sessions: { create: m.create } } }; }); return { default: Object.assign(S, { createFetchHttpClient: () => ({}) }) }; });
+const m = vi.hoisted(() => ({ list: vi.fn(), create: vi.fn(), sessions: vi.fn(), expire: vi.fn() }));
+vi.mock("stripe", () => { const S = vi.fn(function () { return { subscriptions: { list: m.list }, checkout: { sessions: { create: m.create, list: m.sessions, expire: m.expire } } }; }); return { default: Object.assign(S, { createFetchHttpClient: () => ({}) }) }; });
 let create: typeof import("@/lib/stripe").createCheckoutSession;
-beforeEach(async () => { vi.resetAllMocks(); vi.resetModules(); vi.stubEnv("STRIPE_SECRET_KEY", "sk_live_offline"); create = (await import("@/lib/stripe")).createCheckoutSession; m.create.mockResolvedValue({ id: "cs" }); });
+beforeEach(async () => { vi.resetAllMocks(); vi.resetModules(); vi.stubEnv("STRIPE_SECRET_KEY", "sk_live_offline"); create = (await import("@/lib/stripe")).createCheckoutSession; m.create.mockResolvedValue({ id: "cs" }); m.sessions.mockResolvedValue({ data: [], has_more: false }); });
 afterEach(() => vi.unstubAllEnvs());
 
 const tier = fc.constantFrom("pro" as const, "premium" as const);
