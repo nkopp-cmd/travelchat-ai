@@ -81,7 +81,7 @@ test("an area name inside a venue name is not a match; a place plus a short qual
   assert.ok(koSimilarity("북한산 우이동 입구", "북한산") < 0.6);
 });
 
-import { distanceM, koreanNameFromEng, korDetailImages, KOR_RADIUS_M, matchKor, TOURAPI_MIN_LONG_SIDE } from "./kto-harvest-lib.mjs";
+import { distanceM, enNameMatch, koreanNameFromEng, korDetailImages, KOR_RADIUS_M, matchKor, TOURAPI_MIN_LONG_SIDE } from "./kto-harvest-lib.mjs";
 
 const korSpot = { nameKo: "광장시장", nameEn: "Gwangjang Market", category: "Market", city: "Seoul", lat: 37.5700, lng: 126.9996 };
 const kor = (over) => ({ contentid: "132183", title: "광장시장", cpyrhtDivCd: "Type1", firstimage: "http://tong.visitkorea.or.kr/cms/resource/1.jpg", mapx: "126.9996", mapy: "37.5701", addr1: "서울특별시 종로구", ...over });
@@ -122,4 +122,21 @@ test("Korean name from the EngService2 row with the same English name only", () 
 test("TourAPI 940 px images pass the TourAPI size gate, not the gallery gate", () => {
   assert.deepEqual(qualityProblems({ width: 940, height: 625, sharpness: 9 }, TOURAPI_MIN_LONG_SIDE), []);
   assert.equal(qualityProblems({ width: 940, height: 625, sharpness: 9 }).length, 1);
+});
+
+test("enNameMatch: equal names or all words of the shorter name, two words at least", () => {
+  assert.equal(enNameMatch("Ahopsan Bamboo Forest", "Ahopsan Forest"), true);
+  assert.equal(enNameMatch("Songjeong Beach", "Songjeong Beach"), true);
+  assert.equal(enNameMatch("Cafe Rooftop (Haeundae)", "Haeundae Beach"), false);
+  assert.equal(enNameMatch("Haeundae", "Haeundae Beach"), false);
+  assert.equal(enNameMatch("Busan Museum of Art", "Busan Museum"), false);
+});
+
+test("koreanNameFromEng: keyword rows use mapx/mapy distance within the radius", () => {
+  const spot = { nameEn: "Songjeong Beach", lat: 35.1786, lng: 129.1997 };
+  const near = { title: "Songjeong Beach (송정해수욕장)", mapy: "35.1790", mapx: "129.2000" };
+  const far = { title: "Songjeong Beach (송정해수욕장)", mapy: "35.2000", mapx: "129.2000" };
+  assert.equal(koreanNameFromEng(spot, [near], KOR_RADIUS_M), "송정해수욕장");
+  assert.equal(koreanNameFromEng(spot, [far], KOR_RADIUS_M), "");
+  assert.equal(koreanNameFromEng({ nameEn: "Songjeong Beach" }, [near], KOR_RADIUS_M), "");
 });

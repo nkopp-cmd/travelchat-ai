@@ -237,14 +237,34 @@ function enKey(text) {
  * A spot without a Korean name: the nearby EngService2 row whose English title is the spot's English name gives
  * it ("Mangnidan Street (망리단길)"). Only an exact normalized English match within TOUR_RADIUS_M counts.
  */
-export function koreanNameFromEng(spot, items) {
-    const want = enKey(String(spot.nameEn || "").replace(/\s*\([^)]*\)\s*$/u, ""));
-    if (want.length < 4) return "";
+const NAME_STOP = new Set(["the", "of", "and", "in", "busan", "seoul", "jeju", "gyeongju"]);
+function nameTokens(text) {
+    return String(text || "").toLowerCase().normalize("NFKD").replace(/\([^)]*\)/gu, " ").split(/[^a-z0-9]+/u)
+        .filter((token) => token && !NAME_STOP.has(token));
+}
+
+/** English place names match when equal, or when every word (2+) of the shorter one is in the longer one. */
+export function enNameMatch(a, b) {
+    if (enKey(a).length >= 4 && enKey(a) === enKey(b)) return true;
+    const [short, long] = [nameTokens(a), nameTokens(b)].sort((x, y) => x.length - y.length);
+    return short.length >= 2 && short.every((token) => long.includes(token));
+}
+
+/**
+ * Korean name of a spot from TourAPI English rows (locationBasedList2 with dist, or searchKeyword2 with mapx/mapy).
+ * The English title must match the spot name (enNameMatch) and the row must be within radiusM of the spot.
+ */
+export function koreanNameFromEng(spot, items, radiusM = TOUR_RADIUS_M) {
+    const want = String(spot.nameEn || "").replace(/\s*\([^)]*\)\s*$/u, "");
+    if (enKey(want).length < 4) return "";
     for (const item of items) {
         const title = String(item.title || "");
-        const en = enKey(title.replace(/\s*\(.*$/u, ""));
         const ko = tourTitleKo(title);
-        if (en === want && !(Number(item.dist) > TOUR_RADIUS_M) && /[가-힣]/u.test(ko) && ko !== title) return ko;
+        if (!enNameMatch(want, title.replace(/\s*\(.*$/u, "")) || !/[가-힣]/u.test(ko) || ko === title) continue;
+        let dist = Number(item.dist);
+        if (!Number.isFinite(dist) && Number.isFinite(spot.lat) && Number.isFinite(spot.lng)
+            && Number(item.mapy) && Number(item.mapx)) dist = distanceM(spot.lat, spot.lng, Number(item.mapy), Number(item.mapx));
+        if (Number.isFinite(dist) && dist <= radiusM) return ko;
     }
     return "";
 }

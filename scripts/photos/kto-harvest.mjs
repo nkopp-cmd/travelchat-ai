@@ -15,7 +15,7 @@ import path from "node:path";
 import sharp from "sharp";
 import {
     KTO_LICENCE, dHash, isDuplicate, ktoCredit, matchGallery, qualityProblems, reviewPrompt, reviewSaysYes,
-    matchTour, searchKeywords, spotPhotoKey, TOUR_RADIUS_M, matchKor, korDetailImages, koreanNameFromEng,
+    matchTour, searchKeywords, spotPhotoKey, TOUR_RADIUS_M, matchKor, korDetailImages, koreanNameFromEng, KOR_RADIUS_M,
     TOURAPI_MIN_LONG_SIDE,
 } from "./kto-harvest-lib.mjs";
 
@@ -87,6 +87,7 @@ async function kto(endpoint, params, keyName = "kto") {
 }
 const gallery = (keyword) => kto(GALLERY, { keyword, numOfRows: "50" });
 const nearby = (spot) => kto(TOUR, { mapX: String(spot.lng), mapY: String(spot.lat), radius: String(TOUR_RADIUS_M), arrange: "E", numOfRows: "30" });
+const engSearch = (keyword) => kto(TOUR.replace("locationBasedList2", "searchKeyword2"), { keyword, numOfRows: "20", arrange: "A" });
 const korSearch = (keyword) => kto(`${KOR}/searchKeyword2`, { keyword, numOfRows: "30", arrange: "A" }, "kor");
 const korImages = (contentId) => kto(`${KOR}/detailImage2`, { contentId, imageYN: "Y", numOfRows: "10" }, "kor");
 const hasPoint = (spot) => Number.isFinite(spot.lat) && Number.isFinite(spot.lng);
@@ -142,6 +143,11 @@ for (const spot of spots) {
     try {
         if (!spot.nameKo && hasPoint(spot)) {
             spot.nameKo = koreanNameFromEng(spot, await nearby(spot));
+            if (!spot.nameKo) {
+                // The 250 m list is often empty or misses big places (beaches, parks): search the English name.
+                const keyword = String(spot.nameEn || "").replace(/\s*\([^)]*\)\s*$/u, "").trim();
+                if (keyword.length >= 4) spot.nameKo = koreanNameFromEng(spot, await engSearch(keyword), KOR_RADIUS_M);
+            }
             if (spot.nameKo) Object.assign(row, { nameKo: spot.nameKo, nameKoFrom: "engservice2" });
         }
         if (!spot.nameKo) { row.status = "no-korean-name"; continue; }
