@@ -448,6 +448,81 @@ VITEST_FILES=(
   __tests__/components/localley-signup.test.tsx
   __tests__/lib/newsletter-email.test.tsx
   __tests__/scripts/newsletter-list-send.test.ts
+  # Push EH2: tests that passed but never ran in CI (no CI guard before).
+  __tests__/api/conversations-d1.test.ts
+  __tests__/api/itinerary-address-prompts.test.ts
+  __tests__/api/llm-metrics-readiness.test.ts
+  __tests__/api/multi-city-preview-route.test.ts
+  __tests__/api/refresh-weekly-social-trends-route.test.ts
+  __tests__/api/social-spot-submissions-route.test.ts
+  __tests__/api/social-submission-backfill-route.test.ts
+  __tests__/api/social-submission-media-status-route.test.ts
+  __tests__/api/spot-location-backfill-route.test.ts
+  __tests__/api/test-auth-outbox-route.test.ts
+  __tests__/client-server-boundary.test.ts
+  __tests__/components/dashboard-recommendations-widget.test.tsx
+  __tests__/components/itinerary-insights-panel.test.tsx
+  __tests__/components/itinerary-preview.test.tsx
+  __tests__/components/map-readiness.test.tsx
+  __tests__/components/service-worker-registration.test.tsx
+  __tests__/components/social-submission-recovery.test.tsx
+  __tests__/components/spots-route-states.test.tsx
+  __tests__/components/submission-media-progress.test.tsx
+  __tests__/components/submission-preview-image.test.tsx
+  __tests__/hooks/query-keys-split.test.ts
+  __tests__/hooks/use-scroll-direction.test.tsx
+  __tests__/lib/admin-spot-quality-action-plan.test.ts
+  __tests__/lib/admin-spot-quality-research.test.ts
+  __tests__/lib/admin-spot-quality.test.ts
+  __tests__/lib/app-data-preview-itinerary-likes.test.ts
+  __tests__/lib/app-data-preview-itinerary-share.test.ts
+  __tests__/lib/app-data-preview-recommendations.test.ts
+  __tests__/lib/app-data-preview-spot-page.test.ts
+  __tests__/lib/app-data-preview-spot-reviews.test.ts
+  __tests__/lib/auth-guards.test.ts
+  __tests__/lib/auth-migration-script.test.ts
+  __tests__/lib/chat-formatting.test.ts
+  __tests__/lib/chat-preview-parser.test.ts
+  __tests__/lib/corridor-network.test.ts
+  __tests__/lib/corridor-planner.test.ts
+  __tests__/lib/corridor-prompt.test.ts
+  __tests__/lib/cron-auth.test.ts
+  __tests__/lib/exit-full-import.test.ts
+  __tests__/lib/gamification.test.ts
+  __tests__/lib/geography-city-shadow.test.ts
+  __tests__/lib/geography-manifest.test.ts
+  __tests__/lib/geography-migration-contract.test.ts
+  __tests__/lib/geography-seed-tools.test.ts
+  __tests__/lib/glm-provider-env.test.ts
+  __tests__/lib/itinerary-display-payload.test.ts
+  __tests__/lib/itinerary-map-links.test.ts
+  __tests__/lib/itinerary-select-columns.test.ts
+  __tests__/lib/localley-map-style.test.ts
+  __tests__/lib/place-images.test.ts
+  __tests__/lib/rate-limit.test.ts
+  __tests__/lib/saved-spots-helper.test.ts
+  __tests__/lib/social-share-target.test.ts
+  __tests__/lib/social-spot-media-jobs.test.ts
+  __tests__/lib/spot-coordinates.test.ts
+  __tests__/lib/spot-detail-normalization.test.ts
+  __tests__/lib/spot-display-images.test.ts
+  __tests__/lib/spot-fallback-images.test.ts
+  __tests__/lib/spot-geography-assignment.test.ts
+  __tests__/lib/spot-location-confidence.test.ts
+  __tests__/lib/spot-map-links.test.ts
+  __tests__/lib/spot-proximity.test.ts
+  __tests__/lib/spot-review-dispositions.test.ts
+  __tests__/lib/spot-transform.test.ts
+  __tests__/lib/spot-visit-plan.test.ts
+  __tests__/lib/strict-platform-limit.test.ts
+  __tests__/lib/transport-manifest.test.ts
+  __tests__/lib/trip-core-migration-contract.test.ts
+  __tests__/lib/validations.test.ts
+  __tests__/lib/wizard-corridor.test.ts
+  __tests__/middleware-photos.test.ts
+  __tests__/service-worker-privacy.test.ts
+  __tests__/styles/no-html-entities-in-strings.test.ts
+  __tests__/styles/one-input-style.test.ts
 )
 
 ESLINT_FILES=(
@@ -1141,6 +1216,26 @@ lane_node() {
   node --test scripts/d1-migration/owner-rehearsal.test.mjs
   node --import tsx --test scripts/d1-migration/compare-cities.test.mjs
   node --test scripts/d1-migration/pg-to-d1-schema.test.mjs scripts/d1-migration/exit-tables-import.test.mjs scripts/d1-migration/rollback-replay.test.mjs
+  # Push EH2: node tests that passed but never ran in CI.
+  node --test scripts/check-route-review.test.mjs
+  node --test scripts/d1-migration/reconcile-archive.test.mjs
+  node --test scripts/d1-migration/rehearse-import.test.mjs
+  node --test scripts/d1-migration/verify-r2.test.mjs
+  node --test scripts/production-health/active-deployment.test.mjs
+  node --test scripts/production-health/city-catalog.test.mjs
+  node --test scripts/production-health/error-classes.test.mjs
+  node --test scripts/production-health/event-times.test.mjs
+  node --test scripts/production-health/ingestion-settings.test.mjs
+  node --test scripts/production-health/log-delivery.test.mjs
+  node --test scripts/production-health/network-exceptions.test.mjs
+  node --test scripts/production-health/page-body.test.mjs
+  node --test scripts/production-health/photo-diagnostics.test.mjs
+  node --test scripts/production-health/query-coverage.test.mjs
+  node --test scripts/production-health/route-groups.test.mjs
+  node --test scripts/production-health/rsc-body-transport.test.mjs
+  node --test scripts/production-health/rsc-probe-url.test.mjs
+  node --test scripts/production-health/source-database.test.mjs
+  node --test scripts/production-health/worker-versions.test.mjs
 }
 
 LANES=(vitest eslint tsc node)
