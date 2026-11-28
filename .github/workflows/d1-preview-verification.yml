@@ -69,6 +69,7 @@ on:
       - 'scripts/check-route-review*.mjs'
       - 'scripts/check-embedded-borders.checks.mjs'
       - 'scripts/planner-city-check*.mjs'
+      - 'scripts/seo/index-status-lib*.mjs'
 
       - 'scripts/public-cache-proof.py'
       - 'scripts/test_public_cache_proof.py'

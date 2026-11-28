@@ -6,13 +6,15 @@ export const PROPERTY = "sc-domain:localley.io";
 export const MAX_URLS = 20; // URL Inspection quota is 2000/day per property; we stay far below it.
 
 // Money and entry pages: pricing, home, hubs, A-Z lists, help guides and the journal.
+// Only pages that ask Google to index them (Push EI1): the /help/<country>/pay|menu|open tools are noindex (DK2),
+// so the country guides stand for the help section.
 export const DEFAULT_PATHS = [
   "/", "/pricing", "/spots",
   "/spots?city=seoul", "/spots?city=tokyo", "/spots?city=bangkok", "/spots?city=singapore",
   "/spots?city=osaka", "/spots?city=taipei",
   "/spots/a-z/seoul", "/spots/a-z/tokyo",
   "/trending", "/templates",
-  "/help", "/help/korea/pay", "/help/japan/pay",
+  "/help", "/help/korea", "/help/japan",
   "/blog", "/blog/paying-in-seoul", "/blog/paying-in-bangkok", "/blog/paying-in-singapore",
 ];
 

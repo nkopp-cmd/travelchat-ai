@@ -1,12 +1,25 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createVerify, generateKeyPairSync } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
 import { DEFAULT_PATHS, MAX_URLS, indexNote, parseSitemaps, isIndexed, parseInspection, serviceAccountJwt, summarizeRows } from "./index-status-lib.mjs";
 
 test("default list stays inside the 20 URL cap and has no duplicates", () => {
   assert.ok(DEFAULT_PATHS.length >= 15 && DEFAULT_PATHS.length <= MAX_URLS);
   assert.equal(new Set(DEFAULT_PATHS).size, DEFAULT_PATHS.length);
   assert.ok(DEFAULT_PATHS.includes("/pricing"));
+});
+
+test("default list has no page that tells Google noindex (Push EI1)", () => {
+  // A noindex page can never count as indexed, so it would only lower the money-page index signal.
+  for (const path of DEFAULT_PATHS) {
+    const tool = /^\/help\/[^/]+\/([^/?]+)$/.exec(path)?.[1];
+    if (!tool) continue;
+    const file = new URL(`../../app/help/[country]/${tool}/page.tsx`, import.meta.url);
+    assert.ok(existsSync(file), `${path}: no page file`);
+    assert.doesNotMatch(readFileSync(file, "utf8"), /robots:\s*\{\s*index:\s*false/, `${path} is noindex`);
+  }
+  assert.ok(DEFAULT_PATHS.includes("/help/korea") && DEFAULT_PATHS.includes("/help/japan"));
 });
 
 test("isIndexed accepts only Google's indexed states", () => {
