@@ -206,6 +206,7 @@ VITEST_FILES=(
   __tests__/lib/preview-saved-spot-actor.test.ts
   __tests__/components/preview-chat-composer.test.tsx
   __tests__/lib/subscription-mail.test.ts
+  __tests__/lib/trial-claim-one-source.test.ts
   __tests__/lib/app-data-preview-chat-history-page.test.ts
   __tests__/pages/chat-history-candidate.test.tsx
   __tests__/api/chat-candidate-route.test.ts
@@ -658,6 +659,7 @@ ESLINT_FILES=(
   __tests__/components/pricing-axe.test.tsx
   __tests__/components/vs-wanderlog-axe.test.tsx
   __tests__/lib/subscription-mail.test.ts
+  __tests__/lib/trial-claim-one-source.test.ts
   components/spots/preview-save-spot-button.tsx
   lib/app-data/preview-saved-spot-actor.ts
   lib/app-data/saved-spot-candidate-url.ts
