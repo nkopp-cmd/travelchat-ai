@@ -490,6 +490,7 @@ on:
       - 'emails/subscription-email.tsx'
       - '__tests__/lib/subscription-mail.test.ts'
       - '__tests__/lib/trial-claim-one-source.test.ts'
+      - '__tests__/lib/plan-billing-display.test.ts'
       - '__tests__/lib/checkout-trial-days.property.test.ts'
       - '__tests__/lib/stripe-customer-ownership.test.ts'
       - '__tests__/lib/stripe-webhook-crypto.test.ts'

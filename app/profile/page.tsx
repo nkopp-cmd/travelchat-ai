@@ -13,13 +13,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Trophy, Star, MapPin, Flame, Share2, Heart, Crown, Rocket, Sparkles, Calendar, MessageSquare, Image as ImageIcon, Bookmark, CreditCard } from "@/components/ui/icons";
 import { getLevel, getNextLevelXp, getLevelProgress, getRankTitle } from "@/lib/gamification";
 import { auth, currentUser } from "@/lib/auth/server";
-import { isActivePlanStatus, withLifetimePremium } from "@/lib/lifetime-premium";
+import { withLifetimePremium } from "@/lib/lifetime-premium";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import { redirect } from "next/navigation";
 import { signInGateHref } from "@/lib/auth/gate-href";
 import Link from "next/link";
 import Image from "next/image";
-import { SubscriptionTier, TIER_CONFIGS } from "@/lib/subscription";
+import { SubscriptionTier, TIER_CONFIGS, planBillingDisplay } from "@/lib/subscription";
 import { EditProfileDialog } from "@/components/profile/edit-profile-dialog";
 import { AppBackground } from "@/components/layout/app-background";
 import { CityImageAvatar } from "@/components/ui/city-image";
@@ -139,7 +139,9 @@ async function getUserProgress(marks: Marks = {}, start = clock()) {
             status: subscription.status || "none",
             currentPeriodEnd: subscription.current_period_end,
             cancelAtPeriodEnd: subscription.cancel_at_period_end || false,
-        } : { tier: "free" as SubscriptionTier, status: "none", currentPeriodEnd: null, cancelAtPeriodEnd: false },
+            billingCycle: (subscription.billing_cycle as string | null | undefined) || "monthly",
+            trialEnd: (subscription.trial_end as string | null | undefined) ?? null,
+        } : { tier: "free" as SubscriptionTier, status: "none", currentPeriodEnd: null, cancelAtPeriodEnd: false, billingCycle: "monthly", trialEnd: null },
         usage: {
             itinerariesThisMonth: getUsage(monthlyUsage, "itineraries_created"),
             chatMessagesToday: getUsage(dailyUsage, "chat_messages"),
@@ -181,7 +183,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
     const nextLevelXp = getNextLevelXp(level);
 
     const tierConfig = TIER_CONFIGS[subscription.tier];
-    const isActiveSub = isActivePlanStatus(subscription.status);
+    const billing = planBillingDisplay(subscription);
     const planLabel = subscription.tier === "free" ? "Choose a paid plan" : `${tierConfig.name} Plan`;
 
     const TierIcon = subscription.tier === "premium" ? Crown : subscription.tier === "pro" ? Rocket : Sparkles;
@@ -353,8 +355,13 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                                             ? "Pro or Premium is required for the full Localley app"
                                             : subscription.status === "lifetime_premium"
                                             ? "Lifetime · included"
-                                            : `$${tierConfig.price}/month`}
+                                            : billing.priceLabel}
                                     </CardDescription>
+                                    {billing.trialLine && !subscription.cancelAtPeriodEnd && (
+                                        <p data-testid="plan-trial-line" className="mt-1 text-xs text-muted-foreground">
+                                            {billing.trialLine}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                             {subscription.tier === "free" && (
@@ -362,9 +369,14 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                                     Plan required
                                 </Badge>
                             )}
-                            {subscription.tier !== "free" && isActiveSub && (
-                                <Badge variant="secondary" className="bg-[rgb(var(--ll-success)/0.12)] text-[rgb(var(--ll-success))]">
-                                    Active
+                            {billing.badge && (
+                                <Badge
+                                    variant="secondary"
+                                    className={billing.badge === "Past due"
+                                        ? "bg-[rgb(var(--ll-warning)/0.14)] text-foreground"
+                                        : "bg-[rgb(var(--ll-success)/0.12)] text-[rgb(var(--ll-success))]"}
+                                >
+                                    {billing.badge}
                                 </Badge>
                             )}
                         </div>
