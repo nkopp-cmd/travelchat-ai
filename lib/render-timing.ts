@@ -5,6 +5,12 @@ import { cache } from "react";
 // logs once per cache miss only.
 const requestTimings = cache(() => ({ start: Date.now(), marks: [] as string[] }));
 
+// Isolate age and render number split a cold isolate (render 1, age ~0) from a busy warm one (EM4 attempt 4:
+// all parallel reads ended together at 130-2000 ms, so per-read I/O is not the whole story).
+// Set on the first render: Date.now() at module scope is not a real time in Workers.
+let isolateStart: number | null = null;
+let isolateRenders = 0;
+
 export function timed<T>(label: string, read: Promise<T>): Promise<T> {
   const timings = requestTimings();
   const begin = Date.now();
@@ -15,5 +21,7 @@ export function timed<T>(label: string, read: Promise<T>): Promise<T> {
 
 export function logRenderTimings(tag: string, key: string): void {
   const timings = requestTimings();
-  console.log(`[render-timing] ${tag} ${key} total=${Date.now() - timings.start} ${timings.marks.join(" ")}`);
+  isolateStart ??= timings.start;
+  isolateRenders += 1;
+  console.log(`[render-timing] ${tag} ${key} total=${Date.now() - timings.start} iso=${isolateRenders}@${timings.start - isolateStart} ${timings.marks.join(" ")}`);
 }
