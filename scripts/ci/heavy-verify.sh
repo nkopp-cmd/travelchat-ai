@@ -142,6 +142,8 @@ VITEST_FILES=(
   __tests__/lib/seo-page-card.test.ts
   __tests__/lib/spot-city-context.test.ts
   __tests__/api/spot-og-card.test.ts
+  # Push EH1: saved-spots tier limit (Pro upsell gate) + guide engagement points on save.
+  __tests__/api/spot-save-route.test.ts
   __tests__/api/page-og-card.test.ts
   __tests__/api/shared-og-card.test.ts
   __tests__/lib/spots-city-directory.test.ts
