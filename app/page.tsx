@@ -266,6 +266,8 @@ export default function LandingPage() {
             {/* Push EK1: the indexed home page did not link the templates (a free-plan entry) or the newsletter. */}
             <Link href="/templates" prefetch={false} className="hover:text-foreground">Trip templates</Link>
             <Link href="/newsletter" prefetch={false} className="hover:text-foreground">Newsletter</Link>
+            {/* Push EL2: no indexed page linked the comparison page. */}
+            <Link href="/vs/wanderlog" prefetch={false} className="hover:text-foreground">Localley vs Wanderlog</Link>
             <Link href="/privacy" className="hover:text-foreground">Privacy</Link>
             <Link href="/terms" className="hover:text-foreground">Terms</Link>
           </nav>

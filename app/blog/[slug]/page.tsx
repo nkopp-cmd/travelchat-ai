@@ -103,6 +103,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               </li>
             ))}
           </ul>
+          {/* Push EL3: crawl path from indexed posts to the templates and the trending list. */}
+          <p className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm">
+            <Link href="/templates" prefetch={false} className="inline-flex min-h-11 items-center font-semibold text-primary underline-offset-2 hover:underline">Ready-made trip templates</Link>
+            <Link href="/trending" prefetch={false} className="inline-flex min-h-11 items-center font-semibold text-primary underline-offset-2 hover:underline">Trending spots this week</Link>
+          </p>
         </nav>
       )}
       <LocalleySignup source="blog" className="mt-10" />
