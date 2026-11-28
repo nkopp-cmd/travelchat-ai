@@ -16,6 +16,9 @@ describe("sitemap index", () => {
     expect(urls).toContain("https://www.localley.io/spots?city=seoul");
     expect(urls).toContain("https://www.localley.io/help/korea");
     expect(urls).not.toContain("https://www.localley.io/help/korea/pay");
+    // Push EJ1: the free planner and the newsletter sign-up are money entry pages.
+    expect(urls).toContain("https://www.localley.io/itineraries/new");
+    expect(urls).toContain("https://www.localley.io/newsletter");
   });
 
   it("never writes a fake lastmod: static pages have none, posts carry their real updated date", () => {

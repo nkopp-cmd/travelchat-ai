@@ -15,7 +15,7 @@ export const DEFAULT_PATHS = [
   "/spots/a-z/seoul", "/spots/a-z/tokyo",
   "/trending", "/templates",
   "/help", "/help/korea", "/help/japan",
-  "/blog", "/blog/paying-in-seoul", "/blog/paying-in-bangkok", "/blog/paying-in-singapore",
+  "/itineraries/new", "/blog/paying-in-seoul", "/blog/paying-in-bangkok", "/blog/paying-in-singapore",
 ];
 
 /** Google says "Submitted and indexed" or "Indexed, not submitted in sitemap" for indexed URLs. */

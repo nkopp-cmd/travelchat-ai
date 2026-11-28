@@ -36,6 +36,8 @@ export function pageEntries(spotRows: readonly SitemapSpotRow[] = [], trending: 
   return [
     { loc: SITE }, { loc: `${SITE}/spots`, lastmod: newest(spotRows) }, ...cities, { loc: `${SITE}/trending` }, ...trendingEntries(trending),
     { loc: `${SITE}/templates` }, { loc: `${SITE}/pricing` }, { loc: `${SITE}/vs/wanderlog` },
+    // Push EJ1: the free planner (the sign-up entry) and the newsletter (owned audience) are indexable money pages.
+    { loc: `${SITE}/itineraries/new` }, { loc: `${SITE}/newsletter` },
   ];
 }
 
