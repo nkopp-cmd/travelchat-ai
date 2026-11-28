@@ -20,7 +20,7 @@ import { homedir, tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { CATEGORIES, ewkbPoint, insertStatements, VISIBILITY_VERSION } from "./viral-scout.mjs";
-import { commonsFileName, fetchSpotPhoto, photoInsert } from "./photos/osm-spot-photo.mjs";
+import { commonsFileName, fetchKtoSpotPhoto, fetchSpotPhoto, KTO_IMAGE_HOST, photoInsert } from "./photos/osm-spot-photo.mjs";
 
 const ACCOUNT = "664f242340bcec2f32daaeee15f58bde";
 const APP_DB = "f1cc916b-5606-443f-9c4f-695c4ccc4a63"; // localley-app (production)
@@ -34,6 +34,13 @@ export const MIN_RATING = 4.2;
 export const MAX_INSERTS_PER_CITY = 30;
 // OSM rows (discover-osm-places.mjs) carry source_type map_discovery (D1 CHECK); their place_id starts with "osm:".
 export const isOsmCandidate = (c) => String(c?.place_id ?? "").startsWith("osm:");
+// KTO rows (discover-kto-places.mjs): place_id "kto:<contentid>", a Korea Tourism Organization listing with its KOGL photo.
+export const isKtoCandidate = (c) => String(c?.place_id ?? "").startsWith("kto:");
+const KOGL = { "kogl:Type1": "KOGL Type 1", "kogl:Type3": "KOGL Type 3" };
+/** The free KOGL licence of a KTO row (from its categories tag), or "". */
+export function ktoLicence(c) {
+  return KOGL[parseList(c?.categories).find((t) => KOGL[t])] ?? "";
+}
 export const COPY_BATCH = 12;
 const STALE_DAYS = 14;
 /** Plan item 8: the 10 biggest cities must each get new spots; one line to Nils when one gets none in WATCH_DAYS. */
@@ -75,11 +82,14 @@ export function gateCandidate(c, cities, { listed = false, nearby = [] } = {}) {
   const lat = Number(c.latitude), lng = Number(c.longitude);
   if (!Number.isFinite(lat) || !Number.isFinite(lng) || distanceKm(city, { lat, lng }) > MAX_CITY_KM) return { reject: "outside_city" };
   // OSM rows have no reviews; discover-osm-places.mjs keeps only places with a Wikipedia article (notability = signal).
+  // KTO rows have no reviews either: a listing in the national tourism database is the signal.
   const signal = isOsmCandidate(c) ? parseList(c.categories).includes("wikipedia")
+    : isKtoCandidate(c) ? parseList(c.categories).includes("korservice2")
     : (Number(c.reviews_count) || 0) >= MIN_REVIEWS && (Number(c.total_score) || 0) >= MIN_RATING;
   if (!signal) return { reject: "weak_signal" };
   // OSM spots have no Google photo lookup: without their Wikidata image (a Commons file page) they cannot pass the public photo rule.
   if (isOsmCandidate(c) && !commonsFileName(c.primary_image_url)) return { reject: "no_photo" };
+  if (isKtoCandidate(c) && (!KTO_IMAGE_HOST.test(String(c.primary_image_url ?? "")) || !ktoLicence(c))) return { reject: "no_photo" };
   const cats = [c.category_name, ...parseList(c.categories)].join(" ").toLowerCase();
   if (/\b(hotel|hostel|resort|guest ?house|lodging|motel)\b/.test(cats)) return { reject: "hotel" };
   if (listed) return { reject: "duplicate" };
@@ -117,7 +127,8 @@ category: one of ${CATEGORIES.join(", ")}. subcategories: 2-3 short tags. tipsEn
 addressEn: the street address romanized, from most to least specific, with the house number, ending exactly with
 ", <city>, <country>" as given, e.g. "91 Sri Poom Rd, Si Phum, Chiang Mai, Thailand". If the input has no street and
 house number, return addressEn "". Japan has no street names: romanize a Japanese address and keep all its parts
-(area with chōme, block/house numbers, ward, postcode), e.g. "京橋一丁目 7-2, 中央区, Tokyo, Japan" -> "Kyobashi 1-7-2, Chuo, Tokyo, Japan". localPercentage: 30-80, your estimate of local guests.
+(area with chōme, block/house numbers, ward, postcode), e.g. "京橋一丁目 7-2, 中央区, Tokyo, Japan" -> "Kyobashi 1-7-2, Chuo, Tokyo, Japan". Korea: romanize the road
+address (Revised Romanization), e.g. "부산광역시 해운대구 센텀중앙로 55" -> "55 Centumjungang-ro, Haeundae-gu, Busan, South Korea". localPercentage: 30-80, your estimate of local guests.
 
 Spots (${items.length}):
 ${lines.join("\n")}`;
@@ -161,7 +172,7 @@ export function parseCopy(raw, items) {
 /** The D1 rows of a new spot (same shape as the viral scout's buildSpotRows), from a map-discovery candidate. */
 export function buildCandidateRows({ id = randomUUID(), c, city, copy, photo = null, now = new Date().toISOString() }) {
   const lat = Number(c.latitude), lng = Number(c.longitude);
-  const osm = isOsmCandidate(c); // an "osm:node/1" id is no Google place ID: no listing row, no runtime photo lookup
+  const osm = isOsmCandidate(c) || isKtoCandidate(c); // "osm:node/1" / "kto:123" are no Google place IDs: no listing row, no runtime photo lookup
   const score = [3, 4, 5].includes(Number(c.recommended_localley_score)) ? Number(c.recommended_localley_score) : 3;
   const name = { en: copy.nameEn };
   const address = { en: copy.addressEn, local: cleanText(c.address, 200) };
@@ -252,8 +263,10 @@ export async function run({ apply = false, city: onlyCity = null, limit = 500, l
       }
       const id = randomUUID();
       let photo = null;
-      if (isOsmCandidate(item.c)) {
-        photo = await fetchSpotPhoto(commonsFileName(item.c.primary_image_url), id, { apply }).catch((e) => ({ problem: `photo: ${e.message}` }));
+      if (isOsmCandidate(item.c) || isKtoCandidate(item.c)) {
+        photo = await (isKtoCandidate(item.c)
+          ? fetchKtoSpotPhoto(item.c.primary_image_url, id, { apply, licence: ktoLicence(item.c) })
+          : fetchSpotPhoto(commonsFileName(item.c.primary_image_url), id, { apply })).catch((e) => ({ problem: `photo: ${e.message}` }));
         if (photo.problem) {
           tally.rejected.no_photo = (tally.rejected.no_photo ?? 0) + 1;
           log(`${apply ? "rejected" : "would reject"}: ${item.city.name} | ${item.c.name} | no_photo (${photo.problem})`);

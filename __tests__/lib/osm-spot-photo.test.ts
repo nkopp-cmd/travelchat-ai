@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 // @ts-expect-error plain ESM script without types
-import { commonsFileName, commonsFileUrl, imageInfoUrl, imageNear, metresBetween, parseImageInfo, parseP18, photoInsert, spotPhotoPathOf, wikidataClaimsUrl } from "../../scripts/photos/osm-spot-photo.mjs";
+import { commonsFileName, commonsFileUrl, fetchKtoSpotPhoto, imageInfoUrl, imageNear, metresBetween, parseImageInfo, parseP18, photoInsert, spotPhotoPathOf, wikidataClaimsUrl } from "../../scripts/photos/osm-spot-photo.mjs";
 
 const info = (over: Record<string, unknown> = {}, meta: Record<string, unknown> = {}) => ({
     query: { pages: [{ imageinfo: [{ thumburl: "https://upload.wikimedia.org/x/1600px-a.jpg", width: 4000, height: 3000, mime: "image/jpeg",
@@ -65,6 +65,15 @@ describe("osm-spot-photo", () => {
         expect(() => spotPhotoPathOf("spot-photos/x/y.webp")).toThrow();
         const row = photoInsert(id, { r2Key: `spot-photos/${id}/${sha}.webp`, licence: "CC0", author: "A", sourceUrl: "s", width: 1600, height: 900 });
         expect(row.sql).toContain("WHERE NOT EXISTS");
-        expect(row.params).toEqual([`spot-photos/${id}/${sha}.webp`, id, "CC0", "A", "s", 1600, 900, "harvester-osm-p18", `spot-photos/${id}/${sha}.webp`]);
+        expect(row.params).toEqual([`spot-photos/${id}/${sha}.webp`, id, "commons", "CC0", "A", "s", 1600, 900, "harvester-osm-p18", `spot-photos/${id}/${sha}.webp`]);
+        const kto = photoInsert(id, { r2Key: `spot-photos/${id}/${sha}.webp`, source: "kto", licence: "KOGL Type 1", author: "Korea Tourism Organization",
+            sourceUrl: "u", width: 1600, height: 1067, approvedBy: "harvester-kto-korservice2" });
+        expect(kto.params.slice(2, 4)).toEqual(["kto", "KOGL Type 1"]);
+        expect(kto.params[8]).toBe("harvester-kto-korservice2");
+    });
+
+    it("refuses a KTO photo off the KTO host or without a free KOGL licence, before any download", async () => {
+        expect(await fetchKtoSpotPhoto("https://example.com/a.jpg", "id", { licence: "KOGL Type 1" })).toEqual({ problem: "bad-url" });
+        expect(await fetchKtoSpotPhoto("http://tong.visitkorea.or.kr/cms/a.jpg", "id", { licence: "KOGL Type 4" })).toEqual({ problem: "licence" });
     });
 });
