@@ -18,6 +18,7 @@ import { hubIndexable } from "@/lib/seo/spot-indexable";
 import { sitemapSpotRows } from "@/lib/seo/sitemap-spots";
 import { pageMeta } from "@/lib/seo/meta";
 import { cityGuideSpots } from "@/lib/seo/home-links";
+import { cityJournalPosts } from "@/lib/blog/posts";
 
 // Every spot of one city hub, A-Z (Push CB2: moved off the hub, which links here). Live public data, edge-cached for
 // an hour like the directory's own data cache (cloudflare/opennext/edge-html-cache.ts, SPOTS_AZ_PATH).
@@ -66,6 +67,7 @@ export default async function CitySpotsAzPage({ params }: Props) {
   const guides = cityGuideSpots(rows, city.name);
   const planCity = !offered || offered.has(city.name) ? city.name : null;
   const hubPath = `/spots?city=${encodeURIComponent(city.slug)}`;
+  const journal = cityJournalPosts(city);
   return (
     <div className="mx-auto w-full max-w-5xl px-4 pb-24 pt-6 sm:px-6">
       <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Spots", url: "/spots" }, { name: city.name, url: hubPath }, { name: "A–Z", url: cityAzPath(city.slug) }]} />
@@ -97,6 +99,26 @@ export default async function CitySpotsAzPage({ params }: Props) {
         </section>
       )}
       <CitySpotAzList entries={entries} />
+      {/* Push EL1: crawl path from the indexed A-Z hubs to the city's Journal posts and the trip templates. */}
+      <section aria-labelledby="az-journal" className="mt-10" data-testid="az-journal">
+        <h2 id="az-journal" className="text-xl font-black text-foreground">Plan {city.name} with less guessing</h2>
+        <ul className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+          {journal.map((post) => (
+            <li key={post.slug} className="min-w-0">
+              <Link prefetch={false} href={`/blog/${post.slug}`}
+                className="flex min-h-11 min-w-0 items-center rounded-lg bg-raised px-4 py-2 font-semibold text-foreground transition hover:bg-overlay">
+                <span className="truncate">{post.title}</span>
+              </Link>
+            </li>
+          ))}
+          <li className="min-w-0">
+            <Link prefetch={false} href="/templates"
+              className="flex min-h-11 min-w-0 items-center rounded-lg bg-raised px-4 py-2 font-semibold text-foreground transition hover:bg-overlay">
+              <span className="truncate">Ready-made trip templates</span>
+            </Link>
+          </li>
+        </ul>
+      </section>
       {/* Push DP1: the A-Z hubs are the pages Google indexes best; they get the same no-JS sign-up as the city hub. */}
       <LocalleySignup source="city-az" city={city.slug} heading={`More ${city.name} picks by email`} className="mt-10" />
       <p className="mt-10 text-sm">

@@ -179,3 +179,15 @@ export function helpCountryPosts(slug: string, posts: readonly BlogPost[] = BLOG
 export function payingPosts(posts: readonly BlogPost[] = BLOG_POSTS): BlogPost[] {
   return posts.filter((p) => postSeries(p.slug) === "paying-in").sort((a, b) => b.published.localeCompare(a.published));
 }
+
+/**
+ * Push EL1: the Journal posts for one city page (planner city, or the "paying-in-<city>" slug), newest first, without
+ * the trip-story post that CityTripStoryCard already shows. Gives the indexed A-Z hubs a crawl path to the posts.
+ */
+export function cityJournalPosts(city: { name: string; slug: string }, posts: readonly BlogPost[] = BLOG_POSTS, limit = 3): BlogPost[] {
+  const story = cityTripStory(city.name, posts)?.slug;
+  return posts
+    .filter((p) => p.slug !== story && (p.plannerCity === city.name || p.slug === `paying-in-${city.slug}`))
+    .sort((a, b) => b.published.localeCompare(a.published))
+    .slice(0, Math.max(0, limit));
+}
