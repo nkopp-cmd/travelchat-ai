@@ -68,10 +68,10 @@ const SPOT_OG_TTL_SECONDS = 604800;
 // Ten deploys a day re-keyed all ~1,650 cards and every crawler fetch became a ~200 ms CPU Satori render.
 // Bump it when app/spots/[id]/og/route.tsx changes how the card looks.
 export const SPOT_OG_REVISION = "1";
-const VIRAL_EVENT_PATH = /^\/trending\/[a-z0-9][a-z0-9-]{2,95}$/;
+export const VIRAL_EVENT_PATH = /^\/trending\/[a-z0-9][a-z0-9-]{2,95}$/;
 // Photo credits of one city (app/credits/[city], Push AS3): same data and TTL as /credits. Unknown slugs are 404s
 // and never stored (only 200 HTML is cached).
-const CREDITS_CITY_PATH = /^\/credits\/[a-z0-9][a-z0-9-]{0,63}$/;
+export const CREDITS_CITY_PATH = /^\/credits\/[a-z0-9][a-z0-9-]{0,63}$/;
 const CREDITS_TTL_SECONDS = 3600;
 // A-Z list of one city hub (app/spots/a-z/[city], Push CB2): an hour, as its data cache (city-directory-store
 // revalidate 3600). Unknown or empty cities are 404s and never stored.
