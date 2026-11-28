@@ -127,6 +127,7 @@ VITEST_FILES=(
   __tests__/components/help-menu-page.test.tsx
   __tests__/lib/help-pay.test.ts
   __tests__/lib/blog.test.ts
+  __tests__/lib/blog-related.test.ts
   __tests__/lib/blog-trip-story.test.tsx
   __tests__/app/site-url-fallback.test.ts
   __tests__/lib/seo-sitemap.test.ts
@@ -530,6 +531,7 @@ ESLINT_FILES=(
   __tests__/components/city-trip-story-card.test.tsx
   components/blog/city-trip-story-card.tsx
   __tests__/lib/blog.test.ts
+  __tests__/lib/blog-related.test.ts
   __tests__/lib/blog-trip-story.test.tsx
   __tests__/lib/weekly-post-topic.test.ts
   __tests__/lib/weekly-post-draft.test.ts

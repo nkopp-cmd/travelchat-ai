@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "@/components/ui/icons";
 import { LocalleySignup } from "@/components/newsletter/localley-signup";
 import { BlogMarkdown, TripStoryFigure } from "@/lib/blog/markdown";
-import { BLOG_POSTS, blogPost, formatPostDate, plannerHref, splitFirstSection, splitLead } from "@/lib/blog/posts";
+import { BLOG_POSTS, blogPost, formatPostDate, relatedPosts, plannerHref, splitFirstSection, splitLead } from "@/lib/blog/posts";
 import { spotPhotoSrcSet } from "@/lib/spots/own-photo";
 import { blogPostingJsonLd, jsonLdHtml, postImage, postUrl } from "@/lib/blog/seo";
 
@@ -41,6 +41,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const { lead, rest } = splitLead(post.body);
   // Push CI1: lead + first section come before the photo, so the phone LCP is text (the lazy photo starts below the fold).
   const { first, after } = splitFirstSection(rest);
+  const related = relatedPosts(post);
   return (
     <div className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(blogPostingJsonLd(post)) }} />
@@ -88,6 +89,21 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             Plan a free {post.plannerCity} trip
           </Link>
         </section>
+      )}
+      {related.length > 0 && (
+        <nav aria-labelledby="more-journal" className="mt-10">
+          <h2 id="more-journal" className="text-xl font-semibold text-foreground">More from the Journal</h2>
+          <ul className="mt-3 grid gap-3">
+            {related.map((p) => (
+              <li key={p.slug}>
+                <Link href={`/blog/${p.slug}`} className="block min-h-11 rounded-2xl bg-surface p-4 shadow-surface hover:bg-surface/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+                  <span className="block text-base font-medium text-foreground">{p.title}</span>
+                  <span className="mt-1 block text-sm text-muted-foreground">{p.description}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
       )}
       <LocalleySignup source="blog" className="mt-10" />
     </div>

@@ -132,3 +132,21 @@ export function cityTripStory(cityName: string, posts: readonly BlogPost[] = BLO
     .filter((p) => p.illustration && p.plannerCity === cityName)
     .sort((a, b) => b.published.localeCompare(a.published))[0];
 }
+
+/** "paying-in-seoul" -> "paying-in" (a city tail of 1-2 words); other slugs have no series. */
+export function postSeries(slug: string): string | undefined {
+  const m = /^(.+-in)-[a-z]+(?:-[a-z]+)?$/.exec(slug);
+  return m?.[1];
+}
+
+/**
+ * Push EE1: "More from the Journal" under a post, so every post is linked from every other indexed post (crawl path
+ * for posts Google has not found). Same series first (paying-in-* -> the other paying-in-*), then the newest others.
+ * Never the post itself, each post once, at most `limit`.
+ */
+export function relatedPosts(post: BlogPost, posts: readonly BlogPost[] = BLOG_POSTS, limit = 3): BlogPost[] {
+  const series = postSeries(post.slug);
+  const others = posts.filter((p) => p.slug !== post.slug).sort((a, b) => b.published.localeCompare(a.published));
+  const same = series ? others.filter((p) => postSeries(p.slug) === series) : [];
+  return [...same, ...others.filter((p) => !same.includes(p))].slice(0, Math.max(0, limit));
+}
