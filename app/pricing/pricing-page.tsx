@@ -6,6 +6,7 @@ import { AppBackground } from "@/components/layout/app-background";
 import { LocalleySignup } from "@/components/newsletter/localley-signup";
 import { FREE_ACCOUNT_SUBTITLE } from "@/lib/auth/auth-copy";
 import type { PlannerLimitNotice } from "@/lib/pricing-checkout";
+import { proTrialNote } from "@/lib/subscription";
 import { PricingPlans } from "./pricing-plans";
 
 // Push CH2: server HTML. Only <PricingPlans> (toggle, cards, Stripe buttons) hydrates on the client.
@@ -74,6 +75,7 @@ export function PricingPage({ plannerLimit }: { plannerLimit?: PlannerLimitNotic
                     <section className="mb-4 rounded-lg bg-raised p-5">
                         <h2 className="text-xl font-semibold text-foreground">Billing notes</h2>
                         <div className="mt-4 grid gap-4 text-sm leading-6 text-muted-foreground md:grid-cols-2">
+                            <p data-testid="pricing-trial-note">{proTrialNote()}</p>
                             <p>Subscriptions can be changed or cancelled through Stripe Billing Portal.</p>
                             <p>Refund requests are handled within 14 days of the first payment when the product is not a fit.</p>
                         </div>
