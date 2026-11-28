@@ -10,6 +10,10 @@ import { PageHeader } from "@/components/layout/page-header";
 import { ArrowLeft, CreditCard } from "@/components/ui/icons";
 import { HELP_COUNTRIES, helpCountry } from "@/lib/help/phrases";
 import { PAY_CHECKED_AT, PAY_SECTIONS, payGuide } from "@/lib/help/pay";
+import { countryPosts } from "@/lib/blog/posts";
+
+/** Help country slug -> ISO code of lib/cities (push EF2: Journal posts for that country). */
+const HELP_COUNTRY_CODE: Record<string, string> = { korea: "KR", japan: "JP", thailand: "TH", vietnam: "VN", taiwan: "TW", singapore: "SG" };
 
 export const dynamic = "force-static";
 export const dynamicParams = false;
@@ -30,6 +34,7 @@ export default async function HelpPayPage({ params }: { params: Promise<{ countr
   const country = helpCountry((await params).country);
   const guide = country && payGuide(country.slug);
   if (!country || !guide) notFound();
+  const journal = countryPosts(HELP_COUNTRY_CODE[country.slug] ?? "");
   return (
     <div className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 sm:px-6">
       <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Help", url: "/help" }, { name: country.name, url: `/help/${country.slug}` }, { name: "How to pay", url: `/help/${country.slug}/pay` }]} />
@@ -60,6 +65,21 @@ export default async function HelpPayPage({ params }: { params: Promise<{ countr
           {guide.sources.map((url) => <li key={url}><a href={url} rel="noopener noreferrer nofollow" target="_blank" className="underline">{url}</a></li>)}
         </ul>
       </details>
+      {journal.length > 0 && (
+        <nav aria-labelledby="pay-journal" className="mt-8">
+          <h2 id="pay-journal" className="font-semibold text-foreground">From the Journal</h2>
+          <ul className="mt-3 grid gap-3">
+            {journal.map((post) => (
+              <li key={post.slug}>
+                <Link href={`/blog/${post.slug}`} className="block min-h-11 rounded-2xl bg-surface p-4 shadow-surface hover:bg-surface/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+                  <span className="block font-semibold text-foreground">{post.title}</span>
+                  <span className="mt-1 block text-sm text-muted-foreground">{post.description}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
       <HelpPlanLink countrySlug={country.slug} />
       <LocalleySignup source="help-pay" className="mt-10" />
     </div>
