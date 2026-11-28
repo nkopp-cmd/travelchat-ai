@@ -32,7 +32,8 @@ describe("static public HTML assets", () => {
   it("covers only the fully static public pages", () => {
     expect(Object.keys(STATIC_PUBLIC_PAGES)).toEqual(["/", "/pricing", "/help", ...HELP_COUNTRY_SLUGS.map((s: string) => `/help/${s}`),
       ...HELP_COUNTRY_SLUGS.map((s: string) => `/help/${s}/pay`), ...HELP_COUNTRY_SLUGS.map((s: string) => `/help/${s}/open`), ...HELP_COUNTRY_SLUGS.map((s: string) => `/help/${s}/menu`),
-      "/blog", ...BLOG_POSTS.map((p) => `/blog/${p.slug}`), "/vs/wanderlog"]);
+      "/blog", ...BLOG_POSTS.map((p) => `/blog/${p.slug}`), "/vs/wanderlog", "/templates"]);
+    expect(STATIC_PUBLIC_PAGES["/templates"]).toBe("templates.html");
     expect(STATIC_PUBLIC_PAGES["/blog/paying-in-seoul"]).toBe("blog/paying-in-seoul.html");
     expect(STATIC_PUBLIC_PAGES["/help/korea/open"]).toBe("help/korea/open.html");
     expect(STATIC_PUBLIC_PAGES["/help/korea/menu"]).toBe("help/korea/menu.html");
