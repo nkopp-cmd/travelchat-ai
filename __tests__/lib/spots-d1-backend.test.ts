@@ -7,6 +7,7 @@ import { D1Sqlite } from "@/__tests__/helpers/d1-sqlite";
 const mocks = vi.hoisted(() => ({ db: null as unknown, supabase: vi.fn(() => { throw new Error("Supabase must not be called on D1"); }) }));
 vi.mock("server-only", () => ({}));
 vi.mock("next/cache", () => ({ unstable_cache: (callback: () => unknown) => callback }));
+vi.mock("@/lib/isolate-memo", () => ({ isolateMemo: (callback: () => unknown) => callback }));
 vi.mock("@/lib/supabase", () => ({ createSupabaseAdmin: mocks.supabase, createSupabaseClient: mocks.supabase }));
 vi.mock("@/lib/app-data/backend", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/app-data/backend")>()),

@@ -6,6 +6,7 @@ import { parseStoredSpotPhotos } from "./own-photo";
 import { PUBLIC_SPOT_NAME_EXCLUSION_PATTERNS, PUBLIC_SPOT_VISIBILITY_CACHE_VERSION } from "./public-quality";
 import type { RawSpot } from "./transform";
 import type { SpotsFilterState } from "./types";
+import { isolateMemo } from "@/lib/isolate-memo";
 
 /**
  * D1 versions of the public spot reads (Supabase exit step 3). `spots.visible` holds the public-quality
@@ -232,8 +233,9 @@ export async function d1RelatedSpotSources(city: string, excludeId: string, mini
   return rows.filter((row) => String(row.id).toLowerCase() !== exclude).slice(0, limit);
 }
 
-const cityRelatedCandidates = unstable_cache(d1CityRelatedCandidates, ["d1-related-candidates", PUBLIC_SPOT_VISIBILITY_CACHE_VERSION],
-  { revalidate: 3600, tags: ["spots"] });
+// Isolate memo in front: the cold incremental-cache read cost 135-860 ms on the first spot page per isolate (EM4).
+const cityRelatedCandidates = isolateMemo(unstable_cache(d1CityRelatedCandidates, ["d1-related-candidates", PUBLIC_SPOT_VISIBILITY_CACHE_VERSION],
+  { revalidate: 3600, tags: ["spots"] }), 5 * 60_000);
 
 /** Top related candidates in one city, in RELATED_ORDER; the caller removes the current spot. */
 export async function d1CityRelatedCandidates(city: string, minimumScore: number, limit: number): Promise<RawSpot[]> {
