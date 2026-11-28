@@ -1010,10 +1010,12 @@
 /* Home sections below the hero (app/page.tsx, Push AT1): the browser skips their style, layout and paint until
    they come near the viewport, so the first paint only costs the hero (~80 of 630 elements). The auto size keeps
    the scroll height stable after a section has rendered once. No fixed or sticky children inside (paint containment
-   would clip them). */
+   would clip them). Push DV1b: a section taller than the placeholder sets --ll-h per breakpoint (its real content
+   height, rounded up). With a short placeholder the not-yet-rendered content overlaps the next section in layout,
+   and Lighthouse/axe (no scroll) read the next section's links as covered (target-size, PSI a11y 97). */
 .ll-below-fold {
     content-visibility: auto;
-    contain-intrinsic-size: auto 720px;
+    contain-intrinsic-size: auto var(--ll-h, 720px);
 }
 
 /* Landing hero map poster (components/landing/hero.tsx). The stage covers the

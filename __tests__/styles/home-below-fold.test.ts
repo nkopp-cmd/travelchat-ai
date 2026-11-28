@@ -11,7 +11,7 @@ describe("home below-fold sections skip first-paint rendering", () => {
   it("globals.css defines content-visibility auto with a remembered intrinsic size", () => {
     const rule = /\.ll-below-fold\s*\{([^}]*)\}/.exec(read("app/globals.css"))?.[1] ?? "";
     expect(rule).toMatch(/content-visibility:\s*auto/);
-    expect(rule).toMatch(/contain-intrinsic-size:\s*auto\s+\d+px/);
+    expect(rule).toMatch(/contain-intrinsic-size:\s*auto\s+var\(--ll-h,\s*\d+px\)/);
   });
 
   it("every home section after the hero and the footer carry the class", () => {
@@ -40,5 +40,19 @@ describe("home below-fold sections skip first-paint rendering", () => {
     // An implicit grid column sizes to the longest name; grid-cols-1 is minmax(0,1fr), so truncate works.
     for (const ul of grids) expect(ul).toContain("grid-cols-1");
     for (const li of src.match(/<li key=[^>]*>/g) ?? []) expect(li).toContain("min-w-0");
+  });
+
+  it("tall mobile sections set their own placeholder height (DV1b: short placeholders overlap the next section's links)", () => {
+    const page = read("app/page.tsx");
+    const spots = read("components/landing/guide-spot-links.tsx");
+    const sized = [...(page.match(/<section className="ll-below-fold[^"]*">/g) ?? []), ...(spots.match(/<section[^>]*ll-below-fold[^>]*>/g) ?? [])]
+      .filter((tag) => tag.includes("[--ll-h:"));
+    expect(sized.length).toBe(3);
+    for (const tag of sized) {
+      const mobile = Number(/ \[--ll-h:(\d+)px\]/.exec(tag)?.[1]);
+      expect(mobile, tag).toBeGreaterThan(720);
+      expect(tag, tag).toMatch(/md:\[--ll-h:\d+px\]/);
+      expect(tag, tag).toMatch(/lg:\[--ll-h:\d+px\]/);
+    }
   });
 });
