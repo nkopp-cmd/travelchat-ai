@@ -2,6 +2,8 @@
 // Push BV3: axe on the pages a payer walks through, at phone and desktop width.
 // Push DJ3: `--wide` adds every city list page linked from /spots (read live, so a new city needs no edit here)
 // plus the other public browse pages; a page that fails to load now counts as a failure instead of an empty "ok".
+// Push DX2: `--wide` also takes the first spot detail page linked from /spots and the first post linked from /blog
+// (read live, no fixed slug), the content pages that bring the first visitors.
 // Usage: node scripts/a11y-money-pages.mjs [--wide] [base-url]   (default https://www.localley.io)
 // Exit 1 on any serious/critical violation or failed page load, exit 2 when the tools are missing.
 import { createRequire } from "node:module";
@@ -14,12 +16,19 @@ export const BROWSE_PAGES = ["/trending", "/templates", "/help", "/help/korea", 
 export const VIEWPORTS = [["mobile", 390, 844], ["desktop", 1280, 900]];
 const BLOCKING = new Set(["serious", "critical"]);
 const CITY_LINK = /href="(\/spots(?:\?city=|\/a-z\/)[a-z0-9-]+)"/g;
+const SPOT_LINK = /href="(\/spots\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"/;
+const POST_LINK = /href="(\/blog\/[a-z0-9]+(?:-[a-z0-9]+)*)"/;
 
-/** The page list: the money walk, plus (wide) the browse pages and every city link in the /spots HTML, each once. */
-export function pagesFor(wide, spotsHtml = "") {
+/** The first spot detail page and the first blog post the live HTML links, or none. */
+export function contentPages(spotsHtml = "", blogHtml = "") {
+    return [spotsHtml.match(SPOT_LINK)?.[1], blogHtml.match(POST_LINK)?.[1]].filter(Boolean);
+}
+
+/** The page list: the money walk, plus (wide) the browse pages, every city link in the /spots HTML, one spot and one post. */
+export function pagesFor(wide, spotsHtml = "", blogHtml = "") {
     if (!wide) return [...PAGES];
     const cities = [...new Set([...spotsHtml.matchAll(CITY_LINK)].map((m) => m[1]))].sort();
-    return [...new Set([...PAGES, ...BROWSE_PAGES, ...cities])];
+    return [...new Set([...PAGES, ...BROWSE_PAGES, ...cities, ...contentPages(spotsHtml, blogHtml)])];
 }
 
 async function main() {
@@ -38,15 +47,22 @@ async function main() {
     // Our own check: the funnel skips it (lib/check-traffic.ts).
     const headers = { "X-Localley-Check": "1" };
     let spotsHtml = "";
+    let blogHtml = "";
     let spotsStatus = 0;
     if (wide) {
         const response = await fetch(`${base}/spots`, { headers });
         spotsStatus = response.status;
         spotsHtml = response.ok ? await response.text() : "";
+        const blog = await fetch(`${base}/blog`, { headers });
+        blogHtml = blog.ok ? await blog.text() : "";
     }
-    const pages = pagesFor(wide, spotsHtml);
+    const pages = pagesFor(wide, spotsHtml, blogHtml);
     if (wide && pages.length === pagesFor(true, "").length) {
         console.error(`a11y-money-pages: no city links on ${base}/spots (HTTP ${spotsStatus})`);
+        return 1;
+    }
+    if (wide && contentPages(spotsHtml, blogHtml).length < 2) {
+        console.error(`a11y-money-pages: no spot link on ${base}/spots or no post link on ${base}/blog`);
         return 1;
     }
     const pace = pacer(2);
