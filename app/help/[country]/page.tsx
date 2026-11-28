@@ -9,6 +9,8 @@ import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
 import { ArrowLeft, Languages } from "@/components/ui/icons";
 import { HELP_COUNTRIES, helpCountry, helpPhrases } from "@/lib/help/phrases";
+import { helpCountryPosts } from "@/lib/blog/posts";
+import { HelpJournalLinks } from "@/components/help/journal-links";
 
 // Static per country: the cards open with CSS :target only (no client JS), so they keep working without signal.
 export const dynamic = "force-static";
@@ -84,6 +86,8 @@ export default async function HelpCountryPage({ params }: { params: Promise<{ co
           </ul>
         </section>
       ))}
+      {/* Push EI2: the country guide is indexable; the /pay tool that linked these posts is noindex. */}
+      <HelpJournalLinks posts={helpCountryPosts(country.slug)} id="help-journal" />
       <HelpPlanLink countrySlug={country.slug} />
       <LocalleySignup source="help" className="mt-10" />
     </div>

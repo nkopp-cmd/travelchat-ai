@@ -8,6 +8,8 @@ import { Languages } from "@/components/ui/icons";
 import { HELP_COUNTRIES } from "@/lib/help/phrases";
 import { LocalleySignup } from "@/components/newsletter/localley-signup";
 import { FreePlanLink } from "@/components/help/help-plan-link";
+import { HelpJournalLinks } from "@/components/help/journal-links";
+import { payingPosts } from "@/lib/blog/posts";
 
 // /help is one of the two pages Google indexes (GSC 2026-11-21): give it crawl paths to the Ring-1 city hubs and
 // the template picker, the entry pages of the planner (Push BK3).
@@ -90,6 +92,8 @@ export default function HelpPage() {
           ))}
         </p>
       </section>
+      {/* Push EI2: /help is indexed; Google did not know /blog/paying-in-seoul (2026-11-28). */}
+      <HelpJournalLinks posts={payingPosts()} id="help-paying" title="How to pay, city by city" />
       <FreePlanLink label="Plan a free trip" testId="help-index-plan-trip" />
       <LocalleySignup source="help-index" className="mt-10" />
     </div>
