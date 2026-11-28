@@ -312,6 +312,7 @@ VITEST_FILES=(
   __tests__/api/itinerary-private-diagnostics.test.ts
   __tests__/api/itinerary-sanitize.test.ts
   __tests__/hooks/use-place-photo.test.tsx
+  __tests__/hooks/use-pricing-subscription.test.tsx
   __tests__/components/auth-password-redirect.test.tsx
   __tests__/components/auth-password-toggle.test.tsx
   __tests__/components/auth-email-typo.test.tsx
@@ -797,6 +798,7 @@ ESLINT_FILES=(
   __tests__/api/itinerary-spot-pool.test.ts
   hooks/use-place-photo.ts
   __tests__/hooks/use-place-photo.test.tsx
+  __tests__/hooks/use-pricing-subscription.test.tsx
   components/chat/chat-interface.tsx
   __tests__/app/chat-history-pair.test.tsx
   components/auth/auth-forms.tsx
