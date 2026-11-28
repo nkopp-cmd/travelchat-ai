@@ -51,4 +51,11 @@ describe("newsletter form placement", () => {
     expect(page).toContain('href="/itineraries/new"');
     expect(cleanSource("credits")).toBe("credits");
   });
+
+  it("viral event pages render the form once with source trending-event and the event city (Push DU1)", () => {
+    const page = readFileSync(path.join(process.cwd(), "app/trending/[slug]/page.tsx"), "utf8");
+    expect(page.match(/<LocalleySignup\b[^>]*>/g)).toEqual([expect.stringContaining('source="trending-event"')]);
+    expect(page).toContain("city={event.citySlug || undefined}");
+    expect(cleanSource("trending-event")).toBe("trending-event");
+  });
 });

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
+import { LocalleySignup } from "@/components/newsletter/localley-signup";
 import { SpotCard } from "@/components/spots/spot-card";
 import { SpotCardEvents } from "@/components/spots/spot-card-events";
 import { Flame, Newspaper } from "@/components/ui/icons";
@@ -75,6 +76,8 @@ export default async function ViralEventPage({ params }: Props) {
           ))}
         </ul>
       </section>
+      <LocalleySignup source="trending-event" city={event.citySlug || undefined}
+        heading={`More ${event.city} picks by email`} className="mt-10 max-w-3xl" />
     </div>
   );
 }
